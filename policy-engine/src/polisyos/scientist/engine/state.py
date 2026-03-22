@@ -17,7 +17,7 @@ class ExperimentState(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    schema_version: str = Field("1.2", pattern=r"^\d+\.\d+$")
+    schema_version: str = Field("1.3", pattern=r"^\d+\.\d+$")
     run_id: str
 
     inputs: dict[str, ArtifactRef] = Field(default_factory=dict)
@@ -43,3 +43,10 @@ class ExperimentState(BaseModel):
     causal_method_params: dict[str, JsonValue] = Field(default_factory=dict)
     critic_knowledge_base_ref: ArtifactRef | None = None
     constitution_hash: str | None = Field(default=None, min_length=64, max_length=64)
+    policy_request_ref: ArtifactRef | None = None
+    legal_candidate_pack_ref: ArtifactRef | None = None
+    legal_source_pack_ref: ArtifactRef | None = None
+    source_verification_report_ref: ArtifactRef | None = None
+    policy_option_set_ref: ArtifactRef | None = None
+    verified_policy_report_ref: ArtifactRef | None = None
+    memory_index_ref: ArtifactRef | None = None

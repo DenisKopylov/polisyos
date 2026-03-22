@@ -7,7 +7,14 @@ from polisyos.academic.knowledge.types import (
     WorkSearchResult,
 )
 from polisyos.datasets.knowledge.types import DatasetSearchResult
-from polisyos.lex.knowledge.types import LegalFactResult, LegalProvisionResult
+from polisyos.lex.knowledge.types import (
+    LegalDocVersionResult,
+    LegalFactResult,
+    LegalProvisionResult,
+    LegalReferenceEdgeResult,
+    LegalSourceAnchor,
+    LegalSourceBundle,
+)
 from polisyos.scientist.agent.knowledge_tools import KnowledgeToolkit
 
 
@@ -108,7 +115,11 @@ class _MockLegalGraph:
                 top_domain=domain or "",
                 doc_name="Mock law",
                 doc_reestr_code="123",
+                doc_id="doc-1",
+                version_id="v-1",
+                provision_anchor="art:1",
                 provision_citation="стаття 1",
+                source_quote_uk="Держава вимагає ліцензію.",
                 similarity=0.95,
             )
         ]
@@ -117,8 +128,11 @@ class _MockLegalGraph:
         return [
             LegalProvisionResult(
                 provision_id="prov-1",
+                doc_id="doc-1",
+                version_id="v-1",
                 doc_name="Mock law",
                 doc_reestr_code="123",
+                anchor_path="art:1",
                 citation_label="стаття 1",
                 kind="article",
                 provision_text_preview=f"Provision for {query}",
@@ -158,6 +172,86 @@ class _MockLegalGraph:
             domain=domain,
             as_of=as_of,
         )
+
+    def load_provisions_by_anchor(self, doc_id, anchors):
+        del doc_id
+        return [
+            LegalSourceAnchor(
+                doc_id="doc-1",
+                version_id="v-1",
+                anchor=anchors[0],
+                citation_label="стаття 1",
+                provision_text="Держава вимагає ліцензію.",
+                struct_kind="article",
+                section_role="normative_unit",
+                legal_unit_subtype="core_normative_clause",
+                route_class="reasoning",
+                context_prefix=["Розділ I. Загальні положення"],
+            )
+        ]
+
+    def load_doc_version_chain(self, *, doc_id=None, doc_family_id=None):
+        del doc_family_id
+        return [
+            LegalDocVersionResult(
+                doc_id=doc_id or "doc-1",
+                doc_family_id="fam-1",
+                version_id="v-1",
+                doc_reestr_code="123",
+                doc_name="Mock law",
+                doc_type="law",
+                doc_status="active",
+                is_latest=True,
+            )
+        ]
+
+    def load_appendix_context(self, doc_id, anchor, *, max_depth=4):
+        del doc_id, anchor, max_depth
+        return ["Додаток 1", "Таблиця 1"]
+
+    def expand_reference_neighborhood(self, doc_id, anchors, *, max_hops=2):
+        del max_hops
+        return [
+            LegalReferenceEdgeResult(
+                source_doc_id=doc_id,
+                source_anchor=anchors[0],
+                target_doc_id="doc-2",
+                target_anchor="art:5",
+                relation_type="amends",
+                resolution_status="resolved",
+                resolution_confidence=0.9,
+                ref_text_uk="див. статтю 5",
+            )
+        ]
+
+    def load_source_bundle(
+        self,
+        *,
+        doc_id,
+        anchors,
+        version_id=None,
+        max_reference_hops=2,
+        candidate_fact_ids=None,
+        candidate_provision_ids=None,
+    ):
+        del max_reference_hops
+        return LegalSourceBundle(
+            bundle_id="bundle-1",
+            doc_id=doc_id,
+            version_id=version_id or "v-1",
+            doc_name="Mock law",
+            doc_reestr_code="123",
+            source_family="law",
+            primary_anchors=self.load_provisions_by_anchor(doc_id, anchors),
+            appendix_context=self.load_appendix_context(doc_id, anchors[0]),
+            reference_neighborhood=self.expand_reference_neighborhood(doc_id, anchors),
+            version_chain=self.load_doc_version_chain(doc_id=doc_id),
+            candidate_fact_ids=list(candidate_fact_ids or []),
+            candidate_provision_ids=list(candidate_provision_ids or []),
+        )
+
+    def get_versioned_source_refs(self, *, doc_id=None, doc_family_id=None):
+        return self.load_doc_version_chain(doc_id=doc_id, doc_family_id=doc_family_id)
 
 
 def test_toolkit_no_graphs() -> None:
@@ -267,3 +361,29 @@ def test_toolkit_legal_methods() -> None:
     formatted = toolkit.format_legal_context(constraints)
     assert "LEGAL CONTEXT" in formatted
     assert "normative_fact" in formatted
+
+
+def test_toolkit_policy_verified_legal_pack_methods() -> None:
+    toolkit = KnowledgeToolkit(legal_graph=_MockLegalGraph())
+
+    candidate_pack = toolkit.assemble_legal_candidate_pack("ліцензія", domain="transport")
+    assert candidate_pack.fact_hits
+    assert candidate_pack.provision_hits
+    assert candidate_pack.fact_hits[0].doc_id == "doc-1"
+    assert candidate_pack.anchor_coverage_hints["lf-1"] == ["art:1"]
+
+    source_pack = toolkit.expand_legal_source_pack(candidate_pack, max_source_docs=10, max_reference_hops=2)
+    assert len(source_pack.source_bundles) == 1
+    bundle = source_pack.source_bundles[0]
+    assert bundle.primary_anchors[0].context_prefix == ["Розділ I. Загальні положення"]
+    assert bundle.reference_neighborhood[0].relation_type == "amends"
+
+    loaded_bundle = toolkit.load_source_bundle(doc_id="doc-1", anchors=["art:1"])
+    assert loaded_bundle is not None
+    assert loaded_bundle.version_chain[0].is_latest is True
+
+    appendix_context = toolkit.load_appendix_context("doc-1", "art:1")
+    assert appendix_context == ["Додаток 1", "Таблиця 1"]
+
+    versions = toolkit.get_versioned_source_refs(doc_id="doc-1")
+    assert versions[0].version_id == "v-1"

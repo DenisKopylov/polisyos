@@ -34,7 +34,29 @@ def test_quality_report_includes_gate_metrics_and_fails_on_audit_miss(tmp_path: 
 
     llm_gate_manifest.parent.mkdir(parents=True, exist_ok=True)
     with open(llm_gate_manifest, "w", encoding="utf-8") as fh:
-        json.dump({"metrics": {"llm_candidate_total": 100, "llm_sent_total": 20, "llm_saved_pct": 80.0}}, fh)
+        json.dump(
+            {
+                "metrics": {
+                    "llm_candidate_total": 100,
+                    "llm_sent_total": 20,
+                    "llm_saved_pct": 80.0,
+                    "llm_gap_fill_sent_total": 12,
+                    "llm_gap_fill_added_statements_total": 7,
+                    "baseline_vs_gap_fill_added_statements_total": 7,
+                    "llm_gap_fill_timeout_fallback_total": 2,
+                    "llm_gap_fill_empty_responses_total": 1,
+                    "llm_gap_fill_gain_rate_pct": 58.333,
+                    "timeout_retry_groups_total": 4,
+                    "timeout_retry_success_total": 3,
+                    "timeout_retry_failure_total": 1,
+                    "deferred_reason_counts": {"deferred_no_llm": 2, "circuit_breaker_open": 1},
+                    "top_gap_fill_subtypes": [{"legal_unit_subtype": "core_normative_clause", "count": 8}],
+                    "top_gap_fill_families": [{"family": "law", "count": 9}],
+                    "top_timeout_gap_fill_families": [{"family": "appendix_heavy", "count": 2}],
+                }
+            },
+            fh,
+        )
 
     _write_jsonl(
         llm_gate_audit,
@@ -52,6 +74,15 @@ def test_quality_report_includes_gate_metrics_and_fails_on_audit_miss(tmp_path: 
     )
     assert report["llm_candidate_total"] == 100
     assert report["llm_sent_total"] == 20
+    assert report["llm_gap_fill_sent_total"] == 12
+    assert report["llm_gap_fill_added_statements_total"] == 7
+    assert report["llm_gap_fill_timeout_fallback_total"] == 2
+    assert report["timeout_retry_groups_total"] == 4
+    assert report["timeout_retry_success_total"] == 3
+    assert report["timeout_retry_failure_total"] == 1
+    assert report["timeout_retry_success_rate_pct"] == 75.0
+    assert report["deferred_reason_counts"]["deferred_no_llm"] == 2
+    assert report["top_gap_fill_subtypes"][0]["legal_unit_subtype"] == "core_normative_clause"
     assert report["audit_sample_total"] == 2
     assert report["audit_miss_rate_pct"] == 50.0
 
@@ -63,13 +94,13 @@ def test_quality_report_includes_gate_metrics_and_fails_on_audit_miss(tmp_path: 
             max_oov_action_rate_pct=100.0,
             max_missing_quote_rate_pct=100.0,
             max_duplicate_anchor_rate_pct=100.0,
-            max_audit_miss_rate_pct=3.0,
-            min_llm_saved_pct=50.0,
-            min_provision_docs_for_doc_rate=1,
-            min_spo_rows_for_row_rate=1,
-            min_statements_for_statement_rate=1,
+                max_audit_miss_rate_pct=3.0,
+                min_llm_saved_pct=50.0,
+                min_audit_samples_for_rate=1,
+                min_provision_docs_for_doc_rate=1,
+                min_spo_rows_for_row_rate=1,
+                min_statements_for_statement_rate=1,
         ),
     )
     assert gate.passed is False
     assert "audit_miss_rate_pct" in gate.failed_checks
-

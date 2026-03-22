@@ -14,6 +14,7 @@ from pathlib import Path
 import duckdb
 
 from polisyos.academic.batch.config import AcademicBatchConfig
+from polisyos.academic.knowledge.canonical_seed import CANONICAL_VARIABLES
 from polisyos.batch_common.manifest import write_stage_manifest
 from polisyos.batch_common.qc import QCCheck, QCReport, evaluate_fail_fast, write_qc_report
 from polisyos.common.logger import get_logger
@@ -21,6 +22,29 @@ from polisyos.common.logger import get_logger
 logger = get_logger(__name__)
 
 _CANONICAL_VAR_RE = re.compile(r"^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*){0,3}$")
+
+
+def _approved_canonical_names(config: AcademicBatchConfig) -> set[str]:
+    approved: set[str] = set()
+    for parent, children in CANONICAL_VARIABLES.items():
+        approved.add(parent)
+        for child_key in children:
+            if child_key == "_root":
+                continue
+            approved.add(f"{parent}.{child_key}")
+    if not config.db_path.exists():
+        return approved
+    con = duckdb.connect(str(config.db_path), read_only=True)
+    try:
+        rows = con.execute(
+            "SELECT canonical_name FROM ac_skg_canonization_cache WHERE approved = TRUE"
+        ).fetchall()
+    except duckdb.Error:
+        rows = []
+    finally:
+        con.close()
+    approved.update(str(row[0]).strip() for row in rows if row and row[0])
+    return approved
 
 
 def _line_count(path: Path) -> int:
@@ -40,6 +64,17 @@ def _latest_manifest(root: Path) -> Path | None:
     return path if path.exists() else None
 
 
+def _stage_manifest_metrics(path: Path) -> dict[str, object]:
+    if not path.exists():
+        return {}
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {}
+    metrics = payload.get("metrics")
+    return dict(metrics) if isinstance(metrics, dict) else {}
+
+
 def _collect_raw_roots(config: AcademicBatchConfig) -> list[Path]:
     return sorted([p for p in config.raw_dir.iterdir() if p.is_dir()])
 
@@ -53,6 +88,17 @@ def run_qc(
     started_at = datetime.now(UTC).isoformat()
     checks: list[QCCheck] = []
     metrics: dict[str, object] = {}
+    graph_load_metrics = _stage_manifest_metrics(config.manifests_dir / "graph_load.json")
+    metrics["json_validation_failures"] = int(graph_load_metrics.get("json_validation_failures") or 0)
+    checks.append(
+        QCCheck(
+            name="json_validation_failures",
+            passed=int(metrics["json_validation_failures"]) == 0,
+            value=int(metrics["json_validation_failures"]),
+            threshold=0,
+            severity="critical",
+        )
+    )
 
     # 1) Raw manifest count parity by source root.
     parity_failures = 0
@@ -91,6 +137,7 @@ def run_qc(
     resolve_extract_count = 0
     extraction_modes: dict[str, int] = {}
     phase0_check_severity = "critical" if bool(strict_phase0) else "warning"
+    approved_canonical_names = _approved_canonical_names(config)
 
     if config.merged_records_path.exists():
         with open(config.merged_records_path, "r", encoding="utf-8") as fh:
@@ -130,7 +177,7 @@ def run_qc(
                         supporting_spans_total += 1
                     cause = str(claim.get("cause") or "").strip()
                     effect = str(claim.get("effect") or "").strip()
-                    if _CANONICAL_VAR_RE.match(cause) and _CANONICAL_VAR_RE.match(effect):
+                    if cause in approved_canonical_names and effect in approved_canonical_names:
                         canonical_claim_variables += 2
 
     empty_abs_pct = (100.0 * empty_abstract / total) if total else 0.0
@@ -221,7 +268,7 @@ def run_qc(
 
     if topic_selection_exists:
         by_topic: dict[str, int] = {}
-        work_ids: set[str] = set()
+        topic_work_ids: set[str] = set()
         total_rows = 0
         with open(config.selected_topic_works_path, "r", encoding="utf-8") as fh:
             for line in fh:
@@ -234,16 +281,43 @@ def run_qc(
                 if not topic_id or not work_id:
                     continue
                 by_topic[topic_id] = by_topic.get(topic_id, 0) + 1
-                work_ids.add(work_id)
+                topic_work_ids.add(work_id)
                 total_rows += 1
+
+        global_selected_rows = 0
+        global_selected_work_ids: set[str] = set()
+        if config.selected_global_works_path.exists():
+            with open(config.selected_global_works_path, "r", encoding="utf-8") as fh:
+                for line in fh:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    try:
+                        row = json.loads(line)
+                    except json.JSONDecodeError:
+                        continue
+                    if not isinstance(row, dict):
+                        continue
+                    work_id = str(row.get("work_id") or "").strip()
+                    if not work_id and isinstance(row.get("work"), dict):
+                        work_id = str(row["work"].get("id") or "").strip()
+                    if not work_id:
+                        continue
+                    global_selected_rows += 1
+                    global_selected_work_ids.add(work_id)
+
+        selected_unique_works = len(global_selected_work_ids) if global_selected_work_ids else len(topic_work_ids)
 
         counts = list(by_topic.values())
         underfilled = sum(1 for c in counts if c < config.target_per_topic)
-        unique_ratio = (len(work_ids) / total_rows) if total_rows else 1.0
+        unique_ratio = (len(topic_work_ids) / total_rows) if total_rows else 1.0
 
         metrics["selected_topics"] = len(by_topic)
         metrics["selected_rows"] = total_rows
-        metrics["selected_unique_works"] = len(work_ids)
+        metrics["selected_topic_unique_works"] = len(topic_work_ids)
+        metrics["selected_global_rows"] = global_selected_rows
+        metrics["selected_global_unique_works"] = len(global_selected_work_ids)
+        metrics["selected_unique_works"] = selected_unique_works
         metrics["underfilled_topic_count"] = underfilled
         metrics["unique_work_ratio"] = round(unique_ratio, 6)
         metrics["selected_per_topic_mean"] = round(statistics.mean(counts), 3) if counts else 0.0
@@ -271,9 +345,9 @@ def run_qc(
         checks.append(
             QCCheck(
                 name="selected_unique_budget_hit",
-                passed=len(work_ids) >= int(config.selected_unique_budget),
+                passed=selected_unique_works >= int(config.selected_unique_budget),
                 severity="warning",
-                value=len(work_ids),
+                value=selected_unique_works,
                 threshold=int(config.selected_unique_budget),
             )
         )
@@ -444,18 +518,21 @@ def run_qc(
     # 4c) raw/published claim metrics.
     raw_claims_path = config.raw_claim_candidates_final_path if config.raw_claim_candidates_final_path.exists() else config.raw_claim_candidates_path
     published_claims_path = config.published_claims_final_path if config.published_claims_final_path.exists() else config.published_claims_path
+    raw_claims_total = 0
+    publishable_total = 0
+    abstract_only_publishable = 0
+    fulltext_publishable = 0
+    raw_tier_counts: Counter[str] = Counter()
+    published_tier_counts: Counter[str] = Counter()
+    raw_contaminated = 0
+    published_contaminated = 0
+    raw_claim_ids: list[str] = []
+    published_claim_ids: list[str] = []
+    publishable_share = 0.0
+    abstract_only_publishable_share = 0.0
+    fulltext_publishable_share = 0.0
+    published_tier4_share = 0.0
     if raw_claims_path.exists() or published_claims_path.exists():
-        raw_claims_total = 0
-        publishable_total = 0
-        abstract_only_publishable = 0
-        fulltext_publishable = 0
-        raw_tier_counts: Counter[str] = Counter()
-        published_tier_counts: Counter[str] = Counter()
-        raw_contaminated = 0
-        published_contaminated = 0
-        raw_claim_ids: list[str] = []
-        published_claim_ids: list[str] = []
-
         if raw_claims_path.exists():
             with open(raw_claims_path, "r", encoding="utf-8") as fh:
                 for line in fh:
@@ -524,63 +601,63 @@ def run_qc(
         metrics["published_edge_stability_pct"] = 100.0
         metrics["design_tier_distribution"] = dict(sorted(raw_tier_counts.items()))
         metrics["published_claims_by_design_tier"] = dict(sorted(published_tier_counts.items()))
-        metrics["published_tier4_share_pct"] = round(published_tier4_share, 3)
-        metrics["span_contamination_rate"] = round(
-            (published_contaminated / max(1, publishable_total)) * 100.0 if publishable_total else 0.0,
-            3,
-        )
-        metrics["raw_span_contamination_rate"] = round(
-            (raw_contaminated / max(1, raw_claims_total)) * 100.0 if raw_claims_total else 0.0,
-            3,
-        )
-        metrics["raw_claim_duplicate_rows"] = len(raw_claim_ids) - len(set(raw_claim_ids))
-        metrics["published_claim_duplicate_rows"] = len(published_claim_ids) - len(set(published_claim_ids))
+    metrics["published_tier4_share_pct"] = round(published_tier4_share, 3)
+    metrics["span_contamination_rate"] = round(
+        (published_contaminated / max(1, publishable_total)) * 100.0 if publishable_total else 0.0,
+        3,
+    )
+    metrics["raw_span_contamination_rate"] = round(
+        (raw_contaminated / max(1, raw_claims_total)) * 100.0 if raw_claims_total else 0.0,
+        3,
+    )
+    metrics["raw_claim_duplicate_rows"] = len(raw_claim_ids) - len(set(raw_claim_ids))
+    metrics["published_claim_duplicate_rows"] = len(published_claim_ids) - len(set(published_claim_ids))
 
-        checks.append(
-            QCCheck(
-                name="abstract_only_publishable_share_pct",
-                passed=abstract_only_publishable_share == 0.0,
-                value=round(abstract_only_publishable_share, 3),
-                threshold=0.0,
-                severity=phase0_check_severity,
-            )
+    checks.append(
+        QCCheck(
+            name="abstract_only_publishable_share_pct",
+            passed=abstract_only_publishable_share == 0.0,
+            value=round(abstract_only_publishable_share, 3),
+            threshold=0.0,
+            severity=phase0_check_severity,
         )
-        checks.append(
-            QCCheck(
-                name="fulltext_publishable_share_pct",
-                passed=fulltext_publishable_share >= 80.0 if publishable_total else True,
-                value=round(fulltext_publishable_share, 3),
-                threshold=80.0,
-                severity=phase0_check_severity,
-            )
+    )
+    checks.append(
+        QCCheck(
+            name="fulltext_publishable_share_pct",
+            passed=fulltext_publishable_share >= 80.0 if publishable_total else True,
+            value=round(fulltext_publishable_share, 3),
+            threshold=80.0,
+            severity=phase0_check_severity,
         )
-        checks.append(
-            QCCheck(
-                name="span_contamination_rate",
-                passed=metrics["span_contamination_rate"] <= 1.0,
-                value=metrics["span_contamination_rate"],
-                threshold=1.0,
-                severity="warning",
-            )
+    )
+    checks.append(
+        QCCheck(
+            name="span_contamination_rate",
+            passed=metrics["span_contamination_rate"] <= 1.0,
+            value=metrics["span_contamination_rate"],
+            threshold=1.0,
+            severity="warning",
         )
-        checks.append(
-            QCCheck(
-                name="published_tier4_share_pct",
-                passed=published_tier4_share <= 40.0 if publishable_total else True,
-                value=round(published_tier4_share, 3),
-                threshold=40.0,
-                severity="warning",
-            )
+    )
+    checks.append(
+        QCCheck(
+            name="published_tier4_share_pct",
+            passed=published_tier4_share <= 40.0 if publishable_total else True,
+            value=round(published_tier4_share, 3),
+            threshold=40.0,
+            severity="warning",
         )
-        checks.append(
-            QCCheck(
-                name="published_claim_duplicate_rows",
-                passed=metrics["published_claim_duplicate_rows"] == 0,
-                value=metrics["published_claim_duplicate_rows"],
-                threshold=0,
-                severity="critical",
-            )
+    )
+    checks.append(
+        QCCheck(
+            name="published_claim_duplicate_rows",
+            passed=metrics["published_claim_duplicate_rows"] == 0,
+            value=metrics["published_claim_duplicate_rows"],
+            threshold=0,
+            severity="critical",
         )
+    )
 
     # 4d) v7 acquisition metrics from attempt-level fetch logs.
     if config.fulltext_fetch_log_path.exists() or config.fulltext_resolved_path.exists():
@@ -943,6 +1020,207 @@ def run_qc(
                         severity="warning",
                     )
                 )
+
+            try:
+                retracted_contamination_count = int(
+                    con.execute(
+                        """
+                        SELECT COUNT(DISTINCT e.openalex_id)
+                        FROM ac_skg_edge_evidence e
+                        JOIN ac_skg_articles a ON a.openalex_id = e.openalex_id
+                        WHERE a.retracted = TRUE
+                        """
+                    ).fetchone()[0]
+                )
+            except duckdb.Error:
+                retracted_contamination_count = 0
+            metrics["retracted_contamination_count"] = retracted_contamination_count
+            checks.append(
+                QCCheck(
+                    name="retracted_contamination_count",
+                    passed=retracted_contamination_count == 0,
+                    value=retracted_contamination_count,
+                    threshold=0,
+                    severity="critical",
+                )
+            )
+
+            try:
+                old_evidence_share = float(
+                    con.execute(
+                        """
+                        SELECT 100.0 * COUNT(*) FILTER (WHERE a.year < 2010) / NULLIF(COUNT(*), 0)
+                        FROM ac_skg_edge_evidence e
+                        JOIN ac_skg_articles a ON a.openalex_id = e.openalex_id
+                        """
+                    ).fetchone()[0]
+                    or 0.0
+                )
+            except duckdb.Error:
+                old_evidence_share = 0.0
+            metrics["old_evidence_share_pct"] = round(old_evidence_share, 3)
+            checks.append(
+                QCCheck(
+                    name="old_evidence_share_pct",
+                    passed=old_evidence_share <= 50.0,
+                    value=round(old_evidence_share, 3),
+                    threshold=50.0,
+                    severity="warning",
+                )
+            )
+
+            try:
+                sample_size_coverage = float(
+                    con.execute(
+                        """
+                        SELECT 100.0 * COUNT(*) FILTER (WHERE sample_size IS NOT NULL AND sample_size > 0)
+                            / NULLIF(COUNT(*), 0)
+                        FROM ac_parameter_estimates
+                        """
+                    ).fetchone()[0]
+                    or 0.0
+                )
+            except duckdb.Error:
+                sample_size_coverage = 0.0
+            metrics["sample_size_coverage_pct"] = round(sample_size_coverage, 3)
+            checks.append(
+                QCCheck(
+                    name="sample_size_coverage_pct",
+                    passed=sample_size_coverage >= 40.0 if metrics.get("parameters_total", 0) else True,
+                    value=round(sample_size_coverage, 3),
+                    threshold=40.0,
+                    severity="warning",
+                )
+            )
+
+            try:
+                low_confidence_edge_share = float(
+                    con.execute(
+                        """
+                        SELECT 100.0 * COUNT(*) FILTER (WHERE confidence < 0.3) / NULLIF(COUNT(*), 0)
+                        FROM ac_skg_edges
+                        """
+                    ).fetchone()[0]
+                    or 0.0
+                )
+            except duckdb.Error:
+                low_confidence_edge_share = 0.0
+            metrics["low_confidence_edge_share_pct"] = round(low_confidence_edge_share, 3)
+            checks.append(
+                QCCheck(
+                    name="low_confidence_edge_share_pct",
+                    passed=low_confidence_edge_share <= 30.0 if total_edges else True,
+                    value=round(low_confidence_edge_share, 3),
+                    threshold=30.0,
+                    severity="warning",
+                )
+            )
+
+            try:
+                high_design_tier_share = float(
+                    con.execute(
+                        """
+                        SELECT 100.0 * COUNT(*) FILTER (WHERE design_quality_tier IN (1, 2))
+                            / NULLIF(COUNT(*), 0)
+                        FROM ac_claim_adjudications
+                        WHERE publishable_edge = TRUE
+                        """
+                    ).fetchone()[0]
+                    or 0.0
+                )
+            except duckdb.Error:
+                high_design_tier_share = 0.0
+            metrics["high_design_tier_share_pct"] = round(high_design_tier_share, 3)
+            checks.append(
+                QCCheck(
+                    name="high_design_tier_share_pct",
+                    passed=high_design_tier_share >= 20.0 if publishable_total else True,
+                    value=round(high_design_tier_share, 3),
+                    threshold=20.0,
+                    severity="warning",
+                )
+            )
+
+            try:
+                family_edge_count = int(con.execute("SELECT COUNT(*) FROM ac_skg_family_edges").fetchone()[0])
+            except duckdb.Error:
+                family_edge_count = 0
+            metrics["family_edge_count"] = family_edge_count
+            checks.append(
+                QCCheck(
+                    name="family_edge_count_nonzero",
+                    passed=family_edge_count > 0 if total_edges >= 10 else True,
+                    value=family_edge_count,
+                    threshold=1,
+                    severity="warning",
+                )
+            )
+
+            try:
+                simulation_ready_numeric_count = int(
+                    con.execute("SELECT COUNT(*) FROM ac_skg_simulation_parameters").fetchone()[0]
+                )
+            except duckdb.Error:
+                simulation_ready_numeric_count = 0
+            metrics["simulation_ready_numeric_count"] = simulation_ready_numeric_count
+            checks.append(
+                QCCheck(
+                    name="simulation_ready_numeric_count",
+                    passed=simulation_ready_numeric_count > 0 if metrics.get("resolve_extract_count", 0) else True,
+                    value=simulation_ready_numeric_count,
+                    threshold=1,
+                    severity="warning",
+                )
+            )
+
+            edge_report_path = config.edge_synthesis_report_path
+            edge_report = {}
+            if edge_report_path.exists():
+                try:
+                    edge_report = json.loads(edge_report_path.read_text(encoding="utf-8"))
+                except (OSError, json.JSONDecodeError):
+                    edge_report = {}
+            benchmark_report = {}
+            if config.benchmark_report_path.exists():
+                try:
+                    benchmark_report = json.loads(config.benchmark_report_path.read_text(encoding="utf-8"))
+                except (OSError, json.JSONDecodeError):
+                    benchmark_report = {}
+            canonization = edge_report.get("canonization") if isinstance(edge_report, dict) else {}
+            global_canonical_resolution_rate = float((canonization or {}).get("resolution_rate_pct") or 0.0)
+            benchmark_metrics = (
+                benchmark_report.get("metrics")
+                if isinstance(benchmark_report.get("metrics"), dict)
+                else {}
+            )
+            runtime_demanded_canonical_resolution_rate = float(
+                benchmark_metrics.get("runtime_demanded_canonical_resolution_rate_pct")
+                or global_canonical_resolution_rate
+            )
+            metrics["runtime_demanded_canonical_resolution_rate_pct"] = round(
+                runtime_demanded_canonical_resolution_rate,
+                3,
+            )
+            metrics["global_canonical_resolution_rate_pct"] = round(global_canonical_resolution_rate, 3)
+            metrics["canonical_resolution_rate_pct"] = round(runtime_demanded_canonical_resolution_rate, 3)
+            checks.append(
+                QCCheck(
+                    name="canonical_resolution_rate_pct",
+                    passed=runtime_demanded_canonical_resolution_rate >= 90.0 if benchmark_report else True,
+                    value=round(runtime_demanded_canonical_resolution_rate, 3),
+                    threshold=90.0,
+                    severity="critical",
+                )
+            )
+            checks.append(
+                QCCheck(
+                    name="global_canonical_resolution_rate_pct",
+                    passed=global_canonical_resolution_rate >= 50.0 if edge_report_path.exists() else True,
+                    value=round(global_canonical_resolution_rate, 3),
+                    threshold=50.0,
+                    severity="warning",
+                )
+            )
         finally:
             con.close()
 

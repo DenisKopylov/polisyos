@@ -101,6 +101,21 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Optional timeout for one grouped SPO LLM task before deterministic fallback.",
     )
     run_p.add_argument(
+        "--spo-timeout-retry-enabled",
+        dest="spo_timeout_retry_enabled",
+        action="store_true",
+        help="Retry timed out SPO groups once with a narrower batch before deferring.",
+    )
+    run_p.add_argument(
+        "--no-spo-timeout-retry-enabled",
+        dest="spo_timeout_retry_enabled",
+        action="store_false",
+        help="Disable timeout retry for grouped SPO requests.",
+    )
+    run_p.set_defaults(spo_timeout_retry_enabled=True)
+    run_p.add_argument("--spo-timeout-retry-batch-size", type=int, default=1)
+    run_p.add_argument("--spo-timeout-retry-chars", type=int, default=3000)
+    run_p.add_argument(
         "--spo-extract-mode",
         choices=("light", "full"),
         default="light",
@@ -145,6 +160,26 @@ def _build_parser() -> argparse.ArgumentParser:
     run_p.add_argument("--llm-gate-max-share", type=float, default=0.35)
     run_p.add_argument("--llm-gate-audit-sample-rate", type=float, default=0.02)
     run_p.add_argument("--llm-gate-audit-max-miss-rate-pct", type=float, default=3.0)
+    run_p.add_argument(
+        "--llm-gap-fill-mode",
+        choices=("off", "narrow", "wide"),
+        default="off",
+    )
+    run_p.add_argument("--llm-gap-fill-max-share", type=float, default=0.80)
+    run_p.add_argument("--jurisdiction", default="UA", help="Jurisdiction plugin code, e.g. UA or EU.")
+    run_p.add_argument(
+        "--pattern-feedback-enabled",
+        dest="pattern_feedback_enabled",
+        action="store_true",
+        help="Write audit misses into the pattern feedback queue and candidate clusters.",
+    )
+    run_p.add_argument(
+        "--no-pattern-feedback-enabled",
+        dest="pattern_feedback_enabled",
+        action="store_false",
+        help="Disable pattern feedback queue emission.",
+    )
+    run_p.set_defaults(pattern_feedback_enabled=True)
     run_p.add_argument(
         "--extract-references",
         dest="extract_references",
@@ -212,7 +247,12 @@ def _build_parser() -> argparse.ArgumentParser:
     run_p.add_argument("--quality-max-missing-quote-rate-pct", type=float, default=5.0)
     run_p.add_argument("--quality-max-duplicate-anchor-rate-pct", type=float, default=0.1)
     run_p.add_argument("--quality-max-audit-miss-rate-pct", type=float, default=5.0)
+    run_p.add_argument("--quality-max-hallucination-rate-pct", type=float, default=3.0)
+    run_p.add_argument("--quality-max-unresolved-contradictions", type=int, default=10)
+    run_p.add_argument("--quality-max-low-confidence-normative-pct", type=float, default=15.0)
     run_p.add_argument("--quality-min-reference-resolution-coverage-pct", type=float, default=80.0)
+    run_p.add_argument("--quality-min-amendment-extraction-coverage-pct", type=float, default=60.0)
+    run_p.add_argument("--quality-min-amendment-target-resolution-pct", type=float, default=70.0)
     run_p.add_argument("--quality-min-llm-saved-pct", type=float, default=50.0)
     run_p.add_argument("--quality-min-audit-samples-for-rate", type=int, default=10)
     run_p.add_argument("--quality-min-provision-docs-for-doc-rate", type=int, default=25)
@@ -252,7 +292,7 @@ def _build_parser() -> argparse.ArgumentParser:
     smoke_p.add_argument("--output-dir", required=True, type=Path, help="Output directory")
     smoke_p.add_argument(
         "--profile",
-        choices=("fast", "informative", "acceptance_safe"),
+        choices=("fast", "informative", "acceptance_safe", "production_gap_fill_wide"),
         default="informative",
         help="Smoke profile tuned for local Mac runs.",
     )
@@ -288,8 +328,21 @@ def _build_parser() -> argparse.ArgumentParser:
         default=None,
         help="Override profile timeout for one grouped SPO LLM task before deterministic fallback.",
     )
+    smoke_p.add_argument(
+        "--llm-gap-fill-mode",
+        choices=("off", "narrow", "wide"),
+        default=None,
+        help="Override profile LLM gap-fill mode.",
+    )
+    smoke_p.add_argument(
+        "--llm-gap-fill-max-share",
+        type=float,
+        default=None,
+        help="Override profile gap-fill share cap.",
+    )
     smoke_p.add_argument("--status-filter", nargs="*", default=None, help="Filter by status")
     smoke_p.add_argument("--type-filter", nargs="*", default=None, help="Filter by doc type")
+    smoke_p.add_argument("--stages", default=None, help="Comma-separated stages to run (default: all)")
 
     # --- embed-local ---
     embed_p = sub.add_parser("embed-local", help="Build local embeddings and HNSW indexes")
@@ -455,16 +508,24 @@ def _cmd_run(args: argparse.Namespace) -> None:
         spo_request_batch_size=args.spo_request_batch_size,
         spo_request_batch_chars=args.spo_request_batch_chars,
         spo_group_timeout_seconds=args.spo_group_timeout_seconds,
+        spo_timeout_retry_enabled=args.spo_timeout_retry_enabled,
+        spo_timeout_retry_batch_size=args.spo_timeout_retry_batch_size,
+        spo_timeout_retry_chars=args.spo_timeout_retry_chars,
         spo_extract_mode=args.spo_extract_mode,
         spo_skip_trivial=not args.no_spo_skip_trivial,
         spo_verify_mode=args.spo_verify_mode,
         spo_max_provisions_per_doc=args.spo_max_provisions_per_doc,
+        jurisdiction=args.jurisdiction,
+        pattern_feedback_enabled=args.pattern_feedback_enabled,
         llm_gate_enabled=args.llm_gate_enabled,
         llm_gate_mode=args.llm_gate_mode,
         llm_gate_threshold=args.llm_gate_threshold,
         llm_gate_max_share=args.llm_gate_max_share,
         llm_gate_audit_sample_rate=args.llm_gate_audit_sample_rate,
         llm_gate_audit_max_miss_rate_pct=args.llm_gate_audit_max_miss_rate_pct,
+        llm_gap_fill_enabled=args.llm_gap_fill_mode != "off",
+        llm_gap_fill_mode=args.llm_gap_fill_mode,
+        llm_gap_fill_max_share=args.llm_gap_fill_max_share,
         extract_references_enabled=args.extract_references,
         extract_domains_enabled=args.extract_domains,
         status_filter=frozenset(args.status_filter) if args.status_filter else None,
@@ -478,7 +539,12 @@ def _cmd_run(args: argparse.Namespace) -> None:
         quality_max_missing_quote_rate_pct=args.quality_max_missing_quote_rate_pct,
         quality_max_duplicate_anchor_rate_pct=args.quality_max_duplicate_anchor_rate_pct,
         quality_max_audit_miss_rate_pct=args.quality_max_audit_miss_rate_pct,
+        quality_max_hallucination_rate_pct=args.quality_max_hallucination_rate_pct,
+        quality_max_unresolved_contradictions=args.quality_max_unresolved_contradictions,
+        quality_max_low_confidence_normative_pct=args.quality_max_low_confidence_normative_pct,
         quality_min_reference_resolution_coverage_pct=args.quality_min_reference_resolution_coverage_pct,
+        quality_min_amendment_extraction_coverage_pct=args.quality_min_amendment_extraction_coverage_pct,
+        quality_min_amendment_target_resolution_pct=args.quality_min_amendment_target_resolution_pct,
         quality_min_llm_saved_pct=args.quality_min_llm_saved_pct,
         quality_min_audit_samples_for_rate=args.quality_min_audit_samples_for_rate,
         quality_min_provision_docs_for_doc_rate=args.quality_min_provision_docs_for_doc_rate,
@@ -584,6 +650,9 @@ def _cmd_smoke(args: argparse.Namespace) -> None:
         max_retries=args.max_retries,
         spo_request_batch_chars=args.spo_request_batch_chars,
         spo_group_timeout_seconds=args.spo_group_timeout_seconds,
+        llm_gap_fill_mode=args.llm_gap_fill_mode,
+        llm_gap_fill_max_share=args.llm_gap_fill_max_share,
+        stages=set(args.stages.split(",")) if args.stages else None,
     )
     stats = result["stats"]
     print("\nSmoke run complete:")

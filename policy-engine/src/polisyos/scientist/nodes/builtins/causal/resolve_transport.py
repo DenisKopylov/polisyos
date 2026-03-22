@@ -1053,6 +1053,14 @@ def _build_three_graph_lineage(
                 "dataset_id": value.dataset_id,
                 "raw_variable": value.raw_variable,
                 "proxy_chain": list(value.proxy_chain),
+                "confidence": float(value.confidence),
+                "ci_low": value.ci_low,
+                "ci_high": value.ci_high,
+                "std_error": value.std_error,
+                "imputation_method": value.imputation_method,
+                "uncertainty_sources": list(value.uncertainty_sources),
+                "data_support_year": value.data_support_year,
+                "data_support_country": value.data_support_country,
             }
         )
     legal_lineage = [

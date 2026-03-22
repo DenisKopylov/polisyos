@@ -472,6 +472,10 @@ class ClaimAdjudicationResult(BaseModel):
     adjudication_notes: str = ""
     consensus_passes: int = Field(default=1, ge=1)
     consensus_stability: float = Field(default=1.0, ge=0.0, le=1.0)
+    claim_type_confidence: float | None = Field(default=None, ge=0.0, le=1.0)
+    design_family_confidence: float | None = Field(default=None, ge=0.0, le=1.0)
+    direction_confidence: float | None = Field(default=None, ge=0.0, le=1.0)
+    intra_paper_contradiction: bool = False
 
 
 class LiteratureEdgePrior(BaseModel):

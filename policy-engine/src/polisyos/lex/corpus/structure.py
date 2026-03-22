@@ -117,6 +117,12 @@ def _ruleset_for(jurisdiction: str) -> _Ruleset:
             article_re=re.compile(r"^\s*Article\s+(\d+)\b"),
             part_re=re.compile(r"^\s*Part\s+(\d+)\b"),
         )
+    if jurisdiction == "EU":
+        return _Ruleset(
+            jurisdiction="EU",
+            article_re=re.compile(r"^\s*Article\s+(\d+[\-\d]*)\b", re.IGNORECASE),
+            part_re=re.compile(r"^\s*Part\s+(\d+)\b", re.IGNORECASE),
+        )
     raise LexValidationError(f"unsupported jurisdiction ruleset: {jurisdiction}")
 
 

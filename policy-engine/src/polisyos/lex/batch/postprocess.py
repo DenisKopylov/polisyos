@@ -16,6 +16,7 @@ from typing import Any
 import duckdb
 
 from polisyos.common.logger import get_logger
+from polisyos.lex.batch.confidence import compute_fused_confidence, quality_band_for_score
 from polisyos.lex.batch.doc_identity import (
     DocIndexEntry,
     build_doc_resolution_index,
@@ -25,7 +26,13 @@ from polisyos.lex.batch.doc_identity import (
     normalize_text_key,
     parse_doc_date,
 )
+from polisyos.lex.batch.hallucination_detector import (
+    detect_hallucination_flags,
+    encode_hallucination_flags,
+    has_blocking_hallucination,
+)
 from polisyos.lex.batch.provisions_io import read_provisions
+from polisyos.lex.batch.reference_resolution import resolve_references as resolve_reference_edges
 from polisyos.lex.knowledge.types import SPOCandidate, SPOExtractionResult
 
 logger = get_logger(__name__)
@@ -66,27 +73,78 @@ def _candidate_quote(stmt: SPOCandidate, provision_text: str) -> str:
         stmt.temporal_text_uk,
         stmt.sanction_text_uk,
     ]
+    compact_prov = _compact_ws(provision_text)
     for candidate in candidates:
         cleaned = _compact_ws(candidate)
-        if cleaned and cleaned in _compact_ws(provision_text):
+        if cleaned and cleaned in compact_prov:
             return candidate.strip()
-    if len(provision_text.strip()) <= 1200:
-        return provision_text.strip()
+    # Tier 2: case-insensitive + unicode-normalized fallback for statement fields
+    norm_prov = _normalize_quote_text(provision_text)
+    for candidate in candidates:
+        norm_cand = _normalize_quote_text(candidate)
+        if norm_cand and len(norm_cand) >= 15 and norm_cand in norm_prov:
+            return candidate.strip()
+    # Tier 3: full-provision fallback only for very short provisions where the
+    # entire text IS the normative content (single clause).
+    stripped = provision_text.strip()
+    if len(stripped) <= 500 and len(stripped.split()) >= 4:
+        return stripped
     return ""
+
+
+_QUOTE_NORM_RE = re.compile(r"[''`ʼ\u0027\u2018\u2019\u201A\u201B]")
+_QUOTE_PUNCT_RE = re.compile(r"[«»\"\u201C\u201D\u201E\u201F]")
+
+
+def _normalize_quote_text(text: str) -> str:
+    """Normalize unicode quotes, apostrophes and whitespace for fuzzy matching."""
+    text = _QUOTE_NORM_RE.sub("'", text)
+    text = _QUOTE_PUNCT_RE.sub('"', text)
+    return _compact_ws(text).lower()
 
 
 def _find_quote_offsets(provision_text: str, quote_text: str) -> tuple[int | None, int | None]:
     if not quote_text.strip():
         return None, None
+    # Tier 1: exact match
     exact_start = provision_text.find(quote_text)
     if exact_start >= 0:
         return exact_start, exact_start + len(quote_text)
 
+    # Tier 2: whitespace-collapsed match
     compact_provision = _compact_ws(provision_text)
     compact_quote = _compact_ws(quote_text)
     if not compact_quote:
         return None, None
     compact_start = compact_provision.find(compact_quote)
+
+    # Tier 3: case + unicode normalization
+    if compact_start < 0:
+        norm_provision = _normalize_quote_text(provision_text)
+        norm_quote = _normalize_quote_text(quote_text)
+        if norm_quote:
+            norm_start = norm_provision.find(norm_quote)
+            if norm_start >= 0:
+                # Use normalized repr for offset mapping
+                compact_provision = norm_provision
+                compact_quote = norm_quote
+                compact_start = norm_start
+
+    # Tier 4: longest-prefix substring match (at least 60% of quote)
+    if compact_start < 0:
+        norm_provision = _normalize_quote_text(provision_text)
+        norm_quote = _normalize_quote_text(quote_text)
+        min_len = max(40, int(len(norm_quote) * 0.6))
+        if len(norm_quote) >= 40:
+            for try_len in range(len(norm_quote), min_len - 1, -1):
+                prefix = norm_quote[:try_len]
+                idx = norm_provision.find(prefix)
+                if idx >= 0:
+                    compact_provision = norm_provision
+                    compact_quote = prefix
+                    compact_start = idx
+                    break
+
     if compact_start < 0:
         return None, None
 
@@ -190,6 +248,36 @@ def ground_spo_quotes(
                     else:
                         grounding_status = "missing_quote"
 
+                    hallucination_flags = detect_hallucination_flags(
+                        statement=stmt,
+                        provision_text=provision_text,
+                    )
+                    fused = compute_fused_confidence(
+                        extraction_conf=stmt.confidence_extract if stmt.confidence_extract is not None else stmt.confidence,
+                        grounding_status=grounding_status,
+                        structural_quality=structure_quality,
+                        verification_conf=stmt.confidence_verify,
+                        extraction_source=result.extraction_source or "llm",
+                    )
+                    quality_band = quality_band_for_score(fused.fused_score)
+                    has_blocking = bool(
+                        hallucination_flags and has_blocking_hallucination(hallucination_flags)
+                    )
+                    # Promotion ladder: search_candidate → grounded_fact → normative_fact
+                    if grounding_status in ("exact_quote", "quote_without_offsets"):
+                        if has_blocking and grounding_status != "exact_quote":
+                            # Blocking hallucination demotes unless saved by exact quote
+                            trust_tier_override = "search_candidate"
+                        else:
+                            trust_tier_override = "grounded_fact"
+                    else:
+                        trust_tier_override = "search_candidate"
+
+                    # Promote grounded facts with sufficient quality to normative
+                    if trust_tier_override == "grounded_fact" and not has_blocking:
+                        if quality_band in ("high_confidence_norm", "normative_ready"):
+                            trust_tier_override = "normative_fact"
+
                     grounded = SPOCandidate.model_validate(
                         {
                             **stmt.model_dump(mode="python"),
@@ -198,7 +286,12 @@ def ground_spo_quotes(
                             "source_quote_end": quote_end,
                             "grounding_status": grounding_status,
                             "structure_quality": structure_quality,
-                            "trust_tier": "search_candidate",
+                            "trust_tier": trust_tier_override,
+                            "fused_confidence": fused.fused_score,
+                            "confidence_breakdown_json": fused.breakdown_json(),
+                            "consistency_score": 1.0,
+                            "hallucination_flags_json": encode_hallucination_flags(hallucination_flags),
+                            "quality_band": quality_band,
                         }
                     )
                     if grounded.trust_tier in {"grounded_fact", "normative_fact"}:
@@ -428,77 +521,11 @@ def resolve_references(
     doc_metadata: dict[str, dict],
 ) -> dict[str, int]:
     """Resolve raw references into doc/anchor edges using local metadata."""
-    output_dir.mkdir(parents=True, exist_ok=True)
-    doc_index = build_doc_resolution_index(doc_metadata)
-    stats = {
-        "rows_total": 0,
-        "rows_written": 0,
-        "rows_resolved": 0,
-        "rows_partial": 0,
-    }
-
-    for jsonl_file in sorted(references_dir.glob("**/*.jsonl")):
-        out_path = output_dir / jsonl_file.relative_to(references_dir)
-        out_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(jsonl_file, "r", encoding="utf-8") as src, open(
-            out_path,
-            "w",
-            encoding="utf-8",
-        ) as dst:
-            for line in src:
-                line = line.strip()
-                if not line:
-                    continue
-                row = json.loads(line)
-                stats["rows_total"] += 1
-                target_raw = str(row.get("target_raw") or "")
-                source_doc_id = str(row.get("doc_id") or "")
-                source_entry = doc_index.by_doc_id.get(source_doc_id)
-                matched_entry, match_score, matched_by = _best_doc_match(
-                    row=row,
-                    target_raw=target_raw,
-                    source_doc_id=source_doc_id,
-                    doc_index=doc_index,
-                )
-                target_doc_id = matched_entry.doc_id if matched_entry is not None else ""
-                target_anchor = _anchor_from_reference_text(target_raw)
-                relation_type = str(row.get("relation_hint") or "").strip() or "references"
-                resolution_confidence = min(
-                    0.99,
-                    max(float(row.get("confidence") or 0.0), match_score),
-                )
-                resolution_status = _resolution_status(target_doc_id, target_anchor)
-                if resolution_status in {"resolved", "partial"}:
-                    stats["rows_resolved"] += 1
-                if resolution_status == "partial":
-                    stats["rows_partial"] += 1
-                payload = {
-                    **row,
-                    "reference_edge_id": _stable_hash(
-                        source_doc_id,
-                        str(row.get("anchor_path") or ""),
-                        target_raw,
-                        target_doc_id,
-                        target_anchor,
-                    ),
-                    "source_doc_family_id": source_entry.family_id if source_entry is not None else doc_family_id(doc_metadata.get(source_doc_id, {})),
-                    "target_doc_id": target_doc_id,
-                    "target_anchor": target_anchor,
-                    "target_doc_family_id": matched_entry.family_id if matched_entry is not None else "",
-                    "target_doc_reestr_code": matched_entry.reestr_code if matched_entry is not None else "",
-                    "target_doc_number": matched_entry.doc_number if matched_entry is not None else "",
-                    "target_doc_type": matched_entry.doc_type if matched_entry is not None else "",
-                    "target_doc_date_acc": matched_entry.doc_date_acc if matched_entry is not None else "",
-                    "target_doc_status": matched_entry.status if matched_entry is not None else "",
-                    "matched_by": matched_by,
-                    "relation_type": relation_type,
-                    "resolution_confidence": resolution_confidence,
-                    "resolution_status": resolution_status,
-                    "target_version_id": target_doc_id,
-                }
-                dst.write(json.dumps(payload, ensure_ascii=False) + "\n")
-                stats["rows_written"] += 1
-    return stats
+    return resolve_reference_edges(
+        references_dir=references_dir,
+        output_dir=output_dir,
+        doc_metadata=doc_metadata,
+    )
 
 
 def export_normative_claims(*, db_path: Path, output_dir: Path) -> dict[str, int]:

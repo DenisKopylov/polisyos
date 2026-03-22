@@ -10,7 +10,8 @@ from polisyos.common.logger import get_logger
 from polisyos.core.security.access_scope import AccessScope
 
 from ..artifacts.manifest import ArtifactRef, EnvInfo, InputRef, ProducerInfo, SchemaInfo
-from ..artifacts.store import FileSystemCAS, PutOptions
+from ..artifacts.protocol import ArtifactStore
+from ..artifacts.store import PutOptions
 from ..trace.record import TraceRecord
 from ..trace.sink import CompositeTraceSink, JsonlTraceSink, TraceSink
 from .manifest import RunManifest
@@ -24,7 +25,7 @@ def new_run_id() -> str:
 
 @dataclass
 class RunContext:
-    store: FileSystemCAS
+    store: ArtifactStore
     trace: TraceSink
     run_manifest: RunManifest
     _trace_path: Path | None = None
@@ -40,7 +41,7 @@ class RunContext:
     @classmethod
     def start(
         cls,
-        store: FileSystemCAS,
+        store: ArtifactStore,
         registry_bundle: ArtifactRef,
         producer: ProducerInfo | None = None,
         env: EnvInfo | None = None,
@@ -52,7 +53,7 @@ class RunContext:
         access_scope: AccessScope | None = None,
     ) -> "RunContext":
         run_id = run_id or new_run_id()
-        run_dir = run_dir or (store.root / "runs" / run_id)
+        run_dir = run_dir or (getattr(store, "root", Path(".")) / "runs" / run_id)
         run_dir.mkdir(parents=True, exist_ok=True)
         trace_path = run_dir / "trace.jsonl"
         trace_sink: TraceSink = JsonlTraceSink(trace_path)

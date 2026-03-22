@@ -26,6 +26,7 @@ from polisyos.foundry.methods.catalog.causal.eif_bounds import (
     compute_eif_att,
     compute_eif_frontdoor,
     compute_eif_late,
+    compute_second_order_eif,
     compute_eif_transport,
 )
 
@@ -251,6 +252,70 @@ class TestCompareEfficiency:
         assert "most_efficient" in d
 
 
+class TestSecondOrderEIF:
+    def test_second_order_recovers_linear_intercept(self):
+        rng = np.random.default_rng(0)
+        x = rng.normal(size=400)
+        truth = 1.0
+        first_order = truth + 0.7 * x + 0.2 * rng.normal(size=400)
+        result = compute_second_order_eif(first_order, {"derivative_x": x})
+        baseline_error = abs(float(np.mean(first_order)) - truth)
+        corrected_error = abs(result.corrected_estimate - truth)
+        assert corrected_error < baseline_error
+        assert np.isclose(np.mean(result.scores), result.corrected_estimate)
+        assert np.all(np.isfinite(result.scores))
+        assert result.approximation_method == "orthogonal_quadratic_projection"
+        assert "derivative_x^2" in result.basis_terms
+        assert result.basis_rank >= 1
+        assert result.note
+
+    def test_second_order_captures_quadratic_bias_component(self):
+        rng = np.random.default_rng(11)
+        x = rng.normal(size=600)
+        truth = 1.0
+        first_order = truth + 0.5 * x + 0.4 * (x**2 - np.mean(x**2)) + 0.1 * rng.normal(size=600)
+        result = compute_second_order_eif(first_order, {"x": x})
+        baseline_error = abs(float(np.mean(first_order)) - truth)
+        corrected_error = abs(result.corrected_estimate - truth)
+        assert corrected_error < baseline_error
+        assert "x^2" in result.basis_terms
+        assert result.projection_norm > 0.0
+
+    def test_second_order_without_nuisance_terms_is_honest(self):
+        first_order = np.array([1.0, 2.0, 3.0, 4.0])
+        result = compute_second_order_eif(first_order, {})
+        assert result.approximation_method == "no_correction"
+        assert result.bias_correction == 0.0
+        assert np.isclose(result.corrected_estimate, np.mean(first_order))
+        assert "no non-constant nuisance basis" in result.note
+
+    def test_second_order_rejects_mismatched_nuisance_lengths(self):
+        with pytest.raises(ValueError, match="same length"):
+            compute_second_order_eif(np.array([1.0, 2.0, 3.0]), {"bad": np.array([1.0, 2.0])})
+
+    def test_second_order_reports_rank_deficiency(self):
+        rng = np.random.default_rng(21)
+        x = rng.normal(size=300)
+        first_order = 1.0 + 0.4 * x + 0.05 * rng.normal(size=300)
+        result = compute_second_order_eif(first_order, {"x": x, "x_duplicate": x.copy()})
+        assert np.all(np.isfinite(result.scores))
+        assert result.basis_dimension >= 2
+        assert result.basis_rank < result.basis_dimension
+        assert "rank deficiency" in result.note
+
+    def test_second_order_to_dict_roundtrip(self):
+        rng = np.random.default_rng(1)
+        first_order = rng.normal(size=50)
+        result = compute_second_order_eif(first_order, {"d": rng.normal(size=50)})
+        payload = result.to_dict()
+        assert "bias_correction" in payload
+        assert "corrected_estimate" in payload
+        assert len(payload["scores"]) == 50
+        assert "basis_terms" in payload
+        assert "approximation_method" in payload
+        assert "note" in payload
+
+
 class TestFoundryMethod:
     def _make_state(self, n=300):
         Y, T, e, mu1, mu0 = _dgp(n=n)
@@ -279,6 +344,20 @@ class TestFoundryMethod:
         )
         assert "relative_efficiency" in result["efficiency_bound"]
         assert result["efficiency_bound"]["relative_efficiency"] > 0
+
+    def test_pure_step_emits_second_order_payload_when_requested(self):
+        state = self._make_state()
+        n = len(state["Y"])
+        nuisance = {"derivative_x": np.linspace(-1.0, 1.0, n)}
+        result = SemiparametricEfficiencyBoundMethod.pure_step(
+            state,
+            {"estimand_type": "ate", "nuisance_derivatives": nuisance},
+        )
+        assert "second_order_eif" in result
+        payload = result["second_order_eif"]
+        assert payload["approximation_method"] == "orthogonal_quadratic_projection"
+        assert payload["basis_terms"]
+        assert payload["note"]
 
     def test_pure_step_finite_output(self):
         state = self._make_state()

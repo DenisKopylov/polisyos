@@ -8,6 +8,7 @@ from pathlib import Path
 
 import duckdb
 
+from polisyos.academic.knowledge.canonical_resolver import CanonicalVariableResolver
 from polisyos.academic.knowledge.canonical_seed import CANONICAL_VARIABLES
 
 _CANONICAL_NAME_RE = re.compile(r"^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*){0,3}$")
@@ -26,6 +27,10 @@ class VariableCanonizer:
         self._cache: dict[str, str] = dict(initial_cache or {})
         self._pending_review: list[tuple[str, str]] = []
         self._db_path = db_path
+        self._resolver = CanonicalVariableResolver(
+            approved_names=self._seed_canonical_names(),
+            approved_synonyms={},
+        )
 
         self._build_reverse_index()
         if self._db_path is not None:
@@ -40,6 +45,17 @@ class VariableCanonizer:
                     normalized_syn = self._normalize(syn)
                     if normalized_syn:
                         self._reverse[normalized_syn] = canonical
+
+    @staticmethod
+    def _seed_canonical_names() -> set[str]:
+        names: set[str] = set()
+        for parent, children in CANONICAL_VARIABLES.items():
+            names.add(parent)
+            for child_key in children:
+                if child_key == "_root":
+                    continue
+                names.add(f"{parent}.{child_key}")
+        return names
 
     @staticmethod
     def _normalize(raw_name: str) -> str:
@@ -103,6 +119,10 @@ class VariableCanonizer:
             for raw_name, canonical_name in rows:
                 if raw_name and canonical_name:
                     self._cache[str(raw_name)] = str(canonical_name)
+            try:
+                self._resolver = CanonicalVariableResolver.from_connection(con)
+            except Exception:
+                pass
         finally:
             con.close()
 
@@ -131,7 +151,7 @@ class VariableCanonizer:
         finally:
             con.close()
 
-    def _fuzzy_match(self, normalized: str, *, threshold: float = 0.85) -> str | None:
+    def _fuzzy_match(self, normalized: str, *, threshold: float = 0.78) -> str | None:
         best_score = 0.0
         best_match: str | None = None
         for synonym, canonical in self._reverse.items():
@@ -151,6 +171,25 @@ class VariableCanonizer:
         cached = self._cache.get(normalized)
         if cached:
             return cached, False
+
+        if _CANONICAL_NAME_RE.match(normalized) and "." in normalized:
+            canonical_like = self._slugify(raw_name)
+            self._cache[normalized] = canonical_like
+            self._persist_mapping(normalized, canonical_like, approved=False)
+            self._pending_review.append((raw_name, canonical_like))
+            return canonical_like, True
+
+        try:
+            resolved = self._resolver.resolve(raw_name)
+        except Exception:
+            resolved = None
+        if resolved is not None and resolved.canonical_name:
+            canonical_name = resolved.canonical_name
+            self._cache[normalized] = canonical_name
+            self._persist_mapping(normalized, canonical_name, approved=bool(resolved.approved))
+            if not resolved.approved:
+                self._pending_review.append((raw_name, canonical_name))
+            return canonical_name, resolved.method not in {"exact", "synonym", "hierarchy", "exact_alias"}
 
         fuzzy = self._fuzzy_match(normalized)
         if fuzzy:

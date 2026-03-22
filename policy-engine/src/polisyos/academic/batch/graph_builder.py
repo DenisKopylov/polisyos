@@ -8,12 +8,13 @@ from collections import defaultdict
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Iterable
+from typing import Any, Iterable
 
 import duckdb
 
 from polisyos.academic.batch.claim_ids import stable_claim_id
 from polisyos.academic.batch.config import AcademicBatchConfig
+from polisyos.academic.knowledge.canonical_resolver import CanonicalVariableResolver
 from polisyos.academic.knowledge.skg_store import (
     aggregate_edge_confidence,
     ensure_skg_schema,
@@ -32,6 +33,29 @@ from polisyos.batch_common.manifest import write_stage_manifest
 from polisyos.common.logger import get_logger
 
 logger = get_logger(__name__)
+
+_DESIGN_TIER_BY_FAMILY: dict[str, int | None] = {
+    "rct": 1,
+    "iv": 1,
+    "did": 1,
+    "rdd": 1,
+    "synthetic_control": 1,
+    "meta_analysis": 1,
+    "event_study": 2,
+    "quasi_experimental_other": 2,
+    "quasi_experimental_did": 2,
+    "quasi_experimental_rdd": 2,
+    "panel_fe": 3,
+    "structural_model": 3,
+    "time_series_cointegration": 3,
+    "ols": 4,
+    "ols_cross_sectional": 4,
+    "review": None,
+    "review_meta_analysis": 1,
+    "review_narrative": None,
+    "theoretical": None,
+    "unclear": None,
+}
 
 _DDL = """
 CREATE TABLE IF NOT EXISTS ac_works (
@@ -129,6 +153,10 @@ CREATE TABLE IF NOT EXISTS ac_claim_adjudications (
     publish_blockers           VARCHAR DEFAULT '',
     consensus_passes           INTEGER DEFAULT 1,
     consensus_stability        FLOAT DEFAULT 1.0,
+    claim_type_confidence      FLOAT,
+    design_family_confidence   FLOAT,
+    direction_confidence       FLOAT,
+    intra_paper_contradiction  BOOLEAN DEFAULT FALSE,
     adjudication_notes         VARCHAR
 );
 
@@ -249,6 +277,33 @@ def _stable_hash(*parts: str, size: int = 24) -> str:
     return hashlib.sha256(canon.encode("utf-8")).hexdigest()[:size]
 
 
+def _supporting_span_signature(*, supporting_span_ids: Iterable[str] | None, claim_text: str) -> tuple[str, ...]:
+    items = tuple(sorted({str(item).strip() for item in (supporting_span_ids or []) if str(item).strip()}))
+    if items:
+        return items
+    text = str(claim_text or "").strip().lower()
+    return (text[:64],) if text else ()
+
+
+def _validate_json_column(value: object, *, expected_type: type, field_name: str) -> str:
+    if isinstance(value, expected_type):
+        return json.dumps(value, ensure_ascii=False)
+    try:
+        parsed = json.loads(str(value))
+    except (TypeError, ValueError, json.JSONDecodeError) as exc:
+        raise ValueError(f"{field_name} must be valid JSON: {exc}") from exc
+    if not isinstance(parsed, expected_type):
+        raise ValueError(
+            f"{field_name} must encode {expected_type.__name__}, got {type(parsed).__name__}"
+        )
+    return json.dumps(parsed, ensure_ascii=False)
+
+
+def _design_quality_tier_from_family(design_family: str | None) -> int | None:
+    clean = str(design_family or "").strip().lower()
+    return _DESIGN_TIER_BY_FAMILY.get(clean)
+
+
 def _claim_id(record_id: str, claim: dict) -> str:
     explicit = str(claim.get("claim_id") or "").strip()
     if explicit:
@@ -259,6 +314,10 @@ def _claim_id(record_id: str, claim: dict) -> str:
         effect=str(claim.get("effect") or ""),
         claim_text=str(claim.get("claim_text") or ""),
         direction=str(claim.get("direction") or ""),
+        supporting_span_ids=_supporting_span_signature(
+            supporting_span_ids=claim.get("supporting_span_ids") if isinstance(claim.get("supporting_span_ids"), list) else [],
+            claim_text=str(claim.get("claim_text") or ""),
+        ),
     )
 
 
@@ -348,6 +407,7 @@ class GraphStats:
     skg_context_profiles: int = 0
     skg_transport_scores: int = 0
     skg_versions: int = 0
+    json_validation_failures: int = 0
 
 
 def _init_schema(con: duckdb.DuckDBPyConnection) -> None:
@@ -370,6 +430,7 @@ def _init_schema(con: duckdb.DuckDBPyConnection) -> None:
     con.execute("DROP TABLE IF EXISTS ac_skg_context_attributes")
     con.execute("DROP TABLE IF EXISTS ac_skg_simulation_parameters")
     con.execute("DROP TABLE IF EXISTS ac_skg_parameters")
+    con.execute("DROP TABLE IF EXISTS ac_skg_contested_edges")
     con.execute("DROP TABLE IF EXISTS ac_skg_family_edges")
     con.execute("DROP TABLE IF EXISTS ac_skg_edge_evidence")
     con.execute("DROP TABLE IF EXISTS ac_skg_edges")
@@ -402,6 +463,7 @@ def _truncate(con: duckdb.DuckDBPyConnection) -> None:
     con.execute("DELETE FROM ac_skg_transport_scores")
     con.execute("DELETE FROM ac_skg_parameters")
     con.execute("DELETE FROM ac_skg_simulation_parameters")
+    con.execute("DELETE FROM ac_skg_contested_edges")
     con.execute("DELETE FROM ac_skg_family_edges")
     con.execute("DELETE FROM ac_skg_edge_evidence")
     con.execute("DELETE FROM ac_skg_edges")
@@ -483,9 +545,10 @@ def _flush_all(
             "risk_of_bias, support_status, source_basis, paper_asserts_score, claim_validity_score, "
             "adjudication_confidence, claim_extraction_confidence, publishable_edge, "
             "strong_design_evidence, design_quality_tier, publish_blockers, consensus_passes, "
-            "consensus_stability, adjudication_notes"
+            "consensus_stability, claim_type_confidence, design_family_confidence, "
+            "direction_confidence, intra_paper_contradiction, adjudication_notes"
             ") "
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             claim_adjudication_batch,
         )
         stats.claim_adjudications += len(claim_adjudication_batch)
@@ -691,13 +754,25 @@ def _materialize_skg(
         )
         stats.skg_articles = len(skg_articles_batch)
 
+    resolver = CanonicalVariableResolver.from_connection(con)
     variable_rows: list[tuple] = []
     for canonical_name, mention_count in variable_mentions.items():
+        resolution = resolver.resolve(canonical_name)
+        resolver.persist_resolution(con, resolution)
+        approved_canonical_name = (
+            str(resolution.canonical_name or "").strip() if resolution.approved else None
+        )
         variable_rows.append(
             (
                 canonical_name,
+                canonical_name,
                 variable_display.get(canonical_name, canonical_name),
                 parent_canonical_name(canonical_name),
+                approved_canonical_name,
+                parent_canonical_name(approved_canonical_name) if approved_canonical_name else None,
+                bool(approved_canonical_name),
+                str(resolution.method or ""),
+                float(resolution.confidence or 0.0),
                 int(mention_count),
             )
         )
@@ -705,23 +780,48 @@ def _materialize_skg(
         con.executemany(
             """
             INSERT OR REPLACE INTO ac_skg_variables(
-                canonical_name, display_name, parent_name, mention_count
-            ) VALUES (?, ?, ?, ?)
+                canonical_name,
+                normalized_name,
+                display_name,
+                parent_name,
+                approved_canonical_name,
+                approved_parent_name,
+                is_approved_canonical,
+                resolution_method,
+                resolution_confidence,
+                mention_count
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             variable_rows,
         )
         stats.skg_variables = len(variable_rows)
 
     if skg_parameter_batch:
+        validated_parameter_rows: list[tuple] = []
+        for row in skg_parameter_batch:
+            param_id, canonical_name, openalex_id, parameter_json, context_json = row
+            try:
+                validated_parameter_rows.append(
+                    (
+                        param_id,
+                        canonical_name,
+                        openalex_id,
+                        _validate_json_column(parameter_json, expected_type=dict, field_name="parameter_json"),
+                        _validate_json_column(context_json, expected_type=dict, field_name="context_json"),
+                    )
+                )
+            except ValueError as exc:
+                stats.json_validation_failures += 1
+                logger.warning("Skipping malformed ac_skg_parameters row {}: {}", param_id, exc)
         con.executemany(
             """
             INSERT OR REPLACE INTO ac_skg_parameters(
                 param_id, canonical_name, openalex_id, parameter_json, context_json
             ) VALUES (?, ?, ?, ?, ?)
             """,
-            skg_parameter_batch,
+            validated_parameter_rows,
         )
-        stats.skg_parameters = len(skg_parameter_batch)
+        stats.skg_parameters = len(validated_parameter_rows)
 
     edge_rows: list[tuple] = []
     for (src, dst, direction), payload in edge_accumulator.items():
@@ -731,7 +831,7 @@ def _materialize_skg(
         effect_sizes = payload["effect_sizes"]  # type: ignore[index]
 
         confidence = aggregate_edge_confidence(evidence_samples)  # type: ignore[arg-type]
-        best_strength = strongest_strength([str(s) for s, _ in evidence_samples])  # type: ignore[misc]
+        best_strength = strongest_strength([str(sample[0]) for sample in evidence_samples])  # type: ignore[misc]
         effect_size_values = [float(v) for v in effect_sizes if isinstance(v, (int, float))]
         meta_effect_size = (
             float(sum(effect_size_values) / len(effect_size_values))
@@ -739,22 +839,30 @@ def _materialize_skg(
             else None
         )
 
-        edge_rows.append(
-            (
-                hash_edge_id(src, dst, direction),
-                src,
-                dst,
-                direction,
-                len(article_refs),
-                json.dumps(article_refs, ensure_ascii=False),
-                best_strength,
-                confidence,
-                json.dumps(scope_conditions, ensure_ascii=False),
-                meta_effect_size,
-                "candidate",
-                json.dumps(_edge_quality_summary(payload), ensure_ascii=False),
+        try:
+            edge_rows.append(
+                (
+                    hash_edge_id(src, dst, direction),
+                    src,
+                    dst,
+                    direction,
+                    len(article_refs),
+                    _validate_json_column(article_refs, expected_type=list, field_name="article_refs"),
+                    best_strength,
+                    confidence,
+                    _validate_json_column(scope_conditions, expected_type=list, field_name="scope_conditions"),
+                    meta_effect_size,
+                    "candidate",
+                    _validate_json_column(
+                        _edge_quality_summary(payload),
+                        expected_type=dict,
+                        field_name="quality_signals_json",
+                    ),
+                )
             )
-        )
+        except ValueError as exc:
+            stats.json_validation_failures += 1
+            logger.warning("Skipping malformed ac_skg_edges row {} -> {} [{}]: {}", src, dst, direction, exc)
 
     if edge_rows:
         con.executemany(
@@ -782,6 +890,50 @@ def _materialize_skg(
         stats.skg_edge_evidence = len(edge_evidence_batch)
 
     if simulation_parameter_batch:
+        validated_simulation_rows: list[tuple] = []
+        for row in simulation_parameter_batch:
+            (
+                numeric_id,
+                openalex_id,
+                canonical_name,
+                estimate_type,
+                point_estimate,
+                estimate_sign,
+                unit,
+                evidence_strength,
+                confidence_interval_json,
+                std_error,
+                linked_claim_ids_json,
+                linked_edges_json,
+                context_json,
+                source_layer,
+                uncertainty_source,
+                quality_flags_json,
+            ) = row
+            try:
+                validated_simulation_rows.append(
+                    (
+                        numeric_id,
+                        openalex_id,
+                        canonical_name,
+                        estimate_type,
+                        point_estimate,
+                        estimate_sign,
+                        unit,
+                        evidence_strength,
+                        _validate_json_column(confidence_interval_json, expected_type=list, field_name="confidence_interval_json"),
+                        std_error,
+                        _validate_json_column(linked_claim_ids_json, expected_type=list, field_name="linked_claim_ids_json"),
+                        _validate_json_column(linked_edges_json, expected_type=list, field_name="linked_edges_json"),
+                        _validate_json_column(context_json, expected_type=dict, field_name="context_json"),
+                        source_layer,
+                        uncertainty_source,
+                        _validate_json_column(quality_flags_json, expected_type=list, field_name="quality_flags_json"),
+                    )
+                )
+            except ValueError as exc:
+                stats.json_validation_failures += 1
+                logger.warning("Skipping malformed ac_skg_simulation_parameters row {}: {}", numeric_id, exc)
         con.executemany(
             """
             INSERT OR REPLACE INTO ac_skg_simulation_parameters(
@@ -791,9 +943,9 @@ def _materialize_skg(
                 source_layer, uncertainty_source, quality_flags_json
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
-            simulation_parameter_batch,
+            validated_simulation_rows,
         )
-        stats.skg_simulation_parameters = len(simulation_parameter_batch)
+        stats.skg_simulation_parameters = len(validated_simulation_rows)
 
     if context_attr_batch:
         con.executemany(
@@ -981,7 +1133,14 @@ def load_graph(
 
             for i, claim in enumerate(record.causal_claims):
                 if isinstance(claim, dict):
+                    if bool(record.is_retracted):
+                        continue
                     cid = _claim_id(record.id, claim)
+                    design_tier = (
+                        int(claim.get("design_quality_tier"))
+                        if claim.get("design_quality_tier") is not None
+                        else None
+                    )
                     raw_claim_batch.append(
                         (
                             cid,
@@ -996,7 +1155,7 @@ def load_graph(
                             claim.get("source_basis", ""),
                             float(claim.get("claim_extraction_confidence") or record.extraction_confidence or 0.0),
                             bool(claim.get("strong_design_evidence") or False),
-                            int(claim.get("design_quality_tier")) if claim.get("design_quality_tier") is not None else None,
+                            design_tier,
                             bool(claim.get("publish_to_graph") or False),
                             "; ".join(str(v) for v in (claim.get("publish_blockers") or []) if str(v).strip()),
                             bool(claim.get("span_contamination_detected") or False),
@@ -1010,6 +1169,10 @@ def load_graph(
                     published_strength = str(claim.get("strength") or "")
                     published_trust = float(record.trust_score)
                     if adjudication:
+                        adjudicated_design_family = str(adjudication.get("design_family") or "").strip()
+                        recalculated_tier = _design_quality_tier_from_family(adjudicated_design_family)
+                        if recalculated_tier is not None:
+                            design_tier = recalculated_tier
                         claim_adjudication_batch.append(
                             (
                                 cid,
@@ -1028,10 +1191,14 @@ def load_graph(
                                 float(claim.get("claim_extraction_confidence") or record.extraction_confidence or 0.0),
                                 bool(adjudication.get("publishable_edge") or False),
                                 bool(claim.get("strong_design_evidence") or False),
-                                int(claim.get("design_quality_tier")) if claim.get("design_quality_tier") is not None else None,
+                                design_tier,
                                 "; ".join(str(v) for v in (claim.get("publish_blockers") or []) if str(v).strip()),
                                 int(adjudication.get("consensus_passes") or 1),
                                 float(adjudication.get("consensus_stability") or 0.0),
+                                float(adjudication.get("claim_type_confidence")) if adjudication.get("claim_type_confidence") is not None else None,
+                                float(adjudication.get("design_family_confidence")) if adjudication.get("design_family_confidence") is not None else None,
+                                float(adjudication.get("direction_confidence")) if adjudication.get("direction_confidence") is not None else None,
+                                bool(adjudication.get("intra_paper_contradiction") or False),
                                 str(adjudication.get("adjudication_notes") or ""),
                             )
                         )
@@ -1066,10 +1233,14 @@ def load_graph(
                                 float(claim.get("claim_extraction_confidence") or record.extraction_confidence or 0.0),
                                 publishable,
                                 bool(claim.get("strong_design_evidence") or False),
-                                int(claim.get("design_quality_tier")) if claim.get("design_quality_tier") is not None else None,
+                                design_tier,
                                 "; ".join(str(v) for v in (claim.get("publish_blockers") or []) if str(v).strip()),
                                 1,
                                 1.0,
+                                None,
+                                None,
+                                1.0,
+                                False,
                                 "; ".join(str(v) for v in (claim.get("publish_blockers") or []) if str(v).strip()),
                             )
                         )
@@ -1086,7 +1257,7 @@ def load_graph(
                                 str(claim.get("design_family_hint") or ""),
                                 float(claim.get("claim_extraction_confidence") or record.extraction_confidence or 0.0),
                                 bool(claim.get("strong_design_evidence") or False),
-                                int(claim.get("design_quality_tier")) if claim.get("design_quality_tier") is not None else None,
+                                design_tier,
                                 "; ".join(str(v) for v in (claim.get("publish_blockers") or []) if str(v).strip()),
                                 "candidate",
                                 claim.get("mechanism", ""),
@@ -1154,6 +1325,9 @@ def load_graph(
                     skg_version_id,
                 )
             )
+
+            if bool(record.is_retracted):
+                continue
 
             for est in record.estimates:
                 canonical = str(est.variable_hint or "").strip()
@@ -1348,6 +1522,8 @@ def load_graph(
             for claim in record.causal_claims:
                 if not isinstance(claim, dict):
                     continue
+                if bool(record.is_retracted):
+                    continue
                 cid = _claim_id(record.id, claim)
                 adjudication = claim_adjudications.get(cid)
                 publishable = bool(claim.get("publish_to_graph") or False)
@@ -1383,12 +1559,22 @@ def load_graph(
                     if adjudication is not None
                     else float(record.extraction_confidence)
                 )
+                sample_size = (
+                    int(record.metadata.get("sample_size"))
+                    if record.metadata.get("sample_size") not in (None, "")
+                    else None
+                )
                 payload["evidence_samples"].append(  # type: ignore[index]
                     (
                         _legacy_strength_from_adjudication(adjudication)
                         if adjudication is not None
                         else _infer_edge_strength(claim),
                         confidence_value,
+                        record.year,
+                        sample_size,
+                        str(claim.get("source_basis") or "fulltext"),
+                        bool(record.is_retracted),
+                        record.fwci,
                     )
                 )
                 payload["scope_conditions"].extend(claim.get("scope_conditions") or [])  # type: ignore[index]
@@ -1601,6 +1787,7 @@ def run_graph_load(config: AcademicBatchConfig) -> GraphStats:
             "skg_parameters": stats.skg_parameters,
             "skg_simulation_parameters": stats.skg_simulation_parameters,
             "skg_versions": stats.skg_versions,
+            "json_validation_failures": stats.json_validation_failures,
         },
         artifacts=[config.db_path],
         started_at=started_at,

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import math
+from dataclasses import dataclass
 from collections.abc import Iterable
 from datetime import UTC, datetime
 from typing import Any
@@ -26,11 +27,17 @@ CREATE TABLE IF NOT EXISTS ac_skg_articles (
 );
 
 CREATE TABLE IF NOT EXISTS ac_skg_variables (
-    canonical_name     VARCHAR PRIMARY KEY,
-    display_name       VARCHAR NOT NULL,
-    parent_name        VARCHAR,
-    mention_count      INTEGER DEFAULT 0,
-    first_seen_ts      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    canonical_name           VARCHAR PRIMARY KEY,
+    normalized_name          VARCHAR NOT NULL,
+    display_name             VARCHAR NOT NULL,
+    parent_name              VARCHAR,
+    approved_canonical_name  VARCHAR,
+    approved_parent_name     VARCHAR,
+    is_approved_canonical    BOOLEAN DEFAULT FALSE,
+    resolution_method        VARCHAR DEFAULT '',
+    resolution_confidence    DOUBLE DEFAULT 0.0,
+    mention_count            INTEGER DEFAULT 0,
+    first_seen_ts            TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS ac_skg_edges (
@@ -83,6 +90,30 @@ CREATE TABLE IF NOT EXISTS ac_skg_family_edges (
     updated_ts                TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS ac_skg_contested_edges (
+    contested_edge_id         VARCHAR PRIMARY KEY,
+    src_family                VARCHAR NOT NULL,
+    dst_family                VARCHAR NOT NULL,
+    n_articles                INTEGER DEFAULT 1,
+    n_claims                  INTEGER DEFAULT 1,
+    article_refs              VARCHAR NOT NULL,
+    claim_refs                VARCHAR NOT NULL,
+    dominant_direction        VARCHAR DEFAULT '',
+    resolution_status         VARCHAR NOT NULL,
+    runtime_support           VARCHAR NOT NULL,
+    evidence_strength         VARCHAR NOT NULL,
+    confidence                DOUBLE NOT NULL,
+    positive_weight           DOUBLE DEFAULT 0.0,
+    negative_weight           DOUBLE DEFAULT 0.0,
+    mixed_weight              DOUBLE DEFAULT 0.0,
+    dominant_direction_agreement DOUBLE DEFAULT 0.0,
+    strongest_dissent_strength VARCHAR DEFAULT '',
+    strongest_dissent_year    INTEGER,
+    direction_histogram_json  VARCHAR DEFAULT '{}',
+    quality_signals_json      VARCHAR DEFAULT '{}',
+    updated_ts                TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE IF NOT EXISTS ac_skg_parameters (
     param_id           VARCHAR PRIMARY KEY,
     canonical_name     VARCHAR NOT NULL,
@@ -117,6 +148,16 @@ CREATE TABLE IF NOT EXISTS ac_skg_canonization_cache (
     created_ts         TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS ac_skg_variable_synonyms (
+    synonym            VARCHAR NOT NULL,
+    canonical_name     VARCHAR NOT NULL,
+    method             VARCHAR NOT NULL DEFAULT 'manual',
+    confidence         DOUBLE DEFAULT 1.0,
+    approved           BOOLEAN DEFAULT FALSE,
+    created_ts         TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (synonym, canonical_name)
+);
+
 CREATE TABLE IF NOT EXISTS ac_skg_versions (
     version_id         INTEGER PRIMARY KEY,
     created_ts         TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -131,14 +172,20 @@ CREATE INDEX IF NOT EXISTS idx_ac_skg_edges_dst ON ac_skg_edges(dst);
 CREATE INDEX IF NOT EXISTS idx_ac_skg_edges_confidence ON ac_skg_edges(confidence);
 CREATE INDEX IF NOT EXISTS idx_ac_skg_edge_evidence_edge ON ac_skg_edge_evidence(edge_id);
 CREATE INDEX IF NOT EXISTS idx_ac_skg_edge_evidence_article ON ac_skg_edge_evidence(openalex_id);
+CREATE INDEX IF NOT EXISTS idx_ac_skg_variables_approved ON ac_skg_variables(approved_canonical_name);
+CREATE INDEX IF NOT EXISTS idx_ac_skg_variables_is_approved ON ac_skg_variables(is_approved_canonical);
 CREATE INDEX IF NOT EXISTS idx_ac_skg_family_edges_src ON ac_skg_family_edges(src_family);
 CREATE INDEX IF NOT EXISTS idx_ac_skg_family_edges_dst ON ac_skg_family_edges(dst_family);
+CREATE INDEX IF NOT EXISTS idx_ac_skg_contested_edges_src ON ac_skg_contested_edges(src_family);
+CREATE INDEX IF NOT EXISTS idx_ac_skg_contested_edges_dst ON ac_skg_contested_edges(dst_family);
 CREATE INDEX IF NOT EXISTS idx_ac_skg_params_name ON ac_skg_parameters(canonical_name);
 CREATE INDEX IF NOT EXISTS idx_ac_skg_params_article ON ac_skg_parameters(openalex_id);
 CREATE INDEX IF NOT EXISTS idx_ac_skg_sim_params_name ON ac_skg_simulation_parameters(canonical_name);
 CREATE INDEX IF NOT EXISTS idx_ac_skg_sim_params_article ON ac_skg_simulation_parameters(openalex_id);
 CREATE INDEX IF NOT EXISTS idx_ac_skg_articles_year ON ac_skg_articles(year);
 CREATE INDEX IF NOT EXISTS idx_ac_skg_articles_retracted ON ac_skg_articles(retracted);
+CREATE INDEX IF NOT EXISTS idx_ac_skg_variable_synonyms_synonym ON ac_skg_variable_synonyms(synonym);
+CREATE INDEX IF NOT EXISTS idx_ac_skg_variable_synonyms_canonical ON ac_skg_variable_synonyms(canonical_name);
 
 CREATE TABLE IF NOT EXISTS ac_skg_context_attributes (
     attr_id            VARCHAR PRIMARY KEY,
@@ -220,21 +267,178 @@ EVIDENCE_WEIGHTS: dict[str, float] = {
     EvidenceStrength.UNKNOWN.value: 0.15,
 }
 
+ABSTRACT_ONLY_PENALTY = 0.5
+TEMPORAL_HALF_LIFE_YEARS = 20.0
+TEMPORAL_FLOOR = 0.30
+CITATION_IMPACT_ENABLED = True
+CITATION_IMPACT_CAP = 1.15
 
-def aggregate_edge_confidence(articles: Iterable[tuple[str, float]]) -> float:
-    """Aggregate edge confidence so one strong RCT dominates many weak studies."""
-    rows = list(articles)
-    if not rows:
+
+@dataclass(frozen=True)
+class ArticleEvidence:
+    strength: str
+    extraction_confidence: float
+    publication_year: int | None = None
+    sample_size: int | None = None
+    source_basis: str = "fulltext"
+    retracted: bool = False
+    fwci: float | None = None
+
+
+@dataclass(frozen=True)
+class WeightedDirectionSummary:
+    dominant_direction: str
+    agreement_score: float
+    is_contested: bool
+    direction_weights: dict[str, float]
+    strongest_dissent_strength: str = ""
+    strongest_dissent_year: int | None = None
+
+
+def _coerce_article_evidence(row: ArticleEvidence | tuple[Any, ...]) -> ArticleEvidence:
+    if isinstance(row, ArticleEvidence):
+        return row
+    if len(row) == 2:
+        strength, extraction_confidence = row
+        return ArticleEvidence(
+            strength=str(strength),
+            extraction_confidence=float(extraction_confidence or 0.0),
+        )
+    if len(row) == 4:
+        strength, extraction_confidence, publication_year, retracted = row
+        return ArticleEvidence(
+            strength=str(strength),
+            extraction_confidence=float(extraction_confidence or 0.0),
+            publication_year=int(publication_year) if publication_year not in (None, "") else None,
+            retracted=bool(retracted),
+        )
+    if len(row) >= 7:
+        strength, extraction_confidence, publication_year, sample_size, source_basis, retracted, fwci = row[:7]
+        return ArticleEvidence(
+            strength=str(strength),
+            extraction_confidence=float(extraction_confidence or 0.0),
+            publication_year=int(publication_year) if publication_year not in (None, "") else None,
+            sample_size=int(sample_size) if sample_size not in (None, "") else None,
+            source_basis=str(source_basis or "fulltext"),
+            retracted=bool(retracted),
+            fwci=float(fwci) if fwci not in (None, "") else None,
+        )
+    raise ValueError(f"Unsupported article evidence row: {row!r}")
+
+
+def _temporal_weight(pub_year: int | None, *, current_year: int | None = None) -> float:
+    if pub_year is None:
+        return 0.85
+    reference_year = current_year or datetime.now(UTC).year
+    age = max(0, int(reference_year) - int(pub_year))
+    decay = 0.5 ** (age / TEMPORAL_HALF_LIFE_YEARS)
+    return max(TEMPORAL_FLOOR, float(decay))
+
+
+def _sample_size_factor(sample_size: int | None) -> float:
+    if sample_size is None or int(sample_size) <= 0:
+        return 0.7
+    n = int(sample_size)
+    if n < 100:
+        return 0.6
+    if n < 500:
+        return 0.8
+    if n < 5000:
+        return 0.9
+    return 1.0
+
+
+def _citation_factor(fwci: float | None) -> float:
+    if not CITATION_IMPACT_ENABLED or fwci is None:
+        return 1.0
+    return min(CITATION_IMPACT_CAP, max(0.5, float(fwci)))
+
+
+def _effective_evidence_weight(evidence: ArticleEvidence) -> float:
+    if evidence.retracted:
+        return 0.0
+    base = EVIDENCE_WEIGHTS.get(str(evidence.strength), EVIDENCE_WEIGHTS[EvidenceStrength.UNKNOWN.value])
+    weight = (
+        base
+        * _temporal_weight(evidence.publication_year)
+        * _sample_size_factor(evidence.sample_size)
+        * max(0.0, min(1.0, float(evidence.extraction_confidence)))
+        * _citation_factor(evidence.fwci)
+    )
+    if str(evidence.source_basis or "").strip().lower() == "abstract_only":
+        _strong_evidence_types = {
+            EvidenceStrength.RCT.value,
+            EvidenceStrength.QUASI_NATURAL.value,
+            EvidenceStrength.META_ANALYSIS.value,
+        }
+        if str(evidence.strength or "").strip() in _strong_evidence_types:
+            weight *= 0.75  # reduced penalty for strong designs
+        else:
+            weight *= ABSTRACT_ONLY_PENALTY
+    return min(0.99, max(0.0, float(weight)))
+
+
+def aggregate_edge_confidence(articles: Iterable[ArticleEvidence | tuple[Any, ...]]) -> float:
+    """Aggregate edge confidence using evidence-weighted noisy-OR."""
+    rows = [_coerce_article_evidence(row) for row in articles]
+    valid = [row for row in rows if not row.retracted]
+    if not valid:
         return 0.0
 
-    quality_score = max(
-        EVIDENCE_WEIGHTS.get(str(strength), EVIDENCE_WEIGHTS[EvidenceStrength.UNKNOWN.value])
-        * max(0.0, min(1.0, float(extraction_confidence)))
-        for strength, extraction_confidence in rows
-    )
+    weights = [_effective_evidence_weight(row) for row in valid]
+    if not weights:
+        return 0.0
+    combined = 1.0 - math.prod(1.0 - min(weight, 0.99) for weight in weights)
+    return min(1.0, max(0.0, combined))
 
-    replication_bonus = min(0.3, 0.1 * math.log2(max(1, len(rows))))
-    return min(1.0, quality_score + replication_bonus)
+
+def weighted_direction_summary(
+    direction_evidence: dict[str, Iterable[ArticleEvidence | tuple[Any, ...]]],
+) -> WeightedDirectionSummary:
+    direction_weights: dict[str, float] = {}
+    dissent_strength = EvidenceStrength.UNKNOWN.value
+    dissent_year: int | None = None
+    for direction, items in direction_evidence.items():
+        rows = [_coerce_article_evidence(item) for item in items]
+        total_weight = sum(_effective_evidence_weight(row) for row in rows)
+        direction_weights[str(direction)] = float(total_weight)
+
+    total = sum(direction_weights.values())
+    if total <= 0.0:
+        return WeightedDirectionSummary(
+            dominant_direction="unknown",
+            agreement_score=0.0,
+            is_contested=False,
+            direction_weights=direction_weights,
+        )
+
+    dominant_direction = max(
+        direction_weights.items(),
+        key=lambda item: (item[1], item[0]),
+    )[0]
+    agreement = float(direction_weights[dominant_direction] / total)
+    significant = [direction for direction, weight in direction_weights.items() if (weight / total) > 0.15]
+    is_contested = len(significant) > 1
+
+    if is_contested:
+        non_dominant: list[ArticleEvidence] = []
+        for direction, items in direction_evidence.items():
+            if direction == dominant_direction:
+                continue
+            non_dominant.extend(_coerce_article_evidence(item) for item in items)
+        if non_dominant:
+            strongest = max(non_dominant, key=lambda row: (_effective_evidence_weight(row), edge_strength_rank(row.strength)))
+            dissent_strength = strongest.strength
+            dissent_year = strongest.publication_year
+
+    return WeightedDirectionSummary(
+        dominant_direction=dominant_direction,
+        agreement_score=agreement,
+        is_contested=is_contested,
+        direction_weights={key: round(value, 6) for key, value in direction_weights.items()},
+        strongest_dissent_strength=dissent_strength if is_contested else "",
+        strongest_dissent_year=dissent_year if is_contested else None,
+    )
 
 
 def ensure_skg_schema(con: duckdb.DuckDBPyConnection) -> None:
@@ -242,6 +446,28 @@ def ensure_skg_schema(con: duckdb.DuckDBPyConnection) -> None:
         sql = stmt.strip()
         if sql:
             con.execute(sql)
+    for table_name, column_name, column_sql in (
+        ("ac_skg_contested_edges", "positive_weight", "DOUBLE DEFAULT 0.0"),
+        ("ac_skg_contested_edges", "negative_weight", "DOUBLE DEFAULT 0.0"),
+        ("ac_skg_contested_edges", "mixed_weight", "DOUBLE DEFAULT 0.0"),
+        ("ac_skg_contested_edges", "dominant_direction_agreement", "DOUBLE DEFAULT 0.0"),
+        ("ac_skg_contested_edges", "strongest_dissent_strength", "VARCHAR DEFAULT ''"),
+        ("ac_skg_contested_edges", "strongest_dissent_year", "INTEGER"),
+    ):
+        try:
+            exists = con.execute(
+                """
+                SELECT 1
+                FROM information_schema.columns
+                WHERE table_name = ? AND column_name = ?
+                LIMIT 1
+                """,
+                [table_name, column_name],
+            ).fetchone()
+        except duckdb.Error:
+            exists = None
+        if not exists:
+            con.execute(f"ALTER TABLE {table_name} ADD COLUMN {column_name} {column_sql}")
 
 
 def next_skg_version(con: duckdb.DuckDBPyConnection, *, description: str = "") -> int:
@@ -288,6 +514,13 @@ def hash_param_id(canonical_name: str, openalex_id: str) -> str:
     import hashlib
 
     payload = f"{canonical_name}|{openalex_id}".encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()[:24]
+
+
+def hash_contested_edge_id(src_family: str, dst_family: str) -> str:
+    import hashlib
+
+    payload = f"contested|{src_family}|{dst_family}".encode("utf-8")
     return hashlib.sha256(payload).hexdigest()[:24]
 
 
@@ -376,7 +609,11 @@ def normalize_strength(value: Any) -> str:
 __all__ = [
     "SKG_DDL",
     "EVIDENCE_WEIGHTS",
+    "ABSTRACT_ONLY_PENALTY",
+    "ArticleEvidence",
+    "WeightedDirectionSummary",
     "aggregate_edge_confidence",
+    "weighted_direction_summary",
     "ensure_skg_schema",
     "next_skg_version",
     "finalize_skg_version",

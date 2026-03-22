@@ -79,3 +79,35 @@ def test_synthetic_control_fails_with_multiple_treated_units():
     envelope = result.output["envelope"]
     assert envelope is not None
     assert envelope.gate_eligible is False
+
+
+def test_augmented_synthetic_control_mode_returns_augmented_flag():
+    ensure_causal_methods_registered()
+    registry = MethodRegistry.get_instance()
+    method_cls = registry.get("causal.inference.synthetic_control@1.0.0")
+
+    t0 = 5
+    donor_1 = np.array([2, 2, 2, 2, 2, 2, 2, 2], dtype=float)
+    donor_2 = np.array([1, 1.2, 1.4, 1.6, 1.8, 2.0, 2.2, 2.4], dtype=float)
+    treated = 0.7 * donor_1 + 0.3 * donor_2
+    treated[t0:] += 2.5
+
+    data = PanelObservationalData(
+        outcome=np.vstack([treated, donor_1, donor_2]),
+        treatment=np.array([1, 0, 0]),
+        time_treatment=t0,
+    )
+
+    dispatcher = MethodDispatcher.get_instance()
+    result = dispatcher.dispatch(
+        method_class=method_cls,
+        signature=method_cls.signature,
+        state=data,
+        params={"estimation_mode": "augmented", "ridge_alpha": 0.5},
+        seed=13,
+    )
+
+    report = result.output["report"]
+    assert report.status == EstimationStatus.SUCCESS
+    assert result.output["augmented"] is True
+    assert np.isfinite(report.point_estimate)

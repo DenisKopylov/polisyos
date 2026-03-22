@@ -84,13 +84,13 @@ sources:
   - name: wvs
     family: wvs
     wave: B
-    endpoint: https://api.worldvaluessurvey.org/v1/observations
+    endpoint: https://www.worldvaluessurvey.org/WVSDocumentationWVL.jsp
     connector_id: wvs.wave7
     profile_id: wvs_wave7
     execution_tier: transport_ready
     run_lane: empirical
     publish_blocking: true
-    update_frequency: irregular
+    update_frequency: wave
     metrics_required: true
     enabled: true
 

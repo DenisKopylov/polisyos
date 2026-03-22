@@ -25,8 +25,10 @@ from polisyos.foundry.methods.catalog.causal.estimand_compiler import (
     ExecutorNode,
 )
 from polisyos.foundry.methods.catalog.causal.id_engine import (
+    CtfQuery,
     IdentificationResult,
     IdentificationStatus,
+    SourceDomain,
 )
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType
 from polisyos.ir.analytics.evidence_bundle import EvidenceBundle
@@ -261,6 +263,68 @@ class TestG1MultiDomainRouting:
 
         call_kwargs = mock_id.call_args.kwargs
         assert call_kwargs.get("source_domains") == [d1, d2]
+
+    def test_counterfactual_with_s_nodes_routes_to_ctf_transport(self):
+        """G1: counterfactual + s_nodes must route to ctf_transportability, not plain ID*."""
+        engine = CausalEngine()
+        graph = _make_dag([("X", "Y")])
+        query = CtfQuery(outcome="Y", intervention=(("X", 1.0),), kind="single_world")
+        identified = _minimal_ir()
+
+        with patch(
+            "polisyos.foundry.methods.catalog.causal.ctf_transport.build_ctf_selection_diagram",
+            return_value=MagicMock(),
+        ) as mock_build, patch(
+            "polisyos.foundry.methods.catalog.causal.ctf_transport.ctf_transportability",
+            return_value=identified,
+        ) as mock_ctf_transport, patch(
+            "polisyos.foundry.methods.catalog.causal.causal_engine.id_star_algorithm",
+        ) as mock_id_star:
+            result = engine.identify(
+                "X",
+                "Y",
+                graph,
+                s_nodes=["Y"],
+                counterfactual_query=query,
+            )
+
+        mock_build.assert_called_once()
+        mock_ctf_transport.assert_called_once()
+        mock_id_star.assert_not_called()
+        assert isinstance(result, IdentificationResult)
+
+    def test_counterfactual_with_source_domains_routes_to_ctf_transport(self):
+        """G1: counterfactual + source_domains must route to counterfactual transport."""
+        engine = CausalEngine()
+        graph = _make_dag([("X", "Y")])
+        query = CtfQuery(outcome="Y", intervention=(("X", 1.0),), kind="single_world")
+        domains = [
+            SourceDomain(domain_id="d1", s_nodes=frozenset({"Y"}), dataset_ref="study_obs"),
+            SourceDomain(domain_id="d2", z_interventions=frozenset({"X"}), dataset_ref="study_rct"),
+        ]
+        identified = _minimal_ir()
+
+        with patch(
+            "polisyos.foundry.methods.catalog.causal.ctf_transport.build_ctf_selection_diagram",
+            return_value=MagicMock(),
+        ) as mock_build, patch(
+            "polisyos.foundry.methods.catalog.causal.ctf_transport.ctf_transportability",
+            return_value=identified,
+        ) as mock_ctf_transport, patch(
+            "polisyos.foundry.methods.catalog.causal.causal_engine.idc_star_algorithm",
+        ) as mock_idc_star:
+            result = engine.identify(
+                "X",
+                "Y",
+                graph,
+                source_domains=domains,
+                counterfactual_query=query,
+            )
+
+        mock_build.assert_called_once()
+        assert mock_ctf_transport.call_args.kwargs["source_domains"] == domains
+        mock_idc_star.assert_not_called()
+        assert isinstance(result, IdentificationResult)
 
 
 # ---------------------------------------------------------------------------

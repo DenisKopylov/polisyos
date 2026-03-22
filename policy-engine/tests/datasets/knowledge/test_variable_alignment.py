@@ -6,7 +6,9 @@ from polisyos.datasets.knowledge.variable_alignment import (
     AlignmentMethod,
     align_meta_analytic,
     align_semantic,
+    calibrate_alignment_confidence,
     load_seed_alignments,
+    VariableAlignment,
 )
 
 
@@ -96,3 +98,34 @@ def test_meta_analytic_alignment_filters_low_confidence() -> None:
         min_confidence=0.35,
     )
     assert matches == []
+
+
+def test_calibrate_alignment_confidence_normalizes_methods() -> None:
+    exact = VariableAlignment(
+        canonical_var="gdp_per_capita",
+        dataset_var="NY.GDP.PCAP.CD",
+        dataset_id="WB_WDI",
+        method=AlignmentMethod.EXACT,
+        confidence=0.7,
+        evidence="seed",
+    )
+    semantic = VariableAlignment(
+        canonical_var="social_trust",
+        dataset_var="trust_in_neighbors",
+        dataset_id="WVS_W7",
+        method=AlignmentMethod.SEMANTIC,
+        confidence=0.6,
+        evidence="semantic",
+    )
+    meta = VariableAlignment(
+        canonical_var="institutional_quality",
+        dataset_var="rl_est",
+        dataset_id="WB_WGI",
+        method=AlignmentMethod.META_ANALYTIC,
+        confidence=0.62,
+        evidence="meta",
+    )
+
+    assert calibrate_alignment_confidence(exact) == 1.0
+    assert calibrate_alignment_confidence(semantic) == 0.8
+    assert calibrate_alignment_confidence(meta) == 0.62

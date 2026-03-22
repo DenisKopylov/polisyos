@@ -93,11 +93,13 @@ health_outcomes:
   keywords: ["life expectancy", "healthy life expectancy", "mortality", "тривалість життя", "здоров'я", "очікувана тривалість життя"]
   sdmx_concepts: ["DEMO_MLEXPEC", "MORT"]
   worldbank_indicators: ["SP.DYN.LE00.IN", "SP.DYN.IMRT.IN"]
+  who_indicators: ["WHOSIS_000001", "WHOSIS_000002", "WHOSIS_000015"]
 
 life_expectancy:
   keywords: ["life expectancy", "тривалість життя"]
   sdmx_concepts: ["DEMO_MLEXPEC"]
   worldbank_indicators: ["SP.DYN.LE00.IN"]
+  who_indicators: ["WHOSIS_000001", "WHOSIS_000002", "WHOSIS_000015"]
 
 social_trust:
   keywords: ["social trust", "trust survey", "values survey", "довіра", "соціальна довіра"]
@@ -126,3 +128,32 @@ minimum_wage:
   keywords: ["minimum wage", "мінімальна заробітна плата"]
   sdmx_concepts: ["EARN_MW_CUR"]
   eurostat_codes: ["earn_mw_cur"]
+
+gender_equality:
+  keywords: ["gender equality", "women rights", "гендерна рівність", "gender norms", "gender gap"]
+  worldbank_indicators: ["SG.GEN.PARL.ZS"]
+
+inequality:
+  keywords: ["inequality", "income inequality", "wealth inequality", "нерівність"]
+  sdmx_concepts: ["INC_INEQ"]
+  worldbank_indicators: ["SI.POV.GINI", "SI.DST.10TH.10"]
+
+democracy_quality:
+  keywords: ["democracy", "democratic", "демократія", "political freedom", "civil liberties"]
+
+corruption_level:
+  keywords: ["corruption", "корупція", "political corruption", "bribery"]
+  worldbank_indicators: ["CC.EST"]
+
+social_capital:
+  keywords: ["social capital", "civic participation", "соціальний капітал", "community", "volunteering"]
+
+cultural_cluster:
+  keywords: ["cultural values", "cultural cluster", "freedom of choice", "культурні цінності"]
+
+public_trust:
+  keywords: ["public trust", "confidence in government", "довіра до уряду", "trust in institutions"]
+
+judicial_quality:
+  keywords: ["judicial quality", "court system", "судова система", "rule of law", "justice system"]
+  worldbank_indicators: ["RL.EST"]

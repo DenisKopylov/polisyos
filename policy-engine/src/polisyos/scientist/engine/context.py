@@ -2,9 +2,13 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from typing import Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
-from polisyos.core.artifacts.store import FileSystemCAS
+if TYPE_CHECKING:
+    from polisyos.core.security.audit_protocol import AuditLog
+    from polisyos.scientist.engine.metrics_protocol import EngineMetricsCollector
+
+from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.core.contracts.fabric import DataSnapshotRef, DataViewRequestRef
 from polisyos.core.contracts.foundry import (
     CompileRequest,
@@ -19,29 +23,29 @@ from polisyos.core.run.context import RunContext
 
 @runtime_checkable
 class FoundryPort(Protocol):
-    def compile(self, store: FileSystemCAS, request: CompileRequest) -> CompileResult:  # pragma: no cover - protocol
+    def compile(self, store: ArtifactStore, request: CompileRequest) -> CompileResult:  # pragma: no cover - protocol
         ...
 
-    def execute(self, store: FileSystemCAS, request: ExecuteRequest) -> ExecuteResult:  # pragma: no cover - protocol
+    def execute(self, store: ArtifactStore, request: ExecuteRequest) -> ExecuteResult:  # pragma: no cover - protocol
         ...
 
 
 @runtime_checkable
 class FabricPort(Protocol):
-    def snapshot(self, store: FileSystemCAS, request_ref: DataViewRequestRef) -> DataSnapshotRef:  # pragma: no cover - protocol
+    def snapshot(self, store: ArtifactStore, request_ref: DataViewRequestRef) -> DataSnapshotRef:  # pragma: no cover - protocol
         ...
 
 
 @runtime_checkable
 class ScholarPort(Protocol):
-    def enrich(self, store: FileSystemCAS, intent: ResearchIntent) -> KnowledgeBundleRef:  # pragma: no cover - protocol
+    def enrich(self, store: ArtifactStore, intent: ResearchIntent) -> KnowledgeBundleRef:  # pragma: no cover - protocol
         ...
 
 
 @runtime_checkable
 class LexPort(Protocol):
     def evaluate(
-        self, store: FileSystemCAS, context: LegalContext
+        self, store: ArtifactStore, context: LegalContext
     ) -> tuple[LegalReportRef, ChangeProposalRef | None]:  # pragma: no cover - protocol
         ...
 
@@ -56,12 +60,19 @@ class Tracer(Protocol):
 
 @dataclass(frozen=True)
 class ExecutionContext:
-    store: FileSystemCAS
+    store: ArtifactStore
     run: RunContext
     logger: logging.Logger
     tracer: Tracer | None = None
+
+    metrics: EngineMetricsCollector | None = None
+    audit: AuditLog | None = None
+
+    depth: int = 0
 
     fabric: FabricPort | None = None
     foundry: FoundryPort | None = None
     scholar: ScholarPort | None = None
     lex: LexPort | None = None
+
+    memory: Any | None = None  # PersistentMemoryStore (lazy import to avoid cycles)

@@ -18,6 +18,7 @@ from .manifest import (
     SchemaInfo,
     WarningRecord,
 )
+from .protocol import ArtifactStore
 from .registry import RegistryBundle
 from .signing import (
     ArtifactSigner,
@@ -49,6 +50,7 @@ __all__ = [
     "DependencyGraph",
     "DependencyNode",
     "ExportReport",
+    "ArtifactStore",
     "ArtifactSigner",
     "ArtifactSigningResult",
     "ArtifactVerifier",

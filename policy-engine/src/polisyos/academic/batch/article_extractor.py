@@ -80,6 +80,43 @@ def _parse_json_object(raw_content: str) -> dict[str, Any] | None:
     return None
 
 
+# Minimum required keys for each extraction response type.  Responses missing
+# ALL of these keys are treated as structurally invalid (likely hallucinated or
+# truncated JSON) and logged as warnings so the data loss becomes visible.
+_EXTRACTION_REQUIRED_KEYS = frozenset({"causal_claims", "empirical_parameters"})
+_ADJUDICATION_REQUIRED_KEYS = frozenset({"claim_validity_score", "causal_credibility"})
+_SCREENING_REQUIRED_KEYS = frozenset({"relevant"})
+
+
+def _validate_extraction_response(parsed: dict[str, Any] | None, *, context: str = "extraction") -> dict[str, Any] | None:
+    """Validate that a parsed LLM response has the expected structure.
+
+    Returns the parsed dict if valid, or None if structurally invalid.
+    Logs a warning for invalid responses to make data loss visible.
+    """
+    if parsed is None:
+        return None
+    if context == "extraction":
+        required = _EXTRACTION_REQUIRED_KEYS
+    elif context == "adjudication":
+        required = _ADJUDICATION_REQUIRED_KEYS
+    elif context == "screening":
+        required = _SCREENING_REQUIRED_KEYS
+    else:
+        return parsed  # unknown context → no validation
+
+    present = required & set(parsed.keys())
+    if not present:
+        logger.warning(
+            "LLM {} response missing ALL required keys {}; got keys: {}",
+            context,
+            sorted(required),
+            sorted(parsed.keys())[:10],
+        )
+        return None
+    return parsed
+
+
 _NUMBER_RE = re.compile(r"[-+]?\d+(?:[.,]\d+)?")
 _QUALITATIVE_SCORE_MAP = {
     "very_low": 0.15,
@@ -798,6 +835,11 @@ def _normalize_causal_claim(
             effect=effect_variable,
             claim_text=claim_text,
             direction=_normalize_direction(payload.get("direction")),
+            supporting_span_ids=tuple(
+                span.span_id
+                for span in supporting_spans
+                if getattr(span, "span_id", "")
+            ),
         ),
         "claim_text": claim_text,
         "claim_type": _normalize_claim_type(payload.get("claim_type")),
@@ -1299,12 +1341,43 @@ class PolicyArticleExtractor:
         return bool(parsed.get("relevant", False))
 
     async def _fetch_full_text(self, work: dict[str, Any]) -> tuple[str, str]:
-        """Return (text, source_kind). source_kind in {fulltext_html, fulltext_pdf, abstract_fallback}."""
-        text, source_kind, _source_url = await fetch_full_text_for_work(
-            work,
-            timeout_seconds=self._fulltext_timeout_seconds,
-        )
-        return text, source_kind
+        """Return (text, source_kind). source_kind in {fulltext_html, fulltext_pdf, abstract_fallback}.
+
+        Retries up to 2 times with exponential backoff for transient HTTP
+        failures (429 rate limit, 5xx server errors, timeouts).  Falls back
+        to abstract if all retries fail.
+        """
+        import asyncio as _asyncio
+
+        max_retries = 2
+        base_delay = 2.0  # seconds
+
+        for attempt in range(max_retries + 1):
+            try:
+                text, source_kind, _source_url = await fetch_full_text_for_work(
+                    work,
+                    timeout_seconds=self._fulltext_timeout_seconds,
+                )
+                # If we got actual fulltext, return immediately
+                if source_kind != "abstract_fallback" and text.strip():
+                    return text, source_kind
+                # Abstract fallback on first attempt — still retry if we can
+                if attempt < max_retries:
+                    delay = base_delay * (2 ** attempt)
+                    await _asyncio.sleep(delay)
+                    continue
+                return text, source_kind
+            except Exception:
+                if attempt < max_retries:
+                    delay = base_delay * (2 ** attempt)
+                    await _asyncio.sleep(delay)
+                    continue
+                # Final attempt failed — fall through to abstract
+                break
+
+        # All retries exhausted — return abstract fallback
+        abstract = self._reconstruct_abstract(work)
+        return abstract or "", "abstract_fallback"
 
     async def _extract(
         self,
@@ -1381,9 +1454,102 @@ Evidence bundle:
             )
             return result
         except Exception as exc:
-            logger.warning("article extraction parse failed for %s: %s", work.get("id"), exc)
+            logger.warning("article extraction parse failed for {}: {}", work.get("id"), exc)
             stats.extraction_errors += 1
             return None
+
+    async def _self_verify(
+        self,
+        result: ArticleExtractionResult,
+        evidence_bundle: dict[str, Any],
+        stats: ExtractorStats,
+    ) -> ArticleExtractionResult:
+        """Quick LLM verification pass: check that extracted claims are grounded.
+
+        Uses a cheap model call to verify the top claims actually match the
+        source text.  Adjusts claim_extraction_confidence downward for claims
+        flagged as unsupported.  Adds extraction_warnings when issues found.
+        """
+        if not result.causal_claims:
+            return result
+
+        # Only verify top 5 claims to keep cost low
+        claims_to_verify = result.causal_claims[:5]
+        claim_summaries = []
+        for i, claim in enumerate(claims_to_verify):
+            claim_summaries.append(
+                f"Claim {i+1}: {claim.cause_variable} -> {claim.effect_variable} "
+                f"(direction={claim.direction.value}, "
+                f"effect_size={claim.effect_size}, "
+                f"design={claim.design_family_hint.value})"
+            )
+        claims_block = "\n".join(claim_summaries)
+
+        verification_prompt = f"""
+You are verifying extracted causal claims against source text.
+For each claim, check:
+1. Does the source text actually support this cause-effect relationship?
+2. Is the direction (positive/negative) correct given the source?
+3. Is the effect_size plausible (not a p-value or sample size)?
+4. Is the design_family_hint consistent with the methodology described?
+
+Return strict JSON: {{"verifications": [
+  {{"claim_index": 1, "supported": true|false, "confidence_adjustment": <number -0.3..0>, "issue": "short description or null"}}
+]}}
+
+Rules:
+- confidence_adjustment should be 0 for correctly extracted claims.
+- For minor issues (slightly wrong direction, imprecise effect size): -0.1
+- For major issues (claim not in text, wrong variables, p-value as effect): -0.2 to -0.3
+- JSON only.
+
+Extracted claims:
+{claims_block}
+
+Source title: {evidence_bundle.get("title", "")}
+Source text (first 3000 chars):
+{str(evidence_bundle.get("text", ""))[:3000]}
+""".strip()
+
+        try:
+            parsed, usage = await self._gonka.chat(
+                model=self.screening_model,  # use cheap model
+                temperature=0.0,
+                prompt=verification_prompt,
+            )
+            stats.total_tokens_prompt += int(usage.get("prompt_tokens") or 0)
+            stats.total_tokens_completion += int(usage.get("completion_tokens") or 0)
+        except Exception:
+            return result  # verification failure is non-fatal
+
+        verifications = parsed.get("verifications") if isinstance(parsed, dict) else None
+        if not isinstance(verifications, list):
+            return result
+
+        updated_claims = list(result.causal_claims)
+        for v in verifications:
+            if not isinstance(v, dict):
+                continue
+            idx = int(v.get("claim_index", 0)) - 1  # 1-indexed → 0-indexed
+            if 0 <= idx < len(updated_claims):
+                adjustment = max(-0.3, min(0.0, float(v.get("confidence_adjustment", 0))))
+                issue = v.get("issue")
+                claim = updated_claims[idx]
+                _cc = claim.claim_extraction_confidence
+                _rc = result.extraction_confidence
+                old_conf = float(_cc if _cc is not None else (_rc if _rc is not None else 0.5))
+                new_conf = max(0.05, old_conf + adjustment)
+                warnings = list(claim.extraction_warnings)
+                if issue and not v.get("supported", True):
+                    warnings.append(f"verification_issue: {str(issue)[:100]}")
+                updated_claims[idx] = claim.model_copy(
+                    update={
+                        "claim_extraction_confidence": round(new_conf, 4),
+                        "extraction_warnings": sorted(set(warnings)),
+                    }
+                )
+
+        return result.model_copy(update={"causal_claims": updated_claims})
 
     def _canonize_variables(self, result: ArticleExtractionResult, stats: ExtractorStats) -> ArticleExtractionResult:
         canonized_claims = []
@@ -1400,6 +1566,7 @@ Evidence bundle:
                             effect=effect,
                             claim_text=claim.claim_text,
                             direction=claim.direction.value,
+                            supporting_span_ids=tuple(claim.supporting_span_ids),
                         ),
                         "cause_variable": cause,
                         "effect_variable": effect,
@@ -1470,7 +1637,26 @@ Evidence bundle:
             if result is None:
                 return None
 
+            # Self-verification: cheap LLM pass to check claims match source
+            if result.causal_claims:
+                evidence_bundle = _build_evidence_bundle(
+                    title=str(work.get("title") or ""),
+                    abstract=self._reconstruct_abstract(work),
+                    text=full_text,
+                    source_kind=source_kind,
+                )
+                result = await self._self_verify(result, evidence_bundle, stats)
+
             if source_kind == "abstract_fallback":
+                _STRONG_ABSTRACT_DESIGNS = frozenset({
+                    DesignFamily.RCT, DesignFamily.IV, DesignFamily.DID,
+                    DesignFamily.RDD, DesignFamily.SYNTHETIC_CONTROL,
+                })
+                has_strong_design = any(
+                    c.design_family_hint in _STRONG_ABSTRACT_DESIGNS
+                    for c in result.causal_claims
+                )
+                confidence_multiplier = 1.0 if has_strong_design else 0.8
                 downgraded_claims = [
                     claim.model_copy(
                         update={
@@ -1482,7 +1668,7 @@ Evidence bundle:
                 ]
                 result = result.model_copy(
                     update={
-                        "extraction_confidence": max(0.1, result.extraction_confidence * 0.8),
+                        "extraction_confidence": max(0.1, result.extraction_confidence * confidence_multiplier),
                         "source_basis": SourceBasis.ABSTRACT_ONLY,
                         "text_quality": TextQuality.ABSTRACT_ONLY,
                         "causal_claims": downgraded_claims,

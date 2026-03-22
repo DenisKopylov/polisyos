@@ -13,17 +13,24 @@ from polisyos.batch_common.paths import ensure_dirs, snapshot_component_dir
 ALL_STAGES = frozenset(
     {
         "topic_select",
+        "demand_harvest",
+        "doc_normalize",
         "harvest",
         "parse",
         "resolve_extract",
+        "claim_extract",
+        "context_extract",
+        "mechanism_extract",
         "resolve_finalize",
         "numeric_extract",
         "merge_dedup",
         "claim_adjudicate",
+        "conflict_resolve",
         "graph_load",
         "edge_synthesize",
         "graph_index",
         "transport_score",
+        "benchmark",
         "embed",
         "qc",
         "publish",
@@ -153,6 +160,14 @@ class AcademicBatchConfig:
     fulltext_soft_usable_requires_section_cues: bool = True
     fulltext_shared_cache_dir: Path | None = None
     fulltext_cache_ttl_days: int = 30
+    doc_infra_enable_pub2tei: bool = True
+    doc_infra_enable_grobid: bool = True
+    doc_pub2tei_base_url: str = "http://localhost:8074"
+    doc_grobid_base_url: str = "http://localhost:8070"
+    doc_infra_timeout_seconds: int = 45
+    doc_infra_precedence: tuple[str, ...] = ("publisher_xml", "pdf", "text")
+    stream_doc_normalize_to_resolve_extract: bool = False
+    stream_doc_ready_poll_seconds: float = 2.0
     provider_circuit_breaker_failures: int = 5
     provider_circuit_breaker_reset_seconds: int = 60
 
@@ -175,9 +190,30 @@ class AcademicBatchConfig:
     track_c_extraction_model: str = ""
     numeric_precision_mode: str = "high_precision"
     claim_adjudication_passes: int = 3
+    extraction_lane: str = "all"
     transport_target_context_id: str = ""
     transport_target_country_codes: tuple[str, ...] = ("UA",)
     transport_target_time_period: str = ""
+    benchmark_suite_path_override: Path | None = None
+
+    # Cross-run timeout retry
+    retry_timeout_articles: bool = True
+    retry_max_attempts: int = 2
+    retry_timeout_seconds: int = 30
+    retry_max_concurrent_llm: int = 10
+
+    # Demand-first harvesting
+    demand_harvest_enabled: bool = False
+    demand_harvest_max_works_per_need: int = 50
+    demand_harvest_min_priority_weight: float = 0.5
+
+    # Targeted multi-pass extraction
+    targeted_extraction_enabled: bool = False
+    targeted_extraction_max_papers: int = 200
+
+    # Table extraction (optional dependency — marker-pdf)
+    table_extraction_enabled: bool = False
+    table_extraction_backend: str = "auto"  # "auto" | "marker" | "off"
 
     # Embedding (local sentence-transformers)
     embedding_model: str = "intfloat/multilingual-e5-large"
@@ -286,6 +322,50 @@ class AcademicBatchConfig:
         return self.component_dir / "fulltext_resolved.jsonl"
 
     @property
+    def doc_tei_dir(self) -> Path:
+        return self.component_dir / "doc_tei"
+
+    @property
+    def doc_json_path(self) -> Path:
+        return self.component_dir / "doc_json.json"
+
+    @property
+    def doc_substrate_path(self) -> Path:
+        return self.component_dir / "doc_substrate.jsonl"
+
+    @property
+    def doc_sentences_path(self) -> Path:
+        return self.component_dir / "sentences.jsonl"
+
+    @property
+    def doc_sections_path(self) -> Path:
+        return self.component_dir / "sections.jsonl"
+
+    @property
+    def doc_references_path(self) -> Path:
+        return self.component_dir / "references.jsonl"
+
+    @property
+    def doc_tables_path(self) -> Path:
+        return self.component_dir / "tables.jsonl"
+
+    @property
+    def doc_figures_path(self) -> Path:
+        return self.component_dir / "figures.jsonl"
+
+    @property
+    def doc_appendix_blocks_path(self) -> Path:
+        return self.component_dir / "appendix_blocks.jsonl"
+
+    @property
+    def doc_routing_path(self) -> Path:
+        return self.component_dir / "doc_routing.jsonl"
+
+    @property
+    def doc_ready_queue_path(self) -> Path:
+        return self.component_dir / "doc_ready_queue.jsonl"
+
+    @property
     def resolve_extract_progress_path(self) -> Path:
         return self.component_dir / "resolve_extract_progress.json"
 
@@ -378,12 +458,48 @@ class AcademicBatchConfig:
         return self.component_dir / "claim_consensus_report.json"
 
     @property
+    def claim_sets_path(self) -> Path:
+        return self.component_dir / "claim_sets.jsonl"
+
+    @property
+    def conflict_sets_path(self) -> Path:
+        return self.component_dir / "conflict_sets.jsonl"
+
+    @property
+    def conflict_resolutions_path(self) -> Path:
+        return self.component_dir / "conflict_resolutions.jsonl"
+
+    @property
     def canonical_review_queue_path(self) -> Path:
         return self.component_dir / "canonical_review_queue.jsonl"
 
     @property
     def edge_synthesis_report_path(self) -> Path:
         return self.component_dir / "edge_synthesis_report.json"
+
+    @property
+    def benchmark_suite_path(self) -> Path:
+        return self.benchmark_suite_path_override or (self.component_dir / "benchmark_suite.json")
+
+    @property
+    def benchmark_report_path(self) -> Path:
+        return self.component_dir / "benchmark_report.json"
+
+    @property
+    def runtime_demand_backlog_path(self) -> Path:
+        return self.component_dir / "runtime_demand_backlog.jsonl"
+
+    @property
+    def timeout_retry_queue_path(self) -> Path:
+        return self.component_dir / "timeout_retry_queue.jsonl"
+
+    @property
+    def demand_harvest_works_path(self) -> Path:
+        return self.component_dir / "demand_harvest_works.jsonl"
+
+    @property
+    def readiness_report_path(self) -> Path:
+        return self.component_dir / "publish" / "academic_pipeline_readiness.json"
 
     @property
     def transport_scores_path(self) -> Path:
@@ -433,6 +549,8 @@ class AcademicBatchConfig:
             raise ValueError("demand_backlog_boost must be in range [0, 1]")
         if self.claim_adjudication_passes < 1:
             raise ValueError("claim_adjudication_passes must be >= 1")
+        if self.extraction_lane not in {"all", "claim", "context", "mechanism"}:
+            raise ValueError("extraction_lane must be one of: all, claim, context, mechanism")
         if self.fulltext_acquisition_mode not in {"v3_legacy", "v7_http_metadata"}:
             raise ValueError("fulltext_acquisition_mode must be one of: v3_legacy, v7_http_metadata")
         if self.numeric_precision_mode not in {"off", "balanced", "high_precision"}:
@@ -457,6 +575,12 @@ class AcademicBatchConfig:
             raise ValueError("fulltext_min_soft_usable_chars must be <= fulltext_min_usable_chars")
         if self.fulltext_cache_ttl_days < 1:
             raise ValueError("fulltext_cache_ttl_days must be >= 1")
+        if self.doc_infra_timeout_seconds < 1:
+            raise ValueError("doc_infra_timeout_seconds must be >= 1")
+        if not self.doc_infra_precedence:
+            raise ValueError("doc_infra_precedence must not be empty")
+        if self.stream_doc_ready_poll_seconds <= 0:
+            raise ValueError("stream_doc_ready_poll_seconds must be > 0")
 
         if self.llm_gate_mode not in {"off", "balanced", "aggressive"}:
             raise ValueError("llm_gate_mode must be one of: off, balanced, aggressive")
@@ -494,6 +618,8 @@ class AcademicBatchConfig:
             self.fulltext_shared_cache_dir = self.snapshot_root / "_shared_fulltext_cache"
         if self.demand_backlog_path is not None:
             self.demand_backlog_path = Path(self.demand_backlog_path)
+        if self.benchmark_suite_path_override is not None:
+            self.benchmark_suite_path_override = Path(self.benchmark_suite_path_override)
 
         ensure_dirs(
             self.component_dir,
@@ -504,6 +630,7 @@ class AcademicBatchConfig:
             self.topic_selection_dir,
             self.graph_dir,
             self.manifests_dir,
+            self.doc_tei_dir,
             self.publish_manifest_path.parent,
             self.ingest_errors_path.parent,
         )
@@ -518,3 +645,15 @@ class AcademicBatchConfig:
             self.fulltext_unpaywall_email = os.environ.get("UNPAYWALL_EMAIL", "") or self.openalex_email
         if not self.fulltext_semantic_scholar_api_key:
             self.fulltext_semantic_scholar_api_key = os.environ.get("SEMANTIC_SCHOLAR_API_KEY", "")
+        if not self.doc_pub2tei_base_url:
+            self.doc_pub2tei_base_url = (
+                os.environ.get("POLISYOS_PUB2TEI_BASE_URL", "")
+                or os.environ.get("PUB2TEI_BASE_URL", "")
+                or "http://localhost:8074"
+            )
+        if not self.doc_grobid_base_url:
+            self.doc_grobid_base_url = (
+                os.environ.get("POLISYOS_GROBID_BASE_URL", "")
+                or os.environ.get("GROBID_BASE_URL", "")
+                or "http://localhost:8070"
+            )

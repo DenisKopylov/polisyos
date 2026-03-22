@@ -202,3 +202,19 @@ def test_compute_p_star_z_conditional_never_silently_returns_marginal() -> None:
         assert result.value is None
         assert result.is_conditional is True
         assert result.penalty_breakdown.get("conditional_filter_unavailable") == 1.0
+
+
+def test_find_datasets_for_variables_bulk_groups_results() -> None:
+    with tempfile.TemporaryDirectory() as tmpdir:
+        db_path = _build_registry_db(tmpdir)
+        registry = DatasetRegistry(db_path)
+        results = registry.find_datasets_for_variables_bulk(
+            ["institutional_quality", "social_trust"],
+            "UA",
+            (2020, 2020),
+        )
+
+        assert "institutional_quality" in results
+        assert "social_trust" in results
+        assert results["institutional_quality"]
+        assert results["social_trust"]

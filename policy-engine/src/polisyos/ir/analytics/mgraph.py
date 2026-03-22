@@ -149,11 +149,14 @@ def extract_mgraph_metadata(graph: "CausalGraphModel") -> MGraphMetadata:
 
 def build_mgraph(
     *,
-    substantive_vars: list[str],
-    directed_edges: list[tuple[str, str]],
+    substantive_vars: list[str] | None = None,
+    directed_edges: list[tuple[str, str]] | None = None,
     bidirected_edges: list[tuple[str, str]] | None = None,
-    missingness_map: dict[str, MissingnessKind],
+    missingness_map: dict[str, MissingnessKind] | None = None,
     fully_observed: list[str] | None = None,
+    missingness_edges: list[tuple[str, str]] | None = None,
+    base_graph: "CausalGraphModel | None" = None,
+    missing_variables: dict[str, MissingnessKind] | None = None,
     discovery_method: str = "manual",
 ) -> "CausalGraphModel":
     """Construct a well-formed CausalGraphModel with graph_type=MGRAPH.
@@ -168,14 +171,24 @@ def build_mgraph(
     Parameters
     ----------
     substantive_vars:
-        Full-data variable names V (no R_* or *_star).
+        Full-data variable names V (no R_* or *_star). Optional when
+        ``base_graph`` is provided.
     directed_edges:
-        Directed edges among substantive variables: [(src, dst), ...].
+        Directed edges among substantive variables. Legacy call sites may also
+        include explicit missingness edges such as ``("Z", "R_X")``.
     bidirected_edges:
         Bidirected (confounding) edges: [(u, v), ...].  Optional.
     missingness_map:
         Maps each variable with potential missingness to its mechanism.
         Variables not listed are treated as fully observed.
+    missingness_edges:
+        Explicit edges into missingness indicators, e.g. ``("Z", "R_X")`` for
+        MAR or ``("Y", "R_X")`` for outcome-driven missingness.
+    base_graph:
+        Legacy convenience input. When provided, substantive variables and
+        substantive edges are derived from this graph unless overridden.
+    missing_variables:
+        Legacy alias for ``missingness_map``.
     fully_observed:
         Explicit list of always-observed variables.  Defaults to
         ``substantive_vars`` minus ``missingness_map.keys()``.
@@ -189,7 +202,31 @@ def build_mgraph(
         GraphType,
     )
 
-    bidirected_edges = bidirected_edges or []
+    missingness_map = dict(missingness_map or missing_variables or {})
+    directed_edges = list(directed_edges or [])
+    bidirected_edges = list(bidirected_edges or [])
+    missingness_edges = list(missingness_edges or [])
+
+    if base_graph is not None:
+        if substantive_vars is None:
+            substantive_vars = [
+                node for node in base_graph.nodes
+                if not node.startswith("R_") and not node.endswith("_star")
+            ]
+        if discovery_method == "manual" and getattr(base_graph, "discovery_method", None):
+            discovery_method = base_graph.discovery_method
+
+        from polisyos.ir.analytics.causal_graph import EdgeMark
+
+        for edge in base_graph.edges:
+            if edge.mark_src is EdgeMark.ARROW and edge.mark_dst is EdgeMark.ARROW:
+                bidirected_edges.append((edge.src, edge.dst))
+            else:
+                directed_edges.append((edge.src, edge.dst))
+
+    if substantive_vars is None:
+        raise ValueError("build_mgraph requires substantive_vars unless base_graph is provided")
+
     subst_set = set(substantive_vars)
 
     # Validate inputs
@@ -198,6 +235,31 @@ def build_mgraph(
             raise ValueError(
                 f"missingness_map key '{v}' not in substantive_vars"
             )
+
+    substantive_directed: list[tuple[str, str]] = []
+    for src, dst in directed_edges:
+        if src in subst_set and dst in subst_set:
+            substantive_directed.append((src, dst))
+            continue
+        missingness_edges.append((src, dst))
+
+    normalised_missingness_edges: list[tuple[str, str]] = []
+    for src, dst in missingness_edges:
+        if not dst.startswith("R_"):
+            raise ValueError(
+                f"missingness edge must target an R-node, got ({src!r}, {dst!r})"
+            )
+        target_var = dst[2:]
+        if target_var not in subst_set:
+            raise ValueError(
+                f"missingness edge target '{dst}' refers to unknown substantive variable '{target_var}'"
+            )
+        normalised_missingness_edges.append((src, dst))
+
+    # Stable de-duplication preserves deterministic node/edge ordering.
+    substantive_directed = list(dict.fromkeys(substantive_directed))
+    bidirected_edges = list(dict.fromkeys(bidirected_edges))
+    normalised_missingness_edges = list(dict.fromkeys(normalised_missingness_edges))
 
     # Build full node list
     all_nodes: list[str] = list(substantive_vars)
@@ -215,7 +277,7 @@ def build_mgraph(
     all_edges: list[CausalEdge] = []
 
     # Directed edges among substantive vars
-    for src, dst in directed_edges:
+    for src, dst in substantive_directed:
         all_edges.append(CausalEdge(src=src, dst=dst))
 
     # Bidirected (confounding) edges
@@ -233,6 +295,9 @@ def build_mgraph(
         # MNAR: X → R_X (missingness depends on X itself)
         if kind is MissingnessKind.MNAR:
             all_edges.append(CausalEdge(src=v, dst=r_name))
+
+    for src, dst in normalised_missingness_edges:
+        all_edges.append(CausalEdge(src=src, dst=dst))
 
     # Build fully_observed list
     if fully_observed is None:

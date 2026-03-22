@@ -35,6 +35,11 @@ def _to_numpy(value: Any) -> np.ndarray:
     return np.asarray(value)
 
 
+def _is_repeated_cross_section(metadata: dict[str, Any]) -> bool:
+    shape = str(metadata.get("data_shape", "")).strip().lower()
+    return shape in {"repeated_cross_section", "survey_repeated_cross_section", "survey_microdata"}
+
+
 class PanelData(BaseModel):
     """Validated panel data input for classical econometric estimators."""
 
@@ -59,6 +64,11 @@ class PanelData(BaseModel):
 
     @model_validator(mode="after")
     def _validate_shapes(self) -> "PanelData":
+        if _is_repeated_cross_section(self.metadata):
+            raise ValueError(
+                "panel estimators require longitudinal panel data; received repeated cross-section/survey data. "
+                "Use transport, survey, or repeated cross-section workflows instead."
+            )
         if not isinstance(self.dependent, np.ndarray) or self.dependent.ndim != 1:
             raise ValueError("dependent must be a 1D numpy array")
         if not isinstance(self.exog, np.ndarray) or self.exog.ndim != 2:

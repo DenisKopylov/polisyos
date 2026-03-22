@@ -26,7 +26,14 @@ from polisyos.ir.analytics.knowledge_base import *  # noqa: F401,F403
 from polisyos.ir.analytics.uncertainty import *  # noqa: F401,F403
 from polisyos.ir.analytics.evidence_bundle import DataProvenance, EvidenceBundle
 from polisyos.ir.analytics.evidence_bundle import ProofStep as IRProofStep
-from polisyos.ir.analytics.negative_certificate import BlockingType, NegativeCertificate, SuggestedExperiment
+from polisyos.ir.analytics.negative_certificate import (
+    BlockingType,
+    EpistemicTier,
+    FallbackResult,
+    NegativeCertificate,
+    ParametricRescueResult,
+    SuggestedExperiment,
+)
 from polisyos.ir.analytics.query_validation_report import (
     ValidationSeverity,
     ValidationIssue,

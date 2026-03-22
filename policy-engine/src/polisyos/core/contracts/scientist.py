@@ -194,6 +194,38 @@ class DecisionReissuePlanRef(ScientistArtifactRef):
     media_type: Literal["application/json"] = "application/json"
 
 
+class PolicyRequestFrameRef(ScientistArtifactRef):
+    kind: Literal["scientist.policy_request_frame"] = "scientist.policy_request_frame"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class LegalCandidatePackRef(ScientistArtifactRef):
+    kind: Literal["scientist.legal_candidate_pack"] = "scientist.legal_candidate_pack"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class LegalSourcePackRef(ScientistArtifactRef):
+    kind: Literal["scientist.legal_source_pack"] = "scientist.legal_source_pack"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class SourceVerificationReportRef(ScientistArtifactRef):
+    kind: Literal["scientist.source_verification_report"] = (
+        "scientist.source_verification_report"
+    )
+    media_type: Literal["application/json"] = "application/json"
+
+
+class PolicyOptionSetRef(ScientistArtifactRef):
+    kind: Literal["scientist.policy_option_set"] = "scientist.policy_option_set"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class VerifiedPolicyReportRef(ScientistArtifactRef):
+    kind: Literal["scientist.verified_policy_report"] = "scientist.verified_policy_report"
+    media_type: Literal["application/json"] = "application/json"
+
+
 __all__ = [
     "ScientistArtifactRef",
     "ExperimentStateRef",
@@ -212,4 +244,10 @@ __all__ = [
     "DecisionMonitoringReportRef",
     "DecisionCompareReportRef",
     "DecisionReissuePlanRef",
+    "PolicyRequestFrameRef",
+    "LegalCandidatePackRef",
+    "LegalSourcePackRef",
+    "SourceVerificationReportRef",
+    "PolicyOptionSetRef",
+    "VerifiedPolicyReportRef",
 ]

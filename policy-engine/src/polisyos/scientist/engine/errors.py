@@ -35,3 +35,11 @@ class CycleDetectedError(WorkflowSpecError):
 
 class NodeExecutionError(EngineError):
     """Raised when a node fails or returns an invalid outcome."""
+
+
+class NodeTimeoutError(NodeExecutionError):
+    """Node exceeded its timeout_s."""
+
+
+class RetryExhaustedError(NodeExecutionError):
+    """All retries exhausted, last error attached."""

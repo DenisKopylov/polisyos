@@ -23,11 +23,14 @@ from __future__ import annotations
 
 import dataclasses
 import logging
+import re
 import uuid
 from enum import Enum
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Literal
 
 from polisyos.ir.analytics.estimand import (
+    CounterfactualNode,
+    CrossWorldNode,
     DistributionDomain,
     DistributionRef,
     EstimandAST,
@@ -42,6 +45,11 @@ if TYPE_CHECKING:
     from polisyos.ir.analytics.knowledge_base import DataKnowledgeBase
 
 _logger = logging.getLogger(__name__)
+
+_COUNTERFACTUAL_QUERY_RE = re.compile(
+    r"P\((?P<outcome>[A-Za-z_][A-Za-z0-9_]*)_\{(?P<interventions>[^}]*)\}"
+    r"(?:\s*\|\s*(?P<evidence>[^)]+))?\)"
+)
 
 # ---------------------------------------------------------------------------
 # Enumerations
@@ -65,6 +73,8 @@ class EstimandShape(str, Enum):
     CONDITIONAL_DO = "conditional_do"                     # do(X | Z=z) subpopulation
     JOINT_INTERVENTION = "joint_intervention"             # P(Y1,Y2|do(X1,X2))
     MEASUREMENT_ERROR_PROXY = "measurement_error_proxy"   # Kuroki & Pearl 2014
+    CYCLIC = "cyclic"                 # Feedback-loop / fixed-point estimand
+    COUNTERFACTUAL_IDENTIFIED = "counterfactual_identified"  # ID*/IDC* symbolic result
 
 
 class EstimationStrategy(str, Enum):
@@ -84,6 +94,8 @@ class EstimationStrategy(str, Enum):
     MULTI_OUTCOME_AIPW = "multi_outcome_aipw"   # shared-propensity multi-outcome AIPW
     REGRESSION_CALIBRATION = "regression_calibration"  # Carroll 2006
     SIMEX = "simex"                             # Cook & Stefanski 1994
+    FIXED_POINT_SOLVER = "fixed_point_solver"   # Cyclic / feedback-loop solver
+    TWIN_NETWORK_MC = "twin_network_mc"         # Twin-network/NCM Monte Carlo counterfactual
 
 
 # ---------------------------------------------------------------------------
@@ -122,8 +134,20 @@ class ExecutorNode:
     reads_slots: tuple
     writes_slots: tuple
     is_nuisance: bool = False
+    backend: Literal["econml_direct", "custom", "bounds"] = "custom"
+    backend_target: str | None = None
     dataset_ref: str | None = None
     skip_if_failed: tuple = ()  # tuple[str, ...]: node_ids whose failure causes this node to be skipped
+
+
+@dataclasses.dataclass(frozen=True)
+class CyclicExecutionBlock(ExecutorNode):
+    """Execution wrapper for a cyclic fixed-point subproblem."""
+
+    inner_nodes: tuple[ExecutorNode, ...] = ()
+    max_iterations: int = 100
+    convergence_tol: float = 1e-6
+    solver: Literal["picard", "newton", "jax_while"] = "picard"
 
 
 @dataclasses.dataclass(frozen=True)
@@ -175,6 +199,10 @@ def classify_estimand(ast: EstimandAST) -> EstimandShape:
         return EstimandShape.JOINT_INTERVENTION
     if "proxy_adjustment" in id_method or "measurement_error" in id_method:
         return EstimandShape.MEASUREMENT_ERROR_PROXY
+    if "cyclic" in id_method or "fixed_point" in id_method:
+        return EstimandShape.CYCLIC
+    if "id_star" in id_method or "idc_star" in id_method or "counterfactual" in id_method:
+        return EstimandShape.COUNTERFACTUAL_IDENTIFIED
 
     # Phase-5: structural node-type detection for new AST nodes
     from polisyos.ir.analytics.estimand import (
@@ -303,6 +331,75 @@ def _extract_benchmark_covariates(
     # Exclude treatment and outcome themselves
     cond_vars -= {ast.treatment, ast.outcome}
     return sorted(cond_vars)[:3]
+
+
+def _parse_counterfactual_assignments(raw: str) -> dict[str, float]:
+    assignments: dict[str, float] = {}
+    for token in (item.strip() for item in raw.split(",")):
+        if not token or "=" not in token:
+            continue
+        name, value = token.split("=", 1)
+        try:
+            assignments[name.strip()] = float(value.strip())
+        except ValueError:
+            continue
+    return assignments
+
+
+def _extract_counterfactual_executor_params(
+    ast: EstimandAST,
+    *,
+    causal_graph: Any | None = None,
+) -> dict[str, Any]:
+    """Recover twin-network execution params from a counterfactual estimand."""
+    params: dict[str, Any] = {
+        "treatment_variable": ast.treatment,
+        "outcome_variable": ast.outcome,
+        "query_type": "counterfactual",
+    }
+    if causal_graph is not None:
+        try:
+            params["graph"] = causal_graph.model_dump(mode="json")
+        except Exception:
+            params["graph"] = causal_graph
+
+    def _first_counterfactual_world(node: Any) -> CounterfactualNode | None:
+        if isinstance(node, CounterfactualNode):
+            return node
+        if isinstance(node, CrossWorldNode):
+            for world in node.worlds:
+                match = _first_counterfactual_world(world)
+                if match is not None:
+                    return match
+        return None
+
+    root = ast.root
+    first_world = _first_counterfactual_world(root)
+    if first_world is not None:
+        if len(first_world.intervention) == 1:
+            treatment_variable, treatment_value = next(iter(first_world.intervention.items()))
+            params["treatment_variable"] = treatment_variable
+            params["counterfactual_treatment_value"] = float(treatment_value)
+        params["conditioning"] = tuple(first_world.conditioning)
+
+    match = _COUNTERFACTUAL_QUERY_RE.search(ast.query_str)
+    if match:
+        interventions = _parse_counterfactual_assignments(match.group("interventions"))
+        if len(interventions) == 1:
+            treatment_variable, treatment_value = next(iter(interventions.items()))
+            params["treatment_variable"] = treatment_variable
+            params["counterfactual_treatment_value"] = float(treatment_value)
+        evidence = _parse_counterfactual_assignments(match.group("evidence") or "")
+        if evidence:
+            params["factual_condition"] = evidence
+            if params.get("treatment_variable") in evidence:
+                params["factual_treatment_value"] = float(
+                    evidence[params["treatment_variable"]]
+                )
+
+    params.setdefault("counterfactual_treatment_value", 1.0)
+    params.setdefault("factual_treatment_value", 0.0)
+    return params
 
 
 def _has_cate_requirement(ast: EstimandAST) -> bool:
@@ -615,6 +712,39 @@ def recommend_estimator(
         )
         return _apply_knowledge_base(recommendation, ast, knowledge_base)
 
+    if shape is EstimandShape.CYCLIC:
+        recommendation = EstimatorRecommendation(
+            shape=shape,
+            strategy=EstimationStrategy.FIXED_POINT_SOLVER,
+            primary_method_fqn="causal.cyclic.fixed_point_solver@1.0.0",
+            fallback_method_fqns=("causal.treatment_effects.aipw@1.0.0",),
+            requires_cross_fitting=False,
+            requires_density_ratio=False,
+            confidence=0.55,
+            notes=(
+                "Cyclic / feedback-loop estimand: use a fixed-point solver over the "
+                "compiled execution block. Marked experimental until formal equivalence "
+                "to ioID is proven."
+            ),
+        )
+        return _apply_knowledge_base(recommendation, ast, knowledge_base)
+
+    if shape is EstimandShape.COUNTERFACTUAL_IDENTIFIED:
+        recommendation = EstimatorRecommendation(
+            shape=shape,
+            strategy=EstimationStrategy.TWIN_NETWORK_MC,
+            primary_method_fqn="causal.structural.twin_network_query@1.0.0",
+            fallback_method_fqns=("causal.counterfactual.ncm_engine@1.0.0",),
+            requires_cross_fitting=False,
+            requires_density_ratio=False,
+            confidence=0.7,
+            notes=(
+                "Counterfactual estimand identified symbolically; execute via twin-network "
+                "or NCM Monte Carlo query."
+            ),
+        )
+        return _apply_knowledge_base(recommendation, ast, knowledge_base)
+
     if shape is EstimandShape.BOUNDS_ONLY:
         recommendation = EstimatorRecommendation(
             shape=shape,
@@ -715,6 +845,17 @@ def _apply_knowledge_base(
     return recommendation
 
 
+def _parse_cyclic_signature(ast: EstimandAST) -> tuple[str, ...]:
+    """Extract the cycle variable signature from the identification marker."""
+    marker = ast.identification_method.lower()
+    if "scc=" in marker:
+        signature = marker.split("scc=", 1)[1].split("|", 1)[0]
+        values = [part.strip() for part in signature.replace(";", ",").split(",") if part.strip()]
+        if values:
+            return tuple(sorted(dict.fromkeys(values)))
+    return tuple(sorted({ast.treatment, ast.outcome}))
+
+
 # ---------------------------------------------------------------------------
 # Step 3: compile_to_method_dag_nodes → ExecutorGraph
 # ---------------------------------------------------------------------------
@@ -727,6 +868,7 @@ def compile_to_method_dag_nodes(
     run_id: str,
     use_cross_fitting: bool = True,
     knowledge_base: "DataKnowledgeBase | None" = None,
+    causal_graph: Any | None = None,
 ) -> ExecutorGraph:
     """Generate the ExecutorGraph for an ExecutionPlan.
 
@@ -736,6 +878,21 @@ def compile_to_method_dag_nodes(
     """
     nodes_list: list[ExecutorNode] = []
     _warnings: list[str] = []
+
+    def _infer_executor_backend(method_fqn: str) -> tuple[Literal["econml_direct", "custom", "bounds"], str | None]:
+        normalized = method_fqn.strip().lower()
+        econml_map = {
+            "causal.hte.causal_forest": "econml.dml.CausalForestDML",
+            "causal.hte.double_ml": "econml.dml.LinearDML",
+            "causal.hte.forest_dr": "econml.dr.ForestDRLearner",
+            "causal.hte.meta_learner": "econml.metalearners.XLearner",
+        }
+        for prefix, target in econml_map.items():
+            if normalized.startswith(prefix):
+                return "econml_direct", target
+        if ".bounds." in normalized or normalized.startswith("causal.bounds."):
+            return "bounds", None
+        return "custom", None
 
     def _node(fqn: str, *, depends_on: list[str] | None = None, skip_if_failed: tuple[str, ...] = (), **params) -> str:
         node_id = f"{fqn.split('.', 2)[-1].replace('.', '_')}_{uuid.uuid4().hex[:6]}"
@@ -748,6 +905,7 @@ def compile_to_method_dag_nodes(
             or "propensity" in node_id
             or "outcome_model" in node_id
         )
+        backend, backend_target = _infer_executor_backend(method_fqn)
         node = ExecutorNode(
             node_id=node_id,
             method_fqn=method_fqn,
@@ -757,6 +915,8 @@ def compile_to_method_dag_nodes(
             reads_slots=(),
             writes_slots=(),
             is_nuisance=is_nuisance,
+            backend=backend,
+            backend_target=backend_target,
             skip_if_failed=tuple(skip_if_failed),
         )
         # B4: FQN validation against registry
@@ -778,7 +938,108 @@ def compile_to_method_dag_nodes(
     # ------------------------------------------------------------------
     # Always start with positivity / diagnostics check
     # ------------------------------------------------------------------
-    diag_id = _node("causal.diagnostics.positivity_check@1.0.0")
+    diag_id: str | None = None
+    if not (
+        recommendation.shape is EstimandShape.COUNTERFACTUAL_IDENTIFIED
+        or strategy is EstimationStrategy.TWIN_NETWORK_MC
+    ):
+        diag_id = _node("causal.diagnostics.positivity_check@1.0.0")
+
+    if recommendation.shape is EstimandShape.CYCLIC or strategy is EstimationStrategy.FIXED_POINT_SOLVER:
+        cycle_vars = _parse_cyclic_signature(ast)
+        solver_inner = ExecutorNode(
+            node_id=f"cyclic_solver_{uuid.uuid4().hex[:6]}",
+            method_fqn=recommendation.primary_method_fqn,
+            method_version="1.0.0",
+            params={
+                "cycle_state_keys": cycle_vars,
+                "solver": "picard",
+            },
+            depends_on=(),
+            reads_slots=(),
+            writes_slots=(),
+            is_nuisance=False,
+            backend="custom",
+            backend_target=None,
+            dataset_ref=dataset_hint,
+            skip_if_failed=(),
+        )
+        cyclic_block = CyclicExecutionBlock(
+            node_id=f"cyclic_block_{uuid.uuid4().hex[:6]}",
+            method_fqn="causal.cyclic.execution_block",
+            method_version="1.0.0",
+            params={
+                "cycle_state_keys": cycle_vars,
+                "solver": "picard",
+                "max_iterations": 100,
+                "convergence_tol": 1e-6,
+            },
+            depends_on=(diag_id,),
+            reads_slots=(),
+            writes_slots=(),
+            is_nuisance=False,
+            backend="custom",
+            backend_target=None,
+            dataset_ref=dataset_hint,
+            skip_if_failed=(),
+            inner_nodes=(solver_inner,),
+            max_iterations=100,
+            convergence_tol=1e-6,
+            solver="picard",
+        )
+        nodes_list.append(cyclic_block)
+        _ = _node(
+            "causal.sensitivity.sensitivity_metrics@1.0.0",
+            depends_on=[cyclic_block.node_id],
+            skip_if_failed=(cyclic_block.node_id,),
+            benchmark_covariates=_extract_benchmark_covariates(ast, knowledge_base),
+        )
+        nodes = tuple(nodes_list)
+        edges_list: list[tuple[str, str]] = []
+        for node in nodes:
+            for dep in node.depends_on:
+                edges_list.append((dep, node.node_id))
+        edges = tuple(edges_list)
+        nuisance_schedule = tuple(n.node_id for n in nodes if n.is_nuisance)
+        return ExecutorGraph(
+            nodes=nodes,
+            edges=edges,
+            nuisance_schedule=nuisance_schedule,
+            total_folds=1,
+            run_id=run_id or "",
+            warnings=tuple(_warnings),
+        )
+
+    if (
+        recommendation.shape is EstimandShape.COUNTERFACTUAL_IDENTIFIED
+        or strategy is EstimationStrategy.TWIN_NETWORK_MC
+    ):
+        cf_params = _extract_counterfactual_executor_params(
+            ast,
+            causal_graph=causal_graph,
+        )
+        cf_node_id = _node(
+            recommendation.primary_method_fqn,
+            depends_on=[diag_id] if diag_id is not None else [],
+            **cf_params,
+        )
+        _ = _node(
+            "causal.sensitivity.sensitivity_metrics@1.0.0",
+            depends_on=[cf_node_id],
+            skip_if_failed=(cf_node_id,),
+            benchmark_covariates=_extract_benchmark_covariates(ast, knowledge_base),
+        )
+        nodes = tuple(nodes_list)
+        edges_list = [(dep, node.node_id) for node in nodes for dep in node.depends_on]
+        nuisance_schedule = tuple(n.node_id for n in nodes if n.is_nuisance)
+        return ExecutorGraph(
+            nodes=nodes,
+            edges=tuple(edges_list),
+            nuisance_schedule=nuisance_schedule,
+            total_folds=1,
+            run_id=run_id or "",
+            warnings=tuple(_warnings),
+        )
 
     if strategy is EstimationStrategy.DENSITY_RATIO_REWEIGHT:
         # Transport: density ratio → reweighted AIPW
@@ -1068,6 +1329,7 @@ def compile_estimand(
         run_id=run_id,
         use_cross_fitting=use_cross_fitting,
         knowledge_base=knowledge_base,
+        causal_graph=causal_graph,
     )
 
     # ------------------------------------------------------------------
@@ -1137,6 +1399,7 @@ __all__ = [
     "EstimationStrategy",
     "EstimatorRecommendation",
     "ExecutorNode",
+    "CyclicExecutionBlock",
     "ExecutorGraph",
     "classify_estimand",
     "recommend_estimator",

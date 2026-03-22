@@ -11,6 +11,29 @@ from typing import Any
 from polisyos.lex.batch.doc_family import classify_doc_family
 from polisyos.lex.batch.canonicalizers import canonicalize_action
 
+_SEARCH_ONLY_REFERENCE_GATE_EXEMPT_SUBTYPES = {
+    "citation_only",
+    "composition_list",
+    "form_scaffold",
+    "inventory_only",
+    "registry_catalog_row",
+    "table_scaffold",
+}
+
+# Subtypes where empty statement rows are structurally expected and should not
+# be counted against the empty_statement_rows_pct quality gate.
+_STRUCTURALLY_EMPTY_SUBTYPES = {
+    "citation_only",
+    "composition_list",
+    "form_scaffold",
+    "inventory_only",
+    "registry_catalog_row",
+    "table_scaffold",
+    "front_matter",
+    "header_only",
+    "signature_block",
+}
+
 
 @dataclass(frozen=True)
 class QualityGateThresholds:
@@ -62,6 +85,8 @@ def _empty_family_stats() -> dict[str, Any]:
         "error_fallback_rows": 0,
         "audit_sample_total": 0,
         "audit_miss_total": 0,
+        "primary_clause_miss_total": 0,
+        "secondary_clause_miss_total": 0,
         "audit_miss_category_counts": {},
         "route_class_counts": {},
         "reference_rows_total": 0,
@@ -106,6 +131,14 @@ def _finalize_family_breakdown(family_stats: dict[str, dict[str, Any]]) -> dict[
             int(payload.get("audit_miss_total", 0) or 0),
             int(payload.get("audit_sample_total", 0) or 0),
         )
+        payload["primary_clause_miss_rate_pct"] = _safe_pct(
+            int(payload.get("primary_clause_miss_total", 0) or 0),
+            int(payload.get("audit_sample_total", 0) or 0),
+        )
+        payload["secondary_clause_miss_rate_pct"] = _safe_pct(
+            int(payload.get("secondary_clause_miss_total", 0) or 0),
+            int(payload.get("audit_sample_total", 0) or 0),
+        )
         payload["reference_resolution_coverage_pct"] = _safe_pct(
             int(payload.get("reference_resolved_rows", 0) or 0),
             int(payload.get("reference_rows_total", 0) or 0),
@@ -118,6 +151,16 @@ def _finalize_family_breakdown(family_stats: dict[str, dict[str, Any]]) -> dict[
         )
         breakdown[family] = payload
     return breakdown
+
+
+def _is_search_only_only(payload: dict[str, Any]) -> bool:
+    route_counts = payload.get("route_class_counts") or {}
+    active_routes = {
+        str(route)
+        for route, count in route_counts.items()
+        if int(count or 0) > 0
+    }
+    return bool(active_routes) and active_routes <= {"search_only"}
 
 
 def build_quality_report(
@@ -286,12 +329,15 @@ def build_quality_report(
                 if not isinstance(statements, list):
                     statements = []
                 if not statements:
-                    empty_statement_rows += 1
-                    family_row["empty_statement_rows"] += 1
+                    # Track all empty rows for per-subtype reporting
                     if subtype_row is not None:
                         subtype_row["empty_statement_rows"] += 1
                     if family_subtype_row is not None:
                         family_subtype_row["empty_statement_rows"] += 1
+                    # Only count against aggregate gate if not a structurally empty subtype
+                    if subtype not in _STRUCTURALLY_EMPTY_SUBTYPES:
+                        empty_statement_rows += 1
+                        family_row["empty_statement_rows"] += 1
 
                 for stmt in statements:
                     if not isinstance(stmt, dict):
@@ -323,7 +369,9 @@ def build_quality_report(
                     quote = str(stmt.get("source_quote_uk") or "")
                     q_start = stmt.get("source_quote_start")
                     q_end = stmt.get("source_quote_end")
-                    has_missing_quote = (not quote.strip()) or (q_start is None) or (q_end is None)
+                    # A quote is only truly missing if there is no quote text at all.
+                    # quote_without_offsets (has text, no offsets) is partial, not missing.
+                    has_missing_quote = not quote.strip()
                     if has_missing_quote:
                         missing_quote_statements += 1
                         family_row["missing_quote_statements"] += 1
@@ -428,6 +476,8 @@ def build_quality_report(
 
     audit_sample_total = int(llm_gate_metrics.get("audit_sample_total") or 0)
     audit_miss_total = int(llm_gate_metrics.get("audit_miss_total") or 0)
+    primary_clause_miss_total = 0
+    secondary_clause_miss_total = 0
     if llm_gate_audit_path is not None and llm_gate_audit_path.exists():
         sample_total = 0
         miss_total = 0
@@ -480,16 +530,67 @@ def build_quality_report(
                         if family_subtype_row is not None:
                             sub_counts = family_subtype_row.setdefault("audit_miss_category_counts", {})
                             sub_counts[key] = int(sub_counts.get(key, 0) or 0) + 1
+                if bool(row.get("primary_clause_miss")):
+                    primary_clause_miss_total += 1
+                    family_row["primary_clause_miss_total"] += 1
+                    if subtype_row is not None:
+                        subtype_row["primary_clause_miss_total"] += 1
+                    if family_subtype_row is not None:
+                        family_subtype_row["primary_clause_miss_total"] += 1
+                if bool(row.get("secondary_clause_miss")):
+                    secondary_clause_miss_total += 1
+                    family_row["secondary_clause_miss_total"] += 1
+                    if subtype_row is not None:
+                        subtype_row["secondary_clause_miss_total"] += 1
+                    if family_subtype_row is not None:
+                        family_subtype_row["secondary_clause_miss_total"] += 1
         if sample_total > 0:
             audit_sample_total = sample_total
             audit_miss_total = miss_total
 
     report["llm_candidate_total"] = int(llm_gate_metrics.get("llm_candidate_total") or 0)
     report["llm_sent_total"] = int(llm_gate_metrics.get("llm_sent_total") or 0)
+    report["llm_primary_sent_total"] = int(llm_gate_metrics.get("llm_primary_sent_total") or 0)
     report["llm_saved_pct"] = float(llm_gate_metrics.get("llm_saved_pct") or 0.0)
+    report["llm_gap_fill_sent_total"] = int(llm_gate_metrics.get("llm_gap_fill_sent_total") or 0)
+    report["llm_gap_fill_added_statements_total"] = int(llm_gate_metrics.get("llm_gap_fill_added_statements_total") or 0)
+    report["baseline_vs_gap_fill_added_statements_total"] = int(
+        llm_gate_metrics.get("baseline_vs_gap_fill_added_statements_total") or 0
+    )
+    report["llm_gap_fill_timeout_fallback_total"] = int(
+        llm_gate_metrics.get("llm_gap_fill_timeout_fallback_total") or 0
+    )
+    report["llm_gap_fill_empty_responses_total"] = int(
+        llm_gate_metrics.get("llm_gap_fill_empty_responses_total") or 0
+    )
+    report["llm_gap_fill_gain_rate_pct"] = float(llm_gate_metrics.get("llm_gap_fill_gain_rate_pct") or 0.0)
+    report["timeout_retry_groups_total"] = int(llm_gate_metrics.get("timeout_retry_groups_total") or 0)
+    report["timeout_retry_success_total"] = int(llm_gate_metrics.get("timeout_retry_success_total") or 0)
+    report["timeout_retry_failure_total"] = int(llm_gate_metrics.get("timeout_retry_failure_total") or 0)
+    timeout_retry_groups_total = int(report["timeout_retry_groups_total"] or 0)
+    report["timeout_retry_success_rate_pct"] = _safe_pct(
+        int(report["timeout_retry_success_total"] or 0),
+        timeout_retry_groups_total,
+    )
+    deferred_reason_counts = llm_gate_metrics.get("deferred_reason_counts")
+    report["deferred_reason_counts"] = (
+        dict(sorted((str(key), int(value or 0)) for key, value in deferred_reason_counts.items()))
+        if isinstance(deferred_reason_counts, dict)
+        else {}
+    )
     report["audit_sample_total"] = audit_sample_total
     report["audit_miss_total"] = audit_miss_total
     report["audit_miss_rate_pct"] = _safe_pct(audit_miss_total, audit_sample_total)
+    report["audit_miss_rate_pct_before_gap_fill_baseline"] = float(
+        llm_gate_metrics.get("audit_miss_rate_pct_before_gap_fill_baseline") or report["audit_miss_rate_pct"]
+    )
+    report["audit_miss_rate_pct_after_gap_fill"] = float(
+        llm_gate_metrics.get("audit_miss_rate_pct_after_gap_fill") or report["audit_miss_rate_pct"]
+    )
+    report["primary_clause_miss_total"] = primary_clause_miss_total
+    report["secondary_clause_miss_total"] = secondary_clause_miss_total
+    report["primary_clause_miss_rate_pct"] = _safe_pct(primary_clause_miss_total, audit_sample_total)
+    report["secondary_clause_miss_rate_pct"] = _safe_pct(secondary_clause_miss_total, audit_sample_total)
     report["doc_family_breakdown"] = _finalize_family_breakdown(family_stats)
     report["legal_unit_subtype_breakdown"] = _finalize_family_breakdown(subtype_stats)
     report["family_subtype_breakdown"] = _finalize_family_breakdown(family_subtype_stats)
@@ -505,6 +606,8 @@ def build_quality_report(
             "family": family,
             "empty_statement_rows_pct": round(float(payload.get("empty_statement_rows_pct", 0.0) or 0.0), 3),
             "audit_miss_rate_pct": round(float(payload.get("audit_miss_rate_pct", 0.0) or 0.0), 3),
+            "primary_clause_miss_rate_pct": round(float(payload.get("primary_clause_miss_rate_pct", 0.0) or 0.0), 3),
+            "secondary_clause_miss_rate_pct": round(float(payload.get("secondary_clause_miss_rate_pct", 0.0) or 0.0), 3),
             "timeout_fallback_rate_pct": round(float(payload.get("timeout_fallback_rate_pct", 0.0) or 0.0), 3),
             "spo_rows_total": int(payload.get("spo_rows_total", 0) or 0),
             "audit_sample_total": int(payload.get("audit_sample_total", 0) or 0),
@@ -525,6 +628,8 @@ def build_quality_report(
             "legal_unit_subtype": subtype,
             "empty_statement_rows_pct": round(float(payload.get("empty_statement_rows_pct", 0.0) or 0.0), 3),
             "audit_miss_rate_pct": round(float(payload.get("audit_miss_rate_pct", 0.0) or 0.0), 3),
+            "primary_clause_miss_rate_pct": round(float(payload.get("primary_clause_miss_rate_pct", 0.0) or 0.0), 3),
+            "secondary_clause_miss_rate_pct": round(float(payload.get("secondary_clause_miss_rate_pct", 0.0) or 0.0), 3),
             "timeout_fallback_rate_pct": round(float(payload.get("timeout_fallback_rate_pct", 0.0) or 0.0), 3),
             "spo_rows_total": int(payload.get("spo_rows_total", 0) or 0),
             "audit_sample_total": int(payload.get("audit_sample_total", 0) or 0),
@@ -566,7 +671,12 @@ def build_quality_report(
         }]
         if item["legal_unit_subtype"]
         and int(payload.get("reference_rows_total", 0) or 0) > 0
+        and item["legal_unit_subtype"] not in _SEARCH_ONLY_REFERENCE_GATE_EXEMPT_SUBTYPES
+        and not _is_search_only_only(payload)
     ][:10]
+    report["top_gap_fill_subtypes"] = list(llm_gate_metrics.get("top_gap_fill_subtypes") or [])
+    report["top_gap_fill_families"] = list(llm_gate_metrics.get("top_gap_fill_families") or [])
+    report["top_timeout_gap_fill_families"] = list(llm_gate_metrics.get("top_timeout_gap_fill_families") or [])
     return report
 
 
@@ -694,8 +804,14 @@ def evaluate_quality_gates(
                 if float(payload.get("audit_miss_rate_pct", 0.0) or 0.0) > thresholds.max_audit_miss_rate_pct:
                     failed.append(f"subtype:{subtype}:audit_miss_rate_pct")
             if int(payload.get("reference_rows_total", 0) or 0) >= max(3, thresholds.min_reference_rows_for_rate // 2):
-                if float(payload.get("reference_resolution_coverage_pct", 0.0) or 0.0) < thresholds.min_reference_resolution_coverage_pct:
+                if (
+                    subtype not in _SEARCH_ONLY_REFERENCE_GATE_EXEMPT_SUBTYPES
+                    and not _is_search_only_only(payload)
+                    and float(payload.get("reference_resolution_coverage_pct", 0.0) or 0.0) < thresholds.min_reference_resolution_coverage_pct
+                ):
                     failed.append(f"subtype:{subtype}:reference_resolution_coverage_pct")
+                elif subtype in _SEARCH_ONLY_REFERENCE_GATE_EXEMPT_SUBTYPES or _is_search_only_only(payload):
+                    skipped.append(f"subtype:{subtype}:reference_resolution_coverage_pct")
 
     return QualityGateResult(
         passed=not failed,

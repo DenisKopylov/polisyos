@@ -434,3 +434,101 @@ def test_quality_gates_fail_on_family_outlier() -> None:
 
     assert gate.passed is False
     assert "family:law:empty_statement_rows_pct" in gate.failed_checks
+
+
+def test_quality_gates_skip_reference_gate_for_search_only_scaffold_subtype() -> None:
+    report = {
+        "provision_docs_total": 30,
+        "full_only_docs_pct": 0.0,
+        "duplicate_anchor_rate_pct": 0.0,
+        "spo_rows_total": 100,
+        "empty_statement_rows_pct": 5.0,
+        "statement_total": 150,
+        "missing_quote_rate_pct": 0.0,
+        "grounded_statement_total": 120,
+        "grounded_missing_quote_rate_pct": 0.0,
+        "oov_action_rate_pct": 0.0,
+        "audit_sample_total": 12,
+        "audit_miss_rate_pct": 0.0,
+        "reference_rows_total": 30,
+        "reference_resolution_coverage_pct": 100.0,
+        "legal_unit_subtype_breakdown": {
+            "table_scaffold": {
+                "provision_docs_total": 20,
+                "spo_rows_total": 20,
+                "statement_total": 0,
+                "audit_sample_total": 0,
+                "reference_rows_total": 20,
+                "reference_resolution_coverage_pct": 10.0,
+                "route_class_counts": {"search_only": 20},
+            }
+        },
+    }
+
+    gate = evaluate_quality_gates(
+        report=report,
+        thresholds=QualityGateThresholds(),
+    )
+
+    assert gate.passed is True
+    assert "subtype:table_scaffold:reference_resolution_coverage_pct" not in gate.failed_checks
+    assert "subtype:table_scaffold:reference_resolution_coverage_pct" in gate.skipped_checks
+
+
+def test_quality_report_splits_primary_and_secondary_clause_miss_metrics(tmp_path: Path) -> None:
+    provisions_dir = tmp_path / "provisions"
+    spo_dir = tmp_path / "spo_results"
+    audit_path = tmp_path / "llm_gate_audit.jsonl"
+
+    _write_jsonl(
+        provisions_dir / "aa" / "doc1.jsonl",
+        [
+            {
+                "kind": "article",
+                "anchor_path": "article:1",
+                "doc_type_category": "law",
+                "legal_unit_subtype": "core_normative_clause",
+                "route_class": "deterministic_then_llm_retry",
+                "text": "Орган зобов'язаний подати звіт.",
+            }
+        ],
+    )
+    _write_jsonl(
+        spo_dir / "aa" / "doc1.jsonl",
+        [
+            {
+                "provision_anchor": "article:1",
+                "legal_unit_subtype": "core_normative_clause",
+                "route_class": "deterministic_then_llm_retry",
+                "statements": [],
+            }
+        ],
+    )
+    _write_jsonl(
+        audit_path,
+        [
+            {
+                "doc_id": "doc1",
+                "provision_anchor": "article:1",
+                "quality_family": "law",
+                "legal_unit_subtype": "core_normative_clause",
+                "route_class": "deterministic_then_llm_retry",
+                "miss": True,
+                "miss_categories": ["obligation", "additional_statement"],
+                "primary_clause_miss": True,
+                "secondary_clause_miss": True,
+            }
+        ],
+    )
+
+    report = build_quality_report(
+        provisions_dir=provisions_dir,
+        spo_results_dir=spo_dir,
+        llm_gate_audit_path=audit_path,
+    )
+
+    assert report["audit_miss_rate_pct"] == 100.0
+    assert report["primary_clause_miss_rate_pct"] == 100.0
+    assert report["secondary_clause_miss_rate_pct"] == 100.0
+    assert report["doc_family_breakdown"]["law"]["primary_clause_miss_total"] == 1
+    assert report["doc_family_breakdown"]["law"]["secondary_clause_miss_total"] == 1

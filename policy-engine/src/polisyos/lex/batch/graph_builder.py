@@ -5,86 +5,69 @@ from __future__ import annotations
 import hashlib
 import json
 import re
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterator
+from typing import Any
 
 import duckdb
 
 from polisyos.common.logger import get_logger
-from polisyos.lex.batch.doc_identity import doc_family_id, normalize_publishers, version_sort_key
-from polisyos.lex.batch.provisions_io import read_provisions
+from polisyos.lex.batch.amendment_detector import detect_amendments
+from polisyos.lex.batch.doc_identity import (
+    DocIndexEntry,
+    DocResolutionIndex,
+    build_doc_resolution_index,
+    doc_family_id,
+    doc_type_category,
+    normalize_publishers,
+    normalize_ref_number,
+    normalize_text_key,
+    version_sort_key,
+)
+from polisyos.lex.batch.entity_resolver import EntityRecord, EntityResolver, normalize_entity_name
+from polisyos.lex.batch.provisions_io import _shard_prefix, read_provisions
 from polisyos.lex.knowledge.types import SPOExtractionResult
 
 logger = get_logger(__name__)
 
-_NORMALIZE_RE = re.compile(r"[^a-z0-9_]+")
-
+_AMENDMENT_TITLE_TARGET_RE = re.compile(
+    r"(?:внесення\s+змін|внести\s+(?:такі\s+)?зміни|"
+    r"доповнення|про\s+зміну|про\s+зміни|"
+    r"зміни\s+(?:та\s+доповнення\s+)?до|"
+    r"про\s+внесення\s+змін|"
+    r"визнання\s+(?:таким|такими).+?чинність.+?до)\s+до\s+(?P<target>.+)$",
+    re.IGNORECASE,
+)
+_AMENDMENT_TITLE_TARGET_ALT_RE = re.compile(
+    r"(?:внесення\s+змін|зміни|доповнення)\s+(?:до\s+)?(?:деяких\s+)?(?:законодавчих\s+актів|законів)\b",
+    re.IGNORECASE,
+)
+_AMENDMENT_TITLE_STOP_RE = re.compile(r"[:(]|,?\s+(?:щодо|та\s+деяких|у\s+зв'язку)\b", re.IGNORECASE)
 
 def _normalize_entity_name(name: str) -> str:
-    return _NORMALIZE_RE.sub("_", name.strip().lower()).strip("_")
+    return normalize_entity_name(name)
 
 
 def _stable_hash(*parts: str, size: int = 20) -> str:
     canon = "|".join(parts)
     return hashlib.sha256(canon.encode("utf-8")).hexdigest()[:size]
 
-
-def _entity_id(normalized_name: str) -> str:
-    return _stable_hash(normalized_name, size=16)
-
-
-@dataclass
-class _EntityRecord:
-    entity_id: str
-    name_en: str
-    name_uk: str
-    entity_type: str
-    mention_count: int = 1
-    aliases_en: set[str] = field(default_factory=set)
-    aliases_uk: set[str] = field(default_factory=set)
-
-
-class EntityDeduplicator:
-    """In-memory entity dedup using normalized English name as canonical key."""
-
-    def __init__(self) -> None:
-        self._by_norm: dict[str, _EntityRecord] = {}
+class EntityDeduplicator(EntityResolver):
+    """Backward-compatible alias for the richer entity resolver."""
 
     def get_or_create(
         self,
         name_en: str,
         name_uk: str,
         entity_type: str = "concept",
+        entity_subtype: str = "",
     ) -> str:
-        norm = _normalize_entity_name(name_en)
-        if not norm:
-            norm = _normalize_entity_name(name_uk) or "unknown"
-
-        rec = self._by_norm.get(norm)
-        if rec is not None:
-            rec.mention_count += 1
-            if name_en and name_en != rec.name_en:
-                rec.aliases_en.add(name_en)
-            if name_uk and name_uk != rec.name_uk:
-                rec.aliases_uk.add(name_uk)
-            return rec.entity_id
-
-        eid = _entity_id(norm)
-        self._by_norm[norm] = _EntityRecord(
-            entity_id=eid,
+        return self.resolve(
             name_en=name_en,
             name_uk=name_uk,
             entity_type=entity_type,
+            entity_subtype=entity_subtype,
         )
-        return eid
-
-    def all_records(self) -> Iterator[_EntityRecord]:
-        yield from self._by_norm.values()
-
-    @property
-    def count(self) -> int:
-        return len(self._by_norm)
 
 
 _DDL = """
@@ -93,9 +76,11 @@ CREATE TABLE IF NOT EXISTS lex_entities (
     name_en        VARCHAR NOT NULL,
     name_uk        VARCHAR,
     entity_type    VARCHAR NOT NULL,
+    entity_subtype VARCHAR,
     mention_count  INTEGER DEFAULT 1,
     aliases_en     VARCHAR,
     aliases_uk     VARCHAR,
+    wikidata_id    VARCHAR,
     metadata       JSON,
     created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -136,7 +121,11 @@ CREATE TABLE IF NOT EXISTS lex_facts (
     audit_miss_prone    BOOLEAN,
     reference_bearing   BOOLEAN,
     threshold_bearing   BOOLEAN,
-    original_context    VARCHAR,
+    fused_confidence    REAL,
+    confidence_breakdown_json VARCHAR,
+    consistency_score   REAL,
+    hallucination_flags_json VARCHAR,
+    quality_band        VARCHAR,
     doc_id              VARCHAR NOT NULL,
     doc_reestr_code     VARCHAR,
     doc_name            VARCHAR,
@@ -158,14 +147,19 @@ CREATE TABLE IF NOT EXISTS lex_facts (
     created_at          TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS lex_fact_candidates AS
-    SELECT * FROM lex_facts WHERE 1 = 0;
+CREATE OR REPLACE VIEW lex_fact_candidates AS
+    SELECT * FROM lex_facts WHERE trust_tier = 'search_candidate';
 
-CREATE TABLE IF NOT EXISTS lex_fact_grounded AS
-    SELECT * FROM lex_facts WHERE 1 = 0;
+CREATE OR REPLACE VIEW lex_fact_grounded AS
+    SELECT * FROM lex_facts WHERE trust_tier IN ('grounded_fact', 'normative_fact');
 
-CREATE TABLE IF NOT EXISTS lex_normative_facts AS
-    SELECT * FROM lex_facts WHERE 1 = 0;
+CREATE OR REPLACE VIEW lex_normative_facts AS
+    SELECT * FROM lex_facts WHERE trust_tier = 'normative_fact';
+
+CREATE OR REPLACE VIEW lex_high_confidence_norms AS
+    SELECT * FROM lex_facts
+    WHERE trust_tier = 'normative_fact'
+      AND COALESCE(fused_confidence, confidence, 0.0) >= 0.85;
 
 CREATE TABLE IF NOT EXISTS lex_rule_thresholds (
     threshold_id    VARCHAR PRIMARY KEY,
@@ -303,6 +297,74 @@ CREATE TABLE IF NOT EXISTS lex_doc_versions (
     metadata            JSON,
     created_at          TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE IF NOT EXISTS lex_reference_resolution_audit (
+    ref_id               VARCHAR PRIMARY KEY,
+    source_doc_id        VARCHAR NOT NULL,
+    source_anchor        VARCHAR,
+    ref_text_uk          VARCHAR,
+    target_raw           VARCHAR,
+    resolution_method    VARCHAR,
+    resolution_status    VARCHAR,
+    resolution_confidence REAL,
+    candidate_count      INTEGER,
+    selected_target_doc_id VARCHAR,
+    alternatives_json    VARCHAR,
+    metadata             JSON,
+    created_at           TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS lex_pattern_feedback_queue (
+    feedback_id          VARCHAR PRIMARY KEY,
+    doc_id               VARCHAR NOT NULL,
+    provision_anchor     VARCHAR,
+    quality_family       VARCHAR,
+    legal_unit_subtype   VARCHAR,
+    route_class          VARCHAR,
+    deterministic_reason_codes VARCHAR,
+    llm_delta            INTEGER,
+    miss_categories_json VARCHAR,
+    cluster_key          VARCHAR,
+    suggestion_family    VARCHAR,
+    metadata             JSON,
+    created_at           TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS lex_amendments (
+    amendment_id         VARCHAR PRIMARY KEY,
+    amending_doc_id      VARCHAR NOT NULL,
+    amended_doc_id       VARCHAR,
+    amendment_type       VARCHAR NOT NULL,
+    target_anchor        VARCHAR,
+    old_text_uk          VARCHAR,
+    new_text_uk          VARCHAR,
+    effective_from       VARCHAR,
+    detected_by          VARCHAR DEFAULT 'pattern',
+    confidence           REAL DEFAULT 0.8,
+    metadata             JSON,
+    created_at           TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS lex_consistency_issues (
+    issue_id             VARCHAR PRIMARY KEY,
+    type                 VARCHAR NOT NULL,
+    fact_id_1            VARCHAR NOT NULL,
+    fact_id_2            VARCHAR NOT NULL,
+    doc_id_1             VARCHAR NOT NULL,
+    doc_id_2             VARCHAR,
+    subject_en           VARCHAR,
+    object_en            VARCHAR,
+    norm_type_1          VARCHAR,
+    norm_type_2          VARCHAR,
+    severity             VARCHAR,
+    resolution_principle VARCHAR,
+    prevailing_doc_id    VARCHAR,
+    resolution_confidence REAL,
+    requires_manual_review BOOLEAN DEFAULT TRUE,
+    anchor_1             VARCHAR,
+    anchor_2             VARCHAR,
+    created_at           TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 """
 
 _INDEXES = """
@@ -313,6 +375,8 @@ CREATE INDEX IF NOT EXISTS idx_facts_action_canon ON lex_facts(action_canon);
 CREATE INDEX IF NOT EXISTS idx_facts_norm_type_canon ON lex_facts(norm_type_canon);
 CREATE INDEX IF NOT EXISTS idx_facts_doc ON lex_facts(doc_id);
 CREATE INDEX IF NOT EXISTS idx_facts_trust_tier ON lex_facts(trust_tier);
+CREATE INDEX IF NOT EXISTS idx_facts_fused_confidence ON lex_facts(fused_confidence);
+CREATE INDEX IF NOT EXISTS idx_facts_quality_band ON lex_facts(quality_band);
 CREATE INDEX IF NOT EXISTS idx_facts_top_domain ON lex_facts(top_domain);
 CREATE INDEX IF NOT EXISTS idx_facts_jurisdiction ON lex_facts(jurisdiction);
 CREATE INDEX IF NOT EXISTS idx_facts_legal_unit_subtype ON lex_facts(legal_unit_subtype);
@@ -331,6 +395,10 @@ CREATE INDEX IF NOT EXISTS idx_domains_domain ON lex_doc_domains(domain);
 CREATE INDEX IF NOT EXISTS idx_reference_edges_source_doc ON lex_reference_edges(source_doc_id);
 CREATE INDEX IF NOT EXISTS idx_reference_edges_target_doc ON lex_reference_edges(target_doc_id);
 CREATE INDEX IF NOT EXISTS idx_doc_versions_family ON lex_doc_versions(doc_family_id);
+CREATE INDEX IF NOT EXISTS idx_reference_audit_source_doc ON lex_reference_resolution_audit(source_doc_id);
+CREATE INDEX IF NOT EXISTS idx_pattern_feedback_cluster ON lex_pattern_feedback_queue(cluster_key);
+CREATE INDEX IF NOT EXISTS idx_amendments_doc ON lex_amendments(amending_doc_id);
+CREATE INDEX IF NOT EXISTS idx_consistency_doc ON lex_consistency_issues(doc_id_1);
 """
 
 
@@ -420,6 +488,7 @@ class GraphStats:
     candidate_facts: int = 0
     grounded_facts: int = 0
     normative_facts: int = 0
+    high_confidence_norms: int = 0
     provisions: int = 0
     thresholds: int = 0
     clauses: int = 0
@@ -428,6 +497,14 @@ class GraphStats:
     reference_edges: int = 0
     doc_domains: int = 0
     doc_versions: int = 0
+    amendments: int = 0
+    amendments_with_target: int = 0
+    amendment_docs_total: int = 0
+    amendment_docs_with_target: int = 0
+    reference_resolution_audit: int = 0
+    reference_resolution_resolved: int = 0
+    reference_resolution_partial: int = 0
+    pattern_feedback_queue: int = 0
     docs_processed: int = 0
     spo_files_read: int = 0
 
@@ -440,6 +517,7 @@ def build_graph(
     domains_dir: Path | None,
     doc_metadata: dict[str, dict],
     db_path: Path,
+    feedback_queue_path: Path | None = None,
     insert_batch_size: int = 10_000,
 ) -> GraphStats:
     """Read SPO/provision files and stream rows to DuckDB."""
@@ -447,9 +525,11 @@ def build_graph(
     dedup = EntityDeduplicator()
     con = duckdb.connect(str(db_path))
     try:
+        con.execute("PRAGMA force_compression='zstd'")
         _init_schema(con)
         _truncate_existing_rows(con)
 
+        # --- Transaction 1: core data ingestion (facts, provisions, references, domains) ---
         con.execute("BEGIN TRANSACTION")
         _stream_facts_to_duckdb(
             con=con,
@@ -461,9 +541,6 @@ def build_graph(
             doc_metadata=doc_metadata,
             insert_batch_size=insert_batch_size,
         )
-        con.execute("COMMIT")
-
-        con.execute("BEGIN TRANSACTION")
         _stream_provisions_to_duckdb(
             con=con,
             stats=stats,
@@ -471,18 +548,12 @@ def build_graph(
             doc_metadata=doc_metadata,
             insert_batch_size=insert_batch_size,
         )
-        con.execute("COMMIT")
-
-        con.execute("BEGIN TRANSACTION")
         _stream_references_to_duckdb(
             con=con,
             stats=stats,
             references_dir=references_dir,
             insert_batch_size=insert_batch_size,
         )
-        con.execute("COMMIT")
-
-        con.execute("BEGIN TRANSACTION")
         _stream_domains_to_duckdb(
             con=con,
             stats=stats,
@@ -491,6 +562,7 @@ def build_graph(
         )
         con.execute("COMMIT")
 
+        # --- Transaction 2: edges, versions, audit, feedback ---
         con.execute("BEGIN TRANSACTION")
         _stream_reference_edges_to_duckdb(
             con=con,
@@ -498,23 +570,38 @@ def build_graph(
             references_dir=references_dir,
             insert_batch_size=insert_batch_size,
         )
-        con.execute("COMMIT")
-
-        con.execute("BEGIN TRANSACTION")
         _stream_doc_versions_to_duckdb(
             con=con,
             stats=stats,
             doc_metadata=doc_metadata,
             insert_batch_size=insert_batch_size,
         )
+        _stream_reference_resolution_audit_to_duckdb(
+            con=con,
+            stats=stats,
+            references_dir=references_dir,
+            insert_batch_size=insert_batch_size,
+        )
+        _stream_pattern_feedback_to_duckdb(
+            con=con,
+            stats=stats,
+            feedback_queue_path=feedback_queue_path,
+            insert_batch_size=insert_batch_size,
+        )
         con.execute("COMMIT")
 
+        # --- Transaction 3: amendments, enrichment, entities ---
         con.execute("BEGIN TRANSACTION")
+        _stream_amendments_to_duckdb(
+            con=con,
+            stats=stats,
+            provisions_dir=provisions_dir,
+            references_dir=references_dir,
+            doc_metadata=doc_metadata,
+            insert_batch_size=insert_batch_size,
+        )
         _enrich_fact_domains(con)
         _populate_fact_partitions(con=con, stats=stats)
-        con.execute("COMMIT")
-
-        con.execute("BEGIN TRANSACTION")
         stats.entities = _insert_entities(
             con=con,
             dedup=dedup,
@@ -534,13 +621,14 @@ def build_graph(
         con.close()
 
     logger.info(
-        "Graph built: {} entities, {} facts ({} candidate / {} grounded / {} normative), "
+        "Graph built: {} entities, {} facts ({} candidate / {} grounded / {} normative / {} high-confidence), "
         "{} provisions, {} thresholds, {} clauses, {} links, {} references, {} resolved edges, {} domain rows in {}",
         stats.entities,
         stats.facts,
         stats.candidate_facts,
         stats.grounded_facts,
         stats.normative_facts,
+        stats.high_confidence_norms,
         stats.provisions,
         stats.thresholds,
         stats.clauses,
@@ -569,6 +657,11 @@ _OPTIONAL_COLUMNS: dict[str, dict[str, str]] = {
         "audit_miss_prone": "BOOLEAN",
         "reference_bearing": "BOOLEAN",
         "threshold_bearing": "BOOLEAN",
+        "fused_confidence": "REAL",
+        "confidence_breakdown_json": "VARCHAR",
+        "consistency_score": "REAL",
+        "hallucination_flags_json": "VARCHAR",
+        "quality_band": "VARCHAR",
     },
     "lex_fact_candidates": {
         "legal_unit_subtype": "VARCHAR",
@@ -577,6 +670,11 @@ _OPTIONAL_COLUMNS: dict[str, dict[str, str]] = {
         "audit_miss_prone": "BOOLEAN",
         "reference_bearing": "BOOLEAN",
         "threshold_bearing": "BOOLEAN",
+        "fused_confidence": "REAL",
+        "confidence_breakdown_json": "VARCHAR",
+        "consistency_score": "REAL",
+        "hallucination_flags_json": "VARCHAR",
+        "quality_band": "VARCHAR",
     },
     "lex_fact_grounded": {
         "legal_unit_subtype": "VARCHAR",
@@ -585,6 +683,11 @@ _OPTIONAL_COLUMNS: dict[str, dict[str, str]] = {
         "audit_miss_prone": "BOOLEAN",
         "reference_bearing": "BOOLEAN",
         "threshold_bearing": "BOOLEAN",
+        "fused_confidence": "REAL",
+        "confidence_breakdown_json": "VARCHAR",
+        "consistency_score": "REAL",
+        "hallucination_flags_json": "VARCHAR",
+        "quality_band": "VARCHAR",
     },
     "lex_normative_facts": {
         "legal_unit_subtype": "VARCHAR",
@@ -593,6 +696,24 @@ _OPTIONAL_COLUMNS: dict[str, dict[str, str]] = {
         "audit_miss_prone": "BOOLEAN",
         "reference_bearing": "BOOLEAN",
         "threshold_bearing": "BOOLEAN",
+        "fused_confidence": "REAL",
+        "confidence_breakdown_json": "VARCHAR",
+        "consistency_score": "REAL",
+        "hallucination_flags_json": "VARCHAR",
+        "quality_band": "VARCHAR",
+    },
+    "lex_high_confidence_norms": {
+        "legal_unit_subtype": "VARCHAR",
+        "route_class": "VARCHAR",
+        "empty_spo_retry_eligible": "BOOLEAN",
+        "audit_miss_prone": "BOOLEAN",
+        "reference_bearing": "BOOLEAN",
+        "threshold_bearing": "BOOLEAN",
+        "fused_confidence": "REAL",
+        "confidence_breakdown_json": "VARCHAR",
+        "consistency_score": "REAL",
+        "hallucination_flags_json": "VARCHAR",
+        "quality_band": "VARCHAR",
     },
     "lex_provisions": {
         "legal_unit_subtype": "VARCHAR",
@@ -601,6 +722,10 @@ _OPTIONAL_COLUMNS: dict[str, dict[str, str]] = {
         "audit_miss_prone": "BOOLEAN",
         "reference_bearing": "BOOLEAN",
         "threshold_bearing": "BOOLEAN",
+    },
+    "lex_entities": {
+        "entity_subtype": "VARCHAR",
+        "wikidata_id": "VARCHAR",
     },
 }
 
@@ -627,6 +752,10 @@ def _ensure_optional_columns(con: duckdb.DuckDBPyConnection) -> None:
 
 
 def _truncate_existing_rows(con: duckdb.DuckDBPyConnection) -> None:
+    con.execute("DELETE FROM lex_consistency_issues")
+    con.execute("DELETE FROM lex_amendments")
+    con.execute("DELETE FROM lex_pattern_feedback_queue")
+    con.execute("DELETE FROM lex_reference_resolution_audit")
     con.execute("DELETE FROM lex_doc_versions")
     con.execute("DELETE FROM lex_reference_edges")
     con.execute("DELETE FROM lex_doc_domains")
@@ -634,9 +763,6 @@ def _truncate_existing_rows(con: duckdb.DuckDBPyConnection) -> None:
     con.execute("DELETE FROM lex_rule_links")
     con.execute("DELETE FROM lex_rule_clauses")
     con.execute("DELETE FROM lex_rule_thresholds")
-    con.execute("DELETE FROM lex_normative_facts")
-    con.execute("DELETE FROM lex_fact_grounded")
-    con.execute("DELETE FROM lex_fact_candidates")
     con.execute("DELETE FROM lex_facts")
     con.execute("DELETE FROM lex_entities")
     con.execute("DELETE FROM lex_provisions")
@@ -677,21 +803,11 @@ def _populate_fact_partitions(
     con: duckdb.DuckDBPyConnection,
     stats: GraphStats,
 ) -> None:
-    con.execute("DELETE FROM lex_fact_candidates")
-    con.execute("DELETE FROM lex_fact_grounded")
-    con.execute("DELETE FROM lex_normative_facts")
-    con.execute(
-        "INSERT INTO lex_fact_candidates SELECT * FROM lex_facts WHERE trust_tier = 'search_candidate'"
-    )
-    con.execute(
-        "INSERT INTO lex_fact_grounded SELECT * FROM lex_facts WHERE trust_tier IN ('grounded_fact', 'normative_fact')"
-    )
-    con.execute(
-        "INSERT INTO lex_normative_facts SELECT * FROM lex_facts WHERE trust_tier = 'normative_fact'"
-    )
+    # Partition tables are now views — just collect stats.
     stats.candidate_facts = int(con.execute("SELECT COUNT(*) FROM lex_fact_candidates").fetchone()[0])
     stats.grounded_facts = int(con.execute("SELECT COUNT(*) FROM lex_fact_grounded").fetchone()[0])
     stats.normative_facts = int(con.execute("SELECT COUNT(*) FROM lex_normative_facts").fetchone()[0])
+    stats.high_confidence_norms = int(con.execute("SELECT COUNT(*) FROM lex_high_confidence_norms").fetchone()[0])
 
 
 def _enrich_fact_domains(con: duckdb.DuckDBPyConnection) -> None:
@@ -731,7 +847,8 @@ def _flush_fact_related_batches(
                 thresholds_json, trust_tier, grounding_status, canonical_status,
                 reference_resolution_status, structure_quality, constraint_type_canon,
                 legal_unit_subtype, route_class, empty_spo_retry_eligible, audit_miss_prone,
-                reference_bearing, threshold_bearing, original_context,
+                reference_bearing, threshold_bearing, fused_confidence, confidence_breakdown_json,
+                consistency_score, hallucination_flags_json, quality_band,
                 doc_id, doc_reestr_code, doc_name, doc_type, doc_date_acc, doc_status,
                 jurisdiction, top_domain, doc_family_id, version_id,
                 provision_anchor, provision_citation, effective_from, effective_to,
@@ -739,7 +856,7 @@ def _flush_fact_related_batches(
             ) VALUES (
                 ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
                 ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
-                ?, ?, ?, ?, ?, ?
+                ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
             )
             """,
             fact_rows,
@@ -883,11 +1000,6 @@ def _stream_facts_to_duckdb(
                         [th.model_dump(mode="json") for th in stmt.thresholds],
                         ensure_ascii=False,
                     )
-                    original_context = (
-                        stmt.source_quote_uk
-                        or ctx_by_anchor.get(result.provision_anchor, "")
-                    )[:500]
-
                     fact_rows.append(
                         (
                             fid,
@@ -933,7 +1045,11 @@ def _stream_facts_to_duckdb(
                             bool(result.audit_miss_prone),
                             bool(result.reference_bearing),
                             bool(result.threshold_bearing),
-                            original_context,
+                            stmt.fused_confidence,
+                            stmt.confidence_breakdown_json or "",
+                            stmt.consistency_score,
+                            stmt.hallucination_flags_json or "",
+                            stmt.quality_band or "",
                             doc_id,
                             meta.get("reestr_code", ""),
                             meta.get("name", ""),
@@ -1357,6 +1473,463 @@ def _stream_reference_edges_to_duckdb(
         stats.reference_edges += len(batch)
 
 
+def _stream_reference_resolution_audit_to_duckdb(
+    *,
+    con: duckdb.DuckDBPyConnection,
+    stats: GraphStats,
+    references_dir: Path | None,
+    insert_batch_size: int,
+) -> None:
+    if references_dir is None or not references_dir.exists():
+        return
+    sql = """
+    INSERT INTO lex_reference_resolution_audit (
+        ref_id, source_doc_id, source_anchor, ref_text_uk, target_raw,
+        resolution_method, resolution_status, resolution_confidence, candidate_count,
+        selected_target_doc_id, alternatives_json, metadata
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """
+    batch: list[tuple[Any, ...]] = []
+    seen_ids: set[str] = set()
+    for ref_file in sorted(references_dir.glob("**/*.jsonl")):
+        with open(ref_file, "r", encoding="utf-8") as fh:
+            for line in fh:
+                line = line.strip()
+                if not line:
+                    continue
+                row = json.loads(line)
+                ref_id = str(row.get("reference_edge_id") or _stable_hash(str(row.get("doc_id") or ""), str(row.get("anchor_path") or ""), str(row.get("target_raw") or ""), "audit", size=24))
+                if ref_id in seen_ids:
+                    continue
+                seen_ids.add(ref_id)
+                batch.append(
+                    (
+                        ref_id,
+                        str(row.get("doc_id") or ""),
+                        str(row.get("anchor_path") or ""),
+                        str(row.get("target_raw") or ""),
+                        str(row.get("target_raw") or ""),
+                        str(row.get("resolution_method") or row.get("matched_by") or ""),
+                        str(row.get("resolution_status") or "unresolved"),
+                        float(row.get("resolution_confidence") or 0.0),
+                        int(row.get("candidate_count") or 0),
+                        str(row.get("selected_target_doc_id") or row.get("target_doc_id") or ""),
+                        str(row.get("alternatives_json") or "[]"),
+                        json.dumps(
+                            {
+                                "relation_type": str(row.get("relation_type") or row.get("type") or "references"),
+                                "target_anchor": str(row.get("target_anchor") or ""),
+                            },
+                            ensure_ascii=False,
+                        ),
+                    )
+                )
+                status = str(row.get("resolution_status") or "unresolved").strip().lower()
+                if status in {"resolved", "partial"}:
+                    stats.reference_resolution_resolved += 1
+                if status == "partial":
+                    stats.reference_resolution_partial += 1
+                if len(batch) >= insert_batch_size:
+                    con.executemany(sql, batch)
+                    stats.reference_resolution_audit += len(batch)
+                    batch.clear()
+    if batch:
+        con.executemany(sql, batch)
+        stats.reference_resolution_audit += len(batch)
+
+
+def _stream_pattern_feedback_to_duckdb(
+    *,
+    con: duckdb.DuckDBPyConnection,
+    stats: GraphStats,
+    feedback_queue_path: Path | None,
+    insert_batch_size: int,
+) -> None:
+    if feedback_queue_path is None or not feedback_queue_path.exists():
+        return
+    sql = """
+    INSERT INTO lex_pattern_feedback_queue (
+        feedback_id, doc_id, provision_anchor, quality_family, legal_unit_subtype,
+        route_class, deterministic_reason_codes, llm_delta, miss_categories_json,
+        cluster_key, suggestion_family, metadata
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """
+    batch: list[tuple[Any, ...]] = []
+    with open(feedback_queue_path, "r", encoding="utf-8") as fh:
+        for line in fh:
+            line = line.strip()
+            if not line:
+                continue
+            row = json.loads(line)
+            batch.append(
+                (
+                    str(row.get("feedback_id") or ""),
+                    str(row.get("doc_id") or ""),
+                    str(row.get("provision_anchor") or ""),
+                    str(row.get("quality_family") or "other"),
+                    str(row.get("legal_unit_subtype") or ""),
+                    str(row.get("route_class") or ""),
+                    json.dumps(row.get("deterministic_reason_codes") or [], ensure_ascii=False),
+                    int(row.get("llm_delta") or 0),
+                    json.dumps(row.get("miss_categories") or [], ensure_ascii=False),
+                    str(row.get("cluster_key") or ""),
+                    str(row.get("suggestion_family") or ""),
+                    json.dumps(row.get("metadata") or {}, ensure_ascii=False),
+                )
+            )
+            if len(batch) >= insert_batch_size:
+                con.executemany(sql, batch)
+                stats.pattern_feedback_queue += len(batch)
+                batch.clear()
+    if batch:
+        con.executemany(sql, batch)
+        stats.pattern_feedback_queue += len(batch)
+
+
+def _stream_amendments_to_duckdb(
+    *,
+    con: duckdb.DuckDBPyConnection,
+    stats: GraphStats,
+    provisions_dir: Path,
+    references_dir: Path | None,
+    doc_metadata: dict[str, dict],
+    insert_batch_size: int,
+) -> None:
+    provision_files = sorted(provisions_dir.glob("**/*.jsonl"))
+    if not provision_files:
+        return
+    doc_index = build_doc_resolution_index(doc_metadata)
+    sql = """
+    INSERT INTO lex_amendments (
+        amendment_id, amending_doc_id, amended_doc_id, amendment_type, target_anchor,
+        old_text_uk, new_text_uk, effective_from, detected_by, confidence, metadata
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """
+    batch: list[tuple[Any, ...]] = []
+    for jsonl_file in provision_files:
+        doc_id = jsonl_file.stem
+        meta = doc_metadata.get(doc_id, {})
+        doc_amendment_count = 0
+        doc_targeted_amendment_count = 0
+        amendment_target_hints = _load_amendment_target_hints_for_doc(
+            references_dir=references_dir,
+            doc_id=doc_id,
+        )
+        with open(jsonl_file, "r", encoding="utf-8") as fh:
+            for line in fh:
+                line = line.strip()
+                if not line:
+                    continue
+                row = json.loads(line)
+                text = str(row.get("text") or "")
+                if not text:
+                    continue
+                amendments = detect_amendments(text)
+                for idx, amendment in enumerate(amendments, start=1):
+                    doc_amendment_count += 1
+                    amended_doc_id, target_hint = _select_amendment_target(
+                        source_doc_id=doc_id,
+                        doc_meta=meta,
+                        target_hints=amendment_target_hints,
+                        doc_index=doc_index,
+                    )
+                    if amended_doc_id:
+                        doc_targeted_amendment_count += 1
+                    target_source = str(target_hint.get("source") or "").strip().lower()
+                    detected_by = "pattern"
+                    if target_source:
+                        if target_source.startswith("doc_title"):
+                            detected_by = "pattern+title"
+                        elif target_source.startswith("doc_metadata"):
+                            detected_by = "pattern+metadata"
+                        else:
+                            detected_by = "pattern+refs"
+                    batch.append(
+                        (
+                            _stable_hash(doc_id, row.get("anchor_path", ""), amendment.amendment_type, str(idx), size=24),
+                            doc_id,
+                            amended_doc_id,
+                            amendment.amendment_type,
+                            amendment.target_anchor,
+                            amendment.old_text_uk,
+                            amendment.new_text_uk,
+                            amendment.effective_from,
+                            detected_by,
+                            amendment.confidence,
+                            json.dumps(
+                                {
+                                    "source_anchor": str(row.get("anchor_path") or ""),
+                                    "source_text": amendment.source_text,
+                                    "target_hint": target_hint,
+                                },
+                                ensure_ascii=False,
+                            ),
+                        )
+                    )
+                    if len(batch) >= insert_batch_size:
+                        con.executemany(sql, batch)
+                        stats.amendments += len(batch)
+                        batch.clear()
+        if doc_amendment_count > 0:
+            stats.amendment_docs_total += 1
+            if doc_targeted_amendment_count > 0:
+                stats.amendment_docs_with_target += 1
+            stats.amendments_with_target += doc_targeted_amendment_count
+    if batch:
+        con.executemany(sql, batch)
+        stats.amendments += len(batch)
+
+
+def _load_amendment_target_hints_for_doc(
+    *,
+    references_dir: Path | None,
+    doc_id: str,
+) -> list[dict[str, Any]]:
+    if references_dir is None:
+        return []
+    ref_path = references_dir / _shard_prefix(doc_id) / f"{doc_id}.jsonl"
+    if not ref_path.exists():
+        return []
+
+    hints: list[dict[str, Any]] = []
+    with open(ref_path, "r", encoding="utf-8") as fh:
+        for line in fh:
+            line = line.strip()
+            if not line:
+                continue
+            row = json.loads(line)
+            target_doc_id = str(row.get("selected_target_doc_id") or row.get("target_doc_id") or "")
+            if not target_doc_id or target_doc_id == doc_id:
+                continue
+            status = str(row.get("resolution_status") or "").strip().lower()
+            if status not in {"resolved", "partial"}:
+                continue
+            hints.append(
+                {
+                    "target_doc_id": target_doc_id,
+                    "relation_type": str(row.get("relation_type") or row.get("relation_hint") or "references"),
+                    "resolution_confidence": float(row.get("resolution_confidence") or row.get("confidence") or 0.0),
+                    "matched_by": str(row.get("matched_by") or row.get("resolution_method") or ""),
+                    "target_anchor": str(row.get("target_anchor") or ""),
+                    "target_doc_type": str(row.get("target_doc_type") or ""),
+                }
+            )
+    return hints
+
+
+def _select_amendment_target(
+    *,
+    source_doc_id: str,
+    doc_meta: dict[str, Any],
+    target_hints: list[dict[str, Any]],
+    doc_index: DocResolutionIndex,
+) -> tuple[str, dict[str, Any]]:
+    explicit_target = _explicit_amendment_target_from_meta(doc_meta=doc_meta, doc_index=doc_index)
+    if explicit_target:
+        return explicit_target.doc_id, {
+            "source": explicit_target.source,
+            "target_doc_id": explicit_target.doc_id,
+            "target_doc_name": explicit_target.doc_name,
+            "score": round(explicit_target.score, 4),
+        }
+
+    relation_priority = {
+        "amends": 5,
+        "repeals": 4,
+        "replaces": 4,
+        "supplements": 3,
+        "approves": 2,
+        "references": 1,
+    }
+    ranked = sorted(
+        (
+            hint
+            for hint in target_hints
+            if str(hint.get("target_doc_id") or "").strip()
+            and str(hint.get("target_doc_id") or "").strip() != source_doc_id
+        ),
+        key=lambda hint: (
+            relation_priority.get(str(hint.get("relation_type") or "").strip().lower(), 0),
+            float(hint.get("resolution_confidence") or 0.0),
+        ),
+        reverse=True,
+    )
+    if not ranked:
+        inferred = _infer_amendment_target_from_title(
+            source_doc_id=source_doc_id,
+            doc_meta=doc_meta,
+            doc_index=doc_index,
+        )
+        if inferred is not None:
+            return inferred.doc_id, {
+                "source": inferred.source,
+                "target_doc_id": inferred.doc_id,
+                "target_doc_name": inferred.doc_name,
+                "score": round(inferred.score, 4),
+            }
+        return "", {}
+    best = ranked[0]
+    return str(best.get("target_doc_id") or ""), {
+        **best,
+        "source": str(best.get("source") or "resolved_references"),
+    }
+
+
+@dataclass(frozen=True)
+class _AmendmentTargetMatch:
+    doc_id: str
+    doc_name: str
+    source: str
+    score: float
+
+
+def _explicit_amendment_target_from_meta(
+    *,
+    doc_meta: dict[str, Any],
+    doc_index: DocResolutionIndex,
+) -> _AmendmentTargetMatch | None:
+    explicit_doc_id = str(doc_meta.get("amends_doc_id") or doc_meta.get("amended_doc_id") or "").strip()
+    if explicit_doc_id and explicit_doc_id in doc_index.by_doc_id:
+        entry = doc_index.by_doc_id[explicit_doc_id]
+        return _AmendmentTargetMatch(
+            doc_id=entry.doc_id,
+            doc_name=entry.name,
+            source="doc_metadata",
+            score=1.0,
+        )
+
+    reestr_code = normalize_ref_number(str(doc_meta.get("amends_reestr_code") or doc_meta.get("amended_reestr_code") or ""))
+    if reestr_code:
+        candidates = doc_index.by_reestr_code.get(reestr_code, [])
+        if candidates:
+            entry = candidates[-1]
+            return _AmendmentTargetMatch(
+                doc_id=entry.doc_id,
+                doc_name=entry.name,
+                source="doc_metadata_reestr_code",
+                score=0.99,
+            )
+
+    number = normalize_ref_number(str(doc_meta.get("amends_number") or doc_meta.get("amended_number") or ""))
+    date_acc = str(doc_meta.get("amends_date_acc") or doc_meta.get("amended_date_acc") or "").strip()
+    if number and date_acc:
+        candidates = [*doc_index.by_number_date.get((number, date_acc), []), *doc_index.by_reg_number_date.get((number, date_acc), [])]
+        if candidates:
+            entry = candidates[-1]
+            return _AmendmentTargetMatch(
+                doc_id=entry.doc_id,
+                doc_name=entry.name,
+                source="doc_metadata_number_date",
+                score=0.98,
+            )
+
+    target_name = str(doc_meta.get("amends_name") or doc_meta.get("amended_name") or "").strip()
+    if target_name:
+        return _best_title_target_match(
+            source_doc_id="",
+            target_raw=target_name,
+            doc_index=doc_index,
+            source="doc_metadata_name",
+        )
+    return None
+
+
+def _infer_amendment_target_from_title(
+    *,
+    source_doc_id: str,
+    doc_meta: dict[str, Any],
+    doc_index: DocResolutionIndex,
+) -> _AmendmentTargetMatch | None:
+    doc_name = str(doc_meta.get("name") or "").strip()
+    if not doc_name:
+        return None
+    match = _AMENDMENT_TITLE_TARGET_RE.search(doc_name)
+    if match is None:
+        # Fallback: try to extract target from document number/date in the title
+        number_hint = normalize_ref_number(doc_name)
+        date_hint = ""
+        date_match = re.search(r"\b(\d{2}\.\d{2}\.\d{4})\b", doc_name)
+        if date_match:
+            date_hint = date_match.group(1)
+        if number_hint and date_hint:
+            candidates = [
+                *doc_index.by_number_date.get((number_hint, date_hint), []),
+                *doc_index.by_reg_number_date.get((number_hint, date_hint), []),
+            ]
+            candidates = [e for e in candidates if e.doc_id != source_doc_id]
+            if candidates:
+                entry = candidates[-1]
+                return _AmendmentTargetMatch(
+                    doc_id=entry.doc_id,
+                    doc_name=entry.name,
+                    source="doc_title_number_date",
+                    score=0.90,
+                )
+        return None
+    target_raw = str(match.group("target") or "").strip()
+    if not target_raw:
+        return None
+    target_raw = _AMENDMENT_TITLE_STOP_RE.split(target_raw, maxsplit=1)[0].strip(" \"'«»")
+    if not target_raw:
+        return None
+    return _best_title_target_match(
+        source_doc_id=source_doc_id,
+        target_raw=target_raw,
+        doc_index=doc_index,
+        source="doc_title_inference",
+    )
+
+
+def _best_title_target_match(
+    *,
+    source_doc_id: str,
+    target_raw: str,
+    doc_index: DocResolutionIndex,
+    source: str,
+) -> _AmendmentTargetMatch | None:
+    target_norm = normalize_text_key(target_raw)
+    if not target_norm:
+        return None
+    target_tokens = set(target_norm.split())
+    # Filter out very common stop-words that inflate overlap scores
+    _STOP = {"до", "та", "і", "в", "у", "на", "з", "із", "про", "що", "від", "за", "або"}
+    target_content_tokens = target_tokens - _STOP
+    type_hint = doc_type_category(target_raw)
+    number_hint = normalize_ref_number(target_raw)
+    best_entry: DocIndexEntry | None = None
+    best_score = 0.0
+    for entry in doc_index.entries:
+        if entry.doc_id == source_doc_id:
+            continue
+        if type_hint and type_hint not in {"regulation"} and entry.doc_type_category != type_hint:
+            continue
+        score = 0.0
+        if number_hint and (entry.doc_number_norm == number_hint or entry.reg_number_norm == number_hint or entry.reestr_code_norm == number_hint):
+            score = max(score, 0.98)
+        if target_norm in entry.name_norm or entry.name_norm in target_norm:
+            score = max(score, 0.92 if target_norm in entry.name_norm else 0.84)
+        elif target_content_tokens:
+            entry_tokens = set(entry.name_norm.split()) - _STOP
+            overlap = len(target_content_tokens & entry_tokens)
+            if overlap:
+                # Harmonic mean of precision and recall over tokens
+                precision = overlap / max(1, len(target_content_tokens))
+                recall = overlap / max(1, len(entry_tokens))
+                f1 = (2 * precision * recall) / max(0.001, precision + recall)
+                score = max(score, f1)
+        if score > best_score:
+            best_score = score
+            best_entry = entry
+    if best_entry is None or best_score < 0.40:
+        return None
+    return _AmendmentTargetMatch(
+        doc_id=best_entry.doc_id,
+        doc_name=best_entry.name,
+        source=source,
+        score=best_score,
+    )
+
+
 def _stream_doc_versions_to_duckdb(
     *,
     con: duckdb.DuckDBPyConnection,
@@ -1443,9 +2016,9 @@ def _insert_entities(
 ) -> int:
     sql = """
     INSERT INTO lex_entities (
-        entity_id, name_en, name_uk, entity_type,
-        mention_count, aliases_en, aliases_uk, metadata
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        entity_id, name_en, name_uk, entity_type, entity_subtype,
+        mention_count, aliases_en, aliases_uk, wikidata_id, metadata
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """
     batch: list[tuple] = []
     count = 0
@@ -1455,10 +2028,12 @@ def _insert_entities(
             rec.name_en,
             rec.name_uk,
             rec.entity_type,
+            rec.entity_subtype or None,
             rec.mention_count,
             "; ".join(sorted(rec.aliases_en)) if rec.aliases_en else None,
             "; ".join(sorted(rec.aliases_uk)) if rec.aliases_uk else None,
-            None,
+            rec.wikidata_id or None,
+            json.dumps({"entity_subtype": rec.entity_subtype or ""}, ensure_ascii=False),
         )
         batch.append(row)
         if len(batch) >= insert_batch_size:

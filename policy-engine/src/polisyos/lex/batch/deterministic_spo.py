@@ -11,6 +11,12 @@ from polisyos.lex.batch.canonicalizers import (
     canonicalize_norm_type,
     extract_thresholds_from_text,
 )
+from polisyos.lex.batch.patterns import (
+    AMENDMENT_CORE_RE,
+    NORMATIVE_CORE_RE,
+    THRESHOLD_CORE_RE,
+    TREATY_TITLE_RE,
+)
 from polisyos.lex.knowledge.types import SPOCandidate
 
 
@@ -31,11 +37,7 @@ _REPEAL_RE = re.compile(
     r"визнати\s+(?:таки(?:м|ми)\s*,?\s*що\s*втратил(?:и|а|о)\s+чинність|такими\s*що\s*втратили\s+чинність)\s*(.{0,240})",
     re.IGNORECASE,
 )
-_AMEND_RE = re.compile(
-    r"(?:внести\s+(?:такі\s+)?зміни|викласти\s+в\s+(?:такій\s+)?(?:новій\s+)?редакції|"
-    r"доповнено|доповнити|слова?\s+\"?[^\"]+\"?\s+замінити|виключити)",
-    re.IGNORECASE,
-)
+_AMEND_RE = AMENDMENT_CORE_RE
 _APPROVE_RE = re.compile(
     r"(?:затвердити|схвалити|ухвалити|прийняти)\s+(.{8,180})",
     re.IGNORECASE,
@@ -52,7 +54,7 @@ _DELEGATE_RE = re.compile(
     r"(?:доручити|уповноважити|покласти\s+на)",
     re.IGNORECASE,
 )
-_PERCENT_OR_NUMBER_RE = re.compile(r"\b\d+(?:[.,]\d+)?\s*(?:%|грн|дн(?:ів|і)?|рок(?:ів|и)?)\b", re.IGNORECASE)
+_PERCENT_OR_NUMBER_RE = THRESHOLD_CORE_RE
 
 # Enhanced extractors: capture actual object for prohibit/require
 _PROHIBIT_OBJECT_RE = re.compile(
@@ -79,6 +81,12 @@ _ARTICLE_PREFIX_RE = re.compile(
 _SENTENCE_SPLIT_RE = re.compile(r"(?<=[.!?])\s+(?=[A-ZА-ЯІЇЄҐ])")
 _CLAUSE_SPLIT_RE = re.compile(r"\s*;\s+|\s*:\s+(?=[A-ZА-ЯІЇЄҐ])")
 _INLINE_SUBCLAUSE_SPLIT_RE = re.compile(r"\s+(?=\d+\.\d+\.\s+)")
+_ADVERSATIVE_CLAUSE_SPLIT_RE = re.compile(
+    r"\s*,\s+(?=(?:а|але)\s+[^,]{2,180}\s+"
+    r"(?:покрива(?:ється|ються)|віднос(?:иться|яться)|можна|необхідно|потрібно|слід|"
+    r"повинен|повинна|повинні|має|мають|не\s+має|не\s+мають|зобов))",
+    re.IGNORECASE,
+)
 _RIGHT_RE = re.compile(
     r"(?P<subject>[^.]{2,180}?)\s+ма(?:є|ють)\s+право\s+(?P<object>[^.]{4,260})",
     re.IGNORECASE,
@@ -91,7 +99,7 @@ _GUARANTEE_RE = re.compile(
     r"(?:(?P<subject>[^.]{2,120}?)\s+)?гаранту(?:ється|ються)\s+(?P<object>[^.]{4,260})",
     re.IGNORECASE,
 )
-_TREATY_TITLE_RE = re.compile(r"(угода|договір|конвенц|протокол)", re.IGNORECASE)
+_TREATY_TITLE_RE = TREATY_TITLE_RE
 _RESOLUTION_TITLE_RE = re.compile(r"(указ|постанова|розпорядження|рішення)", re.IGNORECASE)
 _TREATY_OBLIGATION_RE = re.compile(
     r"(?P<subject>(?:(?:кожна|будь-яка)\s+(?:договірна\s+)?сторона|договірні\s+сторони)[^.]{0,80}?)\s+"
@@ -213,7 +221,8 @@ _EXCEPTION_RE = re.compile(
 )
 _PASSIVE_PROCEDURE_RE = re.compile(
     r"(?P<subject>[^.;:]{2,180}?)\s+"
-    r"(?P<lemma>проводиться|проводяться|здійснюється|здійснюються|розраховується|розраховуються)\s+"
+    r"(?P<lemma>проводиться|проводяться|здійснюється|здійснюються|розраховується|розраховуються|"
+    r"відноситься|відносяться|покривається|покриваються|вважається|вважаються)\s+"
     r"(?P<object>[^.;]{6,260})",
     re.IGNORECASE,
 )
@@ -273,6 +282,69 @@ _APPLICATION_BULLET_RE = re.compile(
     r"(?P<object>[^.;]{4,240})",
     re.IGNORECASE,
 )
+_APPLICATION_LEAD_RE = re.compile(
+    r"^\s*(?:\d+[.)]\s*)?(?:заявник|заявники|заява|заяви|до\s+заяви|подається|подаються|"
+    r"надається|надаються|додається|додаються|можна\s+подати|необхідно\s+(?:подати|надати|"
+    r"вказати|зазначити)|слід\s+(?:подати|надати|зазначити))\b",
+    re.IGNORECASE,
+)
+_APPLICATION_IMPERSONAL_REQUIRE_RE = re.compile(
+    r"(?P<lemma>необхідно|потрібно|слід)\s+"
+    r"(?P<object>(?:подати|надати|вказати|зазначити|пояснити|додати|підтвердити|"
+    r"дотримуватися|сплатити|розкрити)[^.]{3,260})",
+    re.IGNORECASE,
+)
+_APPLICATION_IMPERSONAL_PERMISSION_RE = re.compile(
+    r"(?P<lemma>можна)\s+"
+    r"(?P<object>(?:подати|подавати|надати|надавати|посилатись|посилатися|"
+    r"зазначити|додати)[^.]{3,260})",
+    re.IGNORECASE,
+)
+_APPLICATION_COMPLETENESS_RE = re.compile(
+    r"(?P<subject>комплект\s+документів|заява)\s+[^.]{0,120}?"
+    r"(?P<lemma>вважа(?:ється|тиметься|тимуться|тись))\s+"
+    r"(?P<object>[^.]{4,220})",
+    re.IGNORECASE,
+)
+_FORM_SECTION_HEADER_RE = re.compile(
+    r"^(?:вимоги\s+щодо|порядок\s+подання|перелік\s+документів|комплект\s+документів|"
+    r"інформація\s+щодо|дані\s+про|відомості\s+про)\b",
+    re.IGNORECASE,
+)
+_FORM_FIELD_LABEL_RE = re.compile(
+    r"^(?:\(?[а-яіїєґa-z0-9]+\)?\s*[-–—.:])|(?:[А-ЯІЇЄҐA-Z][^.:]{1,80}:\s*)$",
+    re.IGNORECASE,
+)
+_FORM_SCAFFOLD_LINE_RE = re.compile(
+    r"(?:_{4,}|потрібне\s+підкреслити|непотрібне\s+закреслити|вноситься\s+потрібне|"
+    r"телефон|телефакс|телекс|м\.\s*п\.|печатка|підпис|дата\s+заповнення|"
+    r"ідентифікаційний\s+код|сума\s+літерами|призначення\s+платежу|рах\.\s*n)",
+    re.IGNORECASE,
+)
+_FORM_CHECKBOX_RE = re.compile(r"(?:\[[ xX]?\]|\([ xX]?\)|□|☐)")
+_FORM_CONTINUATION_RE = re.compile(
+    r"^(?:та|і|або|а\s+також|зокрема|у\s+разі|за\s+умови|за\s+наявності|"
+    r"який|яка|яке|які|що|для|з\s+метою|відповідно\s+до|згідно\s+з)\b",
+    re.IGNORECASE,
+)
+_PASSIVE_REQUIREMENT_RE = re.compile(
+    r"(?P<lemma>передбачається|вимагається|зазначається|подається|надається|додається)\s+"
+    r"(?P<object>[^.;]{4,260})",
+    re.IGNORECASE,
+)
+_APPLICATION_SUBJECT_PERMISSION_RE = re.compile(
+    r"(?P<subject>заява|заявник|документ(?:и)?|інформація|повідомлення|"
+    r"пояснення|підтвердження)\s+"
+    r"(?P<lemma>може|можуть|має\s+право|мають\s+право)\s+"
+    r"(?P<object>[^.;]{4,260})",
+    re.IGNORECASE,
+)
+_FORM_LABEL_ONLY_RE = re.compile(
+    r"^(?:назва|інформація\s+про|прізвище|ім['’`ʼ]я|по\s+батькові|"
+    r"місце(?:\s+здійснення)?|участь|наявність|вид\s+діяльності|"
+    r"ідентифікаційний\s+код|адреса|телефон|дата|контактна\s+особа)\b",
+    re.IGNORECASE,
+)
 _MANDATORY_EXECUTION_RE = re.compile(
     r"(?P<subject>[^.;:]{2,220}?)\s+є\s+обов['’`ʼ]язков(?:им|ими)\s+для\s+виконання\s+(?P<object>[^.;]{6,260})",
     re.IGNORECASE,
@@ -283,6 +355,71 @@ _COMPETENCE_LIST_RE = re.compile(
 )
 _PERMISSION_CONDITION_RE = re.compile(
     r"(?P<object>[^.;]{6,220}?)\s+за\s+умови\s+(?P<condition>[^.;]{6,180})",
+    re.IGNORECASE,
+)
+_TAIL_PERMISSION_RE = re.compile(
+    r"(?:^|[.;]\s*)(?P<subject>[^.;:]{2,180}?)\s+"
+    r"(?P<lemma>може|можуть|має\s+право|мають\s+право)\s+"
+    r"(?P<object>[^.;]{6,260})",
+    re.IGNORECASE,
+)
+_TAIL_PROHIBITION_RE = re.compile(
+    r"(?:^|[.;]\s*)(?P<subject>[^.;:]{2,180}?)\s+"
+    r"(?P<lemma>не\s+може|не\s+можуть|не\s+має\s+права|не\s+мають\s+права|"
+    r"забороняється|забороняються)\s+"
+    r"(?P<object>[^.;]{6,260})",
+    re.IGNORECASE,
+)
+_TAIL_THRESHOLD_POLICY_RE = re.compile(
+    r"(?P<object>(?:розмір|мінімальн(?:і|ий|а)\s+ставк(?:и|а)|максимальн(?:і|ий|а)\s+ставк(?:и|а)|"
+    r"мінімальн(?:ий|а)\s+поріг|максимальн(?:ий|а)\s+поріг)[^.]{0,220}?"
+    r"(?:встановлюється|встановлюються|можуть\s+установлюватися|може\s+установлюватися|"
+    r"визначається|визначаються|індексації))",
+    re.IGNORECASE,
+)
+_USES_RIGHTS_RE = re.compile(
+    r"(?P<subject>[^.;:]{2,180}?)\s+користується\s+(?P<object>[^.;]{6,260})",
+    re.IGNORECASE,
+)
+_NO_LIABILITY_RE = re.compile(
+    r"(?P<subject>[^.;:]{2,180}?)\s+не\s+несе\s+відповідальності\s+за\s+(?P<object>[^.;]{6,260})",
+    re.IGNORECASE,
+)
+_CONTEXT_REMOVE_LIST_RE = re.compile(
+    r"(виключаються\s+з\s+переліку|виключити\s+з\s+переліку|виключаються|виключено|"
+    r"вилучаються|вилучити|визнати\s+(?:таким|такими).+?чинність)",
+    re.IGNORECASE,
+)
+_CONTEXT_ADD_LIST_RE = re.compile(
+    r"(включаються\s+до\s+переліку|включити\s+до\s+переліку|додаються\s+до\s+переліку|"
+    r"доповнити\s+перелік|доповнюється\s+перелік)",
+    re.IGNORECASE,
+)
+_CONTEXT_APPROVAL_RE = re.compile(
+    r"(затвердити|затверджено|схвалити|схвалено|погодити|погоджено).+"
+    r"(перелік|список|додат(?:ок|ки)|положення|порядок|правила|програм)",
+    re.IGNORECASE,
+)
+_TREATY_USES_RE = re.compile(
+    r"(?P<subject>[^.;:]{2,200}?)\s+використовує\s+(?P<object>[^.;]{8,320})",
+    re.IGNORECASE,
+)
+_TREATY_DEFINED_BY_SIDE_RE = re.compile(
+    r"(?P<object>порядок\s+[^.;]{6,240}?)\s+визначається\s+(?P<subject>[^.;]{4,140}?стороною)",
+    re.IGNORECASE,
+)
+_TREATY_TEMPORAL_RE = re.compile(
+    r"(на\s+умовах\s+та\s+протягом\s+строку\s+дії\s+[^.;]{4,220}|"
+    r"протягом\s+строку\s+дії\s+[^.;]{4,220})",
+    re.IGNORECASE,
+)
+_SEMANTIC_TAIL_MARKER_RE = re.compile(
+    r"\b("
+    r"може|можуть|не\s+може|не\s+можуть|має\s+право|мають\s+право|"
+    r"крім|за\s+винятком|у\s+цьому\s+разі|при\s+цьому|а\s+також|зокрема|"
+    r"розмір|мінімальн(?:і|ий|а)\s+ставк(?:и|а)|максимальн(?:і|ий|а)\s+ставк(?:и|а)|"
+    r"користується|не\s+несе\s+відповідальності"
+    r")\b",
     re.IGNORECASE,
 )
 
@@ -350,11 +487,12 @@ def _iter_sentences(text: str) -> Iterable[str]:
 def _iter_semantic_clauses(text: str) -> Iterable[str]:
     emitted = False
     for clause in _CLAUSE_SPLIT_RE.split(text):
-        stripped = clause.strip()
-        if not stripped:
-            continue
-        emitted = True
-        yield stripped
+        for subclause in _ADVERSATIVE_CLAUSE_SPLIT_RE.split(clause):
+            stripped = subclause.strip()
+            if not stripped:
+                continue
+            emitted = True
+            yield stripped
     if not emitted:
         yield text.strip()
 
@@ -366,18 +504,130 @@ def _iter_list_items(text: str) -> Iterable[str]:
             yield item
 
 
-def _approval_object_hint(text: str) -> str:
-    lines = [_compact for _compact in (" ".join(line.split()) for line in text.splitlines()) if _compact]
-    skip_markers = ("розпорядженням", "постановою", "наказом", "від ", "n ", "№")
-    for line in lines:
-        lower = line.lower()
-        if any(marker in lower for marker in skip_markers):
+def _iter_distinct_chunks(text: str) -> Iterable[str]:
+    seen: set[str] = set()
+    sources = [text]
+    sources.extend(list(_iter_sentences(text)))
+    for source in list(sources):
+        sources.extend(list(_iter_semantic_clauses(source)))
+    sources.extend(list(_iter_list_items(text)))
+    sources.extend(
+        part.strip()
+        for part in re.split(r"(?=(?:\d+\.\d+|\d+[.)])\s+)", text)
+        if part.strip()
+    )
+    for raw in sources:
+        compact = " ".join(str(raw).split())
+        if len(compact) < 8 or compact in seen:
             continue
-        if lower.startswith(("затверджено", "схвалено", "погоджено", "затвердити", "схвалити", "погодити")):
+        seen.add(compact)
+        yield compact
+
+
+def _combine_with_context(text: str, context_prefix: str = "") -> str:
+    compact_text = " ".join(text.split()).strip()
+    compact_context = " ".join(str(context_prefix or "").split()).strip()
+    if not compact_context:
+        return compact_text
+    if compact_text.startswith(compact_context) or compact_context in compact_text:
+        return compact_text
+    return f"{compact_context}. {compact_text}".strip()
+
+
+def _looks_like_form_scaffold_line(text: str) -> bool:
+    compact = " ".join(text.split()).strip()
+    if not compact:
+        return True
+    if _FORM_SCAFFOLD_LINE_RE.search(compact):
+        return True
+    if _FORM_CHECKBOX_RE.search(compact) and len(compact) <= 64:
+        return True
+    return False
+
+
+def _normalize_inherited_list_item(text: str) -> str:
+    compact = " ".join(text.split()).strip()
+    compact = re.sub(
+        r"^(?:(?:[-\u2013\u2014\u2022\"'«»]+)|(?:\"\s*-\s*\")|(?:-\s*\"\s*-\s*\")|(?:-\s*\")|(?:\"\s*-\s*))+"
+        r"\s*",
+        "",
+        compact,
+    )
+    compact = re.sub(r"^(?:[-\u2013\u2014\u2022]+\s*)+", "", compact)
+    compact = re.sub(r"^[^0-9A-Za-zА-Яа-яІіЇїЄєҐґ]+", "", compact)
+    compact = compact.strip(' "\'«»')
+    return compact
+
+
+def _looks_like_form_label(text: str) -> bool:
+    compact = " ".join(text.split()).strip()
+    if not compact or len(compact.split()) > 18:
+        return False
+    if compact.endswith((".", ";", ":")):
+        return False
+    return bool(_FORM_LABEL_ONLY_RE.match(compact))
+
+
+def _iter_form_blocks(text: str, *, context_prefix: str = "") -> Iterable[tuple[str, str]]:
+    section_context = " ".join(str(context_prefix or "").split()).strip()
+    current: list[str] = []
+
+    def _flush() -> tuple[str, str] | None:
+        nonlocal current
+        if not current:
+            return None
+        block_text = " ".join(part.strip() for part in current if part.strip()).strip()
+        current = []
+        if len(block_text) < 8:
+            return None
+        return (_combine_with_context(block_text, section_context), block_text)
+
+    for raw_line in text.splitlines():
+        line = " ".join(raw_line.split()).strip()
+        if not line:
+            flushed = _flush()
+            if flushed is not None:
+                yield flushed
             continue
-        if len(line) >= 5:
-            return _clip_text(line, 220)
-    return ""
+        if _looks_like_form_scaffold_line(line):
+            flushed = _flush()
+            if flushed is not None:
+                yield flushed
+            continue
+        if _FORM_SECTION_HEADER_RE.match(line):
+            flushed = _flush()
+            if flushed is not None:
+                yield flushed
+            section_context = _combine_with_context(line, context_prefix)
+            continue
+        if not current:
+            current.append(line)
+            continue
+        previous = current[-1]
+        starts_new = bool(
+            _APPLICATION_BULLET_RE.match(line)
+            or _APPLICATION_LEAD_RE.match(line)
+            or _FORM_FIELD_LABEL_RE.match(line)
+            or _APPLICATION_IMPERSONAL_REQUIRE_RE.search(line)
+            or _APPLICATION_IMPERSONAL_PERMISSION_RE.search(line)
+        )
+        continues = bool(
+            _FORM_CONTINUATION_RE.match(line)
+            or line[:1].islower()
+            or line.startswith(("(", ",", ";"))
+            or previous.endswith(":")
+        )
+        if starts_new and not continues:
+            flushed = _flush()
+            if flushed is not None:
+                yield flushed
+            current.append(line)
+            continue
+        current.append(line)
+
+    flushed = _flush()
+    if flushed is not None:
+        yield flushed
 
 
 def _iter_retry_chunks(text: str, *, quality_family: str, struct_kind: str) -> Iterable[str]:
@@ -424,886 +674,39 @@ def _is_compact_clause(*, subject: str, object_text: str, sentence: str) -> bool
         and _token_count(object_text) <= 24
     )
 
-
-def _extract_structured_article_candidates(
-    *,
-    text: str,
-    citation_label: str,
-    doc_title: str,
-) -> tuple[list[SPOCandidate], list[str]]:
-    if not _is_basic_article_context(doc_title=doc_title, citation_label=citation_label):
-        return [], []
-
-    is_constitutional_doc = bool(_CONSTITUTIONAL_TITLE_RE.search(doc_title or ""))
-    candidates: list[SPOCandidate] = []
-    reason_codes: list[str] = []
-
-    for sentence in _iter_sentences(text):
-        sentence = sentence.strip()
-        if len(sentence) < 12:
-            continue
-        quote = _clip_text(sentence, size=320)
-
-        right_match = _RIGHT_RE.match(sentence)
-        if right_match:
-            subject_uk = _clip_text(right_match.group("subject").strip(" ,;:"), 120)
-            object_uk = _clip_text(f"має право {right_match.group('object').strip(' .;:')}", 220)
-            candidates.append(
-                _build_candidate(
-                    subject_uk=subject_uk or "суб'єкт правовідносин",
-                    predicate="grants",
-                    object_uk=object_uk,
-                    norm_type="permission",
-                    fact_text=f"{subject_uk or 'субʼєкт'} має право {right_match.group('object').strip(' .;:')}",
-                    quote=quote,
-                    confidence=0.89 if is_constitutional_doc else 0.84,
-                )
-            )
-            reason_codes.append("article_right_pattern")
-
-        rights_list_match = _RIGHTS_LIST_RE.match(sentence)
-        if rights_list_match and sentence.count(";") >= 2:
-            subject_uk = _clip_text(rights_list_match.group("subject").strip(" ,;:"), 140)
-            for item in _iter_list_items(rights_list_match.group("object")):
-                object_uk = _clip_text(f"має право {item.strip(' .;:')}", 220)
-                candidates.append(
-                    _build_candidate(
-                        subject_uk=subject_uk or "суб'єкт правовідносин",
-                        predicate="grants",
-                        object_uk=object_uk,
-                        norm_type="permission",
-                        fact_text=f"{subject_uk or 'субʼєкт'} має право {item.strip(' .;:')}",
-                        quote=quote,
-                        confidence=0.83,
-                    )
-                )
-            reason_codes.append("article_rights_list_pattern")
-
-        guarantee_match = _GUARANTEE_RE.match(sentence)
-        if guarantee_match:
-            prefix = (guarantee_match.group("subject") or "").strip(" ,;:")
-            object_uk = _clip_text(guarantee_match.group("object").strip(" .;:"), 220)
-            subject_uk = prefix or ("держава" if is_constitutional_doc else "цей акт")
-            candidates.append(
-                _build_candidate(
-                    subject_uk=subject_uk,
-                    predicate="grants",
-                    object_uk=object_uk,
-                    norm_type="permission",
-                    fact_text=f"Гарантується {object_uk}",
-                    quote=quote,
-                    confidence=0.88 if is_constitutional_doc else 0.83,
-                )
-            )
-            reason_codes.append("article_guarantee_pattern")
-
-        defined_by_law_match = _DEFINED_BY_LAW_RE.match(sentence)
-        if defined_by_law_match:
-            raw_object = defined_by_law_match.group("object").strip(" ,;:")
-            object_uk = _clip_text(raw_object, 200)
-            if is_constitutional_doc or _is_compact_clause(
-                subject=raw_object,
-                object_text="законом",
-                sentence=sentence,
-            ):
-                candidates.append(
-                    _build_candidate(
-                        subject_uk=object_uk,
-                        predicate="defines",
-                        object_uk="законом",
-                        norm_type="definition",
-                        fact_text=f"{object_uk} визначаються законом",
-                        quote=quote,
-                        confidence=0.87 if is_constitutional_doc else 0.79,
-                    )
-                )
-                reason_codes.append("article_defined_by_law_pattern")
-
-        dash_definition_match = _DASH_DEFINITION_RE.match(sentence)
-        if dash_definition_match:
-            raw_subject = dash_definition_match.group("subject").strip(" ,;:")
-            raw_object = dash_definition_match.group("object").strip(" .;:")
-            subject_uk = _clip_text(raw_subject, 140)
-            object_uk = _clip_text(raw_object, 180)
-            if _is_compact_clause(subject=raw_subject, object_text=raw_object, sentence=sentence):
-                candidates.append(
-                    _build_candidate(
-                        subject_uk=subject_uk,
-                        predicate="defines",
-                        object_uk=object_uk,
-                        norm_type="definition",
-                        fact_text=f"{subject_uk} - {object_uk}",
-                        quote=quote,
-                        confidence=0.87 if is_constitutional_doc else 0.85,
-                    )
-                )
-                reason_codes.append("article_dash_definition_pattern")
-
-        dash_this_is_match = _DASH_THIS_IS_RE.match(sentence)
-        if dash_this_is_match:
-            raw_subject = dash_this_is_match.group("subject").strip(" ,;:")
-            raw_object = dash_this_is_match.group("object").strip(" .;:")
-            subject_uk = _clip_text(raw_subject, 160)
-            object_uk = _clip_text(raw_object, 220)
-            if subject_uk and object_uk:
-                candidates.append(
-                    _build_candidate(
-                        subject_uk=subject_uk,
-                        predicate="defines",
-                        object_uk=object_uk,
-                        norm_type="definition",
-                        fact_text=f"{subject_uk} - це {object_uk}",
-                        quote=quote,
-                        confidence=0.86 if is_constitutional_doc else 0.81,
-                    )
-                )
-                reason_codes.append("article_dash_this_is_pattern")
-
-        list_definition_match = _LIST_DEFINITION_RE.search(sentence)
-        if list_definition_match and (
-            sentence.count(";") >= 2 or sentence.count("\n") >= 2
-        ):
-            raw_subject = list_definition_match.group("subject").strip(" ,;:")
-            subject_uk = _clip_text(raw_subject, 160)
-            if subject_uk:
-                candidates.append(
-                    _build_candidate(
-                        subject_uk=subject_uk,
-                        predicate="defines",
-                        object_uk="перелік визначених елементів",
-                        norm_type="definition",
-                        fact_text=f"{subject_uk} визначаються переліком у статті",
-                        quote=quote,
-                        confidence=0.78,
-                    )
-                )
-                reason_codes.append("article_list_definition_pattern")
-
-        principles_list_match = _PRINCIPLES_LIST_RE.search(sentence)
-        if principles_list_match and sentence.count(";") >= 2:
-            subject_uk = _clip_text(principles_list_match.group("subject").strip(" ,;:"), 160)
-            for item in _iter_list_items(principles_list_match.group("object")):
-                item_text = _clip_text(item.strip(" .;:"), 220)
-                candidates.append(
-                    _build_candidate(
-                        subject_uk=subject_uk or "цей акт",
-                        predicate="applies_to",
-                        object_uk=item_text,
-                        norm_type="procedure",
-                        fact_text=f"{subject_uk or 'цей акт'} застосовується за принципом {item_text}",
-                        quote=quote,
-                        confidence=0.8,
-                    )
-                )
-            reason_codes.append("article_principles_list_pattern")
-
-        amend_wording_match = _AMEND_WORDING_RE.search(sentence)
-        if amend_wording_match:
-            object_uk = _clip_text(amend_wording_match.group("object").strip(" .;:"), 220)
-            candidates.append(
-                _build_candidate(
-                    subject_uk="орган, що прийняв акт",
-                    predicate="amends",
-                    object_uk=object_uk or "словесне формулювання норми",
-                    norm_type="amendment",
-                    fact_text=f"Внесено словесну зміну: {object_uk or 'словесне формулювання норми'}",
-                    quote=quote,
-                    confidence=0.84,
-                )
-            )
-            reason_codes.append("article_amend_wording_pattern")
-
-        recognized_match = _RECOGNIZED_AS_RE.match(sentence)
-        if recognized_match:
-            raw_subject = recognized_match.group("subject").strip(" ,;:")
-            raw_object = recognized_match.group("object").strip(" .;:")
-            subject_uk = _clip_text(raw_subject, 160)
-            object_uk = _clip_text(raw_object, 220)
-            if _is_compact_clause(subject=raw_subject, object_text=raw_object, sentence=sentence):
-                candidates.append(
-                    _build_candidate(
-                        subject_uk=subject_uk,
-                        predicate="defines",
-                        object_uk=object_uk,
-                        norm_type="definition",
-                        fact_text=f"{subject_uk} визнаються {object_uk}",
-                        quote=quote,
-                        confidence=0.86 if is_constitutional_doc else 0.78,
-                    )
-                )
-                reason_codes.append("article_recognition_pattern")
-
-        exists_match = _EXISTS_RE.match(sentence)
-        if exists_match and not _DEONTIC_MARKER_RE.search(sentence):
-            scope = (exists_match.group("scope") or "в Україні").strip(" ,;:")
-            raw_object = exists_match.group("object").strip(" .;:")
-            object_uk = _clip_text(raw_object, 220)
-            if _is_compact_clause(subject=scope, object_text=raw_object, sentence=sentence):
-                candidates.append(
-                    _build_candidate(
-                        subject_uk=scope,
-                        predicate="defines",
-                        object_uk=object_uk,
-                        norm_type="definition",
-                        fact_text=f"{scope} існує {object_uk}",
-                        quote=quote,
-                        confidence=0.86 if is_constitutional_doc else 0.77,
-                    )
-                )
-                reason_codes.append("article_existence_pattern")
-
-        declarative_match = _DECLARATIVE_IS_RE.match(sentence)
-        if declarative_match and not _DEONTIC_MARKER_RE.search(sentence):
-            raw_subject = declarative_match.group("subject").strip(" ,;:")
-            raw_object = declarative_match.group("object").strip(" .;:")
-            subject_uk = _clip_text(raw_subject, 160)
-            object_uk = _clip_text(raw_object, 220)
-            if subject_uk and object_uk and _is_compact_clause(
-                subject=raw_subject,
-                object_text=raw_object,
-                sentence=sentence,
-            ):
-                candidates.append(
-                    _build_candidate(
-                        subject_uk=subject_uk,
-                        predicate="defines",
-                        object_uk=object_uk,
-                        norm_type="definition",
-                        fact_text=f"{subject_uk} є {object_uk}",
-                        quote=quote,
-                        confidence=0.86 if is_constitutional_doc else 0.76,
-                    )
-                )
-                reason_codes.append("article_declarative_pattern")
-
-        for clause in _iter_semantic_clauses(sentence):
-            clause_quote = _clip_text(clause, size=320)
-            mandatory_execution_match = _MANDATORY_EXECUTION_RE.search(clause)
-            if mandatory_execution_match:
-                raw_subject = mandatory_execution_match.group("subject").strip(" ,;:")
-                raw_object = mandatory_execution_match.group("object").strip(" .;:")
-                subject_uk = _clip_text(raw_subject, 180)
-                object_uk = _clip_text(raw_object, 220)
-                if subject_uk and object_uk:
-                    candidates.append(
-                        _build_candidate(
-                            subject_uk=subject_uk,
-                            predicate="requires",
-                            object_uk=object_uk,
-                            norm_type="obligation",
-                            fact_text=f"{subject_uk} є обов'язковими для виконання {raw_object}",
-                            quote=clause_quote,
-                            confidence=0.84 if is_constitutional_doc else 0.8,
-                        )
-                    )
-                    reason_codes.append("article_mandatory_execution_pattern")
-
-            require_match = _SUBJECT_REQUIRE_RE.search(clause)
-            if require_match:
-                raw_subject = require_match.group("subject").strip(" ,;:")
-                raw_object = require_match.group("object").strip(" .;:")
-                subject_uk = _clip_text(raw_subject, 160)
-                object_uk = _clip_text(raw_object, 220)
-                if subject_uk and object_uk:
-                    candidates.append(
-                        _build_candidate(
-                            subject_uk=subject_uk,
-                            predicate="requires",
-                            object_uk=object_uk,
-                            norm_type="obligation",
-                            fact_text=f"{subject_uk} {require_match.group('lemma').strip()} {raw_object}",
-                            quote=clause_quote,
-                            confidence=0.84 if is_constitutional_doc else 0.8,
-                        )
-                    )
-                    reason_codes.append("article_subject_requirement_pattern")
-
-            prohibit_match = _SUBJECT_PROHIBIT_RE.search(clause)
-            if prohibit_match:
-                raw_subject = prohibit_match.group("subject").strip(" ,;:")
-                raw_object = prohibit_match.group("object").strip(" .;:")
-                subject_uk = _clip_text(raw_subject, 160)
-                object_uk = _clip_text(raw_object, 220)
-                if subject_uk and object_uk:
-                    candidates.append(
-                        _build_candidate(
-                            subject_uk=subject_uk,
-                            predicate="prohibits",
-                            object_uk=object_uk,
-                            norm_type="prohibition",
-                            fact_text=f"{subject_uk} {prohibit_match.group('lemma').strip()} {raw_object}",
-                            quote=clause_quote,
-                            confidence=0.84 if is_constitutional_doc else 0.8,
-                        )
-                    )
-                    reason_codes.append("article_subject_prohibition_pattern")
-
-            permission_match = _SUBJECT_PERMISSION_RE.search(clause)
-            if permission_match:
-                raw_subject = permission_match.group("subject").strip(" ,;:")
-                raw_object = permission_match.group("object").strip(" .;:")
-                subject_uk = _clip_text(raw_subject, 160)
-                object_uk = _clip_text(raw_object, 220)
-                lemma = permission_match.group("lemma").lower()
-                if subject_uk and object_uk:
-                    candidates.append(
-                        _build_candidate(
-                            subject_uk=subject_uk,
-                            predicate="grants",
-                            object_uk=(f"має право {object_uk}" if "має право" in lemma else object_uk),
-                            norm_type="permission",
-                            fact_text=f"{subject_uk} {permission_match.group('lemma').strip()} {raw_object}",
-                            quote=clause_quote,
-                            confidence=0.84 if is_constitutional_doc else 0.79,
-                        )
-                    )
-                    reason_codes.append("article_subject_permission_pattern")
-                    condition_match = _PERMISSION_CONDITION_RE.search(raw_object)
-                    if condition_match:
-                        condition_uk = _clip_text(condition_match.group("condition").strip(" .;:"), 220)
-                        candidates.append(
-                            _build_candidate(
-                                subject_uk=subject_uk,
-                                predicate="applies_to",
-                                object_uk=condition_uk,
-                                norm_type="condition",
-                                fact_text=f"{subject_uk} застосовується за умови {condition_uk}",
-                                quote=clause_quote,
-                                confidence=0.77,
-                            )
-                        )
-                        reason_codes.append("article_permission_condition_pattern")
-
-            temporal_match = _TEMPORAL_APPLICABILITY_RE.search(clause)
-            if temporal_match:
-                raw_subject = temporal_match.group("subject").strip(" ,;:")
-                raw_object = temporal_match.group("object").strip(" .;:")
-                subject_uk = _clip_text(raw_subject, 160)
-                object_uk = _clip_text(raw_object, 220)
-                if subject_uk and object_uk:
-                    candidates.append(
-                        _build_candidate(
-                            subject_uk=subject_uk,
-                            predicate="applies_to",
-                            object_uk=object_uk,
-                            norm_type="applicability",
-                            fact_text=f"{subject_uk} {temporal_match.group('lemma').strip()} {raw_object}",
-                            quote=clause_quote,
-                            confidence=0.82 if is_constitutional_doc else 0.78,
-                        )
-                    )
-                    reason_codes.append("article_temporal_applicability_pattern")
-
-            sanction_match = _SANCTION_RE.search(clause)
-            if sanction_match:
-                raw_subject = sanction_match.group("subject").strip(" ,;:")
-                raw_object = sanction_match.group("object").strip(" .;:")
-                subject_uk = _clip_text(raw_subject, 160)
-                object_uk = _clip_text(raw_object, 220)
-                if subject_uk and object_uk:
-                    candidates.append(
-                        _build_candidate(
-                            subject_uk=subject_uk,
-                            predicate="sanctions",
-                            object_uk=object_uk,
-                            norm_type="sanction",
-                            fact_text=f"{subject_uk} {sanction_match.group('lemma').strip()} {raw_object}",
-                            quote=clause_quote,
-                            confidence=0.83 if is_constitutional_doc else 0.79,
-                        )
-                    )
-                    reason_codes.append("article_sanction_pattern")
-
-            exception_match = _EXCEPTION_RE.search(clause)
-            if exception_match:
-                object_uk = _clip_text(exception_match.group("object").strip(" .;:"), 220)
-                if object_uk:
-                    candidates.append(
-                        _build_candidate(
-                            subject_uk="виняток застосування норми",
-                            predicate="applies_to",
-                            object_uk=object_uk,
-                            norm_type="applicability",
-                            fact_text=f"Виняток застосовується щодо: {object_uk}",
-                            quote=clause_quote,
-                            confidence=0.78,
-                        )
-                    )
-                    reason_codes.append("article_exception_pattern")
-
-        competence_match = _COMPETENCE_LIST_RE.search(sentence)
-        if competence_match and (sentence.count(";") >= 2 or sentence.count("\n") >= 2):
-            subject_uk = _clip_text(competence_match.group("subject").strip(" ,;:"), 180)
-            candidates.append(
-                _build_candidate(
-                    subject_uk=subject_uk or "орган управління",
-                    predicate="defines",
-                    object_uk="перелік компетенцій, визначений у статті",
-                    norm_type="definition",
-                    fact_text=f"До компетенції {subject_uk or 'органу управління'} належить перелік визначених повноважень",
-                    quote=quote,
-                    confidence=0.8,
-                )
-            )
-            reason_codes.append("article_competence_list_pattern")
-
-    return candidates, reason_codes
+from polisyos.lex.batch.deterministic_spo_articles import (
+    _extract_structured_article_candidates,
+    _extract_treaty_resolution_candidates,
+)
+from polisyos.lex.batch.deterministic_spo_core import (
+    _extract_context_inherited_appendix_candidates,
+    _extract_core_normative_fallback_candidates,
+    _extract_semantic_tail_candidates,
+)
+from polisyos.lex.batch.deterministic_spo_subtypes import (
+    _extract_amendment_bundle_candidates,
+    _extract_application_requirement_candidates,
+    _extract_approval_bundle_candidates,
+    _extract_threshold_row_candidates,
+)
 
 
-def _extract_treaty_resolution_candidates(
-    *,
-    text: str,
-    citation_label: str,
-    doc_title: str,
-) -> tuple[list[SPOCandidate], list[str]]:
-    del citation_label
-    title = doc_title or ""
-    treaty_like = bool(_TREATY_TITLE_RE.search(title))
-    resolution_like = bool(_RESOLUTION_TITLE_RE.search(title))
-    if not treaty_like and not resolution_like:
-        return [], []
-
-    candidates: list[SPOCandidate] = []
-    reason_codes: list[str] = []
-    for sentence in _iter_sentences(text):
-        sentence = sentence.strip()
-        if len(sentence) < 16:
-            continue
-        quote = _clip_text(sentence, size=320)
-
-        if treaty_like:
-            treaty_match = _TREATY_OBLIGATION_RE.search(sentence)
-            if treaty_match:
-                subject_uk = _clip_text(treaty_match.group("subject").strip(" ,;:"), 140)
-                object_uk = _clip_text(treaty_match.group("object").strip(" .;:"), 220)
-                candidates.append(
-                    _build_candidate(
-                        subject_uk=subject_uk or "договірна сторона",
-                        predicate="requires",
-                        object_uk=object_uk,
-                        norm_type="obligation",
-                        fact_text=f"{subject_uk or 'договірна сторона'} зобов'язується {object_uk}",
-                        quote=quote,
-                        confidence=0.84,
-                    )
-                )
-                reason_codes.append("treaty_obligation_pattern")
-
-            cooperation_match = _TREATY_COOPERATION_RE.search(sentence)
-            if cooperation_match:
-                object_uk = _clip_text(cooperation_match.group("object").strip(" .;:"), 220)
-                candidates.append(
-                    _build_candidate(
-                        subject_uk="договірні сторони",
-                        predicate="requires",
-                        object_uk=object_uk,
-                        norm_type="procedure",
-                        fact_text=f"Співробітництво здійснюється {object_uk}",
-                        quote=quote,
-                        confidence=0.8,
-                    )
-                )
-                reason_codes.append("treaty_cooperation_pattern")
-
-            future_cooperation_match = _TREATY_FUTURE_COOPERATION_RE.search(sentence)
-            if future_cooperation_match:
-                subject_uk = _clip_text(future_cooperation_match.group("subject").strip(" ,;:"), 140)
-                object_uk = _clip_text(
-                    f"{future_cooperation_match.group('lemma').strip()} "
-                    f"{future_cooperation_match.group('object').strip(' .;:')}",
-                    240,
-                )
-                candidates.append(
-                    _build_candidate(
-                        subject_uk=subject_uk or "договірні сторони",
-                        predicate="requires",
-                        object_uk=object_uk,
-                        norm_type="obligation",
-                        fact_text=f"{subject_uk or 'договірні сторони'} {object_uk}",
-                        quote=quote,
-                        confidence=0.84,
-                    )
-                )
-                reason_codes.append("treaty_future_cooperation_pattern")
-
-            treaty_delegate_match = _TREATY_DELEGATION_RE.search(sentence)
-            if treaty_delegate_match:
-                subject_uk = _clip_text(treaty_delegate_match.group("subject").strip(" ,;:"), 140)
-                object_uk = _clip_text(treaty_delegate_match.group("object").strip(" .;:"), 220)
-                candidates.append(
-                    _build_candidate(
-                        subject_uk=subject_uk or "договірні сторони",
-                        predicate="delegates",
-                        object_uk=object_uk,
-                        norm_type="delegation",
-                        fact_text=f"{subject_uk or 'договірні сторони'} доручають {object_uk}",
-                        quote=quote,
-                        confidence=0.82,
-                    )
-                )
-                reason_codes.append("treaty_delegation_pattern")
-
-        ratification_match = _RATIFICATION_RE.search(sentence)
-        if ratification_match:
-            object_uk = _clip_text(ratification_match.group("object").strip(" .;:"), 220)
-            candidates.append(
-                _build_candidate(
-                    subject_uk="орган, що прийняв акт",
-                    predicate="approves",
-                    object_uk=object_uk,
-                    norm_type="procedure",
-                    fact_text=f"Схвалено/затверджено: {object_uk}",
-                    quote=quote,
-                    confidence=0.83,
-                )
-            )
-            reason_codes.append("ratification_pattern")
-
-        if resolution_like:
-            mandate_match = _IMPLEMENTATION_MANDATE_RE.search(sentence)
-            if mandate_match:
-                subject_uk = _clip_text(mandate_match.group("subject").strip(" ,;:"), 140)
-                object_uk = _clip_text(mandate_match.group("object").strip(" .;:"), 220)
-                candidates.append(
-                    _build_candidate(
-                        subject_uk=subject_uk or "адресат акта",
-                        predicate="requires",
-                        object_uk=object_uk,
-                        norm_type="obligation",
-                        fact_text=f"{subject_uk or 'адресат акта'} забезпечує {object_uk}",
-                        quote=quote,
-                        confidence=0.8,
-                    )
-                )
-                reason_codes.append("resolution_mandate_pattern")
-
-            imperative_mandate_match = _IMPERATIVE_MANDATE_RE.search(sentence)
-            if imperative_mandate_match:
-                subject_uk = _clip_text(imperative_mandate_match.group("subject").strip(" ,;:"), 160)
-                object_uk = _clip_text(
-                    f"{imperative_mandate_match.group('lemma').strip()} "
-                    f"{imperative_mandate_match.group('object').strip(' .;:')}",
-                    220,
-                )
-                candidates.append(
-                    _build_candidate(
-                        subject_uk=subject_uk or "адресат акта",
-                        predicate="requires",
-                        object_uk=object_uk,
-                        norm_type="obligation",
-                        fact_text=f"{subject_uk or 'адресат акта'} {object_uk}",
-                        quote=quote,
-                        confidence=0.81,
-                    )
-                )
-                reason_codes.append("resolution_imperative_mandate_pattern")
-
-    return candidates, reason_codes
-
-
-def _extract_amendment_bundle_candidates(*, text: str, doc_title: str) -> tuple[list[SPOCandidate], list[str]]:
-    cleaned = text.strip()
-    if not cleaned:
-        return [], []
-    quote = _clip_text(cleaned, size=360)
-    candidates: list[SPOCandidate] = []
-    reason_codes: list[str] = []
-
-    if _AMEND_RE.search(cleaned) or _AMEND_WORDING_RE.search(cleaned) or _AMEND_CITATION_RE.search(cleaned):
-        amend_target = doc_title or "зазначений акт"
-        citation_match = _AMEND_CITATION_RE.search(cleaned)
-        wording_match = _AMEND_WORDING_RE.search(cleaned)
-        if citation_match:
-            amend_target = f"стаття/пункт {citation_match.group(1)} {doc_title or 'зазначеного акту'}"
-        elif wording_match:
-            amend_target = _clip_text(wording_match.group("object").strip(" .;:"), 220)
-        candidates.append(
-            _build_candidate(
-                subject_uk="орган, що прийняв акт",
-                predicate="amends",
-                object_uk=amend_target,
-                norm_type="amendment",
-                fact_text=f"Внесено зміни до {amend_target}",
-                quote=quote,
-                confidence=0.9 if citation_match else 0.86,
-            )
-        )
-        reason_codes.append("subtype_amendment_bundle")
-        if "новій редакції" in cleaned.lower() or "такій редакції" in cleaned.lower():
-            candidates.append(
-                _build_candidate(
-                    subject_uk="орган, що прийняв акт",
-                    predicate="supersedes",
-                    object_uk=amend_target,
-                    norm_type="amendment",
-                    fact_text=f"Попередню редакцію норми замінено: {amend_target}",
-                    quote=quote,
-                    confidence=0.85,
-                )
-            )
-            reason_codes.append("subtype_supersedes_bundle")
-
-    repeal_match = _REPEAL_RE.search(cleaned)
-    if repeal_match:
-        repeal_target = (repeal_match.group(1) or "").strip(" .;:") or "визначені акти"
-        candidates.append(
-            _build_candidate(
-                subject_uk="орган, що прийняв акт",
-                predicate="repeals",
-                object_uk=_clip_text(repeal_target, 220),
-                norm_type="repeal",
-                fact_text=f"Скасовано або визнано таким, що втратив чинність: {_clip_text(repeal_target, 180)}",
-                quote=quote,
-                confidence=0.9,
-            )
-        )
-        reason_codes.append("subtype_repeal_bundle")
-
-    if _ENTRY_INTO_FORCE_RE.search(cleaned):
-        entry = (_ENTRY_INTO_FORCE_RE.search(cleaned).group(1) or "").strip(" .;:") if _ENTRY_INTO_FORCE_RE.search(cleaned) else ""
-        candidates.append(
-            _build_candidate(
-                subject_uk="цей акт",
-                predicate="enters_into_force",
-                object_uk=entry or "у визначений строк",
-                norm_type="entry_into_force",
-                fact_text=f"Акт набирає чинності {entry or 'у визначений строк'}",
-                quote=quote,
-                confidence=0.88,
-            )
-        )
-        reason_codes.append("subtype_entry_into_force")
-
-    return candidates, reason_codes
-
-
-def _extract_approval_bundle_candidates(*, text: str, doc_title: str) -> tuple[list[SPOCandidate], list[str]]:
-    cleaned = text.strip()
-    if not cleaned:
-        return [], []
-    quote = _clip_text(cleaned, size=360)
-    candidates: list[SPOCandidate] = []
-    reason_codes: list[str] = []
-    for match in _APPROVAL_BUNDLE_RE.finditer(cleaned):
-        lemma = match.group("lemma").strip().lower()
-        object_uk = _clip_text(match.group("object").strip(" .;:"), 220)
-        annex_match = _ANNEX_RE.search(object_uk) or _ANNEX_RE.search(cleaned)
-        approval_target = (
-            object_uk
-            or (annex_match.group(1) if annex_match else "")
-            or _approval_object_hint(cleaned)
-            or "доданий документ"
-        )
-        if lemma.startswith(("затверд", "схвал", "погод")):
-            candidates.append(
-                _build_candidate(
-                    subject_uk="орган, що прийняв акт",
-                    predicate="approves",
-                    object_uk=approval_target,
-                    norm_type="procedure",
-                    fact_text=f"Схвалено або затверджено: {approval_target}",
-                    quote=quote,
-                    confidence=0.87 if annex_match else 0.83,
-                )
-            )
-            reason_codes.append("subtype_approval_bundle")
-            if annex_match:
-                candidates.append(
-                    _build_candidate(
-                        subject_uk="цей акт",
-                        predicate="applies_to",
-                        object_uk=_clip_text(annex_match.group(1), 180),
-                        norm_type="applicability",
-                        fact_text=f"Акт застосовується до {annex_match.group(1)}",
-                        quote=quote,
-                        confidence=0.78,
-                    )
-                )
-                reason_codes.append("subtype_approval_annex_reference")
-        elif lemma.startswith("доруч"):
-            candidates.append(
-                _build_candidate(
-                    subject_uk="адресат акта",
-                    predicate="delegates",
-                    object_uk=object_uk or doc_title or "виконання дії",
-                    norm_type="delegation",
-                    fact_text=f"Доручено: {object_uk or 'виконання дії'}",
-                    quote=quote,
-                    confidence=0.82,
-                )
-            )
-            reason_codes.append("subtype_delegate_bundle")
-    return candidates, reason_codes
-
-
-def _extract_threshold_row_candidates(*, text: str, doc_title: str) -> tuple[list[SPOCandidate], list[str]]:
-    cleaned = text.strip()
-    if not cleaned:
-        return [], []
-    quote = _clip_text(cleaned, size=320)
-    thresholds = extract_thresholds_from_text(cleaned, applies_to=doc_title or "регульований показник")
-    match = _THRESHOLD_ROW_RE.search(cleaned)
-    if not match:
-        unitless_match = _UNITLESS_THRESHOLD_ROW_RE.search(cleaned)
-        if unitless_match and _SALARY_TABLE_RE.search(f"{doc_title} {cleaned}"):
-            subject_uk = _clip_text(unitless_match.group("subject").strip(" .;:"), 160)
-            value = unitless_match.group("value").strip()
-            return [
-                _build_candidate(
-                    subject_uk=subject_uk or "регульований показник",
-                    predicate="sets_threshold",
-                    object_uk=f"{value} грн",
-                    norm_type="obligation",
-                    fact_text=f"{subject_uk or 'регульований показник'} має поріг {value} грн",
-                    quote=quote,
-                    confidence=0.88,
-                    thresholds_text=f"{cleaned} грн",
-                )
-            ], ["subtype_threshold_unitless_row"]
-    if not match:
-        multi_match = _MULTIVALUE_THRESHOLD_ROW_RE.search(cleaned)
-        if multi_match:
-            subject_uk = _clip_text(multi_match.group("subject").strip(" .;:"), 160)
-            thresholds = extract_thresholds_from_text(cleaned, applies_to=subject_uk or doc_title or "регульований показник")
-            value_label = thresholds[0].value_text if thresholds else multi_match.group("values").split()[0]
-            return [
-                _build_candidate(
-                    subject_uk=subject_uk or "регульований показник",
-                    predicate="sets_threshold",
-                    object_uk=doc_title or subject_uk or "регульований показник",
-                    norm_type="obligation",
-                    fact_text=f"{subject_uk or 'регульований показник'} має встановлені ліміти {value_label}",
-                    quote=quote,
-                    confidence=0.88,
-                    thresholds_text=cleaned,
-                )
-            ], ["subtype_threshold_multivalue_row"]
-        condition_match = _CONDITION_THRESHOLD_RE.search(cleaned)
-        if condition_match:
-            value_label = f"{condition_match.group('lemma').strip()} {condition_match.group('value').strip()} {condition_match.group('unit').strip()}"
-            subject_hint = _clip_text(cleaned[: max(12, condition_match.start())].strip(" .;:-"), 160)
-            return [
-                _build_candidate(
-                    subject_uk=subject_hint or doc_title or "регульований показник",
-                    predicate="sets_threshold",
-                    object_uk=value_label,
-                    norm_type="obligation",
-                    fact_text=f"{subject_hint or doc_title or 'регульований показник'} має умову {value_label}",
-                    quote=quote,
-                    confidence=0.87,
-                    thresholds_text=cleaned,
-                )
-            ], ["subtype_threshold_condition_row"]
-        if not thresholds:
-            return [], []
-        if _SALARY_TABLE_RE.search(f"{doc_title} {cleaned}") and len(thresholds) >= 2:
-            return [
-                _build_candidate(
-                    subject_uk="зазначені посади",
-                    predicate="sets_threshold",
-                    object_uk="схема посадових окладів",
-                    norm_type="obligation",
-                    fact_text="Встановлено схему посадових окладів для зазначених посад",
-                    quote=quote,
-                    confidence=0.87,
-                    thresholds_text=cleaned,
-                )
-            ], ["subtype_threshold_schedule_row"]
-        value_label = thresholds[0].value_text or thresholds[0].value_decimal or "числовий поріг"
-        return [
-            _build_candidate(
-                subject_uk="орган, що прийняв акт",
-                predicate="sets_threshold",
-                object_uk=doc_title or "регульований показник",
-                norm_type="obligation",
-                fact_text=f"Встановлено поріг: {value_label}",
-                quote=quote,
-                confidence=0.86,
-                thresholds_text=cleaned,
-            )
-        ], ["subtype_threshold_fallback"]
-    subject_uk = _clip_text(match.group("subject").strip(" .;:"), 160)
-    value = match.group("value").strip()
-    unit = match.group("unit").strip()
-    return [
-        _build_candidate(
-            subject_uk=subject_uk or "регульований показник",
-            predicate="sets_threshold",
-            object_uk=f"{value} {unit}",
-            norm_type="obligation",
-            fact_text=f"{subject_uk or 'регульований показник'} має поріг {value} {unit}",
-            quote=quote,
-            confidence=0.9,
-            thresholds_text=cleaned,
-        )
-    ], ["subtype_threshold_row"]
-
-
-def _extract_application_requirement_candidates(*, text: str) -> tuple[list[SPOCandidate], list[str]]:
-    cleaned = text.strip()
-    if not cleaned:
-        return [], []
-    quote = _clip_text(cleaned, size=320)
-    candidates: list[SPOCandidate] = []
-    reason_codes: list[str] = []
-    for match in _APPLICANT_ACTION_RE.finditer(cleaned):
-        lemma = match.group("lemma").strip().lower()
-        subject_uk = _clip_text((match.group("subject") or "заявник").strip(" ,;:"), 140)
-        object_uk = _clip_text(match.group("object").strip(" .;:"), 220)
-        predicate = "requires"
-        norm_type = "obligation"
-        if lemma.startswith(("повідом",)):
-            predicate = "requires"
-        elif lemma.startswith(("надати", "надає", "дода", "подати", "подає")):
-            predicate = "requires"
-        elif "просить" in lemma:
-            predicate = "grants"
-            norm_type = "permission"
-        candidates.append(
-            _build_candidate(
-                subject_uk=subject_uk or "заявник",
-                predicate=predicate,
-                object_uk=object_uk or "виконати вимогу форми",
-                norm_type=norm_type,
-                fact_text=f"{subject_uk or 'заявник'} {lemma} {object_uk or 'виконати вимогу форми'}",
-                quote=quote,
-                confidence=0.84,
-            )
-        )
-        reason_codes.append("subtype_application_requirement")
-    for item in _iter_list_items(cleaned):
-        bullet_match = _APPLICATION_BULLET_RE.match(item)
-        if not bullet_match:
-            continue
-        lemma = bullet_match.group("lemma").strip().lower()
-        object_uk = _clip_text(bullet_match.group("object").strip(" .;:"), 220)
-        candidates.append(
-            _build_candidate(
-                subject_uk="заявник",
-                predicate="requires",
-                object_uk=object_uk or "виконати вимогу форми",
-                norm_type="obligation",
-                fact_text=f"заявник {lemma} {object_uk or 'виконати вимогу форми'}",
-                quote=quote,
-                confidence=0.83,
-            )
-        )
-        reason_codes.append("subtype_application_bullet_requirement")
-    condition_match = _APPLICATION_CONDITION_RE.search(cleaned)
-    if condition_match:
-        candidates.append(
-            _build_candidate(
-                subject_uk="заявник",
-                predicate="applies_to",
-                object_uk=_clip_text(condition_match.group(1).strip(" .;:"), 220),
-                norm_type="condition",
-                fact_text=f"Застосовується умова: {condition_match.group(1).strip(' .;:')}",
-                quote=quote,
-                confidence=0.8,
-            )
-        )
-        reason_codes.append("subtype_application_condition")
-    return candidates, reason_codes
+def _needs_residual_clause_pass(*, text: str, legal_unit_subtype: str, candidate_count: int) -> bool:
+    if legal_unit_subtype not in {
+        "core_normative_clause",
+        "exception_clause",
+        "temporal_clause",
+        "approval_bundle",
+        "amendment_bundle",
+        "application_requirement",
+    }:
+        return False
+    multi_clause_cues = text.count(";") + text.count("\n") + text.count(":")
+    if multi_clause_cues > 0:
+        return True
+    if re.search(r",\s*(?:а\s+також|зокрема|при\s+цьому|у\s+разі|за\s+умови)\b", text, re.IGNORECASE):
+        return True
+    return candidate_count <= 1 and len(text.split()) >= 18
 
 
 def extract_deterministic_spo(
@@ -1312,9 +715,12 @@ def extract_deterministic_spo(
     citation_label: str,
     doc_title: str,
     legal_unit_subtype: str = "",
+    legal_unit_micro_subtype: str = "",
     quality_family: str = "",
     reference_bearing: bool = False,
     threshold_bearing: bool = False,
+    context_prefix: str = "",
+    _enable_residual_pass: bool = True,
 ) -> DeterministicExtraction:
     """Extract high-confidence SPO candidates without LLM."""
     cleaned = text.strip()
@@ -1326,12 +732,31 @@ def extract_deterministic_spo(
     subject = "орган, що прийняв акт"
     quote = _clip_text(cleaned, size=400)
     subtype = (legal_unit_subtype or "").strip().lower()
+    lower_cleaned = cleaned.lower()
+    if subtype in {
+        "citation_only",
+        "composition_list",
+        "form_scaffold",
+        "inventory_only",
+        "registry_catalog_row",
+        "table_scaffold",
+    }:
+        return DeterministicExtraction(candidates=[], confidence=0.0, reason_codes=[f"search_only_subtype:{subtype}"])
 
     subtype_extractors: tuple[tuple[str, Callable[[], tuple[list[SPOCandidate], list[str]]]], ...] = (
         ("amendment_bundle", lambda: _extract_amendment_bundle_candidates(text=cleaned, doc_title=doc_title)),
-        ("approval_bundle", lambda: _extract_approval_bundle_candidates(text=cleaned, doc_title=doc_title)),
-        ("tariff_threshold_row", lambda: _extract_threshold_row_candidates(text=cleaned, doc_title=doc_title)),
-        ("application_requirement", lambda: _extract_application_requirement_candidates(text=cleaned)),
+        ("approval_bundle", lambda: _extract_approval_bundle_candidates(text=cleaned, doc_title=doc_title, context_prefix=context_prefix)),
+        ("tariff_threshold_row", lambda: _extract_threshold_row_candidates(text=cleaned, doc_title=doc_title, context_prefix=context_prefix)),
+        ("application_requirement", lambda: _extract_application_requirement_candidates(text=cleaned, context_prefix=context_prefix)),
+        (
+            "core_normative_clause",
+            lambda: _extract_core_normative_fallback_candidates(
+                text=cleaned,
+                doc_title=doc_title,
+                legal_unit_micro_subtype=legal_unit_micro_subtype,
+                context_prefix=context_prefix,
+            ),
+        ),
     )
     for target_subtype, extractor in subtype_extractors:
         if subtype != target_subtype:
@@ -1340,6 +765,16 @@ def extract_deterministic_spo(
         if subtype_candidates:
             candidates.extend(subtype_candidates)
             reason_codes.extend(subtype_reason_codes)
+
+    if subtype in {"amendment_bundle", "approval_bundle"} and context_prefix:
+        inherited_candidates, inherited_reason_codes = _extract_context_inherited_appendix_candidates(
+            text=cleaned,
+            context_prefix=context_prefix,
+            doc_title=doc_title,
+        )
+        if inherited_candidates:
+            candidates.extend(inherited_candidates)
+            reason_codes.extend(inherited_reason_codes)
 
     article_candidates, article_reason_codes = _extract_structured_article_candidates(
         text=cleaned,
@@ -1438,7 +873,37 @@ def extract_deterministic_spo(
         )
         reason_codes.append("approval_pattern")
 
-    thresholds = extract_thresholds_from_text(cleaned, applies_to=doc_title or "цей акт")
+    threshold_analysis_text = _combine_with_context(cleaned, context_prefix)
+    thresholds = extract_thresholds_from_text(
+        threshold_analysis_text,
+        applies_to=doc_title or "цей акт",
+    )
+    if (
+        thresholds
+        and quality_family == "treaty_protocol"
+        and _TREATY_TEMPORAL_RE.search(cleaned)
+        and not any(
+            marker in lower_cleaned
+            for marker in (
+                "%",
+                "грн",
+                "коп",
+                "кг",
+                "км",
+                "га",
+                "тонн",
+                "ставк",
+                "тариф",
+                "оклад",
+                "поріг",
+                "не менш",
+                "не більш",
+                "не нижче",
+                "не вище",
+            )
+        )
+    ):
+        thresholds = []
     if thresholds and (threshold_bearing or subtype in {"tariff_threshold_row", "core_normative_clause", ""}):
         best = thresholds[0]
         threshold_desc = best.value_text or best.value_decimal or "числовий поріг"
@@ -1451,7 +916,7 @@ def extract_deterministic_spo(
                 fact_text=f"Встановлено поріг: {threshold_desc}",
                 quote=quote,
                 confidence=0.88,
-                thresholds_text=cleaned,
+                thresholds_text=_combine_with_context(cleaned, context_prefix),
             )
         )
         reason_codes.append("threshold_pattern")
@@ -1620,6 +1085,32 @@ def extract_deterministic_spo(
         )
         reason_codes.append("amend_citation_pattern")
 
+    if (
+        subtype
+        in {
+            "core_normative_clause",
+            "application_requirement",
+            "approval_bundle",
+            "amendment_bundle",
+            "exception_clause",
+            "temporal_clause",
+            "sanction_clause",
+        }
+        or quality_family in {"law", "appendix_heavy", "treaty_protocol"}
+    ) and (
+        len(cleaned.split()) >= 8
+        or _SEMANTIC_TAIL_MARKER_RE.search(cleaned)
+        or context_prefix
+    ):
+        tail_candidates, tail_reason_codes = _extract_semantic_tail_candidates(
+            text=cleaned,
+            doc_title=doc_title,
+            context_prefix=context_prefix,
+        )
+        if tail_candidates:
+            candidates.extend(tail_candidates)
+            reason_codes.extend(tail_reason_codes)
+
     # Deduplicate near-identical facts by (predicate, fact_text).
     seen: set[tuple[str, str]] = set()
     deduped: list[SPOCandidate] = []
@@ -1630,6 +1121,40 @@ def extract_deterministic_spo(
         seen.add(key)
         deduped.append(candidate)
     candidates = deduped
+
+    if _enable_residual_pass and _needs_residual_clause_pass(
+        text=cleaned,
+        legal_unit_subtype=subtype,
+        candidate_count=len(candidates),
+    ):
+        reason_codes.append("residual_clause_pass")
+        residual_reason_codes: list[str] = []
+        for chunk in _iter_distinct_chunks(cleaned):
+            if chunk == cleaned or len(chunk) < 18:
+                continue
+            chunk_extraction = extract_deterministic_spo(
+                text=chunk,
+                citation_label=citation_label,
+                doc_title=doc_title,
+                legal_unit_subtype=legal_unit_subtype,
+                legal_unit_micro_subtype=legal_unit_micro_subtype,
+                quality_family=quality_family,
+                reference_bearing=reference_bearing,
+                threshold_bearing=threshold_bearing,
+                context_prefix=context_prefix,
+                _enable_residual_pass=False,
+            )
+            if not chunk_extraction.candidates:
+                continue
+            for candidate in chunk_extraction.candidates:
+                key = (candidate.predicate, candidate.fact_text)
+                if key in seen:
+                    continue
+                seen.add(key)
+                candidates.append(candidate)
+            residual_reason_codes.extend(chunk_extraction.reason_codes)
+        if residual_reason_codes:
+            reason_codes.extend(residual_reason_codes)
 
     if subtype == "citation_only" and not candidates:
         return DeterministicExtraction(candidates=[], confidence=0.0, reason_codes=["citation_only"])
@@ -1685,6 +1210,15 @@ def extract_deterministic_spo(
             "subject_to_pattern",
             "applies_scope_pattern",
             "establishes_order_pattern",
+            "cnc_fallback_requirement_pattern",
+            "cnc_fallback_prohibition_pattern",
+            "cnc_fallback_permission_pattern",
+            "cnc_fallback_passive_procedure_pattern",
+            "cnc_fallback_subject_to_pattern",
+            "cnc_fallback_scope_pattern",
+            "cnc_fallback_establishes_order_pattern",
+            "cnc_fallback_dash_definition_pattern",
+            "cnc_fallback_dash_this_is_pattern",
         )
     )
     has_threshold = (
@@ -1738,6 +1272,8 @@ def extract_family_retry_spo(
     quality_family: str,
     struct_kind: str = "",
     legal_unit_subtype: str = "",
+    legal_unit_micro_subtype: str = "",
+    context_prefix: str = "",
 ) -> DeterministicExtraction:
     """Second-pass deterministic retry for law and appendix-heavy empty rows."""
     family = (quality_family or "").strip().lower()
@@ -1754,7 +1290,9 @@ def extract_family_retry_spo(
             citation_label=citation_label,
             doc_title=doc_title,
             legal_unit_subtype=legal_unit_subtype,
+            legal_unit_micro_subtype=legal_unit_micro_subtype,
             quality_family=family,
+            context_prefix=context_prefix,
         )
         if not extraction.candidates:
             continue

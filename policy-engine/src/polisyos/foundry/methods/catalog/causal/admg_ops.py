@@ -27,6 +27,7 @@ topological_order         – Kahn's algorithm (directed edges only)
 
 from __future__ import annotations
 
+import hashlib
 import weakref
 from collections import deque
 from typing import TYPE_CHECKING, Any
@@ -735,6 +736,132 @@ def _directed_adjacency(graph: "CausalGraphModel") -> dict[str, list[str]]:
     return adj
 
 
+def tarjan_scc(graph: "CausalGraphModel") -> list[frozenset[str]]:
+    """Return strongly connected components of the directed subgraph.
+
+    Components are sorted largest-first and then lexicographically for
+    deterministic output.
+    """
+    adj = _directed_adjacency(graph)
+    index = 0
+    stack: list[str] = []
+    on_stack: set[str] = set()
+    indices: dict[str, int] = {}
+    lowlink: dict[str, int] = {}
+    components: list[frozenset[str]] = []
+
+    def visit(node: str) -> None:
+        nonlocal index
+        indices[node] = index
+        lowlink[node] = index
+        index += 1
+        stack.append(node)
+        on_stack.add(node)
+
+        for child in adj.get(node, []):
+            if child not in indices:
+                visit(child)
+                lowlink[node] = min(lowlink[node], lowlink[child])
+            elif child in on_stack:
+                lowlink[node] = min(lowlink[node], indices[child])
+
+        if lowlink[node] == indices[node]:
+            component: list[str] = []
+            while stack:
+                popped = stack.pop()
+                on_stack.remove(popped)
+                component.append(popped)
+                if popped == node:
+                    break
+            components.append(frozenset(component))
+
+    for node in graph.nodes:
+        if node not in indices:
+            visit(node)
+
+    return sorted(components, key=lambda comp: (-len(comp), tuple(sorted(comp))))
+
+
+def _scc_label(component: frozenset[str]) -> str:
+    if len(component) == 1:
+        return next(iter(component))
+    digest = hashlib.sha1("|".join(sorted(component)).encode("utf-8")).hexdigest()[:10]
+    return f"SCC_{digest}"
+
+
+def condense_graph(
+    graph: "CausalGraphModel",
+    sccs: list[frozenset[str]],
+) -> "CausalGraphModel":
+    """Collapse each SCC into a meta-node and preserve inter-component edges."""
+    from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType
+
+    node_to_comp: dict[str, frozenset[str]] = {}
+    condensed_nodes: list[str] = []
+    comp_to_label: dict[frozenset[str], str] = {}
+    for comp in sccs:
+        label = _scc_label(comp)
+        comp_to_label[comp] = label
+        condensed_nodes.append(label)
+        for node in comp:
+            node_to_comp[node] = comp
+
+    seen_directed: set[tuple[str, str]] = set()
+    seen_bidirected: set[frozenset[str]] = set()
+    condensed_edges: list[CausalEdge] = []
+
+    for edge in graph.edges:
+        src_comp = node_to_comp[edge.src]
+        dst_comp = node_to_comp[edge.dst]
+        src_label = comp_to_label[src_comp]
+        dst_label = comp_to_label[dst_comp]
+        if src_label == dst_label:
+            continue
+
+        if edge.mark_src is EdgeMark.TAIL and edge.mark_dst is EdgeMark.ARROW:
+            key = (src_label, dst_label)
+            if key in seen_directed:
+                continue
+            seen_directed.add(key)
+            condensed_edges.append(
+                edge.model_copy(update={"src": src_label, "dst": dst_label})
+            )
+        elif edge.mark_src is EdgeMark.ARROW and edge.mark_dst is EdgeMark.ARROW:
+            key = frozenset({src_label, dst_label})
+            if key in seen_bidirected:
+                continue
+            seen_bidirected.add(key)
+            condensed_edges.append(
+                edge.model_copy(update={"src": src_label, "dst": dst_label})
+            )
+
+    return CausalGraphModel.model_construct(
+        schema_version=graph.schema_version,
+        graph_type=GraphType.ADMG,
+        nodes=condensed_nodes,
+        edges=condensed_edges,
+        discovery_method=graph.discovery_method,
+        skg_version_id=graph.skg_version_id,
+        pag_identification_policy=graph.pag_identification_policy,
+        id_confidence_under_pag=graph.id_confidence_under_pag,
+        metadata={
+            **dict(graph.metadata),
+            "derived_view": "condensed_scc",
+            "source_graph_nodes": list(graph.nodes),
+            "source_graph_edges": len(graph.edges),
+        },
+    )
+
+
+def has_directed_cycle(graph: "CausalGraphModel") -> bool:
+    """Return True when the directed subgraph contains a cycle."""
+    try:
+        topological_order(graph)
+    except ValueError:
+        return True
+    return False
+
+
 # ---------------------------------------------------------------------------
 # PAG / CPDAG helpers used by pag_completion.py
 # ---------------------------------------------------------------------------
@@ -818,9 +945,10 @@ def augment_with_s_nodes(
     - A node ``"S_" + v`` (if not already present)
     - A directed edge ``S_v → v`` (TAIL→ARROW, if not already present)
 
-    The augmented graph has ``graph_type=GraphType.PAG`` (following the TR
-    algorithm convention: the mixed graph requires PAG-type to allow S-nodes
-    with arbitrary mark combinations).
+    The augmented graph preserves the base graph type for DAG/ADMG inputs and
+    only keeps ``GraphType.PAG`` when the input graph is already a PAG. This
+    avoids spurious PAG ambiguity in fully specified transport diagrams that
+    contain no uncertain edge marks.
 
     Used by :func:`tr_algorithm` to encode selection diagrams as augmented
     graphs before running the ID algorithm.
@@ -858,9 +986,13 @@ def augment_with_s_nodes(
                 )
             )
 
+    # Use full CausalGraphModel() constructor (not model_construct) because new
+    # S-nodes and edges are added — Pydantic validation ensures they are well-formed.
+    # This is acceptable: augment_with_s_nodes is not on the hot path (called once
+    # during transportability setup, not during ID algorithm recursion).
     return CausalGraphModel(
         schema_version=graph.schema_version,
-        graph_type=GraphType.PAG,
+        graph_type=graph.graph_type if graph.graph_type is not None else GraphType.ADMG,
         nodes=list(graph.nodes) + extra_nodes,
         edges=list(graph.edges) + extra_edges,
         discovery_method=graph.discovery_method,
@@ -999,6 +1131,9 @@ __all__ = [
     "has_directed_path",
     "ancestors",
     "descendants",
+    "tarjan_scc",
+    "condense_graph",
+    "has_directed_cycle",
     "do_operator",
     "remove_incoming_edges",
     "remove_outgoing_edges",

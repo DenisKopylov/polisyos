@@ -3,7 +3,10 @@ from __future__ import annotations
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.scientist.engine.state import ExperimentState
-from polisyos.scientist.nodes.builtins.state_keys import INPUT_KNOWLEDGE_BUNDLE_REF
+from polisyos.scientist.nodes.builtins.state_keys import (
+    INPUT_KNOWLEDGE_BUNDLE_REF,
+    INPUT_RESEARCH_INTENT_REF,
+)
 from polisyos.scientist.workflows.selection import resolve_workflow_id
 
 
@@ -64,3 +67,22 @@ def test_resolve_workflow_id_forces_serious_workflow_for_serious_profiles() -> N
         )
 
         assert resolve_workflow_id(state) == "scientist_causal_full"
+
+
+def test_resolve_workflow_id_uses_policy_verified_for_verified_async_mode() -> None:
+    state = ExperimentState(
+        run_id="R_workflow_verified_async",
+        params={"policy_answer_mode": "verified_async"},
+    )
+
+    assert resolve_workflow_id(state) == "scientist_policy_verified"
+
+
+def test_resolve_workflow_id_uses_policy_verified_for_policy_request_without_trinity() -> None:
+    state = ExperimentState(
+        run_id="R_workflow_policy_request",
+        inputs={INPUT_RESEARCH_INTENT_REF: _artifact_ref("scientist.research_intent")},
+        params={"policy_question": "Як змінити ліцензування?"},  # no trinity input
+    )
+
+    assert resolve_workflow_id(state) == "scientist_policy_verified"

@@ -14,7 +14,8 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
-from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.artifacts.protocol import ArtifactStore
+from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec, content_hash, from_canonical_bytes, to_canonical_bytes
 from polisyos.core.errors import ErrorCategory, PolicyOSError
 from polisyos.scientist.engine.state import ExperimentState
@@ -146,7 +147,7 @@ class CASCheckpointHook:
     def __init__(
         self,
         *,
-        store: FileSystemCAS,
+        store: ArtifactStore,
         run_dir: Path,
         sequence_start: int = 0,
         checkpoint_policy: CheckpointPolicy = "strict",
@@ -222,6 +223,12 @@ def normalize_checkpoint_policy(value: str | None) -> CheckpointPolicy:
 
 def compute_workflow_fingerprint(workflow: WorkflowSpec) -> str:
     payload = workflow.model_dump(mode="python", by_alias=True, exclude_none=False)
+    # Exclude operational fields (retry, timeout_s) from fingerprint —
+    # they don't affect functional outputs and contain floats that violate
+    # canonical JSON's forbid_floats constraint.
+    for node in payload.get("nodes", []):
+        node.pop("retry", None)
+        node.pop("timeout_s", None)
     canonical = to_canonical_bytes(payload)
     return content_hash(canonical)
 
@@ -255,7 +262,7 @@ def _checkpoint_payload(
 
 
 def create_checkpoint(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     state: ExperimentState,
     *,
     sequence_number: int,
@@ -346,17 +353,20 @@ def load_checkpoint_head(run_dir: Path) -> CheckpointHead | None:
     return CheckpointHead.model_validate(raw)
 
 
-def load_checkpoint(store: FileSystemCAS, checkpoint_ref: ArtifactRef) -> CheckpointArtifact:
+def load_checkpoint(store: ArtifactStore, checkpoint_ref: ArtifactRef) -> CheckpointArtifact:
     raw = store.get_bytes(checkpoint_ref.artifact_id)
     payload = from_canonical_bytes(raw)
     return CheckpointArtifact.model_validate(payload)
 
 
 def resolve_latest_checkpoint(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     run_id: str,
+    *,
+    run_dir: Path | None = None,
 ) -> tuple[CheckpointHead, CheckpointArtifact] | None:
-    run_dir = store.root / "runs" / run_id
+    if run_dir is None:
+        run_dir = getattr(store, "root", Path(".")) / "runs" / run_id
     head = load_checkpoint_head(run_dir)
     if head is None:
         return None
@@ -466,7 +476,7 @@ def read_run_lock_metadata(lock_path: Path) -> dict[str, Any] | None:
 
 
 def resume_from_checkpoint(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     run_id: str,
     *,
     workflow: WorkflowSpec | None = None,
@@ -474,6 +484,7 @@ def resume_from_checkpoint(
     registry_bundle_ref: ArtifactRef | None = None,
     checkpoint_policy: CheckpointPolicy = "strict",
     force_lock: bool = False,
+    run_dir: Path | None = None,
 ):
     # Local imports avoid circular dependency at module import time.
     from polisyos.scientist.engine.executor import WorkflowExecutor
@@ -487,10 +498,11 @@ def resume_from_checkpoint(
 
 
     policy = normalize_checkpoint_policy(checkpoint_policy)
-    run_dir = store.root / "runs" / run_id
+    if run_dir is None:
+        run_dir = getattr(store, "root", Path(".")) / "runs" / run_id
     lock = acquire_run_lock(run_dir, run_id=run_id, mode="resume", force=force_lock)
     try:
-        resolved = resolve_latest_checkpoint(store, run_id)
+        resolved = resolve_latest_checkpoint(store, run_id, run_dir=run_dir)
         if resolved is None:
             raise CheckpointNotFoundError(f"no checkpoint found for run_id={run_id}")
         head, checkpoint = resolved

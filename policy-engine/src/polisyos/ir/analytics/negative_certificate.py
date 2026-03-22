@@ -12,9 +12,12 @@ from __future__ import annotations
 from enum import Enum
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.ir.analytics.partial_identification import PartialIdentificationResult
+from polisyos.ir.analytics.partial_identification import (
+    PartialIdentificationResult,
+    SensitivitySweepResult,
+)
 
 
 class BlockingType(str, Enum):
@@ -57,6 +60,137 @@ class SuggestedExperiment(BaseModel):
 
     description: str = ""
     """Human-readable description of the experiment or data collection strategy."""
+
+
+class EpistemicTier(str, Enum):
+    """Epistemic strength of a fallback artifact."""
+
+    EXACT_NONPARAMETRIC = "exact_nonparametric"
+    PARTIAL_IDENTIFICATION = "partial_identification"
+    ASSUMPTION_DEPENDENT = "assumption_dependent"
+    DIAGNOSTIC_GUIDANCE = "diagnostic_guidance"
+
+
+class ParametricRescueResult(BaseModel):
+    """Assumption-dependent fallback artifact."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    assumption: str
+    method: str = ""
+    description: str = ""
+    bounds: PartialIdentificationResult | None = None
+    point_estimate: float | None = None
+    standard_error: float | None = None
+    estimand_formula: str | None = None
+    supporting_variables: tuple[str, ...] = ()
+    diagnostics: dict[str, Any] = Field(default_factory=dict)
+    warnings: tuple[str, ...] = ()
+
+
+class FallbackResult(BaseModel):
+    """Typed hedge fallback chain output with explicit epistemic tiers."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    schema_version: str = "1.0"
+    bounds: PartialIdentificationResult | None = None
+    bounds_tier: EpistemicTier | None = None
+    parametric_rescue: ParametricRescueResult | None = None
+    parametric_tier: EpistemicTier | None = None
+    sensitivity_sweep: SensitivitySweepResult | None = None
+    sensitivity_tier: EpistemicTier | None = None
+    suggested_experiments: tuple[SuggestedExperiment, ...] = ()
+    experiments_tier: EpistemicTier | None = None
+    fallback_level: int = 0
+    highest_tier_reached: EpistemicTier | None = None
+    notes: tuple[str, ...] = ()
+
+    @model_validator(mode="after")
+    def _derive_metadata(self) -> "FallbackResult":
+        fallback_level = 0
+        candidates: list[EpistemicTier] = []
+        if self.bounds is not None and self.bounds_tier is not None:
+            fallback_level = max(fallback_level, 1)
+            candidates.append(self.bounds_tier)
+        if self.parametric_rescue is not None and self.parametric_tier is not None:
+            fallback_level = max(fallback_level, 2)
+            candidates.append(self.parametric_tier)
+        if self.sensitivity_sweep is not None and self.sensitivity_tier is not None:
+            fallback_level = max(fallback_level, 3)
+            candidates.append(self.sensitivity_tier)
+        if self.suggested_experiments and self.experiments_tier is not None:
+            fallback_level = max(fallback_level, 4)
+            candidates.append(self.experiments_tier)
+
+        object.__setattr__(self, "fallback_level", fallback_level)
+        if candidates:
+            rank = {
+                EpistemicTier.EXACT_NONPARAMETRIC: 0,
+                EpistemicTier.PARTIAL_IDENTIFICATION: 1,
+                EpistemicTier.ASSUMPTION_DEPENDENT: 2,
+                EpistemicTier.DIAGNOSTIC_GUIDANCE: 3,
+            }
+            object.__setattr__(self, "highest_tier_reached", min(candidates, key=rank.get))
+        return self
+
+    def to_diagnostics_dict(self) -> dict[str, Any]:
+        """Flatten the fallback chain for legacy diagnostics consumers."""
+        return {
+            "fallback_level": self.fallback_level,
+            "highest_tier_reached": (
+                self.highest_tier_reached.value if self.highest_tier_reached is not None else None
+            ),
+            "bounds_tier": self.bounds_tier.value if self.bounds_tier is not None else None,
+            "parametric_tier": (
+                self.parametric_tier.value if self.parametric_tier is not None else None
+            ),
+            "sensitivity_tier": (
+                self.sensitivity_tier.value if self.sensitivity_tier is not None else None
+            ),
+            "experiments_tier": (
+                self.experiments_tier.value if self.experiments_tier is not None else None
+            ),
+            "sensitivity_curve": (
+                list(
+                    zip(
+                        self.sensitivity_sweep.parameter_values,
+                        self.sensitivity_sweep.lower_bounds,
+                        self.sensitivity_sweep.upper_bounds,
+                        strict=False,
+                    )
+                )
+                if self.sensitivity_sweep is not None
+                else []
+            ),
+            "parametric_assumption": (
+                self.parametric_rescue.assumption if self.parametric_rescue is not None else None
+            ),
+            "parametric_method": (
+                self.parametric_rescue.method if self.parametric_rescue is not None else None
+            ),
+            "parametric_point_estimate": (
+                self.parametric_rescue.point_estimate
+                if self.parametric_rescue is not None
+                else None
+            ),
+            "parametric_standard_error": (
+                self.parametric_rescue.standard_error
+                if self.parametric_rescue is not None
+                else None
+            ),
+            "parametric_formula": (
+                self.parametric_rescue.estimand_formula
+                if self.parametric_rescue is not None
+                else None
+            ),
+            "parametric_supporting_variables": (
+                list(self.parametric_rescue.supporting_variables)
+                if self.parametric_rescue is not None
+                else []
+            ),
+            "fallback_notes": list(self.notes),
+        }
 
 
 class NegativeCertificate(BaseModel):
@@ -104,6 +238,9 @@ class NegativeCertificate(BaseModel):
 
     constructive_message: str = ""
     """Actionable guidance: what to do next to unlock identification."""
+
+    fallback_result: FallbackResult | None = None
+    """Typed fallback chain artifact attached for hedge-style non-identification."""
 
     def has_partial_bounds(self) -> bool:
         """Return True if partial identification bounds are available."""
@@ -283,4 +420,11 @@ class NegativeCertificate(BaseModel):
         )
 
 
-__all__ = ["BlockingType", "NegativeCertificate", "SuggestedExperiment"]
+__all__ = [
+    "BlockingType",
+    "EpistemicTier",
+    "FallbackResult",
+    "NegativeCertificate",
+    "ParametricRescueResult",
+    "SuggestedExperiment",
+]

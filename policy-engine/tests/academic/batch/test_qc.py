@@ -140,6 +140,108 @@ def test_academic_qc_strict_phase0_makes_0d_checks_blocking(tmp_path) -> None:
         raise AssertionError("Expected RuntimeError for strict phase-0 QC gates")
 
 
+def test_academic_qc_canonical_metric_requires_approved_registry_names(tmp_path) -> None:
+    config = AcademicBatchConfig(snapshot_root=tmp_path / "snap")
+
+    raw_dir = config.topic_raw_root("T1", "minimum_wage") / "20260218T000000Z"
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    payload = raw_dir / "payload.jsonl"
+    payload.write_text('{"id":"W1"}\n', encoding="utf-8")
+    write_raw_manifest(
+        manifest_path=raw_dir / "manifest.json",
+        source="openalex",
+        endpoint="https://api.openalex.org/works",
+        payload_path=payload,
+        count=1,
+    )
+
+    config.merged_records_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(config.merged_records_path, "w", encoding="utf-8") as fh:
+        fh.write(
+            json.dumps(
+                {
+                    "id": "W1",
+                    "abstract": "Some abstract",
+                    "extraction_mode": "resolve_extract",
+                    "causal_claims": [{"cause": "teacher_coaching_program", "effect": "student_learning"}],
+                }
+            )
+            + "\n"
+        )
+    with open(config.selected_topic_works_path, "w", encoding="utf-8") as fh:
+        fh.write(json.dumps({"topic_id": "T1", "work_id": "W1"}) + "\n")
+
+    con = duckdb.connect(str(config.db_path))
+    con.execute("CREATE TABLE IF NOT EXISTS ac_works (full_text_url VARCHAR, is_oa BOOLEAN)")
+    con.execute(
+        """
+        CREATE TABLE IF NOT EXISTS ac_skg_canonization_cache (
+            raw_name VARCHAR PRIMARY KEY,
+            canonical_name VARCHAR NOT NULL,
+            approved BOOLEAN DEFAULT FALSE
+        )
+        """
+    )
+    con.execute("CHECKPOINT")
+    con.close()
+
+    report = run_qc(config, fail_fast=False)
+    assert report.metrics["canonical_claim_variable_pct"] == 0.0
+
+
+def test_academic_qc_uses_runtime_demanded_canonical_rate_as_blocking_metric(tmp_path) -> None:
+    config = AcademicBatchConfig(snapshot_root=tmp_path / "snap")
+
+    raw_dir = config.topic_raw_root("T1", "teacher_coaching") / "20260218T000000Z"
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    payload = raw_dir / "payload.jsonl"
+    payload.write_text('{"id":"W1"}\n', encoding="utf-8")
+    write_raw_manifest(
+        manifest_path=raw_dir / "manifest.json",
+        source="openalex",
+        endpoint="https://api.openalex.org/works",
+        payload_path=payload,
+        count=1,
+    )
+
+    config.merged_records_path.parent.mkdir(parents=True, exist_ok=True)
+    config.merged_records_path.write_text(
+        json.dumps({"id": "W1", "abstract": "Some abstract", "extraction_mode": "resolve_extract", "causal_claims": []}) + "\n",
+        encoding="utf-8",
+    )
+    config.selected_topic_works_path.write_text(json.dumps({"topic_id": "T1", "work_id": "W1"}) + "\n", encoding="utf-8")
+    config.edge_synthesis_report_path.write_text(
+        json.dumps({"canonization": {"resolution_rate_pct": 0.0}}, ensure_ascii=False),
+        encoding="utf-8",
+    )
+    config.benchmark_report_path.write_text(
+        json.dumps(
+            {
+                "metrics": {
+                    "runtime_demanded_canonical_resolution_rate_pct": 100.0,
+                }
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+
+    con = duckdb.connect(str(config.db_path))
+    con.execute("CREATE TABLE IF NOT EXISTS ac_works (full_text_url VARCHAR, is_oa BOOLEAN)")
+    con.execute("CHECKPOINT")
+    con.close()
+
+    report = run_qc(config, fail_fast=False)
+
+    assert report.metrics["canonical_resolution_rate_pct"] == 100.0
+    assert report.metrics["runtime_demanded_canonical_resolution_rate_pct"] == 100.0
+    assert report.metrics["global_canonical_resolution_rate_pct"] == 0.0
+    runtime_check = next(item for item in report.checks if item.name == "canonical_resolution_rate_pct")
+    global_check = next(item for item in report.checks if item.name == "global_canonical_resolution_rate_pct")
+    assert runtime_check.passed is True
+    assert global_check.passed is False
+
+
 def test_academic_qc_tracks_adjudication_publishability_metrics(tmp_path) -> None:
     config = AcademicBatchConfig(snapshot_root=tmp_path / "snap")
 
@@ -353,3 +455,55 @@ def test_academic_qc_tracks_v7_acquisition_metrics(tmp_path) -> None:
     assert report.metrics["redirect_placeholder_recovery_rate"] == 0.0
     assert report.metrics["publisher_403_rate"] > 0.0
     assert report.metrics["final_abstract_fallback_rate"] == 50.0
+
+
+def test_academic_qc_prefers_selected_global_works_for_unique_budget_metrics(tmp_path) -> None:
+    config = AcademicBatchConfig(snapshot_root=tmp_path / "snap")
+    config.selected_unique_budget = 2
+
+    raw_dir = config.topic_raw_root("T1", "minimum_wage") / "20260218T000000Z"
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    payload = raw_dir / "payload.jsonl"
+    payload.write_text('{"id":"W1"}\n', encoding="utf-8")
+    write_raw_manifest(
+        manifest_path=raw_dir / "manifest.json",
+        source="openalex",
+        endpoint="https://api.openalex.org/works",
+        payload_path=payload,
+        count=1,
+    )
+
+    config.merged_records_path.parent.mkdir(parents=True, exist_ok=True)
+    config.merged_records_path.write_text('{"id":"W1","abstract":"x","estimates":[]}\n', encoding="utf-8")
+    config.selected_topic_works_path.write_text(
+        "\n".join(
+            [
+                json.dumps({"topic_id": "T1", "work_id": "W1"}),
+                json.dumps({"topic_id": "T2", "work_id": "W1"}),
+                json.dumps({"topic_id": "T2", "work_id": "W2"}),
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    config.selected_global_works_path.write_text(
+        "\n".join(
+            [
+                json.dumps({"work_id": "W1", "work": {"id": "W1"}}),
+                json.dumps({"work_id": "W2", "work": {"id": "W2"}}),
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    report = run_qc(config, fail_fast=False)
+
+    assert report.metrics["selected_rows"] == 3
+    assert report.metrics["selected_topic_unique_works"] == 2
+    assert report.metrics["selected_global_rows"] == 2
+    assert report.metrics["selected_global_unique_works"] == 2
+    assert report.metrics["selected_unique_works"] == 2
+    budget_check = next(item for item in report.checks if item.name == "selected_unique_budget_hit")
+    assert budget_check.passed is True
+    assert budget_check.value == 2

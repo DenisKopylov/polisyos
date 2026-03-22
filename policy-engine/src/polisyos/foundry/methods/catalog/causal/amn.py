@@ -176,8 +176,154 @@ def amn_d_separation(
     return m_separation(graph, x_set, y_set, z_set)
 
 
+def amn_ctf_independence(
+    amn: CausalGraphModel,
+    x_vars: frozenset[str],
+    y_vars: frozenset[str],
+    z_vars: frozenset[str],
+) -> bool:
+    """Test counterfactual independence in the AMN via d-separation.
+
+    Equivalent to ``amn_d_separation`` but accepts the AMN graph directly
+    (without requiring explicit ``AMNMetadata``).  The AMN is an ADMG, so the
+    oracle is m-separation.
+    """
+    node_set = set(amn.nodes)
+    missing = (x_vars | y_vars | z_vars) - node_set
+    if missing:
+        raise ValueError(f"Unknown AMN nodes: {', '.join(sorted(missing))}")
+    return m_separation(amn, x_vars, y_vars, z_vars)
+
+
+def amn_ancestral_projection(
+    amn: CausalGraphModel,
+    target_vars: frozenset[str] | None = None,
+) -> CausalGraphModel:
+    """Project AMN to ancestral subgraph, removing non-ancestral nodes.
+
+    If *target_vars* is ``None`` all nodes are kept (identity).  Otherwise
+    the projection retains only ancestors of *target_vars* (including
+    *target_vars* themselves), preserving all independences relevant to those
+    variables while reducing graph size.
+    """
+    from polisyos.foundry.methods.catalog.causal.admg_ops import (
+        ancestors,
+        induced_subgraph,
+    )
+
+    if target_vars is None:
+        return amn
+
+    node_set = set(amn.nodes)
+    missing = target_vars - node_set
+    if missing:
+        raise ValueError(f"Unknown AMN nodes for projection: {', '.join(sorted(missing))}")
+
+    keep = ancestors(amn, target_vars) | target_vars
+    return induced_subgraph(amn, keep)
+
+
+def verify_ctf_faithfulness(
+    amn: CausalGraphModel,
+    scm: Any,
+    n_samples: int = 5000,
+    *,
+    alpha: float = 0.05,
+    rng: Any | None = None,
+) -> bool:
+    """Monte Carlo verification that graphical independences hold in simulated data.
+
+    For each pair of non-adjacent nodes in the AMN, checks whether the
+    conditional independence implied by d-separation is consistent with
+    samples drawn from *scm*.  Returns ``True`` when **no** independence is
+    violated at significance level *alpha* (after Bonferroni correction).
+
+    This is a diagnostic tool — not required on the critical path.
+
+    Parameters
+    ----------
+    amn : CausalGraphModel
+        The AMN graph.
+    scm : object
+        Must expose ``sample(n, rng=...) -> dict[str, np.ndarray]``.
+    n_samples : int
+        Number of Monte Carlo samples to draw.
+    alpha : float
+        Significance level for independence tests (before Bonferroni).
+    rng : optional
+        Numpy random generator.
+    """
+    import numpy as _np
+
+    if rng is None:
+        rng = _np.random.default_rng(42)
+
+    data = scm.sample(n_samples, rng=rng)
+
+    adjacent_pairs: set[frozenset[str]] = set()
+    for edge in amn.edges:
+        adjacent_pairs.add(frozenset({edge.src, edge.dst}))
+
+    node_list = list(amn.nodes)
+    tests: list[tuple[str, str, frozenset[str]]] = []
+    for i, a in enumerate(node_list):
+        for b in node_list[i + 1 :]:
+            if frozenset({a, b}) in adjacent_pairs:
+                continue
+            others = frozenset(node_list) - {a, b}
+            if m_separation(amn, frozenset({a}), frozenset({b}), others):
+                tests.append((a, b, others))
+
+    if not tests:
+        return True
+
+    corrected_alpha = alpha / max(len(tests), 1)
+
+    for a, b, z_set in tests:
+        if a not in data or b not in data:
+            continue
+        arr_a = _np.asarray(data[a], dtype=float).ravel()
+        arr_b = _np.asarray(data[b], dtype=float).ravel()
+        n = min(len(arr_a), len(arr_b))
+        if n < 10:
+            continue
+
+        if z_set:
+            available_z = [v for v in z_set if v in data]
+            if available_z:
+                z_matrix = _np.column_stack(
+                    [_np.asarray(data[v], dtype=float).ravel()[:n] for v in available_z]
+                )
+                full = _np.column_stack([arr_a[:n], arr_b[:n], z_matrix[:n]])
+                cov = _np.cov(full, rowvar=False) + 1e-12 * _np.eye(full.shape[1])
+                try:
+                    prec = _np.linalg.inv(cov)
+                    denom = _np.sqrt(abs(prec[0, 0] * prec[1, 1]))
+                    partial_corr = -prec[0, 1] / max(denom, 1e-15)
+                except _np.linalg.LinAlgError:
+                    continue
+            else:
+                partial_corr = float(_np.corrcoef(arr_a[:n], arr_b[:n])[0, 1])
+        else:
+            partial_corr = float(_np.corrcoef(arr_a[:n], arr_b[:n])[0, 1])
+
+        t_stat = abs(partial_corr) * _np.sqrt(max(n - 2, 1)) / max(
+            _np.sqrt(1.0 - partial_corr ** 2), 1e-15
+        )
+        from scipy.stats import t as t_dist
+
+        p_value = float(2.0 * (1.0 - t_dist.cdf(abs(t_stat), df=max(n - 2, 1))))
+        if p_value < corrected_alpha:
+            return False
+
+    return True
+
+
 __all__ = [
     "AMNMetadata",
     "build_amn",
     "amn_d_separation",
+    "amn_ctf_independence",
+    "amn_ancestral_projection",
+    "verify_ctf_faithfulness",
 ]

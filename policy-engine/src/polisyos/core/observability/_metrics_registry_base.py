@@ -70,6 +70,11 @@ class _MetricsRegistryBase:
     active_runs: Optional[metrics.UpDownCounter] = None
     validation_issues_total: Optional[metrics.Counter] = None
 
+    # -- Scientist engine node-level instruments ----------------------------
+    scientist_node_duration_seconds: Optional[metrics.Histogram] = None
+    scientist_node_executions_total: Optional[metrics.Counter] = None
+    scientist_tier_duration_seconds: Optional[metrics.Histogram] = None
+
     # -- Artifact / connector metric instruments ----------------------------
     artifact_operations_total: Optional[metrics.Counter] = None
     artifact_io_bytes: Optional[metrics.Histogram] = None
@@ -574,6 +579,23 @@ class _MetricsRegistryBase:
             name="polisyos_slo_connector_requests_total",
             description="Connector request outcomes",
             unit="1",
+        )
+
+        # Scientist engine node-level metrics
+        self.scientist_node_duration_seconds = self._meter.create_histogram(
+            name="polisyos_scientist_node_duration_seconds",
+            description="Per-node execution duration in the Scientist DAG",
+            unit="s",
+        )
+        self.scientist_node_executions_total = self._meter.create_counter(
+            name="polisyos_scientist_node_executions_total",
+            description="Scientist node executions by node_id, status, and cache_hit",
+            unit="1",
+        )
+        self.scientist_tier_duration_seconds = self._meter.create_histogram(
+            name="polisyos_scientist_tier_duration_seconds",
+            description="Per-tier execution duration for parallel DAG tiers",
+            unit="s",
         )
 
         # Scholar freshness metrics

@@ -1,6 +1,6 @@
 """Tests for PathSpecificEffectEstimator — NDE/NIE via cross-fitted EIF.
 
-Coverage (15 tests):
+Coverage (17 tests):
   1.  test_nde_cross_fit_linear_dgp — NDE ≈ direct coefficient
   2.  test_nie_cross_fit_linear_dgp — NIE ≈ indirect path product
   3.  test_nde_plus_nie_equals_ate — NDE + NIE ≈ ATE on linear DGP
@@ -9,13 +9,15 @@ Coverage (15 tests):
   6.  test_cross_fit_3_folds — runs successfully with n_folds=3
   7.  test_sensitivity_rho_zero_equals_baseline — ρ=0 gives original NDE/NIE
   8.  test_recanting_witness_no_witness_clean_graph — identifiable simple DAG
-  9.  test_identify_path_specific_no_adjacency — always True without graph
- 10.  test_path_specific_estimator_pure_step_runs — dispatch returns mediation_result
- 11.  test_mediation_decomposition_structure — output keys present
- 12.  test_path_specific_estimator_registered — in registry
- 13.  test_natural_effect_estimator_registered — NaturalEffectEstimator in registry
- 14.  test_natural_effect_estimator_pure_step — produces nde/nie/total_effect
- 15.  test_path_specific_output_json_serializable — model_dump → JSON
+  9.  test_recanting_witness_detects_bypass_path — canonical witness case
+ 10.  test_identify_path_specific_no_adjacency — always True without graph
+ 11.  test_identify_path_specific_rejects_recanting_witness_graph — returns False
+ 12.  test_path_specific_estimator_pure_step_runs — dispatch returns mediation_result
+ 13.  test_mediation_decomposition_structure — output keys present
+ 14.  test_path_specific_estimator_registered — in registry
+ 15.  test_natural_effect_estimator_registered — NaturalEffectEstimator in registry
+ 16.  test_natural_effect_estimator_pure_step — produces nde/nie/total_effect
+ 17.  test_path_specific_output_json_serializable — model_dump → JSON
 """
 from __future__ import annotations
 
@@ -175,6 +177,15 @@ class TestIdentification:
         assert has_witness is False
         assert witnesses == []
 
+    def test_recanting_witness_detects_bypass_path(self):
+        """T→M→Y plus direct T→Y path triggers canonical recanting witness."""
+        adjacency = {"T": ["M", "Y"], "M": ["Y"], "Y": []}
+        has_witness, witnesses = _recanting_witness_check(
+            "T", "Y", ("M",), adjacency
+        )
+        assert has_witness is True
+        assert witnesses == ["M"]
+
     def test_identify_path_specific_no_adjacency(self):
         """Without adjacency info, always returns True."""
         result = _identify_path_specific(
@@ -185,8 +196,8 @@ class TestIdentification:
         )
         assert result is True
 
-    def test_identify_path_specific_with_adjacency(self):
-        """With adjacency, simple chain is identifiable."""
+    def test_identify_path_specific_rejects_recanting_witness_graph(self):
+        """A bypass T→Y path alongside T→M→Y makes the PSE non-identifiable."""
         adjacency = {"T": ["M", "Y"], "M": ["Y"], "Y": []}
         result = _identify_path_specific(
             "T", "Y", ("M",),
@@ -194,7 +205,7 @@ class TestIdentification:
             fixed_paths=(("T", "M", "Y"),),
             adjacency=adjacency,
         )
-        assert result is True
+        assert result is False
 
 
 # ── PathSpecificEffectEstimator.pure_step ─────────────────────────────────────
@@ -238,7 +249,47 @@ class TestPathSpecificPureStep:
         out = PathSpecificEffectEstimator.pure_step(state, params)
         mr = out["mediation_result"]
         assert math.isfinite(mr["total_effect"])
-        assert abs(mr["total_effect"] - (mr["nde"] + mr["nie"])) < 1e-9
+
+
+class TestPathSpecificTMLE:
+    def _make_state(self, n: int = 400) -> dict:
+        rng = np.random.default_rng(11)
+        X, T, M, Y = _linear_mediation_dgp(n=n, rng=rng)
+        return {"X": X, "treatment": T, "mediator": M, "outcome": Y}
+
+    def test_tmle_returns_mediation_result(self):
+        state = self._make_state()
+        params = {
+            "n_folds": 2,
+            "estimation_method": "tmle",
+            "tmle_library": ["ols", "ridge"],
+            "tmle_v_folds": 3,
+            "__seed__": 123,
+        }
+        out = PathSpecificEffectEstimator.pure_step(state, params)
+        mr = out["mediation_result"]
+        assert mr["estimation_method"] == "tmle"
+        assert math.isfinite(mr["nde"])
+        assert math.isfinite(mr["nie"])
+
+    def test_tmle_reasonable_against_eif_on_linear_dgp(self):
+        state = self._make_state(n=800)
+        tmle = PathSpecificEffectEstimator.pure_step(
+            state,
+            {
+                "n_folds": 2,
+                "estimation_method": "tmle",
+                "tmle_library": ["ols", "ridge"],
+                "tmle_v_folds": 3,
+                "__seed__": 321,
+            },
+        )["mediation_result"]
+        eif = PathSpecificEffectEstimator.pure_step(
+            state,
+            {"n_folds": 2, "estimation_method": "eif_cross_fit", "__seed__": 321},
+        )["mediation_result"]
+        assert abs(tmle["total_effect"] - eif["total_effect"]) < 0.25
+        assert abs(tmle["total_effect"] - (tmle["nde"] + tmle["nie"])) < 1e-9
 
     def test_path_specific_output_json_serializable(self):
         """Output must be JSON-serializable."""

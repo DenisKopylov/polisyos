@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Any
+from typing import Any, Literal
 
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -11,6 +11,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 class BoundMethod(str, Enum):
     MANSKI = "manski_bounds"
+    TRANSPORT_BOUNDS = "transport_bounds"
     IV_BOUNDS = "iv_bounds"
     MONOTONE_TREATMENT = "monotone_treatment"
     LP_BALKE_PEARL = "lp_balke_pearl"
@@ -48,6 +49,12 @@ class PartialIdentificationResult(BaseModel):
     assumptions_used: list[str] = Field(default_factory=list)
     assumptions_violated: list[str] = Field(default_factory=list)
     informativeness_threshold: float = 0.5
+    bounds_type: Literal["sharp_lp", "relaxed_polynomial", "manski"] = "manski"
+    relaxation_gap: float | None = None
+    discretization_method: str | None = None
+    n_bins_final: int | None = Field(default=None, ge=1)
+    discretization_converged: bool | None = None
+    n_refinement_steps: int = Field(default=0, ge=0)
     display_label: str = ""
     """Human-readable label for UI display, e.g. 'Manski Worst-Case Bounds'."""
     chart_type: str = "interval"
@@ -70,6 +77,12 @@ class PartialIdentificationResult(BaseModel):
             "method": self.method.value,
             "is_informative": self.is_informative,
             "confidence": self.confidence,
+            "bounds_type": self.bounds_type,
+            "relaxation_gap": self.relaxation_gap,
+            "discretization_method": self.discretization_method,
+            "n_bins_final": self.n_bins_final,
+            "discretization_converged": self.discretization_converged,
+            "n_refinement_steps": self.n_refinement_steps,
             "display_label": self.display_label or self.method.value,
             "chart_type": self.chart_type,
         }
@@ -204,6 +217,7 @@ def compute_manski_bounds(
         confidence=confidence,
         assumptions_used=["no_assumptions_on_selection"],
         assumptions_violated=[],
+        bounds_type="manski",
     )
 
 

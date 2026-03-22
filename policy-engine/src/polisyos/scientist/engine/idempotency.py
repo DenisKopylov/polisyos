@@ -11,7 +11,8 @@ from polisyos.common.logger import get_logger
 from polisyos.common.serialization import to_python_data
 from polisyos.common.timestamps import utc_now
 from polisyos.core.artifacts.manifest import ArtifactRef, ProducerInfo, SchemaInfo
-from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.artifacts.protocol import ArtifactStore
+from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.cache import LRUCache
 from polisyos.core.canon import CanonSpec, content_hash, from_canonical_bytes, to_canonical_bytes
 from polisyos.scientist.engine.protocol import NodeOutcome, NodeSpec
@@ -97,7 +98,7 @@ def compute_idempotency_key(
 class NodeResultCache:
     def __init__(
         self,
-        store: FileSystemCAS,
+        store: ArtifactStore,
         run_id: str,
         *,
         max_entries: int | None = None,

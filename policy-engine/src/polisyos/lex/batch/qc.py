@@ -17,6 +17,34 @@ from polisyos.lex.batch.quality_report import (
 )
 
 
+def _table_exists(con: duckdb.DuckDBPyConnection, table_name: str) -> bool:
+    return bool(
+        con.execute(
+            "SELECT COUNT(*) FROM information_schema.tables WHERE table_name = ?",
+            [table_name],
+        ).fetchone()[0]
+    )
+
+
+def _column_exists(con: duckdb.DuckDBPyConnection, table_name: str, column_name: str) -> bool:
+    return bool(
+        con.execute(
+            """
+            SELECT COUNT(*)
+            FROM information_schema.columns
+            WHERE table_name = ? AND column_name = ?
+            """,
+            [table_name, column_name],
+        ).fetchone()[0]
+    )
+
+
+def _safe_pct(numerator: int, denominator: int) -> float:
+    if denominator <= 0:
+        return 0.0
+    return (numerator * 100.0) / denominator
+
+
 def run_qc(config: BatchConfig, *, fail_fast: bool = True) -> QCReport:
     checks: list[QCCheck] = []
     metrics: dict[str, float | int] = {}
@@ -25,18 +53,140 @@ def run_qc(config: BatchConfig, *, fail_fast: bool = True) -> QCReport:
     checks.append(QCCheck(name="db_exists", passed=db_exists, value=int(db_exists), threshold=1))
 
     entities = facts = provisions = 0
+    high_confidence_norms = 0
+    pattern_feedback_queue_total = 0
+    unresolved_contradictions = 0
+    amendments_total = 0
+    amendments_with_target = 0
+    amendment_docs_extracted = 0
+    amendment_candidate_docs = 0
+    amendment_extraction_coverage_pct = 0.0
+    amendment_target_resolution_pct = 0.0
+    amendment_metric_available = False
+    low_confidence_normative_pct = 0.0
+    hallucination_rate_pct = 0.0
+    low_confidence_normative_total = 0
+    low_confidence_normative_available = False
+    hallucination_total_checked = 0
+    hallucination_metric_available = False
+    consistency_metric_available = False
     if db_exists:
         con = duckdb.connect(str(config.db_path), read_only=True)
         try:
-            entities = int(con.execute("SELECT COUNT(*) FROM lex_entities").fetchone()[0])
-            facts = int(con.execute("SELECT COUNT(*) FROM lex_facts").fetchone()[0])
-            provisions = int(con.execute("SELECT COUNT(*) FROM lex_provisions").fetchone()[0])
+            if _table_exists(con, "lex_entities"):
+                entities = int(con.execute("SELECT COUNT(*) FROM lex_entities").fetchone()[0])
+            if _table_exists(con, "lex_facts"):
+                facts = int(con.execute("SELECT COUNT(*) FROM lex_facts").fetchone()[0])
+            if _table_exists(con, "lex_provisions"):
+                provisions = int(con.execute("SELECT COUNT(*) FROM lex_provisions").fetchone()[0])
+            if _table_exists(con, "lex_high_confidence_norms"):
+                high_confidence_norms = int(con.execute("SELECT COUNT(*) FROM lex_high_confidence_norms").fetchone()[0])
+            if _table_exists(con, "lex_pattern_feedback_queue"):
+                pattern_feedback_queue_total = int(
+                    con.execute("SELECT COUNT(*) FROM lex_pattern_feedback_queue").fetchone()[0]
+                )
+            if _table_exists(con, "lex_consistency_issues"):
+                consistency_metric_available = True
+                unresolved_sql = "SELECT COUNT(*) FROM lex_consistency_issues"
+                if _column_exists(con, "lex_consistency_issues", "requires_manual_review"):
+                    unresolved_sql += " WHERE COALESCE(requires_manual_review, TRUE) = TRUE"
+                unresolved_contradictions = int(con.execute(unresolved_sql).fetchone()[0])
+            if _table_exists(con, "lex_amendments"):
+                amendment_metric_available = True
+                amendments_total = int(con.execute("SELECT COUNT(*) FROM lex_amendments").fetchone()[0])
+                amendments_with_target = int(
+                    con.execute(
+                        """
+                        SELECT COUNT(*) FROM lex_amendments
+                        WHERE TRIM(COALESCE(amended_doc_id, '')) != ''
+                        """
+                    ).fetchone()[0]
+                )
+                amendment_docs_extracted = int(
+                    con.execute("SELECT COUNT(DISTINCT amending_doc_id) FROM lex_amendments").fetchone()[0]
+                )
+            if _table_exists(con, "lex_doc_versions"):
+                amendment_candidate_docs = int(
+                    con.execute(
+                        """
+                        SELECT COUNT(DISTINCT doc_id)
+                        FROM lex_doc_versions
+                        WHERE lower(COALESCE(doc_name, '') || ' ' || COALESCE(doc_type, '')) LIKE '%внесення змін%'
+                           OR lower(COALESCE(doc_name, '') || ' ' || COALESCE(doc_type, '')) LIKE '%зміни до%'
+                           OR lower(COALESCE(doc_name, '') || ' ' || COALESCE(doc_type, '')) LIKE '%доповнен%'
+                           OR lower(COALESCE(doc_name, '') || ' ' || COALESCE(doc_type, '')) LIKE '%змін%'
+                        """
+                    ).fetchone()[0]
+                )
+            amendment_extraction_coverage_pct = _safe_pct(amendment_docs_extracted, amendment_candidate_docs)
+            amendment_target_resolution_pct = _safe_pct(amendments_with_target, amendments_total)
+
+            normative_table = ""
+            normative_where = ""
+            if _table_exists(con, "lex_normative_facts"):
+                normative_table = "lex_normative_facts"
+            elif _table_exists(con, "lex_facts") and _column_exists(con, "lex_facts", "trust_tier"):
+                normative_table = "lex_facts"
+                normative_where = " WHERE LOWER(COALESCE(trust_tier, '')) = 'normative_fact'"
+
+            if normative_table and _column_exists(con, normative_table, "fused_confidence"):
+                low_confidence_normative_available = True
+                low_confidence_normative_total = int(
+                    con.execute(f"SELECT COUNT(*) FROM {normative_table}{normative_where}").fetchone()[0]
+                )
+                low_confidence_normative = int(
+                    con.execute(
+                        f"""
+                        SELECT COUNT(*) FROM {normative_table}
+                        {normative_where}
+                        {" AND " if normative_where else " WHERE "}
+                        COALESCE(fused_confidence, 0.0) < 0.5
+                        """
+                    ).fetchone()[0]
+                )
+                low_confidence_normative_pct = _safe_pct(
+                    low_confidence_normative,
+                    low_confidence_normative_total,
+                )
+
+            hallucination_table = normative_table or ("lex_facts" if _table_exists(con, "lex_facts") else "")
+            hallucination_where = normative_where if hallucination_table == normative_table else ""
+            if hallucination_table and _column_exists(con, hallucination_table, "hallucination_flags_json"):
+                hallucination_metric_available = True
+                hallucination_total_checked = int(
+                    con.execute(f"SELECT COUNT(*) FROM {hallucination_table}{hallucination_where}").fetchone()[0]
+                )
+                hallucination_flagged = int(
+                    con.execute(
+                        f"""
+                        SELECT COUNT(*) FROM {hallucination_table}
+                        {hallucination_where}
+                        {" AND " if hallucination_where else " WHERE "}
+                        TRIM(COALESCE(hallucination_flags_json, '')) NOT IN ('', '[]')
+                        """
+                    ).fetchone()[0]
+                )
+                hallucination_rate_pct = _safe_pct(
+                    hallucination_flagged,
+                    hallucination_total_checked,
+                )
         finally:
             con.close()
 
     metrics["entities"] = entities
     metrics["facts"] = facts
     metrics["provisions"] = provisions
+    metrics["high_confidence_norms"] = high_confidence_norms
+    metrics["pattern_feedback_queue_total"] = pattern_feedback_queue_total
+    metrics["unresolved_contradictions"] = unresolved_contradictions
+    metrics["amendments_total"] = amendments_total
+    metrics["amendments_with_target_total"] = amendments_with_target
+    metrics["amendment_docs_extracted"] = amendment_docs_extracted
+    metrics["amendment_candidate_docs"] = amendment_candidate_docs
+    metrics["amendment_extraction_coverage_pct"] = round(amendment_extraction_coverage_pct, 3)
+    metrics["amendment_target_resolution_pct"] = round(amendment_target_resolution_pct, 3)
+    metrics["low_confidence_normative_facts_pct"] = round(low_confidence_normative_pct, 3)
+    metrics["hallucination_rate_pct"] = round(hallucination_rate_pct, 3)
     checks.append(QCCheck(name="provisions_nonzero", passed=provisions > 0, value=provisions, threshold=1))
 
     # Quality gates on SPO extraction files.
@@ -89,6 +239,133 @@ def run_qc(config: BatchConfig, *, fail_fast: bool = True) -> QCReport:
             threshold=config.quality_min_llm_saved_pct,
         )
     )
+    checks.append(
+        QCCheck(
+            name="hallucination_rate_pct",
+            passed=(
+                hallucination_rate_pct <= config.quality_max_hallucination_rate_pct
+                if hallucination_metric_available and hallucination_total_checked > 0
+                else True
+            ),
+            severity="critical" if hallucination_metric_available and hallucination_total_checked > 0 else "warning",
+            value=round(hallucination_rate_pct, 3),
+            threshold=config.quality_max_hallucination_rate_pct,
+            message=(
+                ""
+                if hallucination_metric_available and hallucination_total_checked > 0
+                else "unstable: hallucination metric unavailable"
+            ),
+            status=(
+                "passed"
+                if hallucination_metric_available and hallucination_total_checked > 0 and hallucination_rate_pct <= config.quality_max_hallucination_rate_pct
+                else (
+                    "failed"
+                    if hallucination_metric_available and hallucination_total_checked > 0
+                    else "unstable"
+                )
+            ),
+        )
+    )
+    checks.append(
+        QCCheck(
+            name="low_confidence_normative_facts_pct",
+            passed=(
+                low_confidence_normative_pct <= config.quality_max_low_confidence_normative_pct
+                if low_confidence_normative_available and low_confidence_normative_total > 0
+                else True
+            ),
+            severity="warning",
+            value=round(low_confidence_normative_pct, 3),
+            threshold=config.quality_max_low_confidence_normative_pct,
+            message=(
+                ""
+                if low_confidence_normative_available and low_confidence_normative_total > 0
+                else "unstable: fused confidence unavailable"
+            ),
+            status=(
+                "passed"
+                if low_confidence_normative_available and low_confidence_normative_total > 0 and low_confidence_normative_pct <= config.quality_max_low_confidence_normative_pct
+                else (
+                    "failed"
+                    if low_confidence_normative_available and low_confidence_normative_total > 0
+                    else "unstable"
+                )
+            ),
+        )
+    )
+    checks.append(
+        QCCheck(
+            name="unresolved_contradictions",
+            passed=(
+                unresolved_contradictions <= config.quality_max_unresolved_contradictions
+                if consistency_metric_available
+                else True
+            ),
+            severity="warning",
+            value=unresolved_contradictions,
+            threshold=config.quality_max_unresolved_contradictions,
+            message="" if consistency_metric_available else "unstable: consistency table unavailable",
+            status=(
+                "passed"
+                if consistency_metric_available and unresolved_contradictions <= config.quality_max_unresolved_contradictions
+                else ("failed" if consistency_metric_available else "unstable")
+            ),
+        )
+    )
+    checks.append(
+        QCCheck(
+            name="amendment_extraction_coverage_pct",
+            passed=(
+                amendment_extraction_coverage_pct >= config.quality_min_amendment_extraction_coverage_pct
+                if amendment_metric_available and amendment_candidate_docs > 0
+                else True
+            ),
+            severity="warning",
+            value=round(amendment_extraction_coverage_pct, 3),
+            threshold=config.quality_min_amendment_extraction_coverage_pct,
+            message=(
+                ""
+                if amendment_metric_available and amendment_candidate_docs > 0
+                else "unstable: amendment coverage metric unavailable"
+            ),
+            status=(
+                "passed"
+                if amendment_metric_available and amendment_candidate_docs > 0 and amendment_extraction_coverage_pct >= config.quality_min_amendment_extraction_coverage_pct
+                else (
+                    "failed"
+                    if amendment_metric_available and amendment_candidate_docs > 0
+                    else "unstable"
+                )
+            ),
+        )
+    )
+    checks.append(
+        QCCheck(
+            name="amendment_target_resolution_pct",
+            passed=(
+                amendment_target_resolution_pct >= config.quality_min_amendment_target_resolution_pct
+                if amendment_metric_available and amendments_total > 0
+                else True
+            ),
+            severity="warning",
+            value=round(amendment_target_resolution_pct, 3),
+            threshold=config.quality_min_amendment_target_resolution_pct,
+            message=(
+                ""
+                if amendment_metric_available and amendments_total > 0
+                else "unstable: amendment target metric unavailable"
+            ),
+            status=(
+                "passed"
+                if amendment_metric_available and amendments_total > 0 and amendment_target_resolution_pct >= config.quality_min_amendment_target_resolution_pct
+                else (
+                    "failed"
+                    if amendment_metric_available and amendments_total > 0
+                    else "unstable"
+                )
+            ),
+        )
+    )
 
     for metric in (
         "full_only_docs_pct",
@@ -107,6 +384,11 @@ def run_qc(config: BatchConfig, *, fail_fast: bool = True) -> QCReport:
         "legal_unit_subtype_breakdown",
         "top_problem_subtypes",
         "top_unresolved_subtype_families",
+        "timeout_retry_groups_total",
+        "timeout_retry_success_total",
+        "timeout_retry_failure_total",
+        "timeout_retry_success_rate_pct",
+        "deferred_reason_counts",
     ):
         if metric not in gate.report:
             continue

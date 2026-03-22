@@ -34,6 +34,9 @@ def _seed_benchmark_db(db_path) -> None:
                     reference_resolution_status VARCHAR,
                     structure_quality VARCHAR,
                     constraint_type_canon VARCHAR,
+                    hallucination_flags_json VARCHAR,
+                    fused_confidence DOUBLE,
+                    quality_band VARCHAR,
                     jurisdiction VARCHAR,
                     top_domain VARCHAR,
                     effective_from VARCHAR,
@@ -47,6 +50,41 @@ def _seed_benchmark_db(db_path) -> None:
             )
         con.execute("CREATE TABLE lex_doc_domains (doc_id VARCHAR, domain VARCHAR)")
         con.execute("CREATE TABLE lex_rule_thresholds (threshold_id VARCHAR, fact_id VARCHAR, metric VARCHAR)")
+        con.execute("CREATE TABLE lex_entities (entity_id VARCHAR, mention_count INTEGER)")
+        con.execute(
+            """
+            CREATE TABLE lex_reference_resolution_audit (
+                ref_id VARCHAR,
+                resolution_status VARCHAR
+            )
+            """
+        )
+        con.execute(
+            """
+            CREATE TABLE lex_amendments (
+                amendment_id VARCHAR,
+                amending_doc_id VARCHAR,
+                amended_doc_id VARCHAR
+            )
+            """
+        )
+        con.execute(
+            """
+            CREATE TABLE lex_doc_versions (
+                doc_id VARCHAR,
+                doc_name VARCHAR,
+                doc_type VARCHAR
+            )
+            """
+        )
+        con.execute(
+            """
+            CREATE TABLE lex_consistency_issues (
+                issue_id VARCHAR,
+                requires_manual_review BOOLEAN
+            )
+            """
+        )
 
         base_rows = [
             (
@@ -70,6 +108,9 @@ def _seed_benchmark_db(db_path) -> None:
                 "resolved",
                 "structured_legal_unit",
                 "",
+                "[]",
+                0.91,
+                "high_confidence_norm",
                 "UA",
                 "licensing",
                 "",
@@ -100,6 +141,9 @@ def _seed_benchmark_db(db_path) -> None:
                 "resolved",
                 "structured_legal_unit",
                 "",
+                "[]",
+                0.89,
+                "high_confidence_norm",
                 "UA",
                 "reporting",
                 "",
@@ -130,6 +174,9 @@ def _seed_benchmark_db(db_path) -> None:
                 "resolved",
                 "structured_legal_unit",
                 "",
+                "[]",
+                0.87,
+                "high_confidence_norm",
                 "UA",
                 "public_sector",
                 "",
@@ -160,6 +207,9 @@ def _seed_benchmark_db(db_path) -> None:
                 "resolved",
                 "structured_legal_unit",
                 "threshold",
+                "[]",
+                0.93,
+                "high_confidence_norm",
                 "UA",
                 "public_sector",
                 "",
@@ -193,6 +243,51 @@ def _seed_benchmark_db(db_path) -> None:
         con.execute(
             "INSERT INTO lex_rule_thresholds VALUES ('thr_1', 'fact_threshold', 'minimum_amount')"
         )
+        con.executemany(
+            "INSERT INTO lex_entities VALUES (?, ?)",
+            [
+                ("ent_minfin", 4),
+                ("ent_rada", 3),
+                ("ent_kmu", 2),
+                ("ent_single", 1),
+            ],
+        )
+        con.executemany(
+            "INSERT INTO lex_reference_resolution_audit VALUES (?, ?)",
+            [
+                ("ref_1", "resolved"),
+                ("ref_2", "resolved"),
+                ("ref_3", "resolved"),
+                ("ref_4", "resolved"),
+                ("ref_5", "resolved"),
+                ("ref_6", "resolved"),
+            ],
+        )
+        con.executemany(
+            "INSERT INTO lex_amendments VALUES (?, ?, ?)",
+            [
+                ("amd_1", "doc_amend", "doc_license"),
+                ("amd_2", "doc_amend_2", "doc_reporting"),
+            ],
+        )
+        con.executemany(
+            "INSERT INTO lex_doc_versions VALUES (?, ?, ?)",
+            [
+                ("doc_amend", "Про внесення змін до Закону України про ліцензування", "Закон"),
+                ("doc_amend_2", "Про внесення змін до Постанови про звітність", "Постанова"),
+            ],
+        )
+        con.executemany(
+            "INSERT INTO lex_consistency_issues VALUES (?, ?)",
+            [
+                ("issue_1", False),
+                ("issue_2", False),
+                ("issue_3", True),
+                ("issue_4", False),
+                ("issue_5", False),
+            ],
+        )
+        con.execute("CREATE TABLE lex_high_confidence_norms AS SELECT * FROM lex_normative_facts")
 
 
 def test_run_benchmark_writes_report_and_metrics(tmp_path) -> None:
@@ -212,7 +307,17 @@ def test_run_benchmark_writes_report_and_metrics(tmp_path) -> None:
     assert outcome.metrics["benchmark_search_top5_relevance_pct"] >= 75.0
     assert outcome.metrics["benchmark_constraints_ready_pct"] == 100.0
     assert outcome.metrics["benchmark_cross_graph_non_unknown_pct"] == 100.0
+    assert outcome.metrics["benchmark_entity_dedup_ready_pct"] == 75.0
+    assert outcome.metrics["benchmark_reference_resolution_ready_pct"] == 100.0
+    assert outcome.metrics["benchmark_amendment_extraction_ready_pct"] == 100.0
+    assert outcome.metrics["benchmark_amendment_target_resolution_pct"] == 100.0
+    assert outcome.metrics["benchmark_hallucination_clean_pct"] == 100.0
+    assert outcome.metrics["benchmark_consistency_resolution_ready_pct"] == 80.0
 
     payload = json.loads(outcome.report_path.read_text(encoding="utf-8"))
     assert payload["kind"] == "lex_benchmark"
     assert payload["sections"]["search"]["cases"]
+    assert payload["sections"]["quality_capabilities"]["sections"]["entity_resolution"]["entities_total"] == 4
+    assert payload["sections"]["quality_capabilities"]["sections"]["reference_resolution"]["references_total"] == 6
+    assert payload["sections"]["quality_capabilities"]["sections"]["amendments"]["amendments_total"] == 2
+    assert payload["sections"]["quality_capabilities"]["sections"]["consistency"]["issues_total"] == 5

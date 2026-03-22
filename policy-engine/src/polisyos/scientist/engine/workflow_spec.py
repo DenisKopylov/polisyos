@@ -6,6 +6,8 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from polisyos.core.components import ComponentId
+from polisyos.scientist.engine.condition import NodeCondition
+from polisyos.scientist.engine.retry import RetryPolicy
 
 ErrorPolicy = Literal["fail_fast", "continue"]
 JsonPrimitive = str | int | bool | Decimal | None
@@ -19,6 +21,12 @@ class NodeInvocation(BaseModel):
     node_id: ComponentId
     params: dict[str, JsonValue] = Field(default_factory=dict)
     depends_on: list[str] = Field(default_factory=list, description="List of node aliases")
+    retry: RetryPolicy | None = Field(default=None, description="Per-node retry policy")
+    timeout_s: float | None = Field(default=None, ge=1.0, le=3600.0)
+    condition: NodeCondition | None = Field(
+        default=None,
+        description="Optional condition — node skipped/failed when expression evaluates to False",
+    )
 
     @field_validator("params", mode="before")
     @classmethod

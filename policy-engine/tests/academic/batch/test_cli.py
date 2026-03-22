@@ -64,6 +64,12 @@ def test_parse_stages_supports_transport_score_alias() -> None:
     assert stages == frozenset({"graph_index", "transport_score"})
 
 
+def test_parse_stages_supports_sota_stage_aliases() -> None:
+    stages = cli._parse_stages("doc-normalize,claim-extract,conflict-resolve,benchmark-run")
+
+    assert stages == frozenset({"doc_normalize", "claim_extract", "conflict_resolve", "benchmark"})
+
+
 def test_transport_score_command_dispatches(tmp_path, monkeypatch, capsys) -> None:
     args = _parse_args(
         [

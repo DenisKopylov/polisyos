@@ -67,6 +67,7 @@ class DatasetSearchResult(BaseModel):
     connector_type: str = ""
     connector_params: dict = Field(default_factory=dict)
     profile_id: str = ""
+    search_explanation: dict[str, object] | None = None
 
     def embedding_text(self) -> str:
         """Text used for vector embedding."""
@@ -124,6 +125,7 @@ class DatasetRecord(BaseModel):
     formats: list[str] = Field(default_factory=list)
     distributions: list[DistributionRecord] = Field(default_factory=list)
     polisyos_metrics: list[str] = Field(default_factory=list)
+    polisyos_metrics_methods: dict[str, str] = Field(default_factory=dict)
     source_portal: str = ""
 
     # Canonical source identity fields
@@ -234,6 +236,7 @@ class MetricBindingMatch(BaseModel):
     profile_id: str = ""
     request_dataset_id: str
     confidence: float = 0.0
+    metric_inference_confidence: float = 0.0
     default_filters: dict[str, list[str]] = Field(default_factory=dict)
     execution_tier: str = "catalog"
     source: str = ""
@@ -255,12 +258,16 @@ class DatasetMatch(BaseModel):
     temporal_match: str = "none"
     actual_survey_year: int | None = None
     temporal_distance_years: int = 0
+    alignment_method: str = ""
+    alignment_evidence: str = ""
 
 
 class DistributionType(str, Enum):
     POINT = "point"
     EMPIRICAL = "empirical"
     KDE = "kde"
+    NORMAL = "normal"
+    BOUNDED = "bounded"
 
 
 class PStarZResult(BaseModel):
@@ -280,6 +287,14 @@ class PStarZResult(BaseModel):
     condition_on: dict[str, float] = Field(default_factory=dict)
     distribution: list[float] | None = None
     distribution_type: DistributionType = DistributionType.POINT
+    std_error: float | None = None
+    ci_low: float | None = None
+    ci_high: float | None = None
+    uncertainty_sources: list[str] = Field(default_factory=list)
+    imputation_method: str | None = None
+    imputation_penalty: float = 0.0
+    data_support_year: int | None = None
+    data_support_country: str | None = None
 
 
 DatasetSearchResult.model_rebuild()

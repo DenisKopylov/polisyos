@@ -1,6 +1,10 @@
 """Tests for G-computation estimators: ParametricGFormula, ICEGFormula, LTMLEEstimator."""
 from __future__ import annotations
 
+import builtins
+import importlib
+import sys
+
 import numpy as np
 import pytest
 
@@ -58,6 +62,23 @@ def _make_dynamic_data(
         treatment_sequence=A,
         covariate_sequence=L[:, :, np.newaxis],  # shape (n,T,1)
     )
+
+
+def _reload_g_computation_without_sklearn(monkeypatch: pytest.MonkeyPatch):
+    real_import = builtins.__import__
+
+    def guarded_import(name, globals=None, locals=None, fromlist=(), level=0):
+        if name == "sklearn" or name.startswith("sklearn."):
+            raise ModuleNotFoundError("No module named 'sklearn'")
+        return real_import(name, globals, locals, fromlist, level)
+
+    monkeypatch.setattr(builtins, "__import__", guarded_import)
+    for module_name in (
+        "polisyos.foundry.methods.catalog.causal._sklearn_compat",
+        "polisyos.foundry.methods.catalog.causal.g_computation",
+    ):
+        sys.modules.pop(module_name, None)
+    return importlib.import_module("polisyos.foundry.methods.catalog.causal.g_computation")
 
 
 @pytest.fixture(autouse=True)
@@ -156,7 +177,20 @@ class TestParametricGFormula:
             "causal.dynamic.g_computation.parametric_g_formula@1.0.0"
         )
         assert method_cls is not None
-        assert method_cls is ParametricGFormula
+        assert method_cls.__module__ == ParametricGFormula.__module__
+        assert method_cls.__name__ == ParametricGFormula.__name__
+
+    def test_parametric_g_formula_works_without_sklearn(self, monkeypatch: pytest.MonkeyPatch):
+        module = _reload_g_computation_without_sklearn(monkeypatch)
+        data = _make_dynamic_data(n_units=220)
+        result = module.ParametricGFormula.pure_step(
+            data,
+            {"regime": "always_treat", "n_monte_carlo": 100, "n_bootstrap": 20},
+        )
+        compat = importlib.import_module("polisyos.foundry.methods.catalog.causal._sklearn_compat")
+        assert compat.SKLEARN_AVAILABLE is False
+        assert result["report"].status == EstimationStatus.SUCCESS
+        assert np.isfinite(result["g_result"].counterfactual_mean)
 
 
 # ---------------------------------------------------------------------------
@@ -211,7 +245,8 @@ class TestICEGFormula:
             "causal.dynamic.ice_g_formula.ice_g_formula@1.0.0"
         )
         assert method_cls is not None
-        assert method_cls is ICEGFormula
+        assert method_cls.__module__ == ICEGFormula.__module__
+        assert method_cls.__name__ == ICEGFormula.__name__
 
 
 # ---------------------------------------------------------------------------
@@ -252,7 +287,8 @@ class TestLTMLEEstimator:
         ensure_causal_methods_registered()
         method_cls = MethodRegistry.get_instance().get("causal.dynamic.ltmle.ltmle@1.0.0")
         assert method_cls is not None
-        assert method_cls is LTMLEEstimator
+        assert method_cls.__module__ == LTMLEEstimator.__module__
+        assert method_cls.__name__ == LTMLEEstimator.__name__
 
 
 # ---------------------------------------------------------------------------

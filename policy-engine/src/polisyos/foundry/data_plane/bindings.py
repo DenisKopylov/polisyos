@@ -92,6 +92,8 @@ def build_input_bindings(
     bindings_notes = list(notes or [])
     if snapshot.data_ref.kind == "foundry.state_snapshot":
         bindings_notes.append("compatibility:data_snapshot_contains_foundry_state_snapshot")
+    bindings_notes.extend(_snapshot_binding_notes(snapshot))
+    warnings.extend(_snapshot_binding_warnings(snapshot))
     if warnings:
         bindings_notes.extend([f"warning:{msg}" for msg in warnings])
 
@@ -132,7 +134,7 @@ def build_input_bindings(
         "applied_binding_ids": list(applied_ids),
         "warning_count": len(warnings),
         "warnings": warnings,
-        "notes": list(notes or []),
+        "notes": bindings_notes,
     }
     report_ref_payload = store.put_json(
         report_payload,
@@ -184,6 +186,35 @@ def resolve_bound_state_snapshot_ref(
 def _load_data_snapshot(store: FileSystemCAS, data_snapshot_ref: ArtifactRef) -> DataSnapshot:
     payload = from_canonical_bytes(store.get_bytes(data_snapshot_ref.artifact_id))
     return DataSnapshot.model_validate(payload)
+
+
+def _snapshot_binding_notes(snapshot: DataSnapshot) -> list[str]:
+    notes: list[str] = []
+    data_shape = str(snapshot.stats.get("data_shape", "")).strip()
+    if data_shape:
+        notes.append(f"snapshot.data_shape={data_shape}")
+    for key in (
+        "survey_year_field",
+        "wave_field",
+        "sample_weight_field",
+        "inclusion_probabilities_field",
+    ):
+        value = str(snapshot.stats.get(key, "")).strip()
+        if value:
+            notes.append(f"snapshot.{key}={value}")
+    return notes
+
+
+def _snapshot_binding_warnings(snapshot: DataSnapshot) -> list[str]:
+    data_shape = str(snapshot.stats.get("data_shape", "")).strip().lower()
+    if data_shape != "survey_repeated_cross_section":
+        return []
+    return [
+        (
+            "Input snapshot is survey repeated cross-section; route it to "
+            "transport/survey/HTE workflows, not panel SCM/DiD/econometrics"
+        )
+    ]
 
 
 def _load_binding_payload(store: FileSystemCAS, snapshot: DataSnapshot) -> Any:

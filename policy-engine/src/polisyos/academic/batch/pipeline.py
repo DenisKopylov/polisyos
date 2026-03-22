@@ -5,7 +5,7 @@ from __future__ import annotations
 import asyncio
 import gc
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 
 from polisyos.academic.batch.config import AcademicBatchConfig
 from polisyos.batch_common.thermal import cooldown
@@ -30,8 +30,11 @@ def _ensure_graph_inputs(
 
 async def run_academic_pipeline(config: AcademicBatchConfig, *, thermal: bool = False) -> PipelineStats:
     """Run selected academic stages sequentially."""
+    from polisyos.academic.batch.benchmark import run_benchmark
     from polisyos.academic.batch.claim_adjudicator import run_claim_adjudicate, run_consensus_aggregate
+    from polisyos.academic.batch.conflict_resolve import run_conflict_resolve
     from polisyos.academic.batch.dedup import merge_and_dedup
+    from polisyos.academic.batch.doc_normalize import run_doc_normalize
     from polisyos.academic.batch.edge_synthesize import run_edge_synthesize
     from polisyos.academic.batch.embedder import run_embed
     from polisyos.academic.batch.graph_builder import run_graph_index, run_graph_load
@@ -42,16 +45,46 @@ async def run_academic_pipeline(config: AcademicBatchConfig, *, thermal: bool = 
     from polisyos.academic.batch.qc import run_qc
     from polisyos.academic.batch.resolve_finalize import run_resolve_finalize
     from polisyos.academic.batch.resolve_extract import run_resolve_extract
+    from polisyos.academic.batch.demand_harvest import run_demand_harvest
     from polisyos.academic.batch.topic_select import run_topic_select
 
     t0 = time.monotonic()
     stats = PipelineStats()
+    resolve_extract_done = False
 
     if "topic_select" in config.stages:
         st = time.monotonic()
         selected = await run_topic_select(config)
         stats.stage_times["topic_select"] = time.monotonic() - st
         stats.metrics.update({f"topic_select_{k}": v for k, v in selected.items()})
+
+    if "demand_harvest" in config.stages and config.demand_harvest_enabled:
+        st = time.monotonic()
+        dh_metrics = await run_demand_harvest(config)
+        stats.stage_times["demand_harvest"] = time.monotonic() - st
+        stats.metrics.update({f"demand_harvest_{k}": v for k, v in dh_metrics.items()})
+
+    stream_doc_handoff = "doc_normalize" in config.stages and "resolve_extract" in config.stages
+    if stream_doc_handoff:
+        doc_st = time.monotonic()
+        doc_task = asyncio.create_task(run_doc_normalize(config))
+        await asyncio.sleep(0)
+        resolve_st = time.monotonic()
+        stream_cfg = replace(config, stream_doc_normalize_to_resolve_extract=True)
+        try:
+            resolve_stats = await run_resolve_extract(stream_cfg)
+        finally:
+            normalized = await doc_task
+        stats.stage_times["resolve_extract"] = time.monotonic() - resolve_st
+        stats.metrics.update({f"resolve_extract_{k}": v for k, v in resolve_stats.items()})
+        stats.stage_times["doc_normalize"] = time.monotonic() - doc_st
+        stats.metrics.update({f"doc_normalize_{k}": v for k, v in normalized.items()})
+        resolve_extract_done = True
+    elif "doc_normalize" in config.stages:
+        st = time.monotonic()
+        normalized = await run_doc_normalize(config)
+        stats.stage_times["doc_normalize"] = time.monotonic() - st
+        stats.metrics.update({f"doc_normalize_{k}": v for k, v in normalized.items()})
 
     if "harvest" in config.stages:
         st = time.monotonic()
@@ -69,11 +102,28 @@ async def run_academic_pipeline(config: AcademicBatchConfig, *, thermal: bool = 
         del parsed
         gc.collect()
 
-    if "resolve_extract" in config.stages:
+    if "resolve_extract" in config.stages and not resolve_extract_done:
         st = time.monotonic()
         resolve_stats = await run_resolve_extract(config)
         stats.stage_times["resolve_extract"] = time.monotonic() - st
         stats.metrics.update({f"resolve_extract_{k}": v for k, v in resolve_stats.items()})
+        resolve_extract_done = True
+
+    for lane_stage, lane_name in (
+        ("claim_extract", "claim"),
+        ("context_extract", "context"),
+        ("mechanism_extract", "mechanism"),
+    ):
+        if lane_stage in config.stages:
+            st = time.monotonic()
+            previous_lane = config.extraction_lane
+            config.extraction_lane = lane_name
+            try:
+                resolve_stats = await run_resolve_extract(config)
+            finally:
+                config.extraction_lane = previous_lane
+            stats.stage_times[lane_stage] = time.monotonic() - st
+            stats.metrics.update({f"{lane_stage}_{k}": v for k, v in resolve_stats.items()})
 
     if "resolve_finalize" in config.stages:
         st = time.monotonic()
@@ -99,6 +149,12 @@ async def run_academic_pipeline(config: AcademicBatchConfig, *, thermal: bool = 
         adjudicated.update({f"consensus_{k}": v for k, v in run_consensus_aggregate(config).items()})
         stats.stage_times["claim_adjudicate"] = time.monotonic() - st
         stats.metrics.update({f"claim_adjudicate_{k}": v for k, v in adjudicated.items()})
+
+    if "conflict_resolve" in config.stages:
+        st = time.monotonic()
+        resolved = run_conflict_resolve(config)
+        stats.stage_times["conflict_resolve"] = time.monotonic() - st
+        stats.metrics.update({f"conflict_resolve_{k}": v for k, v in resolved.items()})
 
     if "graph_load" in config.stages:
         if "merge_dedup" not in config.stages:
@@ -131,6 +187,13 @@ async def run_academic_pipeline(config: AcademicBatchConfig, *, thermal: bool = 
         ts_stats = run_transport_score(config)
         stats.stage_times["transport_score"] = time.monotonic() - st
         stats.metrics.update({f"transport_{k}": v for k, v in ts_stats.items()})
+
+    if "benchmark" in config.stages:
+        st = time.monotonic()
+        benchmark_stats = run_benchmark(config)
+        stats.stage_times["benchmark"] = time.monotonic() - st
+        stats.metrics.update({f"benchmark_{k}": v for k, v in benchmark_stats.metrics.items()})
+        stats.metrics["benchmark_passed"] = int(benchmark_stats.passed)
 
     if "embed" in config.stages:
         st = time.monotonic()

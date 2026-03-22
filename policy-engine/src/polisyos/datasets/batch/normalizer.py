@@ -11,6 +11,7 @@ from typing import Any
 
 from polisyos.batch_common.manifest import write_stage_manifest
 from polisyos.common.logger import get_logger
+from polisyos.datasets.batch.checkpoints import fingerprint_paths, load_json, write_json
 from polisyos.datasets.batch.ckan_curation import curate_ckan_package, guess_ckan_resource_format
 from polisyos.datasets.batch.config import DatasetBatchConfig
 from polisyos.datasets.batch.source_registry import SourceSpec
@@ -468,6 +469,34 @@ def extract_variables(raw: dict) -> list[str]:
 
 
 def _map_metrics(raw: dict, metrics_map: dict[str, dict] | None) -> list[str]:
+    return [metric_id for metric_id, _method in _map_metrics_with_method(raw, metrics_map)]
+
+
+def _map_metrics_both(
+    raw: dict, metrics_map: dict[str, dict] | None
+) -> tuple[list[str], dict[str, str]]:
+    """Return ``(metric_ids, {metric_id: inference_method})``."""
+    pairs = _map_metrics_with_method(raw, metrics_map)
+    return [m for m, _ in pairs], {m: method for m, method in pairs}
+
+
+# Metric inference methods in descending quality order.
+METRIC_INFERENCE_CODE_MATCH = "code_match"
+METRIC_INFERENCE_KEYWORD_MATCH = "keyword_match"
+METRIC_INFERENCE_HEURISTIC = "heuristic"
+
+# Confidence score associated with each inference method.
+METRIC_INFERENCE_CONFIDENCE: dict[str, float] = {
+    METRIC_INFERENCE_CODE_MATCH: 0.95,
+    METRIC_INFERENCE_KEYWORD_MATCH: 0.75,
+    METRIC_INFERENCE_HEURISTIC: 0.55,
+}
+
+
+def _map_metrics_with_method(
+    raw: dict, metrics_map: dict[str, dict] | None
+) -> list[tuple[str, str]]:
+    """Return ``[(metric_id, inference_method), ...]``."""
     if not metrics_map:
         return []
     text = " ".join(
@@ -476,28 +505,40 @@ def _map_metrics(raw: dict, metrics_map: dict[str, dict] | None) -> list[str]:
     ).lower()
     codes = {str(raw.get(k, "")).upper() for k in ("id", "dataset_id", "indicator_id", "dataflow_id") if raw.get(k)}
 
-    matched: list[str] = []
+    matched: list[tuple[str, str]] = []
+    seen: set[str] = set()
+
     hinted = raw.get("harvest_metric_candidates")
     if isinstance(hinted, list):
         for metric_id in hinted:
             metric_text = str(metric_id or "").strip()
-            if metric_text and metric_text in metrics_map and metric_text not in matched:
-                matched.append(metric_text)
+            if metric_text and metric_text in metrics_map and metric_text not in seen:
+                matched.append((metric_text, METRIC_INFERENCE_CODE_MATCH))
+                seen.add(metric_text)
+
     for metric_id, spec in metrics_map.items():
-        keywords = [str(v).lower() for v in spec.get("keywords", [])]
-        if any(k in text for k in keywords):
-            matched.append(metric_id)
+        if metric_id in seen:
             continue
-        for code_key in ("sdmx_concepts", "worldbank_indicators", "eurostat_codes"):
+        for code_key in ("sdmx_concepts", "worldbank_indicators", "eurostat_codes", "who_indicators"):
             code_set = {str(v).upper() for v in spec.get(code_key, [])}
             if codes & code_set:
-                matched.append(metric_id)
+                matched.append((metric_id, METRIC_INFERENCE_CODE_MATCH))
+                seen.add(metric_id)
                 break
+        if metric_id in seen:
+            continue
+        keywords = [str(v).lower() for v in spec.get("keywords", [])]
+        if any(k in text for k in keywords):
+            matched.append((metric_id, METRIC_INFERENCE_KEYWORD_MATCH))
+            seen.add(metric_id)
+
     for metric_id, patterns in _HEURISTIC_METRIC_PATTERNS:
-        if metric_id in matched:
+        if metric_id in seen:
             continue
         if any(pattern in text for pattern in patterns):
-            matched.append(metric_id)
+            matched.append((metric_id, METRIC_INFERENCE_HEURISTIC))
+            seen.add(metric_id)
+
     return matched
 
 
@@ -520,7 +561,8 @@ def _normalize_sdmx(raw: dict, *, source: str, metrics_map: dict[str, dict] | No
         variables=extract_variables(raw),
         formats=["SDMX-JSON"],
         distributions=[dist],
-        polisyos_metrics=_map_metrics(raw, metrics_map),
+        polisyos_metrics=(_mm := _map_metrics_both(raw, metrics_map))[0],
+        polisyos_metrics_methods=_mm[1],
         source_portal=source,
         source=source,
         agency=agency,
@@ -553,7 +595,8 @@ def _normalize_worldbank(raw: dict, *, metrics_map: dict[str, dict] | None) -> D
         license="CC-BY-4.0",
         formats=["JSON"],
         distributions=[dist],
-        polisyos_metrics=_map_metrics(raw, metrics_map),
+        polisyos_metrics=(_mm := _map_metrics_both(raw, metrics_map))[0],
+        polisyos_metrics_methods=_mm[1],
         source_portal=source,
         source=source,
         agency=agency,
@@ -584,7 +627,8 @@ def _normalize_ukons(raw: dict, *, metrics_map: dict[str, dict] | None) -> Datas
                 connector_params={"dataset_id": dataset_id},
             )
         ],
-        polisyos_metrics=_map_metrics(raw, metrics_map),
+        polisyos_metrics=(_mm := _map_metrics_both(raw, metrics_map))[0],
+        polisyos_metrics_methods=_mm[1],
         source_portal=source,
         source=source,
         agency=agency,
@@ -660,7 +704,8 @@ def _normalize_indicator_api(
         variables=extract_variables(raw),
         formats=["JSON"],
         distributions=[dist],
-        polisyos_metrics=_map_metrics(raw, metrics_map),
+        polisyos_metrics=(_mm := _map_metrics_both(raw, metrics_map))[0],
+        polisyos_metrics_methods=_mm[1],
         source_portal=source,
         source=source,
         agency=agency,
@@ -727,7 +772,8 @@ def _normalize_ckan(
         license=str(raw.get("license_id") or ""),
         formats=[guess_ckan_resource_format(res) for res in resources if isinstance(res, dict)],
         distributions=dists,
-        polisyos_metrics=_map_metrics(raw, metrics_map),
+        polisyos_metrics=(_mm := _map_metrics_both(raw, metrics_map))[0],
+        polisyos_metrics_methods=_mm[1],
         source_portal=source,
         source=source,
         agency=agency,
@@ -785,7 +831,8 @@ def _normalize_poland_open_data(
         license=str(raw.get("license_name") or ""),
         formats=formats,
         distributions=distributions,
-        polisyos_metrics=_map_metrics(raw, metrics_map),
+        polisyos_metrics=(_mm := _map_metrics_both(raw, metrics_map))[0],
+        polisyos_metrics_methods=_mm[1],
         source_portal=source,
         source=source,
         agency=agency,
@@ -868,7 +915,8 @@ def _normalize_generic_endpoint(
         license=str(raw.get("license_name") or raw.get("license") or ""),
         formats=formats,
         distributions=distributions,
-        polisyos_metrics=_map_metrics(raw, metrics_map),
+        polisyos_metrics=(_mm := _map_metrics_both(raw, metrics_map))[0],
+        polisyos_metrics_methods=_mm[1],
         source_portal=source,
         source=source,
         agency=publisher,
@@ -891,12 +939,30 @@ def normalize_raw_sources(config: DatasetBatchConfig, *, metrics_map: dict[str, 
 
     started_at = datetime.now(UTC).isoformat()
     artifacts: list[Path] = []
+    checkpoint = load_json(config.normalize_checkpoint_path, default={})
+    if not isinstance(checkpoint, dict):
+        checkpoint = {}
     for source_dir in source_dirs:
         latest_snapshots = sorted([p for p in source_dir.iterdir() if p.is_dir()])
         if not latest_snapshots:
             continue
         latest = latest_snapshots[-1]
         payload = latest / "payload.jsonl"
+        out_path = config.normalized_dir / f"{source_dir.name}.jsonl"
+        source_fingerprint = fingerprint_paths([payload])
+        existing_entry = checkpoint.get(source_dir.name) if isinstance(checkpoint, dict) else None
+        if (
+            config.resume
+            and isinstance(existing_entry, dict)
+            and str(existing_entry.get("status")) == "complete"
+            and str(existing_entry.get("input_fingerprint", "")) == source_fingerprint
+            and out_path.exists()
+        ):
+            counts[source_dir.name] = sum(
+                1 for _line in open(out_path, "r", encoding="utf-8")
+            )
+            artifacts.append(out_path)
+            continue
         rows = []
         if payload.exists():
             with open(payload, "r", encoding="utf-8") as fh:
@@ -948,7 +1014,7 @@ def normalize_raw_sources(config: DatasetBatchConfig, *, metrics_map: dict[str, 
                         row,
                         source=source,
                         agency="WVS",
-                        endpoint="https://api.worldvaluessurvey.org/v1/observations",
+                        endpoint="data/raw/wvs/WVS_Time_Series_1981-2022_csv_v5_0.csv",
                         connector_type="wvs",
                         metrics_map=metrics_map,
                     )
@@ -1001,12 +1067,18 @@ def normalize_raw_sources(config: DatasetBatchConfig, *, metrics_map: dict[str, 
                 )
                 continue
 
-        out_path = config.normalized_dir / f"{source}.jsonl"
         with open(out_path, "w", encoding="utf-8") as fh:
             for rec in records:
                 fh.write(rec.model_dump_json() + "\n")
         counts[source] = len(records)
         artifacts.append(out_path)
+        checkpoint[source] = {
+            "status": "complete",
+            "input_fingerprint": source_fingerprint,
+            "records": len(records),
+            "updated_at": datetime.now(UTC).isoformat(),
+        }
+        write_json(config.normalize_checkpoint_path, checkpoint)
 
     write_stage_manifest(
         manifest_path=config.manifests_dir / "normalize.json",
@@ -1085,7 +1157,7 @@ def normalize_to_dcat(raw: dict, source_portal: str, connector_type: str, metric
                 name=source_portal,
                 family="wvs",
                 wave="B",
-                endpoint="https://api.worldvaluessurvey.org/v1/observations",
+                endpoint="data/raw/wvs/WVS_Time_Series_1981-2022_csv_v5_0.csv",
                 connector_id="wvs.wave7",
                 profile_id="wvs_wave7",
                 execution_tier="transport_ready",

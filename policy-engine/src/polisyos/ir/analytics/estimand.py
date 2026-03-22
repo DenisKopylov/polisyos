@@ -586,7 +586,7 @@ class CrossWorldNode(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     node_type: Literal["cross_world"] = "cross_world"
-    worlds: tuple[CounterfactualNode, ...]
+    worlds: tuple["EstimandNode", ...]
     joint: bool = True
 
     def to_latex(self) -> str:

@@ -30,6 +30,17 @@ class VariableAlignment(BaseModel):
     proxy_penalty: float = 0.0
 
 
+def calibrate_alignment_confidence(alignment: VariableAlignment) -> float:
+    """Normalize confidence values across alignment methods."""
+    if alignment.method is AlignmentMethod.EXACT:
+        return 1.0
+    if alignment.method is AlignmentMethod.SEMANTIC:
+        return round(_clamp01(0.5 + 0.5 * float(alignment.confidence)), 6)
+    if alignment.method is AlignmentMethod.META_ANALYTIC:
+        return round(_clamp01(float(alignment.confidence)), 6)
+    return round(_clamp01(float(alignment.confidence)), 6)
+
+
 def load_seed_alignments(path: Path) -> list[VariableAlignment]:
     """Load exact seed alignments from YAML."""
     with open(path, "r", encoding="utf-8") as fh:

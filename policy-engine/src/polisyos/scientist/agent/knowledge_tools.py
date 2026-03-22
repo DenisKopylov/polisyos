@@ -31,7 +31,15 @@ if TYPE_CHECKING:
     from polisyos.datasets.knowledge.search import DatasetCatalogGraph
     from polisyos.datasets.knowledge.types import DatasetSearchResult
     from polisyos.lex.knowledge.search import LegalKnowledgeGraph
-    from polisyos.lex.knowledge.types import LegalFactResult, LegalProvisionResult
+    from polisyos.lex.knowledge.types import (
+        LegalDocVersionResult,
+        LegalFactResult,
+        LegalProvisionResult,
+        LegalReferenceEdgeResult,
+        LegalSourceAnchor,
+        LegalSourceBundle,
+    )
+    from polisyos.scientist.policy_verified.models import LegalCandidatePack, LegalSourcePack
 
 
 class KnowledgeToolkit:
@@ -47,10 +55,12 @@ class KnowledgeToolkit:
         dataset_catalog: DatasetCatalogGraph | None = None,
         scholar_graph: ScholarKnowledgeGraph | None = None,
         legal_graph: LegalKnowledgeGraph | None = None,
+        persistent_memory: object | None = None,
     ) -> None:
         self._dataset_catalog = dataset_catalog
         self._scholar_graph = scholar_graph
         self._legal_graph = legal_graph
+        self._persistent_memory = persistent_memory  # PersistentMemoryStore
 
     @property
     def has_dataset_catalog(self) -> bool:
@@ -276,6 +286,246 @@ class KnowledgeToolkit:
             as_of=as_of,
             top_k=top_k,
         )
+
+    def load_provisions_by_anchor(
+        self,
+        doc_id: str,
+        anchors: list[str],
+    ) -> list[LegalSourceAnchor]:
+        if self._legal_graph is None:
+            return []
+        return self._legal_graph.load_provisions_by_anchor(doc_id, anchors)
+
+    def load_doc_version_chain(
+        self,
+        *,
+        doc_id: str | None = None,
+        doc_family_id: str | None = None,
+    ) -> list[LegalDocVersionResult]:
+        if self._legal_graph is None:
+            return []
+        return self._legal_graph.load_doc_version_chain(doc_id=doc_id, doc_family_id=doc_family_id)
+
+    def load_appendix_context(
+        self,
+        doc_id: str,
+        anchor: str,
+        *,
+        max_depth: int = 4,
+    ) -> list[str]:
+        if self._legal_graph is None:
+            return []
+        return self._legal_graph.load_appendix_context(doc_id, anchor, max_depth=max_depth)
+
+    def expand_reference_neighborhood(
+        self,
+        doc_id: str,
+        anchors: list[str],
+        *,
+        max_hops: int = 2,
+    ) -> list[LegalReferenceEdgeResult]:
+        if self._legal_graph is None:
+            return []
+        return self._legal_graph.expand_reference_neighborhood(doc_id, anchors, max_hops=max_hops)
+
+    def load_source_bundle(
+        self,
+        *,
+        doc_id: str,
+        anchors: list[str],
+        version_id: str | None = None,
+        max_reference_hops: int = 2,
+        candidate_fact_ids: list[str] | None = None,
+        candidate_provision_ids: list[str] | None = None,
+    ) -> LegalSourceBundle | None:
+        if self._legal_graph is None:
+            return None
+        return self._legal_graph.load_source_bundle(
+            doc_id=doc_id,
+            anchors=anchors,
+            version_id=version_id,
+            max_reference_hops=max_reference_hops,
+            candidate_fact_ids=candidate_fact_ids,
+            candidate_provision_ids=candidate_provision_ids,
+        )
+
+    def get_versioned_source_refs(
+        self,
+        *,
+        doc_id: str | None = None,
+        doc_family_id: str | None = None,
+    ) -> list[LegalDocVersionResult]:
+        if self._legal_graph is None:
+            return []
+        return self._legal_graph.get_versioned_source_refs(doc_id=doc_id, doc_family_id=doc_family_id)
+
+    def assemble_legal_candidate_pack(
+        self,
+        query: str,
+        *,
+        jurisdiction: str = "UA",
+        domain: str | None = None,
+        as_of: str | None = None,
+        top_k_facts: int = 25,
+        top_k_provisions: int = 15,
+    ) -> "LegalCandidatePack":
+        from polisyos.scientist.policy_verified.models import LegalCandidatePack
+
+        fact_hits = self.search_legal_facts(
+            query,
+            top_k=top_k_facts,
+            trust_tier="grounded_fact",
+            jurisdiction=jurisdiction,
+            domain=domain,
+            as_of=as_of,
+        )
+        constraint_hits = self.find_legal_constraints(
+            query=query,
+            top_k=max(10, top_k_facts // 2),
+            jurisdiction=jurisdiction,
+            domain=domain,
+            as_of=as_of,
+        )
+        provision_hits = self.search_legal_provisions(query, top_k=top_k_provisions)
+        fact_map = {item.fact_id: item for item in [*fact_hits, *constraint_hits]}
+        return LegalCandidatePack(
+            request_id="toolkit",
+            queries=[query],
+            fact_hits=list(fact_map.values()),
+            provision_hits=provision_hits,
+            hit_reasons={item.fact_id: "legal_search" for item in fact_map.values()},
+            source_family_hints={
+                item.fact_id: (item.legal_unit_subtype or item.top_domain or "")
+                for item in fact_map.values()
+            },
+            anchor_coverage_hints={
+                item.fact_id: [item.provision_anchor or item.provision_citation]
+                for item in fact_map.values()
+                if item.provision_anchor or item.provision_citation
+            },
+        )
+
+    def expand_legal_source_pack(
+        self,
+        candidate_pack: "LegalCandidatePack",
+        *,
+        max_source_docs: int = 120,
+        max_reference_hops: int = 2,
+    ) -> "LegalSourcePack":
+        from polisyos.scientist.policy_verified.models import LegalSourcePack
+
+        if self._legal_graph is None:
+            return LegalSourcePack(request_id=candidate_pack.request_id)
+        bundles: list[LegalSourceBundle] = []
+        grouped: dict[str, dict[str, set[str] | list[str]]] = {}
+        for fact in candidate_pack.fact_hits:
+            if not fact.doc_id:
+                continue
+            bucket = grouped.setdefault(
+                fact.doc_id,
+                {"anchors": set(), "fact_ids": [], "provision_ids": []},
+            )
+            if fact.provision_anchor:
+                bucket["anchors"].add(fact.provision_anchor)
+            bucket["fact_ids"].append(fact.fact_id)
+        for provision in candidate_pack.provision_hits:
+            if not provision.doc_id:
+                continue
+            bucket = grouped.setdefault(
+                provision.doc_id,
+                {"anchors": set(), "fact_ids": [], "provision_ids": []},
+            )
+            if provision.anchor_path:
+                bucket["anchors"].add(provision.anchor_path)
+            bucket["provision_ids"].append(provision.provision_id)
+        for doc_id, payload in list(grouped.items())[:max_source_docs]:
+            bundle = self.load_source_bundle(
+                doc_id=doc_id,
+                anchors=sorted(payload["anchors"]),
+                max_reference_hops=max_reference_hops,
+                candidate_fact_ids=list(payload["fact_ids"]),
+                candidate_provision_ids=list(payload["provision_ids"]),
+            )
+            if bundle is not None:
+                bundles.append(bundle)
+        return LegalSourcePack(request_id=candidate_pack.request_id, source_bundles=bundles)
+
+    # ------------------------------------------------------------------
+    # Persistent memory tools
+    # ------------------------------------------------------------------
+
+    @property
+    def has_persistent_memory(self) -> bool:
+        return self._persistent_memory is not None
+
+    def remember(
+        self,
+        content: str,
+        *,
+        tags: list[str] | None = None,
+        kind: str = "episodic",
+        source_run_id: str = "",
+        source_node_alias: str | None = None,
+        confidence: float = 1.0,
+    ) -> dict:
+        """Store a memory entry for recall in future runs.
+
+        Returns a dict with ``memory_id`` and ``artifact_id``.
+        """
+        if self._persistent_memory is None:
+            return {"error": "persistent_memory not available"}
+
+        from polisyos.scientist.agent.persistent_memory import MemoryEntry, MemoryKind
+
+        entry = MemoryEntry(
+            kind=MemoryKind(kind),
+            content=content,
+            tags=tags or [],
+            source_run_id=source_run_id,
+            source_node_alias=source_node_alias,
+            confidence=confidence,
+        )
+        ref = self._persistent_memory.store_memory(entry)
+        return {"memory_id": entry.memory_id, "artifact_id": ref.artifact_id}
+
+    def recall(
+        self,
+        query: str,
+        *,
+        kind: str | None = None,
+        tags: list[str] | None = None,
+        max_results: int = 5,
+        min_confidence: float = 0.0,
+    ) -> list[dict]:
+        """Retrieve memories matching a query.
+
+        Returns a list of dicts with ``memory_id``, ``kind``, ``content``, ``tags``,
+        ``confidence``, and ``created_at``.
+        """
+        if self._persistent_memory is None:
+            return []
+
+        from polisyos.scientist.agent.persistent_memory import MemoryKind, MemoryQuery
+
+        q = MemoryQuery(
+            query_text=query,
+            kind=MemoryKind(kind) if kind else None,
+            tags=tags or [],
+            max_results=max_results,
+            min_confidence=min_confidence,
+        )
+        entries = self._persistent_memory.query(q)
+        return [
+            {
+                "memory_id": e.memory_id,
+                "kind": e.kind.value,
+                "content": e.content,
+                "tags": e.tags,
+                "confidence": e.confidence,
+                "created_at": e.created_at.isoformat(),
+            }
+            for e in entries
+        ]
 
     # ------------------------------------------------------------------
     # Prompt context helpers

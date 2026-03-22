@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import inspect
 from typing import Any, ClassVar, Mapping
 
 import numpy as np
@@ -31,6 +32,13 @@ from polisyos.foundry.methods.catalog.causal._econml_adapter import (
 from polisyos.foundry.methods.catalog.causal.protocols import HTEObservationalData
 from polisyos.ir.analytics.causal import CausalMethod, EstimationStatus
 from polisyos.ir.analytics.hte import FeatureImportance, HTEResult, SubgroupEffect
+
+
+def _supports_discrete_treatment_kwarg(cls: type) -> bool:
+    try:
+        return "discrete_treatment" in inspect.signature(cls).parameters
+    except (TypeError, ValueError):
+        return False
 
 
 @foundry_method(
@@ -156,6 +164,8 @@ class DoubleMachineLearning:
             "model_y": params.get("model_y", "auto"),
             "model_t": params.get("model_t", "auto"),
         }
+        if _supports_discrete_treatment_kwarg(cls):
+            model_kwargs["discrete_treatment"] = True
         if cls is not KernelDML:
             model_kwargs["random_state"] = seed_int
         model = cls(**model_kwargs)

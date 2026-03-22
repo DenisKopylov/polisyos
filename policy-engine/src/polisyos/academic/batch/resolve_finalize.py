@@ -158,6 +158,7 @@ def _claim_key(result: ArticleExtractionResult, claim: CausalClaim) -> str:
         effect=claim.effect_variable,
         claim_text=claim.claim_text,
         direction=claim.direction.value,
+        supporting_span_ids=tuple(claim.supporting_span_ids),
     )
 
 
@@ -685,6 +686,10 @@ def _curated_numeric_rows(
 
 
 def _strict_simulation_ready_rows(curated_rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    _STRONG_EVIDENCE_TYPES = {
+        EvidenceStrength.RCT.value,
+        EvidenceStrength.META_ANALYSIS.value,
+    }
     rows: list[dict[str, Any]] = []
     for row in curated_rows:
         if row.get("point_estimate") is None:
@@ -699,10 +704,20 @@ def _strict_simulation_ready_rows(curated_rows: list[dict[str, Any]]) -> list[di
             continue
         if not row.get("linked_claim_ids") and not row.get("linked_edge_ids"):
             continue
-        if row.get("confidence_interval") in (None, []) and row.get("std_error") is None:
-            continue
+        is_strong = str(row.get("evidence_strength") or "") in _STRONG_EVIDENCE_TYPES
+        # Relax uncertainty gate for strong evidence (RCT/META_ANALYSIS)
+        if not is_strong:
+            if row.get("confidence_interval") in (None, []) and row.get("std_error") is None:
+                continue
+        # Relax source_context gate for strong evidence (flag quality issue)
         if not isinstance(row.get("source_context"), dict) or not row["source_context"]:
-            continue
+            if not is_strong:
+                continue
+            existing_flags = json.loads(row.get("quality_flags_json") or "[]") if row.get("quality_flags_json") else []
+            row = {
+                **row,
+                "quality_flags_json": json.dumps(existing_flags + ["missing_source_context"]),
+            }
         rows.append(
             {
                 **row,
@@ -720,7 +735,13 @@ def _simulation_ready_parameters(
 ) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     if result.source_basis != SourceBasis.FULLTEXT:
-        return rows
+        # Allow abstract-only for RCT/META_ANALYSIS evidence
+        has_strong = any(
+            c.evidence_strength in {EvidenceStrength.RCT, EvidenceStrength.META_ANALYSIS}
+            for c in result.causal_claims
+        )
+        if not has_strong:
+            return rows
     curated_rows = _curated_numeric_rows(
         result,
         mode=mode,

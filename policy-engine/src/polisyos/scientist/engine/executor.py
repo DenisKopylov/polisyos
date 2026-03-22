@@ -17,6 +17,8 @@ from polisyos.scientist.engine.errors import (
     CycleDetectedError,
     DuplicateAliasError,
     MissingDependencyError,
+    NodeTimeoutError,
+    RetryExhaustedError,
     WorkflowSpecError,
 )
 from polisyos.scientist.engine.idempotency import NodeResultCache, compute_idempotency_key
@@ -28,6 +30,8 @@ from polisyos.scientist.engine.telemetry import (
     set_span_attribute,
     start_node_span,
 )
+from polisyos.scientist.engine.condition import ConditionSyntaxError, evaluate_condition
+from polisyos.scientist.engine.retry import RetryPolicy, execute_with_retry_sync
 from polisyos.scientist.engine.workflow_spec import ErrorPolicy, NodeInvocation, WorkflowSpec
 
 if TYPE_CHECKING:
@@ -215,6 +219,7 @@ class WorkflowExecutor:
             self._registry.get(inv.node_id)
 
         order = _topo_sort(invocations)
+        workflow_started = time.perf_counter()
 
         initial_state = state.model_copy(deep=True)
         workflow_ref = self._persist_workflow_spec(workflow)
@@ -242,6 +247,7 @@ class WorkflowExecutor:
         records: list[NodeRunRecord] = []
         failed: set[str] = set()
         blocked: set[str] = set()
+        condition_skipped: set[str] = set()
         completed_nodes: list[str] = []
         workflow_fingerprint = compute_workflow_fingerprint(workflow)
 
@@ -265,6 +271,49 @@ class WorkflowExecutor:
                 )
                 continue
 
+            # --- Condition evaluation ---
+            if inv.condition is not None:
+                try:
+                    cond_result = evaluate_condition(inv.condition.expr, state)
+                except ConditionSyntaxError as exc:
+                    self._ctx.logger.error(
+                        "Condition syntax error for node %s: %s", alias, exc,
+                    )
+                    cond_result = False
+
+                if not cond_result:
+                    if inv.condition.on_false == "fail":
+                        record = NodeRunRecord(
+                            alias=alias, node_id=str(inv.node_id),
+                            status="fail", duration_ms=0,
+                            error=NodeError(
+                                code="node.condition_false",
+                                message=f"Condition not met: {inv.condition.expr}",
+                                details={"expr": inv.condition.expr, "on_false": "fail"},
+                            ),
+                        )
+                        records.append(record)
+                        failed.add(alias)
+                        self._ctx.run.emit(
+                            f"scientist.node.{alias}", "NODE_FAIL",
+                            metrics={"duration_ms": 0, "status_ok": 0},
+                        )
+                    else:
+                        record = NodeRunRecord(
+                            alias=alias, node_id=str(inv.node_id),
+                            status="skip", duration_ms=0,
+                            skip_reason="condition_false",
+                        )
+                        records.append(record)
+                        condition_skipped.add(alias)
+                        self._ctx.run.emit(
+                            f"scientist.node.{alias}", "NODE_SKIP",
+                            metrics={"duration_ms": 0, "status_ok": 0},
+                        )
+                    if workflow.error_policy == "fail_fast" and alias in failed:
+                        break
+                    continue
+
             node = _bind_node_params(self._registry.get(inv.node_id), inv.params)
             span_attrs = {
                 "polisyos.run_id": state.run_id,
@@ -275,6 +324,18 @@ class WorkflowExecutor:
 
             with start_node_span(self._ctx.tracer, span_attrs) as span:
                 self._ctx.run.emit(f"scientist.node.{alias}", "NODE_STARTED")
+                if self._ctx.audit is not None:
+                    self._ctx.audit.append(
+                        run_id=state.run_id, actor="engine",
+                        action="NODE_STARTED",
+                        metadata={"alias": alias, "node_id": str(inv.node_id)},
+                    )
+                if self._ctx.metrics is not None:
+                    self._ctx.metrics.record_node_started(
+                        alias=alias,
+                        node_id=str(inv.node_id),
+                        workflow_id=workflow.workflow_id,
+                    )
                 started = time.perf_counter()
                 node_id = str(inv.node_id)
                 cache_enabled = _should_cache(node_id)
@@ -347,9 +408,37 @@ class WorkflowExecutor:
                 if cached_outcome is not None:
                     outcome = cached_outcome
                 else:
+                    retry_policy = inv.retry or RetryPolicy()
                     try:
-                        raw_outcome = node.execute(self._ctx, state)
+                        raw_outcome = execute_with_retry_sync(
+                            node, self._ctx, state,
+                            retry_policy=retry_policy,
+                            timeout_s=inv.timeout_s,
+                            alias=alias,
+                        )
                         outcome = NodeOutcome.model_validate(raw_outcome)
+                    except NodeTimeoutError as exc:
+                        self._ctx.logger.error("Node %s timed out", alias)
+                        outcome = NodeOutcome(
+                            status="fail",
+                            state=state,
+                            error=NodeError(
+                                code="node.timeout",
+                                message=str(exc),
+                                details={"timeout_s": inv.timeout_s},
+                            ),
+                        )
+                    except RetryExhaustedError as exc:
+                        self._ctx.logger.error("Node %s exhausted retries", alias)
+                        outcome = NodeOutcome(
+                            status="fail",
+                            state=state,
+                            error=NodeError(
+                                code="node.retry_exhausted",
+                                message=str(exc),
+                                details={"max_retries": retry_policy.max_retries},
+                            ),
+                        )
                     except ValidationError as exc:
                         self._ctx.logger.exception("Node %s returned invalid outcome", alias)
                         outcome = NodeOutcome(
@@ -409,6 +498,16 @@ class WorkflowExecutor:
                             )
 
                 duration_ms = int((time.perf_counter() - started) * 1000)
+                if self._ctx.metrics is not None:
+                    self._ctx.metrics.record_node_completed(
+                        alias=alias,
+                        node_id=str(inv.node_id),
+                        workflow_id=workflow.workflow_id,
+                        status=outcome.status,
+                        duration_ms=duration_ms,
+                        cache_hit=cache_hit,
+                        retry_count=0,
+                    )
                 state = outcome.state
 
                 _log_node_events(self._ctx.logger, alias, outcome.events)
@@ -432,6 +531,22 @@ class WorkflowExecutor:
                         "status_ok": 1 if outcome.status == "ok" else 0,
                     },
                 )
+
+                if self._ctx.audit is not None:
+                    audit_action = "NODE_COMPLETED" if outcome.status == "ok" else "NODE_FAILED"
+                    self._ctx.audit.append(
+                        run_id=state.run_id, actor="engine",
+                        action=audit_action,
+                        artifact_refs=list(outcome.artifacts) if outcome.artifacts else None,
+                        metadata={
+                            "alias": alias,
+                            "node_id": node_id,
+                            "status": outcome.status,
+                            "duration_ms": duration_ms,
+                            "cache_hit": cache_hit,
+                            "error": str(outcome.error) if outcome.error else None,
+                        },
+                    )
 
                 if outcome.status == "fail":
                     failed.add(alias)
@@ -461,6 +576,16 @@ class WorkflowExecutor:
                                     "duration_ms": checkpoint_result.duration_ms,
                                 },
                             )
+                            if self._ctx.audit is not None:
+                                self._ctx.audit.append(
+                                    run_id=state.run_id, actor="engine",
+                                    action="CHECKPOINT_CREATED",
+                                    artifact_refs=[checkpoint_result.checkpoint_ref],
+                                    metadata={
+                                        "sequence_number": checkpoint_result.sequence_number,
+                                        "alias": alias,
+                                    },
+                                )
 
                 record = NodeRunRecord(
                     alias=alias,
@@ -476,6 +601,13 @@ class WorkflowExecutor:
                     break
 
         overall_status = "fail" if failed else "ok"
+        if self._ctx.metrics is not None:
+            self._ctx.metrics.record_workflow_completed(
+                workflow_id=workflow.workflow_id,
+                status=overall_status,
+                duration_ms=int((time.perf_counter() - workflow_started) * 1000),
+                node_count=len(records),
+            )
         report = WorkflowReport(
             workflow_id=workflow.workflow_id,
             run_id=state.run_id,

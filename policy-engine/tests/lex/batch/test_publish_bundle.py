@@ -28,7 +28,11 @@ def test_run_publish_writes_consumer_readiness_manifest(tmp_path) -> None:
                 "metrics": {
                     "doc_family_breakdown": {
                         "law": {"empty_statement_rows_pct": 5.0},
-                    }
+                    },
+                    "llm_gap_fill_sent_total": 12,
+                    "llm_gap_fill_added_statements_total": 7,
+                    "baseline_vs_gap_fill_added_statements_total": 7,
+                    "top_gap_fill_subtypes": [{"legal_unit_subtype": "core_normative_clause", "count": 8}],
                 },
                 "checks": [],
             }
@@ -61,3 +65,5 @@ def test_run_publish_writes_consumer_readiness_manifest(tmp_path) -> None:
     assert payload["readiness"]["consumer_ready"] is True
     assert payload["release_readiness"]["release_ready"] is True
     assert payload["table_counts"]["lex_normative_facts"] == 1
+    assert payload["quality_summary"]["llm_gap_fill_metrics"]["llm_gap_fill_sent_total"] == 12
+    assert payload["quality_summary"]["top_gap_fill_subtypes"][0]["legal_unit_subtype"] == "core_normative_clause"

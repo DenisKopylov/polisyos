@@ -217,10 +217,76 @@ def partial_corr_batch(
     return out
 
 
+def bootstrap_mean_interval(
+    values: np.ndarray,
+    *,
+    seed: int,
+    draws: int,
+    influence_values: np.ndarray | None = None,
+    backend: str = "bootstrap_eif",
+) -> tuple[float, float]:
+    arr = np.asarray(values, dtype=float).reshape(-1)
+    arr = arr[np.isfinite(arr)]
+    if arr.size == 0:
+        return float("nan"), float("nan")
+    if arr.size == 1:
+        return float(arr[0]), float(arr[0])
+
+    backend_normalized = backend.strip().lower()
+    if backend_normalized in {"eif", "bootstrap_eif", "bootstrap"} and influence_values is not None:
+        return _bootstrap_eif_interval(arr, influence_values, seed=seed, draws=draws)
+    return _bootstrap_interval(arr, seed=seed, draws=draws)
+
+
+def robust_standard_error(values: np.ndarray) -> float:
+    arr = np.asarray(values, dtype=float).reshape(-1)
+    arr = arr[np.isfinite(arr)]
+    if arr.size <= 1:
+        return 0.0
+    centered = arr - np.mean(arr)
+    return float(np.std(centered, ddof=1) / np.sqrt(arr.size))
+
+
+def _bootstrap_interval(values: np.ndarray, *, seed: int, draws: int) -> tuple[float, float]:
+    arr = np.asarray(values, dtype=float).reshape(-1)
+    rng = np.random.default_rng(seed)
+    means = np.empty(draws, dtype=float)
+    for idx in range(draws):
+        sample = rng.choice(arr, size=arr.size, replace=True)
+        means[idx] = float(np.mean(sample))
+    return float(np.percentile(means, 2.5)), float(np.percentile(means, 97.5))
+
+
+def _bootstrap_eif_interval(
+    values: np.ndarray,
+    influence_values: np.ndarray,
+    *,
+    seed: int,
+    draws: int,
+) -> tuple[float, float]:
+    arr = np.asarray(values, dtype=float).reshape(-1)
+    infl = np.asarray(influence_values, dtype=float).reshape(-1)
+    if infl.size != arr.size:
+        return _bootstrap_interval(arr, seed=seed, draws=draws)
+
+    center = float(np.mean(arr))
+    eif_scores = center + infl
+    if eif_scores.size == 0:
+        return float("nan"), float("nan")
+    rng = np.random.default_rng(seed)
+    means = np.empty(draws, dtype=float)
+    for idx in range(draws):
+        sample = rng.choice(eif_scores, size=eif_scores.size, replace=True)
+        means[idx] = float(np.mean(sample))
+    return float(np.percentile(means, 2.5)), float(np.percentile(means, 97.5))
+
+
 __all__ = [
     "CIBackendSelection",
+    "bootstrap_mean_interval",
     "ci_backend_metadata",
     "partial_corr",
     "partial_corr_batch",
     "resolve_discovery_ci_backend",
+    "robust_standard_error",
 ]

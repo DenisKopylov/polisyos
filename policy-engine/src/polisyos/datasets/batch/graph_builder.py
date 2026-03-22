@@ -14,6 +14,7 @@ import duckdb
 from polisyos.batch_common.manifest import write_stage_manifest
 from polisyos.common.logger import get_logger
 from polisyos.datasets.batch.config import DatasetBatchConfig
+from polisyos.datasets.batch.normalizer import METRIC_INFERENCE_CONFIDENCE
 from polisyos.datasets.knowledge.types import DatasetRecord, DistributionRecord
 
 logger = get_logger(__name__)
@@ -80,16 +81,17 @@ CREATE TABLE IF NOT EXISTS ds_distributions (
 );
 
 CREATE TABLE IF NOT EXISTS ds_metric_bindings (
-    metric_id            VARCHAR NOT NULL,
-    dataset_id           VARCHAR NOT NULL,
-    distribution_id      VARCHAR NOT NULL,
-    connector_id         VARCHAR NOT NULL,
-    profile_id           VARCHAR,
-    request_dataset_id   VARCHAR NOT NULL,
-    confidence           FLOAT DEFAULT 0.0,
-    default_filters      JSON,
-    execution_tier       VARCHAR DEFAULT 'catalog',
-    source               VARCHAR,
+    metric_id                  VARCHAR NOT NULL,
+    dataset_id                 VARCHAR NOT NULL,
+    distribution_id            VARCHAR NOT NULL,
+    connector_id               VARCHAR NOT NULL,
+    profile_id                 VARCHAR,
+    request_dataset_id         VARCHAR NOT NULL,
+    confidence                 FLOAT DEFAULT 0.0,
+    metric_inference_confidence FLOAT DEFAULT 0.0,
+    default_filters            JSON,
+    execution_tier             VARCHAR DEFAULT 'catalog',
+    source                     VARCHAR,
     PRIMARY KEY (metric_id, dataset_id, distribution_id)
 );
 
@@ -127,6 +129,20 @@ CREATE TABLE IF NOT EXISTS ds_variable_alignments (
     is_proxy       BOOLEAN DEFAULT FALSE,
     proxy_penalty  FLOAT DEFAULT 0.0,
     PRIMARY KEY (dataset_id, raw_variable, canonical_var)
+);
+
+CREATE TABLE IF NOT EXISTS ds_alignment_audit (
+    audit_id               VARCHAR PRIMARY KEY,
+    dataset_id             VARCHAR NOT NULL,
+    raw_variable           VARCHAR NOT NULL,
+    canonical_variable     VARCHAR,
+    method                 VARCHAR NOT NULL,
+    raw_confidence         FLOAT,
+    calibrated_confidence  FLOAT,
+    alternatives_json      JSON DEFAULT '[]',
+    resolved_at            VARCHAR,
+    reviewed               BOOLEAN DEFAULT FALSE,
+    reviewer_override      VARCHAR DEFAULT NULL
 );
 
 CREATE TABLE IF NOT EXISTS ds_observations (
@@ -212,6 +228,7 @@ CREATE INDEX IF NOT EXISTS idx_schema_dataset ON ds_schema_profiles(dataset_id);
 CREATE INDEX IF NOT EXISTS idx_registry_provider ON ds_registry_datasets(provider);
 CREATE INDEX IF NOT EXISTS idx_va_canonical ON ds_variable_alignments(canonical_var);
 CREATE INDEX IF NOT EXISTS idx_va_dataset ON ds_variable_alignments(dataset_id);
+CREATE INDEX IF NOT EXISTS idx_alignment_audit_dataset ON ds_alignment_audit(dataset_id);
 CREATE INDEX IF NOT EXISTS idx_obs_country_year ON ds_observations(country_code, year);
 CREATE INDEX IF NOT EXISTS idx_obs_dataset_raw ON ds_observations(dataset_id, raw_variable);
 CREATE INDEX IF NOT EXISTS idx_entity_mapping_dataset ON ds_entity_mappings(dataset_id);
@@ -247,6 +264,7 @@ def _init_schema(con: duckdb.DuckDBPyConnection) -> None:
 def _truncate(con: duckdb.DuckDBPyConnection) -> None:
     con.execute("DELETE FROM ds_metric_bindings")
     con.execute("DELETE FROM ds_schema_profiles")
+    con.execute("DELETE FROM ds_alignment_audit")
     con.execute("DELETE FROM ds_alignment_hints")
     con.execute("DELETE FROM ds_entity_mappings")
     con.execute("DELETE FROM ds_distributions")
@@ -384,6 +402,7 @@ def _metric_binding_rows(record: DatasetRecord, distribution: DistributionRecord
             float(record.quality.execution_readiness_score or 0.0) or float(distribution.quality_score or 0.0) or 0.5,
         ),
     )
+    methods = record.polisyos_metrics_methods or {}
     return [
         (
             metric_id,
@@ -393,6 +412,7 @@ def _metric_binding_rows(record: DatasetRecord, distribution: DistributionRecord
             distribution.profile_id,
             request_dataset_id,
             confidence,
+            METRIC_INFERENCE_CONFIDENCE.get(methods.get(metric_id, ""), 0.0),
             _json_text(distribution.default_filters or {}),
             record.execution_tier or "catalog",
             record.source,
@@ -494,8 +514,9 @@ def _flush_metric_bindings(con: duckdb.DuckDBPyConnection, batch: list[tuple], s
     con.executemany(
         """INSERT OR REPLACE INTO ds_metric_bindings (
             metric_id, dataset_id, distribution_id, connector_id, profile_id,
-            request_dataset_id, confidence, default_filters, execution_tier, source
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            request_dataset_id, confidence, metric_inference_confidence,
+            default_filters, execution_tier, source
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
         batch,
     )
     stats.metric_bindings += len(batch)

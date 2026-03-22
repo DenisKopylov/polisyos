@@ -74,6 +74,26 @@ def test_baseline_claim_adjudication_config_preserves_current_consensus_behavior
     assert select_prompt_variant(cfg, 4) == cfg.prompt_variants[1]
 
 
+def test_confidence_weighted_claim_consensus_prefers_high_confidence_votes(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path / ".polisyos")
+    registry = ChampionRegistry(root=tmp_path / ".polisyos" / "search_registry", store=store)
+    loader = ClaimAdjudicationRuntimeLoader(store=store, registry=registry)
+
+    cfg = loader.load()
+    aggregated = aggregate_claim_rows(
+        [
+            _claim_result(publishable=False, confidence=0.95, validity=0.85),
+            _claim_result(publishable=True, confidence=0.20, validity=0.95),
+            _claim_result(publishable=True, confidence=0.20, validity=0.95),
+        ],
+        cfg,
+    )
+
+    assert aggregated.publishable_edge is False
+    assert aggregated.claim_type_confidence is not None
+    assert aggregated.design_family_confidence is not None
+
+
 def test_claim_promotion_is_blocked_on_abstract_only_overcall(tmp_path) -> None:
     store = FileSystemCAS(tmp_path / ".polisyos")
     registry = ChampionRegistry(root=tmp_path / ".polisyos" / "search_registry", store=store)

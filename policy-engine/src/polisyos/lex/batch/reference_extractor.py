@@ -6,16 +6,23 @@ import re
 from dataclasses import dataclass
 
 from polisyos.lex.batch.doc_identity import doc_type_category
-
-_ARTICLEish_RE = re.compile(r"(?:статт[іяею]|частин[аиі]|пункт[ауі])\s+[0-9]+(?:[-.][0-9]+)*", re.IGNORECASE)
-_AMENDS_RE = re.compile(r"(внести\s+зміни\s+до|змін(?:и|у)\s+до)", re.IGNORECASE)
-_REPEALS_RE = re.compile(
-    r"(визнати\s+(?:таким|такими),?\s+що\s+втратив(?:ли)?\s+чинність|втратив(?:ли)?\s+чинність)",
-    re.IGNORECASE,
+from polisyos.lex.batch.jurisdictions.protocol import JurisdictionPlugin
+from polisyos.lex.batch.patterns import (
+    ARTICLEISH_REFERENCE_RE,
+    REFERENCE_AMENDS_RE,
+    REFERENCE_APPLIES_TO_RE,
+    REFERENCE_APPROVES_RE,
+    REFERENCE_ENTRY_INTO_FORCE_RE,
+    REFERENCE_PATTERNS_UA,
+    REFERENCE_REPEALS_RE,
 )
-_APPROVES_RE = re.compile(r"(затвердити|затверджується|затверджено)", re.IGNORECASE)
-_ENTRY_INTO_FORCE_RE = re.compile(r"(набирає\s+чинності|вводиться\s+в\s+дію)", re.IGNORECASE)
-_APPLIES_TO_RE = re.compile(r"(поширюється\s+на|застосовується\s+до)", re.IGNORECASE)
+
+_ARTICLEish_RE = ARTICLEISH_REFERENCE_RE
+_AMENDS_RE = REFERENCE_AMENDS_RE
+_REPEALS_RE = REFERENCE_REPEALS_RE
+_APPROVES_RE = REFERENCE_APPROVES_RE
+_ENTRY_INTO_FORCE_RE = REFERENCE_ENTRY_INTO_FORCE_RE
+_APPLIES_TO_RE = REFERENCE_APPLIES_TO_RE
 
 
 @dataclass(frozen=True)
@@ -50,60 +57,7 @@ class ReferenceHit:
         }
 
 
-_REFERENCE_PATTERNS: tuple[tuple[str, re.Pattern[str], float], ...] = (
-    (
-        "annex_reference",
-        re.compile(
-            r"(?P<anchor>додат(?:ок|ки)\s*(?:N|№)?\s*[\w\-]+)\s+"
-            r"(?P<title>(?:до\s+цього\s+(?:закону|кодексу|порядку|положення)|до\s+.+?(?:Закону|Кодексу)\s+України[^,;\.\n]*))",
-            re.IGNORECASE,
-        ),
-        0.93,
-    ),
-    (
-        "self_reference",
-        re.compile(
-            r"(?P<anchor>(?:статт[іяею]|частин[аиі]|пункт[ауі])\s+[0-9]+(?:[-.][0-9]+)*)\s+(?:цього\s+(?:закону|кодексу|порядку|положення|документа)|цього)",
-            re.IGNORECASE,
-        ),
-        0.98,
-    ),
-    (
-        "article_reference",
-        re.compile(
-            r"(?:відповідно\s+до|згідно\s+з)\s+(?P<anchor>(?:статт[іяею]|частин[аиі]|пункт[ауі])\s+[0-9]+(?:[-.][0-9]+)*)\s+(?P<title>(?:цього\s+(?:закону|кодексу|порядку|положення)|.+?(?:Закону|Кодексу)\s+України[^,;\.\n]*))",
-            re.IGNORECASE,
-        ),
-        0.92,
-    ),
-    (
-        "law_number",
-        re.compile(
-            r"(?P<title>Закон(?:у)?\s+України[^,;\.\n]{0,160}?)\s+від\s+(?P<date>\d{2}\.\d{2}\.\d{4})\s*[№N]\s*(?P<number>[\dA-ZА-ЯІЇЄҐ/-]+)",
-            re.IGNORECASE,
-        ),
-        0.97,
-    ),
-    (
-        "doc_number_date",
-        re.compile(
-            r"(?P<doc_type>наказ(?:ом|у|а)?|постанова(?:ою|и)?|рішення(?:м|я)?|указ(?:ом|у|а)?|розпорядження(?:м|я)?)"
-            r"[^,;\.\n]{0,120}?[№N]\s*(?P<number>[\dA-ZА-ЯІЇЄҐ/-]+)\s+від\s+(?P<date>\d{2}\.\d{2}\.\d{4})",
-            re.IGNORECASE,
-        ),
-        0.95,
-    ),
-    (
-        "cabinet_resolution",
-        re.compile(
-            r"(?P<doc_type>постанов[аи])\s+(?:Кабінету\s+Міністрів\s+України|КМУ)"
-            r"[^,;\.\n]{0,120}?від\s+(?P<date>\d{2}\.\d{2}\.\d{4})(?:\s*р\.)?"
-            r"(?:\s*[№N]\s*(?P<number>[\dA-ZА-ЯІЇЄҐ/-]+))?",
-            re.IGNORECASE,
-        ),
-        0.96,
-    ),
-)
+_REFERENCE_PATTERNS: tuple[tuple[str, re.Pattern[str], float], ...] = REFERENCE_PATTERNS_UA
 
 
 def _relation_hint(text: str, start: int, end: int) -> str:
@@ -141,11 +95,18 @@ def _resolved_doc_type(match: re.Match[str]) -> str:
     return ""
 
 
-def extract_references(*, text: str, doc_id: str, anchor_path: str) -> list[ReferenceHit]:
+def extract_references(
+    *,
+    text: str,
+    doc_id: str,
+    anchor_path: str,
+    jurisdiction_plugin: JurisdictionPlugin | None = None,
+) -> list[ReferenceHit]:
     """Extract legal references from provision text."""
     hits: list[ReferenceHit] = []
     seen: set[tuple[int, int, str, str, str, str]] = set()
-    for ref_type, pattern, confidence in _REFERENCE_PATTERNS:
+    patterns = jurisdiction_plugin.reference_patterns() if jurisdiction_plugin is not None else _REFERENCE_PATTERNS
+    for ref_type, pattern, confidence in patterns:
         for match in pattern.finditer(text):
             target_raw = match.group(0).strip()
             if not target_raw:

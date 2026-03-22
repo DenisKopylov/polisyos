@@ -24,6 +24,10 @@ Four exported algorithm functions (plus one foundry wrapper class):
     Assess whether a source-population causal effect is transportable to
     a target population via the TR algorithm (Bareinboim & Pearl 2012).
 
+``counterfactual_fusion``
+    Fuse multi-domain datasets for Layer-3 counterfactual queries via
+    counterfactual transportability.
+
 Foundry method: ``causal.fusion.data_fusion@1.0.0``
 
 References
@@ -38,6 +42,7 @@ Bareinboim, E. & Pearl, J. (2012). Transportability of causal effects:
 
 from __future__ import annotations
 
+import dataclasses
 import logging
 from typing import Any, ClassVar, Mapping, Sequence
 
@@ -392,6 +397,100 @@ def design_external_validity(
     )
 
 
+def _coerce_ctf_query(raw_query: Any) -> Any:
+    from polisyos.foundry.methods.catalog.causal.id_engine import CtfQuery
+
+    if isinstance(raw_query, CtfQuery):
+        return raw_query
+    if dataclasses.is_dataclass(raw_query):
+        return CtfQuery(**dataclasses.asdict(raw_query))
+    if hasattr(raw_query, "model_dump"):
+        return CtfQuery(**raw_query.model_dump(mode="python"))
+    if isinstance(raw_query, Mapping):
+        return CtfQuery(**dict(raw_query))
+    raise TypeError("counterfactual_query must be a CtfQuery or mapping-compatible object.")
+
+
+def counterfactual_fusion(
+    *,
+    datasets: Sequence[FusionDataset],
+    graph: CausalGraphModel,
+    counterfactual_query: Any,
+) -> FusionResult:
+    """Fuse source domains for a Layer-3 counterfactual query."""
+    from polisyos.foundry.methods.catalog.causal.ctf_transport import (
+        build_ctf_selection_diagram,
+        ctf_transportability,
+    )
+    from polisyos.foundry.methods.catalog.causal.id_engine import (
+        IdentificationStatus,
+        SourceDomain,
+    )
+    from polisyos.ir.analytics.negative_certificate import NegativeCertificate
+
+    ctf_query = _coerce_ctf_query(counterfactual_query)
+    source_domains = [
+        SourceDomain(
+            domain_id=ds.domain_id,
+            s_nodes=frozenset(ds.selection_bias_vars),
+            z_interventions=frozenset(ds.available_interventions),
+            dataset_ref=ds.dataset_ref,
+        )
+        for ds in datasets
+    ]
+    selection_diagram = build_ctf_selection_diagram(
+        graph=graph,
+        source_domains=source_domains,
+    )
+    result = ctf_transportability(
+        ctf_query,
+        selection_diagram,
+        source_domains=source_domains,
+    )
+
+    required_refs = tuple(ds.dataset_ref for ds in datasets if ds.dataset_ref)
+    required_ivs = tuple(iv for ds in datasets for iv in ds.available_interventions)
+    query_str = getattr(result, "query_str", "") or f"CTF[{ctf_query.kind}:{ctf_query.outcome}]"
+
+    if isinstance(result, NegativeCertificate):
+        return FusionResult(
+            query=query_str,
+            is_identified=False,
+            fusion_formula_latex=None,
+            required_datasets=required_refs,
+            required_interventions=required_ivs,
+            identification_algorithm="ctf_transport",
+            proof_steps=(),
+            warnings=(result.to_summary(),),
+        )
+
+    identified = result.status == IdentificationStatus.IDENTIFIED
+    latex = None
+    if identified and result.estimand_ast is not None:
+        try:
+            latex = result.estimand_ast.to_latex()
+        except Exception:  # pragma: no cover
+            pass
+
+    warnings: list[str] = []
+    if not identified:
+        warnings.append(
+            f"Counterfactual transport failed (status={result.status.value}). "
+            "Additional target-domain data or transport-resolving experiments may be needed."
+        )
+
+    return FusionResult(
+        query=query_str,
+        is_identified=identified,
+        fusion_formula_latex=latex,
+        required_datasets=required_refs,
+        required_interventions=required_ivs,
+        identification_algorithm="ctf_transport",
+        proof_steps=tuple(ps.rule_name for ps in result.proof_steps),
+        warnings=tuple(warnings),
+    )
+
+
 # ---------------------------------------------------------------------------
 # Foundry wrapper
 # ---------------------------------------------------------------------------
@@ -405,7 +504,7 @@ def design_external_validity(
 class DataFusionEngine:
     """Multi-source causal data fusion (Bareinboim & Pearl 2016).
 
-    Dispatches to one of four fusion modes via the ``mode`` parameter:
+    Dispatches to one of five fusion modes via the ``mode`` parameter:
 
     ``"rct_plus_obs"`` (default)
         Fuse one observational + one RCT dataset via Z-transport.
@@ -427,6 +526,10 @@ class DataFusionEngine:
         Requires: ``graph``, ``treatment``, ``outcome``,
         ``s_node_vars`` (list of str — variable names with mechanism shifts),
         ``source_population``, ``target_population``.
+
+    ``"ctf_fusion"``
+        Fuse multiple domains for a Layer-3 counterfactual query.
+        Requires: ``graph``, ``datasets``, ``counterfactual_query``.
     """
 
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
@@ -452,6 +555,7 @@ class DataFusionEngine:
             ParameterSpec(name="datasets", default=[]),
             ParameterSpec(name="eif_variances", default={}),
             ParameterSpec(name="query", default=""),
+            ParameterSpec(name="counterfactual_query", default=None),
             ParameterSpec(name="s_node_vars", default=[]),
             ParameterSpec(name="source_population", default="source"),
             ParameterSpec(name="target_population", default="target"),
@@ -472,7 +576,7 @@ class DataFusionEngine:
         ),
         tags=frozenset({
             "causal", "fusion", "transport", "selection_diagram",
-            "mz_id", "z_id", "tr_algorithm", "bareinboim_pearl",
+            "mz_id", "z_id", "tr_algorithm", "ctf_transport", "bareinboim_pearl",
         }),
         citations=(
             "Bareinboim, E. & Pearl, J. (2016). Causal inference and the "
@@ -567,15 +671,28 @@ class DataFusionEngine:
             )
             return {"fusion_result": report.model_dump()}
 
+        if mode == "ctf_fusion":
+            raw_datasets = params.get("datasets", [])
+            datasets = [FusionDataset.model_validate(d) for d in raw_datasets]
+            if params.get("counterfactual_query") is None:
+                raise ValueError("ctf_fusion mode requires counterfactual_query.")
+            result = counterfactual_fusion(
+                datasets=datasets,
+                graph=graph,
+                counterfactual_query=params.get("counterfactual_query"),
+            )
+            return {"fusion_result": result.model_dump()}
+
         raise ValueError(
             f"Unknown DataFusionEngine mode {mode!r}. "
             "Expected one of: 'rct_plus_obs', 'multi_study', "
-            "'optimal_combine', 'external_validity'."
+            "'optimal_combine', 'external_validity', 'ctf_fusion'."
         )
 
 
 __all__ = [
     "DataFusionEngine",
+    "counterfactual_fusion",
     "fuse_experimental_observational",
     "multi_study_fusion",
     "optimal_data_combination",

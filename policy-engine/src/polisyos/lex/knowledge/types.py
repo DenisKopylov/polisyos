@@ -107,6 +107,11 @@ class SPOCandidate(BaseModel):
     confidence_extract: float | None = Field(default=None, ge=0.0, le=1.0)
     confidence_verify: float | None = Field(default=None, ge=0.0, le=1.0)
     confidence_final: float | None = Field(default=None, ge=0.0, le=1.0)
+    fused_confidence: float | None = Field(default=None, ge=0.0, le=1.0)
+    confidence_breakdown_json: str = ""
+    consistency_score: float | None = Field(default=None, ge=0.0, le=1.0)
+    hallucination_flags_json: str = ""
+    quality_band: str = ""
 
     @model_validator(mode="after")
     def _compat_defaults(self) -> "SPOCandidate":
@@ -187,7 +192,11 @@ class SPOCandidate(BaseModel):
         elif self.trust_tier != "search_candidate":
             trust_tier = self.trust_tier
         else:
-            confidence_rank = confidence_final if confidence_final is not None else self.confidence
+            confidence_rank = (
+                self.fused_confidence
+                if self.fused_confidence is not None
+                else (confidence_final if confidence_final is not None else self.confidence)
+            )
             if (
                 grounding_status == "exact_quote"
                 and canonical_status == "canonicalized"
@@ -200,6 +209,16 @@ class SPOCandidate(BaseModel):
                 trust_tier = "grounded_fact"
             else:
                 trust_tier = "search_candidate"
+        # Demote normative_fact only if there are actual blocking hallucination flags
+        # (not just an empty JSON array "[]")
+        if trust_tier == "normative_fact" and self.hallucination_flags_json.strip():
+            try:
+                _parsed_flags = __import__("json").loads(self.hallucination_flags_json)
+            except Exception:
+                _parsed_flags = []
+            _blocking_types = {"phantom_article_reference", "phantom_number"}
+            if any(str(f.get("type") or "") in _blocking_types for f in _parsed_flags if isinstance(f, dict)):
+                trust_tier = "grounded_fact" if grounding_status == "exact_quote" else "search_candidate"
 
         object.__setattr__(self, "action_raw", action_raw)
         object.__setattr__(self, "action_canon", action_canon)
@@ -249,15 +268,25 @@ class SPOExtractionResult(BaseModel):
     low_confidence_reasons: list[str] = Field(default_factory=list)
 
     # Routing provenance (deterministic gate -> llm)
-    extraction_source: str = "llm"  # rule_auto|llm|audit_llm|deferred
+    extraction_source: str = "llm"  # rule_auto|llm|llm_gap_fill|audit_llm|deferred
     gate_score: float = 0.0
     gate_reason_codes: list[str] = Field(default_factory=list)
     legal_unit_subtype: str = ""
+    legal_unit_micro_subtype: str = ""
     route_class: str = ""
     empty_spo_retry_eligible: bool = False
     audit_miss_prone: bool = False
     reference_bearing: bool = False
     threshold_bearing: bool = False
+    fused_confidence: float | None = None
+    confidence_breakdown_json: str = ""
+    consistency_score: float | None = None
+    hallucination_flags_json: str = ""
+    quality_band: str = ""
+    context_prefix: str = ""
+    baseline_statement_count: int = 0
+    llm_gap_fill_llm_statement_count: int = 0
+    llm_gap_fill_added_statement_count: int = 0
 
     # Perf and usage
     latency_ms: int = 0
@@ -338,6 +367,7 @@ class LegalFact(BaseModel):
     structure_quality: str = ""
     constraint_type_canon: str = ""
     legal_unit_subtype: str = ""
+    legal_unit_micro_subtype: str = ""
     route_class: str = ""
     empty_spo_retry_eligible: bool = False
     audit_miss_prone: bool = False
@@ -353,7 +383,6 @@ class LegalFact(BaseModel):
     doc_status: str = ""
     provision_anchor: str = ""
     provision_citation: str = ""
-    original_context_short: str = ""
     jurisdiction: str = "UA"
     top_domain: str = ""
     doc_family_id: str = ""
@@ -383,8 +412,8 @@ class LegalFact(BaseModel):
             parts.append(f"exception_uk: {self.exception_text_uk}")
         if self.procedure_text_uk:
             parts.append(f"procedure_uk: {self.procedure_text_uk}")
-        if self.original_context_short:
-            parts.append(f"quote_uk: {self.original_context_short[:400]}")
+        if self.source_quote_uk:
+            parts.append(f"quote_uk: {self.source_quote_uk[:400]}")
         if self.top_domain:
             parts.append(f"domain: {self.top_domain}")
         return "\n".join(parts)
@@ -465,12 +494,21 @@ class LegalFactResult(BaseModel):
     audit_miss_prone: bool = False
     reference_bearing: bool = False
     threshold_bearing: bool = False
+    fused_confidence: float | None = None
+    confidence_breakdown_json: str = ""
+    consistency_score: float | None = None
+    hallucination_flags_json: str = ""
+    quality_band: str = ""
+    doc_id: str = ""
+    doc_family_id: str = ""
+    version_id: str = ""
     jurisdiction: str = "UA"
     top_domain: str = ""
     effective_from: str = ""
     effective_to: str = ""
     doc_name: str
     doc_reestr_code: str
+    provision_anchor: str = ""
     provision_citation: str
     similarity: float
 
@@ -481,8 +519,11 @@ class LegalProvisionResult(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     provision_id: str
+    doc_id: str = ""
+    version_id: str = ""
     doc_name: str
     doc_reestr_code: str
+    anchor_path: str = ""
     citation_label: str
     kind: str
     provision_text_preview: str
@@ -496,3 +537,76 @@ class LegalProvisionResult(BaseModel):
     threshold_bearing: bool = False
     fallback_allowed_for_reasoning: bool = False
     similarity: float
+
+
+class LegalReferenceEdgeResult(BaseModel):
+    """Resolved or unresolved reference edge around a provision cluster."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    source_doc_id: str
+    source_anchor: str
+    target_doc_id: str = ""
+    target_anchor: str = ""
+    relation_type: str = ""
+    resolution_status: str = ""
+    resolution_confidence: float = 0.0
+    ref_text_uk: str = ""
+
+
+class LegalDocVersionResult(BaseModel):
+    """Version lineage row for a legal document."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    doc_id: str
+    doc_family_id: str = ""
+    version_id: str = ""
+    doc_reestr_code: str = ""
+    doc_name: str = ""
+    doc_type: str = ""
+    doc_status: str = ""
+    doc_date_acc: str = ""
+    version_rank: int = 0
+    previous_version_id: str = ""
+    next_version_id: str = ""
+    is_latest: bool = False
+
+
+class LegalSourceAnchor(BaseModel):
+    """Source anchor with full text and inherited structural hints."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    doc_id: str
+    version_id: str = ""
+    anchor: str
+    citation_label: str = ""
+    provision_text: str = ""
+    struct_kind: str = ""
+    section_role: str = ""
+    legal_unit_subtype: str = ""
+    route_class: str = ""
+    appendix_id: str = ""
+    table_id: str = ""
+    context_prefix: list[str] = Field(default_factory=list)
+
+
+class LegalSourceBundle(BaseModel):
+    """Grouped source bundle for verification passes."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    bundle_id: str
+    doc_id: str
+    version_id: str = ""
+    doc_name: str = ""
+    doc_reestr_code: str = ""
+    source_family: str = ""
+    primary_anchors: list[LegalSourceAnchor] = Field(default_factory=list)
+    appendix_context: list[str] = Field(default_factory=list)
+    reference_neighborhood: list[LegalReferenceEdgeResult] = Field(default_factory=list)
+    version_chain: list[LegalDocVersionResult] = Field(default_factory=list)
+    candidate_fact_ids: list[str] = Field(default_factory=list)
+    candidate_provision_ids: list[str] = Field(default_factory=list)
+    notes: list[str] = Field(default_factory=list)

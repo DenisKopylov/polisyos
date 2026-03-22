@@ -17,6 +17,10 @@ from polisyos.core.contracts.lex import (
     LegalReportRef,
 )
 from polisyos.core.contracts.scientist import GovernanceReportRef
+from polisyos.core.contracts.scientist import (
+    SourceVerificationReportRef,
+    VerifiedPolicyReportRef,
+)
 from polisyos.core.governance.passes.base import PassContext
 from polisyos.core.governance.profiles import ValidationProfile
 from polisyos.ir.analytics.normative_arbitration import (
@@ -53,6 +57,8 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     REPORT_CHANGE_PROPOSAL_REF,
     REPORT_GOVERNANCE_REPORT_REF,
     REPORT_LEGAL_REPORT_REF,
+    ARTIFACT_SOURCE_VERIFICATION_REPORT_REF,
+    ARTIFACT_VERIFIED_POLICY_REPORT_REF,
 )
 
 _METADATA = ComponentMetadata(
@@ -81,6 +87,8 @@ _SPEC = NodeSpec(
         "params.human_review_request_ref",
         "reports_index.legal_report_ref",
         "reports_index.change_proposal_ref",
+        "artifacts_index.source_verification_report_ref",
+        "artifacts_index.verified_policy_report_ref",
     ],
     state_writes=[
         "params",
@@ -784,9 +792,19 @@ def _build_governance_links(state: ExperimentState) -> GovernanceReportLinks:
         state.reports_index.get(REPORT_CHANGE_PROPOSAL_REF),
         ref_cls=ChangeProposalRef,
     )
+    source_verification_ref = _coerce_report_ref(
+        state.artifacts_index.get(ARTIFACT_SOURCE_VERIFICATION_REPORT_REF),
+        ref_cls=SourceVerificationReportRef,
+    )
+    verified_policy_ref = _coerce_report_ref(
+        state.artifacts_index.get(ARTIFACT_VERIFIED_POLICY_REPORT_REF),
+        ref_cls=VerifiedPolicyReportRef,
+    )
     return GovernanceReportLinks(
         legal_report_ref=legal_ref,
         change_proposal_ref=change_ref,
+        source_verification_report_ref=source_verification_ref,
+        verified_policy_report_ref=verified_policy_ref,
     )
 
 

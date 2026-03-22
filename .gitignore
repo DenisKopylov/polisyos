@@ -9,11 +9,14 @@ policy-engine/data/
 # spec document
 scm-implementation-spec-v3.md
 
-# local PolisyOS artifact hashes
-.polisyos/artifacts/sha256/
+# local PolisyOS runtime state and artifacts
+.polisyos/
 
 # local browser automation artifacts
 .playwright-cli/
+
+# property-based testing artifacts
+.hypothesis/
 
 # exported design renders
 output/playwright/

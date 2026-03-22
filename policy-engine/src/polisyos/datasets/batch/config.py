@@ -7,7 +7,9 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from polisyos.batch_common.paths import ensure_dirs, snapshot_component_dir
+from polisyos.datasets.batch.checkpoints import hash_payload
 from polisyos.datasets.batch.source_registry import SourceRegistry, load_source_registry
+from polisyos.datasets.knowledge.country_codes import COUNTRY_SCOPES, country_scope_members
 
 ALL_STAGES = frozenset(
     {
@@ -43,6 +45,13 @@ class DatasetBatchConfig:
     promoted_sources: tuple[str, ...] = ()
     date_start: str | None = None
     date_end: str | None = None
+    country_scope: str = "core_blocking"
+    active_countries: tuple[str, ...] = ()
+    active_year_window: tuple[int, int] = (2018, 2022)
+    resume_mode: str = "smart"
+    preflight_sources: tuple[str, ...] = ()
+    preflight_only: bool = False
+    defer_unsupported_observation_plans: bool = True
 
     # Embedding
     embedding_model: str = "intfloat/multilingual-e5-large"
@@ -116,6 +125,26 @@ class DatasetBatchConfig:
     def duplicates_report_path(self) -> Path:
         return self.merged_dir / "duplicates_report.csv"
 
+    @property
+    def stage_state_path(self) -> Path:
+        return self.manifests_dir / "stage_state.json"
+
+    @property
+    def harvest_checkpoint_path(self) -> Path:
+        return self.manifests_dir / "harvest_checkpoint.json"
+
+    @property
+    def normalize_checkpoint_path(self) -> Path:
+        return self.manifests_dir / "normalize_checkpoint.json"
+
+    @property
+    def observation_ingest_checkpoint_path(self) -> Path:
+        return self.manifests_dir / "observation_ingest_checkpoint.json"
+
+    @property
+    def telemetry_path(self) -> Path:
+        return self.manifests_dir / "telemetry.json"
+
     def load_registry(self) -> SourceRegistry:
         path = self.registry_path or (Path(__file__).resolve().parent / "source_registry.yaml")
         return load_source_registry(path)
@@ -141,6 +170,40 @@ class DatasetBatchConfig:
         if self.embedding_device and self.embedding_device != "auto":
             return self.embedding_device
         return "mps" if platform.system() == "Darwin" else "cpu"
+
+    @property
+    def resolved_active_countries(self) -> tuple[str, ...]:
+        if self.active_countries:
+            return tuple(sorted({item.strip().upper() for item in self.active_countries if item.strip()}))
+        return tuple(country_scope_members(self.country_scope))
+
+    @property
+    def resolved_year_window(self) -> tuple[int, int]:
+        start_year, end_year = self.active_year_window
+        start_value = int(start_year)
+        end_value = int(end_year)
+        if end_value < start_value:
+            raise ValueError("active_year_window must be ordered as (start_year, end_year)")
+        return start_value, end_value
+
+    @property
+    def run_signature(self) -> str:
+        return hash_payload(
+            {
+                "snapshot_root": str(self.snapshot_root),
+                "stages": sorted(self.stages),
+                "wave": self.wave,
+                "run_profile": self.run_profile,
+                "promoted_sources": sorted(self.promoted_sources),
+                "country_scope": self.country_scope,
+                "active_countries": list(self.resolved_active_countries),
+                "active_year_window": list(self.resolved_year_window),
+                "resume_mode": self.resume_mode,
+                "preflight_sources": sorted(self.preflight_sources),
+                "preflight_only": self.preflight_only,
+                "defer_unsupported_observation_plans": self.defer_unsupported_observation_plans,
+            }
+        )
 
     @property
     def uses_custom_registry(self) -> bool:
@@ -172,6 +235,12 @@ class DatasetBatchConfig:
         if self.run_profile == "rest_backfill":
             if not any(spec.allow_manual_backfill and spec.enabled for spec in registry.sources):
                 raise ValueError("rest_backfill profile requires at least one enabled rolling-window source")
+        if self.run_profile not in {"prod_full", "prod_core_blocking", "rest_backfill", "catalog_refresh", "preflight_core", "observations_backfill"}:
+            raise ValueError(f"Unsupported run_profile: {self.run_profile}")
+        if self.resume_mode not in {"smart", "force", "off"}:
+            raise ValueError("resume_mode must be one of: smart, force, off")
+        if self.country_scope not in COUNTRY_SCOPES and not self.active_countries:
+            raise ValueError(f"Unknown country scope: {self.country_scope}")
         ensure_dirs(
             self.component_dir,
             self.raw_dir,

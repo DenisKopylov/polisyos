@@ -142,6 +142,60 @@ def _symbolic_chain_ncm() -> NCMSpec:
     )
 
 
+def _symbolic_nonlinear_ncm() -> NCMSpec:
+    """Symbolic NCMSpec with a nonlinear polynomial noise equation."""
+    return NCMSpec(
+        endogenous_vars=["Y"],
+        exogenous_specs=[
+            ExogenousSpec(variable="U_Y", associated_endogenous="Y"),
+        ],
+        structural_equations=[
+            StructuralEquation(
+                variable="Y",
+                parents=[],
+                exogenous="U_Y",
+                equation_type="nonlinear",
+                equation_params={
+                    "noise_polynomial_coefficients": [1.0, -3.5, 1.5],
+                    "prior_mean": 2.0,
+                    "prior_std": 1.0,
+                },
+            ),
+        ],
+        scm_spec=None,
+        is_acyclic=True,
+    )
+
+
+def _symbolic_expression_ncm() -> NCMSpec:
+    """Scalar nonlinear NCM requiring numeric inversion rather than polynomial roots."""
+    return NCMSpec(
+        endogenous_vars=["Y"],
+        exogenous_specs=[
+            ExogenousSpec(variable="U_Y", associated_endogenous="Y"),
+        ],
+        structural_equations=[
+            StructuralEquation(
+                variable="Y",
+                parents=[],
+                exogenous="U_Y",
+                equation_type="nonlinear",
+                equation_params={
+                    "noise_expression": "deterministic + u + 0.25 * (u ** 3)",
+                    "prior_mean": 0.0,
+                    "prior_std": 1.0,
+                    "observation_noise_scale": 0.05,
+                    "mcmc_seed": 11,
+                    "mcmc_samples": 500,
+                    "mcmc_burn_in": 150,
+                },
+            ),
+        ],
+        scm_spec=None,
+        is_acyclic=True,
+    )
+
+
 # ── Tests ──────────────────────────────────────────────────────────────────────
 
 
@@ -197,12 +251,158 @@ class TestAbduceExogenous:
         assert "Y" in noise
         assert abs(noise["Y"]) < 1e-9  # U_Y = 6.0 - 3*2.0 = 0.0
 
-    def test_abduce_mcmc_falls_back_to_exact_with_warning(self):
+    def test_linear_abduction_under_mcmc_is_explicitly_exact(self):
         ncm = _chain_ncm()
         evidence = {"X": 1.0, "Y": 2.5}
         warnings: list[str] = []
-        _abduce_exogenous(ncm, evidence, "mcmc", warnings=warnings)
-        assert any("mcmc" in w for w in warnings)
+        result = _abduce_exogenous(ncm, evidence, "mcmc", warnings=warnings)
+        assert math.isfinite(result["Y"])
+        assert any("admits exact inversion" in w for w in warnings)
+
+
+class TestAbduceExogenousNonlinear:
+    def test_abduce_exogenous_nonlinear_multi_root_policy(self):
+        ncm = _symbolic_nonlinear_ncm()
+        evidence = {"Y": 0.0}
+
+        warnings: list[str] = []
+        closest = _abduce_exogenous(
+            ncm,
+            evidence,
+            "exact",
+            warnings=warnings,
+            root_selection_policy="closest_to_prior",
+        )
+        assert abs(closest["Y"] - 3.0) < 1e-9
+        assert any("multiple real roots" in warning for warning in warnings)
+
+        warnings = []
+        smallest = _abduce_exogenous(
+            ncm,
+            evidence,
+            "exact",
+            warnings=warnings,
+            root_selection_policy="smallest_magnitude",
+        )
+        assert abs(smallest["Y"] - 0.5) < 1e-9
+
+        warnings = []
+        averaged = _abduce_exogenous(
+            ncm,
+            evidence,
+            "exact",
+            warnings=warnings,
+            root_selection_policy="all_roots_mcmc",
+        )
+        assert 0.5 < averaged["Y"] < 3.0
+
+    def test_nonlinear_roundtrip_prediction(self):
+        ncm = _symbolic_nonlinear_ncm()
+        order = _ncm_topological_order(ncm)
+        parents_map: dict[str, list[str]] = {}
+        warnings: list[str] = []
+        abducted = _abduce_exogenous(
+            ncm,
+            {"Y": 0.0},
+            "exact",
+            warnings=warnings,
+            root_selection_policy="closest_to_prior",
+        )
+        predicted = _predict_from_abducted(ncm, abducted, {}, order, parents_map, warnings)
+        assert abs(predicted["Y"]) < 1e-9
+
+    def test_exact_nonlinear_numeric_solver_matches_expression_observation(self):
+        ncm = _symbolic_expression_ncm()
+        warnings: list[str] = []
+        abducted = _abduce_exogenous(
+            ncm,
+            {"Y": 0.8},
+            "exact",
+            warnings=warnings,
+            root_selection_policy="closest_to_prior",
+        )
+        order = _ncm_topological_order(ncm)
+        predicted = _predict_from_abducted(ncm, abducted, {}, order, {}, warnings)
+        assert abs(predicted["Y"] - 0.8) < 1e-5
+        assert not any("falling back to exact" in warning for warning in warnings)
+
+    def test_nonlinear_mcmc_and_variational_paths_are_real_approximations(self):
+        ncm = _symbolic_expression_ncm()
+        mcmc_warnings: list[str] = []
+        variational_warnings: list[str] = []
+
+        mcmc_noise = _abduce_exogenous(
+            ncm,
+            {"Y": 0.8},
+            "mcmc",
+            warnings=mcmc_warnings,
+            root_selection_policy="closest_to_prior",
+        )
+        variational_noise = _abduce_exogenous(
+            ncm,
+            {"Y": 0.8},
+            "variational",
+            warnings=variational_warnings,
+            root_selection_policy="closest_to_prior",
+        )
+
+        order = _ncm_topological_order(ncm)
+        mcmc_pred = _predict_from_abducted(ncm, mcmc_noise, {}, order, {}, mcmc_warnings)
+        variational_pred = _predict_from_abducted(ncm, variational_noise, {}, order, {}, variational_warnings)
+
+        assert abs(mcmc_pred["Y"] - 0.8) < 0.1
+        assert abs(variational_pred["Y"] - 0.8) < 0.05
+        assert any("Metropolis-Hastings posterior approximation" in warning for warning in mcmc_warnings)
+        assert any("variational/Laplace approximation" in warning for warning in variational_warnings)
+        assert not any("falling back to exact" in warning for warning in mcmc_warnings + variational_warnings)
+
+
+class TestAbduceExogenousMultiNode:
+    def test_multi_node_simultaneous_abduction(self):
+        """Multi-node abduction: recover all exogenous variables simultaneously."""
+        ncm = NCMSpec(
+            endogenous_vars=["X", "M", "Y"],
+            exogenous_specs=[
+                ExogenousSpec(variable="U_X", associated_endogenous="X"),
+                ExogenousSpec(variable="U_M", associated_endogenous="M"),
+                ExogenousSpec(variable="U_Y", associated_endogenous="Y"),
+            ],
+            structural_equations=[
+                StructuralEquation(
+                    variable="X", parents=[], exogenous="U_X",
+                    equation_type="linear",
+                    equation_params={"intercept": 1.0, "coefficients": {}},
+                ),
+                StructuralEquation(
+                    variable="M", parents=["X"], exogenous="U_M",
+                    equation_type="linear",
+                    equation_params={"intercept": 0.0, "coefficients": {"X": 2.0}},
+                ),
+                StructuralEquation(
+                    variable="Y", parents=["X", "M"], exogenous="U_Y",
+                    equation_type="linear",
+                    equation_params={"intercept": -1.0, "coefficients": {"X": 1.0, "M": 0.5}},
+                ),
+            ],
+            scm_spec=None,
+            is_acyclic=True,
+        )
+        # X=3 → U_X=3-1=2, M=7 → U_M=7-2*3=1, Y=5 → U_Y=5-(-1+3+0.5*7)=5-5.5=-0.5
+        evidence = {"X": 3.0, "M": 7.0, "Y": 5.0}
+        warnings: list[str] = []
+        noise = _abduce_exogenous(ncm, evidence, "exact", warnings=warnings)
+        assert abs(noise["X"] - 2.0) < 1e-9
+        assert abs(noise["M"] - 1.0) < 1e-9
+        assert abs(noise["Y"] - (-0.5)) < 1e-9
+
+        # Roundtrip: predict from abducted noise with no interventions should
+        # recover evidence.
+        order = _ncm_topological_order(ncm)
+        parents_map = {eq.variable: eq.parents for eq in ncm.structural_equations}
+        predicted = _predict_from_abducted(ncm, noise, {}, order, parents_map, warnings)
+        assert abs(predicted["X"] - 3.0) < 1e-9
+        assert abs(predicted["M"] - 7.0) < 1e-9
+        assert abs(predicted["Y"] - 5.0) < 1e-9
 
 
 class TestPredictFromAbducted:

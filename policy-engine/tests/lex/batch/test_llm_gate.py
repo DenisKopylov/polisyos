@@ -1,10 +1,51 @@
 from __future__ import annotations
 
+import re
+
+from polisyos.lex.batch.jurisdictions.protocol import NormativeSignalPatterns, StructurePatterns
 from polisyos.lex.batch.llm_gate import (
     GateRuntime,
     build_gate_features,
     decide_route,
 )
+
+
+class _EnglishPlugin:
+    @property
+    def jurisdiction_code(self) -> str:
+        return "EN"
+
+    @property
+    def language_codes(self) -> list[str]:
+        return ["en"]
+
+    def structure_patterns(self) -> StructurePatterns:
+        return StructurePatterns(
+            article_re=re.compile(r"^Article\s+\d+", re.IGNORECASE),
+            part_re=None,
+            point_res=(),
+            subpoint_re=None,
+            paragraph_re=None,
+            section_heading_re=None,
+        )
+
+    def normative_signal_patterns(self) -> NormativeSignalPatterns:
+        return NormativeSignalPatterns(
+            obligation_re=re.compile(r"\bshall\b|\bmust\b", re.IGNORECASE),
+            prohibition_re=re.compile(r"\bshall not\b|\bmust not\b", re.IGNORECASE),
+            permission_re=re.compile(r"\bmay\b", re.IGNORECASE),
+            approval_re=re.compile(r"\bapprove\b|\badopt\b", re.IGNORECASE),
+            amendment_re=re.compile(r"\bamend\b|\breplace\b", re.IGNORECASE),
+            temporal_re=re.compile(r"\benters into force\b|\bwithin \d+ days\b", re.IGNORECASE),
+            reference_re=re.compile(r"\barticle\s+\d+\b|\bregulation\s+\d+\b", re.IGNORECASE),
+            threshold_re=re.compile(r"\b\d+(?:[.,]\d+)?\s*%\b", re.IGNORECASE),
+        )
+
+    def reference_patterns(self) -> tuple[tuple[str, re.Pattern[str], float], ...]:
+        return ()
+
+    def document_type_hierarchy(self) -> dict[str, int]:
+        return {"Act": 1}
 
 
 def test_gate_routes_auto_on_high_deterministic_confidence() -> None:
@@ -25,6 +66,10 @@ def test_gate_routes_auto_on_high_deterministic_confidence() -> None:
         runtime=runtime,
         llm_available=True,
         llm_share=0.0,
+        gap_fill_enabled=False,
+        gap_fill_eligible=False,
+        gap_fill_share=0.0,
+        gap_fill_max_share=0.0,
         deterministic_confidence=0.95,
         auto_conf_threshold=0.85,
         min_score_force_llm=0.75,
@@ -53,6 +98,10 @@ def test_gate_respects_budget_cap() -> None:
         runtime=runtime,
         llm_available=True,
         llm_share=0.5,
+        gap_fill_enabled=False,
+        gap_fill_eligible=False,
+        gap_fill_share=0.0,
+        gap_fill_max_share=0.0,
         deterministic_confidence=0.2,
         auto_conf_threshold=0.85,
         min_score_force_llm=0.75,
@@ -103,6 +152,10 @@ def test_gate_prioritizes_treaty_article_with_legal_signal() -> None:
         runtime=runtime,
         llm_available=True,
         llm_share=0.0,
+        gap_fill_enabled=False,
+        gap_fill_eligible=False,
+        gap_fill_share=0.0,
+        gap_fill_max_share=0.0,
         deterministic_confidence=0.32,
         auto_conf_threshold=0.85,
         min_score_force_llm=0.75,
@@ -135,6 +188,10 @@ def test_gate_prioritizes_approval_appendix_item() -> None:
         runtime=runtime,
         llm_available=True,
         llm_share=0.0,
+        gap_fill_enabled=False,
+        gap_fill_eligible=False,
+        gap_fill_share=0.0,
+        gap_fill_max_share=0.0,
         deterministic_confidence=0.18,
         auto_conf_threshold=0.85,
         min_score_force_llm=0.75,
@@ -167,6 +224,10 @@ def test_gate_keeps_short_appendix_fragment_deferred() -> None:
         runtime=runtime,
         llm_available=True,
         llm_share=0.0,
+        gap_fill_enabled=False,
+        gap_fill_eligible=False,
+        gap_fill_share=0.0,
+        gap_fill_max_share=0.0,
         deterministic_confidence=0.12,
         auto_conf_threshold=0.85,
         min_score_force_llm=0.75,
@@ -199,6 +260,10 @@ def test_gate_allows_small_budget_overflow_for_high_value_legal_span() -> None:
         runtime=runtime,
         llm_available=True,
         llm_share=0.16,
+        gap_fill_enabled=False,
+        gap_fill_eligible=False,
+        gap_fill_share=0.0,
+        gap_fill_max_share=0.0,
         deterministic_confidence=0.18,
         auto_conf_threshold=0.85,
         min_score_force_llm=0.75,
@@ -235,6 +300,10 @@ def test_gate_prioritizes_long_law_article_with_deontic_clause() -> None:
         runtime=runtime,
         llm_available=True,
         llm_share=0.0,
+        gap_fill_enabled=False,
+        gap_fill_eligible=False,
+        gap_fill_share=0.0,
+        gap_fill_max_share=0.0,
         deterministic_confidence=0.28,
         auto_conf_threshold=0.85,
         min_score_force_llm=0.75,
@@ -272,6 +341,10 @@ def test_gate_keeps_deterministic_only_route_out_of_llm() -> None:
         runtime=runtime,
         llm_available=True,
         llm_share=0.0,
+        gap_fill_enabled=False,
+        gap_fill_eligible=False,
+        gap_fill_share=0.0,
+        gap_fill_max_share=0.0,
         deterministic_confidence=0.22,
         auto_conf_threshold=0.85,
         min_score_force_llm=0.75,
@@ -311,6 +384,10 @@ def test_gate_prioritizes_retry_eligible_law_clause() -> None:
         runtime=runtime,
         llm_available=True,
         llm_share=0.0,
+        gap_fill_enabled=False,
+        gap_fill_eligible=False,
+        gap_fill_share=0.0,
+        gap_fill_max_share=0.0,
         deterministic_confidence=0.15,
         auto_conf_threshold=0.85,
         min_score_force_llm=0.75,
@@ -319,3 +396,63 @@ def test_gate_prioritizes_retry_eligible_law_clause() -> None:
         audit_seed="doc:law:retry",
     )
     assert decision.route == "llm"
+
+
+def test_gate_routes_llm_gap_fill_before_auto_for_high_value_tail() -> None:
+    runtime = GateRuntime(
+        threshold=0.55,
+        mode="balanced",
+        max_share=0.35,
+        audit_max_miss_rate_pct=3.0,
+    )
+    features = build_gate_features(
+        text="Орган видає посвідчення. Порядок їх видачі встановлюється Кабінетом Міністрів України.",
+        deterministic_confidence=0.92,
+        reference_count=0,
+        fallback_chunk=False,
+        doc_title="Закон України",
+        citation_label="Стаття 1",
+        struct_kind="article",
+        section_role="normative_unit",
+        doc_type_category="law",
+        legal_unit_subtype="core_normative_clause",
+        route_class="deterministic_then_llm_retry",
+    )
+    decision = decide_route(
+        gate_enabled=True,
+        runtime=runtime,
+        llm_available=True,
+        llm_share=0.0,
+        gap_fill_enabled=True,
+        gap_fill_eligible=True,
+        gap_fill_share=0.0,
+        gap_fill_max_share=0.8,
+        gap_fill_priority=2,
+        deterministic_confidence=0.92,
+        auto_conf_threshold=0.85,
+        min_score_force_llm=0.75,
+        features=features,
+        audit_sample_rate=0.0,
+        audit_seed="doc:gap-fill",
+    )
+    assert decision.route == "llm_gap_fill"
+
+
+def test_build_gate_features_uses_plugin_specific_modality_signals() -> None:
+    features = build_gate_features(
+        text="Article 7. The authority shall not exceed 5% under Regulation 11.",
+        deterministic_confidence=0.2,
+        reference_count=1,
+        fallback_chunk=False,
+        doc_title="Foreign Act",
+        citation_label="Article 7",
+        struct_kind="article",
+        section_role="normative_unit",
+        doc_type_category="law",
+        jurisdiction_plugin=_EnglishPlugin(),
+    )
+
+    assert features.modality_hits > 0
+    assert features.legal_signal_hits > 0
+    assert features.temporal_hits == 0
+    assert features.high_value_legal_span is True

@@ -456,3 +456,97 @@ class TestDesignExternalValidity:
         )
 
         assert "C" in report.recommended_adjustments
+
+
+# ---------------------------------------------------------------------------
+# TestCounterfactualFusion
+# ---------------------------------------------------------------------------
+
+
+class TestCounterfactualFusion:
+    def _make_dataset(
+        self,
+        domain_id: str,
+        dataset_ref: str,
+        selection_bias_vars: tuple[str, ...] = (),
+        available_interventions: tuple[str, ...] = (),
+    ) -> FusionDataset:
+        return FusionDataset(
+            dataset_ref=dataset_ref,
+            domain_id=domain_id,
+            n_obs=200,
+            selection_bias_vars=selection_bias_vars,
+            available_interventions=available_interventions,
+        )
+
+    def test_counterfactual_fusion_identified(self) -> None:
+        from polisyos.foundry.methods.catalog.causal.data_fusion import counterfactual_fusion
+        from polisyos.foundry.methods.catalog.causal.id_engine import CtfQuery
+
+        graph = _dag([], extra_nodes=["X", "Y"])
+        query = CtfQuery(outcome="Y", intervention=(("X", 1.0),), kind="single_world")
+        datasets = [
+            self._make_dataset("d1", "study_obs", selection_bias_vars=("Y",)),
+            self._make_dataset("d2", "study_rct", available_interventions=("X",)),
+        ]
+
+        result = counterfactual_fusion(
+            datasets=datasets,
+            graph=graph,
+            counterfactual_query=query,
+        )
+
+        assert isinstance(result, FusionResult)
+        assert result.is_identified is True
+        assert result.identification_algorithm == "ctf_transport"
+        assert "study_obs" in result.required_datasets
+        assert "study_rct" in result.required_datasets
+        assert "CTF_TRANSPORT_MZ" in result.proof_steps
+
+    def test_counterfactual_fusion_failure_returns_warning(self) -> None:
+        from polisyos.foundry.methods.catalog.causal.data_fusion import counterfactual_fusion
+        from polisyos.foundry.methods.catalog.causal.id_engine import CtfQuery
+
+        graph = _bidir(_dag([("X", "Y")]), "X", "Y")
+        query = CtfQuery(outcome="Y", intervention=(("X", 1.0),), kind="single_world")
+        datasets = [self._make_dataset("d1", "obs", selection_bias_vars=("Y",))]
+
+        result = counterfactual_fusion(
+            datasets=datasets,
+            graph=graph,
+            counterfactual_query=query,
+        )
+
+        assert isinstance(result, FusionResult)
+        assert result.is_identified is False
+        assert result.identification_algorithm == "ctf_transport"
+        assert result.warnings
+
+    def test_engine_ctf_fusion_mode(self) -> None:
+        from polisyos.foundry.methods.catalog.causal.data_fusion import DataFusionEngine
+
+        graph = _dag([], extra_nodes=["X", "Y"])
+        state = {"graph": graph}
+        params = {
+            "mode": "ctf_fusion",
+            "datasets": [
+                {
+                    "dataset_ref": "study_obs",
+                    "domain_id": "d1",
+                    "n_obs": 100,
+                    "selection_bias_vars": ["Y"],
+                    "available_interventions": [],
+                    "quality_score": 1.0,
+                }
+            ],
+            "counterfactual_query": {
+                "outcome": "Y",
+                "intervention": [["X", 1.0]],
+                "kind": "single_world",
+            },
+        }
+
+        result = DataFusionEngine.pure_step(state, params)
+
+        assert "fusion_result" in result
+        assert result["fusion_result"]["identification_algorithm"] == "ctf_transport"

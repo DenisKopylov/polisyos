@@ -70,6 +70,9 @@ def _write_consumer_readiness_manifest(*, output_dir: Path, require_embeddings: 
     subtype_breakdown = quality_metrics.get("legal_unit_subtype_breakdown", {}) if isinstance(quality_metrics.get("legal_unit_subtype_breakdown"), dict) else {}
     top_problem_subtypes = quality_metrics.get("top_problem_subtypes", []) if isinstance(quality_metrics.get("top_problem_subtypes"), list) else []
     top_unresolved_subtype_families = quality_metrics.get("top_unresolved_subtype_families", []) if isinstance(quality_metrics.get("top_unresolved_subtype_families"), list) else []
+    top_gap_fill_subtypes = quality_metrics.get("top_gap_fill_subtypes", []) if isinstance(quality_metrics.get("top_gap_fill_subtypes"), list) else []
+    top_gap_fill_families = quality_metrics.get("top_gap_fill_families", []) if isinstance(quality_metrics.get("top_gap_fill_families"), list) else []
+    top_timeout_gap_fill_families = quality_metrics.get("top_timeout_gap_fill_families", []) if isinstance(quality_metrics.get("top_timeout_gap_fill_families"), list) else []
     top_problem_doc_groups = smoke_payload.get("top_problem_doc_groups", []) if isinstance(smoke_payload.get("top_problem_doc_groups"), list) else []
     top_problem_docs = smoke_payload.get("top_problem_docs", []) if isinstance(smoke_payload.get("top_problem_docs"), list) else []
     family_failures = [
@@ -109,11 +112,24 @@ def _write_consumer_readiness_manifest(*, output_dir: Path, require_embeddings: 
                     "subtype_breakdown": subtype_breakdown,
                     "top_problem_subtypes": top_problem_subtypes,
                     "top_unresolved_subtype_families": top_unresolved_subtype_families,
+                    "top_gap_fill_subtypes": top_gap_fill_subtypes,
+                    "top_gap_fill_families": top_gap_fill_families,
+                    "top_timeout_gap_fill_families": top_timeout_gap_fill_families,
                     "top_problem_doc_groups": top_problem_doc_groups,
                     "top_problem_docs": top_problem_docs[:10],
                     "quality_gate_failed_checks": quality_metrics.get("quality_gate_failed_checks", []),
                     "quality_gate_warning_failed_checks": quality_metrics.get("quality_gate_warning_failed_checks", []),
                     "quality_gate_skipped_checks": quality_metrics.get("quality_gate_skipped_checks", []),
+                    "llm_gap_fill_metrics": {
+                        "llm_gap_fill_sent_total": quality_metrics.get("llm_gap_fill_sent_total", 0),
+                        "llm_gap_fill_added_statements_total": quality_metrics.get("llm_gap_fill_added_statements_total", 0),
+                        "baseline_vs_gap_fill_added_statements_total": quality_metrics.get("baseline_vs_gap_fill_added_statements_total", 0),
+                        "llm_gap_fill_timeout_fallback_total": quality_metrics.get("llm_gap_fill_timeout_fallback_total", 0),
+                        "llm_gap_fill_empty_responses_total": quality_metrics.get("llm_gap_fill_empty_responses_total", 0),
+                        "llm_gap_fill_gain_rate_pct": quality_metrics.get("llm_gap_fill_gain_rate_pct", 0.0),
+                        "audit_miss_rate_pct_before_gap_fill_baseline": quality_metrics.get("audit_miss_rate_pct_before_gap_fill_baseline", 0.0),
+                        "audit_miss_rate_pct_after_gap_fill": quality_metrics.get("audit_miss_rate_pct_after_gap_fill", 0.0),
+                    },
                 },
                 "benchmark_summary": {
                     "passed": bool(benchmark_readiness.get("passed", False)),

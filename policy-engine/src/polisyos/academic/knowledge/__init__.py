@@ -1,5 +1,9 @@
 """Academic SKG query/search API."""
 
+from polisyos.academic.knowledge.canonical_resolver import (
+    CanonicalVariableResolver,
+    ResolutionResult,
+)
 from polisyos.academic.knowledge.parameter_selector import ParameterSelector
 from polisyos.academic.knowledge.search import ScholarKnowledgeGraph
 from polisyos.academic.knowledge.skg_query import (
@@ -14,6 +18,8 @@ from polisyos.academic.knowledge.variable_canonizer import VariableCanonizer
 
 __all__ = [
     "ScholarKnowledgeGraph",
+    "CanonicalVariableResolver",
+    "ResolutionResult",
     "ParameterSelector",
     "SKGQuery",
     "ParameterCandidate",

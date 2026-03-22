@@ -11,6 +11,8 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from polisyos.ir.analytics.negative_certificate import FallbackResult
+
 
 def _fingerprint(data: Any) -> str:
     """Return a 16-char SHA-256 hex fingerprint of JSON-serializable data."""
@@ -205,6 +207,9 @@ class EvidenceBundle(BaseModel):
     quality_report: dict[str, Any] | None = None
     """Serialised CausalQualityReport.  Reconstruct with
     CausalQualityReport.model_validate(bundle.quality_report)."""
+
+    fallback_result: FallbackResult | None = None
+    """Typed fallback chain artifact for negative-identification runs."""
 
     def to_summary(self) -> str:
         """Return a concise human-readable summary of this bundle."""

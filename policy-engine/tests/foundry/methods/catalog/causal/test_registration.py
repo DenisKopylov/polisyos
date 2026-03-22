@@ -1,6 +1,10 @@
 from __future__ import annotations
 
+import builtins
+import sys
+
 from polisyos.foundry.methods.causal import ensure_causal_methods_registered
+from polisyos.foundry.methods.catalog.causal._registry_boot import register_causal_methods
 from polisyos.foundry.methods.registry import MethodRegistry
 
 
@@ -26,7 +30,7 @@ def test_register_causal_methods_queryable():
     prior_names = {sig.name for sig in registry.query(namespace="causal.prior")}
     transport_names = {sig.name for sig in registry.query(namespace="causal.transport")}
     assert did_names.issuperset({"standard", "staggered", "callaway_santanna", "sun_abraham", "dechaisemartin", "borusyak_jaravel_spiess"})
-    assert hte_names.issubset({"causal_forest", "double_ml", "meta_learner", "dr_learner", "r_learner"})
+    assert hte_names.issubset({"causal_forest", "causal_bcf", "forest_dr", "double_ml", "meta_learner", "dr_learner", "r_learner"})
     assert targeting_names.issubset({"policy_tree"})
     assert "dowhy_refute" in refutation_names
     assert "parallel_trends_check" in diagnostics_names
@@ -61,3 +65,23 @@ def test_register_causal_methods_queryable():
 
     advanced_names = {sig.name for sig in registry.query(namespace="causal.advanced")}
     assert advanced_names.issuperset({"regression_kink", "bunching", "marginal_treatment_effect", "shift_share_iv"})
+
+
+def test_register_causal_methods_keeps_g_computation_when_sklearn_missing(monkeypatch):
+    real_import = builtins.__import__
+
+    def guarded_import(name, globals=None, locals=None, fromlist=(), level=0):
+        if name == "sklearn" or name.startswith("sklearn."):
+            raise ModuleNotFoundError("No module named 'sklearn'")
+        return real_import(name, globals, locals, fromlist, level)
+
+    monkeypatch.setattr(builtins, "__import__", guarded_import)
+    for module_name in (
+        "polisyos.foundry.methods.catalog.causal._sklearn_compat",
+        "polisyos.foundry.methods.catalog.causal.g_computation",
+        "polisyos.foundry.methods.catalog.causal.g_estimation",
+    ):
+        sys.modules.pop(module_name, None)
+
+    names = {method.signature.name for method in register_causal_methods()}
+    assert {"parametric_g_formula", "ice_g_formula", "ltmle"} <= names

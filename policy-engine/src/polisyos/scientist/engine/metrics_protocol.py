@@ -1,0 +1,53 @@
+"""Engine metrics protocol — abstraction for node/workflow telemetry.
+
+Defines :class:`EngineMetricsCollector` (a ``runtime_checkable`` protocol) and
+a no-op implementation for cases where metrics collection is disabled.
+"""
+from __future__ import annotations
+
+from typing import Protocol, runtime_checkable
+
+
+@runtime_checkable
+class EngineMetricsCollector(Protocol):
+    """Interface for recording Scientist engine execution metrics."""
+
+    def record_node_started(
+        self, *, alias: str, node_id: str, workflow_id: str,
+    ) -> None: ...  # pragma: no cover
+
+    def record_node_completed(
+        self,
+        *,
+        alias: str,
+        node_id: str,
+        workflow_id: str,
+        status: str,
+        duration_ms: int,
+        cache_hit: bool,
+        retry_count: int,
+    ) -> None: ...  # pragma: no cover
+
+    def record_tier_completed(
+        self, *, tier_index: int, tier_size: int, duration_ms: int, workflow_id: str,
+    ) -> None: ...  # pragma: no cover
+
+    def record_workflow_completed(
+        self, *, workflow_id: str, status: str, duration_ms: int, node_count: int,
+    ) -> None: ...  # pragma: no cover
+
+
+class NoopEngineMetrics:
+    """No-op implementation for cases when metrics are disabled."""
+
+    def record_node_started(self, **kw: object) -> None:
+        pass
+
+    def record_node_completed(self, **kw: object) -> None:
+        pass
+
+    def record_tier_completed(self, **kw: object) -> None:
+        pass
+
+    def record_workflow_completed(self, **kw: object) -> None:
+        pass

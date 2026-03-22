@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from pathlib import Path
 
 import duckdb
 
@@ -8,6 +9,24 @@ from polisyos.datasets.batch.benchmark import BenchmarkSuite, SearchBenchmarkCas
 from polisyos.datasets.batch.config import DatasetBatchConfig
 from polisyos.datasets.batch.graph_builder import build_graph
 from polisyos.datasets.knowledge.types import DatasetRecord, DistributionRecord
+
+
+def _write_test_registry(path: Path, entries: list[dict[str, object]]) -> None:
+    lines = ["version: 1", "sources:"]
+    for entry in entries:
+        lines.extend(
+            [
+                f"  - name: {entry['name']}",
+                f"    family: {entry['family']}",
+                f"    wave: {entry.get('wave', 'A')}",
+                f"    endpoint: {entry.get('endpoint', 'https://example.test/' + str(entry['name']))}",
+                f"    enabled: {str(entry.get('enabled', True)).lower()}",
+                f"    execution_tier: {entry.get('execution_tier', 'fetchable')}",
+                f"    run_lane: {entry.get('run_lane', 'empirical')}",
+                f"    publish_blocking: {str(entry.get('publish_blocking', True)).lower()}",
+            ]
+        )
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
 def _build_benchmark_fixture(config: DatasetBatchConfig) -> None:
@@ -143,12 +162,14 @@ def test_run_benchmark_writes_report_and_metrics(tmp_path) -> None:
     assert outcome.metrics["benchmark_retrieval_ready_pct"] == 100.0
     assert outcome.metrics["benchmark_transport_ready_pct"] == 100.0
     assert outcome.metrics["benchmark_foundry_fitness_pct"] == 100.0
+    assert "benchmark_source_preflight_ready_pct" in outcome.metrics
 
     with open(outcome.report_path, "r", encoding="utf-8") as fh:
         payload = json.load(fh)
 
     assert payload["kind"] == "datasets_benchmark"
     assert len(payload["search"]["cases"]) == 2
+    assert "source_preflight" in payload
 
 
 def test_run_benchmark_accepts_alias_metrics_for_retrieval_transport_and_foundry(tmp_path) -> None:
@@ -251,6 +272,127 @@ def test_run_benchmark_accepts_alias_metrics_for_retrieval_transport_and_foundry
     assert outcome.metrics["benchmark_retrieval_ready_pct"] == 100.0
     assert outcome.metrics["benchmark_transport_ready_pct"] == 100.0
     assert outcome.metrics["benchmark_foundry_fitness_pct"] == 100.0
+
+
+def test_foundry_benchmark_prefers_execution_grade_alias_binding_over_catalog_exact(tmp_path) -> None:
+    config = DatasetBatchConfig(snapshot_root=tmp_path / "snap")
+    build_graph(
+        records=iter(
+            [
+                DatasetRecord(
+                    id="ds-catalog-health",
+                    title="Health glossary broad catalog record",
+                    description="Catalog-level health reference entry",
+                    source="data_gov_ua_broad",
+                    source_portal="data_gov_ua_broad",
+                    dataset_id="ua-health-catalog",
+                    source_dataset_id="ua-health-catalog",
+                    execution_tier="catalog",
+                    polisyos_metrics=["health_outcomes"],
+                    preferred_distribution_id="dist-catalog-health",
+                    distributions=[
+                        DistributionRecord(
+                            id="dist-catalog-health",
+                            connector_type="ckan.resource",
+                            source_locator="ua-health-catalog/resource-1",
+                            profile_id="data_gov_ua_ckan",
+                            parser_supported=True,
+                            machine_readable=True,
+                            quality_score=0.5,
+                        )
+                    ],
+                ),
+                DatasetRecord(
+                    id="ds-life",
+                    title="Life expectancy by country",
+                    description="Healthy life expectancy indicator",
+                    source="who",
+                    source_portal="who",
+                    dataset_id="WHOSIS_000001",
+                    source_dataset_id="WHOSIS_000001",
+                    execution_tier="transport_ready",
+                    update_frequency="annual",
+                    polisyos_metrics=["life_expectancy"],
+                    variables=["country_code", "year", "value"],
+                    preferred_distribution_id="dist-life",
+                    distributions=[
+                        DistributionRecord(
+                            id="dist-life",
+                            connector_type="who.indicators",
+                            source_locator="WHOSIS_000001",
+                            profile_id="who_gho",
+                            parser_supported=True,
+                            machine_readable=True,
+                            quality_score=0.9,
+                        )
+                    ],
+                ),
+            ]
+        ),
+        db_path=config.db_path,
+    )
+
+    con = duckdb.connect(str(config.db_path))
+    try:
+        con.execute(
+            "INSERT INTO ds_registry_datasets VALUES (?, ?, ?, ?, ?, ?, ?)",
+            [
+                "ds-life",
+                "who",
+                "Life expectancy by country",
+                json.dumps({"countries": ["UA"], "time_range": "2020-2020"}),
+                json.dumps({"access_type": "open"}),
+                "annual",
+                "2026-01-01",
+            ],
+        )
+        con.execute(
+            "INSERT INTO ds_variable_alignments VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            [
+                "ds-life",
+                "value",
+                "life_expectancy",
+                "exact",
+                0.95,
+                "seed",
+                False,
+                0.0,
+            ],
+        )
+        con.execute(
+            "INSERT INTO ds_observations VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            [
+                "obs-life",
+                "ds-life",
+                "value",
+                "life_expectancy",
+                "UA",
+                2020,
+                None,
+                None,
+                72.1,
+                "{}",
+            ],
+        )
+    finally:
+        con.close()
+
+    suite = BenchmarkSuite(
+        search_cases=(),
+        retrieval_metrics=(),
+        transport_variables=(),
+        foundry_metrics=("health_outcomes",),
+    )
+
+    outcome = run_benchmark(config, suite=suite)
+
+    with open(outcome.report_path, "r", encoding="utf-8") as fh:
+        payload = json.load(fh)
+
+    result = payload["foundry"]["metrics"][0]
+    assert result["dataset_id"] == "ds-life"
+    assert result["execution_tier"] == "transport_ready"
+    assert result["fit"] is True
 
 
 def test_run_benchmark_adds_romania_search_cases_when_source_present(tmp_path) -> None:
@@ -363,3 +505,122 @@ def test_run_benchmark_adds_poland_and_moldova_cases_when_sources_present(tmp_pa
     case_ids = {case["case_id"] for case in payload["suite"]["search_cases"]}
     assert "poland_budget" in case_ids
     assert "moldova_budget" in case_ids
+
+
+def test_source_preflight_requires_positive_empirical_rows_for_transport_source(tmp_path) -> None:
+    registry_path = tmp_path / "registry.yaml"
+    _write_test_registry(
+        registry_path,
+        [
+            {
+                "name": "worldbank",
+                "family": "worldbank",
+                "execution_tier": "transport_ready",
+            }
+        ],
+    )
+    config = DatasetBatchConfig(snapshot_root=tmp_path / "snap", registry_path=registry_path)
+    _build_benchmark_fixture(config)
+
+    raw_dir = config.raw_dir / "worldbank" / "20260218T000000Z"
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    payload = raw_dir / "payload.jsonl"
+    payload.write_text('{"id":"NY.GDP.PCAP.CD"}\n', encoding="utf-8")
+    with open(raw_dir / "manifest.json", "w", encoding="utf-8") as fh:
+        json.dump({"count": 1, "payload": str(payload)}, fh)
+    with open(config.manifests_dir / "observation_source_summary.json", "w", encoding="utf-8") as fh:
+        json.dump(
+            {
+                "worldbank": {
+                    "complete": 1,
+                    "complete_with_rows": 0,
+                    "complete_empty": 1,
+                    "failed": 0,
+                    "deferred": 0,
+                    "rows": 0,
+                }
+            },
+            fh,
+            ensure_ascii=False,
+            indent=2,
+        )
+
+    outcome = run_benchmark(
+        config,
+        suite=BenchmarkSuite(search_cases=(), retrieval_metrics=(), transport_variables=(), foundry_metrics=()),
+    )
+
+    with open(outcome.report_path, "r", encoding="utf-8") as fh:
+        payload = json.load(fh)
+    case = payload["source_preflight"]["sources"][0]
+
+    assert case["status"] == "complete"
+    assert case["empirical_status"] == "complete_empty"
+    assert case["ready"] is False
+
+
+def test_source_preflight_counts_exec_graph_artifacts_without_registry_rows(tmp_path) -> None:
+    registry_path = tmp_path / "registry.yaml"
+    _write_test_registry(
+        registry_path,
+        [
+            {
+                "name": "data_gov_ua_exec",
+                "family": "ckan",
+                "execution_tier": "fetchable",
+            }
+        ],
+    )
+    config = DatasetBatchConfig(snapshot_root=tmp_path / "snap", registry_path=registry_path)
+    build_graph(
+        records=iter(
+            [
+                DatasetRecord(
+                    id="ds-ua-exec",
+                    title="UA execution dataset",
+                    description="Fetchable curated execution slice",
+                    source="data_gov_ua_exec",
+                    source_portal="data_gov_ua_exec",
+                    dataset_id="ua-exec-1",
+                    source_dataset_id="ua-exec-1",
+                    execution_tier="fetchable",
+                    polisyos_metrics=["gdp_per_capita"],
+                    preferred_distribution_id="dist-ua-exec",
+                    distributions=[
+                        DistributionRecord(
+                            id="dist-ua-exec",
+                            connector_type="ckan.resource",
+                            source_locator="ua-exec-1/resource-1",
+                            profile_id="data_gov_ua_ckan",
+                            parser_supported=True,
+                            machine_readable=True,
+                            quality_score=0.9,
+                        )
+                    ],
+                )
+            ]
+        ),
+        db_path=config.db_path,
+    )
+
+    raw_dir = config.raw_dir / "data_gov_ua_exec" / "20260218T000000Z"
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    payload = raw_dir / "payload.jsonl"
+    payload.write_text('{"id":"ua-exec-1"}\n', encoding="utf-8")
+    with open(raw_dir / "manifest.json", "w", encoding="utf-8") as fh:
+        json.dump({"count": 1, "payload": str(payload)}, fh)
+    with open(config.manifests_dir / "observation_source_summary.json", "w", encoding="utf-8") as fh:
+        json.dump({}, fh)
+
+    outcome = run_benchmark(
+        config,
+        suite=BenchmarkSuite(search_cases=(), retrieval_metrics=(), transport_variables=(), foundry_metrics=()),
+    )
+
+    with open(outcome.report_path, "r", encoding="utf-8") as fh:
+        payload = json.load(fh)
+    case = payload["source_preflight"]["sources"][0]
+
+    assert case["catalog_count"] >= 1
+    assert case["binding_count"] >= 1
+    assert case["ready"] is True

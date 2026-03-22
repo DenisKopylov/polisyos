@@ -31,6 +31,9 @@ import itertools
 import logging
 from typing import Any, ClassVar, Mapping, Sequence
 
+import numpy as np
+from pydantic import BaseModel, ConfigDict
+
 from polisyos.core.observability.determinism import DeterminismTier
 from polisyos.foundry.methods.base import (
     ComplexityClass,
@@ -52,6 +55,35 @@ from polisyos.ir.analytics.experiment_plan import (
 )
 
 _logger = logging.getLogger(__name__)
+
+
+class AdaptiveBayesianDesignResult(BaseModel):
+    """Result of Thompson-sampling adaptive design."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    arm_labels: tuple[str, ...]
+    allocation_counts: tuple[int, ...]
+    allocation_proportions: tuple[float, ...]
+    posterior_alpha: tuple[float, ...]
+    posterior_beta: tuple[float, ...]
+    best_arm_index: int
+    total_reward: int
+    expected_regret: float
+    selection_history: tuple[int, ...] = ()
+
+
+class DOptimalDesignResult(BaseModel):
+    """Result of D-optimal covariate selection."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    selected_covariates: tuple[str, ...]
+    allocation_proportions: tuple[float, ...]
+    candidate_covariates: tuple[str, ...]
+    information_matrix: tuple[tuple[float, ...], ...]
+    log_determinant: float
+    variance_proxy: float
 
 
 # ---------------------------------------------------------------------------
@@ -482,6 +514,189 @@ def adaptive_experiment(
     return plans
 
 
+def adaptive_bayesian_experiment(
+    arm_success_probabilities: Sequence[float],
+    *,
+    n_rounds: int,
+    prior_alpha: float = 1.0,
+    prior_beta: float = 1.0,
+    seed: int = 0,
+    arm_labels: Sequence[str] | None = None,
+) -> AdaptiveBayesianDesignResult:
+    """Thompson-sampling adaptive allocation for Bernoulli outcomes."""
+    probs = np.asarray(list(arm_success_probabilities), dtype=float)
+    if probs.ndim != 1 or probs.size < 2:
+        raise ValueError("adaptive_bayesian_experiment requires at least two arms")
+    if np.any((probs < 0.0) | (probs > 1.0)):
+        raise ValueError("arm_success_probabilities must be in [0, 1]")
+
+    labels = tuple(arm_labels) if arm_labels is not None else tuple(
+        f"arm_{i}" for i in range(probs.size)
+    )
+    if len(labels) != probs.size:
+        raise ValueError("arm_labels must match arm_success_probabilities length")
+
+    rng = np.random.default_rng(seed)
+    alpha = np.full(probs.size, float(prior_alpha), dtype=float)
+    beta = np.full(probs.size, float(prior_beta), dtype=float)
+    counts = np.zeros(probs.size, dtype=int)
+    rewards = np.zeros(probs.size, dtype=int)
+    history: list[int] = []
+
+    best_arm = int(np.argmax(probs))
+    best_arm_prob = float(np.max(probs))
+    regret = 0.0
+
+    for _ in range(int(n_rounds)):
+        draws = rng.beta(alpha, beta)
+        arm = int(np.argmax(draws))
+        reward = int(rng.random() < probs[arm])
+        counts[arm] += 1
+        rewards[arm] += reward
+        alpha[arm] += reward
+        beta[arm] += 1 - reward
+        regret += best_arm_prob - float(probs[arm])
+        history.append(arm)
+
+    total = int(np.sum(counts))
+    proportions = counts / max(total, 1)
+    return AdaptiveBayesianDesignResult(
+        arm_labels=labels,
+        allocation_counts=tuple(int(v) for v in counts),
+        allocation_proportions=tuple(float(v) for v in proportions),
+        posterior_alpha=tuple(float(v) for v in alpha),
+        posterior_beta=tuple(float(v) for v in beta),
+        best_arm_index=best_arm,
+        total_reward=int(np.sum(rewards)),
+        expected_regret=float(regret),
+        selection_history=tuple(history),
+    )
+
+
+def _d_optimal_feature_vector(
+    graph: CausalGraphModel,
+    node: str,
+    treatment: str,
+    outcome: str,
+) -> np.ndarray:
+    from polisyos.foundry.methods.catalog.causal.admg_ops import (
+        ancestors,
+        descendants,
+        extract_directed_edges,
+    )
+
+    directed = extract_directed_edges(graph)
+    parents_t = 1.0 if (node, treatment) in directed else 0.0
+    parents_y = 1.0 if (node, outcome) in directed else 0.0
+    anc_t = 1.0 if node in ancestors(graph, frozenset({treatment}), include_self=True) else 0.0
+    anc_y = 1.0 if node in ancestors(graph, frozenset({outcome}), include_self=True) else 0.0
+    desc_t = 1.0 if node in descendants(graph, frozenset({treatment}), include_self=True) else 0.0
+    degree = float(
+        sum(1 for src, dst in directed if src == node or dst == node)
+    )
+    confounder = 1.0 if parents_t and parents_y else 0.0
+    return np.array(
+        [
+            1.0,
+            parents_t,
+            parents_y,
+            anc_t,
+            anc_y,
+            degree,
+            confounder,
+            1.0 - desc_t,
+        ],
+        dtype=float,
+    )
+
+
+def d_optimal_design(
+    graph: CausalGraphModel,
+    treatment: str,
+    outcome: str,
+    n_covariates: int,
+) -> DOptimalDesignResult:
+    """Select the D-optimal covariate subset using graph-derived features."""
+    from scipy.optimize import minimize
+    from polisyos.foundry.methods.catalog.causal.admg_ops import descendants
+
+    if treatment not in graph.nodes:
+        raise ValueError(f"Treatment variable {treatment!r} not in graph nodes.")
+    if outcome not in graph.nodes:
+        raise ValueError(f"Outcome variable {outcome!r} not in graph nodes.")
+
+    excluded = descendants(graph, frozenset({treatment}), include_self=True) | frozenset(
+        {treatment, outcome}
+    )
+    candidates = [node for node in graph.nodes if node not in excluded]
+    if len(candidates) < int(n_covariates):
+        raise ValueError(
+            f"Need at least {n_covariates} candidate covariates, got {len(candidates)}"
+        )
+
+    features = np.vstack(
+        [_d_optimal_feature_vector(graph, node, treatment, outcome) for node in candidates]
+    )
+    ridge = 1e-6
+    n_candidates = features.shape[0]
+    x0 = np.full(n_candidates, 1.0 / n_candidates, dtype=float)
+
+    def objective(weights: np.ndarray) -> float:
+        info = features.T @ (weights[:, None] * features) + ridge * np.eye(features.shape[1])
+        sign, logdet = np.linalg.slogdet(info)
+        if sign <= 0:
+            return 1e6
+        return float(-logdet)
+
+    constraints = [{"type": "eq", "fun": lambda w: float(np.sum(w) - 1.0)}]
+    bounds = [(0.0, 1.0)] * n_candidates
+    result = minimize(
+        objective,
+        x0=x0,
+        method="SLSQP",
+        bounds=bounds,
+        constraints=constraints,
+        options={"maxiter": 500, "ftol": 1e-9},
+    )
+
+    weights = np.asarray(result.x if result.success else x0, dtype=float)
+    weights = np.clip(weights, 0.0, 1.0)
+    total = float(np.sum(weights))
+    if total <= 0:
+        weights = x0
+        total = float(np.sum(weights))
+    weights = weights / total
+
+    structural_score = features.sum(axis=1)
+    ranking = sorted(
+        range(n_candidates),
+        key=lambda idx: (weights[idx], structural_score[idx], candidates[idx]),
+        reverse=True,
+    )
+    selected_idx = ranking[: int(n_covariates)]
+    selected_covariates = tuple(candidates[idx] for idx in selected_idx)
+    selected_weights = weights[selected_idx]
+    selected_weights = selected_weights / max(float(np.sum(selected_weights)), 1e-12)
+    selected_features = features[selected_idx]
+    info = (
+        selected_features.T @ (selected_weights[:, None] * selected_features)
+        + ridge * np.eye(selected_features.shape[1])
+    )
+    sign, logdet = np.linalg.slogdet(info)
+    if sign <= 0:
+        logdet = float("-inf")
+    variance_proxy = float(np.trace(np.linalg.inv(info)))
+
+    return DOptimalDesignResult(
+        selected_covariates=selected_covariates,
+        allocation_proportions=tuple(float(v) for v in selected_weights),
+        candidate_covariates=tuple(candidates),
+        information_matrix=tuple(tuple(float(v) for v in row) for row in info),
+        log_determinant=float(logdet),
+        variance_proxy=variance_proxy,
+    )
+
+
 # ---------------------------------------------------------------------------
 # Foundry wrapper
 # ---------------------------------------------------------------------------
@@ -516,6 +731,14 @@ class CausalExperimentDesigner:
         Bayesian sequential budget-allocation plan.
         Requires: ``graph``, ``treatment``, ``outcome``,
         ``budget`` (float), ``n_stages`` (int, default 3).
+
+    ``"adaptive_bayesian"``
+        Thompson-sampling allocation across arms with Bernoulli rewards.
+        Requires: ``arm_success_probabilities`` and ``n_rounds``.
+
+    ``"d_optimal"``
+        Graph-derived D-optimal covariate selection.
+        Requires: ``graph``, ``treatment``, ``outcome``, ``n_covariates``.
     """
 
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STRICT_CPU
@@ -540,6 +763,13 @@ class CausalExperimentDesigner:
             ParameterSpec(name="n_stages", default=3),
             ParameterSpec(name="prior_effect_size", default=0.0),
             ParameterSpec(name="prior_variance", default=1.0),
+            ParameterSpec(name="arm_success_probabilities", default=[0.2, 0.8]),
+            ParameterSpec(name="arm_labels", default=[]),
+            ParameterSpec(name="n_rounds", default=100),
+            ParameterSpec(name="prior_alpha", default=1.0),
+            ParameterSpec(name="prior_beta", default=1.0),
+            ParameterSpec(name="seed", default=0),
+            ParameterSpec(name="n_covariates", default=2),
         ),
         fidelity=FidelityLevel.HIGH,
         complexity=ComplexityClass.O_N2,
@@ -553,11 +783,12 @@ class CausalExperimentDesigner:
         description=(
             "Optimal experimental design for causal inference. "
             "Computes O-set (Henckel et al. 2022), optimal IVs, "
-            "minimum-cost identification plan, and adaptive experiment stages."
+            "minimum-cost identification plan, adaptive experiment stages, "
+            "adaptive Bayesian Thompson sampling, and D-optimal covariate selection."
         ),
         tags=frozenset({
             "causal", "design", "o_set", "adjustment", "iv",
-            "minimum_cost", "adaptive", "henckel_maathuis",
+            "minimum_cost", "adaptive", "thompson", "d_optimal", "henckel_maathuis",
         }),
         citations=(
             "Henckel, L., Perković, E. & Maathuis, M.H. (2022). "
@@ -570,9 +801,11 @@ class CausalExperimentDesigner:
             "o_set": "O(X,Y,G) = Pa_G(An(Y)_{G_{V\\De(X)}}) \\ (De(X) ∪ {X})",
             "inv_var_eff": "Var(ATE_{O}) ≤ Var(ATE_Z) for any valid Z",
             "min_cost": "argmin_S cost(S) s.t. Z-ID(X,Y,G,S) = IDENTIFIED",
+            "thompson": "a_t = argmax_k θ_k, θ_k ~ Beta(α_k, β_k)",
+            "d_optimal": "max_W log det(X^T diag(W) X)",
         },
         determinism_tier=DeterminismTier.STRICT_CPU,
-        required_deps=(),
+        required_deps=("numpy", "scipy"),
         when_to_use=(
             "Designing a new study: choose adjustment variables for minimum variance; "
             "selecting instruments; planning sequential experiments with budget constraints."
@@ -626,10 +859,31 @@ class CausalExperimentDesigner:
             )
             return {"design_result": [p.model_dump() for p in plans]}
 
+        if mode == "adaptive_bayesian":
+            arm_probs = params.get("arm_success_probabilities", [0.2, 0.8])
+            result = adaptive_bayesian_experiment(
+                arm_probs,
+                n_rounds=int(params.get("n_rounds", 100)),
+                prior_alpha=float(params.get("prior_alpha", 1.0)),
+                prior_beta=float(params.get("prior_beta", 1.0)),
+                seed=int(params.get("seed", 0)),
+                arm_labels=tuple(params.get("arm_labels", ())) or None,
+            )
+            return {"design_result": result.model_dump()}
+
+        if mode == "d_optimal":
+            result = d_optimal_design(
+                graph=graph,
+                treatment=treatment,
+                outcome=outcome,
+                n_covariates=int(params.get("n_covariates", 2)),
+            )
+            return {"design_result": result.model_dump()}
+
         raise ValueError(
             f"Unknown CausalExperimentDesigner mode {mode!r}. "
             "Expected one of: 'optimal_adjustment', 'optimal_iv', "
-            "'minimum_cost', 'adaptive'."
+            "'minimum_cost', 'adaptive', 'adaptive_bayesian', 'd_optimal'."
         )
 
 
@@ -639,4 +893,8 @@ __all__ = [
     "optimal_instrument_selection",
     "minimum_cost_identification",
     "adaptive_experiment",
+    "adaptive_bayesian_experiment",
+    "d_optimal_design",
+    "AdaptiveBayesianDesignResult",
+    "DOptimalDesignResult",
 ]

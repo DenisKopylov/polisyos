@@ -34,6 +34,21 @@ def _parse_sources(raw: str | None) -> tuple[str, ...]:
     return tuple(sorted({value.strip() for value in raw.split(",") if value.strip()}))
 
 
+def _parse_countries(raw: str | None) -> tuple[str, ...]:
+    if not raw:
+        return ()
+    return tuple(sorted({value.strip().upper() for value in raw.split(",") if value.strip()}))
+
+
+def _parse_year_window(raw: str | None) -> tuple[int, int]:
+    if not raw:
+        return (2018, 2022)
+    parts = [part.strip() for part in str(raw).split(":") if part.strip()]
+    if len(parts) != 2:
+        raise ValueError("--year-window must be START:END")
+    return (int(parts[0]), int(parts[1]))
+
+
 def _build_config(args: argparse.Namespace, *, stages: frozenset[str]) -> DatasetBatchConfig:
     return DatasetBatchConfig(
         snapshot_root=Path(args.snapshot_root),
@@ -47,6 +62,13 @@ def _build_config(args: argparse.Namespace, *, stages: frozenset[str]) -> Datase
         promoted_sources=_parse_sources(getattr(args, "promoted_sources", None)),
         date_start=getattr(args, "date_start", None),
         date_end=getattr(args, "date_end", None),
+        country_scope=getattr(args, "country_scope", "regional_extended"),
+        active_countries=_parse_countries(getattr(args, "active_countries", None)),
+        active_year_window=_parse_year_window(getattr(args, "year_window", None)),
+        resume_mode=getattr(args, "resume_mode", "smart"),
+        preflight_sources=_parse_sources(getattr(args, "preflight_sources", None)),
+        preflight_only=bool(getattr(args, "preflight_only", False)),
+        defer_unsupported_observation_plans=not bool(getattr(args, "fail_on_unsupported_observation_plans", False)),
         fail_fast_qc=bool(getattr(args, "fail_fast", True)),
     )
 
@@ -163,11 +185,22 @@ def _build_parser() -> argparse.ArgumentParser:
     common.add_argument(
         "--run-profile",
         default="prod_full",
-        choices=["prod_full", "prod_core_blocking", "rest_backfill", "catalog_refresh"],
+        choices=["prod_full", "prod_core_blocking", "rest_backfill", "catalog_refresh", "preflight_core", "observations_backfill"],
         help="Source selection profile for manual snapshot runs",
     )
     common.add_argument("--date-start", default=None, help="Optional manual history override start date")
     common.add_argument("--date-end", default=None, help="Optional manual history override end date")
+    common.add_argument("--country-scope", default="regional_extended")
+    common.add_argument("--active-countries", default=None, help="Comma-separated ISO2 country codes override")
+    common.add_argument("--year-window", default=None, help="Observation/support year window as START:END")
+    common.add_argument("--resume-mode", default="smart", choices=["smart", "force", "off"])
+    common.add_argument("--preflight-sources", default=None, help="Comma-separated source override for preflight")
+    common.add_argument("--preflight-only", action="store_true")
+    common.add_argument(
+        "--fail-on-unsupported-observation-plans",
+        action="store_true",
+        help="Fail ingest instead of deferring unsupported observation shards",
+    )
 
     harvest = sub.add_parser("harvest", parents=[common], help="Harvest raw metadata by wave")
     harvest.add_argument("--wave", choices=["A", "B", "C", "D"], required=False)

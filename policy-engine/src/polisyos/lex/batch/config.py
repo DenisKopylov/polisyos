@@ -44,6 +44,41 @@ def _default_gonka_api_keys() -> list[str]:
     return keys
 
 
+def _default_llm_gap_fill_tail_markers() -> list[str]:
+    return [
+        "може",
+        "не може",
+        "має право",
+        "крім",
+        "за винятком",
+        "у цьому разі",
+        "при цьому",
+        "розмір",
+        "мінімальні ставки",
+        "максимальні ставки",
+        "на умовах та протягом строку дії",
+        "порядок",
+        "встановлюється",
+    ]
+
+
+def _default_llm_gap_fill_target_families() -> list[str]:
+    return ["appendix_heavy", "treaty_protocol", "law"]
+
+
+def _default_llm_gap_fill_target_subtypes() -> list[str]:
+    return [
+        "application_requirement",
+        "core_normative_clause",
+        "temporal_clause",
+        "exception_clause",
+        "sanction_clause",
+        "approval_bundle",
+        "tariff_threshold_row",
+        "amendment_bundle",
+    ]
+
+
 @dataclass
 class BatchConfig:
     """Immutable configuration for a single Lex pipeline run."""
@@ -127,6 +162,18 @@ class BatchConfig:
         return self.output_dir / "manifests" / "llm_gate.json"
 
     @property
+    def pattern_feedback_queue_path(self) -> Path:
+        return self.output_dir / "manifests" / "pattern_feedback_queue.jsonl"
+
+    @property
+    def telemetry_path(self) -> Path:
+        return self.output_dir / "manifests" / "telemetry.json"
+
+    @property
+    def pattern_candidates_dir(self) -> Path:
+        return self.output_dir / "patterns" / "ua" / "candidates"
+
+    @property
     def openai_batches_dir(self) -> Path:
         # Kept for backward compatibility with older tests/helpers.
         return self.state_dir / "openai_batches"
@@ -175,11 +222,16 @@ class BatchConfig:
     spo_request_batch_size: int = 5
     spo_request_batch_chars: int | None = 6000
     spo_group_timeout_seconds: float | None = None
+    spo_timeout_retry_enabled: bool = True
+    spo_timeout_retry_batch_size: int = 1
+    spo_timeout_retry_chars: int | None = 3000
     spo_max_provisions_per_doc: int | None = None
     spo_extract_mode: str = "light"
     spo_skip_trivial: bool = True
     spo_verify_mode: str = "code"
     graph_insert_batch: int = 10_000
+    jurisdiction: str = "UA"
+    pattern_feedback_enabled: bool = True
 
     # --- LLM gating ---
     llm_gate_enabled: bool = True
@@ -191,6 +243,14 @@ class BatchConfig:
     llm_gate_audit_max_miss_rate_pct: float = 3.0
     llm_gate_auto_conf_threshold: float = 0.85
     llm_gate_circuit_breaker_enabled: bool = True
+    llm_gap_fill_mode: str = "off"  # off|narrow|wide
+    llm_gap_fill_enabled: bool = False
+    llm_gap_fill_max_share: float = 0.80
+    llm_gap_fill_force_empty_spo: bool = True
+    llm_gap_fill_force_single_fact_tails: bool = True
+    llm_gap_fill_tail_markers: list[str] = field(default_factory=_default_llm_gap_fill_tail_markers)
+    llm_gap_fill_target_families: list[str] = field(default_factory=_default_llm_gap_fill_target_families)
+    llm_gap_fill_target_subtypes: list[str] = field(default_factory=_default_llm_gap_fill_target_subtypes)
 
     # --- LLM response cache ---
     spo_cache_enabled: bool = True
@@ -215,7 +275,12 @@ class BatchConfig:
     quality_max_missing_quote_rate_pct: float = 5.0
     quality_max_duplicate_anchor_rate_pct: float = 0.1
     quality_max_audit_miss_rate_pct: float = 5.0
+    quality_max_hallucination_rate_pct: float = 3.0
+    quality_max_unresolved_contradictions: int = 10
+    quality_max_low_confidence_normative_pct: float = 15.0
     quality_min_reference_resolution_coverage_pct: float = 80.0
+    quality_min_amendment_extraction_coverage_pct: float = 60.0
+    quality_min_amendment_target_resolution_pct: float = 70.0
     quality_min_llm_saved_pct: float = 50.0
     quality_min_audit_samples_for_rate: int = 10
     quality_min_provision_docs_for_doc_rate: int = 25
@@ -245,16 +310,24 @@ class BatchConfig:
             raise ValueError("spo_request_batch_chars must be >= 500 when set")
         if self.spo_group_timeout_seconds is not None and self.spo_group_timeout_seconds <= 0:
             raise ValueError("spo_group_timeout_seconds must be > 0 when set")
+        if self.spo_timeout_retry_batch_size < 1:
+            raise ValueError("spo_timeout_retry_batch_size must be >= 1")
+        if self.spo_timeout_retry_chars is not None and self.spo_timeout_retry_chars < 500:
+            raise ValueError("spo_timeout_retry_chars must be >= 500 when set")
         if self.spo_extract_mode not in {"light", "full"}:
             raise ValueError("spo_extract_mode must be one of: light, full")
         if self.spo_verify_mode not in {"llm", "code"}:
             raise ValueError("spo_verify_mode must be one of: llm, code")
         if self.llm_gate_mode not in {"off", "balanced", "aggressive"}:
             raise ValueError("llm_gate_mode must be one of: off, balanced, aggressive")
+        if self.llm_gap_fill_mode not in {"off", "narrow", "wide"}:
+            raise ValueError("llm_gap_fill_mode must be one of: off, narrow, wide")
         if not (0.0 <= self.llm_gate_threshold <= 1.0):
             raise ValueError("llm_gate_threshold must be in range [0, 1]")
         if not (0.0 <= self.llm_gate_max_share <= 1.0):
             raise ValueError("llm_gate_max_share must be in range [0, 1]")
+        if not (0.0 <= self.llm_gap_fill_max_share <= 1.0):
+            raise ValueError("llm_gap_fill_max_share must be in range [0, 1]")
         if not (0.0 <= self.llm_gate_min_score_force_llm <= 1.0):
             raise ValueError("llm_gate_min_score_force_llm must be in range [0, 1]")
         if not (0.0 <= self.llm_gate_audit_sample_rate <= 1.0):
@@ -263,6 +336,10 @@ class BatchConfig:
             raise ValueError("llm_gate_audit_max_miss_rate_pct must be >= 0")
         if self.quality_min_reference_resolution_coverage_pct < 0.0 or self.quality_min_reference_resolution_coverage_pct > 100.0:
             raise ValueError("quality_min_reference_resolution_coverage_pct must be in range [0, 100]")
+        if self.quality_min_amendment_extraction_coverage_pct < 0.0 or self.quality_min_amendment_extraction_coverage_pct > 100.0:
+            raise ValueError("quality_min_amendment_extraction_coverage_pct must be in range [0, 100]")
+        if self.quality_min_amendment_target_resolution_pct < 0.0 or self.quality_min_amendment_target_resolution_pct > 100.0:
+            raise ValueError("quality_min_amendment_target_resolution_pct must be in range [0, 100]")
         if self.quality_min_reference_rows_for_rate < 0:
             raise ValueError("quality_min_reference_rows_for_rate must be >= 0")
         if not (0.0 <= self.llm_gate_auto_conf_threshold <= 1.0):
@@ -292,6 +369,8 @@ class BatchConfig:
         self.domains_dir.mkdir(parents=True, exist_ok=True)
         self.claim_exports_dir.mkdir(parents=True, exist_ok=True)
         self.openai_batches_dir.mkdir(parents=True, exist_ok=True)
+        self.pattern_candidates_dir.mkdir(parents=True, exist_ok=True)
+        self.telemetry_path.parent.mkdir(parents=True, exist_ok=True)
 
         if not self.gonka_api_keys:
             self.gonka_api_keys = _default_gonka_api_keys()
@@ -303,6 +382,22 @@ class BatchConfig:
             else:
                 self.gonka_api_keys = [explicit_key, *[k for k in self.gonka_api_keys if k != explicit_key]]
         self.gonka_api_key = explicit_key or (self.gonka_api_keys[0] if self.gonka_api_keys else "")
+        self.llm_gap_fill_enabled = bool(self.llm_gap_fill_enabled and self.llm_gap_fill_mode != "off")
+        self.llm_gap_fill_tail_markers = [
+            marker.strip()
+            for marker in self.llm_gap_fill_tail_markers
+            if str(marker).strip()
+        ]
+        self.llm_gap_fill_target_families = [
+            family.strip()
+            for family in self.llm_gap_fill_target_families
+            if str(family).strip()
+        ]
+        self.llm_gap_fill_target_subtypes = [
+            subtype.strip()
+            for subtype in self.llm_gap_fill_target_subtypes
+            if str(subtype).strip()
+        ]
 
         if self.export_claims_to_cas:
             if self.cas_root is None:

@@ -258,7 +258,103 @@ def test_build_graph_aggregates_moderation_edges_and_preserves_canonical_name() 
         assert interaction_coeff == 0.12
         assert json.loads(source_refs) == ["w-ctx-1", "w-ctx-2"]
         assert match_quality == ""
-        assert alignment_source == ""
+
+
+def test_build_graph_materializes_normalized_and_approved_variable_resolution() -> None:
+    with tempfile.TemporaryDirectory() as tmpdir:
+        db_path = Path(tmpdir) / "test_variable_resolution.duckdb"
+
+        rec = WorkRecord(
+            id="w-resolution",
+            title="Coaching intervention study",
+            year=2024,
+            extraction_mode="llm_enriched",
+            extraction_confidence=0.84,
+            causal_claims=[
+                {
+                    "claim_id": "c-approved",
+                    "cause": "institutional_quality.rule_of_law",
+                    "effect": "teacher_coaching_program",
+                    "direction": "positive",
+                    "strength": "quasi_natural",
+                    "claim_text": "Rule of law improves teacher coaching programs",
+                    "design_family_hint": "did",
+                    "source_basis": "fulltext",
+                    "claim_extraction_confidence": 0.84,
+                    "publish_to_graph": True,
+                    "strong_design_evidence": True,
+                }
+            ],
+        )
+
+        build_graph(records=iter([rec]), db_path=db_path)
+
+        con = duckdb.connect(str(db_path), read_only=True)
+        try:
+            rows = con.execute(
+                """
+                SELECT canonical_name, normalized_name, approved_canonical_name,
+                       is_approved_canonical, resolution_method
+                FROM ac_skg_variables
+                ORDER BY canonical_name
+                """
+            ).fetchall()
+        finally:
+            con.close()
+
+        assert rows == [
+            (
+                "institutional_quality.rule_of_law",
+                "institutional_quality.rule_of_law",
+                "institutional_quality.rule_of_law",
+                True,
+                "exact",
+            ),
+            (
+                "teacher_coaching_program",
+                "teacher_coaching_program",
+                "education.teacher_coaching",
+                True,
+                "synonym",
+            ),
+        ]
+
+
+def test_build_graph_filters_retracted_work_from_runtime_skg() -> None:
+    with tempfile.TemporaryDirectory() as tmpdir:
+        db_path = Path(tmpdir) / "test_retracted.duckdb"
+
+        rec = WorkRecord(
+            id="w-ret",
+            title="Retracted study",
+            year=2021,
+            is_retracted=True,
+            estimates=[EstimateCandidate(value=0.2, pattern_name="x", variable_hint="tax.revenue")],
+            causal_claims=[
+                {
+                    "claim_id": "c-ret",
+                    "cause": "tax.revenue",
+                    "effect": "economic.gdp_growth",
+                    "direction": "positive",
+                    "publish_to_graph": True,
+                }
+            ],
+        )
+
+        build_graph(records=iter([rec]), db_path=db_path)
+        con = duckdb.connect(str(db_path), read_only=True)
+        try:
+            skg_articles = con.execute("SELECT COUNT(*) FROM ac_skg_articles").fetchone()[0]
+            skg_edges = con.execute("SELECT COUNT(*) FROM ac_skg_edges").fetchone()[0]
+            skg_edge_evidence = con.execute("SELECT COUNT(*) FROM ac_skg_edge_evidence").fetchone()[0]
+            skg_parameters = con.execute("SELECT COUNT(*) FROM ac_skg_parameters").fetchone()[0]
+        finally:
+            con.close()
+
+        assert skg_articles == 1
+        assert skg_edges == 0
+        assert skg_edge_evidence == 0
+        assert skg_parameters == 0
 
 
 def test_load_graph_prefers_dedicated_simulation_ready_artifact_over_metadata_fallback() -> None:

@@ -71,10 +71,39 @@ def test_publish_manifest_contains_pipeline_name(tmp_path) -> None:
 
     config.db_path.parent.mkdir(parents=True, exist_ok=True)
     config.db_path.write_text("db", encoding="utf-8")
-    config.qc_report_path.write_text("{}", encoding="utf-8")
+    config.qc_report_path.write_text(
+        json.dumps({"metrics": {"runtime_demanded_canonical_resolution_rate_pct": 95.0}}, ensure_ascii=False),
+        encoding="utf-8",
+    )
+    config.benchmark_report_path.write_text(
+        json.dumps(
+            {
+                "metrics": {
+                    "parameter_supported_ratio": 0.7,
+                    "causal_supported_ratio": 0.6,
+                    "causal_supported_plus_mixed_ratio": 0.9,
+                    "scholar_query_coverage_ratio": 0.8,
+                    "non_default_transport_evidence_ratio": 0.7,
+                    "family_edge_coverage_ratio": 0.5,
+                }
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+    config.runtime_demand_backlog_path.write_text(
+        json.dumps({"need_id": "scenario:param:x"}, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+    )
+    (config.manifests_dir / "resolve_extract.json").write_text(
+        json.dumps({"metrics": {"records": 10, "provider_timeout_count": 1, "watchdog_timeout_count": 0}}, ensure_ascii=False),
+        encoding="utf-8",
+    )
 
     manifest_path = run_publish(config)
     payload = json.loads(manifest_path.read_text(encoding="utf-8"))
 
     assert payload["pipeline"] == "academic"
+    assert config.readiness_report_path.exists()
+    assert payload["extra"]["readiness_report"] == str(config.readiness_report_path)
     assert manifest_path.exists()

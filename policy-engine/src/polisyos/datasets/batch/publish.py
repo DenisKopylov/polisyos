@@ -9,7 +9,7 @@ from pathlib import Path
 import duckdb
 
 from polisyos.batch_common.manifest import write_publish_manifest, write_stage_manifest
-from polisyos.datasets.batch.benchmark import READINESS_THRESHOLDS
+from polisyos.datasets.batch.benchmark import readiness_thresholds_for_profile
 from polisyos.datasets.batch.config import DatasetBatchConfig
 
 
@@ -39,18 +39,39 @@ def _write_consumer_readiness_manifest(config: DatasetBatchConfig) -> tuple[Path
     benchmark_payload = _load_json(config.benchmark_report_path)
     benchmark_metrics = benchmark_payload.get("metrics") if isinstance(benchmark_payload.get("metrics"), dict) else {}
     qc_passed = bool(qc_payload.get("passed")) if qc_payload else False
+    thresholds = readiness_thresholds_for_profile(config.run_profile)
+    source_preflight_payload = benchmark_payload.get("source_preflight") if isinstance(benchmark_payload.get("source_preflight"), dict) else {}
+    source_preflight_cases = source_preflight_payload.get("sources") if isinstance(source_preflight_payload.get("sources"), list) else []
+    blocking_specs = [
+        spec
+        for spec in config.load_registry().sources
+        if spec.enabled and spec.publish_blocking and spec.run_lane == "empirical"
+    ]
+    blocking_source_statuses = {
+        str(case.get("source") or ""): str(case.get("status") or "")
+        for case in source_preflight_cases
+        if isinstance(case, dict) and str(case.get("source") or "").strip()
+    }
+    missing_blocking_statuses = sorted(spec.name for spec in blocking_specs if spec.name not in blocking_source_statuses)
+    if missing_blocking_statuses:
+        raise RuntimeError(
+            "Dataset publish blocked: missing blocking source statuses "
+            f"({', '.join(missing_blocking_statuses)})"
+        )
 
     readiness = {
         "qc_ready": qc_passed,
         "benchmark_ready": bool(benchmark_metrics),
         "search_ready": float(benchmark_metrics.get("benchmark_search_top5_relevance_pct", 0.0) or 0.0)
-        >= READINESS_THRESHOLDS["benchmark_search_top5_relevance_pct"],
+        >= thresholds["benchmark_search_top5_relevance_pct"],
         "fetchability_ready": float(benchmark_metrics.get("benchmark_retrieval_ready_pct", 0.0) or 0.0)
-        >= READINESS_THRESHOLDS["benchmark_retrieval_ready_pct"],
+        >= thresholds["benchmark_retrieval_ready_pct"],
         "transportability_ready": float(benchmark_metrics.get("benchmark_transport_ready_pct", 0.0) or 0.0)
-        >= READINESS_THRESHOLDS["benchmark_transport_ready_pct"],
+        >= thresholds["benchmark_transport_ready_pct"],
         "foundry_ready": float(benchmark_metrics.get("benchmark_foundry_fitness_pct", 0.0) or 0.0)
-        >= READINESS_THRESHOLDS["benchmark_foundry_fitness_pct"],
+        >= thresholds["benchmark_foundry_fitness_pct"],
+        "source_preflight_ready": float(benchmark_metrics.get("benchmark_source_preflight_ready_pct", 0.0) or 0.0)
+        >= thresholds["benchmark_source_preflight_ready_pct"],
     }
     readiness["consumer_ready"] = all(readiness.values())
 
@@ -70,15 +91,16 @@ def _write_consumer_readiness_manifest(config: DatasetBatchConfig) -> tuple[Path
         "kind": "consumer_readiness",
         "snapshot_root": str(config.snapshot_root),
         "component_dir": str(config.component_dir),
-        "thresholds": READINESS_THRESHOLDS,
+        "thresholds": thresholds,
         "readiness": readiness,
         "benchmark_metrics": {
             key: benchmark_metrics.get(key, 0.0)
-            for key in READINESS_THRESHOLDS
+            for key in thresholds
         },
         "table_counts": table_counts,
         "promoted_sources": list(config.promoted_sources),
         "run_profile": config.run_profile,
+        "blocking_source_statuses": blocking_source_statuses,
     }
     config.consumer_readiness_path.parent.mkdir(parents=True, exist_ok=True)
     with open(config.consumer_readiness_path, "w", encoding="utf-8") as fh:
@@ -110,6 +132,7 @@ def run_publish(config: DatasetBatchConfig) -> Path:
     source_publish_blocking: dict[str, bool] = {}
     rest_rows_by_source: dict[str, int] = {}
     rest_bytes_by_source: dict[str, int] = {}
+    blocking_source_statuses: dict[str, str] = {}
     if config.qc_report_path.exists():
         with open(config.qc_report_path, "r", encoding="utf-8") as fh:
             qc_payload = json.load(fh)
@@ -147,6 +170,14 @@ def run_publish(config: DatasetBatchConfig) -> Path:
                 str(key): int(value)
                 for key, value in (metrics.get("rest_bytes_by_source") or {}).items()
             }
+    benchmark_payload = _load_json(config.benchmark_report_path)
+    source_preflight_payload = benchmark_payload.get("source_preflight") if isinstance(benchmark_payload.get("source_preflight"), dict) else {}
+    source_cases = source_preflight_payload.get("sources") if isinstance(source_preflight_payload.get("sources"), list) else []
+    blocking_source_statuses = {
+        str(case.get("source") or ""): str(case.get("status") or "")
+        for case in source_cases
+        if isinstance(case, dict) and str(case.get("source") or "").strip()
+    }
 
     manifest_path = write_publish_manifest(
         manifest_path=config.publish_manifest_path,
@@ -162,6 +193,7 @@ def run_publish(config: DatasetBatchConfig) -> Path:
             "source_publish_blocking": source_publish_blocking,
             "rest_rows_by_source": rest_rows_by_source,
             "rest_bytes_by_source": rest_bytes_by_source,
+            "blocking_source_statuses": blocking_source_statuses,
             "consumer_readiness_manifest": str(consumer_readiness_path),
             "benchmark_report": str(config.benchmark_report_path) if config.benchmark_report_path.exists() else "",
             "consumer_ready": readiness["consumer_ready"],

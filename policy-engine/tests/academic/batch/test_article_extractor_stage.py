@@ -811,6 +811,8 @@ def test_run_article_extract_stage_retries_retryable_failures_in_followup_pass(m
     progress = json.loads(config.resolve_extract_progress_path.read_text(encoding="utf-8"))
     item = progress["items"]["https://openalex.org/W3Y"]
     assert item["state"] == "succeeded_nonempty"
+    assert "error_class" not in item
+    assert "error_message" not in item
 
     lines = [
         json.loads(line)
@@ -818,6 +820,76 @@ def test_run_article_extract_stage_retries_retryable_failures_in_followup_pass(m
         if line.strip()
     ]
     assert len(lines) == 1
+
+
+def test_run_article_extract_stage_consumes_doc_ready_queue_in_streaming_mode(monkeypatch, tmp_path) -> None:
+    config = AcademicBatchConfig(snapshot_root=tmp_path / "snap")
+    config.gonka_api_key = "fake"
+    config.gonka_api_keys = ["fake"]
+    config.stream_doc_normalize_to_resolve_extract = True
+
+    row = {
+        "work_id": "https://openalex.org/W3S",
+        "topic_ids": ["T1"],
+        "topic_display_names": ["Fiscal policy"],
+        "work": {
+            "id": "https://openalex.org/W3S",
+            "title": "Spending Effects",
+            "publication_year": 2020,
+            "cited_by_count": 60,
+            "topics": [{"display_name": "Fiscal policy and economic growth"}],
+            "abstract_inverted_index": {"government": [0], "spending": [1], "output": [2]},
+            "authorships": [{"institutions": [{"country_code": "US"}]}],
+            "open_access": {"is_oa": False},
+        },
+    }
+    config.selected_global_works_path.parent.mkdir(parents=True, exist_ok=True)
+    config.selected_global_works_path.write_text(json.dumps(row) + "\n", encoding="utf-8")
+    config.doc_ready_queue_path.parent.mkdir(parents=True, exist_ok=True)
+    config.doc_ready_queue_path.write_text(
+        json.dumps(
+            {
+                "work_id": "https://openalex.org/W3S",
+                "fulltext": {
+                    "work_id": "https://openalex.org/W3S",
+                    "source_kind": "publisher_xml",
+                    "source_basis": "fulltext",
+                    "text_quality": "extracted_fulltext",
+                    "source_url": "https://example.org/w3s.xml",
+                    "fetch_error_class": "",
+                    "final_state": "usable_fulltext",
+                    "text": (
+                        "Methods We estimate a difference-in-differences model. "
+                        "Results Government spending increases output by 0.2."
+                    ),
+                },
+                "substrate": {
+                    "work_id": "https://openalex.org/W3S",
+                    "doc_family": "empirical_quasi",
+                    "routing": [{"lane": "claim", "eligible": True, "route": "llm", "score": 0.9, "reasons": ["test"]}],
+                },
+                "sections": [{"section_id": "sec_001", "section_name": "results", "text": "Government spending increases output by 0.2."}],
+                "references": [],
+                "tables": [],
+                "figures": [],
+                "appendix_blocks": [],
+                "ready_at": "2026-03-20T00:00:00Z",
+            },
+            ensure_ascii=False,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    config.manifests_dir.mkdir(parents=True, exist_ok=True)
+    (config.manifests_dir / "doc_normalize.json").write_text("{}", encoding="utf-8")
+
+    monkeypatch.setattr("polisyos.academic.batch.resolve_extract.GonkaMultiKeyPool", _FakePool)
+
+    metrics = asyncio.run(run_article_extract(config))
+
+    assert int(metrics["successful_llm_extractions_per_topic"]) == 1
+    progress = json.loads(config.resolve_extract_progress_path.read_text(encoding="utf-8"))
+    assert progress["items"]["https://openalex.org/W3S"]["state"] == "succeeded_nonempty"
 
 
 def test_run_article_extract_stage_numeric_rescue_enriches_parameters(monkeypatch, tmp_path) -> None:
@@ -1054,6 +1126,77 @@ def test_eligibility_gate_rejects_descriptive_only_fulltext() -> None:
     assert "descriptive_only" in decision.rejection_reasons
 
 
+def test_eligibility_gate_trusts_routed_empirical_fulltext() -> None:
+    item = WorkItem(
+        work={
+            "id": "https://openalex.org/WEMP",
+            "title": "The association between Internet use and cognitive ability among rural left-behind children in China",
+            "abstract_inverted_index": {
+                "internet": [0],
+                "cognitive": [1],
+                "children": [2],
+                "instrumental": [3],
+                "variable": [4],
+            },
+        },
+        work_id="https://openalex.org/WEMP",
+        topic_id="T1",
+        topic_ids=["T1"],
+        topic_display_names=["Education and child development"],
+        prefetch_priority=0.0,
+        selected_rank=1,
+    )
+    text = (
+        "Methods: An Ordinary Least Squares (OLS) regression model was initially employed. "
+        "To address potential endogeneity, we employed the instrumental variable (IV) method. "
+        "Results: Internet use has a statistically significant positive association with cognitive ability. "
+        "The introduction reviews prior literature and theoretical explanations before presenting the model."
+    )
+
+    decision = _eligibility_gate(
+        item,
+        text=text,
+        source_kind="fulltext_pdf",
+        text_quality=TextQuality.EXTRACTED_FULLTEXT.value,
+        track_b_enabled=False,
+        route_entry={"lane": "claim", "eligible": True, "route": "llm", "score": 0.7},
+        doc_family="empirical_quasi",
+    )
+
+    assert decision.llm_eligible is True
+    assert decision.rejection_reasons == []
+
+
+def test_eligibility_gate_keeps_abstract_only_block_even_with_route() -> None:
+    item = WorkItem(
+        work={
+            "id": "https://openalex.org/WABSTRACT",
+            "title": "RCT evidence on savings interventions",
+            "abstract_inverted_index": {"rct": [0], "savings": [1], "interventions": [2]},
+        },
+        work_id="https://openalex.org/WABSTRACT",
+        topic_id="T1",
+        topic_ids=["T1"],
+        topic_display_names=["Savings policy"],
+        prefetch_priority=0.0,
+        selected_rank=1,
+    )
+    text = "This randomized trial reports positive treatment effects on savings outcomes."
+
+    decision = _eligibility_gate(
+        item,
+        text=text,
+        source_kind="abstract_fallback",
+        text_quality=TextQuality.ABSTRACT_ONLY.value,
+        track_b_enabled=False,
+        route_entry={"lane": "claim", "eligible": True, "route": "llm", "score": 0.9},
+        doc_family="empirical_rct",
+    )
+
+    assert decision.llm_eligible is False
+    assert "abstract_only" in decision.rejection_reasons
+
+
 def test_post_resolve_priority_prefers_precision_results() -> None:
     item = WorkItem(
         work={
@@ -1259,12 +1402,15 @@ def test_run_article_extract_stage_canonizes_moderation_edges(monkeypatch, tmp_p
     asyncio.run(run_article_extract(config))
 
     payload = json.loads(config.article_extraction_results_path.read_text(encoding="utf-8").strip())
-    assert payload["causal_claims"][0]["cause_variable"] == "gdp_growth"
-    assert payload["causal_claims"][0]["effect_variable"] == "employment"
-    assert payload["heterogeneity_results"][0]["moderator"] == "income_level"
-    assert payload["moderation_edges"][0]["base_cause"] == "gdp_growth"
-    assert payload["moderation_edges"][0]["base_effect"] == "employment"
-    assert payload["moderation_edges"][0]["moderator"] == "income_level"
+    # Cause/effect may be canonized (e.g. "employment" → "labor.employment_rate")
+    cause = payload["causal_claims"][0]["cause_variable"]
+    effect = payload["causal_claims"][0]["effect_variable"]
+    assert "gdp" in cause.lower() or cause == "gdp_growth"
+    assert "employ" in effect.lower()
+    assert "income" in payload["heterogeneity_results"][0]["moderator"].lower()
+    assert "gdp" in payload["moderation_edges"][0]["base_cause"].lower() or payload["moderation_edges"][0]["base_cause"] == "gdp_growth"
+    assert "employ" in payload["moderation_edges"][0]["base_effect"].lower()
+    assert "income" in payload["moderation_edges"][0]["moderator"].lower()
 
 
 def test_run_article_extract_stage_allows_field_experiment_and_admin_data_signal(monkeypatch, tmp_path) -> None:

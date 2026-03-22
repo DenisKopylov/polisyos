@@ -12,9 +12,33 @@ CLAIM_ADJUDICATION_SCHEMA_HINT = """
   "support_status": "supported|mixed|counterevidence|insufficient",
   "claim_validity_score": <number 0..1>,
   "adjudication_confidence": <number 0..1>,
-  "publishable_edge": true,
+  "publishable_edge": true|false,
   "adjudication_notes": "short rationale"
 }
+
+Calibration guide for claim_validity_score:
+- 0.85-1.0: Strong identification (RCT/IV/RDD), precise estimate, clear causal language, low risk of bias
+- 0.65-0.85: Good quasi-experimental design (DiD, event study), reasonable identification assumptions
+- 0.45-0.65: Panel FE or careful observational study with some causal ambiguity
+- 0.25-0.45: OLS or cross-sectional with "suggestive" causal language; weak identification
+- 0.00-0.25: Purely correlational, descriptive, or theoretical claims presented as causal
+
+Adjudication examples:
+
+Example 1 — STRONG (publish):
+Claim: "The minimum wage increase reduced teen employment by 1.4 percentage points"
+Design: did, Method span mentions "parallel trends test", Supporting span has "Table 3, column 4"
+Result: {"paper_asserts_causality_score": 0.95, "claim_type": "causal_assertion", "design_family": "did", "causal_credibility": "strong", "risk_of_bias": "low", "support_status": "supported", "claim_validity_score": 0.88, "adjudication_confidence": 0.90, "publishable_edge": true, "adjudication_notes": "DiD with parallel trends verification, precise estimate with SE"}
+
+Example 2 — WEAK (do not publish):
+Claim: "Countries with higher trade openness tend to grow faster"
+Design: ols, Method span: "OLS regression with country fixed effects"
+Result: {"paper_asserts_causality_score": 0.3, "claim_type": "association", "design_family": "ols", "causal_credibility": "weak", "risk_of_bias": "serious", "support_status": "supported", "claim_validity_score": 0.30, "adjudication_confidence": 0.75, "publishable_edge": false, "adjudication_notes": "Associational language only, OLS without causal identification strategy"}
+
+Example 3 — MODERATE (publish with caveats):
+Claim: "The cash transfer program increased school enrollment by 8%"
+Design: rct, source_basis: abstract_only
+Result: {"paper_asserts_causality_score": 0.9, "claim_type": "causal_assertion", "design_family": "rct", "causal_credibility": "moderate", "risk_of_bias": "moderate", "support_status": "supported", "claim_validity_score": 0.72, "adjudication_confidence": 0.65, "publishable_edge": true, "adjudication_notes": "RCT with clear effect but abstract-only limits verification of implementation details"}
 """.strip()
 
 

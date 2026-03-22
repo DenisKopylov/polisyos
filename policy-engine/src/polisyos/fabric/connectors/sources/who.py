@@ -254,17 +254,69 @@ class WHOConnector(HTTPConnectorBase[pd.DataFrame]):
     @staticmethod
     def _to_iso3(value: str) -> str:
         normalized = str(value or "").strip().upper()
-        iso_map = {
-            "UA": "UKR",
-            "UKR": "UKR",
-            "DE": "DEU",
-            "DEU": "DEU",
-            "PL": "POL",
-            "POL": "POL",
-            "US": "USA",
-            "USA": "USA",
-        }
-        return iso_map.get(normalized, normalized)
+        return _ISO2_TO_ISO3.get(normalized, normalized)
+
+
+# Comprehensive ISO-2 → ISO-3 mapping for all country scopes used by the
+# pipeline (core_blocking + regional_extended + common partners).  Entries
+# that are already ISO-3 map to themselves so passthrough is safe.
+_ISO2_TO_ISO3: dict[str, str] = {
+    # core_blocking
+    "UA": "UKR", "UKR": "UKR",
+    "DE": "DEU", "DEU": "DEU",
+    "PL": "POL", "POL": "POL",
+    "RO": "ROU", "ROU": "ROU",
+    "MD": "MDA", "MDA": "MDA",
+    # regional_extended
+    "CZ": "CZE", "CZE": "CZE",
+    "SK": "SVK", "SVK": "SVK",
+    "HU": "HUN", "HUN": "HUN",
+    "LT": "LTU", "LTU": "LTU",
+    "LV": "LVA", "LVA": "LVA",
+    "EE": "EST", "EST": "EST",
+    "GE": "GEO", "GEO": "GEO",
+    "AM": "ARM", "ARM": "ARM",
+    "AZ": "AZE", "AZE": "AZE",
+    "KZ": "KAZ", "KAZ": "KAZ",
+    "UZ": "UZB", "UZB": "UZB",
+    # common partners
+    "US": "USA", "USA": "USA",
+    "GB": "GBR", "GBR": "GBR",
+    "FR": "FRA", "FRA": "FRA",
+    "IT": "ITA", "ITA": "ITA",
+    "ES": "ESP", "ESP": "ESP",
+    "AT": "AUT", "AUT": "AUT",
+    "BE": "BEL", "BEL": "BEL",
+    "NL": "NLD", "NLD": "NLD",
+    "SE": "SWE", "SWE": "SWE",
+    "DK": "DNK", "DNK": "DNK",
+    "FI": "FIN", "FIN": "FIN",
+    "NO": "NOR", "NOR": "NOR",
+    "CH": "CHE", "CHE": "CHE",
+    "PT": "PRT", "PRT": "PRT",
+    "IE": "IRL", "IRL": "IRL",
+    "BG": "BGR", "BGR": "BGR",
+    "HR": "HRV", "HRV": "HRV",
+    "SI": "SVN", "SVN": "SVN",
+    "RS": "SRB", "SRB": "SRB",
+    "BA": "BIH", "BIH": "BIH",
+    "ME": "MNE", "MNE": "MNE",
+    "AL": "ALB", "ALB": "ALB",
+    "MK": "MKD", "MKD": "MKD",
+    "BY": "BLR", "BLR": "BLR",
+    "RU": "RUS", "RUS": "RUS",
+    "TR": "TUR", "TUR": "TUR",
+    "CN": "CHN", "CHN": "CHN",
+    "IN": "IND", "IND": "IND",
+    "JP": "JPN", "JPN": "JPN",
+    "KR": "KOR", "KOR": "KOR",
+    "BR": "BRA", "BRA": "BRA",
+    "MX": "MEX", "MEX": "MEX",
+    "ZA": "ZAF", "ZAF": "ZAF",
+    "AU": "AUS", "AUS": "AUS",
+    "CA": "CAN", "CAN": "CAN",
+    "NZ": "NZL", "NZL": "NZL",
+}
 
 
 __all__ = ["WHOConnector"]

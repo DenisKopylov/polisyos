@@ -12,14 +12,18 @@ def stable_claim_id(
     effect: str,
     claim_text: str = "",
     direction: str = "",
+    supporting_span_ids: tuple[str, ...] | list[str] | None = None,
 ) -> str:
+    span_signature = tuple(sorted({str(item).strip().lower() for item in (supporting_span_ids or []) if str(item).strip()}))
+    legacy_text_alias = str(claim_text).strip().lower()[:64] if not span_signature else ""
     payload = "|".join(
         [
             str(work_id).strip().lower(),
             str(cause).strip().lower(),
             str(effect).strip().lower(),
             str(direction).strip().lower(),
-            str(claim_text).strip().lower(),
+            ",".join(span_signature),
+            legacy_text_alias,
         ]
     )
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()[:24]

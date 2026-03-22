@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from collections import defaultdict
 from enum import Enum
 from pathlib import Path
 from typing import Any
@@ -118,14 +119,34 @@ def aggregate_claim_rows(
     openalex_id = rows[0].openalex_id
     cause = rows[0].cause_variable
     effect = rows[0].effect_variable
-    source_basis = _mode([row.source_basis.value for row in rows], SourceBasis.FULLTEXT.value)
-    claim_type = _mode([row.claim_type.value for row in rows], ClaimType.ASSOCIATION.value)
-    design_family = _mode([row.design_family.value for row in rows], DesignFamily.UNCLEAR.value)
-    credibility = _mode([row.causal_credibility.value for row in rows], CausalCredibility.UNCLEAR.value)
-    bias = _mode([row.risk_of_bias.value for row in rows], RiskOfBias.UNCLEAR.value)
-    support = _mode([row.support_status.value for row in rows], SupportStatus.INSUFFICIENT.value)
-    publishable_votes = sum(1 for row in rows if row.publishable_edge)
-    stability = publishable_votes / total if total else 0.0
+    source_basis, _ = _weighted_mode(
+        [(row.source_basis.value, row.adjudication_confidence) for row in rows],
+        SourceBasis.FULLTEXT.value,
+    )
+    claim_type, claim_type_confidence = _weighted_mode(
+        [(row.claim_type.value, row.adjudication_confidence) for row in rows],
+        ClaimType.ASSOCIATION.value,
+    )
+    design_family, design_family_confidence = _weighted_mode(
+        [(row.design_family.value, row.adjudication_confidence) for row in rows],
+        DesignFamily.UNCLEAR.value,
+    )
+    credibility, _ = _weighted_mode(
+        [(row.causal_credibility.value, row.adjudication_confidence) for row in rows],
+        CausalCredibility.UNCLEAR.value,
+    )
+    bias, _ = _weighted_mode(
+        [(row.risk_of_bias.value, row.adjudication_confidence) for row in rows],
+        RiskOfBias.UNCLEAR.value,
+    )
+    support, _ = _weighted_mode(
+        [(row.support_status.value, row.adjudication_confidence) for row in rows],
+        SupportStatus.INSUFFICIENT.value,
+    )
+    publish_weight = sum(row.adjudication_confidence for row in rows if row.publishable_edge)
+    total_weight = sum(max(0.0001, row.adjudication_confidence) for row in rows)
+    weighted_publish_ratio = publish_weight / total_weight if total_weight else 0.0
+    stability = weighted_publish_ratio if weighted_publish_ratio >= 0.5 else (1.0 - weighted_publish_ratio)
     avg_asserts = sum(row.paper_asserts_causality_score for row in rows) / max(1, total)
     avg_validity = sum(row.claim_validity_score for row in rows) / max(1, total)
     avg_conf = sum(row.adjudication_confidence for row in rows) / max(1, total)
@@ -134,7 +155,7 @@ def aggregate_claim_rows(
         (total + 1) // 2,
     )
     publishable = bool(
-        publishable_votes >= majority_threshold
+        sum(1 for row in rows if row.publishable_edge) >= majority_threshold
         or (
             config.consensus_rule == ClaimConsensusRule.MAJORITY_OR_HIGH_CONFIDENCE
             and avg_validity >= config.high_confidence_validity_threshold
@@ -143,6 +164,10 @@ def aggregate_claim_rows(
             and credibility in {item.value for item in config.publishable_credibility_allowlist}
         )
     )
+    if weighted_publish_ratio >= 0.60:
+        publishable = True
+    elif weighted_publish_ratio <= 0.40:
+        publishable = False
     if source_basis == SourceBasis.ABSTRACT_ONLY.value:
         publishable = False
     return ClaimAdjudicationResult(
@@ -163,7 +188,24 @@ def aggregate_claim_rows(
         adjudication_notes=" | ".join(sorted({row.adjudication_notes for row in rows if row.adjudication_notes}))[:800],
         consensus_passes=total,
         consensus_stability=stability,
+        claim_type_confidence=claim_type_confidence,
+        design_family_confidence=design_family_confidence,
+        direction_confidence=1.0,
     )
+
+
+def _weighted_mode(items: list[tuple[str, float]], fallback: str) -> tuple[str, float]:
+    votes: dict[str, float] = defaultdict(float)
+    total = 0.0
+    for value, weight in items:
+        clean_value = str(value or "").strip() or fallback
+        clean_weight = max(0.0001, float(weight))
+        votes[clean_value] += clean_weight
+        total += clean_weight
+    if not votes:
+        return fallback, 0.0
+    winner, winner_weight = max(votes.items(), key=lambda item: (item[1], item[0]))
+    return winner, (winner_weight / total if total else 0.0)
 
 
 def load_claim_adjudication_config(

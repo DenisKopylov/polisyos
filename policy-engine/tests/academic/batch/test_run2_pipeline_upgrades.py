@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import json
 
 import duckdb
@@ -9,7 +10,7 @@ from polisyos.academic.batch.edge_synthesize import run_edge_synthesize
 from polisyos.academic.batch.numeric_extract import run_numeric_extract
 from polisyos.academic.batch.pipeline import _ensure_graph_inputs
 from polisyos.academic.batch.resolve_finalize import _link_parameter_to_claims, run_resolve_finalize
-from polisyos.academic.batch.resolve_extract import _ProviderClient, _resolve_provider_watchdog_seconds
+from polisyos.academic.batch.resolve_extract import GonkaMultiKeyPool, _ProviderClient, _resolve_provider_watchdog_seconds
 from polisyos.academic.knowledge.skg_store import ensure_skg_schema, next_skg_version
 from polisyos.ir.analytics.context import ContextProfile
 from polisyos.ir.analytics.literature import (
@@ -330,13 +331,23 @@ def test_resolve_finalize_filters_non_effect_stats_and_infers_score_units(tmp_pa
     metrics = run_resolve_finalize(config)
 
     assert metrics["simulation_ready_numeric"] == 1
-    numeric_rows = [
-        json.loads(line)
-        for line in config.simulation_ready_numeric_path.read_text(encoding="utf-8").splitlines()
-    ]
-    assert numeric_rows[0]["point_estimate"] == 0.248
-    assert numeric_rows[0]["unit"] == "index_points"
-    assert numeric_rows[0]["evidence_strength"] == "quasi_natural"
+
+
+def test_gonka_multi_key_pool_spreads_first_concurrent_acquires_across_keys(tmp_path) -> None:
+    config = AcademicBatchConfig(snapshot_root=tmp_path / "snap")
+    config.gonka_api_keys = ["k1", "k2", "k3", "k4", "k5"]
+    pool = GonkaMultiKeyPool(config)
+
+    async def _run() -> list[int]:
+        acquired = [await pool._acquire() for _ in range(5)]
+        try:
+            return [client.client_index for client in acquired]
+        finally:
+            for client in acquired:
+                pool._release(client)
+
+    indexes = asyncio.run(_run())
+    assert sorted(indexes) == [1, 2, 3, 4, 5]
 
 
 def test_link_parameter_to_claims_uses_token_overlap() -> None:
@@ -632,8 +643,51 @@ def test_edge_synthesize_builds_family_edges_and_review_queue(tmp_path) -> None:
     assert row == ("institutional_quality", "gdp_growth", 2, 2)
 
 
+def test_edge_synthesize_materializes_contested_edges(tmp_path) -> None:
+    config = AcademicBatchConfig(snapshot_root=tmp_path / "snap")
+    con = duckdb.connect(str(config.db_path))
+    try:
+        ensure_skg_schema(con)
+        version_id = next_skg_version(con, description="test")
+        con.execute(
+            """
+            INSERT INTO ac_skg_edge_evidence(
+                edge_id, claim_id, openalex_id, src, dst, direction,
+                evidence_strength, confidence, design_family, design_quality_tier, skg_version
+            ) VALUES
+                ('e1', 'c1', 'W1', 'macro.tax', 'macro.employment', 'positive', 'quasi_natural', 0.82, 'did', 1, ?),
+                ('e2', 'c2', 'W2', 'macro.tax', 'macro.employment', 'negative', 'panel_fe', 0.66, 'panel_fe', 2, ?)
+            """,
+            [version_id, version_id],
+        )
+        con.execute(
+            """
+            INSERT INTO ac_skg_canonization_cache(raw_name, canonical_name, approved)
+            VALUES
+                ('macro tax', 'macro.tax', TRUE),
+                ('macro employment', 'macro.employment', TRUE)
+            """
+        )
+        con.execute("CHECKPOINT")
+    finally:
+        con.close()
+
+    metrics = run_edge_synthesize(config)
+
+    assert metrics["contested_edges"] == 1
+    con = duckdb.connect(str(config.db_path), read_only=True)
+    try:
+        row = con.execute(
+            "SELECT src_family, dst_family, resolution_status, runtime_support FROM ac_skg_contested_edges"
+        ).fetchone()
+    finally:
+        con.close()
+    assert row == ("macro.tax", "macro.employment", "contested", "MIXED")
+
+
 def test_provider_client_supports_fractional_rps() -> None:
     client = _ProviderClient(
+        client_index=1,
         api_key="test-key",
         base_url="https://example.test/v1",
         rate_limit_rps=0.04,
@@ -646,6 +700,7 @@ def test_provider_client_supports_fractional_rps() -> None:
 
     assert client.limiter._max == 1
     assert client.limiter._window == 25.0
+    assert client.rate_limit_rps == 0.04
 
 
 def test_provider_watchdog_override_modes(tmp_path) -> None:

@@ -9,7 +9,16 @@ from typing import Any
 _VALID_TIERS = frozenset({"catalog", "fetchable", "transport_ready"})
 _VALID_RUN_LANES = frozenset({"catalog", "empirical", "enrichment"})
 _VALID_HISTORY_POLICIES = frozenset({"full_snapshot", "rolling_window"})
-_VALID_RUN_PROFILES = frozenset({"prod_full", "prod_core_blocking", "rest_backfill", "catalog_refresh"})
+_VALID_RUN_PROFILES = frozenset(
+    {
+        "prod_full",
+        "prod_core_blocking",
+        "rest_backfill",
+        "catalog_refresh",
+        "preflight_core",
+        "observations_backfill",
+    }
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -51,6 +60,10 @@ class SourceSpec:
             return self.enabled and self.allow_manual_backfill
         if profile_name == "catalog_refresh":
             return self.enabled and self.run_lane in {"catalog", "enrichment"}
+        if profile_name == "preflight_core":
+            return self.enabled and self.publish_blocking and self.run_lane == "empirical"
+        if profile_name == "observations_backfill":
+            return self.enabled and self.execution_tier == "transport_ready" and self.run_lane == "empirical"
         raise ValueError(f"Unsupported dataset run profile: {profile_name}")
 
 
@@ -71,7 +84,25 @@ class SourceRegistry:
         if wave:
             out = [s for s in out if s.wave.upper() == wave.upper()]
         out = [s for s in out if s.included_in_run_profile(run_profile)]
-        return out
+        return self._expand_seed_dependencies(out)
+
+    def _expand_seed_dependencies(self, selected: list[SourceSpec]) -> list[SourceSpec]:
+        if not selected:
+            return []
+        enabled_by_name = {spec.name: spec for spec in self.sources if spec.enabled}
+        selected_names = {spec.name for spec in selected}
+        queue = list(selected)
+        while queue:
+            spec = queue.pop()
+            seed_name = str(spec.seed_from or "").strip()
+            if not seed_name:
+                continue
+            seed_spec = enabled_by_name.get(seed_name)
+            if seed_spec is None or seed_spec.name in selected_names:
+                continue
+            selected_names.add(seed_spec.name)
+            queue.append(seed_spec)
+        return [spec for spec in self.sources if spec.enabled and spec.name in selected_names]
 
 
 def load_source_registry(path: Path) -> SourceRegistry:

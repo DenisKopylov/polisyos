@@ -22,6 +22,20 @@ from polisyos.datasets.knowledge.types import (
 
 logger = get_logger(__name__)
 
+# Execution tier hierarchy (highest to lowest).
+_EXECUTION_TIER_RANK: dict[str, int] = {
+    "transport_ready": 0,
+    "fetchable": 1,
+    "catalog": 2,
+}
+
+
+def _tiers_at_or_above(min_tier: str) -> list[str]:
+    """Return all tiers at or above *min_tier* in the hierarchy."""
+    threshold = _EXECUTION_TIER_RANK.get(min_tier, 2)
+    return [tier for tier, rank in _EXECUTION_TIER_RANK.items() if rank <= threshold]
+
+
 _DATASET_COLUMNS: list[tuple[str, str]] = [
     ("id", "''"),
     ("title", "''"),
@@ -85,6 +99,7 @@ _BINDING_COLUMNS: list[tuple[str, str]] = [
     ("profile_id", "''"),
     ("request_dataset_id", "''"),
     ("confidence", "0.0"),
+    ("metric_inference_confidence", "0.0"),
     ("default_filters", "'{}'"),
     ("execution_tier", "'catalog'"),
     ("source", "''"),
@@ -110,6 +125,15 @@ class DatasetCatalogStore:
         self._dataset_ids: list[str] | None = None
         self._table_exists_cache: dict[str, bool] = {}
         self._table_columns_cache: dict[str, set[str]] = {}
+        self._index_files_available: bool | None = None
+        self._index_warning_logged = False
+
+    def has_vector_index(self) -> bool:
+        if self._index_files_available is None:
+            npz_path = self._index_dir / "ds_dataset_embeddings.npz"
+            hnsw_path = self._index_dir / "ds_dataset_index.hnsw"
+            self._index_files_available = npz_path.exists() and hnsw_path.exists()
+        return bool(self._index_files_available)
 
     def _table_exists(self, table_name: str) -> bool:
         cached = self._table_exists_cache.get(table_name)
@@ -164,8 +188,10 @@ class DatasetCatalogStore:
 
         npz_path = self._index_dir / "ds_dataset_embeddings.npz"
         hnsw_path = self._index_dir / "ds_dataset_index.hnsw"
-        if not npz_path.exists() or not hnsw_path.exists():
-            logger.warning("Dataset index files not found in {}", self._index_dir)
+        if not self.has_vector_index():
+            if not self._index_warning_logged:
+                logger.warning("Dataset index files not found in {}", self._index_dir)
+                self._index_warning_logged = True
             return
 
         data = np.load(str(npz_path), allow_pickle=True)
@@ -285,6 +311,12 @@ class DatasetCatalogStore:
             [dataset_id],
         )
         return rows[0] if rows else None
+
+    def get_dataset(self, dataset_id: str) -> DatasetSearchResult | None:
+        row = self._get_dataset_row(dataset_id)
+        if row is None:
+            return None
+        return self._to_dataset_result(row)
 
     @staticmethod
     def _infer_request_dataset_id(distribution: DistributionResult) -> str:
@@ -414,18 +446,50 @@ class DatasetCatalogStore:
         )
         return [self._to_dataset_result(row, similarity=1.0) for row in rows]
 
-    def resolve_metric_bindings(self, metric_name: str, *, top_k: int = 20) -> list[MetricBindingMatch]:
+    def resolve_metric_bindings(
+        self,
+        metric_name: str,
+        *,
+        top_k: int = 20,
+        min_execution_tier: str | None = None,
+    ) -> list[MetricBindingMatch]:
+        """Resolve metric bindings with optional execution tier enforcement.
+
+        When *min_execution_tier* is set, only bindings whose tier meets or
+        exceeds the requested minimum are returned.  Tier ordering:
+        ``transport_ready`` > ``fetchable`` > ``catalog``.
+        """
         if not self._table_exists("ds_metric_bindings"):
             return []
+        schema_exists_sql = (
+            "EXISTS (SELECT 1 FROM ds_schema_profiles AS sp WHERE sp.dataset_id = b.dataset_id)"
+            if self._table_exists("ds_schema_profiles")
+            else "FALSE"
+        )
+        tier_filter_sql = ""
+        bind_params: list[object] = [metric_name]
+        if min_execution_tier:
+            allowed = _tiers_at_or_above(min_execution_tier)
+            if allowed:
+                placeholders = ", ".join("?" for _ in allowed)
+                tier_filter_sql = f"AND COALESCE(b.execution_tier, 'catalog') IN ({placeholders}) "
+                bind_params.extend(allowed)
+        bind_params.append(top_k)
         rows = self._fetch_dicts(
             f"SELECT {self._select_clause('ds_metric_bindings', _BINDING_COLUMNS, alias='b')}, "
             "COALESCE(ds.title, '') AS title "
             "FROM ds_metric_bindings AS b "
             "LEFT JOIN ds_datasets AS ds ON ds.id = b.dataset_id "
-            "WHERE b.metric_id = ? "
-            "ORDER BY b.confidence DESC, b.dataset_id ASC "
+            f"WHERE b.metric_id = ? {tier_filter_sql}"
+            "ORDER BY "
+            "CASE COALESCE(b.execution_tier, 'catalog') "
+            "WHEN 'transport_ready' THEN 0 "
+            "WHEN 'fetchable' THEN 1 "
+            "ELSE 2 END ASC, "
+            f"CASE WHEN {schema_exists_sql} THEN 0 ELSE 1 END ASC, "
+            "b.confidence DESC, b.dataset_id ASC "
             "LIMIT ?",
-            [metric_name, top_k],
+            bind_params,
         )
         out: list[MetricBindingMatch] = []
         for row in rows:
@@ -438,6 +502,7 @@ class DatasetCatalogStore:
                     profile_id=str(row.get("profile_id") or ""),
                     request_dataset_id=str(row.get("request_dataset_id") or ""),
                     confidence=float(row.get("confidence") or 0.0),
+                    metric_inference_confidence=float(row.get("metric_inference_confidence") or 0.0),
                     default_filters=self._json_mapping(row.get("default_filters")),
                     execution_tier=str(row.get("execution_tier") or "catalog"),
                     source=str(row.get("source") or ""),

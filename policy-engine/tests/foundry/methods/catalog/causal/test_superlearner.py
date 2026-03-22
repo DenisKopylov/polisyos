@@ -6,8 +6,11 @@ import pytest
 
 from polisyos.foundry.methods.catalog.causal.superlearner import (
     FittedSuperLearner,
+    SuperLearnerConfig,
     SuperLearnerNuisance,
     SuperLearnerNuisanceModel,
+    _cv_risk,
+    _discrete_sl,
     _nnls_weights,
     _project_simplex,
 )
@@ -229,3 +232,48 @@ class TestSuperLearnerNuisanceModel:
         state = {"covariates": X, "outcome": Y}
         result = SuperLearnerNuisanceModel.pure_step(state, {})
         assert np.isfinite(result["predictions"]).all()
+
+
+class TestSuperLearnerConfigAndModes:
+    def test_config_roundtrip(self):
+        cfg = SuperLearnerConfig(n_folds=4, method="discrete", screen=False, nested_cv=True)
+        assert cfg.n_folds == 4
+        assert cfg.method == "discrete"
+        assert cfg.nested_cv is True
+
+    def test_discrete_sl_picks_min_risk(self):
+        best = _discrete_sl({"ridge": 0.3, "ols": 0.2, "rf": 0.5})
+        assert best == "ols"
+
+    def test_cv_risk_finite(self, linear_data):
+        X, Y = linear_data
+        risk = _cv_risk("ridge", X, Y, n_folds=3, binary=False, seed=0)
+        assert np.isfinite(risk)
+
+    def test_nested_cv_returns_risk(self, linear_data):
+        X, Y = linear_data
+        fitted = SuperLearnerNuisance.fit(
+            X,
+            Y,
+            library=["ols", "ridge", "lasso"],
+            v_folds=3,
+            nested_cv=True,
+            method="nnls",
+            screen=True,
+            screen_top_k=2,
+        )
+        assert fitted.nested_cv_risk is not None
+        assert np.isfinite(fitted.nested_cv_risk)
+
+    def test_screening_reduces_dimension(self, linear_data):
+        X, Y = linear_data
+        fitted = SuperLearnerNuisance.fit(
+            X,
+            Y,
+            library=["ols", "ridge"],
+            v_folds=3,
+            screen=True,
+            screen_top_k=1,
+        )
+        assert fitted.feature_indices is not None
+        assert len(fitted.feature_indices) == 1

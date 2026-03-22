@@ -3,12 +3,35 @@
 from __future__ import annotations
 
 import json
+import math
 from pathlib import Path
 from typing import Any
 
 import duckdb
 
+from polisyos.datasets.knowledge.proxy_penalties import (
+    metric_name_from_alignment_evidence,
+    resolve_proxy_penalty,
+)
 from polisyos.datasets.knowledge.types import DatasetMatch, PStarZResult
+
+_TEMPORAL_VOLATILITY: dict[str, float] = {
+    "institutional_quality": 0.02,
+    "rule_of_law": 0.02,
+    "population": 0.01,
+    "life_expectancy": 0.02,
+    "gdp_per_capita": 0.05,
+    "unemployment_rate": 0.08,
+    "poverty_rate": 0.04,
+    "inequality": 0.03,
+    "inflation": 0.15,
+    "exchange_rate": 0.20,
+    "migration": 0.10,
+    "interest_rate": 0.12,
+    "public_trust": 0.04,
+    "social_trust": 0.03,
+}
+_DEFAULT_VOLATILITY = 0.05
 
 
 class DatasetRegistry:
@@ -27,7 +50,7 @@ class DatasetRegistry:
         with duckdb.connect(str(self._db_path), read_only=True) as con:
             rows = con.execute(
                 "SELECT a.dataset_id, a.raw_variable, a.canonical_var, a.confidence, "
-                "a.is_proxy, a.proxy_penalty, d.coverage_json, d.update_freq "
+                "a.is_proxy, a.proxy_penalty, d.coverage_json, d.update_freq, a.method, a.evidence "
                 "FROM ds_variable_alignments a "
                 "LEFT JOIN ds_registry_datasets d ON d.dataset_id = a.dataset_id "
                 "WHERE a.canonical_var = ?",
@@ -45,6 +68,8 @@ class DatasetRegistry:
                 proxy_penalty = float(row[5] or 0.0)
                 coverage = _load_json_object(row[6])
                 update_freq = str(row[7] or "")
+                alignment_method = str(row[8] or "")
+                alignment_evidence = str(row[9] or "")
 
                 coverage_match = _coverage_match(
                     coverage=coverage,
@@ -71,6 +96,8 @@ class DatasetRegistry:
                         temporal_match=temporal_match,
                         actual_survey_year=actual_survey_year,
                         temporal_distance_years=temporal_distance,
+                        alignment_method=alignment_method,
+                        alignment_evidence=alignment_evidence,
                     )
                 )
 
@@ -85,6 +112,21 @@ class DatasetRegistry:
             )
             return out
 
+    def find_datasets_for_variables_bulk(
+        self,
+        variables: list[str],
+        country_code: str,
+        year_range: tuple[int, int] | None = None,
+    ) -> dict[str, list[DatasetMatch]]:
+        out: dict[str, list[DatasetMatch]] = {}
+        for variable in variables:
+            out[str(variable)] = self.find_datasets_for_variable(
+                str(variable),
+                country_code,
+                year_range,
+            )
+        return out
+
     def compute_p_star_z(
         self,
         canonical_var: str,
@@ -93,19 +135,28 @@ class DatasetRegistry:
         *,
         condition_on: dict[str, float] | None = None,
     ) -> PStarZResult:
-        """Compute point estimate P*(Z) or conditional P*(Z|X=x) from cached observations."""
+        """Compute bounded P*(Z) or P*(Z|X=x) estimate with provenance."""
         matches = self.find_datasets_for_variable(
             canonical_var=canonical_var,
             country_code=country_code,
             year_range=(year, year),
         )
+        if not matches:
+            matches = self.find_datasets_for_variable(
+                canonical_var=canonical_var,
+                country_code=country_code,
+                year_range=(max(year - 3, 0), year + 1),
+            )
         is_conditional = bool(condition_on)
         requested_conditions = condition_on or {}
         conditional_failure_reason: str | None = None
 
         with duckdb.connect(str(self._db_path), read_only=True) as con:
+            estimates: list[dict[str, Any]] = []
             for match in matches:
                 if match.coverage_match == "none":
+                    continue
+                if match.temporal_distance_years > _max_temporal_lag(canonical_var):
                     continue
 
                 if is_conditional:
@@ -127,8 +178,29 @@ class DatasetRegistry:
                         condition_on=requested_conditions,
                     )
                     if not values:
-                        conditional_failure_reason = "conditional_filter_unavailable"
-                        continue
+                        series = self._read_observation_series_for_match(
+                            con=con,
+                            match=match,
+                            country_code=country_code,
+                            conditional=True,
+                            condition_on=requested_conditions,
+                        )
+                        interpolated_value, interp_confidence, support_year, imputation_method = _interpolate_observation(
+                            series,
+                            target_year=year,
+                            max_lag=_max_temporal_lag(canonical_var),
+                        )
+                        if interpolated_value is None:
+                            conditional_failure_reason = "conditional_filter_unavailable"
+                            continue
+                        values = [interpolated_value]
+                        uncertainty_sources = ["conditional", "interpolation"]
+                        imputation_penalty = _imputation_penalty(imputation_method)
+                        support_year_value = support_year
+                    else:
+                        uncertainty_sources = ["conditional"]
+                        imputation_penalty = 0.0
+                        support_year_value = match.actual_survey_year or year
                 else:
                     values = self._read_values_for_match(
                         con=con,
@@ -137,38 +209,158 @@ class DatasetRegistry:
                         target_year=year,
                     )
                     if not values:
-                        continue
+                        series = self._read_observation_series_for_match(
+                            con=con,
+                            match=match,
+                            country_code=country_code,
+                            conditional=False,
+                            condition_on=None,
+                        )
+                        interpolated_value, interp_confidence, support_year, imputation_method = _interpolate_observation(
+                            series,
+                            target_year=year,
+                            max_lag=_max_temporal_lag(canonical_var),
+                        )
+                        if interpolated_value is None:
+                            continue
+                        values = [interpolated_value]
+                        uncertainty_sources = ["interpolation"]
+                        imputation_penalty = _imputation_penalty(imputation_method)
+                        support_year_value = support_year
+                    else:
+                        uncertainty_sources = []
+                        imputation_penalty = 0.0
+                        support_year_value = match.actual_survey_year or year
 
                 value = float(sum(values) / len(values))
                 penalties: dict[str, float] = {}
-                confidence = match.mapping_confidence if match.mapping_confidence > 0 else 1.0
+                weight = match.mapping_confidence if match.mapping_confidence > 0 else 1.0
                 if match.is_proxy and match.proxy_penalty > 0:
-                    penalties["proxy"] = match.proxy_penalty
-                    confidence -= match.proxy_penalty
-                if match.temporal_distance_years > 0:
-                    temporal_penalty = min(0.3, 0.05 * match.temporal_distance_years)
+                    effective_proxy_penalty = resolve_proxy_penalty(
+                        metric_name=metric_name_from_alignment_evidence(match.alignment_evidence),
+                        canonical_var=match.canonical_variable,
+                        base_penalty=match.proxy_penalty,
+                        country_code=country_code,
+                        year=year,
+                    )
+                    penalties["proxy"] = effective_proxy_penalty
+                    uncertainty_sources.append("proxy_penalty")
+                    weight *= max(0.0, 1.0 - effective_proxy_penalty)
+                temporal_penalty = _temporal_penalty(canonical_var, support_year_value or year, year)
+                if temporal_penalty > 0:
                     penalties["temporal"] = temporal_penalty
-                    confidence -= temporal_penalty
+                    uncertainty_sources.append("temporal_distance")
+                    weight *= max(0.0, 1.0 - temporal_penalty)
+                if imputation_penalty > 0:
+                    penalties["imputation"] = imputation_penalty
+                    uncertainty_sources.append("imputation")
+                    weight *= max(0.0, 1.0 - imputation_penalty)
                 if is_conditional:
                     penalties["conditional"] = 0.05
-                    confidence -= 0.05
-                confidence = max(0.0, min(1.0, confidence))
+                    weight *= 0.95
+                weight = max(0.0, min(1.0, weight))
+                if weight <= 0:
+                    continue
+                estimates.append(
+                    {
+                        "match": match,
+                        "value": value,
+                        "values": values,
+                        "weight": weight,
+                        "penalties": penalties,
+                        "uncertainty_sources": sorted(set(uncertainty_sources)),
+                        "support_year": support_year_value,
+                        "imputation_method": imputation_method if "imputation" in penalties else None,
+                        "imputation_penalty": imputation_penalty,
+                    }
+                )
 
+            if estimates:
+                total_weight = sum(float(item["weight"]) for item in estimates) or 1.0
+                weighted_mean = sum(float(item["value"]) * float(item["weight"]) for item in estimates) / total_weight
+                distribution = [float(item["value"]) for item in estimates]
+                direct_exact = [
+                    item
+                    for item in estimates
+                    if not item["match"].is_proxy
+                    and float(item["penalties"].get("proxy", 0.0)) == 0.0
+                    and float(item["penalties"].get("temporal", 0.0)) == 0.0
+                    and float(item["penalties"].get("imputation", 0.0)) == 0.0
+                    and item["match"].temporal_match in {"exact", "overlap", "wave_closest"}
+                    and (item.get("support_year") == year or item["match"].actual_survey_year == year)
+                ]
+                if direct_exact:
+                    best_exact = max(direct_exact, key=lambda item: float(item["weight"]))
+                    best_match = best_exact["match"]
+                    exact_value = float(best_exact["value"])
+                    return PStarZResult(
+                        canonical_variable=canonical_var,
+                        value=exact_value,
+                        dataset_id=best_match.dataset_id,
+                        raw_variable=best_match.raw_variable,
+                        is_proxy=bool(best_match.is_proxy),
+                        proxy_chain=([f"{best_match.raw_variable} -> {canonical_var}"] if best_match.is_proxy else []),
+                        confidence=float(best_exact["weight"]),
+                        penalty_breakdown=dict(best_exact["penalties"]),
+                        is_conditional=is_conditional,
+                        condition_on=requested_conditions,
+                        distribution=None,
+                        distribution_type="point",
+                        std_error=None,
+                        ci_low=None,
+                        ci_high=None,
+                        uncertainty_sources=list(best_exact["uncertainty_sources"]),
+                        imputation_method=best_exact.get("imputation_method"),
+                        imputation_penalty=float(best_exact.get("imputation_penalty", 0.0) or 0.0),
+                        data_support_year=int(best_exact.get("support_year")) if best_exact.get("support_year") is not None else None,
+                        data_support_country=country_code,
+                    )
+                max_weight_item = max(estimates, key=lambda item: float(item["weight"]))
+                if len(distribution) > 1:
+                    variance = sum(
+                        float(item["weight"]) * ((float(item["value"]) - weighted_mean) ** 2)
+                        for item in estimates
+                    ) / total_weight
+                    std_error = math.sqrt(max(variance, 0.0) / len(distribution))
+                    distribution_type = "normal"
+                else:
+                    std_error = abs(weighted_mean) * max(0.05, 1.0 - float(max_weight_item["weight"])) * 0.5
+                    distribution_type = "bounded"
+                ci_low = weighted_mean - 1.96 * std_error
+                ci_high = weighted_mean + 1.96 * std_error
+                merged_penalties: dict[str, float] = {}
+                uncertainty_sources = sorted(
+                    {
+                        source
+                        for item in estimates
+                        for source in item["uncertainty_sources"]
+                    }
+                )
+                for item in estimates:
+                    for key, value in dict(item["penalties"]).items():
+                        merged_penalties[key] = max(float(value), float(merged_penalties.get(key, 0.0)))
+                best_match = max_weight_item["match"]
                 return PStarZResult(
                     canonical_variable=canonical_var,
-                    value=value,
-                    dataset_id=match.dataset_id,
-                    raw_variable=match.raw_variable,
-                    is_proxy=match.is_proxy,
-                    proxy_chain=(
-                        [f"{match.raw_variable} -> {canonical_var}"] if match.is_proxy else []
-                    ),
-                    confidence=confidence,
-                    penalty_breakdown=penalties,
+                    value=float(weighted_mean),
+                    dataset_id=best_match.dataset_id,
+                    raw_variable=best_match.raw_variable,
+                    is_proxy=bool(best_match.is_proxy),
+                    proxy_chain=([f"{best_match.raw_variable} -> {canonical_var}"] if best_match.is_proxy else []),
+                    confidence=float(max_weight_item["weight"]),
+                    penalty_breakdown=merged_penalties,
                     is_conditional=is_conditional,
                     condition_on=requested_conditions,
-                    distribution=values if len(values) > 1 else None,
-                    distribution_type=("empirical" if len(values) > 1 else "point"),
+                    distribution=(distribution if len(distribution) > 1 else None),
+                    distribution_type=distribution_type,
+                    std_error=float(std_error),
+                    ci_low=float(ci_low),
+                    ci_high=float(ci_high),
+                    uncertainty_sources=uncertainty_sources,
+                    imputation_method=max_weight_item.get("imputation_method"),
+                    imputation_penalty=float(max_weight_item.get("imputation_penalty", 0.0) or 0.0),
+                    data_support_year=int(max_weight_item.get("support_year")) if max_weight_item.get("support_year") is not None else None,
+                    data_support_country=country_code,
                 )
 
         penalties: dict[str, float]
@@ -192,6 +384,14 @@ class DatasetRegistry:
             condition_on=requested_conditions,
             distribution=None,
             distribution_type="point",
+            std_error=None,
+            ci_low=None,
+            ci_high=None,
+            uncertainty_sources=[],
+            imputation_method=None,
+            imputation_penalty=0.0,
+            data_support_year=None,
+            data_support_country=country_code,
         )
 
     def _temporal_match(
@@ -304,6 +504,36 @@ class DatasetRegistry:
         return filtered
 
     @staticmethod
+    def _read_observation_series_for_match(
+        *,
+        con: duckdb.DuckDBPyConnection,
+        match: DatasetMatch,
+        country_code: str,
+        conditional: bool,
+        condition_on: dict[str, float] | None,
+    ) -> list[tuple[int, float]]:
+        rows = con.execute(
+            "SELECT COALESCE(survey_year, year) AS support_year, value, condition_json "
+            "FROM ds_observations "
+            "WHERE dataset_id = ? AND raw_variable = ? AND country_code = ? "
+            "AND value IS NOT NULL "
+            "AND (survey_year IS NOT NULL OR year IS NOT NULL)",
+            [match.dataset_id, match.raw_variable, country_code],
+        ).fetchall()
+        out: list[tuple[int, float]] = []
+        for row in rows:
+            support_year = row[0]
+            value = row[1]
+            if support_year is None or value is None:
+                continue
+            if conditional and condition_on:
+                if not DatasetRegistry._conditions_match(_load_json_object(row[2]), condition_on):
+                    continue
+            out.append((int(support_year), float(value)))
+        out.sort(key=lambda item: item[0])
+        return out
+
+    @staticmethod
     def _conditions_match(observed: dict[str, Any], requested: dict[str, float]) -> bool:
         if not requested:
             return True
@@ -403,6 +633,70 @@ def _coverage_rank(value: str) -> int:
 def _temporal_rank(value: str) -> int:
     ranks = {"exact": 0, "wave_closest": 1, "overlap": 2, "extrapolation": 3, "none": 4}
     return ranks.get(value, 5)
+
+
+def _temporal_penalty(canonical_var: str, data_year: int, target_year: int) -> float:
+    volatility = _TEMPORAL_VOLATILITY.get(canonical_var, _DEFAULT_VOLATILITY)
+    distance = abs(int(target_year) - int(data_year))
+    return min(0.5, float(volatility) * float(distance))
+
+
+def _max_temporal_lag(canonical_var: str) -> int:
+    volatility = _TEMPORAL_VOLATILITY.get(canonical_var, _DEFAULT_VOLATILITY)
+    if volatility >= 0.12:
+        return 1
+    if volatility >= 0.07:
+        return 2
+    if volatility >= 0.04:
+        return 3
+    return 6
+
+
+def _interpolate_observation(
+    observations: list[tuple[int, float]],
+    *,
+    target_year: int,
+    max_lag: int,
+) -> tuple[float | None, float, int | None, str | None]:
+    if not observations:
+        return None, 0.0, None, None
+    years = [item[0] for item in observations]
+    values = [item[1] for item in observations]
+    if target_year in years:
+        idx = years.index(target_year)
+        return float(values[idx]), 1.0, int(target_year), None
+
+    before = [(year, value) for year, value in observations if year < target_year]
+    after = [(year, value) for year, value in observations if year > target_year]
+    if before and after:
+        left_year, left_value = before[-1]
+        right_year, right_value = after[0]
+        gap = right_year - left_year
+        if gap <= 0 or abs(target_year - left_year) > max_lag or abs(right_year - target_year) > max_lag:
+            return None, 0.0, None, None
+        fraction = (target_year - left_year) / gap
+        interpolated = left_value + fraction * (right_value - left_value)
+        confidence = max(0.5, 1.0 - 0.05 * gap)
+        return float(interpolated), float(confidence), int(target_year), "linear_interpolation"
+
+    nearest_year, nearest_value = min(observations, key=lambda item: abs(item[0] - target_year))
+    distance = abs(nearest_year - target_year)
+    if distance > max_lag:
+        return None, 0.0, None, None
+    confidence = max(0.25, 1.0 - 0.12 * distance)
+    method = "carry_forward" if nearest_year < target_year else "nearest_observation"
+    return float(nearest_value), float(confidence), int(nearest_year), method
+
+
+def _imputation_penalty(method: str | None) -> float:
+    if not method:
+        return 0.0
+    penalties = {
+        "linear_interpolation": 0.08,
+        "carry_forward": 0.18,
+        "nearest_observation": 0.12,
+    }
+    return float(penalties.get(method, 0.1))
 
 
 __all__ = ["DatasetRegistry"]

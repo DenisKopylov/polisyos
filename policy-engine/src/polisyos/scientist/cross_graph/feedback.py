@@ -35,6 +35,16 @@ class BenchmarkScholarQuery(BaseModel):
     min_results: int = 2
 
 
+class BenchmarkCredibilityPolicy(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    min_confidence: float = Field(default=0.7, ge=0.0, le=1.0)
+    min_unique_works: int = Field(default=2, ge=1)
+    require_conflict_free: bool = True
+    min_design_tier: int | None = Field(default=3, ge=1, le=4)
+    max_evidence_age_years: int | None = Field(default=None, ge=1)
+
+
 class AcademicBenchmarkScenario(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
@@ -42,6 +52,7 @@ class AcademicBenchmarkScenario(BaseModel):
     title: str
     policy_domain: str = ""
     weight: float = Field(default=1.0, ge=0.1)
+    credibility_policy: BenchmarkCredibilityPolicy = Field(default_factory=BenchmarkCredibilityPolicy)
     causal_edges: list[BenchmarkCausalEdge] = Field(default_factory=list)
     parameters: list[str] = Field(default_factory=list)
     scholar_queries: list[BenchmarkScholarQuery] = Field(default_factory=list)
@@ -107,6 +118,35 @@ def write_need_backlog(path: Path, items: list[dict[str, Any]]) -> None:
     with open(path, "w", encoding="utf-8") as fh:
         for item in items:
             fh.write(json.dumps(item, ensure_ascii=False) + "\n")
+
+
+def append_need_backlog(path: Path, items: list[dict[str, Any]]) -> int:
+    """Append new demand items to backlog, deduplicating by need_id.
+
+    Returns the number of new items appended.
+    """
+    existing_ids: set[str] = set()
+    if path.exists():
+        for line in path.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                entry = json.loads(line)
+                existing_ids.add(str(entry.get("need_id") or ""))
+            except json.JSONDecodeError:
+                continue
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    appended = 0
+    with open(path, "a", encoding="utf-8") as fh:
+        for item in items:
+            need_id = str(item.get("need_id") or "")
+            if need_id and need_id not in existing_ids:
+                fh.write(json.dumps(item, ensure_ascii=False) + "\n")
+                existing_ids.add(need_id)
+                appended += 1
+    return appended
 
 
 def evaluate_benchmark_suite(

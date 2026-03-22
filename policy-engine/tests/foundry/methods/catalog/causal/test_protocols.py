@@ -45,6 +45,16 @@ def test_panel_observational_data_rejects_non_binary_treatment():
         )
 
 
+def test_panel_observational_data_rejects_repeated_cross_section_metadata():
+    with pytest.raises(ValueError, match="repeated cross-section/survey data"):
+        PanelObservationalData(
+            outcome=np.zeros((2, 5)),
+            treatment=np.array([1, 0]),
+            time_treatment=3,
+            metadata={"data_shape": "survey_repeated_cross_section"},
+        )
+
+
 def test_rdd_observational_data_rejects_short_sample():
     with pytest.raises(ValueError, match="at least 20"):
         RDDObservationalData(

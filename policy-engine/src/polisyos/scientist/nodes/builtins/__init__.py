@@ -7,9 +7,11 @@ if TYPE_CHECKING:
 
 __all__ = [
     "BuildDataSnapshotNode",
+    "PlanPolicyRequestNode",
     "BindFoundryInputsNode",
     "EnrichKnowledgeNode",
     "LinkTrinityNode",
+    "FormalizeVerifiedPolicyNode",
     "CompileFoundryNode",
     "RunSimulationNode",
     "BuildLiteraturePriorNode",
@@ -30,9 +32,15 @@ __all__ = [
     "BuildExecutionPlanNode",
     "BuildMethodCatalogSnapshotNode",
     "CompileCrossGraphEvidenceNode",
+    "AssembleLegalCandidatePackNode",
+    "ExpandLegalSourcePackNode",
+    "RunSourceVerificationNode",
+    "RunSourceGapReviewNode",
+    "DraftPolicyOptionsNode",
     "RunPreflightNode",
     "ReadyToRunNode",
     "RunEvaluatorNode",
+    "BuildVerifiedPolicyReportNode",
     "builtin_nodes",
 ]
 
@@ -60,12 +68,18 @@ def builtin_nodes() -> list["Node"]:
         RunCausalQueriesNode,
     )
     from polisyos.scientist.nodes.builtins.compile.compile_foundry import CompileFoundryNode
+    from polisyos.scientist.nodes.builtins.compile.formalize_verified_policy import (
+        FormalizeVerifiedPolicyNode,
+    )
     from polisyos.scientist.nodes.builtins.compile.link_trinity import LinkTrinityNode
     from polisyos.scientist.nodes.builtins.data.bind_foundry_inputs import BindFoundryInputsNode
     from polisyos.scientist.nodes.builtins.data.build_data_snapshot import BuildDataSnapshotNode
     from polisyos.scientist.nodes.builtins.data.enrich_knowledge import EnrichKnowledgeNode
     from polisyos.scientist.nodes.builtins.decide.build_decision_packet import (
         BuildDecisionPacketNode,
+    )
+    from polisyos.scientist.nodes.builtins.decide.build_verified_policy_report import (
+        BuildVerifiedPolicyReportNode,
     )
     from polisyos.scientist.nodes.builtins.governance.data_plane_gate import DataPlaneGateNode
     from polisyos.scientist.nodes.builtins.governance.legal_check import LegalCheckNode
@@ -76,13 +90,31 @@ def builtin_nodes() -> list["Node"]:
     from polisyos.scientist.nodes.builtins.planning.build_execution_plan import (
         BuildExecutionPlanNode,
     )
+    from polisyos.scientist.nodes.builtins.planning.assemble_legal_candidate_pack import (
+        AssembleLegalCandidatePackNode,
+    )
     from polisyos.scientist.nodes.builtins.planning.build_method_catalog_snapshot import (
         BuildMethodCatalogSnapshotNode,
     )
     from polisyos.scientist.nodes.builtins.planning.compile_cross_graph_evidence import (
         CompileCrossGraphEvidenceNode,
     )
+    from polisyos.scientist.nodes.builtins.planning.draft_policy_options import (
+        DraftPolicyOptionsNode,
+    )
+    from polisyos.scientist.nodes.builtins.planning.expand_legal_source_pack import (
+        ExpandLegalSourcePackNode,
+    )
+    from polisyos.scientist.nodes.builtins.planning.plan_policy_request import (
+        PlanPolicyRequestNode,
+    )
     from polisyos.scientist.nodes.builtins.planning.ready_to_run import ReadyToRunNode
+    from polisyos.scientist.nodes.builtins.planning.run_source_gap_review import (
+        RunSourceGapReviewNode,
+    )
+    from polisyos.scientist.nodes.builtins.planning.run_source_verification import (
+        RunSourceVerificationNode,
+    )
     from polisyos.scientist.nodes.builtins.planning.run_evaluator import RunEvaluatorNode
     from polisyos.scientist.nodes.builtins.planning.run_preflight import RunPreflightNode
     from polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty import (
@@ -98,13 +130,20 @@ def builtin_nodes() -> list["Node"]:
 
     return [
         BuildDataSnapshotNode(),
+        PlanPolicyRequestNode(),
         BindFoundryInputsNode(),
         EnrichKnowledgeNode(),
         BuildExecutionPlanNode(),
         BuildMethodCatalogSnapshotNode(),
+        AssembleLegalCandidatePackNode(),
+        ExpandLegalSourcePackNode(),
+        RunSourceVerificationNode(),
+        RunSourceGapReviewNode(),
+        DraftPolicyOptionsNode(),
         RunPreflightNode(),
         ReadyToRunNode(),
         LinkTrinityNode(),
+        FormalizeVerifiedPolicyNode(),
         CompileFoundryNode(),
         CompileCrossGraphEvidenceNode(),
         RunSimulationNode(),
@@ -123,6 +162,7 @@ def builtin_nodes() -> list["Node"]:
         RunNormativeArbitrationNode(),
         RunGovernanceNode(),
         RunEvaluatorNode(),
+        BuildVerifiedPolicyReportNode(),
         BuildDecisionPacketNode(),
     ]
 
@@ -138,6 +178,12 @@ def __getattr__(name: str) -> Any:
         from polisyos.scientist.nodes.builtins.data.build_data_snapshot import BuildDataSnapshotNode
 
         return BuildDataSnapshotNode
+    if name == "PlanPolicyRequestNode":
+        from polisyos.scientist.nodes.builtins.planning.plan_policy_request import (
+            PlanPolicyRequestNode,
+        )
+
+        return PlanPolicyRequestNode
     if name == "EnrichKnowledgeNode":
         from polisyos.scientist.nodes.builtins.data.enrich_knowledge import EnrichKnowledgeNode
 
@@ -150,6 +196,12 @@ def __getattr__(name: str) -> Any:
         from polisyos.scientist.nodes.builtins.compile.compile_foundry import CompileFoundryNode
 
         return CompileFoundryNode
+    if name == "FormalizeVerifiedPolicyNode":
+        from polisyos.scientist.nodes.builtins.compile.formalize_verified_policy import (
+            FormalizeVerifiedPolicyNode,
+        )
+
+        return FormalizeVerifiedPolicyNode
     if name == "RunSimulationNode":
         from polisyos.scientist.nodes.builtins.simulate.run_simulation import RunSimulationNode
 
@@ -240,12 +292,42 @@ def __getattr__(name: str) -> Any:
         )
 
         return BuildMethodCatalogSnapshotNode
+    if name == "AssembleLegalCandidatePackNode":
+        from polisyos.scientist.nodes.builtins.planning.assemble_legal_candidate_pack import (
+            AssembleLegalCandidatePackNode,
+        )
+
+        return AssembleLegalCandidatePackNode
     if name == "CompileCrossGraphEvidenceNode":
         from polisyos.scientist.nodes.builtins.planning.compile_cross_graph_evidence import (
             CompileCrossGraphEvidenceNode,
         )
 
         return CompileCrossGraphEvidenceNode
+    if name == "ExpandLegalSourcePackNode":
+        from polisyos.scientist.nodes.builtins.planning.expand_legal_source_pack import (
+            ExpandLegalSourcePackNode,
+        )
+
+        return ExpandLegalSourcePackNode
+    if name == "RunSourceVerificationNode":
+        from polisyos.scientist.nodes.builtins.planning.run_source_verification import (
+            RunSourceVerificationNode,
+        )
+
+        return RunSourceVerificationNode
+    if name == "RunSourceGapReviewNode":
+        from polisyos.scientist.nodes.builtins.planning.run_source_gap_review import (
+            RunSourceGapReviewNode,
+        )
+
+        return RunSourceGapReviewNode
+    if name == "DraftPolicyOptionsNode":
+        from polisyos.scientist.nodes.builtins.planning.draft_policy_options import (
+            DraftPolicyOptionsNode,
+        )
+
+        return DraftPolicyOptionsNode
     if name == "RunPreflightNode":
         from polisyos.scientist.nodes.builtins.planning.run_preflight import RunPreflightNode
 
@@ -268,4 +350,10 @@ def __getattr__(name: str) -> Any:
         )
 
         return BuildDecisionPacketNode
+    if name == "BuildVerifiedPolicyReportNode":
+        from polisyos.scientist.nodes.builtins.decide.build_verified_policy_report import (
+            BuildVerifiedPolicyReportNode,
+        )
+
+        return BuildVerifiedPolicyReportNode
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

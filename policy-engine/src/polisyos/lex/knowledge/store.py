@@ -5,6 +5,7 @@ This is the persistence layer used by ``search.py``.
 
 from __future__ import annotations
 
+import hashlib
 from pathlib import Path
 from typing import Any
 
@@ -13,9 +14,13 @@ import numpy as np
 
 from polisyos.common.logger import get_logger
 from polisyos.lex.knowledge.types import (
+    LegalDocVersionResult,
     LegalFactResult,
     LegalProvisionResult,
+    LegalReferenceEdgeResult,
     LegalSearchResult,
+    LegalSourceAnchor,
+    LegalSourceBundle,
 )
 
 logger = get_logger(__name__)
@@ -47,19 +52,31 @@ _FACT_SELECT_FIELDS: tuple[tuple[str, str], ...] = (
     ("audit_miss_prone", "FALSE"),
     ("reference_bearing", "FALSE"),
     ("threshold_bearing", "FALSE"),
+    ("fused_confidence", "NULL"),
+    ("confidence_breakdown_json", "''"),
+    ("consistency_score", "NULL"),
+    ("hallucination_flags_json", "''"),
+    ("quality_band", "''"),
+    ("doc_id", "''"),
+    ("doc_family_id", "''"),
+    ("version_id", "''"),
     ("jurisdiction", "'UA'"),
     ("top_domain", "''"),
     ("effective_from", "''"),
     ("effective_to", "''"),
     ("doc_name", "''"),
     ("doc_reestr_code", "''"),
+    ("provision_anchor", "''"),
     ("provision_citation", "''"),
 )
 
 _PROVISION_SELECT_FIELDS: tuple[tuple[str, str], ...] = (
     ("provision_id", "''"),
+    ("doc_id", "''"),
+    ("version_id", "''"),
     ("doc_name", "''"),
     ("doc_reestr_code", "''"),
+    ("anchor_path", "''"),
     ("citation_label", "''"),
     ("kind", "''"),
     ("provision_text", "''"),
@@ -105,7 +122,15 @@ class LegalKnowledgeStore:
         self._table_exists_cache[table_name] = exists
         return exists
 
-    def _fact_table(self, *, trust_tier: str | None, include_candidates: bool) -> str:
+    def _fact_table(
+        self,
+        *,
+        trust_tier: str | None,
+        include_candidates: bool,
+        quality_band: str | None = None,
+    ) -> str:
+        if quality_band == "high_confidence_norm" and self._table_exists("lex_high_confidence_norms"):
+            return "lex_high_confidence_norms"
         if trust_tier == "normative_fact" and self._table_exists("lex_normative_facts"):
             return "lex_normative_facts"
         if trust_tier == "grounded_fact" and self._table_exists("lex_fact_grounded"):
@@ -126,6 +151,8 @@ class LegalKnowledgeStore:
         as_of: str | None = None,
         legal_unit_subtype: str | None = None,
         route_class: str | None = None,
+        min_fused_confidence: float | None = None,
+        quality_band: str | None = None,
         include_candidates: bool = False,
         selected_table: str = "lex_facts",
     ) -> tuple[list[str], list[Any]]:
@@ -152,6 +179,12 @@ class LegalKnowledgeStore:
         if route_class and "route_class" in available_columns:
             clauses.append(f"LOWER(COALESCE({prefix}route_class, '')) = ?")
             params.append(route_class.strip().lower())
+        if quality_band and "quality_band" in available_columns:
+            clauses.append(f"LOWER(COALESCE({prefix}quality_band, '')) = ?")
+            params.append(quality_band.strip().lower())
+        if min_fused_confidence is not None and "fused_confidence" in available_columns:
+            clauses.append(f"COALESCE({prefix}fused_confidence, {prefix}confidence, 0.0) >= ?")
+            params.append(float(min_fused_confidence))
         if as_of:
             clauses.append(
                 f"(COALESCE({prefix}effective_from, '') = '' OR {prefix}effective_from <= ?)"
@@ -293,13 +326,22 @@ class LegalKnowledgeStore:
             audit_miss_prone=bool(row[23]),
             reference_bearing=bool(row[24]),
             threshold_bearing=bool(row[25]),
-            jurisdiction=row[26] or "UA",
-            top_domain=row[27] or "",
-            effective_from=row[28] or "",
-            effective_to=row[29] or "",
-            doc_name=row[30] or "",
-            doc_reestr_code=row[31] or "",
-            provision_citation=row[32] or "",
+            fused_confidence=float(row[26]) if row[26] is not None else None,
+            confidence_breakdown_json=row[27] or "",
+            consistency_score=float(row[28]) if row[28] is not None else None,
+            hallucination_flags_json=row[29] or "",
+            quality_band=row[30] or "",
+            doc_id=row[31] or "",
+            doc_family_id=row[32] or "",
+            version_id=row[33] or "",
+            jurisdiction=row[34] or "UA",
+            top_domain=row[35] or "",
+            effective_from=row[36] or "",
+            effective_to=row[37] or "",
+            doc_name=row[38] or "",
+            doc_reestr_code=row[39] or "",
+            provision_anchor=row[40] or "",
+            provision_citation=row[41] or "",
             similarity=similarity,
         )
 
@@ -354,6 +396,8 @@ class LegalKnowledgeStore:
         include_candidates: bool = False,
         legal_unit_subtype: str | None = None,
         route_class: str | None = None,
+        min_fused_confidence: float | None = None,
+        quality_band: str | None = None,
     ) -> list[LegalFactResult]:
         self._load_fact_index()
         if self._fact_index is None or self._fact_ids is None:
@@ -362,6 +406,7 @@ class LegalKnowledgeStore:
         table_name = self._fact_table(
             trust_tier=trust_tier,
             include_candidates=include_candidates,
+            quality_band=quality_band,
         )
         labels, distances = self._fact_index.knn_query(query_vector.reshape(1, -1), k=min(top_k, len(self._fact_ids)))
         results: list[LegalFactResult] = []
@@ -377,6 +422,8 @@ class LegalKnowledgeStore:
                 as_of=as_of,
                 legal_unit_subtype=legal_unit_subtype,
                 route_class=route_class,
+                min_fused_confidence=min_fused_confidence,
+                quality_band=quality_band,
                 include_candidates=include_candidates,
                 selected_table=table_name,
             )
@@ -432,20 +479,23 @@ class LegalKnowledgeStore:
                 results.append(
                     LegalProvisionResult(
                         provision_id=row[0],
-                        doc_name=row[1] or "",
-                        doc_reestr_code=row[2] or "",
-                        citation_label=row[3],
-                        kind=row[4],
-                        provision_text_preview=row[5][:300] if row[5] else "",
-                        struct_kind=row[6] or "",
-                        section_role=row[7] or "",
-                        legal_unit_subtype=row[8] or "",
-                        route_class=row[9] or "",
-                        empty_spo_retry_eligible=bool(row[10]),
-                        audit_miss_prone=bool(row[11]),
-                        reference_bearing=bool(row[12]),
-                        threshold_bearing=bool(row[13]),
-                        fallback_allowed_for_reasoning=bool(row[14]),
+                        doc_id=row[1] or "",
+                        version_id=row[2] or "",
+                        doc_name=row[3] or "",
+                        doc_reestr_code=row[4] or "",
+                        anchor_path=row[5] or "",
+                        citation_label=row[6],
+                        kind=row[7],
+                        provision_text_preview=row[8][:300] if row[8] else "",
+                        struct_kind=row[9] or "",
+                        section_role=row[10] or "",
+                        legal_unit_subtype=row[11] or "",
+                        route_class=row[12] or "",
+                        empty_spo_retry_eligible=bool(row[13]),
+                        audit_miss_prone=bool(row[14]),
+                        reference_bearing=bool(row[15]),
+                        threshold_bearing=bool(row[16]),
+                        fallback_allowed_for_reasoning=bool(row[17]),
                         similarity=similarity,
                     )
                 )
@@ -467,10 +517,13 @@ class LegalKnowledgeStore:
         include_candidates: bool = False,
         legal_unit_subtype: str | None = None,
         route_class: str | None = None,
+        min_fused_confidence: float | None = None,
+        quality_band: str | None = None,
     ) -> list[LegalFactResult]:
         table_name = self._fact_table(
             trust_tier=trust_tier,
             include_candidates=include_candidates,
+            quality_band=quality_band,
         )
         pattern = f"%{query}%"
         clauses, params = self._fact_filters(
@@ -480,6 +533,8 @@ class LegalKnowledgeStore:
             as_of=as_of,
             legal_unit_subtype=legal_unit_subtype,
             route_class=route_class,
+            min_fused_confidence=min_fused_confidence,
+            quality_band=quality_band,
             include_candidates=include_candidates,
             selected_table=table_name,
         )
@@ -508,10 +563,13 @@ class LegalKnowledgeStore:
         include_candidates: bool = False,
         legal_unit_subtype: str | None = None,
         route_class: str | None = None,
+        min_fused_confidence: float | None = None,
+        quality_band: str | None = None,
     ) -> list[LegalFactResult]:
         table_name = self._fact_table(
             trust_tier=trust_tier,
             include_candidates=include_candidates,
+            quality_band=quality_band,
         )
         clauses, params = self._fact_filters(
             trust_tier=trust_tier,
@@ -520,6 +578,8 @@ class LegalKnowledgeStore:
             as_of=as_of,
             legal_unit_subtype=legal_unit_subtype,
             route_class=route_class,
+            min_fused_confidence=min_fused_confidence,
+            quality_band=quality_band,
             include_candidates=include_candidates,
             selected_table=table_name,
         )
@@ -545,10 +605,13 @@ class LegalKnowledgeStore:
         include_candidates: bool = False,
         legal_unit_subtype: str | None = None,
         route_class: str | None = None,
+        min_fused_confidence: float | None = None,
+        quality_band: str | None = None,
     ) -> list[LegalFactResult]:
         table_name = self._fact_table(
             trust_tier=trust_tier,
             include_candidates=include_candidates,
+            quality_band=quality_band,
         )
         clauses, params = self._fact_filters(
             alias="f",
@@ -558,6 +621,8 @@ class LegalKnowledgeStore:
             as_of=as_of,
             legal_unit_subtype=legal_unit_subtype,
             route_class=route_class,
+            min_fused_confidence=min_fused_confidence,
+            quality_band=quality_band,
             include_candidates=include_candidates,
             selected_table=table_name,
         )
@@ -584,10 +649,13 @@ class LegalKnowledgeStore:
         as_of: str | None = None,
         legal_unit_subtype: str | None = None,
         route_class: str | None = None,
+        min_fused_confidence: float | None = None,
+        quality_band: str | None = None,
     ) -> list[LegalFactResult]:
         table_name = self._fact_table(
             trust_tier="normative_fact",
             include_candidates=False,
+            quality_band=quality_band,
         )
         clauses, params = self._fact_filters(
             trust_tier="normative_fact",
@@ -596,6 +664,8 @@ class LegalKnowledgeStore:
             as_of=as_of,
             legal_unit_subtype=legal_unit_subtype,
             route_class=route_class,
+            min_fused_confidence=min_fused_confidence,
+            quality_band=quality_band,
             include_candidates=False,
             selected_table=table_name,
         )
@@ -631,6 +701,8 @@ class LegalKnowledgeStore:
         top_k: int = 100,
         legal_unit_subtype: str | None = None,
         route_class: str | None = None,
+        min_fused_confidence: float | None = None,
+        quality_band: str | None = None,
     ) -> list[LegalFactResult]:
         return self.find_constraints(
             query=None,
@@ -640,6 +712,8 @@ class LegalKnowledgeStore:
             as_of=as_of,
             legal_unit_subtype=legal_unit_subtype,
             route_class=route_class,
+            min_fused_confidence=min_fused_confidence,
+            quality_band=quality_band,
         )
 
     # ------------------------------------------------------------------
@@ -657,10 +731,13 @@ class LegalKnowledgeStore:
         include_candidates: bool = False,
         legal_unit_subtype: str | None = None,
         route_class: str | None = None,
+        min_fused_confidence: float | None = None,
+        quality_band: str | None = None,
     ) -> list[LegalFactResult]:
         table_name = self._fact_table(
             trust_tier=trust_tier,
             include_candidates=include_candidates,
+            quality_band=quality_band,
         )
         clauses, params = self._fact_filters(
             trust_tier=trust_tier,
@@ -669,6 +746,8 @@ class LegalKnowledgeStore:
             as_of=as_of,
             legal_unit_subtype=legal_unit_subtype,
             route_class=route_class,
+            min_fused_confidence=min_fused_confidence,
+            quality_band=quality_band,
             include_candidates=include_candidates,
             selected_table=table_name,
         )
@@ -738,6 +817,290 @@ class LegalKnowledgeStore:
             frontier = next_frontier
 
         return results
+
+    def load_provisions_by_anchor(
+        self,
+        doc_id: str,
+        anchors: list[str],
+    ) -> list[LegalSourceAnchor]:
+        if not doc_id.strip() or not anchors:
+            return []
+        placeholders = ", ".join(["?"] * len(anchors))
+        rows = self._con.execute(
+            f"""
+            SELECT
+                COALESCE(doc_id, ''),
+                COALESCE(version_id, ''),
+                COALESCE(anchor_path, ''),
+                COALESCE(citation_label, ''),
+                COALESCE(provision_text, ''),
+                COALESCE(struct_kind, ''),
+                COALESCE(section_role, ''),
+                COALESCE(legal_unit_subtype, ''),
+                COALESCE(route_class, ''),
+                COALESCE(appendix_id, ''),
+                COALESCE(table_id, '')
+            FROM lex_provisions
+            WHERE doc_id = ? AND anchor_path IN ({placeholders})
+            """,
+            [doc_id, *anchors],
+        ).fetchall()
+        results: list[LegalSourceAnchor] = []
+        for row in rows:
+            context_prefix = self.load_appendix_context(doc_id, row[2])
+            results.append(
+                LegalSourceAnchor(
+                    doc_id=row[0],
+                    version_id=row[1],
+                    anchor=row[2],
+                    citation_label=row[3],
+                    provision_text=row[4],
+                    struct_kind=row[5],
+                    section_role=row[6],
+                    legal_unit_subtype=row[7],
+                    route_class=row[8],
+                    appendix_id=row[9],
+                    table_id=row[10],
+                    context_prefix=context_prefix,
+                )
+            )
+        return results
+
+    def load_doc_version_chain(
+        self,
+        *,
+        doc_id: str | None = None,
+        doc_family_id: str | None = None,
+    ) -> list[LegalDocVersionResult]:
+        if not self._table_exists("lex_doc_versions"):
+            return []
+        resolved_family_id = (doc_family_id or "").strip()
+        if not resolved_family_id and doc_id:
+            row = self._con.execute(
+                "SELECT COALESCE(doc_family_id, '') FROM lex_doc_versions WHERE doc_id = ? LIMIT 1",
+                [doc_id],
+            ).fetchone()
+            resolved_family_id = str(row[0] or "") if row else ""
+        if not resolved_family_id:
+            return []
+        rows = self._con.execute(
+            """
+            SELECT
+                COALESCE(doc_id, ''),
+                COALESCE(doc_family_id, ''),
+                COALESCE(version_id, ''),
+                COALESCE(doc_reestr_code, ''),
+                COALESCE(doc_name, ''),
+                COALESCE(doc_type, ''),
+                COALESCE(doc_status, ''),
+                COALESCE(doc_date_acc, ''),
+                COALESCE(version_rank, 0),
+                COALESCE(previous_version_id, ''),
+                COALESCE(next_version_id, ''),
+                COALESCE(is_latest, FALSE)
+            FROM lex_doc_versions
+            WHERE doc_family_id = ?
+            ORDER BY version_rank
+            """,
+            [resolved_family_id],
+        ).fetchall()
+        return [
+            LegalDocVersionResult(
+                doc_id=row[0],
+                doc_family_id=row[1],
+                version_id=row[2],
+                doc_reestr_code=row[3],
+                doc_name=row[4],
+                doc_type=row[5],
+                doc_status=row[6],
+                doc_date_acc=row[7],
+                version_rank=int(row[8] or 0),
+                previous_version_id=row[9],
+                next_version_id=row[10],
+                is_latest=bool(row[11]),
+            )
+            for row in rows
+        ]
+
+    def load_appendix_context(
+        self,
+        doc_id: str,
+        anchor: str,
+        *,
+        max_depth: int = 4,
+    ) -> list[str]:
+        if not doc_id.strip() or not anchor.strip():
+            return []
+        context: list[str] = []
+        current_anchor = anchor
+        seen: set[str] = set()
+        for _ in range(max_depth):
+            row = self._con.execute(
+                """
+                SELECT
+                    COALESCE(parent_anchor, ''),
+                    COALESCE(citation_label, ''),
+                    COALESCE(provision_text, '')
+                FROM lex_provisions
+                WHERE doc_id = ? AND anchor_path = ?
+                LIMIT 1
+                """,
+                [doc_id, current_anchor],
+            ).fetchone()
+            if not row:
+                break
+            parent_anchor = str(row[0] or "")
+            if not parent_anchor or parent_anchor in seen:
+                break
+            seen.add(parent_anchor)
+            parent_row = self._con.execute(
+                """
+                SELECT
+                    COALESCE(citation_label, ''),
+                    COALESCE(provision_text, '')
+                FROM lex_provisions
+                WHERE doc_id = ? AND anchor_path = ?
+                LIMIT 1
+                """,
+                [doc_id, parent_anchor],
+            ).fetchone()
+            if parent_row:
+                citation = str(parent_row[0] or "").strip()
+                text = str(parent_row[1] or "").strip()
+                preview = text[:240] if text else ""
+                label = " ".join(part for part in (citation, preview) if part).strip()
+                if label:
+                    context.append(label)
+            current_anchor = parent_anchor
+        return context
+
+    def expand_reference_neighborhood(
+        self,
+        *,
+        doc_id: str,
+        anchors: list[str],
+        max_hops: int = 2,
+    ) -> list[LegalReferenceEdgeResult]:
+        if not self._table_exists("lex_reference_edges"):
+            return []
+        frontier: list[tuple[str, str]] = [(doc_id, anchor) for anchor in anchors if anchor]
+        seen_pairs = set(frontier)
+        seen_edges: set[tuple[str, str, str, str, str]] = set()
+        results: list[LegalReferenceEdgeResult] = []
+        for _ in range(max(max_hops, 0)):
+            next_frontier: list[tuple[str, str]] = []
+            for current_doc_id, current_anchor in frontier:
+                rows = self._con.execute(
+                    """
+                    SELECT
+                        COALESCE(source_doc_id, ''),
+                        COALESCE(source_anchor, ''),
+                        COALESCE(target_doc_id, ''),
+                        COALESCE(target_anchor, ''),
+                        COALESCE(relation_type, ''),
+                        COALESCE(resolution_status, ''),
+                        COALESCE(resolution_confidence, 0.0),
+                        COALESCE(ref_text_uk, '')
+                    FROM lex_reference_edges
+                    WHERE (source_doc_id = ? AND source_anchor = ?)
+                       OR (target_doc_id = ? AND target_anchor = ?)
+                    """,
+                    [current_doc_id, current_anchor, current_doc_id, current_anchor],
+                ).fetchall()
+                for row in rows:
+                    edge_key = (row[0], row[1], row[2], row[3], row[4])
+                    if edge_key in seen_edges:
+                        continue
+                    seen_edges.add(edge_key)
+                    results.append(
+                        LegalReferenceEdgeResult(
+                            source_doc_id=row[0],
+                            source_anchor=row[1],
+                            target_doc_id=row[2],
+                            target_anchor=row[3],
+                            relation_type=row[4],
+                            resolution_status=row[5],
+                            resolution_confidence=float(row[6] or 0.0),
+                            ref_text_uk=row[7],
+                        )
+                    )
+                    for candidate_pair in (
+                        (row[0], row[1]),
+                        (row[2], row[3]),
+                    ):
+                        if candidate_pair[0] and candidate_pair[1] and candidate_pair not in seen_pairs:
+                            seen_pairs.add(candidate_pair)
+                            next_frontier.append(candidate_pair)
+            frontier = next_frontier
+            if not frontier:
+                break
+        return results
+
+    def load_source_bundle(
+        self,
+        *,
+        doc_id: str,
+        anchors: list[str],
+        version_id: str | None = None,
+        max_reference_hops: int = 2,
+        candidate_fact_ids: list[str] | None = None,
+        candidate_provision_ids: list[str] | None = None,
+    ) -> LegalSourceBundle | None:
+        if not doc_id.strip() or not anchors:
+            return None
+        primary_anchors = self.load_provisions_by_anchor(doc_id, anchors)
+        if not primary_anchors:
+            return None
+        first = primary_anchors[0]
+        doc_row = self._con.execute(
+            """
+            SELECT
+                COALESCE(doc_name, ''),
+                COALESCE(doc_reestr_code, ''),
+                COALESCE(doc_type, '')
+            FROM lex_provisions
+            WHERE doc_id = ? AND anchor_path = ?
+            LIMIT 1
+            """,
+            [doc_id, first.anchor],
+        ).fetchone()
+        reference_neighborhood = self.expand_reference_neighborhood(
+            doc_id=doc_id,
+            anchors=[item.anchor for item in primary_anchors],
+            max_hops=max_reference_hops,
+        )
+        version_chain = self.load_doc_version_chain(doc_id=doc_id)
+        resolved_version_id = version_id or first.version_id
+        source_family = ""
+        for item in primary_anchors:
+            if item.legal_unit_subtype:
+                source_family = item.legal_unit_subtype
+                break
+        bundle_id = hashlib.sha256(
+            "|".join([doc_id, resolved_version_id, *sorted(item.anchor for item in primary_anchors)]).encode(
+                "utf-8"
+            )
+        ).hexdigest()[:20]
+        appendix_context: list[str] = []
+        for anchor in primary_anchors:
+            for context_item in anchor.context_prefix:
+                if context_item and context_item not in appendix_context:
+                    appendix_context.append(context_item)
+        return LegalSourceBundle(
+            bundle_id=bundle_id,
+            doc_id=doc_id,
+            version_id=resolved_version_id,
+            doc_name=str(doc_row[0] or "") if doc_row else "",
+            doc_reestr_code=str(doc_row[1] or "") if doc_row else "",
+            source_family=source_family,
+            primary_anchors=primary_anchors,
+            appendix_context=appendix_context,
+            reference_neighborhood=reference_neighborhood,
+            version_chain=version_chain,
+            candidate_fact_ids=list(candidate_fact_ids or []),
+            candidate_provision_ids=list(candidate_provision_ids or []),
+            notes=[f"doc_type={doc_row[2]}" for _ in [0] if doc_row and doc_row[2]],
+        )
 
     # ------------------------------------------------------------------
     # Lifecycle

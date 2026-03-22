@@ -23,6 +23,7 @@ from polisyos.ir.analytics.transportability import (
 
 from .capabilities import build_causal_capability_contract
 from .full_transport_bridge import normalize_transport_formula
+from .transport_bounds import transport_bounds
 
 _VALID_SOLVER_MODES: frozenset[str] = frozenset(
     {"auto", "simplified", "symbolic", "symbolic_y0", "symbolic_r", "full_auto"}
@@ -407,11 +408,14 @@ def _run_bounds_only(
     outcome: str,
     trace: list[str],
 ) -> TransportabilityResult:
-    partial = compute_manski_bounds(
-        outcome_conditioned=np.array([0.4, 0.6]),
-        treatment_probs=np.array([0.5, 0.5]),
-        outcome_support=(0.0, 1.0),
-    )
+    try:
+        partial = transport_bounds(selection_diagram=diagram)
+    except Exception:
+        partial = compute_manski_bounds(
+            outcome_conditioned=np.array([0.4, 0.6]),
+            treatment_probs=np.array([0.5, 0.5]),
+            outcome_support=(0.0, 1.0),
+        )
     return TransportabilityResult(
         query=f"P*({outcome}|do({treatment}))",
         status=TransportabilityStatus.BOUNDED_NON_IDENTIFIED,
@@ -422,8 +426,8 @@ def _run_bounds_only(
         final_confidence=max(0.0, 0.35 - min(float(diagram.context_distance) * 0.1, 0.2)),
         algorithm_version="trso_v2_bounds",
         identification_engine="bounds_only",
-        identification_trace=[*trace, "family:bounds_manski"],
-        warnings=["Exact transport identification unavailable; emitted Manski bounds fallback."],
+        identification_trace=[*trace, "family:transport_bounds"],
+        warnings=["Exact transport identification unavailable; emitted transport-aware bounds fallback."],
         partial_identification_result=partial,
         required_target_data=sorted({node.target_variable for node in diagram.s_nodes}),
         source_context_id=diagram.source_context.context_id,

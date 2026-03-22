@@ -115,10 +115,12 @@ class ParameterSelector:
             if candidate.uncertainty_source == "heuristic":
                 uncertainty_factor = 0.8
             elif parameter.confidence_interval is None and parameter.std_error is None:
-                uncertainty_factor = 0.9
+                uncertainty_factor = 0.65
             score = float(adjusted_confidence) * float(evidence_weight) * layer_factor * uncertainty_factor
             notes = list(candidate.transport_notes)
             notes.extend(profile_notes)
+            if parameter.confidence_interval is None and parameter.std_error is None and "no_uncertainty" not in notes:
+                notes.append("no_uncertainty")
             if candidate.source_layer not in {"simulation_ready", "simulation"}:
                 notes.append(f"source_layer:{candidate.source_layer}")
             if candidate.uncertainty_source:
@@ -126,6 +128,10 @@ class ParameterSelector:
             for flag in candidate.quality_flags:
                 if flag not in notes:
                     notes.append(flag)
+            if "context_mismatch" in notes:
+                score *= 0.8
+            if "canonical_gap_resolved" in notes:
+                score *= 0.9
             if candidate.requires_expert_review and "requires_expert_review" not in notes:
                 notes.append("requires_expert_review")
             scored.append(

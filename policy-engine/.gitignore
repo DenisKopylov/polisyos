@@ -33,6 +33,9 @@ runs/
 
 .polisyos/
 
+# Benchmark outputs
+benchmarks/_reports/
+
 # Temporary directories
 .tmp/
 .arch-freeze/
@@ -51,4 +54,5 @@ stale_sources_missing_paths.txt
 /=*
 
 # Documentation (auto-generated or working docs)
-docs/
+docs/*
+!docs/CAUSAL_ENGINE_SOTA_PLAN.md

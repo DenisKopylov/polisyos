@@ -17,10 +17,135 @@ from polisyos.foundry.methods.base import (
     Unit,
     foundry_method,
 )
+from polisyos.foundry.methods.catalog.causal.nuisance_layer import (
+    CrossFitNuisanceOutputs,
+    bootstrap_mean_interval,
+    build_nuisance_config,
+    crossfit_nuisances,
+    fit_dr_tau_model,
+    fit_r_tau_model,
+)
+from polisyos.foundry.methods.catalog.causal.tmle_core import (
+    ATENuisanceBundle,
+    ATENuisanceContract,
+    fit_crossfit_nuisance_bundle,
+)
 
 
 def _result_slot() -> frozenset[SlotSpec]:
     return frozenset({SlotSpec("result", SlotType.SCALAR, Unit("result", "json"))})
+
+
+def _feature_importances_from_array(
+    values: np.ndarray,
+    feature_names: list[str],
+    *,
+    method: str,
+    minimum_total: float = 1e-10,
+) -> list[dict[str, Any]]:
+    arr = np.asarray(values, dtype=float).ravel()
+    if arr.size == 0:
+        return []
+    arr = np.nan_to_num(arr, nan=0.0, posinf=0.0, neginf=0.0)
+    total = float(np.sum(np.abs(arr)))
+    if total <= minimum_total:
+        return []
+    order = np.argsort(-np.abs(arr))
+    payload: list[dict[str, Any]] = []
+    for rank, idx in enumerate(order, start=1):
+        name = feature_names[int(idx)] if int(idx) < len(feature_names) else f"x{int(idx)}"
+        payload.append(
+            {
+                "feature_name": name,
+                "importance_score": float(abs(arr[int(idx)])),
+                "importance_rank": rank,
+                "method": method,
+                "metadata": {},
+            }
+        )
+    return payload
+
+
+def _suppress_importances_if_homogeneous(
+    cate_pred: np.ndarray,
+    importances: list[dict[str, Any]] | None,
+    *,
+    threshold: float = 1e-8,
+) -> list[dict[str, Any]]:
+    cate_arr = np.asarray(cate_pred, dtype=float).ravel()
+    if cate_arr.size == 0 or float(np.nanstd(cate_arr)) <= threshold:
+        return []
+    if not importances:
+        return []
+    total = float(np.sum([float(item.get("importance_score", 0.0)) for item in importances]))
+    if total <= threshold:
+        return []
+    return importances
+
+
+def _coerce_shared_nuisance(
+    bundle: ATENuisanceBundle,
+    *,
+    params: Mapping[str, Any],
+) -> CrossFitNuisanceOutputs:
+    config = build_nuisance_config(dict(params))
+    diagnostics = bundle.diagnostics()
+    return CrossFitNuisanceOutputs(
+        propensity=np.asarray(bundle.propensity, dtype=float),
+        mu1=np.asarray(bundle.mu1, dtype=float),
+        mu0=np.asarray(bundle.mu0, dtype=float),
+        trim_mask=np.asarray(bundle.trim_mask, dtype=bool),
+        scaler=bundle.scaler,
+        config=config,
+        split_manifest=None,
+        backend_info={
+            "propensity_backend": next(iter(bundle.propensity_backends), None),
+            "outcome_backend": next(iter(bundle.outcome_backends), None),
+            "calibration_mode": next(iter(bundle.calibration_modes), None),
+            "effective_sample_size": diagnostics.get("effective_sample_size"),
+        },
+    )
+
+
+def _resolve_nuisance_outputs(
+    X: np.ndarray,
+    T: np.ndarray,
+    Y: np.ndarray,
+    *,
+    params: Mapping[str, Any],
+) -> CrossFitNuisanceOutputs:
+    shared = params.get("__shared_nuisance_bundle")
+    if isinstance(shared, ATENuisanceBundle):
+        return _coerce_shared_nuisance(shared, params=params)
+
+    try:
+        contract = ATENuisanceContract.from_params(params)
+        bundle = fit_crossfit_nuisance_bundle(X, T, Y, contract, params)
+        return _coerce_shared_nuisance(bundle, params=params)
+    except Exception:
+        config = build_nuisance_config(dict(params))
+        return crossfit_nuisances(X, T, Y, config)
+
+
+def _truncate_pseudo_outcome(
+    pseudo: np.ndarray,
+    *,
+    mask: np.ndarray | None = None,
+    sigma_multiple: float = 5.0,
+) -> np.ndarray:
+    arr = np.asarray(pseudo, dtype=float).reshape(-1)
+    clipped = np.array(arr, copy=True)
+    valid_mask = np.isfinite(arr)
+    if mask is not None:
+        valid_mask &= np.asarray(mask, dtype=bool).reshape(-1)
+    if not np.any(valid_mask):
+        return clipped
+    center = float(np.mean(arr[valid_mask]))
+    scale = float(np.std(arr[valid_mask]))
+    if not np.isfinite(scale) or scale <= 1e-8:
+        return clipped
+    half_width = max(float(sigma_multiple) * scale, 1e-6)
+    return np.clip(clipped, center - half_width, center + half_width)
 
 
 @foundry_method(
@@ -354,7 +479,20 @@ class ShiftShareIVEstimator:
             }
         ),
         output_slots=_result_slot(),
-        parameters=(),
+        parameters=(
+            ParameterSpec(name="estimation_backend", default="custom"),
+            ParameterSpec(name="nuisance_model_family", default="competitive"),
+            ParameterSpec(name="crossfit_folds", default=5),
+            ParameterSpec(name="n_repeats", default=3),
+            ParameterSpec(name="propensity_clipping", default=0.01),
+            ParameterSpec(name="propensity_trimming", default=0.02),
+            ParameterSpec(name="overlap_trim", default=0.02),
+            ParameterSpec(name="outcome_scaling", default="raw+standardized"),
+            ParameterSpec(name="bootstrap_draws", default=100),
+            ParameterSpec(name="random_seed", default=None),
+            ParameterSpec(name="random_seed_manifest", default=()),
+            ParameterSpec(name="feature_importance_mode", default="permutation"),
+        ),
         fidelity=FidelityLevel.HIGH,
         complexity=ComplexityClass.O_N2,
         backend=ComputeBackend.NUMPY,
@@ -463,7 +601,19 @@ class DRLearnerEstimator:
             }
         ),
         output_slots=_result_slot(),
-        parameters=(),
+        parameters=(
+            ParameterSpec(name="nuisance_model_family", default="competitive"),
+            ParameterSpec(name="crossfit_folds", default=5),
+            ParameterSpec(name="n_repeats", default=3),
+            ParameterSpec(name="propensity_clipping", default=0.01),
+            ParameterSpec(name="propensity_trimming", default=0.02),
+            ParameterSpec(name="overlap_trim", default=0.02),
+            ParameterSpec(name="outcome_scaling", default="raw+standardized"),
+            ParameterSpec(name="bootstrap_draws", default=100),
+            ParameterSpec(name="random_seed", default=None),
+            ParameterSpec(name="random_seed_manifest", default=()),
+            ParameterSpec(name="feature_importance_mode", default="permutation"),
+        ),
         fidelity=FidelityLevel.HIGH,
         complexity=ComplexityClass.O_N2,
         backend=ComputeBackend.NUMPY,
@@ -489,49 +639,94 @@ class DRLearnerEstimator:
         X = np.asarray(state["X"], dtype=float)
         T = np.asarray(state["treatment"], dtype=float)
         Y = np.asarray(state["outcome"], dtype=float)
-        n, k = X.shape
+        n, _k = X.shape
+        estimation_backend = str(params.get("estimation_backend", "custom")).strip().lower()
+        if estimation_backend in {"econml", "econml_direct"}:
+            from polisyos.foundry.methods.catalog.causal.forest_dr import ForestDRLearnerEstimator
 
-        # Nuisance: propensity
-        X_aug = np.column_stack([np.ones(n), X])
-        beta_ps = np.zeros(X_aug.shape[1])
-        for _ in range(50):
-            eta = np.clip(X_aug @ beta_ps, -20, 20)
-            p = 1.0 / (1.0 + np.exp(-eta))
-            W = np.maximum(p * (1 - p), 1e-12)
-            try:
-                delta = np.linalg.solve(X_aug.T @ np.diag(W) @ X_aug, X_aug.T @ (T - p))
-            except np.linalg.LinAlgError:
-                break
-            beta_ps += delta
-            if np.max(np.abs(delta)) < 1e-8:
-                break
-        eta = np.clip(X_aug @ beta_ps, -20, 20)
-        e = np.clip(1.0 / (1.0 + np.exp(-eta)), 0.05, 0.95)
+            delegate_params = {
+                "n_estimators": int(params.get("n_estimators", 160)),
+                "min_samples_leaf": int(params.get("min_samples_leaf", 20)),
+                "max_depth": params.get("max_depth"),
+                "max_samples": float(params.get("max_samples", 0.45)),
+                "honest": bool(params.get("honest", True)),
+                "subforest_size": int(params.get("subforest_size", 4)),
+                "min_propensity": float(params.get("propensity_clipping", 0.025)),
+                "cv_folds": int(params.get("crossfit_folds", 3)),
+                "mc_iters": int(params.get("mc_iters", 1)),
+                "confidence_level": float(params.get("confidence_level", 0.95)),
+                "feature_importance_method": "tree_based",
+                "random_state": int(params.get("random_seed", params.get("__seed__", 0)) or 0),
+            }
+            delegated = ForestDRLearnerEstimator.pure_step(
+                {
+                    "outcome": Y,
+                    "treatment": T,
+                    "covariates": X,
+                },
+                delegate_params,
+            )
+            if getattr(delegated.get("report"), "point_estimate", None) is not None:
+                return delegated
+        effective_params = dict(params)
+        effective_params.setdefault("nuisance_model_family", "competitive")
+        effective_params.setdefault("crossfit_folds", 5)
+        effective_params.setdefault("n_repeats", 3)
+        effective_params.setdefault("propensity_clipping", 0.01)
+        effective_params.setdefault("propensity_trimming", 0.02)
+        effective_params.setdefault("overlap_trim", 0.02)
+        effective_params.setdefault("outcome_scaling", "raw+standardized")
+        effective_params.setdefault("bootstrap_draws", 100)
+        effective_params.setdefault("feature_importance_mode", "permutation")
+        config = build_nuisance_config(effective_params)
+        nuisance = _resolve_nuisance_outputs(X, T, Y, params=effective_params)
+        pseudo = _truncate_pseudo_outcome(
+            nuisance.aipw_scores(Y, T),
+            mask=nuisance.trim_mask,
+        )
+        tau_fit = fit_dr_tau_model(X, pseudo, config)
+        cate_pred = tau_fit.cate_predictions
+        feature_importances = tau_fit.feature_importances
 
-        # Nuisance: outcome models
-        treated = T > 0.5
-        beta1 = np.linalg.lstsq(X_aug[treated], Y[treated], rcond=None)[0] if np.sum(treated) > 1 else np.zeros(X_aug.shape[1])
-        beta0 = np.linalg.lstsq(X_aug[~treated], Y[~treated], rcond=None)[0] if np.sum(~treated) > 1 else np.zeros(X_aug.shape[1])
-        mu1 = X_aug @ beta1
-        mu0 = X_aug @ beta0
-
-        # DR pseudo-outcome
-        pseudo = mu1 - mu0 + T * (Y - mu1) / e - (1 - T) * (Y - mu0) / (1 - e)
-
-        # Second stage: CATE(x) = E[pseudo | X=x] via linear model
-        beta_cate = np.linalg.lstsq(X_aug, pseudo, rcond=None)[0]
-        cate_pred = X_aug @ beta_cate
-
-        ate = float(np.mean(cate_pred))
-        cate_std = float(np.std(cate_pred))
+        ate = float(np.mean(cate_pred[nuisance.trim_mask]))
+        cate_std = float(np.std(cate_pred[nuisance.trim_mask]))
+        ci_lower, ci_upper = bootstrap_mean_interval(
+            pseudo[nuisance.trim_mask],
+            seed=config.random_seed + 71,
+            draws=config.bootstrap_draws,
+        )
+        feature_importance_payload = _suppress_importances_if_homogeneous(
+            cate_pred,
+            _feature_importances_from_array(
+                feature_importances if feature_importances is not None else np.array([]),
+                [f"x{i}" for i in range(X.shape[1])],
+                method="permutation" if config.feature_importance_mode == "permutation" else "model_based",
+            ),
+        )
 
         return {
             "result": {
                 "ate": ate,
+                "ci_lower": ci_lower,
+                "ci_upper": ci_upper,
                 "cate_predictions": cate_pred.tolist(),
                 "cate_std": cate_std,
-                "cate_coefficients": beta_cate.tolist(),
+                "feature_importances": feature_importance_payload,
                 "n_obs": n,
+                "nuisance_diagnostics": nuisance.diagnostics(),
+                "nuisance_config": {
+                    "nuisance_model_family": config.nuisance_model_family,
+                    "crossfit_folds": config.crossfit_folds,
+                    "n_repeats": config.n_repeats,
+                    "random_seed_manifest": list(config.random_seed_manifest),
+                    "propensity_clipping": config.propensity_clipping,
+                    "propensity_trimming": config.propensity_trimming,
+                    "outcome_scaling": config.outcome_scaling,
+                    "inference_backend": config.inference_backend,
+                    "bootstrap_draws": config.bootstrap_draws,
+                    "feature_importance_mode": config.feature_importance_mode,
+                },
+                "heterogeneity_signal": float(np.std(cate_pred, ddof=1)) if cate_pred.size > 1 else 0.0,
             }
         }
 
@@ -559,6 +754,18 @@ class RLearnerEstimator:
         output_slots=_result_slot(),
         parameters=(
             ParameterSpec(name="lambda_reg", default=0.01, bounds=(0.0, 10.0)),
+            ParameterSpec(name="estimation_backend", default="custom"),
+            ParameterSpec(name="nuisance_model_family", default="competitive"),
+            ParameterSpec(name="crossfit_folds", default=5),
+            ParameterSpec(name="n_repeats", default=3),
+            ParameterSpec(name="propensity_clipping", default=0.01),
+            ParameterSpec(name="propensity_trimming", default=0.02),
+            ParameterSpec(name="overlap_trim", default=0.02),
+            ParameterSpec(name="outcome_scaling", default="raw+standardized"),
+            ParameterSpec(name="bootstrap_draws", default=100),
+            ParameterSpec(name="random_seed", default=None),
+            ParameterSpec(name="random_seed_manifest", default=()),
+            ParameterSpec(name="feature_importance_mode", default="permutation"),
         ),
         fidelity=FidelityLevel.HIGH,
         complexity=ComplexityClass.O_N2,
@@ -585,49 +792,84 @@ class RLearnerEstimator:
         X = np.asarray(state["X"], dtype=float)
         T = np.asarray(state["treatment"], dtype=float)
         Y = np.asarray(state["outcome"], dtype=float)
-        n, k = X.shape
-        lam = float(params.get("lambda_reg", 0.01))
+        n, _k = X.shape
+        estimation_backend = str(params.get("estimation_backend", "custom")).strip().lower()
+        if estimation_backend in {"econml", "econml_direct"}:
+            from polisyos.foundry.methods.catalog.causal.dml import DoubleMachineLearning
 
-        X_aug = np.column_stack([np.ones(n), X])
-
-        # Marginal outcome model: m(X) = E[Y|X]
-        beta_m = np.linalg.lstsq(X_aug, Y, rcond=None)[0]
-        m_hat = X_aug @ beta_m
-
-        # Propensity: e(X) = E[T|X]
-        beta_e = np.linalg.lstsq(X_aug, T, rcond=None)[0]
-        e_hat = np.clip(X_aug @ beta_e, 0.05, 0.95)
-
-        # Residuals
-        Y_tilde = Y - m_hat
-        T_tilde = T - e_hat
-
-        # R-learner: minimize sum (Y_tilde - tau(X)*T_tilde)^2
-        # tau(X) = X_aug @ alpha
-        # Weighted least squares: weight by T_tilde^2
-        W = T_tilde ** 2
-        W = np.maximum(W, 1e-12)
-
-        # (X'*diag(W)*X + lambda*I) * alpha = X'*diag(W) * (Y_tilde / T_tilde)
-        pseudo_y = Y_tilde / np.maximum(np.abs(T_tilde), 1e-6) * np.sign(T_tilde)
-        A = X_aug.T @ np.diag(W) @ X_aug + lam * np.eye(X_aug.shape[1])
-        b_rhs = X_aug.T @ (W * pseudo_y)
-        try:
-            alpha = np.linalg.solve(A, b_rhs)
-        except np.linalg.LinAlgError:
-            alpha = np.linalg.lstsq(A, b_rhs, rcond=None)[0]
-
-        cate_pred = X_aug @ alpha
-        ate = float(np.mean(cate_pred))
+            delegate_params = {
+                "model_type": str(params.get("direct_model_type", "linear")).strip().lower(),
+                "cv_folds": int(params.get("crossfit_folds", 3)),
+                "confidence_level": float(params.get("confidence_level", 0.95)),
+                "feature_importance_method": "tree_based",
+                "random_state": int(params.get("random_seed", params.get("__seed__", 0)) or 0),
+            }
+            delegated = DoubleMachineLearning.pure_step(
+                {
+                    "outcome": Y,
+                    "treatment": T,
+                    "covariates": X,
+                },
+                delegate_params,
+            )
+            if getattr(delegated.get("report"), "point_estimate", None) is not None:
+                return delegated
+        effective_params = dict(params)
+        effective_params.setdefault("nuisance_model_family", "competitive")
+        effective_params.setdefault("crossfit_folds", 5)
+        effective_params.setdefault("n_repeats", 3)
+        effective_params.setdefault("propensity_clipping", 0.01)
+        effective_params.setdefault("propensity_trimming", 0.02)
+        effective_params.setdefault("overlap_trim", 0.02)
+        effective_params.setdefault("outcome_scaling", "raw+standardized")
+        effective_params.setdefault("bootstrap_draws", 100)
+        effective_params.setdefault("feature_importance_mode", "permutation")
+        config = build_nuisance_config(effective_params)
+        nuisance = _resolve_nuisance_outputs(X, T, Y, params=effective_params)
+        m_hat = 0.5 * (nuisance.mu1 + nuisance.mu0)
+        y_residual = Y - m_hat
+        t_residual = T - nuisance.propensity
+        tau_fit = fit_r_tau_model(X, y_residual, t_residual, config)
+        cate_pred = tau_fit.cate_predictions
+        ate = float(np.mean(cate_pred[nuisance.trim_mask]))
+        ci_lower, ci_upper = bootstrap_mean_interval(
+            cate_pred[nuisance.trim_mask],
+            seed=config.random_seed + 89,
+            draws=config.bootstrap_draws,
+        )
+        feature_importance_payload = _suppress_importances_if_homogeneous(
+            cate_pred,
+            _feature_importances_from_array(
+                tau_fit.feature_importances if tau_fit.feature_importances is not None else np.array([]),
+                [f"x{i}" for i in range(X.shape[1])],
+                method="permutation" if config.feature_importance_mode == "permutation" else "model_based",
+            ),
+        )
 
         return {
             "result": {
                 "ate": ate,
+                "ci_lower": ci_lower,
+                "ci_upper": ci_upper,
                 "cate_predictions": cate_pred.tolist(),
                 "cate_std": float(np.std(cate_pred)),
-                "cate_coefficients": alpha.tolist(),
-                "lambda_reg": lam,
+                "feature_importances": feature_importance_payload,
+                "lambda_reg": float(params.get("lambda_reg", 0.01)),
                 "n_obs": n,
+                "nuisance_diagnostics": nuisance.diagnostics(),
+                "nuisance_config": {
+                    "nuisance_model_family": config.nuisance_model_family,
+                    "crossfit_folds": config.crossfit_folds,
+                    "n_repeats": config.n_repeats,
+                    "random_seed_manifest": list(config.random_seed_manifest),
+                    "propensity_clipping": config.propensity_clipping,
+                    "propensity_trimming": config.propensity_trimming,
+                    "outcome_scaling": config.outcome_scaling,
+                    "inference_backend": config.inference_backend,
+                    "bootstrap_draws": config.bootstrap_draws,
+                    "feature_importance_mode": config.feature_importance_mode,
+                },
+                "heterogeneity_signal": float(np.std(cate_pred, ddof=1)) if cate_pred.size > 1 else 0.0,
             }
         }
 

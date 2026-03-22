@@ -3,7 +3,11 @@ from __future__ import annotations
 from typing import Any, Mapping
 
 from polisyos.scientist.engine.state import ExperimentState
-from polisyos.scientist.nodes.builtins.state_keys import INPUT_KNOWLEDGE_BUNDLE_REF
+from polisyos.scientist.nodes.builtins.state_keys import (
+    INPUT_KNOWLEDGE_BUNDLE_REF,
+    INPUT_RESEARCH_INTENT_REF,
+    INPUT_TRINITY_BUNDLE_REF,
+)
 
 _EXTERNAL_EVIDENCE_MARKERS: frozenset[str] = frozenset(
     {
@@ -18,6 +22,10 @@ _SERIOUS_EXECUTION_PROFILES: frozenset[str] = frozenset({"research", "governed",
 
 def resolve_workflow_id(initial_state: ExperimentState) -> str:
     explicit = str(initial_state.params.get("workflow_id", "") or "").strip().lower()
+    if explicit == "scientist_policy_verified":
+        return "scientist_policy_verified"
+    if _should_use_policy_verified(initial_state):
+        return "scientist_policy_verified"
     if _execution_profile_requires_serious_workflow(initial_state):
         return "scientist_causal_full"
     if explicit == "scientist_causal_full":
@@ -25,6 +33,25 @@ def resolve_workflow_id(initial_state: ExperimentState) -> str:
     if _should_auto_escalate_to_causal_full(initial_state):
         return "scientist_causal_full"
     return "scientist_default"
+
+
+def _should_use_policy_verified(state: ExperimentState) -> bool:
+    params = state.params
+    answer_mode = str(params.get("policy_answer_mode", "") or "").strip().lower()
+    execution_profile = str(state.execution_profile or params.get("execution_profile") or "").strip().lower()
+    if answer_mode == "verified_async" or execution_profile == "policy_verified_async":
+        return True
+    has_trinity = INPUT_TRINITY_BUNDLE_REF in state.inputs
+    has_policy_request = any(
+        (
+            INPUT_RESEARCH_INTENT_REF in state.inputs,
+            bool(str(params.get("policy_question", "") or "").strip()),
+            bool(str(params.get("policy_request", "") or "").strip()),
+            bool(str(params.get("problem_statement", "") or "").strip()),
+            bool(str(params.get("research_question", "") or "").strip()),
+        )
+    )
+    return (not has_trinity) and has_policy_request
 
 
 def _should_auto_escalate_to_causal_full(state: ExperimentState) -> bool:

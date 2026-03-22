@@ -93,6 +93,134 @@ def _fit_scm_weights(
     return weights, True, ""
 
 
+def _fit_ridge_correction(X: np.ndarray, y: np.ndarray, alpha: float = 1.0) -> np.ndarray:
+    """Fit a tiny ridge regression used by the augmented SCM correction."""
+    X = np.asarray(X, dtype=float)
+    y = np.asarray(y, dtype=float)
+    X_aug = np.column_stack([np.ones(X.shape[0]), X])
+    reg = alpha * np.eye(X_aug.shape[1])
+    reg[0, 0] = 0.0
+    beta, *_ = np.linalg.lstsq(X_aug.T @ X_aug + reg, X_aug.T @ y, rcond=None)
+    return beta
+
+
+def _predict_ridge_correction(X: np.ndarray, beta: np.ndarray) -> np.ndarray:
+    X = np.asarray(X, dtype=float)
+    X_aug = np.column_stack([np.ones(X.shape[0]), X])
+    return X_aug @ beta
+
+
+def augmented_synthetic_control(
+    y_treated: np.ndarray,
+    y_donors: np.ndarray,
+    *,
+    t0: int,
+    donor_weights: np.ndarray,
+    ridge_alpha: float = 1.0,
+    confidence_level: float = 0.95,
+) -> dict[str, Any]:
+    """Augmented synthetic control with ridge bias correction and jackknife CI."""
+    y_treated = np.asarray(y_treated, dtype=float)
+    y_donors = np.asarray(y_donors, dtype=float)
+    donor_weights = np.asarray(donor_weights, dtype=float)
+
+    if y_donors.ndim != 2:
+        raise ValueError("y_donors must be a 2D array")
+    if y_treated.ndim != 1:
+        raise ValueError("y_treated must be a 1D array")
+
+    def _core(y_treated_local: np.ndarray, y_donors_local: np.ndarray, weights_local: np.ndarray) -> dict[str, Any]:
+        base_cf_local = weights_local @ y_donors_local
+        residual_pre_local = y_treated_local[:t0] - base_cf_local[:t0]
+        correction_beta_local = _fit_ridge_correction(
+            y_donors_local[:, :t0].T,
+            residual_pre_local,
+            alpha=ridge_alpha,
+        )
+        correction_all_local = _predict_ridge_correction(y_donors_local.T, correction_beta_local)
+        correction_all_local = correction_all_local - float(np.mean(correction_all_local[:t0]))
+        augmented_cf_local = base_cf_local + correction_all_local
+        effects_local = y_treated_local - augmented_cf_local
+        att_local = float(np.mean(effects_local[t0:]))
+        return {
+            "att": att_local,
+            "counterfactual": augmented_cf_local,
+            "effects": effects_local,
+            "correction_beta": correction_beta_local,
+            "base_counterfactual": base_cf_local,
+        }
+
+    core = _core(y_treated, y_donors, donor_weights)
+    att = float(core["att"])
+    augmented_cf = core["counterfactual"]
+    effects = core["effects"]
+    correction_beta = core["correction_beta"]
+    base_cf = core["base_counterfactual"]
+
+    jackknife: list[float] = []
+    n_donors = y_donors.shape[0]
+    if n_donors >= 3:
+        for leave_out in range(n_donors):
+            donor_mask = np.array([j != leave_out for j in range(n_donors)], dtype=bool)
+            if donor_mask.sum() < 2:
+                continue
+            subset_weights, ok, _ = _fit_scm_weights(
+                y_treated_pre=y_treated[:t0],
+                y_donors_pre=y_donors[donor_mask, :t0],
+                method="SLSQP",
+                max_iter=1000,
+                tolerance=1e-8,
+                covariates_weight=0.0,
+            )
+            if not ok:
+                continue
+            subset_result = _core(y_treated, y_donors[donor_mask], subset_weights)
+            jackknife.append(float(subset_result["att"]))
+
+    if len(jackknife) >= 2:
+        jack = np.asarray(jackknife, dtype=float)
+        jack_mean = float(np.mean(jack))
+        jack_se = float(np.sqrt(max((len(jack) - 1) / len(jack) * np.sum((jack - jack_mean) ** 2), 0.0)))
+        ci = (att - 1.96 * jack_se, att + 1.96 * jack_se)
+        inference_method = "jackknife"
+    else:
+        ci = bootstrap_ci(effects[t0:], confidence_level=confidence_level)
+        inference_method = "bootstrap"
+
+    return {
+        "att": att,
+        "counterfactual": augmented_cf,
+        "effects": effects,
+        "ci": ci,
+        "inference_method": inference_method,
+        "correction_beta": correction_beta,
+        "base_counterfactual": base_cf,
+        "jackknife_att": jackknife,
+    }
+
+
+def _synthetic_control_output(
+    report: Any,
+    *,
+    warnings: list[str] | None = None,
+    weights: np.ndarray | None = None,
+    counterfactual: np.ndarray | None = None,
+    augmented: bool = False,
+) -> dict[str, Any]:
+    output = wrap_causal_output(
+        report,
+        warnings=warnings,
+        extras={
+            "weights": weights,
+            "counterfactual": counterfactual,
+            "augmented": augmented,
+        },
+    )
+    if not output["warnings"]:
+        output["warnings"] = None
+    return output
+
+
 @foundry_method(
     namespace="causal.inference",
     version="1.0.0",
@@ -124,21 +252,36 @@ class SyntheticControlMethod:
         output_slots=frozenset(
             {
                 SlotSpec(
-                    name="causal_effect_report",
+                    name="report",
                     slot_type=SlotType.SCALAR,
                     unit=Unit("report", "json"),
                 ),
                 SlotSpec(
-                    name="donor_weights",
+                    name="envelope",
+                    slot_type=SlotType.SCALAR,
+                    unit=Unit("uncertainty", "json"),
+                ),
+                SlotSpec(
+                    name="warnings",
+                    slot_type=SlotType.SCALAR,
+                    unit=Unit("warning", "list"),
+                ),
+                SlotSpec(
+                    name="weights",
                     slot_type=SlotType.VECTOR,
                     unit=Unit("weight", "proportion"),
                     shape=("n_donors",),
                 ),
                 SlotSpec(
-                    name="counterfactual_series",
+                    name="counterfactual",
                     slot_type=SlotType.VECTOR,
                     unit=Unit("outcome", "value"),
                     shape=("n_periods",),
+                ),
+                SlotSpec(
+                    name="augmented",
+                    slot_type=SlotType.SCALAR,
+                    unit=Unit("flag", "boolean"),
                 ),
             }
         ),
@@ -149,6 +292,8 @@ class SyntheticControlMethod:
             ParameterSpec(name="tolerance", default=1e-8),
             ParameterSpec(name="covariates_weight", default=0.0),
             ParameterSpec(name="confidence_level", default=0.95),
+            ParameterSpec(name="estimation_mode", default="standard"),
+            ParameterSpec(name="ridge_alpha", default=1.0),
         ),
         fidelity=FidelityLevel.HIGH,
         complexity=ComplexityClass.O_N2,
@@ -211,8 +356,13 @@ class SyntheticControlMethod:
                 post_periods=data.post_periods,
                 assumptions=assumptions,
             )
-            return wrap_causal_output(report, warnings=[report.status_reason or "invalid input"],
-                                      extras={"weights": np.array([]), "counterfactual": np.array([])})
+            return _synthetic_control_output(
+                report,
+                warnings=[report.status_reason or "invalid input"],
+                weights=None,
+                counterfactual=None,
+                augmented=False,
+            )
         if donor_idx.shape[0] < 2:
             report = build_failure_report(
                 method=CausalMethod.SYNTHETIC_CONTROL,
@@ -226,8 +376,13 @@ class SyntheticControlMethod:
                 post_periods=data.post_periods,
                 assumptions=assumptions,
             )
-            return wrap_causal_output(report, warnings=[report.status_reason or "invalid input"],
-                                      extras={"weights": np.array([]), "counterfactual": np.array([])})
+            return _synthetic_control_output(
+                report,
+                warnings=[report.status_reason or "invalid input"],
+                weights=None,
+                counterfactual=None,
+                augmented=False,
+            )
         if data.time_treatment <= 0 or data.time_treatment >= data.n_periods:
             report = build_failure_report(
                 method=CausalMethod.SYNTHETIC_CONTROL,
@@ -243,8 +398,13 @@ class SyntheticControlMethod:
                 post_periods=data.post_periods,
                 assumptions=assumptions,
             )
-            return wrap_causal_output(report, warnings=[report.status_reason or "invalid input"],
-                                      extras={"weights": np.array([]), "counterfactual": np.array([])})
+            return _synthetic_control_output(
+                report,
+                warnings=[report.status_reason or "invalid input"],
+                weights=None,
+                counterfactual=None,
+                augmented=False,
+            )
 
         t0 = data.time_treatment
         treated = int(treated_idx[0])
@@ -281,19 +441,119 @@ class SyntheticControlMethod:
                 post_periods=data.post_periods,
                 assumptions=assumptions,
             )
-            return wrap_causal_output(
-                report, warnings=[report.status_reason or "optimizer failure"],
-                extras={"weights": np.array([]), "counterfactual": np.array([])},
+            return _synthetic_control_output(
+                report,
+                warnings=[report.status_reason or "optimizer failure"],
+                weights=None,
+                counterfactual=None,
+                augmented=False,
             )
 
-        counterfactual = donor_weights @ data.outcome[donor_idx, :]
-        effects = data.outcome[treated, :] - counterfactual
-        post_effects = effects[t0:]
-        att = float(np.mean(post_effects))
+        estimation_mode = str(params.get("estimation_mode", "standard"))
+        confidence_level = float(params.get("confidence_level", 0.95))
 
-        rmspe_pre = compute_rmspe(data.outcome[treated, :t0], counterfactual[:t0])
-        rmspe_post = compute_rmspe(data.outcome[treated, t0:], counterfactual[t0:])
-        rmspe_ratio = float(rmspe_post / max(rmspe_pre, 1e-12))
+        if estimation_mode == "augmented":
+            augmented = augmented_synthetic_control(
+                data.outcome[treated],
+                data.outcome[donor_idx],
+                t0=t0,
+                donor_weights=donor_weights,
+                ridge_alpha=float(params.get("ridge_alpha", 1.0)),
+                confidence_level=confidence_level,
+            )
+            counterfactual = np.asarray(augmented["counterfactual"], dtype=float)
+            effects = np.asarray(augmented["effects"], dtype=float)
+            att = float(augmented["att"])
+            ci = tuple(float(x) for x in augmented["ci"])
+            inference_method = str(augmented["inference_method"])
+            placebo_results = []
+            placebo_atts = []
+            placebo_ratios = []
+            placebo_p_value = None
+            rmspe_pre = compute_rmspe(data.outcome[treated, :t0], counterfactual[:t0])
+            rmspe_post = compute_rmspe(data.outcome[treated, t0:], counterfactual[t0:])
+            rmspe_ratio = float(rmspe_post / max(rmspe_pre, 1e-12))
+        else:
+            counterfactual = donor_weights @ data.outcome[donor_idx, :]
+            effects = data.outcome[treated, :] - counterfactual
+            post_effects = effects[t0:]
+            att = float(np.mean(post_effects))
+
+            rmspe_pre = compute_rmspe(data.outcome[treated, :t0], counterfactual[:t0])
+            rmspe_post = compute_rmspe(data.outcome[treated, t0:], counterfactual[t0:])
+            rmspe_ratio = float(rmspe_post / max(rmspe_pre, 1e-12))
+
+            placebo_results = []
+            placebo_atts = []
+            placebo_ratios = []
+            requested_runs = params.get("n_placebo_runs", "all")
+            donor_order = donor_idx.tolist()
+            if isinstance(requested_runs, int):
+                donor_order = donor_order[: max(0, requested_runs)]
+
+            for pseudo_treated in donor_order:
+                pseudo_donors = np.array([idx for idx in donor_idx if idx != pseudo_treated], dtype=int)
+                if pseudo_donors.size == 0:
+                    continue
+                pseudo_weights, pseudo_ok, _ = _fit_scm_weights(
+                    y_treated_pre=data.outcome[pseudo_treated, :t0],
+                    y_donors_pre=data.outcome[pseudo_donors, :t0],
+                    method=str(params.get("optimization_method", "SLSQP")),
+                    max_iter=int(params.get("max_iter", 1000)),
+                    tolerance=float(params.get("tolerance", 1e-8)),
+                    covariates_weight=0.0,
+                )
+                if not pseudo_ok:
+                    continue
+                pseudo_counterfactual = pseudo_weights @ data.outcome[pseudo_donors, :]
+                pseudo_effects = data.outcome[pseudo_treated, :] - pseudo_counterfactual
+                pseudo_att = float(np.mean(pseudo_effects[t0:]))
+                pseudo_rmspe_pre = compute_rmspe(
+                    data.outcome[pseudo_treated, :t0],
+                    pseudo_counterfactual[:t0],
+                )
+                pseudo_rmspe_post = compute_rmspe(
+                    data.outcome[pseudo_treated, t0:],
+                    pseudo_counterfactual[t0:],
+                )
+                pseudo_ratio = float(pseudo_rmspe_post / max(pseudo_rmspe_pre, 1e-12))
+                placebo_results.append(
+                    PlaceboResult(
+                        unit_id=int(pseudo_treated),
+                        effect_estimate=pseudo_att,
+                        rmspe_pre=pseudo_rmspe_pre,
+                        rmspe_post=pseudo_rmspe_post,
+                        rmspe_ratio=pseudo_ratio,
+                    )
+                )
+                placebo_atts.append(pseudo_att)
+                placebo_ratios.append(pseudo_ratio)
+
+            placebo_p_value = None
+            if placebo_ratios:
+                placebo_p_value = float(
+                    (sum(1 for ratio in placebo_ratios if ratio >= rmspe_ratio) + 1)
+                    / (len(placebo_ratios) + 1)
+                )
+
+            if len(placebo_atts) >= 5:
+                null = np.asarray(placebo_atts, dtype=float)
+                lo_null = float(np.percentile(null, 100.0 * (1.0 - confidence_level) / 2.0))
+                hi_null = float(np.percentile(null, 100.0 * (1.0 + confidence_level) / 2.0))
+                ci = (att - hi_null, att - lo_null)
+                inference_method = "placebo_permutation"
+            else:
+                rng = params["__rng__"]
+                n_boot = 1000
+                samples = np.array(
+                    [
+                        np.mean(rng.choice(post_effects, size=post_effects.shape[0], replace=True))
+                        for _ in range(n_boot)
+                    ]
+                )
+                ci = bootstrap_ci(samples, confidence_level=confidence_level)
+                inference_method = "bootstrap"
+
         diagnostics.append(
             DiagnosticTest(
                 test_name="pre_treatment_fit_rmspe",
@@ -302,78 +562,6 @@ class SyntheticControlMethod:
                 details={"rmspe_post": rmspe_post, "rmspe_ratio": rmspe_ratio},
             )
         )
-
-        placebo_results: list[PlaceboResult] = []
-        placebo_atts: list[float] = []
-        placebo_ratios: list[float] = []
-        requested_runs = params.get("n_placebo_runs", "all")
-        donor_order = donor_idx.tolist()
-        if isinstance(requested_runs, int):
-            donor_order = donor_order[: max(0, requested_runs)]
-
-        for pseudo_treated in donor_order:
-            pseudo_donors = np.array([idx for idx in donor_idx if idx != pseudo_treated], dtype=int)
-            if pseudo_donors.size == 0:
-                continue
-            pseudo_weights, pseudo_ok, _ = _fit_scm_weights(
-                y_treated_pre=data.outcome[pseudo_treated, :t0],
-                y_donors_pre=data.outcome[pseudo_donors, :t0],
-                method=str(params.get("optimization_method", "SLSQP")),
-                max_iter=int(params.get("max_iter", 1000)),
-                tolerance=float(params.get("tolerance", 1e-8)),
-                covariates_weight=0.0,
-            )
-            if not pseudo_ok:
-                continue
-            pseudo_counterfactual = pseudo_weights @ data.outcome[pseudo_donors, :]
-            pseudo_effects = data.outcome[pseudo_treated, :] - pseudo_counterfactual
-            pseudo_att = float(np.mean(pseudo_effects[t0:]))
-            pseudo_rmspe_pre = compute_rmspe(
-                data.outcome[pseudo_treated, :t0],
-                pseudo_counterfactual[:t0],
-            )
-            pseudo_rmspe_post = compute_rmspe(
-                data.outcome[pseudo_treated, t0:],
-                pseudo_counterfactual[t0:],
-            )
-            pseudo_ratio = float(pseudo_rmspe_post / max(pseudo_rmspe_pre, 1e-12))
-            placebo_results.append(
-                PlaceboResult(
-                    unit_id=int(pseudo_treated),
-                    effect_estimate=pseudo_att,
-                    rmspe_pre=pseudo_rmspe_pre,
-                    rmspe_post=pseudo_rmspe_post,
-                    rmspe_ratio=pseudo_ratio,
-                )
-            )
-            placebo_atts.append(pseudo_att)
-            placebo_ratios.append(pseudo_ratio)
-
-        placebo_p_value: float | None = None
-        confidence_level = float(params.get("confidence_level", 0.95))
-        if placebo_ratios:
-            placebo_p_value = float(
-                (sum(1 for ratio in placebo_ratios if ratio >= rmspe_ratio) + 1)
-                / (len(placebo_ratios) + 1)
-            )
-
-        if len(placebo_atts) >= 5:
-            null = np.asarray(placebo_atts, dtype=float)
-            lo_null = float(np.percentile(null, 100.0 * (1.0 - confidence_level) / 2.0))
-            hi_null = float(np.percentile(null, 100.0 * (1.0 + confidence_level) / 2.0))
-            ci = (att - hi_null, att - lo_null)
-            inference_method = "placebo_permutation"
-        else:
-            rng = params["__rng__"]
-            n_boot = 1000
-            samples = np.array(
-                [
-                    np.mean(rng.choice(post_effects, size=post_effects.shape[0], replace=True))
-                    for _ in range(n_boot)
-                ]
-            )
-            ci = bootstrap_ci(samples, confidence_level=confidence_level)
-            inference_method = "bootstrap"
 
         effect_size = compute_cohen_d(
             effect=att,
@@ -411,15 +599,16 @@ class SyntheticControlMethod:
                 "donor_weights": donor_weights.tolist(),
                 "donor_ids": donor_idx.astype(int).tolist(),
                 "treated_id": int(treated),
+                "estimation_mode": estimation_mode,
             },
         )
-        return wrap_causal_output(
+        return _synthetic_control_output(
             report,
-            extras={
-                "weights": donor_weights,
-                "counterfactual": counterfactual,
-            },
+            warnings=None,
+            weights=donor_weights,
+            counterfactual=counterfactual,
+            augmented=estimation_mode == "augmented",
         )
 
 
-__all__ = ["SyntheticControlMethod"]
+__all__ = ["SyntheticControlMethod", "augmented_synthetic_control"]

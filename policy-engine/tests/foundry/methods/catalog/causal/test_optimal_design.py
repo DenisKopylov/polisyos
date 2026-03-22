@@ -12,6 +12,7 @@ Reference:
 from __future__ import annotations
 
 import pytest
+import numpy as np
 
 from polisyos.ir.analytics.causal_graph import (
     CausalEdge,
@@ -339,3 +340,106 @@ class TestAdaptiveExperiment:
         )
 
         assert len(plans) == 1
+
+
+# ---------------------------------------------------------------------------
+# TestAdaptiveBayesianExperiment
+# ---------------------------------------------------------------------------
+
+
+class TestAdaptiveBayesianExperiment:
+    """Thompson sampling adaptive allocation."""
+
+    def test_thompson_concentrates_on_best_arm(self):
+        from polisyos.foundry.methods.catalog.causal.optimal_design import (
+            adaptive_bayesian_experiment,
+        )
+
+        result = adaptive_bayesian_experiment(
+            [0.2, 0.75],
+            n_rounds=150,
+            seed=13,
+            arm_labels=("control", "treatment"),
+        )
+
+        assert result.best_arm_index == 1
+        assert result.allocation_proportions[1] > 0.7
+        assert sum(result.allocation_counts) == 150
+
+    def test_designer_mode_returns_bayesian_result(self):
+        from polisyos.foundry.methods.catalog.causal.optimal_design import (
+            CausalExperimentDesigner,
+        )
+
+        graph = _dag([("X", "Y")])
+        out = CausalExperimentDesigner.pure_step(
+            {"graph": graph},
+            {
+                "mode": "adaptive_bayesian",
+                "arm_success_probabilities": [0.25, 0.8],
+                "arm_labels": ["arm0", "arm1"],
+                "n_rounds": 120,
+                "seed": 9,
+            },
+        )
+
+        assert "design_result" in out
+        assert out["design_result"]["best_arm_index"] == 1
+
+
+# ---------------------------------------------------------------------------
+# TestDOptimalDesign
+# ---------------------------------------------------------------------------
+
+
+class TestDOptimalDesign:
+    """D-optimal covariate selection from graph structure."""
+
+    def _design_graph(self) -> CausalGraphModel:
+        return _dag(
+            [
+                ("C1", "X"),
+                ("C1", "Y"),
+                ("C2", "X"),
+                ("C2", "Y"),
+            ],
+            extra_nodes=["C1", "C2", "N1", "N2", "N3", "X", "Y"],
+        )
+
+    def test_d_optimal_selects_confounders(self):
+        from polisyos.foundry.methods.catalog.causal.optimal_design import (
+            d_optimal_design,
+        )
+
+        graph = self._design_graph()
+        result = d_optimal_design(graph, "X", "Y", n_covariates=2)
+
+        assert set(result.selected_covariates) == {"C1", "C2"}
+        assert result.variance_proxy > 0.0
+        assert len(result.allocation_proportions) == 2
+
+    def test_d_optimal_beats_noise_subset(self):
+        from polisyos.foundry.methods.catalog.causal.optimal_design import (
+            d_optimal_design,
+        )
+
+        graph = self._design_graph()
+        result = d_optimal_design(graph, "X", "Y", n_covariates=2)
+
+        # Compare against a deliberately poor noise-only subset.
+        selected = list(result.candidate_covariates)
+        noise_subset = [node for node in selected if node.startswith("N")][:2]
+        assert len(noise_subset) == 2
+
+        noise_graph = graph
+        from polisyos.foundry.methods.catalog.causal.optimal_design import _d_optimal_feature_vector
+
+        features = np.vstack(
+            [_d_optimal_feature_vector(noise_graph, node, "X", "Y") for node in noise_subset]
+        )
+        weights = np.full(2, 0.5)
+        ridge = 1e-6
+        info = features.T @ (weights[:, None] * features) + ridge * np.eye(features.shape[1])
+        noise_variance_proxy = float(np.trace(np.linalg.inv(info)))
+
+        assert result.variance_proxy < noise_variance_proxy

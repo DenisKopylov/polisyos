@@ -19,12 +19,22 @@ class GatewayUsage:
 
 
 @dataclass(slots=True)
+class GatewayToolCall:
+    """A single tool call from an LLM response."""
+
+    id: str
+    name: str
+    arguments: dict[str, Any]
+
+
+@dataclass(slots=True)
 class GatewayLLMResponse:
     content: str
     usage: GatewayUsage = field(default_factory=GatewayUsage)
     model: str = "unknown"
     provider: str | None = None
     raw: dict[str, Any] | None = None
+    tool_calls: list[GatewayToolCall] | None = None
 
 
 class GatewayLLMClient:
@@ -175,12 +185,33 @@ class GatewayLLMClient:
         if usage.total_tokens <= 0:
             usage.total_tokens = usage.prompt_tokens + usage.completion_tokens
 
+        # Parse tool calls if present
+        tool_calls: list[GatewayToolCall] | None = None
+        raw_tool_calls = message.get("tool_calls") if isinstance(message, dict) else None
+        if isinstance(raw_tool_calls, list) and raw_tool_calls:
+            tool_calls = []
+            for tc in raw_tool_calls:
+                fn = tc.get("function", {}) if isinstance(tc, dict) else {}
+                args_str = fn.get("arguments", "{}")
+                try:
+                    args = json.loads(args_str) if isinstance(args_str, str) else (args_str if isinstance(args_str, dict) else {})
+                except (json.JSONDecodeError, TypeError):
+                    args = {}
+                tool_calls.append(
+                    GatewayToolCall(
+                        id=str(tc.get("id", "")),
+                        name=str(fn.get("name", "")),
+                        arguments=args,
+                    )
+                )
+
         return GatewayLLMResponse(
             content=content,
             usage=usage,
             model=str(payload.get("model") or self.model),
             provider=_as_str(payload.get("provider")) or self.provider_hint,
             raw=payload,
+            tool_calls=tool_calls,
         )
 
     def _normalize_content(self, value: Any) -> str:

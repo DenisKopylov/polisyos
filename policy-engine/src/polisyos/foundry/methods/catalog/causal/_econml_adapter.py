@@ -5,6 +5,7 @@ from typing import Any
 
 import numpy as np
 
+from polisyos.foundry.methods.catalog.causal.ci_backends import robust_standard_error
 from polisyos.foundry.methods.catalog.causal.protocols import HTEObservationalData
 
 ECONML_IMPORT_ERROR: Exception | None = None
@@ -28,7 +29,7 @@ class HTEData:
     y: np.ndarray
     t: np.ndarray
     x: np.ndarray
-    w: np.ndarray
+    w: np.ndarray | None
     feature_names: list[str]
     confounder_names: list[str]
 
@@ -49,7 +50,7 @@ def build_hte_data(state: Any) -> HTEData:
     )
     x = np.asarray(data.covariates, dtype=float)
     if data.confounders is None:
-        w = x
+        w = None
     else:
         w = np.asarray(data.confounders, dtype=float)
 
@@ -61,7 +62,7 @@ def build_hte_data(state: Any) -> HTEData:
     confounder_names = (
         list(data.confounder_names)
         if data.confounder_names is not None
-        else [f"w{i}" for i in range(w.shape[1])]
+        else [f"w{i}" for i in range(w.shape[1])] if w is not None else []
     )
     return HTEData(
         y=np.asarray(data.outcome, dtype=float),
@@ -89,6 +90,74 @@ def _align_metric_length(values: Any, *, n_samples: int, fill: float = np.nan) -
     if arr.size == 0:
         return np.full(n_samples, fill, dtype=float)
     return np.full(n_samples, fill, dtype=float)
+
+
+def _scalar_from_any(value: Any) -> float | None:
+    try:
+        arr = np.asarray(value, dtype=float).reshape(-1)
+    except Exception:
+        return None
+    if arr.size == 0:
+        return None
+    scalar = float(arr[0])
+    return scalar if np.isfinite(scalar) else None
+
+
+def _extract_ate_confidence_interval(
+    inference: Any,
+    *,
+    alpha: float,
+) -> tuple[float, float] | None:
+    for method_name in ("conf_int", "conf_int_mean"):
+        method = getattr(inference, method_name, None)
+        if not callable(method):
+            continue
+        for kwargs in ({"alpha": alpha}, {}):
+            try:
+                interval = method(**kwargs)
+            except TypeError:
+                continue
+            except Exception:
+                interval = None
+            if interval is None:
+                continue
+            try:
+                lo = float(np.asarray(interval[0], dtype=float).reshape(-1)[0])
+                hi = float(np.asarray(interval[1], dtype=float).reshape(-1)[0])
+            except Exception:
+                continue
+            if np.isfinite(lo) and np.isfinite(hi):
+                return lo, hi
+    return None
+
+
+def _extract_ate_standard_error(inference: Any) -> float | None:
+    for attr_name in ("stderr_mean", "mean_pred_stderr", "stderr_point", "std_point"):
+        attr = getattr(inference, attr_name, None)
+        if attr is None:
+            continue
+        try:
+            value = attr() if callable(attr) else attr
+        except Exception:
+            continue
+        scalar = _scalar_from_any(value)
+        if scalar is not None:
+            return scalar
+    return None
+
+
+def _guarded_ate_standard_error(cate: np.ndarray, cate_std: np.ndarray) -> float | None:
+    cate_arr = np.asarray(cate, dtype=float).reshape(-1)
+    cate_arr = cate_arr[np.isfinite(cate_arr)]
+    if cate_arr.size <= 1:
+        return None
+    between_var = float(np.var(cate_arr, ddof=1))
+    cate_std_arr = np.asarray(cate_std, dtype=float).reshape(-1)
+    cate_std_arr = cate_std_arr[np.isfinite(cate_std_arr)]
+    within_var = float(np.mean(cate_std_arr**2)) if cate_std_arr.size else 0.0
+    total_var = max(0.0, between_var + within_var)
+    ate_se = float(np.sqrt(total_var / cate_arr.size))
+    return ate_se if np.isfinite(ate_se) else None
 
 
 def _extract_tree_importances(
@@ -253,19 +322,47 @@ def extract_cate_from_estimator(
         warnings.append("Estimator does not provide effect_inference; per-row std omitted")
 
     ate = float(np.mean(cate))
-    ate_ci_lower = float(np.percentile(cate, 100.0 * alpha / 2.0))
-    ate_ci_upper = float(np.percentile(cate, 100.0 * (1.0 - alpha / 2.0)))
+    ate_ci_lower = float("nan")
+    ate_ci_upper = float("nan")
     ate_p_value = None
+    native_ate_inference = None
     try:
-        ate_inf = estimator.ate_inference(x)
-        conf = ate_inf.conf_int(alpha=alpha)
-        ate_ci_lower = float(np.asarray(conf[0]).ravel()[0])
-        ate_ci_upper = float(np.asarray(conf[1]).ravel()[0])
-        pvalue = getattr(ate_inf, "pvalue", None)
+        native_ate_inference = estimator.ate_inference(x)
+        conf = _extract_ate_confidence_interval(native_ate_inference, alpha=alpha)
+        if conf is not None:
+            ate_ci_lower, ate_ci_upper = conf
+        pvalue = getattr(native_ate_inference, "pvalue", None)
         if pvalue is not None:
             ate_p_value = float(np.asarray(pvalue).ravel()[0])
     except Exception:  # noqa: BLE001 - econml estimator API varies per backend
-        warnings.append("Estimator does not provide ate_inference; ATE CI via empirical quantiles")
+        native_ate_inference = None
+
+    ate_se = _extract_ate_standard_error(native_ate_inference) if native_ate_inference is not None else None
+    if ate_se is None:
+        guarded_se = _guarded_ate_standard_error(cate, cate_std)
+        if guarded_se is None and np.isfinite(cate).sum() > 1:
+            guarded_se = robust_standard_error(cate)
+        if guarded_se is not None:
+            ate_se = guarded_se
+        if not (np.isfinite(ate_ci_lower) and np.isfinite(ate_ci_upper)):
+            if ate_se is not None:
+                half_width = 1.96 * max(ate_se, 1e-12)
+                ate_ci_lower = float(ate - half_width)
+                ate_ci_upper = float(ate + half_width)
+                warnings.append(
+                    "Estimator does not provide usable ate_inference; ATE CI via Wald fallback"
+                )
+            else:
+                warnings.append("Estimator does not provide usable ate_inference; ATE CI omitted")
+
+    guarded_se = _guarded_ate_standard_error(cate, cate_std)
+    if guarded_se is not None and np.isfinite(ate_ci_lower) and np.isfinite(ate_ci_upper):
+        native_half_width = max(abs(ate - ate_ci_lower), abs(ate_ci_upper - ate))
+        guarded_half_width = 1.96 * max(guarded_se, 1e-12)
+        if guarded_half_width > native_half_width + 1e-12:
+            ate_ci_lower = float(ate - guarded_half_width)
+            ate_ci_upper = float(ate + guarded_half_width)
+            warnings.append("ATE CI widened by guarded variance floor")
 
     importances, importance_warnings = extract_feature_importances(
         estimator,

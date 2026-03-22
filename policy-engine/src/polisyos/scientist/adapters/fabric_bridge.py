@@ -24,6 +24,21 @@ from polisyos.scientist.engine.context import FabricPort
 logger = get_logger(__name__)
 
 
+class ExecutionTierViolation(RuntimeError):
+    """Raised when a catalog-only dataset is requested for execution."""
+
+
+# Minimum tier required for runtime execution.  Datasets below this
+# tier are discoverable in the catalog but must not be auto-executed.
+_MIN_RUNTIME_EXECUTION_TIER = "fetchable"
+
+_TIER_RANK: dict[str, int] = {
+    "transport_ready": 0,
+    "fetchable": 1,
+    "catalog": 2,
+}
+
+
 class DefaultFabricPort(FabricPort):
     """Concrete FabricPort adapter for DataViewRequest -> DataSnapshot flows."""
 
@@ -33,6 +48,8 @@ class DefaultFabricPort(FabricPort):
 
         dataset_id = _resolve_dataset_id(query_request)
         constraints = _build_fetch_constraints(query_request)
+
+        _enforce_execution_tier(dataset_id)
 
         fetch_result = fabric_get_data(
             dataset_id=dataset_id,
@@ -99,6 +116,20 @@ class DefaultFabricPort(FabricPort):
                 InputRef(artifact_id=warnings_ref.artifact_id, role="warnings_ref")
             )
 
+        snapshot_stats: dict[str, int | str] = {
+            "dataset_id": dataset_id,
+            "row_count": int(fetch_result.row_count),
+            "bytes_transferred": int(fetch_result.bytes_transferred),
+            "quality_tier": fetch_result.quality_tier.name.lower(),
+        }
+        snapshot_notes = [
+            "scientist.adapter.fabric_bridge",
+            "source=fabric_get_data",
+        ]
+        semantic_stats, semantic_notes = _collect_snapshot_semantics(fetch_result.data)
+        snapshot_stats.update(semantic_stats)
+        snapshot_notes.extend(semantic_notes)
+
         snapshot = DataSnapshot(
             data_ref=data_ref,
             data_schema_ref=schema_ref,
@@ -106,16 +137,8 @@ class DefaultFabricPort(FabricPort):
             quality_report_ref=quality_report_ref,
             warnings_ref=warnings_ref,
             pii_scan_summary=pii_scan_summary,
-            stats={
-                "dataset_id": dataset_id,
-                "row_count": int(fetch_result.row_count),
-                "bytes_transferred": int(fetch_result.bytes_transferred),
-                "quality_tier": fetch_result.quality_tier.name.lower(),
-            },
-            notes=[
-                "scientist.adapter.fabric_bridge",
-                "source=fabric_get_data",
-            ],
+            stats=snapshot_stats,
+            notes=snapshot_notes,
         )
         snapshot_ref = store.put_json(
             snapshot,
@@ -290,10 +313,114 @@ def _coerce_evidence_ref(result: FetchResult[Any]) -> EvidenceBundleRef | None:
     return EvidenceBundleRef.model_validate(result.evidence_ref.model_dump(mode="json"))
 
 
+def _collect_snapshot_semantics(data: Any) -> tuple[dict[str, str], list[str]]:
+    fields = _payload_field_names(data)
+    if not fields:
+        return {}, []
+
+    stats: dict[str, str] = {}
+    notes: list[str] = []
+
+    survey_year_field = _first_field(fields, "survey_year", "SurveyYear")
+    wave_field = _first_field(fields, "wave", "Wave")
+    sample_weight_field = _first_field(fields, "sample_weight", "sample_weights", "weight", "weights")
+    inclusion_prob_field = _first_field(
+        fields,
+        "inclusion_probabilities",
+        "inclusion_probability",
+        "sampling_probability",
+    )
+
+    if survey_year_field or wave_field:
+        stats["data_shape"] = "survey_repeated_cross_section"
+        notes.append("data_shape=survey_repeated_cross_section")
+        notes.append("allowed_workflows=transport,survey,hte,repeated_cross_section")
+        notes.append("blocked_workflows=panel_scm,panel_did,panel_econometrics")
+
+    if survey_year_field:
+        stats["survey_year_field"] = survey_year_field
+    if wave_field:
+        stats["wave_field"] = wave_field
+    if sample_weight_field:
+        stats["sample_weight_field"] = sample_weight_field
+    if inclusion_prob_field:
+        stats["inclusion_probabilities_field"] = inclusion_prob_field
+
+    return stats, notes
+
+
+def _payload_field_names(data: Any) -> set[str]:
+    if data is None:
+        return set()
+    if hasattr(data, "columns"):
+        try:
+            return {str(column) for column in list(data.columns)}
+        except Exception:
+            logger.debug("Failed to inspect payload columns", exc_info=True)
+    if isinstance(data, list):
+        fields: set[str] = set()
+        for row in data[:5]:
+            if isinstance(row, dict):
+                fields.update(str(key) for key in row.keys())
+        return fields
+    if isinstance(data, dict):
+        fields = {str(key) for key in data.keys()}
+        for nested_key in ("value", "data", "items", "results", "records"):
+            nested = data.get(nested_key)
+            if isinstance(nested, list):
+                for row in nested[:5]:
+                    if isinstance(row, dict):
+                        fields.update(str(key) for key in row.keys())
+                break
+        return fields
+    return set()
+
+
+def _first_field(fields: set[str], *candidates: str) -> str | None:
+    for candidate in candidates:
+        if candidate in fields:
+            return candidate
+    return None
+
+
 def _jsonable(value: Any) -> Any:
     if hasattr(value, "model_dump"):
         return value.model_dump(mode="json")
     return value
 
 
-__all__ = ["DefaultFabricPort"]
+def _enforce_execution_tier(dataset_id: str) -> None:
+    """Check that *dataset_id* meets the minimum execution tier.
+
+    The check is best-effort: if the catalog is unavailable or the dataset
+    is not found (e.g. connector-resolved at runtime), execution proceeds
+    with a warning rather than a hard block.
+    """
+    try:
+        from polisyos.datasets.knowledge.store import DatasetCatalogStore
+
+        catalog = DatasetCatalogStore.get_default()
+        if catalog is None:
+            return
+        dataset = catalog.get_dataset(dataset_id)
+        if dataset is None:
+            # Dataset resolved via connector, not in catalog — allow.
+            return
+        tier = str(getattr(dataset, "execution_tier", "catalog") or "catalog")
+        min_rank = _TIER_RANK.get(_MIN_RUNTIME_EXECUTION_TIER, 1)
+        actual_rank = _TIER_RANK.get(tier, 2)
+        if actual_rank > min_rank:
+            raise ExecutionTierViolation(
+                f"Dataset '{dataset_id}' has execution_tier='{tier}' which is "
+                f"below the minimum runtime tier '{_MIN_RUNTIME_EXECUTION_TIER}'. "
+                f"Catalog-only datasets are discoverable but not auto-executable. "
+                f"Promote the dataset to '{_MIN_RUNTIME_EXECUTION_TIER}' or higher "
+                f"before using it in a workflow."
+            )
+    except ExecutionTierViolation:
+        raise
+    except Exception as exc:
+        logger.debug("Execution tier check skipped for '%s': %s", dataset_id, exc)
+
+
+__all__ = ["DefaultFabricPort", "ExecutionTierViolation"]

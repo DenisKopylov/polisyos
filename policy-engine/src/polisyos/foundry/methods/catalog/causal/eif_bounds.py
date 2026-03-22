@@ -165,6 +165,247 @@ class EfficiencyReport:
         }
 
 
+@dataclasses.dataclass(frozen=True)
+class SecondOrderEIF:
+    """Approximate second-order EIF correction summary.
+
+    This is an honest finite-sample correction layer, not a symbolic
+    higher-order EIF derivation.  The implementation projects the supplied
+    first-order scores onto a nuisance basis built from centered first-order
+    nuisance derivatives plus quadratic interaction terms, then subtracts the
+    fitted component as an approximate bias correction.
+    """
+
+    scores: np.ndarray
+    bias_correction: float
+    corrected_estimate: float
+    corrected_se: float
+    approximation_method: str = "orthogonal_quadratic_projection"
+    basis_terms: tuple[str, ...] = ()
+    basis_rank: int = 0
+    basis_dimension: int = 0
+    condition_number: float | None = None
+    projection_norm: float = 0.0
+    residual_norm: float = 0.0
+    note: str = ""
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "scores": self.scores.tolist(),
+            "bias_correction": float(self.bias_correction),
+            "corrected_estimate": float(self.corrected_estimate),
+            "corrected_se": float(self.corrected_se),
+            "approximation_method": self.approximation_method,
+            "basis_terms": list(self.basis_terms),
+            "basis_rank": int(self.basis_rank),
+            "basis_dimension": int(self.basis_dimension),
+            "condition_number": (
+                float(self.condition_number) if self.condition_number is not None else None
+            ),
+            "projection_norm": float(self.projection_norm),
+            "residual_norm": float(self.residual_norm),
+            "note": self.note,
+        }
+
+
+def _validate_1d_array(name: str, values: np.ndarray, *, expected_size: int | None = None) -> np.ndarray:
+    arr = np.asarray(values, dtype=float).ravel()
+    if expected_size is not None and arr.size != expected_size:
+        raise ValueError(f"{name} must have the same length as first_order_scores")
+    if arr.size and not np.all(np.isfinite(arr)):
+        raise ValueError(f"{name} must contain only finite values")
+    return arr
+
+
+def _build_second_order_basis(
+    nuisance_derivatives: dict[str, np.ndarray],
+    n_obs: int,
+) -> tuple[list[np.ndarray], list[str], str]:
+    """Build an honest nuisance basis for approximate second-order correction.
+
+    The basis uses raw nuisance derivatives plus centered quadratic interaction
+    terms. Quadratic terms are intentionally retained because they allow a
+    finite-sample approximation to some curvature terms that a purely linear
+    projection would miss. The intercept is handled separately in
+    :func:`compute_second_order_eif` so the correction can preserve the
+    estimand-level location instead of mechanically shrinking score means
+    toward zero.
+    """
+    linear_terms: list[tuple[str, np.ndarray]] = []
+    for name, values in nuisance_derivatives.items():
+        arr = _validate_1d_array(f"nuisance_derivatives[{name!r}]", values, expected_size=n_obs)
+        centered = arr - float(np.mean(arr))
+        if float(np.linalg.norm(centered)) <= 1e-12:
+            continue
+        linear_terms.append((name, arr))
+
+    if not linear_terms:
+        return [], [], "no_nonconstant_nuisance_terms"
+
+    basis_cols: list[np.ndarray] = []
+    basis_terms: list[str] = []
+
+    for name, raw in linear_terms:
+        basis_cols.append(raw)
+        basis_terms.append(name)
+
+    # Quadratic expansion captures local curvature that a bare linear projection misses.
+    for idx, (name, raw) in enumerate(linear_terms):
+        squared = raw * raw
+        squared = squared - float(np.mean(squared))
+        if float(np.linalg.norm(squared)) > 1e-12:
+            basis_cols.append(squared)
+            basis_terms.append(f"{name}^2")
+        for jdx in range(idx + 1, len(linear_terms)):
+            other_name, other_raw = linear_terms[jdx]
+            cross = raw * other_raw
+            cross = cross - float(np.mean(cross))
+            if float(np.linalg.norm(cross)) > 1e-12:
+                basis_cols.append(cross)
+                basis_terms.append(f"{name}*{other_name}")
+
+    return basis_cols, basis_terms, "orthogonal_quadratic_projection"
+
+
+def compute_second_order_eif(
+    first_order_scores: np.ndarray,
+    nuisance_derivatives: dict[str, np.ndarray],
+) -> SecondOrderEIF:
+    """Approximate second-order EIF correction from nuisance diagnostics.
+
+    This is a finite-sample approximation, not an exact symbolic higher-order
+    EIF. We regress the supplied first-order scores on an intercept plus a
+    nuisance basis built from first-order nuisance derivatives and centered
+    quadratic terms, then subtract only the fitted nuisance component. This
+    keeps the estimand-level intercept explicit instead of forcing the
+    correction to inherit the mean of the projected nuisance span.
+    """
+    scores = _validate_1d_array("first_order_scores", first_order_scores)
+    if scores.size == 0:
+        return SecondOrderEIF(
+            scores=scores,
+            bias_correction=0.0,
+            corrected_estimate=0.0,
+            corrected_se=0.0,
+            approximation_method="empty_input",
+            note="empty first_order_scores provided; no correction was applied.",
+        )
+
+    if not np.all(np.isfinite(scores)):
+        raise ValueError("first_order_scores must contain only finite values")
+
+    basis_cols, basis_terms, method = _build_second_order_basis(nuisance_derivatives, scores.size)
+    if not basis_cols:
+        estimate = float(np.mean(scores))
+        se = float(np.std(scores, ddof=1) / np.sqrt(max(scores.size, 1)))
+        note = "no non-constant nuisance basis was available; returning the uncorrected score mean."
+        return SecondOrderEIF(
+            scores=scores,
+            bias_correction=0.0,
+            corrected_estimate=estimate,
+            corrected_se=se,
+            approximation_method="no_correction",
+            basis_terms=(),
+            basis_rank=0,
+            basis_dimension=0,
+            condition_number=None,
+            projection_norm=0.0,
+            residual_norm=float(np.linalg.norm(scores)),
+            note=note,
+        )
+
+    design = np.column_stack(basis_cols)
+    col_norms = np.linalg.norm(design, axis=0)
+    keep = col_norms > 1e-12
+    if not np.any(keep):
+        estimate = float(np.mean(scores))
+        se = float(np.std(scores, ddof=1) / np.sqrt(max(scores.size, 1)))
+        return SecondOrderEIF(
+            scores=scores,
+            bias_correction=0.0,
+            corrected_estimate=estimate,
+            corrected_se=se,
+            approximation_method="no_correction",
+            basis_terms=(),
+            basis_rank=0,
+            basis_dimension=0,
+            condition_number=None,
+            projection_norm=0.0,
+            residual_norm=float(np.linalg.norm(scores)),
+            note="all nuisance basis columns were numerically degenerate.",
+        )
+
+    design = design[:, keep] / col_norms[keep]
+    kept_terms = tuple(term for term, flag in zip(basis_terms, keep) if flag)
+
+    # Orthogonal projection onto the span of the nuisance basis. This is more
+    # stable than solving the normal equations and keeps the approximation scope explicit.
+    u, singular_values, _vh = np.linalg.svd(design, full_matrices=False)
+    if singular_values.size == 0 or float(singular_values[0]) <= 0.0:
+        estimate = float(np.mean(scores))
+        se = float(np.std(scores, ddof=1) / np.sqrt(max(scores.size, 1)))
+        return SecondOrderEIF(
+            scores=scores,
+            bias_correction=0.0,
+            corrected_estimate=estimate,
+            corrected_se=se,
+            approximation_method="no_correction",
+            basis_terms=kept_terms,
+            basis_rank=0,
+            basis_dimension=int(design.shape[1]),
+            condition_number=None,
+            projection_norm=0.0,
+            residual_norm=float(np.linalg.norm(scores)),
+            note="nuisance basis had no identifiable span after normalization.",
+        )
+
+    rank = int(np.sum(singular_values > singular_values[0] * 1e-12))
+    if rank == 0:
+        rank = 1
+    nuisance_basis = u[:, :rank] @ np.diag(singular_values[:rank])
+    nuisance_basis_norms = np.linalg.norm(nuisance_basis, axis=0)
+    nuisance_basis = nuisance_basis / np.where(nuisance_basis_norms > 0.0, nuisance_basis_norms, 1.0)
+    full_design = np.column_stack([np.ones(scores.size), nuisance_basis])
+    coeffs, *_ = np.linalg.lstsq(full_design, scores, rcond=None)
+    corrected_estimate = float(coeffs[0])
+    projection = nuisance_basis @ coeffs[1:]
+    corrected_scores = scores - projection
+    bias_correction = float(np.mean(scores) - corrected_estimate)
+    corrected_se = float(np.std(corrected_scores, ddof=1) / np.sqrt(max(scores.size, 1)))
+    condition_number: float | None = None
+    if rank > 0:
+        min_sv = float(singular_values[rank - 1])
+        if min_sv > 0.0:
+            condition_number = float(singular_values[0] / min_sv)
+
+    note_parts = [
+        "approximate second-order correction via intercept-preserving orthogonal projection on a quadratic nuisance basis",
+    ]
+    if rank < design.shape[1]:
+        note_parts.append(
+            f"rank deficiency detected ({rank}/{design.shape[1]} basis directions retained)."
+        )
+    if condition_number is not None and condition_number > 1e6:
+        note_parts.append(
+            f"ill-conditioned nuisance span (condition_number={condition_number:.2e})."
+        )
+
+    return SecondOrderEIF(
+        scores=corrected_scores,
+        bias_correction=bias_correction,
+        corrected_estimate=corrected_estimate,
+        corrected_se=corrected_se,
+        approximation_method=method,
+        basis_terms=kept_terms,
+        basis_rank=rank,
+        basis_dimension=int(design.shape[1]),
+        condition_number=condition_number,
+        projection_norm=float(np.linalg.norm(projection)),
+        residual_norm=float(np.linalg.norm(corrected_scores - corrected_estimate)),
+        note=" ".join(note_parts),
+    )
+
+
 # ---------------------------------------------------------------------------
 # EIF formulas
 # ---------------------------------------------------------------------------
@@ -719,6 +960,7 @@ class SemiparametricEfficiencyBoundMethod:
             ParameterSpec(name="estimand_type", default="ate"),
             ParameterSpec(name="min_propensity", default=1e-4, bounds=(1e-8, 0.49)),
             ParameterSpec(name="estimator_se", default=None),
+            ParameterSpec(name="nuisance_derivatives", default=None),
         ),
         fidelity=FidelityLevel.HIGH,
         complexity=ComplexityClass.O_N,
@@ -790,10 +1032,19 @@ class SemiparametricEfficiencyBoundMethod:
             estimator_se=float(estimator_se) if estimator_se is not None else None,
         )
 
-        return {
+        second_order_payload: dict[str, Any] | None = None
+        nuisance_derivatives = params.get("nuisance_derivatives")
+        if isinstance(nuisance_derivatives, dict) and nuisance_derivatives:
+            second_order = compute_second_order_eif(eif.scores, nuisance_derivatives)
+            second_order_payload = second_order.to_dict()
+
+        output = {
             "efficiency_bound": bound.to_dict(),
             "eif_scores": eif.scores.tolist(),
         }
+        if second_order_payload is not None:
+            output["second_order_eif"] = second_order_payload
+        return output
 
 
 # ---------------------------------------------------------------------------
@@ -1069,6 +1320,8 @@ __all__ = [
     "compute_efficiency_bound",
     "compare_estimator_efficiency",
     "SemiparametricEfficiencyBoundMethod",
+    "SecondOrderEIF",
+    "compute_second_order_eif",
     # Phase 6
     "ContinuousEIFScores",
     "compute_eif_continuous_ate",

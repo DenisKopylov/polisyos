@@ -18,7 +18,9 @@ import uuid
 from datetime import datetime, timezone
 from typing import Any
 
-from polisyos.ir.analytics.causal_graph import CausalGraphModel
+import numpy as np
+
+from polisyos.ir.analytics.causal_graph import CausalGraphModel, EdgeMark
 from polisyos.ir.analytics.estimand import EstimandAST
 from polisyos.ir.analytics.evidence_bundle import (
     CompilationStep,
@@ -28,11 +30,20 @@ from polisyos.ir.analytics.evidence_bundle import (
     ProofStep as IRProofStep,
     _fingerprint,
 )
-from polisyos.ir.analytics.negative_certificate import BlockingType, NegativeCertificate
+from polisyos.ir.analytics.negative_certificate import (
+    BlockingType,
+    EpistemicTier,
+    FallbackResult,
+    NegativeCertificate,
+    ParametricRescueResult,
+)
 from polisyos.foundry.methods.catalog.causal.id_engine import (
+    CtfQuery,
     IdentificationResult,
     IdentificationStatus,
     id_algorithm,
+    id_star_algorithm,
+    idc_star_algorithm,
     idc_algorithm,
     id_with_oracle_fallback,
     z_id_algorithm,
@@ -47,9 +58,12 @@ from polisyos.foundry.methods.catalog.causal.id_engine import (
 )
 from polisyos.foundry.methods.catalog.causal.estimand_compiler import (
     compile_estimand,
+    CyclicExecutionBlock,
     ExecutorGraph,
     ExecutorNode,
 )
+from polisyos.foundry.methods.catalog.causal.admg_ops import has_directed_cycle
+from polisyos.foundry.methods.catalog.causal.cyclic_id import cyclic_id_algorithm
 from polisyos.foundry.methods.catalog.causal.schema_resolver import (
     SchemaResolver,
     SchemaResolutionReport,
@@ -93,6 +107,7 @@ class CausalEngine:
         oracle: str = "none",
         dataset_ref: str | None = None,
         mgraph_meta: Any | None = None,
+        counterfactual_query: CtfQuery | None = None,
         # Phase-5: Extended identification keyword arguments
         policy: Any | None = None,
         condition_vars: frozenset[str] | None = None,
@@ -105,6 +120,8 @@ class CausalEngine:
         """Run identification and return IdentificationResult or NegativeCertificate.
 
         Routing logic (in priority order):
+        - counterfactual_query + transport/fusion context → ctf_transportability
+        - counterfactual_query → id_star_algorithm / idc_star_algorithm
         - proxy_map → identify_with_proxy (Phase 5.3: measurement error)
         - outcomes (list) → multi_outcome_id (Phase 5.2: multi-outcome)
         - policy → sid_algorithm (Phase 5.1: stochastic/soft intervention)
@@ -129,6 +146,54 @@ class CausalEngine:
             # ------------------------------------------------------------------
             # Phase-5: Extended identification — check before standard routing
             # ------------------------------------------------------------------
+
+            if counterfactual_query is not None:
+                has_ctf_transport_context = bool(s_nodes) or bool(source_domains) or bool(z_int)
+                if has_ctf_transport_context:
+                    from polisyos.foundry.methods.catalog.causal.ctf_transport import (
+                        build_ctf_selection_diagram,
+                        ctf_transportability,
+                    )
+                    from polisyos.foundry.methods.catalog.causal.id_engine import SourceDomain
+
+                    ctf_domains = list(source_domains or [])
+                    if not ctf_domains and z_int:
+                        s_var_names = frozenset(
+                            getattr(sn, "target_variable", str(sn)) for sn in (s_nodes or [])
+                        )
+                        ctf_domains = [
+                            SourceDomain(
+                                domain_id="ctf_source",
+                                s_nodes=s_var_names,
+                                z_interventions=z_int,
+                                dataset_ref=dataset_ref,
+                            )
+                        ]
+
+                    selection_diagram = build_ctf_selection_diagram(
+                        graph=graph,
+                        s_nodes=s_nodes,
+                        source_domains=ctf_domains,
+                    )
+                    result = ctf_transportability(
+                        counterfactual_query,
+                        selection_diagram,
+                        source_domains=ctf_domains,
+                        dataset_ref=dataset_ref,
+                    )
+                    if isinstance(result, NegativeCertificate):
+                        return result
+                    if result.status == IdentificationStatus.HEDGE_FOUND:
+                        return self._hedge_to_negative_cert(result)
+                    return result
+
+                if counterfactual_query.evidence:
+                    result = idc_star_algorithm(counterfactual_query, graph)
+                else:
+                    result = id_star_algorithm(counterfactual_query, graph)
+                if result.status == IdentificationStatus.HEDGE_FOUND:
+                    return self._hedge_to_negative_cert(result)
+                return result
 
             # 5.3  Measurement-error proxy identification
             if proxy_map is not None:
@@ -187,84 +252,94 @@ class CausalEngine:
                     s_nodes=s_nodes,
                 )
 
-            # ------------------------------------------------------------------
-            if mgraph_meta is not None:
-                # Phase 2: M-graph two-stage full law identification
-                from polisyos.foundry.methods.catalog.causal.recoverability_engine import (
-                    full_law_identify,
-                )
-                from polisyos.ir.analytics.mgraph import (
-                    MGraphMetadata,
-                    extract_mgraph_metadata,
-                )
-                meta = (
-                    mgraph_meta
-                    if isinstance(mgraph_meta, MGraphMetadata)
-                    else extract_mgraph_metadata(graph)
-                )
-                result = full_law_identify(
+            # Cyclic graphs are routed to the experimental fixed-point path.
+            if has_directed_cycle(graph):
+                result = cyclic_id_algorithm(
                     treatment=tx,
                     outcome=oy,
                     graph=graph,
-                    mgraph_meta=meta,
-                    dataset_ref=dataset_ref,
-                    oracle=oracle,
-                )
-            elif source_domains and len(source_domains) > 1:
-                # G1: explicit multi-domain API — pass SourceDomain list directly
-                result = mz_id_algorithm(
-                    treatment=tx,
-                    outcome=oy,
-                    source_domains=source_domains,
-                    graph=graph,
-                    dataset_ref=dataset_ref,
-                )
-            elif s_nodes and z_int:
-                # Multi-source: build single SourceDomain from s_nodes
-                from polisyos.foundry.methods.catalog.causal.id_engine import SourceDomain
-                s_var_names = frozenset(
-                    getattr(sn, "target_variable", str(sn)) for sn in s_nodes
-                )
-                domain = SourceDomain(
-                    domain_id="combined",
-                    s_nodes=s_var_names,
-                    z_interventions=z_int,
-                    dataset_ref=dataset_ref,
-                )
-                result = mz_id_algorithm(
-                    treatment=tx,
-                    outcome=oy,
-                    source_domains=[domain],
-                    graph=graph,
-                    dataset_ref=dataset_ref,
-                )
-            elif s_nodes:
-                # Build SelectionDiagram from s_nodes + graph
-                result = self._identify_with_s_nodes(tx, oy, graph, s_nodes, dataset_ref)
-            elif z_int:
-                result = z_id_algorithm(
-                    treatment=tx,
-                    outcome=oy,
-                    z_interventions=z_int,
-                    graph=graph,
-                    dataset_ref=dataset_ref,
-                )
-            elif cond:
-                result = idc_algorithm(
-                    treatment=tx,
-                    outcome=oy,
-                    conditions=cond,
-                    graph=graph,
+                    scm_spec=getattr(graph, "metadata", {}).get("well_posedness_spec"),
                     dataset_ref=dataset_ref,
                 )
             else:
-                result = id_with_oracle_fallback(
-                    treatment=tx,
-                    outcome=oy,
-                    graph=graph,
-                    oracle=oracle,
-                    dataset_ref=dataset_ref,
-                )
+                # ------------------------------------------------------------------
+                if mgraph_meta is not None:
+                    # Phase 2: M-graph two-stage full law identification
+                    from polisyos.foundry.methods.catalog.causal.recoverability_engine import (
+                        full_law_identify,
+                    )
+                    from polisyos.ir.analytics.mgraph import (
+                        MGraphMetadata,
+                        extract_mgraph_metadata,
+                    )
+                    meta = (
+                        mgraph_meta
+                        if isinstance(mgraph_meta, MGraphMetadata)
+                        else extract_mgraph_metadata(graph)
+                    )
+                    result = full_law_identify(
+                        treatment=tx,
+                        outcome=oy,
+                        graph=graph,
+                        mgraph_meta=meta,
+                        dataset_ref=dataset_ref,
+                        oracle=oracle,
+                    )
+                elif source_domains and len(source_domains) > 1:
+                    # G1: explicit multi-domain API — pass SourceDomain list directly
+                    result = mz_id_algorithm(
+                        treatment=tx,
+                        outcome=oy,
+                        source_domains=source_domains,
+                        graph=graph,
+                        dataset_ref=dataset_ref,
+                    )
+                elif s_nodes and z_int:
+                    # Multi-source: build single SourceDomain from s_nodes
+                    from polisyos.foundry.methods.catalog.causal.id_engine import SourceDomain
+                    s_var_names = frozenset(
+                        getattr(sn, "target_variable", str(sn)) for sn in s_nodes
+                    )
+                    domain = SourceDomain(
+                        domain_id="combined",
+                        s_nodes=s_var_names,
+                        z_interventions=z_int,
+                        dataset_ref=dataset_ref,
+                    )
+                    result = mz_id_algorithm(
+                        treatment=tx,
+                        outcome=oy,
+                        source_domains=[domain],
+                        graph=graph,
+                        dataset_ref=dataset_ref,
+                    )
+                elif s_nodes:
+                    # Build SelectionDiagram from s_nodes + graph
+                    result = self._identify_with_s_nodes(tx, oy, graph, s_nodes, dataset_ref)
+                elif z_int:
+                    result = z_id_algorithm(
+                        treatment=tx,
+                        outcome=oy,
+                        z_interventions=z_int,
+                        graph=graph,
+                        dataset_ref=dataset_ref,
+                    )
+                elif cond:
+                    result = idc_algorithm(
+                        treatment=tx,
+                        outcome=oy,
+                        conditions=cond,
+                        graph=graph,
+                        dataset_ref=dataset_ref,
+                    )
+                else:
+                    result = id_with_oracle_fallback(
+                        treatment=tx,
+                        outcome=oy,
+                        graph=graph,
+                        oracle=oracle,
+                        dataset_ref=dataset_ref,
+                    )
         except Exception as exc:
             # Convert unexpected errors to NegativeCertificate
             return NegativeCertificate(
@@ -440,32 +515,12 @@ class CausalEngine:
             "missing_distributions_count": len(required_dists),
         }
 
-        # Try to compute Manski bounds as a partial identification fallback
-        partial_bounds = None
-        try:
-            from polisyos.ir.analytics.partial_identification import (
-                BoundMethod,
-                PartialIdentificationResult,
-            )
-            partial_bounds = PartialIdentificationResult(
-                method=BoundMethod.MANSKI,
-                lower_bound=-1.0,
-                upper_bound=1.0,
-                confidence=0.0,
-                assumptions_used=["no_assumptions_on_selection"],
-                display_label="Manski Worst-Case Bounds (hedge fallback)",
-            )
-            quant_diagnostics["partial_bounds_computed"] = True
-        except Exception:
-            quant_diagnostics["partial_bounds_computed"] = False
-
         return NegativeCertificate(
             blocking_type=BlockingType.HEDGE_STRUCTURE,
             blocking_description=description,
             technical_detail=cert.description or "",
             required_distributions=required_dists,
             suggested_experiments=suggested,
-            partial_bounds=partial_bounds,
             quantitative_diagnostics=quant_diagnostics,
             constructive_message=constructive_message,
         )
@@ -520,6 +575,318 @@ class CausalEngine:
             hedge_certificate=hedge_cert,
         )
 
+    def _hedge_fallback_chain(
+        self,
+        negative_cert: NegativeCertificate,
+        *,
+        graph: CausalGraphModel,
+        treatment: str | frozenset[str],
+        outcome: str | frozenset[str],
+        data_dict: dict[str, Any] | None,
+    ) -> NegativeCertificate:
+        """Attach an honest typed fallback chain for hedge-style non-identification."""
+        if negative_cert.blocking_type is not BlockingType.HEDGE_STRUCTURE:
+            return negative_cert
+
+        suggestions = (
+            negative_cert.suggested_experiments
+            or NegativeCertificate.auto_suggest_experiments(BlockingType.HEDGE_STRUCTURE)
+        )
+
+        y, t, extraction_notes = self._extract_hedge_fallback_arrays(
+            data_dict=data_dict,
+            treatment=treatment,
+            outcome=outcome,
+        )
+        notes = list(extraction_notes)
+
+        bounds_result = None
+        bounds_tier = None
+        if y is not None and t is not None:
+            bounds_result, bounds_tier, bounds_notes = self._compute_hedge_bounds(y=y, t=t)
+            notes.extend(bounds_notes)
+        else:
+            notes.append("Observed treatment/outcome vectors unavailable; skipped tiers 1-3.")
+
+        parametric_rescue = None
+        if y is not None and t is not None:
+            monotone_rescue, monotone_notes = self._compute_monotone_rescue(
+                y=y,
+                t=t,
+                base_bounds=bounds_result,
+            )
+            notes.extend(monotone_notes)
+            linearity_rescue, linearity_notes = self._compute_linearity_rescue(
+                graph=graph,
+                treatment=treatment,
+                outcome=outcome,
+                data_dict=data_dict,
+            )
+            notes.extend(linearity_notes)
+            if linearity_rescue is not None:
+                parametric_rescue = linearity_rescue
+                if monotone_rescue is not None:
+                    notes.append(
+                        "Monotonicity rescue was also available, but linear-IV rescue was preferred because it yields a point-identifying estimand under the stronger linearity assumption."
+                    )
+            else:
+                parametric_rescue = monotone_rescue
+
+        sensitivity_sweep = None
+        if y is not None and t is not None:
+            sensitivity_sweep, sensitivity_notes = self._compute_sensitivity_sweep(y=y, t=t)
+            notes.extend(sensitivity_notes)
+
+        fallback_result = FallbackResult(
+            bounds=bounds_result,
+            bounds_tier=bounds_tier,
+            parametric_rescue=parametric_rescue,
+            parametric_tier=(
+                EpistemicTier.ASSUMPTION_DEPENDENT if parametric_rescue is not None else None
+            ),
+            sensitivity_sweep=sensitivity_sweep,
+            sensitivity_tier=(
+                EpistemicTier.DIAGNOSTIC_GUIDANCE if sensitivity_sweep is not None else None
+            ),
+            suggested_experiments=suggestions,
+            experiments_tier=(
+                EpistemicTier.DIAGNOSTIC_GUIDANCE if suggestions else None
+            ),
+            notes=tuple(notes),
+        )
+
+        diagnostics = {
+            **dict(negative_cert.quantitative_diagnostics),
+            **fallback_result.to_diagnostics_dict(),
+            "fallback_result": fallback_result.model_dump(mode="json"),
+            "graph_type": graph.graph_type.value if hasattr(graph.graph_type, "value") else str(graph.graph_type),
+        }
+        constructive_parts = [negative_cert.constructive_message.strip()]
+        if bounds_result is not None and bounds_tier is not None:
+            constructive_parts.append(
+                f"Tier 1/2 fallback produced {bounds_tier.value} bounds."
+            )
+        if parametric_rescue is not None:
+            constructive_parts.append(
+                "An additional assumption-dependent rescue is available, but it is valid only under the stated parametric assumptions."
+            )
+        if sensitivity_sweep is not None:
+            constructive_parts.append(
+                "Sensitivity sweep is diagnostic only and should not be read as an identification proof."
+            )
+        if suggestions:
+            constructive_parts.append(
+                "Suggested experiments remain Tier-4 guidance for resolving the hedge directly."
+            )
+        constructive_message = " ".join(part for part in constructive_parts if part)
+
+        return negative_cert.model_copy(
+            update={
+                "partial_bounds": bounds_result,
+                "suggested_experiments": suggestions,
+                "quantitative_diagnostics": diagnostics,
+                "constructive_message": constructive_message,
+                "fallback_result": fallback_result,
+            }
+        )
+
+    def _extract_hedge_fallback_arrays(
+        self,
+        *,
+        data_dict: dict[str, Any] | None,
+        treatment: str | frozenset[str],
+        outcome: str | frozenset[str],
+    ) -> tuple[np.ndarray | None, np.ndarray | None, list[str]]:
+        """Extract aligned treatment/outcome vectors for fallback analysis."""
+        if not data_dict:
+            return None, None, []
+
+        treatment_name = (
+            treatment if isinstance(treatment, str) else next(iter(sorted(treatment)), "treatment")
+        )
+        outcome_name = (
+            outcome if isinstance(outcome, str) else next(iter(sorted(outcome)), "outcome")
+        )
+        treatment_candidates = (
+            data_dict.get(treatment_name),
+            data_dict.get("treatment"),
+            data_dict.get("protected"),
+        )
+        outcome_candidates = (
+            data_dict.get(outcome_name),
+            data_dict.get("outcome"),
+        )
+        t_raw = next((candidate for candidate in treatment_candidates if candidate is not None), None)
+        y_raw = next((candidate for candidate in outcome_candidates if candidate is not None), None)
+        if t_raw is None or y_raw is None:
+            return None, None, []
+
+        try:
+            t = np.asarray(t_raw, dtype=float).ravel()
+            y = np.asarray(y_raw, dtype=float).ravel()
+        except Exception:
+            return None, None, ["Could not coerce treatment/outcome into numeric arrays."]
+
+        if len(t) != len(y) or len(t) == 0:
+            return None, None, ["Treatment/outcome arrays were missing or misaligned."]
+
+        finite_mask = np.isfinite(t) & np.isfinite(y)
+        if not np.all(finite_mask):
+            t = t[finite_mask]
+            y = y[finite_mask]
+
+        if len(t) == 0:
+            return None, None, ["No finite treatment/outcome pairs remained after filtering."]
+        return y, t, []
+
+    def _compute_hedge_bounds(
+        self,
+        *,
+        y: np.ndarray,
+        t: np.ndarray,
+    ) -> tuple[Any | None, EpistemicTier | None, list[str]]:
+        """Step 1: valid partial-identification bounds."""
+        from polisyos.foundry.methods.catalog.causal.lp_bounds import auto_bounds
+
+        auto_bounds_kwargs: dict[str, Any] = {}
+        if not _looks_discrete_vector(t, max_levels=8) or not _looks_discrete_vector(y, max_levels=8):
+            auto_bounds_kwargs = {
+                "max_cardinality": 4,
+                "initial_bins": 4,
+                "max_bins": 8,
+                "convergence_tol": 0.05,
+            }
+
+        try:
+            bounds = auto_bounds(y, t, **auto_bounds_kwargs)
+        except Exception as exc:
+            return None, None, [f"Tier 1/2 bounds unavailable: {exc}"]
+
+        tier = (
+            EpistemicTier.EXACT_NONPARAMETRIC
+            if bounds.bounds_type == "sharp_lp"
+            else EpistemicTier.PARTIAL_IDENTIFICATION
+        )
+        notes = [f"Computed {bounds.bounds_type} bounds via auto_bounds()."]
+        if auto_bounds_kwargs:
+            notes.append(
+                "Used coarse adaptive discretization for continuous fallback bounds to keep the interactive hedge path computationally bounded."
+            )
+        return bounds, tier, notes
+
+    def _compute_monotone_rescue(
+        self,
+        *,
+        y: np.ndarray,
+        t: np.ndarray,
+        base_bounds: Any | None,
+    ) -> tuple[ParametricRescueResult | None, list[str]]:
+        """Step 2: assumption-dependent monotone-treatment rescue."""
+        if not _is_binary_treatment_vector(t):
+            return None, ["Monotone-treatment rescue skipped: treatment is not binary."]
+
+        from polisyos.foundry.methods.catalog.causal.bounds import (
+            OptimizationBasedBoundsEstimator,
+        )
+        from polisyos.ir.analytics.partial_identification import PartialIdentificationResult
+
+        y_lo = float(np.nanmin(y))
+        y_hi = float(np.nanmax(y))
+        try:
+            out = OptimizationBasedBoundsEstimator.pure_step(
+                {"outcome": y, "treatment": t},
+                {
+                    "assumption": "mtr",
+                    "y_lower": y_lo,
+                    "y_upper": y_hi,
+                },
+            )
+            rescue_raw = out.get("result", {}).get("partial_id_result")
+            if rescue_raw is None:
+                return None, ["Monotone-treatment rescue returned no bounds."]
+            rescue_bounds = PartialIdentificationResult.model_validate(rescue_raw)
+        except Exception as exc:
+            return None, [f"Monotone-treatment rescue failed: {exc}"]
+
+        if base_bounds is not None and rescue_bounds.bound_width >= base_bounds.bound_width - 1e-12:
+            return None, ["Monotone-treatment rescue did not tighten the nonparametric bounds."]
+
+        rescue = ParametricRescueResult(
+            assumption="monotone_treatment_response",
+            method="mtr_bounds",
+            description=(
+                "Tighter bounds under the monotone treatment response assumption "
+                "(Y(1) >= Y(0) for all units)."
+            ),
+            bounds=rescue_bounds,
+            estimand_formula="ATE under MTR bounds",
+            warnings=(
+                "Assumption-dependent result: verify monotonicity before using operationally.",
+            ),
+        )
+        return rescue, ["Added monotone-treatment-response rescue bounds."]
+
+    def _compute_linearity_rescue(
+        self,
+        *,
+        graph: CausalGraphModel,
+        treatment: str | frozenset[str],
+        outcome: str | frozenset[str],
+        data_dict: dict[str, Any] | None,
+    ) -> tuple[ParametricRescueResult | None, list[str]]:
+        """Step 2 alternative: linear-SEM rescue via valid observed instruments."""
+        if not data_dict:
+            return None, ["Linearity rescue skipped: no observed data were provided."]
+
+        treatment_name = _singleton_query_name(treatment, "treatment")
+        outcome_name = _singleton_query_name(outcome, "outcome")
+        if treatment_name is None or outcome_name is None:
+            return None, ["Linearity rescue currently supports single treatment and single outcome only."]
+
+        iv_rescue, iv_notes = _linear_iv_rescue_result(
+            graph=graph,
+            treatment=treatment_name,
+            outcome=outcome_name,
+            data_dict=data_dict,
+        )
+        if iv_rescue is not None:
+            return iv_rescue, iv_notes
+
+        wright_rescue, wright_notes = _wright_path_tracing_rescue_result(
+            graph=graph,
+            treatment=treatment_name,
+            outcome=outcome_name,
+            data_dict=data_dict,
+        )
+        return wright_rescue, [*iv_notes, *wright_notes]
+
+    def _compute_sensitivity_sweep(
+        self,
+        *,
+        y: np.ndarray,
+        t: np.ndarray,
+    ) -> tuple[Any | None, list[str]]:
+        """Step 3: diagnostic sensitivity sweep under MSM."""
+        if not _is_binary_treatment_vector(t):
+            return None, ["Sensitivity sweep skipped: treatment is not binary."]
+
+        from polisyos.foundry.methods.catalog.causal.sensitivity_bounds import TanBoundsEstimator
+        from polisyos.ir.analytics.partial_identification import SensitivitySweepResult
+
+        try:
+            out = TanBoundsEstimator.pure_step(
+                {"outcome": y, "treatment": t},
+                {"lambda_values": [1.0, 1.25, 1.5, 1.75, 2.0]},
+            )
+            sweep_raw = out.get("result", {}).get("sweep")
+            if sweep_raw is None:
+                return None, ["Sensitivity sweep returned no sweep artifact."]
+            sweep = SensitivitySweepResult.model_validate(sweep_raw)
+        except Exception as exc:
+            return None, [f"Sensitivity sweep failed: {exc}"]
+
+        return sweep, ["Added Tan (2006) sensitivity sweep as Tier-4 guidance."]
+
     # ------------------------------------------------------------------
     # compile
     # ------------------------------------------------------------------
@@ -528,6 +895,7 @@ class CausalEngine:
         self,
         identification_result: IdentificationResult,
         *,
+        graph: CausalGraphModel | None = None,
         n_obs: int | None = None,
         covariate_dim: int | None = None,
         run_id: str | None = None,
@@ -552,6 +920,8 @@ class CausalEngine:
             covariate_dim=covariate_dim,
             use_cross_fitting=use_cross_fitting,
             knowledge_base=self._kb,
+            proof_steps=tuple(identification_result.proof_steps),
+            causal_graph=graph,
         )
         return executor_graph
 
@@ -576,6 +946,8 @@ class CausalEngine:
             EstimandShape,
         )
         shape = classify_estimand(ast)
+        if shape == EstimandShape.COUNTERFACTUAL_IDENTIFIED:
+            return executor_graph
         existing_fqns = {n.method_fqn for n in executor_graph.nodes}
         new_nodes: list[ExecutorNode] = []
 
@@ -618,6 +990,74 @@ class CausalEngine:
         return dataclasses.replace(
             executor_graph, nodes=(*executor_graph.nodes, *new_nodes)
         )
+
+    def _execute_cyclic_block(
+        self,
+        block: CyclicExecutionBlock,
+        state: dict[str, Any],
+    ) -> dict[str, Any]:
+        """Execute a cyclic fixed-point block with simple Picard iteration."""
+        if self._registry is None:
+            raise RuntimeError("CausalEngine has no registry; cannot execute cyclic blocks.")
+
+        cycle_keys = tuple(block.params.get("cycle_state_keys", ()))
+        if not cycle_keys:
+            cycle_keys = tuple(sorted(state.keys())[:2])
+
+        current_state = dict(state)
+        previous_vector: np.ndarray | None = None
+        inner_outputs: dict[str, Any] = {}
+        last_report: Any = None
+        converged = False
+        iterations = 0
+
+        for iteration in range(block.max_iterations):
+            iterations = iteration + 1
+            for inner in block.inner_nodes:
+                fqn_full = f"{inner.method_fqn}@{inner.method_version}"
+                try:
+                    method_cls = _resolve_method_class(self._registry, fqn_full)
+                    output = method_cls.pure_step(current_state, inner.params)
+                except Exception as exc:
+                    inner_outputs[f"{block.node_id}:{inner.node_id}:{iteration}"] = {
+                        "warnings": [f"inner cyclic node {fqn_full} failed: {exc}"],
+                    }
+                    continue
+                inner_outputs[f"{block.node_id}:{inner.node_id}:{iteration}"] = output
+                if isinstance(output, dict):
+                    current_state.update(output)
+                    if "report" in output:
+                        last_report = output["report"]
+
+            current_vector = np.asarray(
+                [float(current_state.get(key, 0.0)) for key in cycle_keys],
+                dtype=float,
+            )
+            if previous_vector is not None:
+                delta = float(np.max(np.abs(current_vector - previous_vector)))
+                if delta < block.convergence_tol:
+                    converged = True
+                    break
+            previous_vector = current_vector
+        else:
+            converged = False
+
+        block_output: dict[str, Any] = {
+            "convergence_reached": converged,
+            "n_iterations": iterations,
+            "cycle_state": {key: current_state.get(key) for key in cycle_keys},
+            "inner_outputs": inner_outputs,
+            "warnings": (
+                []
+                if converged
+                else [
+                    "CyclicExecutionBlock did not converge within the iteration budget."
+                ]
+            ),
+        }
+        if last_report is not None:
+            block_output["report"] = last_report
+        return block_output
 
     # ------------------------------------------------------------------
     # estimate
@@ -671,13 +1111,43 @@ class CausalEngine:
                 if dep_id in node_outputs:
                     state.update(node_outputs[dep_id])
 
+            if isinstance(node, CyclicExecutionBlock):
+                try:
+                    output = self._execute_cyclic_block(node, state)
+                    node_outputs[node_id] = output
+                    if "report" in output:
+                        last_report = output["report"]
+                except Exception as exc:
+                    failed_nodes.add(node_id)
+                    if not getattr(node, "is_nuisance", False):
+                        try:
+                            from polisyos.ir.analytics.causal import CausalMethod
+                            last_report = CausalEffectReport(
+                                method=getattr(CausalMethod, "AIPW", "unknown"),
+                                status=EstimationStatus.NUMERICAL_FAILURE,
+                                estimand="unknown",
+                                point_estimate=float("nan"),
+                                confidence_interval=(-1e12, 1e12),
+                                inference_method="none",
+                                notes=f"Cyclic block {node_id} failed: {exc}",
+                            )
+                        except Exception:
+                            pass
+                        break
+                continue
+
             fqn_full = f"{node.method_fqn}@{node.method_version}"
             try:
-                method_cls = self._registry.get(fqn_full)
-                output = method_cls.pure_step(state, node.params)
+                method_cls = _resolve_method_class(self._registry, fqn_full)
+                method_state = _prepare_executor_state(node, state)
+                output = method_cls.pure_step(method_state, node.params)
                 node_outputs[node_id] = output
                 if "report" in output:
                     last_report = output["report"]
+                elif "twin_network_result" in output:
+                    last_report = output["twin_network_result"]
+                elif "envelope" in output and last_report is None:
+                    last_report = output["envelope"]
             except Exception as exc:
                 failed_nodes.add(node_id)
                 if not getattr(node, "is_nuisance", False):
@@ -714,6 +1184,7 @@ class CausalEngine:
         executor_graph: ExecutorGraph | None = None,
         schema_report: SchemaResolutionReport | None = None,
         node_outputs: dict[str, Any] | None = None,
+        fallback_result: FallbackResult | None = None,
     ) -> EvidenceBundle:
         """Build an EvidenceBundle from identification and estimation results.
 
@@ -725,6 +1196,7 @@ class CausalEngine:
             Compiled ExecutorGraph (for CompilationStep records).
         """
         from polisyos.foundry.methods.catalog.causal.id_engine import _internal_proof_step_to_ir
+        query_str = _identification_query_str(identification_result)
 
         # -- Proof steps -------------------------------------------------
         ir_steps: list[IRProofStep] = [
@@ -901,7 +1373,7 @@ class CausalEngine:
             from polisyos.ir.analytics.diagnostic_dashboard import DiagnosticDashboardData
             dashboard = DiagnosticDashboardData.from_node_outputs(
                 run_id=run_id,
-                query_str=getattr(identification_result, "query_str", "") or "",
+                query_str=query_str,
                 node_outputs=node_outputs or {},
                 created_at=datetime.now(timezone.utc).isoformat(),
             )
@@ -915,7 +1387,7 @@ class CausalEngine:
             from polisyos.foundry.methods.catalog.causal.quality_aggregator import QualityScoreAggregator
             quality_report = QualityScoreAggregator().score(
                 run_id=run_id,
-                query_str=getattr(identification_result, "query_str", "") or "",
+                query_str=query_str,
                 data_provenance=tuple(provenance),
                 estimation_steps=tuple(estimation_steps),
                 node_outputs=node_outputs,
@@ -926,7 +1398,7 @@ class CausalEngine:
 
         return EvidenceBundle(
             run_id=run_id,
-            query_str=getattr(identification_result, "query_str", "") or "",
+            query_str=query_str,
             estimand_ast=estimand_dict,
             proof_steps=tuple(ir_steps),
             data_provenance=tuple(provenance),
@@ -940,6 +1412,7 @@ class CausalEngine:
             estimation_steps=tuple(estimation_steps),
             diagnostic_dashboard=dashboard_dict,
             quality_report=quality_dict,
+            fallback_result=fallback_result,
         )
 
     # ------------------------------------------------------------------
@@ -966,6 +1439,7 @@ class CausalEngine:
         use_cross_fitting: bool = True,
         dataset_ref: str | None = None,
         mgraph_meta: Any | None = None,
+        counterfactual_query: CtfQuery | None = None,
     ) -> tuple[Any, EvidenceBundle, NegativeCertificate | None]:
         """Run the full Pearl-Bareinboim pipeline: identify → compile → estimate → audit.
 
@@ -989,12 +1463,27 @@ class CausalEngine:
             oracle=oracle,
             dataset_ref=dataset_ref,
             mgraph_meta=mgraph_meta,
+            counterfactual_query=counterfactual_query,
         )
 
         # If identification failed, return NegativeCertificate
         if isinstance(id_result, NegativeCertificate):
+            id_result = self._hedge_fallback_chain(
+                id_result,
+                graph=graph,
+                treatment=treatment,
+                outcome=outcome,
+                data_dict=data_dict,
+            )
             dummy_ir = _make_dummy_identification_result(treatment, outcome)
-            bundle = self.audit(dummy_ir, None, run_id=run_id, schema_report=schema_report)
+            bundle = self.audit(
+                dummy_ir,
+                None,
+                run_id=run_id,
+                graph=graph,
+                schema_report=schema_report,
+                fallback_result=id_result.fallback_result,
+            )
             return None, bundle, id_result
 
         # G4: validate query structure and KB feasibility before compiling
@@ -1025,6 +1514,7 @@ class CausalEngine:
         try:
             executor_graph = self.compile(
                 id_result,
+                graph=graph,
                 n_obs=n_obs,
                 covariate_dim=covariate_dim,
                 run_id=run_id,
@@ -1518,11 +2008,16 @@ class CausalEngine:
             PathSpecificFairnessEstimator,
             TVFairnessDecomposer,
         )
+        from polisyos.foundry.methods.catalog.causal.causal_fairness import (
+            CausalFairnessEngine,
+        )
 
         _method_dispatch: dict[str, type] = {
             "tv_decomposition": TVFairnessDecomposer,
             "path_specific": PathSpecificFairnessEstimator,
             "counterfactual": CounterfactualFairnessEstimator,
+            "bounds": CausalFairnessEngine,
+            "standard": CausalFairnessEngine,
         }
         method_cls = _method_dispatch.get(method)
         if method_cls is None:
@@ -1535,6 +2030,12 @@ class CausalEngine:
             "protected_variable": protected,
             "outcome_variable": outcome,
         }
+        if graph is not None and method in {"bounds", "standard"}:
+            params["graph"] = graph
+            if isinstance(data, dict):
+                params["mediators"] = list(data.get("mediator_names", []))
+                params["confounders"] = list(data.get("feature_names", []))
+            params["method"] = "bounds" if method == "bounds" else "tv_decomposition"
 
         result = method_cls.pure_step(data, params)
         return result.get("fairness_report") or result
@@ -1556,7 +2057,7 @@ class CausalEngine:
         ----------
         data:   MultiStudyFusionData or compatible object.
         mode:   Fusion mode: "multi_study", "rct_plus_obs", "optimal_combine",
-                "external_validity".
+                "external_validity", "ctf_fusion".
         run_id: Optional run identifier.
 
         Returns
@@ -1577,6 +2078,11 @@ class CausalEngine:
         treatment = data_dict.get("treatment", "") or getattr(data, "treatment", "")
         outcome = data_dict.get("outcome", "") or getattr(data, "outcome", "")
         datasets = data_dict.get("datasets", []) or getattr(data, "datasets", [])
+        counterfactual_query = (
+            data_dict.get("counterfactual_query")
+            if isinstance(data_dict, dict)
+            else None
+        ) or getattr(data, "counterfactual_query", None)
 
         state: dict[str, Any] = {}
         if hasattr(graph, "model_dump"):
@@ -1595,6 +2101,7 @@ class CausalEngine:
             "treatment": treatment,
             "outcome": outcome,
             "datasets": datasets,
+            "counterfactual_query": counterfactual_query,
         }
 
         result = DataFusionEngine.pure_step(state, params)
@@ -1608,13 +2115,841 @@ def _make_dummy_identification_result(
     """Build a minimal IdentificationResult for audit when identification failed."""
     tx = frozenset({treatment} if isinstance(treatment, str) else treatment)
     oy = frozenset({outcome} if isinstance(outcome, str) else outcome)
+    tx_terms = ",".join(sorted(tx))
+    oy_terms = ",".join(sorted(oy))
     return IdentificationResult(
         status=IdentificationStatus.HEDGE_FOUND,
         estimand_ast=None,
         hedge_certificate=None,
         trace=[],
         required_distributions=[],
+        query_str=f"P({oy_terms}|do({tx_terms}))",
     )
+
+
+def _identification_query_str(identification_result: IdentificationResult) -> str:
+    """Recover a readable query string for audit and diagnostics."""
+    if identification_result.query_str:
+        return identification_result.query_str
+    estimand = identification_result.estimand_ast
+    if estimand is not None and getattr(estimand, "query_str", ""):
+        return str(estimand.query_str)
+    return ""
+
+
+def _prepare_executor_state(node: ExecutorNode, state: dict[str, Any]) -> Any:
+    """Adapt raw engine state to method-specific payload contracts when needed."""
+    if node.method_fqn == "causal.structural.hybrid_scm_fit":
+        return _build_scm_fit_payload(state, node.params)
+    if node.method_fqn == "causal.structural.twin_network_query":
+        return _build_twin_network_payload(state, node.params)
+    return state
+
+
+def _build_scm_fit_payload(state: dict[str, Any], params: dict[str, Any]) -> dict[str, Any]:
+    """Construct SCMFitData-compatible payload from columnar arrays."""
+    graph = state.get("graph") or params.get("graph")
+    if graph is None:
+        raise ValueError("SCM fitting requires a graph in state or node params.")
+
+    if "data" in state and "column_names" in state:
+        payload = dict(state)
+        payload.setdefault("graph", graph)
+        return payload
+
+    try:
+        graph_model = (
+            graph if isinstance(graph, CausalGraphModel) else CausalGraphModel.model_validate(graph)
+        )
+        graph_nodes = set(graph_model.nodes)
+    except Exception:
+        graph_nodes = set()
+
+    column_names: list[str] = []
+    columns: list[np.ndarray] = []
+    expected_len: int | None = None
+    for key, raw in state.items():
+        if key.startswith("__") or key in {
+            "graph",
+            "scm_spec",
+            "factual_condition",
+            "treatment_variable",
+            "outcome_variable",
+            "factual_treatment_value",
+            "counterfactual_treatment_value",
+            "n_samples",
+            "metadata",
+        }:
+            continue
+        if graph_nodes and key not in graph_nodes:
+            continue
+        try:
+            arr = np.asarray(raw, dtype=float).reshape(-1)
+        except Exception:
+            continue
+        if arr.size < 2 or not np.isfinite(arr).all():
+            continue
+        if expected_len is None:
+            expected_len = int(arr.size)
+        if int(arr.size) != expected_len:
+            continue
+        column_names.append(str(key))
+        columns.append(arr)
+
+    if not columns:
+        raise ValueError("Could not build SCM fitting payload from the provided data_dict.")
+
+    payload: dict[str, Any] = {
+        "data": np.column_stack(columns),
+        "column_names": column_names,
+        "graph": graph,
+        "metadata": dict(state.get("metadata", {})),
+    }
+    for key in ("graph_ref", "literature_priors", "skg_snapshot_ref"):
+        if key in state:
+            payload[key] = state[key]
+    return payload
+
+
+def _build_twin_network_payload(state: dict[str, Any], params: dict[str, Any]) -> dict[str, Any]:
+    """Construct TwinNetworkQueryData-compatible payload from engine state."""
+    payload = dict(state)
+    if "scm_spec" not in payload:
+        from polisyos.foundry.methods.catalog.causal.gcm_fit import HybridSCMFit
+
+        scm_payload = _build_scm_fit_payload(state, params)
+        payload.update(HybridSCMFit.pure_step(scm_payload, {}))
+
+    scm_spec = payload["scm_spec"]
+    treatment_variable = str(payload.get("treatment_variable") or params.get("treatment_variable") or "")
+    outcome_variable = str(payload.get("outcome_variable") or params.get("outcome_variable") or "")
+    if not treatment_variable or not outcome_variable:
+        raise ValueError("Twin-network execution requires treatment and outcome variables.")
+
+    factual_condition = payload.get("factual_condition")
+    if not isinstance(factual_condition, dict) or not factual_condition:
+        factual_condition = _first_observed_condition(payload, scm_spec)
+
+    factual_treatment_value = payload.get("factual_treatment_value", params.get("factual_treatment_value"))
+    if factual_treatment_value is None:
+        factual_treatment_value = factual_condition.get(
+            treatment_variable,
+            _coerce_first_scalar(payload.get(treatment_variable), default=0.0),
+        )
+
+    counterfactual_treatment_value = payload.get(
+        "counterfactual_treatment_value",
+        params.get("counterfactual_treatment_value"),
+    )
+    if counterfactual_treatment_value is None:
+        counterfactual_treatment_value = 1.0 if float(factual_treatment_value) != 1.0 else 0.0
+
+    n_samples = int(payload.get("n_samples") or params.get("n_samples") or 2000)
+    return {
+        "scm_spec": scm_spec,
+        "factual_condition": factual_condition,
+        "treatment_variable": treatment_variable,
+        "factual_treatment_value": float(factual_treatment_value),
+        "counterfactual_treatment_value": float(counterfactual_treatment_value),
+        "outcome_variable": outcome_variable,
+        "n_samples": n_samples,
+        "metadata": {
+            "query_type": params.get("query_type", "counterfactual"),
+        },
+    }
+
+
+def _first_observed_condition(state: dict[str, Any], scm_spec: Any) -> dict[str, float]:
+    """Use the first observed row as the factual world when none is supplied."""
+    try:
+        nodes = set(scm_spec.graph.nodes)
+    except Exception:
+        nodes = set()
+
+    condition: dict[str, float] = {}
+    for key, raw in state.items():
+        if nodes and key not in nodes:
+            continue
+        value = _coerce_first_scalar(raw)
+        if value is not None:
+            condition[str(key)] = value
+    return condition
+
+
+def _coerce_first_scalar(value: Any, default: float | None = None) -> float | None:
+    """Best-effort conversion of scalars or vectors to a representative float."""
+    if value is None:
+        return default
+    try:
+        if np.isscalar(value):
+            casted = float(value)
+            return casted if np.isfinite(casted) else default
+        arr = np.asarray(value, dtype=float).reshape(-1)
+    except Exception:
+        return default
+    if arr.size == 0 or not np.isfinite(arr[0]):
+        return default
+    return float(arr[0])
+
+
+def _is_binary_treatment_vector(values: np.ndarray) -> bool:
+    """Return True when values look like a binary treatment assignment."""
+    if values.size == 0:
+        return False
+    unique = np.unique(values[np.isfinite(values)])
+    if unique.size != 2:
+        return False
+    return bool(np.all(np.isclose(unique, 0.0) | np.isclose(unique, 1.0)))
+
+
+def _looks_discrete_vector(values: np.ndarray, *, max_levels: int) -> bool:
+    """Heuristic support-size check used to keep interactive bounds tractable."""
+    finite = values[np.isfinite(values)]
+    if finite.size == 0:
+        return False
+    return int(np.unique(finite).size) <= int(max_levels)
+
+
+def _singleton_query_name(
+    value: str | frozenset[str],
+    fallback_name: str,
+) -> str | None:
+    """Return the single variable name from a scalar-or-set query argument."""
+    if isinstance(value, str):
+        return value
+    if len(value) != 1:
+        return None
+    return next(iter(value), fallback_name)
+
+
+def _candidate_linear_instruments(
+    *,
+    graph: CausalGraphModel,
+    treatment: str,
+    outcome: str,
+) -> tuple[str, ...]:
+    """Find observed IV candidates that satisfy simple graph-based exclusion checks."""
+    directed_edges = {
+        (edge.src, edge.dst)
+        for edge in graph.edges
+        if edge.mark_src is EdgeMark.TAIL and edge.mark_dst is EdgeMark.ARROW
+    }
+    directed_children: dict[str, set[str]] = {}
+    for src, dst in directed_edges:
+        directed_children.setdefault(src, set()).add(dst)
+
+    bidirected_pairs = {
+        frozenset((edge.src, edge.dst))
+        for edge in graph.edges
+        if edge.mark_src is EdgeMark.ARROW and edge.mark_dst is EdgeMark.ARROW
+    }
+    parents_of_treatment = sorted(
+        src
+        for src, dst in directed_edges
+        if dst == treatment and src not in {treatment, outcome}
+    )
+
+    candidates: list[str] = []
+    for instrument in parents_of_treatment:
+        if frozenset((instrument, treatment)) in bidirected_pairs:
+            continue
+        if frozenset((instrument, outcome)) in bidirected_pairs:
+            continue
+        if (instrument, outcome) in directed_edges:
+            continue
+        if _has_directed_path_avoiding(
+            directed_children=directed_children,
+            src=instrument,
+            dst=outcome,
+            forbidden={treatment},
+        ):
+            continue
+        candidates.append(instrument)
+    return tuple(candidates)
+
+
+def _has_directed_path_avoiding(
+    *,
+    directed_children: dict[str, set[str]],
+    src: str,
+    dst: str,
+    forbidden: set[str],
+) -> bool:
+    """Return True if a directed path exists from src to dst without visiting forbidden nodes."""
+    frontier = [src]
+    seen = {src}
+    while frontier:
+        current = frontier.pop()
+        for child in directed_children.get(current, ()):
+            if child in forbidden or child in seen:
+                continue
+            if child == dst:
+                return True
+            seen.add(child)
+            frontier.append(child)
+    return False
+
+
+def _extract_aligned_numeric_columns(
+    *,
+    data_dict: dict[str, Any],
+    variable_names: tuple[str, ...],
+) -> dict[str, np.ndarray] | None:
+    """Extract numeric columns and align them on a common finite mask."""
+    arrays: dict[str, np.ndarray] = {}
+    expected_len: int | None = None
+
+    for index, name in enumerate(variable_names):
+        candidates = [data_dict.get(name)]
+        if index == 0:
+            candidates.append(data_dict.get("outcome"))
+        elif index == 1:
+            candidates.extend((data_dict.get("treatment"), data_dict.get("protected")))
+        elif len(variable_names) == 3:
+            candidates.append(data_dict.get("instrument"))
+
+        raw = next((candidate for candidate in candidates if candidate is not None), None)
+        if raw is None:
+            return None
+        try:
+            arr = np.asarray(raw, dtype=float).reshape(-1)
+        except Exception:
+            return None
+        if expected_len is None:
+            expected_len = int(arr.size)
+        if int(arr.size) != expected_len or arr.size == 0:
+            return None
+        arrays[name] = arr
+
+    finite_mask = np.ones(expected_len or 0, dtype=bool)
+    for arr in arrays.values():
+        finite_mask &= np.isfinite(arr)
+    if not finite_mask.any():
+        return None
+    return {
+        name: arr[finite_mask]
+        for name, arr in arrays.items()
+    }
+
+
+def _linear_iv_effect(
+    *,
+    y: np.ndarray,
+    t: np.ndarray,
+    instruments: np.ndarray,
+) -> tuple[float | None, float | None, dict[str, Any]]:
+    """Estimate a linear-IV rescue via Wald/2SLS using observed instruments."""
+    n_obs = int(y.size)
+    if n_obs != int(t.size) or n_obs != int(instruments.shape[0]) or n_obs < 5:
+        return None, None, {"failure_reason": "insufficient or misaligned observations"}
+
+    z = np.column_stack([np.ones(n_obs), instruments])
+    x = np.column_stack([np.ones(n_obs), t])
+    if np.linalg.matrix_rank(z) < z.shape[1]:
+        return None, None, {"failure_reason": "instrument matrix is rank-deficient"}
+
+    ztz_inv = np.linalg.pinv(z.T @ z)
+    pz = z @ ztz_inv @ z.T
+    xt_pz_x = x.T @ pz @ x
+    if np.linalg.matrix_rank(xt_pz_x) < x.shape[1]:
+        return None, None, {"failure_reason": "projected treatment design is rank-deficient"}
+
+    beta = np.linalg.pinv(xt_pz_x) @ (x.T @ pz @ y)
+    estimate = float(beta[1])
+    if not np.isfinite(estimate):
+        return None, None, {"failure_reason": "non-finite IV estimate"}
+
+    residual = y - x @ beta
+    sigma2 = float(np.dot(residual, residual) / max(n_obs - x.shape[1], 1))
+    cov_beta = sigma2 * np.linalg.pinv(xt_pz_x)
+    standard_error = float(np.sqrt(max(float(cov_beta[1, 1]), 0.0)))
+    if not np.isfinite(standard_error):
+        standard_error = None
+
+    t_mean = float(np.mean(t))
+    rss_reduced = float(np.dot(t - t_mean, t - t_mean))
+    beta_fs = ztz_inv @ z.T @ t
+    fs_residual = t - z @ beta_fs
+    rss_full = float(np.dot(fs_residual, fs_residual))
+    q = max(z.shape[1] - 1, 1)
+    denom_df = max(n_obs - z.shape[1], 1)
+    if rss_full <= 1e-12:
+        first_stage_f = float("inf")
+    else:
+        explained = max(rss_reduced - rss_full, 0.0)
+        first_stage_f = float((explained / q) / (rss_full / denom_df))
+
+    return estimate, standard_error, {
+        "first_stage_f": first_stage_f,
+        "n_obs": n_obs,
+        "n_instruments": int(instruments.shape[1]),
+    }
+
+
+def _linear_iv_rescue_result(
+    *,
+    graph: CausalGraphModel,
+    treatment: str,
+    outcome: str,
+    data_dict: dict[str, Any],
+) -> tuple[ParametricRescueResult | None, list[str]]:
+    """Fast linear rescue when a graph-valid observed IV exists."""
+    instruments = _candidate_linear_instruments(
+        graph=graph,
+        treatment=treatment,
+        outcome=outcome,
+    )
+    if not instruments:
+        return None, ["Linearity rescue: no graph-valid observed instrument was found for the direct IV/2SLS path."]
+
+    aligned = _extract_aligned_numeric_columns(
+        data_dict=data_dict,
+        variable_names=(outcome, treatment, *instruments),
+    )
+    if aligned is None:
+        return None, [
+            "Linearity rescue: treatment/outcome/instrument columns were missing, non-numeric, or misaligned for the IV/2SLS path."
+        ]
+
+    y = aligned[outcome]
+    t = aligned[treatment]
+    z = np.column_stack([aligned[instrument] for instrument in instruments])
+    estimate, standard_error, diagnostics = _linear_iv_effect(y=y, t=t, instruments=z)
+    if estimate is None:
+        message = diagnostics.get("failure_reason", "linear-IV solver could not produce a stable estimate")
+        return None, [f"Linearity rescue: IV/2SLS path failed: {message}."]
+
+    method = "wald_iv" if len(instruments) == 1 else "linear_2sls"
+    if len(instruments) == 1:
+        estimand_formula = f"Cov({instruments[0]}, {outcome}) / Cov({instruments[0]}, {treatment})"
+    else:
+        joined = ", ".join(instruments)
+        estimand_formula = f"2SLS({outcome} ~ {treatment} | {joined})"
+
+    warnings = [
+        "Assumption-dependent result: valid only under linear structural equations, instrument exogeneity, and exclusion restriction."
+    ]
+    first_stage_f = diagnostics.get("first_stage_f")
+    if isinstance(first_stage_f, float) and first_stage_f < 10.0:
+        warnings.append(
+            "Weak-instrument warning: first-stage F-statistic is below the conventional threshold of 10."
+        )
+
+    rescue = ParametricRescueResult(
+        assumption="linearity",
+        method=method,
+        description="Point-identifying rescue under a linear SEM using a graph-validated observed instrument.",
+        point_estimate=estimate,
+        standard_error=standard_error,
+        estimand_formula=estimand_formula,
+        supporting_variables=tuple(instruments),
+        diagnostics=diagnostics,
+        warnings=tuple(warnings),
+    )
+    return rescue, [f"Added linearity rescue via {method} using instrument(s): {', '.join(instruments)}."]
+
+
+def _wright_path_tracing_rescue_result(
+    *,
+    graph: CausalGraphModel,
+    treatment: str,
+    outcome: str,
+    data_dict: dict[str, Any],
+) -> tuple[ParametricRescueResult | None, list[str]]:
+    """General linear rescue via Wright/path-tracing covariance equations on an ancestor subgraph."""
+    node_order, directed_edges, bidirected_edges, notes = _wright_subgraph_spec(
+        graph=graph,
+        treatment=treatment,
+        outcome=outcome,
+    )
+    if node_order is None:
+        return None, notes
+
+    aligned = _extract_aligned_numeric_columns(
+        data_dict=data_dict,
+        variable_names=node_order,
+    )
+    if aligned is None:
+        return None, [
+            *notes,
+            "Linearity rescue: ancestor-subgraph variables were missing, non-numeric, or misaligned for Wright/path tracing.",
+        ]
+
+    matrix = np.column_stack([aligned[name] for name in node_order])
+    sample_cov = np.cov(matrix, rowvar=False, bias=True)
+    solve = _solve_linear_path_system(
+        node_order=node_order,
+        directed_edges=directed_edges,
+        bidirected_edges=bidirected_edges,
+        sample_cov=sample_cov,
+        treatment=treatment,
+        outcome=outcome,
+    )
+    if solve is None:
+        return None, [
+            *notes,
+            "Linearity rescue: Wright/path-tracing covariance equations were not stably identified on the ancestor subgraph.",
+        ]
+
+    effect, standard_error, diagnostics, formula = solve
+    rescue = ParametricRescueResult(
+        assumption="linearity",
+        method="wright_path_tracing",
+        description=(
+            "Point-identifying rescue under a linear SEM using Wright/path-tracing covariance equations on the ancestor subgraph."
+        ),
+        point_estimate=effect,
+        standard_error=standard_error,
+        estimand_formula=formula,
+        supporting_variables=node_order,
+        diagnostics=diagnostics,
+        warnings=(
+            "Assumption-dependent result: valid only under linear structural equations and the specified mixed-graph error structure.",
+            "Numerical Wright/path-tracing solve was accepted only after a stable multi-start covariance-equation fit; this is evidence of identification, not a symbolic proof.",
+        ),
+    )
+    return rescue, [
+        *notes,
+        f"Added linearity rescue via wright_path_tracing on ancestor subgraph: {', '.join(node_order)}.",
+    ]
+
+
+def _wright_subgraph_spec(
+    *,
+    graph: CausalGraphModel,
+    treatment: str,
+    outcome: str,
+) -> tuple[tuple[str, ...] | None, tuple[tuple[str, str], ...], tuple[tuple[str, str], ...], list[str]]:
+    """Build the ancestor subgraph specification used by the general Wright solver."""
+    directed_edges_all = tuple(
+        (edge.src, edge.dst)
+        for edge in graph.edges
+        if edge.mark_src is EdgeMark.TAIL and edge.mark_dst is EdgeMark.ARROW
+    )
+    parent_map: dict[str, set[str]] = {}
+    for src, dst in directed_edges_all:
+        parent_map.setdefault(dst, set()).add(src)
+
+    needed = {treatment, outcome}
+    frontier = [treatment, outcome]
+    while frontier:
+        current = frontier.pop()
+        for parent in parent_map.get(current, ()):
+            if parent not in needed:
+                needed.add(parent)
+                frontier.append(parent)
+
+    directed_edges = tuple(
+        (src, dst)
+        for src, dst in directed_edges_all
+        if src in needed and dst in needed
+    )
+    bidirected_edges = tuple(
+        tuple(sorted((edge.src, edge.dst)))
+        for edge in graph.edges
+        if edge.mark_src is EdgeMark.ARROW
+        and edge.mark_dst is EdgeMark.ARROW
+        and edge.src in needed
+        and edge.dst in needed
+    )
+    bidirected_edges = tuple(dict.fromkeys(bidirected_edges))
+
+    node_order = _topological_order_from_edges(tuple(sorted(needed)), directed_edges)
+    if node_order is None:
+        return None, (), (), ["Linearity rescue: Wright/path tracing skipped because the ancestor subgraph is cyclic."]
+    if len(node_order) > 6:
+        return None, (), (), [
+            "Linearity rescue: Wright/path tracing skipped because the ancestor subgraph is larger than 6 observed nodes."
+        ]
+
+    children = _children_from_directed_edges(directed_edges)
+    paths = list(_enumerate_directed_paths(children, treatment, outcome))
+    if not paths:
+        return None, (), (), ["Linearity rescue: Wright/path tracing skipped because there is no directed treatment-to-outcome path."]
+
+    return node_order, directed_edges, bidirected_edges, []
+
+
+def _topological_order_from_edges(
+    nodes: tuple[str, ...],
+    directed_edges: tuple[tuple[str, str], ...],
+) -> tuple[str, ...] | None:
+    """Topological order for a directed acyclic edge list."""
+    incoming: dict[str, set[str]] = {node: set() for node in nodes}
+    children: dict[str, set[str]] = {node: set() for node in nodes}
+    for src, dst in directed_edges:
+        incoming.setdefault(dst, set()).add(src)
+        children.setdefault(src, set()).add(dst)
+
+    ready = sorted(node for node in nodes if not incoming.get(node))
+    order: list[str] = []
+    while ready:
+        node = ready.pop(0)
+        order.append(node)
+        for child in sorted(children.get(node, ())):
+            parents = incoming.get(child)
+            if parents is None:
+                continue
+            parents.discard(node)
+            if not parents:
+                ready.append(child)
+        ready.sort()
+
+    if len(order) != len(nodes):
+        return None
+    return tuple(order)
+
+
+def _children_from_directed_edges(
+    directed_edges: tuple[tuple[str, str], ...],
+) -> dict[str, tuple[str, ...]]:
+    """Materialize adjacency from a directed edge list."""
+    children: dict[str, list[str]] = {}
+    for src, dst in directed_edges:
+        children.setdefault(src, []).append(dst)
+    return {src: tuple(sorted(dsts)) for src, dsts in children.items()}
+
+
+def _enumerate_directed_paths(
+    children: dict[str, tuple[str, ...]],
+    src: str,
+    dst: str,
+    prefix: tuple[str, ...] = (),
+) -> tuple[tuple[str, ...], ...]:
+    """Enumerate simple directed paths in a DAG."""
+    path = (*prefix, src)
+    if src == dst:
+        return (path,)
+    paths: list[tuple[str, ...]] = []
+    for child in children.get(src, ()):
+        if child in path:
+            continue
+        paths.extend(_enumerate_directed_paths(children, child, dst, path))
+    return tuple(paths)
+
+
+def _solve_linear_path_system(
+    *,
+    node_order: tuple[str, ...],
+    directed_edges: tuple[tuple[str, str], ...],
+    bidirected_edges: tuple[tuple[str, str], ...],
+    sample_cov: np.ndarray,
+    treatment: str,
+    outcome: str,
+) -> tuple[float, float | None, dict[str, Any], str] | None:
+    """Solve linear mixed-graph covariance equations and recover the total effect."""
+    from scipy.optimize import least_squares
+
+    n_nodes = len(node_order)
+    index = {node: idx for idx, node in enumerate(node_order)}
+    directed_names = tuple(f"b_{src}_{dst}" for src, dst in directed_edges)
+    bidirected_names = tuple(f"w_{src}_{dst}" for src, dst in bidirected_edges)
+    variance_names = tuple(f"psi_{node}" for node in node_order)
+    n_unknown = len(directed_names) + len(bidirected_names) + len(variance_names)
+    n_equations = n_nodes * (n_nodes + 1) // 2
+    if n_unknown > n_equations or n_unknown > 18:
+        return None
+
+    tri_upper = np.triu_indices(n_nodes)
+    observed = sample_cov[tri_upper]
+    directed_offset = 0
+    bidirected_offset = len(directed_edges)
+    variance_offset = bidirected_offset + len(bidirected_edges)
+
+    def unpack(theta: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+        b = np.zeros((n_nodes, n_nodes), dtype=float)
+        omega = np.zeros((n_nodes, n_nodes), dtype=float)
+        for offset, (src, dst) in enumerate(directed_edges):
+            b[index[src], index[dst]] = float(theta[directed_offset + offset])
+        for offset, (src, dst) in enumerate(bidirected_edges):
+            value = float(theta[bidirected_offset + offset])
+            i, j = index[src], index[dst]
+            omega[i, j] = value
+            omega[j, i] = value
+        for offset, node in enumerate(node_order):
+            omega[index[node], index[node]] = float(theta[variance_offset + offset] ** 2 + 1e-6)
+        return b, omega
+
+    def residual(theta: np.ndarray) -> np.ndarray:
+        b, omega = unpack(theta)
+        try:
+            transform = np.linalg.inv(np.eye(n_nodes) - b.T)
+        except np.linalg.LinAlgError:
+            return np.full(observed.shape, 1e6, dtype=float)
+        sigma = transform @ omega @ transform.T
+        if not np.all(np.isfinite(sigma)):
+            return np.full(observed.shape, 1e6, dtype=float)
+        return sigma[tri_upper] - observed
+
+    starts = [np.zeros(n_unknown, dtype=float)]
+    rng = np.random.default_rng(0)
+    for scale in (0.05, 0.15, 0.3, 0.6):
+        starts.append(rng.standard_normal(n_unknown) * scale)
+
+    candidates: list[tuple[float, float, float | None, np.ndarray]] = []
+    for start in starts:
+        result = least_squares(residual, start, method="trf", max_nfev=4000)
+        resid = residual(result.x)
+        rel_resid = float(np.linalg.norm(resid) / max(np.linalg.norm(observed), 1e-8))
+        if not np.isfinite(rel_resid) or rel_resid > 0.12:
+            continue
+        b, _ = unpack(result.x)
+        total_effect = _linear_total_effect(b, node_order, treatment, outcome)
+        if total_effect is None or not np.isfinite(total_effect):
+            continue
+        jacobian = result.jac
+        effect_se = _linear_effect_standard_error(
+            jacobian=jacobian,
+            residuals=resid,
+            parameter_vector=result.x,
+            unpack=unpack,
+            node_order=node_order,
+            treatment=treatment,
+            outcome=outcome,
+        )
+        candidates.append((rel_resid, float(total_effect), effect_se, result.x))
+
+    if not candidates:
+        return None
+
+    candidates.sort(key=lambda item: item[0])
+    best_rel_resid = candidates[0][0]
+    stable = [item for item in candidates if item[0] <= max(best_rel_resid * 2.0, 0.02)]
+    effect_values = np.asarray([item[1] for item in stable], dtype=float)
+    if effect_values.size == 0 or float(np.std(effect_values)) > 0.05:
+        return None
+
+    best_effect = float(np.mean(effect_values))
+    best_se = stable[0][2]
+    best_theta = stable[0][3]
+    best_b, _ = unpack(best_theta)
+    diagnostics = {
+        "relative_residual": best_rel_resid,
+        "n_unknown_params": n_unknown,
+        "n_equations": n_equations,
+        "n_multistart_successes": len(stable),
+        "path_formula_terms": len(_enumerate_directed_paths(_children_from_directed_edges(directed_edges), treatment, outcome)),
+        "edge_coefficients": {
+            f"{src}->{dst}": float(best_b[index[src], index[dst]])
+            for src, dst in directed_edges
+        },
+    }
+    formula = _wright_formula_string(
+        directed_edges=directed_edges,
+        treatment=treatment,
+        outcome=outcome,
+    )
+    return best_effect, best_se, diagnostics, formula
+
+
+def _linear_total_effect(
+    b: np.ndarray,
+    node_order: tuple[str, ...],
+    treatment: str,
+    outcome: str,
+) -> float | None:
+    """Compute total causal effect under a linear SEM from direct coefficients."""
+    index = {node: idx for idx, node in enumerate(node_order)}
+    if treatment not in index or outcome not in index:
+        return None
+    try:
+        total = np.linalg.inv(np.eye(len(node_order)) - b.T) - np.eye(len(node_order))
+    except np.linalg.LinAlgError:
+        return None
+    return float(total[index[outcome], index[treatment]])
+
+
+def _linear_effect_standard_error(
+    *,
+    jacobian: np.ndarray,
+    residuals: np.ndarray,
+    parameter_vector: np.ndarray,
+    unpack: Any,
+    node_order: tuple[str, ...],
+    treatment: str,
+    outcome: str,
+) -> float | None:
+    """Approximate SE for the recovered total effect via numerical delta method."""
+    dof = max(jacobian.shape[0] - jacobian.shape[1], 1)
+    try:
+        sigma2 = float(np.dot(residuals, residuals) / dof)
+        cov_theta = sigma2 * np.linalg.pinv(jacobian.T @ jacobian)
+    except np.linalg.LinAlgError:
+        return None
+
+    step = 1e-5
+    grad = np.zeros(parameter_vector.shape[0], dtype=float)
+    base_b, _ = unpack(parameter_vector)
+    base_effect = _linear_total_effect(base_b, node_order, treatment, outcome)
+    if base_effect is None:
+        return None
+
+    for idx in range(parameter_vector.shape[0]):
+        bumped = parameter_vector.copy()
+        bumped[idx] += step
+        bumped_b, _ = unpack(bumped)
+        bumped_effect = _linear_total_effect(bumped_b, node_order, treatment, outcome)
+        if bumped_effect is None:
+            return None
+        grad[idx] = (bumped_effect - base_effect) / step
+
+    variance = float(grad @ cov_theta @ grad)
+    if variance < 0.0 or not np.isfinite(variance):
+        return None
+    return float(np.sqrt(variance))
+
+
+def _wright_formula_string(
+    *,
+    directed_edges: tuple[tuple[str, str], ...],
+    treatment: str,
+    outcome: str,
+) -> str:
+    """Path-sum formula for the total effect in terms of structural coefficients."""
+    children = _children_from_directed_edges(directed_edges)
+    paths = _enumerate_directed_paths(children, treatment, outcome)
+    terms: list[str] = []
+    for path in paths:
+        edges = tuple(zip(path, path[1:], strict=False))
+        if not edges:
+            continue
+        terms.append("*".join(f"b_{src}_{dst}" for src, dst in edges))
+    return " + ".join(terms)
+
+
+def _resolve_method_class(registry: Any, fqn_full: str) -> Any:
+    """Resolve a Foundry method via registry with direct-import fallbacks."""
+    try:
+        return registry.get(fqn_full)
+    except Exception:
+        bare_fqn = fqn_full.split("@", 1)[0]
+        if bare_fqn == "causal.structural.twin_network_query":
+            from polisyos.foundry.methods.catalog.causal.twin_network_query import TwinNetworkQuery
+
+            return TwinNetworkQuery
+        if bare_fqn == "causal.structural.hybrid_scm_fit":
+            from polisyos.foundry.methods.catalog.causal.gcm_fit import HybridSCMFit
+
+            return HybridSCMFit
+        if bare_fqn == "causal.sensitivity.sensitivity_metrics":
+            from polisyos.foundry.methods.catalog.causal.sensitivity_metrics import (
+                SensitivityMetrics,
+            )
+
+            return SensitivityMetrics
+        if bare_fqn == "causal.diagnostics.positivity_check":
+            from polisyos.foundry.methods.catalog.causal.diagnostics import (
+                PositivityDiagnostic,
+            )
+
+            return PositivityDiagnostic
+        if bare_fqn == "causal.diagnostics.support_mismatch":
+            from polisyos.foundry.methods.catalog.causal.diagnostics import (
+                SupportMismatchDiagnostic,
+            )
+
+            return SupportMismatchDiagnostic
+        raise
 
 
 __all__ = ["CausalEngine"]

@@ -293,3 +293,190 @@ def test_build_graph_rewrites_fact_id_collisions_for_distinct_statements(tmp_pat
         assert len(rows) == 2
         assert rows[0][0] != rows[1][0]
         assert [row[1] for row in rows] == ["delegation", "procedure"]
+
+
+def test_build_graph_populates_amendments_with_target_from_resolved_references(tmp_path) -> None:
+    spo_dir = tmp_path / "spo_results" / "am"
+    provisions_dir = tmp_path / "provisions" / "am"
+    refs_dir = tmp_path / "resolved_references" / "am"
+    spo_dir.mkdir(parents=True)
+    provisions_dir.mkdir(parents=True)
+    refs_dir.mkdir(parents=True)
+
+    with open(provisions_dir / "amdoc.jsonl", "w", encoding="utf-8") as fh:
+        fh.write(
+            json.dumps(
+                {
+                    "anchor_path": "article:1",
+                    "citation_label": "стаття 1",
+                    "kind": "article",
+                    "text": "У статті 5 слова «старий текст» замінити словами «новий текст».",
+                    "offset_start": 0,
+                    "offset_end": 66,
+                    "token_est": 12,
+                    "text_hash": "hash-amend",
+                    "is_fallback_chunk": False,
+                    "struct_kind": "article",
+                    "section_role": "normative_unit",
+                    "lineage_path": "article:1",
+                    "fallback_allowed_for_reasoning": True,
+                },
+                ensure_ascii=False,
+            )
+            + "\n"
+        )
+
+    with open(refs_dir / "amdoc.jsonl", "w", encoding="utf-8") as fh:
+        fh.write(
+            json.dumps(
+                {
+                    "reference_edge_id": "am-edge-1",
+                    "doc_id": "amdoc",
+                    "source_doc_family_id": "family-am",
+                    "anchor_path": "article:1",
+                    "target_raw": "Закон України Про базовий акт від 01.01.2024 № 1234-IX",
+                    "target_doc_id": "base-law",
+                    "selected_target_doc_id": "base-law",
+                    "target_doc_family_id": "family-base",
+                    "target_doc_reestr_code": "124",
+                    "target_doc_number": "1234-IX",
+                    "target_doc_type": "Закон України",
+                    "target_doc_date_acc": "2024-01-01",
+                    "target_doc_status": "active",
+                    "target_anchor": "article:5",
+                    "relation_type": "amends",
+                    "matched_by": "number_date",
+                    "resolution_confidence": 0.97,
+                    "resolution_status": "partial",
+                    "target_version_id": "base-law",
+                },
+                ensure_ascii=False,
+            )
+            + "\n"
+        )
+
+    db_path = tmp_path / "lex_knowledge_graph.duckdb"
+    stats = build_graph(
+        spo_results_dir=tmp_path / "spo_results",
+        provisions_dir=tmp_path / "provisions",
+        references_dir=tmp_path / "resolved_references",
+        domains_dir=None,
+        doc_metadata={
+            "amdoc": {
+                "reestr_code": "900",
+                "name": "Law on amendments",
+                "doc_type": "Закон",
+                "date_acc": "2024-05-01",
+                "status": "active",
+                "number": "900-IX",
+                "publisher": ["Верховна Рада України"],
+            },
+            "base-law": {
+                "reestr_code": "124",
+                "name": "Base law",
+                "doc_type": "Закон",
+                "date_acc": "2024-01-01",
+                "status": "active",
+                "number": "1234-IX",
+                "publisher": ["Верховна Рада України"],
+            },
+        },
+        db_path=db_path,
+        insert_batch_size=10,
+    )
+
+    assert stats.amendments == 1
+
+    with duckdb.connect(str(db_path), read_only=True) as con:
+        row = con.execute(
+            """
+            SELECT amending_doc_id, amended_doc_id, amendment_type, target_anchor, detected_by, metadata
+            FROM lex_amendments
+            """
+        ).fetchone()
+        assert row is not None
+        assert row[0] == "amdoc"
+        assert row[1] == "base-law"
+        assert row[2] == "replace_text"
+        assert row[3] == "article:5"
+        assert row[4] == "pattern+refs"
+        metadata = json.loads(row[5])
+        assert metadata["target_hint"]["relation_type"] == "amends"
+        assert metadata["target_hint"]["target_doc_id"] == "base-law"
+
+
+def test_build_graph_infers_amendment_target_from_doc_title_when_refs_missing(tmp_path) -> None:
+    spo_dir = tmp_path / "spo_results" / "ti"
+    provisions_dir = tmp_path / "provisions" / "ti"
+    spo_dir.mkdir(parents=True)
+    provisions_dir.mkdir(parents=True)
+
+    with open(provisions_dir / "titledoc.jsonl", "w", encoding="utf-8") as fh:
+        fh.write(
+            json.dumps(
+                {
+                    "anchor_path": "article:1",
+                    "citation_label": "стаття 1",
+                    "kind": "article",
+                    "text": "У статті 5 слова «старий текст» замінити словами «новий текст».",
+                    "offset_start": 0,
+                    "offset_end": 66,
+                    "token_est": 12,
+                    "text_hash": "hash-title-amend",
+                    "is_fallback_chunk": False,
+                    "struct_kind": "article",
+                    "section_role": "normative_unit",
+                    "lineage_path": "article:1",
+                    "fallback_allowed_for_reasoning": True,
+                },
+                ensure_ascii=False,
+            )
+            + "\n"
+        )
+
+    db_path = tmp_path / "lex_knowledge_graph.duckdb"
+    stats = build_graph(
+        spo_results_dir=tmp_path / "spo_results",
+        provisions_dir=tmp_path / "provisions",
+        references_dir=None,
+        domains_dir=None,
+        doc_metadata={
+            "titledoc": {
+                "reestr_code": "901",
+                "name": 'Про внесення змін до Закону України "Про базовий акт"',
+                "doc_type": "Закон",
+                "date_acc": "2024-05-02",
+                "status": "active",
+                "number": "901-IX",
+                "publisher": ["Верховна Рада України"],
+            },
+            "base-law": {
+                "reestr_code": "124",
+                "name": 'Закон України "Про базовий акт"',
+                "doc_type": "Закон",
+                "date_acc": "2024-01-01",
+                "status": "active",
+                "number": "1234-IX",
+                "publisher": ["Верховна Рада України"],
+            },
+        },
+        db_path=db_path,
+        insert_batch_size=10,
+    )
+
+    assert stats.amendments == 1
+    assert stats.amendments_with_target == 1
+
+    with duckdb.connect(str(db_path), read_only=True) as con:
+        row = con.execute(
+            """
+            SELECT amended_doc_id, detected_by, metadata
+            FROM lex_amendments
+            WHERE amending_doc_id = 'titledoc'
+            """
+        ).fetchone()
+        assert row is not None
+        assert row[0] == "base-law"
+        assert row[1] == "pattern+title"
+        metadata = json.loads(row[2])
+        assert metadata["target_hint"]["source"] == "doc_title_inference"

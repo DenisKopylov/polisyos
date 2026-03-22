@@ -48,11 +48,13 @@ class ProvisionSpan:
     table_id: str | None = None
     fallback_allowed_for_reasoning: bool = False
     legal_unit_subtype: str = ""
+    legal_unit_micro_subtype: str = ""
     route_class: str = ""
     empty_spo_retry_eligible: bool = False
     audit_miss_prone: bool = False
     reference_bearing: bool = False
     threshold_bearing: bool = False
+    context_prefix: str = ""
 
 
 _APPENDIX_RE = re.compile(r"^\s*додат(?:ок|ки)\b(?:\s*№?\s*([0-9A-Za-zА-Яа-я\-]+))?", re.IGNORECASE)
@@ -246,6 +248,18 @@ _TABLE_FRAGMENT_CELL_RE = re.compile(
 
 def _compact_spaces(text: str) -> str:
     return re.sub(r"\s+", " ", text).strip()
+
+
+def _compose_context_prefix(*parts: str | None) -> str:
+    seen: set[str] = set()
+    ordered: list[str] = []
+    for part in parts:
+        compact = _compact_spaces(str(part or ""))
+        if not compact or compact in seen:
+            continue
+        seen.add(compact)
+        ordered.append(compact[:220])
+    return " | ".join(ordered[:3])
 
 
 def _route_doc_profile(*, doc_type: str | None, doc_name: str | None, publisher: str | None) -> str:
@@ -766,6 +780,7 @@ def _build_fallback_span(
     section_role: str | None = None,
     catalog_mode: bool = False,
     strict_catalog_mode: bool = False,
+    context_prefix: str = "",
 ) -> ProvisionSpan | None:
     provision_text = text[offset_start:offset_end]
     if not provision_text.strip():
@@ -810,6 +825,7 @@ def _build_fallback_span(
         appendix_id=appendix_id,
         table_id=table_id,
         fallback_allowed_for_reasoning=adjusted_allowed,
+        context_prefix=context_prefix,
     )
 
 
@@ -854,6 +870,9 @@ def _parse_structured_fallback_units(
         current_container_anchor = anchor_root
         current_parent_anchor = anchor_root if appendix_id is not None else None
         catalog_mode = strict_catalog_mode
+        appendix_heading_text = ""
+        current_section_heading_text = ""
+        current_table_header_text = ""
 
         if appendix_id is not None:
             heading_end = 1
@@ -881,10 +900,12 @@ def _parse_structured_fallback_units(
                 struct_kind="appendix",
                 catalog_mode=False,
                 strict_catalog_mode=strict_catalog_mode,
+                context_prefix="",
             )
             if appendix_span is not None:
                 spans.append(appendix_span)
                 catalog_mode = strict_catalog_mode or appendix_span.section_role in {"catalog_header", "form_header"}
+                appendix_heading_text = _compact_spaces(appendix_span.text)
             cursor = heading_end
 
         while cursor < len(block_lines):
@@ -936,11 +957,14 @@ def _parse_structured_fallback_units(
                     section_role="appendix_section",
                     catalog_mode=False,
                     strict_catalog_mode=strict_catalog_mode,
+                    context_prefix=_compose_context_prefix(appendix_heading_text),
                 )
                 if span is not None:
                     spans.append(span)
                     if strict_catalog_mode or span.section_role == "catalog_header":
                         catalog_mode = True
+                    current_section_heading_text = _compact_spaces(span.text)
+                    current_table_header_text = ""
                 current_container_anchor = section_anchor
                 current_parent_anchor = section_anchor
                 cursor = section_end
@@ -984,6 +1008,11 @@ def _parse_structured_fallback_units(
                     section_role="table_clause",
                     catalog_mode=catalog_mode,
                     strict_catalog_mode=strict_catalog_mode,
+                    context_prefix=_compose_context_prefix(
+                        appendix_heading_text,
+                        current_section_heading_text,
+                        current_table_header_text,
+                    ),
                 )
                 if span is not None:
                     spans.append(span)
@@ -1022,6 +1051,10 @@ def _parse_structured_fallback_units(
                     struct_kind="enumeration_item",
                     catalog_mode=catalog_mode,
                     strict_catalog_mode=strict_catalog_mode,
+                    context_prefix=_compose_context_prefix(
+                        appendix_heading_text,
+                        current_section_heading_text,
+                    ),
                 )
                 if span is not None:
                     spans.append(span)
@@ -1034,6 +1067,7 @@ def _parse_structured_fallback_units(
                 row_idx = 1
                 header_idx = 1
                 seen_data_row = False
+                current_table_header_text = ""
                 while cursor < len(block_lines) and _is_tableish_line(block_lines[cursor]):
                     row_start = cursor
                     row_end = cursor + 1
@@ -1073,14 +1107,25 @@ def _parse_structured_fallback_units(
                         ),
                         catalog_mode=catalog_mode,
                         strict_catalog_mode=strict_catalog_mode,
+                        context_prefix=_compose_context_prefix(
+                            appendix_heading_text,
+                            current_section_heading_text,
+                            current_table_header_text,
+                        ),
                     )
                     if row_span is not None:
                         spans.append(row_span)
+                        if is_header:
+                            current_table_header_text = _compose_context_prefix(
+                                current_table_header_text,
+                                row_span.text,
+                            )
                     cursor = row_end
                     while cursor < len(block_lines) and _is_blank_line(block_lines[cursor]):
                         cursor += 1
                     if cursor >= len(block_lines) or not _is_tableish_line(block_lines[cursor]):
                         break
+                current_table_header_text = ""
                 continue
 
             start_idx = cursor
@@ -1116,6 +1161,10 @@ def _parse_structured_fallback_units(
                 fallback_allowed_for_reasoning=True,
                 catalog_mode=catalog_mode,
                 strict_catalog_mode=strict_catalog_mode,
+                context_prefix=_compose_context_prefix(
+                    appendix_heading_text,
+                    current_section_heading_text,
+                ),
             )
             if span is not None:
                 spans.append(span)
@@ -1218,10 +1267,12 @@ def _apply_legal_unit_signals(
     spans: list[ProvisionSpan],
     doc_type: str | None,
     doc_name: str | None,
+    jurisdiction: str,
 ) -> list[ProvisionSpan]:
     if not spans:
         return []
     from polisyos.lex.batch.legal_unit import build_legal_unit_signals, infer_doc_family_for_unit
+    from polisyos.lex.batch.jurisdictions import get_jurisdiction_plugin
 
     doc_family = infer_doc_family_for_unit(
         doc_type=str(doc_type or ""),
@@ -1236,6 +1287,7 @@ def _apply_legal_unit_signals(
             for span in spans
         ],
     )
+    jurisdiction_plugin = get_jurisdiction_plugin(jurisdiction)
     enriched: list[ProvisionSpan] = []
     for span in spans:
         signals = build_legal_unit_signals(
@@ -1246,11 +1298,14 @@ def _apply_legal_unit_signals(
             doc_family=doc_family,
             doc_title=str(doc_name or ""),
             citation_label=span.citation_label,
+            context_prefix=span.context_prefix,
+            jurisdiction_plugin=jurisdiction_plugin,
         )
         enriched.append(
             replace(
                 span,
                 legal_unit_subtype=signals.legal_unit_subtype,
+                legal_unit_micro_subtype=signals.legal_unit_micro_subtype,
                 route_class=signals.route_class,
                 empty_spo_retry_eligible=signals.empty_spo_retry_eligible,
                 audit_miss_prone=signals.audit_miss_prone,
@@ -1326,6 +1381,7 @@ def extract_provisions(
                 spans=structured_fallback,
                 doc_type=doc_type,
                 doc_name=doc_name,
+                jurisdiction=jurisdiction,
             )
         # No articles found — chunk text to avoid giant prompts.
         return _apply_legal_unit_signals(
@@ -1337,6 +1393,7 @@ def extract_provisions(
             ),
             doc_type=doc_type,
             doc_name=doc_name,
+            jurisdiction=jurisdiction,
         )
 
     spans: list[ProvisionSpan] = []
@@ -1381,4 +1438,5 @@ def extract_provisions(
         spans=spans,
         doc_type=doc_type,
         doc_name=doc_name,
+        jurisdiction=jurisdiction,
     )

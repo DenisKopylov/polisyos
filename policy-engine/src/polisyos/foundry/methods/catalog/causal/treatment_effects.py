@@ -17,6 +17,11 @@ from polisyos.foundry.methods.base import (
     Unit,
     foundry_method,
 )
+from polisyos.foundry.methods.catalog.causal.tmle_core import (
+    fit_aipw_ate,
+    fit_tmle_ate,
+    result_payload,
+)
 
 
 def _result_slot() -> frozenset[SlotSpec]:
@@ -71,7 +76,11 @@ class AIPWEstimator:
         version="0.0.0",
         input_slots=_treatment_slots(),
         output_slots=_result_slot(),
-        parameters=(),
+        parameters=(
+            ParameterSpec(name="estimation_backend", default="custom"),
+            ParameterSpec(name="direct_model_type", default="linear"),
+            ParameterSpec(name="confidence_level", default=0.95),
+        ),
         fidelity=FidelityLevel.HIGH,
         complexity=ComplexityClass.O_N2,
         backend=ComputeBackend.NUMPY,
@@ -100,37 +109,24 @@ class AIPWEstimator:
         X = np.asarray(state["X"], dtype=float)
         T = np.asarray(state["treatment"], dtype=float)
         Y = np.asarray(state["outcome"], dtype=float)
-        n = len(Y)
-
-        # Propensity score
-        e = _logistic_propensity(X, T)
-
-        # Outcome models (linear)
-        X_aug = np.column_stack([np.ones(n), X])
-        treated = T > 0.5
-        control = ~treated
-
-        beta1 = np.linalg.lstsq(X_aug[treated], Y[treated], rcond=None)[0] if np.sum(treated) > 1 else np.zeros(X_aug.shape[1])
-        beta0 = np.linalg.lstsq(X_aug[control], Y[control], rcond=None)[0] if np.sum(control) > 1 else np.zeros(X_aug.shape[1])
-
-        mu1 = X_aug @ beta1
-        mu0 = X_aug @ beta0
-
-        # AIPW scores
-        psi = mu1 - mu0 + T * (Y - mu1) / e - (1 - T) * (Y - mu0) / (1 - e)
-        ate = float(np.mean(psi))
-        se = float(np.std(psi) / np.sqrt(n))
+        fit_result, nuisance = fit_aipw_ate(X, T, Y, params)
+        payload = result_payload(fit_result, nuisance)
 
         return {
             "result": {
-                "ate": ate,
-                "standard_error": se,
-                "t_statistic": ate / max(se, 1e-12),
-                "ci_lower": ate - 1.96 * se,
-                "ci_upper": ate + 1.96 * se,
-                "n_treated": int(np.sum(treated)),
-                "n_control": int(np.sum(control)),
-                "n_obs": n,
+                "ate": fit_result.ate,
+                "standard_error": fit_result.standard_error,
+                "t_statistic": fit_result.ate / max(fit_result.standard_error, 1e-12),
+                "ci_lower": fit_result.ci_lower,
+                "ci_upper": fit_result.ci_upper,
+                "interval_method": fit_result.interval_method,
+                "eif_mean": fit_result.eif_mean,
+                "eif_standard_deviation": fit_result.eif_standard_deviation,
+                "n_treated": int(np.sum(T > 0.5)),
+                "n_control": int(np.sum(T <= 0.5)),
+                "n_obs": int(len(Y)),
+                "n_trimmed": int(np.sum(~nuisance.trim_mask)),
+                **payload,
             }
         }
 
@@ -179,49 +175,22 @@ class TMLEEstimator:
         X = np.asarray(state["X"], dtype=float)
         T = np.asarray(state["treatment"], dtype=float)
         Y = np.asarray(state["outcome"], dtype=float)
-        n = len(Y)
-
-        # Step 1: Initial outcome model
-        X_aug = np.column_stack([np.ones(n), T[:, None], X])
-        beta_Q = np.linalg.lstsq(X_aug, Y, rcond=None)[0]
-        Q_A = X_aug @ beta_Q
-
-        # Counterfactual predictions
-        X_aug_1 = np.column_stack([np.ones(n), np.ones(n)[:, None], X])
-        X_aug_0 = np.column_stack([np.ones(n), np.zeros(n)[:, None], X])
-        Q1 = X_aug_1 @ beta_Q
-        Q0 = X_aug_0 @ beta_Q
-
-        # Step 2: Propensity model
-        g = _logistic_propensity(X, T)
-
-        # Step 3: Clever covariate
-        H1 = T / g
-        H0 = -(1 - T) / (1 - g)
-        H_A = H1 + H0
-
-        # Step 4: Fluctuation (logistic submodel approximated as linear offset)
-        residual = Y - Q_A
-        epsilon = float(np.sum(H_A * residual) / max(np.sum(H_A ** 2), 1e-12))
-
-        # Step 5: Updated predictions
-        Q1_star = Q1 + epsilon / g
-        Q0_star = Q0 - epsilon / (1 - g)
-
-        ate = float(np.mean(Q1_star - Q0_star))
-
-        # Influence curve
-        IC = (Q1_star - Q0_star) + H1 * (Y - Q1_star) + H0 * (Y - Q0_star) - ate
-        se = float(np.std(IC) / np.sqrt(n))
+        fit_result, nuisance = fit_tmle_ate(X, T, Y, params)
+        payload = result_payload(fit_result, nuisance)
 
         return {
             "result": {
-                "ate": ate,
-                "standard_error": se,
-                "ci_lower": ate - 1.96 * se,
-                "ci_upper": ate + 1.96 * se,
-                "fluctuation_epsilon": epsilon,
-                "n_obs": n,
+                "ate": fit_result.ate,
+                "standard_error": fit_result.standard_error,
+                "ci_lower": fit_result.ci_lower,
+                "ci_upper": fit_result.ci_upper,
+                "interval_method": fit_result.interval_method,
+                "eif_mean": fit_result.eif_mean,
+                "eif_standard_deviation": fit_result.eif_standard_deviation,
+                "targeting_summary": fit_result.targeting_summary,
+                "n_obs": int(len(Y)),
+                "n_trimmed": int(np.sum(~nuisance.trim_mask)),
+                **payload,
             }
         }
 

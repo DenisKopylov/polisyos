@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
 import re
 import xml.etree.ElementTree as ET
 from datetime import UTC, datetime
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
@@ -13,6 +15,7 @@ import aiohttp
 
 from polisyos.batch_common.manifest import write_raw_manifest, write_stage_manifest
 from polisyos.common.logger import get_logger
+from polisyos.datasets.batch.checkpoints import hash_payload, load_json, write_json
 from polisyos.datasets.batch.ckan_curation import curate_ckan_package
 from polisyos.datasets.batch.config import DatasetBatchConfig
 from polisyos.datasets.batch.normalizer import map_to_polisyos_metrics
@@ -53,9 +56,8 @@ _SOURCE_PRIORITY_METRICS: dict[str, tuple[str, ...]] = {
     ),
     "who": (
         "health_outcomes",
+        "life_expectancy",
         "poverty_rate",
-        "education_outcomes",
-        "gdp",
     ),
     "wvs": ("social_trust",),
     "data_gov_ro_broad": (
@@ -166,20 +168,62 @@ _PRIORITY_BLACKLIST: tuple[str, ...] = (
     "start month",
     "end month",
 )
-_WVS_STATIC_INDICATORS: tuple[dict[str, str], ...] = (
+_WVS_STATIC_INDICATORS: tuple[dict[str, Any], ...] = (
+    {"id": "A009", "name": "State of health (subjective)", "description": "WVS longitudinal subjective health item", "wave": "timeseries", "harvest_metric_candidates": ["health_outcomes"]},
+    {"id": "A165", "name": "Most people can be trusted", "description": "WVS longitudinal social trust question", "wave": "timeseries", "harvest_metric_candidates": ["social_trust"]},
+    {"id": "A170", "name": "Satisfaction with your life", "description": "WVS longitudinal life satisfaction item", "wave": "timeseries", "harvest_metric_candidates": ["social_capital"]},
+    {"id": "A173", "name": "How much freedom of choice and control", "description": "WVS longitudinal freedom-of-choice item", "wave": "timeseries", "harvest_metric_candidates": ["cultural_cluster"]},
+    {"id": "A214", "name": "I see myself as someone who is generally trusting", "description": "WVS longitudinal generalized trust item", "wave": "timeseries", "harvest_metric_candidates": ["social_trust"]},
+    {"id": "D059", "name": "Men make better political leaders than women do", "description": "WVS longitudinal gender norms item", "wave": "timeseries", "harvest_metric_candidates": ["gender_equality"]},
+    {"id": "E023", "name": "Interest in politics", "description": "WVS longitudinal political interest item", "wave": "timeseries", "harvest_metric_candidates": ["social_capital"]},
+    {"id": "E025", "name": "Political action: Signing a petition", "description": "WVS longitudinal petition participation item", "wave": "timeseries", "harvest_metric_candidates": ["social_capital"]},
+    {"id": "E035", "name": "Income equality", "description": "WVS longitudinal income equality preference item", "wave": "timeseries", "harvest_metric_candidates": ["inequality"]},
+    {"id": "E069_07", "name": "Confidence: Parliament", "description": "WVS longitudinal institutional confidence item for parliament", "wave": "timeseries", "harvest_metric_candidates": ["public_trust", "institutional_quality"]},
+    {"id": "E069_11", "name": "Confidence: The Government", "description": "WVS longitudinal institutional confidence item for government", "wave": "timeseries", "harvest_metric_candidates": ["public_trust", "institutional_quality"]},
+    {"id": "E069_17", "name": "Confidence: Justice System/Courts", "description": "WVS longitudinal institutional confidence item for courts", "wave": "timeseries", "harvest_metric_candidates": ["judicial_quality", "institutional_quality"]},
+    {"id": "E110", "name": "Satisfaction with the way democracy develops", "description": "WVS longitudinal democracy satisfaction item", "wave": "timeseries", "harvest_metric_candidates": ["democracy_quality"]},
+    {"id": "E117", "name": "Political system: Having a democratic political system", "description": "WVS longitudinal democracy preference item", "wave": "timeseries", "harvest_metric_candidates": ["democracy_quality"]},
+    {"id": "E196", "name": "Extent of political corruption", "description": "WVS longitudinal perceived political corruption item", "wave": "timeseries", "harvest_metric_candidates": ["corruption_level"]},
+    {"id": "E233", "name": "Democracy: Women have the same rights as men", "description": "WVS longitudinal gender equality in democracy item", "wave": "timeseries", "harvest_metric_candidates": ["gender_equality"]},
+    {"id": "E286", "name": "Social activism: Donating to a group or campaign", "description": "WVS longitudinal social activism donation item", "wave": "timeseries", "harvest_metric_candidates": ["social_capital"]},
+    {"id": "F108", "name": "Government protects freedom", "description": "WVS longitudinal freedom protection item", "wave": "timeseries", "harvest_metric_candidates": ["democracy_quality"]},
+    {"id": "G007_64", "name": "Trust: People in general", "description": "WVS longitudinal trust in people in general item", "wave": "timeseries", "harvest_metric_candidates": ["social_trust"]},
+    {"id": "Y022", "name": "Welzel equality sub-index", "description": "WVS longitudinal equality composite item", "wave": "timeseries", "harvest_metric_candidates": ["gender_equality"]},
+)
+_WHO_STATIC_INDICATORS: tuple[dict[str, Any], ...] = (
     {
-        "id": "A165",
-        "name": "Most people can be trusted",
-        "description": "World Values Survey Wave 7 social trust question",
-        "wave": "7",
+        "id": "WHOSIS_000001",
+        "IndicatorCode": "WHOSIS_000001",
+        "IndicatorName": "Life expectancy at birth (years)",
+        "name": "Life expectancy at birth (years)",
+        "description": "WHO GHO life expectancy at birth indicator",
+        "harvest_metric_candidates": ["health_outcomes", "life_expectancy"],
     },
     {
-        "id": "A173",
-        "name": "Trust in civil service",
-        "description": "World Values Survey Wave 7 institutional trust question",
-        "wave": "7",
+        "id": "WHOSIS_000002",
+        "IndicatorCode": "WHOSIS_000002",
+        "IndicatorName": "Healthy life expectancy (HALE) at birth (years)",
+        "name": "Healthy life expectancy (HALE) at birth (years)",
+        "description": "WHO GHO healthy life expectancy at birth indicator",
+        "harvest_metric_candidates": ["health_outcomes", "life_expectancy"],
+    },
+    {
+        "id": "WHOSIS_000015",
+        "IndicatorCode": "WHOSIS_000015",
+        "IndicatorName": "Life expectancy at age 60 (years)",
+        "name": "Life expectancy at age 60 (years)",
+        "description": "WHO GHO life expectancy at age 60 indicator",
+        "harvest_metric_candidates": ["health_outcomes", "life_expectancy"],
     },
 )
+_WVS_LOCAL_METRIC_CANDIDATES: dict[str, tuple[str, ...]] = {
+    str(item["id"]).strip().upper(): tuple(str(metric) for metric in item.get("harvest_metric_candidates", []) if str(metric).strip())
+    for item in _WVS_STATIC_INDICATORS
+}
+_WHO_STATIC_INDICATOR_NAMES: dict[str, str] = {
+    str(item["id"]).strip().upper(): str(item["name"])
+    for item in _WHO_STATIC_INDICATORS
+}
 _SPARQL_SOURCE_TEMPLATES: dict[str, tuple[dict[str, Any], ...]] = {
     "wikidata_sparql": (
         {
@@ -257,6 +301,68 @@ def _latest_snapshot_dir(source_root: Path) -> Path | None:
     return dirs[-1] if dirs else None
 
 
+def _wvs_raw_dir() -> Path:
+    return Path(__file__).resolve().parents[4] / "data" / "raw" / "wvs"
+
+
+def _wvs_variable_catalog_path() -> Path:
+    return (
+        _wvs_raw_dir()
+        / "F00003844-WVS_Time_Series_List_of_Variables_and_equivalences_1981_2022_v3_1.xlsx"
+    )
+
+
+@lru_cache(maxsize=1)
+def _load_wvs_indicator_catalog_from_local_file() -> tuple[dict[str, Any], ...]:
+    path = _wvs_variable_catalog_path()
+    if not path.exists():
+        return _WVS_STATIC_INDICATORS
+
+    try:
+        from openpyxl import load_workbook
+    except ImportError:
+        logger.warning("openpyxl is unavailable; falling back to static WVS indicator catalog")
+        return _WVS_STATIC_INDICATORS
+
+    try:
+        workbook = load_workbook(path, read_only=True, data_only=True)
+        worksheet = workbook[workbook.sheetnames[0]]
+        supported = {str(item["id"]).strip().upper(): dict(item) for item in _WVS_STATIC_INDICATORS}
+        header_index: dict[str, int] = {}
+        rows = worksheet.iter_rows(values_only=True)
+        header = next(rows, ())
+        for index, cell in enumerate(header):
+            label = str(cell or "").strip()
+            if label:
+                header_index[label] = index
+
+        variable_idx = header_index.get("Variable")
+        title_idx = header_index.get("Title")
+        if variable_idx is None or title_idx is None:
+            return _WVS_STATIC_INDICATORS
+
+        catalog: list[dict[str, Any]] = []
+        for row in rows:
+            variable = str(row[variable_idx] or "").strip().upper()
+            if variable not in supported:
+                continue
+            title = str(row[title_idx] or "").strip()
+            item = dict(supported[variable])
+            if title:
+                item["name"] = title
+                item["description"] = f"World Values Survey longitudinal variable {variable}: {title}"
+            metric_candidates = _WVS_LOCAL_METRIC_CANDIDATES.get(variable, ())
+            if metric_candidates:
+                item["harvest_metric_candidates"] = list(metric_candidates)
+            catalog.append(item)
+        if catalog:
+            return tuple(catalog)
+    except Exception:
+        logger.warning("Failed to load local WVS indicator catalog from {}", path, exc_info=True)
+
+    return _WVS_STATIC_INDICATORS
+
+
 def _read_jsonl(path: Path) -> list[dict]:
     rows: list[dict] = []
     if not path.exists():
@@ -281,10 +387,46 @@ def _apply_limit(rows: list[dict], limit: int) -> list[dict]:
     return rows[:capped] if capped else rows
 
 
+def _is_preflight_run(config: DatasetBatchConfig) -> bool:
+    return bool(config.preflight_only or config.run_profile == "preflight_core")
+
+
+def _effective_dataset_limit(config: DatasetBatchConfig) -> int:
+    configured = max(int(config.max_datasets_per_source), 0)
+    if not _is_preflight_run(config):
+        return configured
+    if configured <= 0 or configured >= 100_000:
+        return 50
+    return min(configured, 50)
+
+
 def _harvest_limit_for_source(spec: SourceSpec, config: DatasetBatchConfig) -> int:
-    limit = max(int(config.max_datasets_per_source), 0)
-    if limit <= 0 or not config.is_sampled_run:
+    limit = _effective_dataset_limit(config)
+    sampled_like = bool(config.is_sampled_run or _is_preflight_run(config))
+    if limit <= 0 or not sampled_like:
         return limit
+    if _is_preflight_run(config):
+        if spec.family == "poland_api":
+            return max(limit * 4, 80)
+        if spec.family == "ckan":
+            return max(limit * 4, 120)
+        if spec.family == "worldbank":
+            return max(limit * 6, 120)
+        if spec.family == "who":
+            return max(limit * 6, 120)
+        if spec.family in {"uis", "unpd"}:
+            return max(limit * 4, 60)
+        if spec.family == "wvs":
+            return max(limit * 2, 25)
+        if spec.family == "opendatasoft":
+            return max(limit * 4, 80)
+        if spec.family == "socrata":
+            return max(limit * 4, 80)
+        if spec.family == "sparql":
+            return max(limit, 10)
+        if spec.family == "rest":
+            return max(limit, 5)
+        return max(limit * 2, limit)
     if spec.family == "poland_api":
         return max(limit * 150, 1200)
     if spec.family == "ckan":
@@ -313,14 +455,58 @@ async def harvest_sources(config: DatasetBatchConfig) -> dict[str, list[dict]]:
     registry = config.load_registry()
     specs = registry.enabled_sources(wave=config.wave, run_profile=config.run_profile)
     metrics_map = load_metrics_map(config.resolved_metrics_map_path)
+    checkpoint = load_json(config.harvest_checkpoint_path, default={})
+    if not isinstance(checkpoint, dict):
+        checkpoint = {}
 
     started_at = datetime.now(UTC).isoformat()
     out: dict[str, list[dict]] = {}
 
     # Wave C is intentionally serial-only and heavy (CKAN data.gov.ua).
     for spec in specs:
-        rows = await harvest_one_source(spec, config, harvested=out, metrics_map=metrics_map)
+        try:
+            rows = await harvest_one_source(
+                spec,
+                config,
+                harvested=out,
+                metrics_map=metrics_map,
+                checkpoint=checkpoint,
+            )
+        except Exception as exc:
+            logger.error("Harvest failed for source {}: {}", spec.name, exc)
+            rows = []
+            checkpoint[spec.name] = {
+                "status": "failed",
+                "records_fetched": 0,
+                "row_bytes": 0,
+                "cursor": None,
+                "offset": 0,
+                "page": 0,
+                "etag": None,
+                "last_modified": None,
+                "payload_hash": "",
+                "last_success_at": "",
+                "error": str(exc)[:500],
+            }
+            write_json(config.harvest_checkpoint_path, checkpoint)
+            out[spec.name] = rows
+            continue
         out[spec.name] = rows
+        payload_path = _current_snapshot_payload_path(config, spec.name)
+        checkpoint[spec.name] = {
+            "status": "complete",
+            "records_fetched": len(rows),
+            "row_bytes": int(payload_path.stat().st_size) if payload_path.exists() else 0,
+            "cursor": None,
+            "offset": 0,
+            "page": 0,
+            "etag": None,
+            "last_modified": None,
+            "payload_hash": _payload_hash(payload_path) if payload_path.exists() else "",
+            "last_success_at": datetime.now(UTC).isoformat(),
+            "error": "",
+        }
+        write_json(config.harvest_checkpoint_path, checkpoint)
 
     stage_manifest = config.manifests_dir / "harvest.json"
     write_stage_manifest(
@@ -340,17 +526,31 @@ async def harvest_one_source(
     *,
     harvested: dict[str, list[dict]] | None = None,
     metrics_map: dict[str, dict] | None = None,
+    checkpoint: dict[str, Any] | None = None,
 ) -> list[dict]:
     """Harvest one source with optional resume from latest raw snapshot."""
     source_root = config.raw_dir / spec.name
     latest_dir = _latest_snapshot_dir(source_root)
     latest_payload = latest_dir / "payload.jsonl" if latest_dir else None
+    current_snapshot_dir = _current_source_snapshot_dir(config, spec.name)
+    current_payload = current_snapshot_dir / "payload.jsonl"
+    existing_entry = (checkpoint or {}).get(spec.name) if isinstance(checkpoint, dict) else None
+    if (
+        config.resume
+        and isinstance(existing_entry, dict)
+        and str(existing_entry.get("status")) == "complete"
+        and current_payload.exists()
+    ):
+        logger.info("Using in-progress snapshot payload for {}: {}", spec.name, current_payload)
+        rows = _read_jsonl(current_payload)
+        rows = _prioritize_rows_for_sampling(rows, spec=spec, config=config, metrics_map=metrics_map)
+        return _apply_limit(rows, _effective_dataset_limit(config))
 
     if config.resume and latest_payload and latest_payload.exists():
         logger.info("Using cached raw snapshot for {}: {}", spec.name, latest_payload)
         rows = _read_jsonl(latest_payload)
         rows = _prioritize_rows_for_sampling(rows, spec=spec, config=config, metrics_map=metrics_map)
-        return _apply_limit(rows, config.max_datasets_per_source)
+        return _apply_limit(rows, _effective_dataset_limit(config))
 
     logger.info("Harvesting source {} ({})", spec.name, spec.endpoint)
     harvest_limit = _harvest_limit_for_source(spec, config)
@@ -379,6 +579,7 @@ async def harvest_one_source(
         rows = await _harvest_sdmx_dataflows(spec, config.harvest_timeout)
     elif spec.family == "who":
         rows = await _harvest_who_indicators(spec.endpoint, harvest_limit, config.harvest_timeout)
+        rows = _augment_who_rows(rows, metrics_map=metrics_map)
     elif spec.family == "uis":
         rows = await _harvest_uis_indicators(spec.endpoint, harvest_limit, config.harvest_timeout)
     elif spec.family == "wvs":
@@ -389,9 +590,9 @@ async def harvest_one_source(
         logger.warning("Unknown source family '{}' for {}", spec.family, spec.name)
         rows = []
     rows = _prioritize_rows_for_sampling(rows, spec=spec, config=config, metrics_map=metrics_map)
-    rows = _apply_limit(rows, config.max_datasets_per_source)
+    rows = _apply_limit(rows, _effective_dataset_limit(config))
 
-    ts_dir = source_root / _utc_slug()
+    ts_dir = current_snapshot_dir
     payload_path = ts_dir / "payload.jsonl"
     manifest_path = ts_dir / "manifest.json"
     _write_jsonl(payload_path, rows)
@@ -420,6 +621,21 @@ async def harvest_one_source(
         parser_version="2",
     )
     return rows
+
+
+def _current_source_snapshot_dir(config: DatasetBatchConfig, source_name: str) -> Path:
+    return config.raw_dir / source_name / config.snapshot_root.name
+
+
+def _current_snapshot_payload_path(config: DatasetBatchConfig, source_name: str) -> Path:
+    return _current_source_snapshot_dir(config, source_name) / "payload.jsonl"
+
+
+def _payload_hash(path: Path) -> str:
+    if not path.exists():
+        return ""
+    stat = path.stat()
+    return hash_payload({"path": str(path), "size": int(stat.st_size), "mtime_ns": int(stat.st_mtime_ns)})
 
 
 def _flatten_text_values(value: Any) -> list[str]:
@@ -511,7 +727,8 @@ def _prioritize_rows_for_sampling(
     config: DatasetBatchConfig,
     metrics_map: dict[str, dict] | None,
 ) -> list[dict]:
-    if not rows or not config.is_sampled_run:
+    sampled_like = bool(config.is_sampled_run or _is_preflight_run(config))
+    if not rows or not sampled_like:
         return rows
     if spec.family not in {"sdmx", "who", "uis", "unpd", "worldbank", "wvs", "ckan", "poland_api"}:
         return rows
@@ -534,7 +751,7 @@ def _prioritize_rows_for_sampling(
     )
     selected_indexes: list[int] = []
     selected_set: set[int] = set()
-    limit = max(int(config.max_datasets_per_source), 0)
+    limit = _effective_dataset_limit(config)
 
     if limit > 0:
         priority_order = _SOURCE_PRIORITY_METRICS.get(spec.name, _SMOKE_PRIORITY_METRICS)
@@ -570,7 +787,7 @@ def _prioritize_rows_for_sampling(
         "Prioritized {} sampled rows for {} before applying limit {}",
         len(prioritized),
         spec.name,
-        config.max_datasets_per_source,
+        limit,
     )
     return prioritized
 
@@ -609,6 +826,53 @@ def _augment_worldbank_rows(
                     "harvest_metric_candidates": [metric_id],
                 }
             )
+    return augmented
+
+
+def _augment_who_rows(
+    rows: list[dict],
+    *,
+    metrics_map: dict[str, dict] | None,
+) -> list[dict]:
+    seen = {
+        str(row.get("IndicatorCode") or row.get("id") or "").strip().upper()
+        for row in rows
+        if isinstance(row, dict)
+    }
+    augmented = list(rows)
+    planned: list[tuple[str, list[str], str]] = []
+    if metrics_map:
+        for metric_id, spec in metrics_map.items():
+            if not isinstance(spec, dict):
+                continue
+            keywords = [str(value).strip() for value in spec.get("keywords", []) if str(value).strip()]
+            for indicator_id in spec.get("who_indicators", []) or []:
+                code = str(indicator_id or "").strip().upper()
+                if code:
+                    planned.append((code, [metric_id], keywords[0] if keywords else code))
+    if not planned:
+        for item in _WHO_STATIC_INDICATORS:
+            code = str(item.get("id") or "").strip().upper()
+            metrics = [
+                str(metric_id).strip()
+                for metric_id in item.get("harvest_metric_candidates", [])
+                if str(metric_id).strip()
+            ]
+            planned.append((code, metrics, str(item.get("name") or code)))
+    for code, metric_candidates, title in planned:
+        if code in seen:
+            continue
+        seen.add(code)
+        augmented.append(
+            {
+                "id": code,
+                "IndicatorCode": code,
+                "IndicatorName": _WHO_STATIC_INDICATOR_NAMES.get(code, title),
+                "name": _WHO_STATIC_INDICATOR_NAMES.get(code, title),
+                "description": f"WHO GHO curated indicator {code}",
+                "harvest_metric_candidates": metric_candidates,
+            }
+        )
     return augmented
 
 
@@ -693,14 +957,43 @@ async def _harvest_ckan(endpoint: str, limit: int, timeout_s: int) -> list[dict]
     rows: list[dict] = []
     start = 0
     per_page = 100
-    timeout = aiohttp.ClientTimeout(total=timeout_s)
+    min_per_page = 10
+    timeout = aiohttp.ClientTimeout(
+        total=max(timeout_s * 3, 180),
+        sock_connect=max(timeout_s, 30),
+        sock_read=max(timeout_s * 2, 120),
+    )
     async with aiohttp.ClientSession(timeout=timeout) as session:
         while len(rows) < limit:
-            params = {"rows": per_page, "start": start, "include_private": "false"}
-            async with session.get(endpoint, params=params) as resp:
-                if resp.status != 200:
-                    break
-                data = await resp.json(content_type=None)
+            page_size = per_page
+            data: dict[str, Any] | list[Any] | None = None
+            while data is None:
+                params = {"rows": page_size, "start": start, "include_private": "false"}
+                try:
+                    data = await asyncio.wait_for(
+                        _harvest_json_with_retries(
+                            session,
+                            endpoint,
+                            params=params,
+                            context=f"ckan start={start} rows={page_size}",
+                        ),
+                        timeout=max(timeout_s * 2, 90),
+                    )
+                except asyncio.TimeoutError:
+                    if page_size <= min_per_page:
+                        raise
+                    next_page_size = max(page_size // 2, min_per_page)
+                    logger.warning(
+                        "CKAN harvest timed out for {} start={} rows={}; retrying with rows={}",
+                        endpoint,
+                        start,
+                        page_size,
+                        next_page_size,
+                    )
+                    page_size = next_page_size
+            per_page = page_size
+            if not isinstance(data, dict):
+                break
             result = data.get("result", {}) if isinstance(data, dict) else {}
             batch = result.get("results", []) if isinstance(result, dict) else []
             if not batch:
@@ -711,6 +1004,60 @@ async def _harvest_ckan(endpoint: str, limit: int, timeout_s: int) -> list[dict]
             if start >= min(total, limit):
                 break
     return rows[:limit]
+
+
+async def _harvest_json_with_retries(
+    session: aiohttp.ClientSession,
+    url: str,
+    *,
+    params: dict[str, Any],
+    context: str,
+    headers: dict[str, str] | None = None,
+    max_attempts: int = 3,
+) -> dict[str, Any] | list[Any] | None:
+    attempt = 0
+    request_headers = {"Accept": "application/json", "User-Agent": "PolicyOS/1.0 datasets-batch"}
+    if headers:
+        request_headers.update(headers)
+    while True:
+        try:
+            async with session.get(url, params=params, headers=request_headers) as resp:
+                if resp.status == 200:
+                    return await resp.json(content_type=None)
+                if resp.status in {408, 425, 429, 500, 502, 503, 504} and attempt < max_attempts - 1:
+                    delay = _harvest_retry_delay_seconds(resp.headers.get("Retry-After"), attempt)
+                    logger.warning(
+                        "Retrying harvest request for {} after HTTP {} (sleep={}s)",
+                        context,
+                        resp.status,
+                        delay,
+                    )
+                    await asyncio.sleep(delay)
+                    attempt += 1
+                    continue
+                logger.warning("Harvest request failed for {} with HTTP {}", context, resp.status)
+                return None
+        except (asyncio.TimeoutError, aiohttp.ClientError) as exc:
+            if attempt >= max_attempts - 1:
+                raise
+            delay = _harvest_retry_delay_seconds(None, attempt)
+            logger.warning(
+                "Retrying harvest request for {} after transient error (sleep={}s): {}",
+                context,
+                delay,
+                exc,
+            )
+            await asyncio.sleep(delay)
+            attempt += 1
+
+
+def _harvest_retry_delay_seconds(retry_after: str | None, attempt: int) -> float:
+    if retry_after:
+        try:
+            return min(max(float(retry_after), 1.0), 60.0)
+        except ValueError:
+            pass
+    return min(5.0 * (2**attempt), 30.0)
 
 
 async def _harvest_opendatasoft(endpoint: str, limit: int, timeout_s: int) -> list[dict]:
@@ -1076,27 +1423,8 @@ async def _harvest_uis_indicators(endpoint: str, limit: int, timeout_s: int) -> 
 
 
 async def _harvest_wvs(endpoint: str, limit: int, timeout_s: int) -> list[dict]:
-    rows: list[dict] = []
-    timeout = aiohttp.ClientTimeout(total=timeout_s)
-    try:
-        async with aiohttp.ClientSession(timeout=timeout) as session:
-            async with session.get(endpoint, headers={"Accept": "application/json"}) as resp:
-                if resp.status == 200:
-                    payload = await resp.json(content_type=None)
-                    if isinstance(payload, list):
-                        rows = [row for row in payload if isinstance(row, dict)]
-                    elif isinstance(payload, dict):
-                        if isinstance(payload.get("data"), list):
-                            rows = [row for row in payload["data"] if isinstance(row, dict)]
-                        elif isinstance(payload.get("items"), list):
-                            rows = [row for row in payload["items"] if isinstance(row, dict)]
-                        elif isinstance(payload.get("results"), list):
-                            rows = [row for row in payload["results"] if isinstance(row, dict)]
-                        else:
-                            rows = [payload]
-    except Exception:
-        logger.debug("Falling back to static WVS indicator catalog", exc_info=True)
-
+    del endpoint, timeout_s
+    rows = [dict(item) for item in _load_wvs_indicator_catalog_from_local_file()]
     if not rows:
         rows = [dict(item) for item in _WVS_STATIC_INDICATORS]
     return rows[:limit]

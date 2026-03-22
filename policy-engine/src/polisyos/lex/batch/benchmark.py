@@ -24,12 +24,24 @@ READINESS_THRESHOLDS: dict[str, float] = {
     "benchmark_constraints_ready_pct": 70.0,
     "benchmark_cross_graph_non_unknown_pct": 70.0,
     "benchmark_normpack_ready_pct": 90.0,
+    "benchmark_entity_dedup_ready_pct": 60.0,
+    "benchmark_reference_resolution_ready_pct": 85.0,
+    "benchmark_amendment_extraction_ready_pct": 60.0,
+    "benchmark_amendment_target_resolution_pct": 70.0,
+    "benchmark_hallucination_clean_pct": 97.0,
+    "benchmark_consistency_resolution_ready_pct": 80.0,
 }
 _READINESS_TOTALS: dict[str, str] = {
     "benchmark_search_top5_relevance_pct": "benchmark_search_cases_total",
     "benchmark_constraints_ready_pct": "benchmark_constraints_domains_total",
     "benchmark_cross_graph_non_unknown_pct": "benchmark_cross_graph_cases_total",
     "benchmark_normpack_ready_pct": "benchmark_normpack_cases_total",
+    "benchmark_entity_dedup_ready_pct": "benchmark_entity_resolution_cases_total",
+    "benchmark_reference_resolution_ready_pct": "benchmark_reference_resolution_cases_total",
+    "benchmark_amendment_extraction_ready_pct": "benchmark_amendment_docs_total",
+    "benchmark_amendment_target_resolution_pct": "benchmark_amendment_cases_total",
+    "benchmark_hallucination_clean_pct": "benchmark_hallucination_cases_total",
+    "benchmark_consistency_resolution_ready_pct": "benchmark_consistency_cases_total",
 }
 
 _POLICY_CASES: tuple[tuple[str, dict[str, Any]], ...] = (
@@ -94,6 +106,19 @@ def _table_exists(con: duckdb.DuckDBPyConnection, table_name: str) -> bool:
     row = con.execute(
         "SELECT 1 FROM information_schema.tables WHERE table_name = ? LIMIT 1",
         [table_name],
+    ).fetchone()
+    return row is not None
+
+
+def _column_exists(con: duckdb.DuckDBPyConnection, table_name: str, column_name: str) -> bool:
+    row = con.execute(
+        """
+        SELECT 1
+        FROM information_schema.columns
+        WHERE table_name = ? AND column_name = ?
+        LIMIT 1
+        """,
+        [table_name, column_name],
     ).fetchone()
     return row is not None
 
@@ -468,6 +493,207 @@ def _run_normpack_benchmark(config: BatchConfig) -> tuple[dict[str, Any], dict[s
     return payload, payload["metrics"]
 
 
+def _normative_fact_table(
+    con: duckdb.DuckDBPyConnection,
+) -> tuple[str, str]:
+    if _table_exists(con, "lex_normative_facts"):
+        return "lex_normative_facts", ""
+    if _table_exists(con, "lex_facts") and _column_exists(con, "lex_facts", "trust_tier"):
+        return "lex_facts", " WHERE LOWER(COALESCE(trust_tier, '')) = 'normative_fact'"
+    return "", ""
+
+
+def _run_quality_capability_benchmark(
+    *,
+    db_path: Path,
+) -> tuple[dict[str, Any], dict[str, float | int]]:
+    metrics: dict[str, float | int] = {
+        "benchmark_entity_resolution_cases_total": 0,
+        "benchmark_entity_dedup_ready_pct": 0.0,
+        "benchmark_reference_resolution_cases_total": 0,
+        "benchmark_reference_resolution_ready_pct": 0.0,
+        "benchmark_amendment_docs_total": 0,
+        "benchmark_amendment_cases_total": 0,
+        "benchmark_amendment_extraction_ready_pct": 0.0,
+        "benchmark_amendment_target_resolution_pct": 0.0,
+        "benchmark_hallucination_cases_total": 0,
+        "benchmark_hallucination_clean_pct": 0.0,
+        "benchmark_consistency_cases_total": 0,
+        "benchmark_consistency_resolution_ready_pct": 0.0,
+        "benchmark_high_confidence_norm_cases_total": 0,
+        "benchmark_high_confidence_norm_share_pct": 0.0,
+    }
+    payload: dict[str, Any] = {"status": "ok", "metrics": {}, "sections": {}}
+
+    with duckdb.connect(str(db_path), read_only=True) as con:
+        if _table_exists(con, "lex_entities") and _column_exists(con, "lex_entities", "mention_count"):
+            entity_total = int(con.execute("SELECT COUNT(*) FROM lex_entities").fetchone()[0])
+            single_mention_total = int(
+                con.execute(
+                    """
+                    SELECT COUNT(*)
+                    FROM lex_entities
+                    WHERE COALESCE(mention_count, 0) <= 1
+                    """
+                ).fetchone()[0]
+            )
+            metrics["benchmark_entity_resolution_cases_total"] = entity_total
+            metrics["benchmark_entity_dedup_ready_pct"] = round(
+                100.0 - _pct(single_mention_total, entity_total),
+                3,
+            )
+            payload["sections"]["entity_resolution"] = {
+                "entities_total": entity_total,
+                "single_mention_entities": single_mention_total,
+                "single_mention_entity_pct": round(_pct(single_mention_total, entity_total), 3),
+                "dedup_ready_pct": metrics["benchmark_entity_dedup_ready_pct"],
+            }
+
+        if _table_exists(con, "lex_reference_resolution_audit"):
+            reference_total = int(con.execute("SELECT COUNT(*) FROM lex_reference_resolution_audit").fetchone()[0])
+            resolved_total = int(
+                con.execute(
+                    """
+                    SELECT COUNT(*)
+                    FROM lex_reference_resolution_audit
+                    WHERE LOWER(COALESCE(resolution_status, '')) = 'resolved'
+                    """
+                ).fetchone()[0]
+            )
+            metrics["benchmark_reference_resolution_cases_total"] = reference_total
+            metrics["benchmark_reference_resolution_ready_pct"] = round(
+                _pct(resolved_total, reference_total),
+                3,
+            )
+            payload["sections"]["reference_resolution"] = {
+                "references_total": reference_total,
+                "resolved_total": resolved_total,
+                "resolution_ready_pct": metrics["benchmark_reference_resolution_ready_pct"],
+            }
+
+        if _table_exists(con, "lex_amendments"):
+            amendments_total = int(con.execute("SELECT COUNT(*) FROM lex_amendments").fetchone()[0])
+            amendments_with_target = int(
+                con.execute(
+                    """
+                    SELECT COUNT(*)
+                    FROM lex_amendments
+                    WHERE TRIM(COALESCE(amended_doc_id, '')) != ''
+                    """
+                ).fetchone()[0]
+            )
+            amendment_docs_extracted = int(
+                con.execute("SELECT COUNT(DISTINCT amending_doc_id) FROM lex_amendments").fetchone()[0]
+            )
+            amendment_candidate_docs = 0
+            if _table_exists(con, "lex_doc_versions"):
+                amendment_candidate_docs = int(
+                    con.execute(
+                        """
+                        SELECT COUNT(DISTINCT doc_id)
+                        FROM lex_doc_versions
+                        WHERE lower(COALESCE(doc_name, '') || ' ' || COALESCE(doc_type, '')) LIKE '%внесення змін%'
+                           OR lower(COALESCE(doc_name, '') || ' ' || COALESCE(doc_type, '')) LIKE '%зміни до%'
+                           OR lower(COALESCE(doc_name, '') || ' ' || COALESCE(doc_type, '')) LIKE '%доповнен%'
+                           OR lower(COALESCE(doc_name, '') || ' ' || COALESCE(doc_type, '')) LIKE '%змін%'
+                        """
+                    ).fetchone()[0]
+                )
+            metrics["benchmark_amendment_docs_total"] = amendment_candidate_docs
+            metrics["benchmark_amendment_cases_total"] = amendments_total
+            metrics["benchmark_amendment_extraction_ready_pct"] = round(
+                _pct(amendment_docs_extracted, amendment_candidate_docs),
+                3,
+            )
+            metrics["benchmark_amendment_target_resolution_pct"] = round(
+                _pct(amendments_with_target, amendments_total),
+                3,
+            )
+            payload["sections"]["amendments"] = {
+                "amendment_docs_total": amendment_candidate_docs,
+                "amendment_docs_extracted": amendment_docs_extracted,
+                "amendments_total": amendments_total,
+                "amendments_with_target": amendments_with_target,
+                "extraction_ready_pct": metrics["benchmark_amendment_extraction_ready_pct"],
+                "target_resolution_pct": metrics["benchmark_amendment_target_resolution_pct"],
+            }
+
+        normative_table, normative_where = _normative_fact_table(con)
+        if normative_table:
+            normative_total = int(con.execute(f"SELECT COUNT(*) FROM {normative_table}{normative_where}").fetchone()[0])
+            if _table_exists(con, "lex_high_confidence_norms"):
+                high_conf_total = int(con.execute("SELECT COUNT(*) FROM lex_high_confidence_norms").fetchone()[0])
+                metrics["benchmark_high_confidence_norm_cases_total"] = normative_total
+                metrics["benchmark_high_confidence_norm_share_pct"] = round(
+                    _pct(high_conf_total, normative_total),
+                    3,
+                )
+                payload["sections"]["high_confidence_norms"] = {
+                    "normative_facts_total": normative_total,
+                    "high_confidence_norms_total": high_conf_total,
+                    "high_confidence_norm_share_pct": metrics["benchmark_high_confidence_norm_share_pct"],
+                }
+
+            if _column_exists(con, normative_table, "hallucination_flags_json"):
+                hallucination_clean_total = int(
+                    con.execute(
+                        f"""
+                        SELECT COUNT(*) FROM {normative_table}
+                        {normative_where}
+                        {" AND " if normative_where else " WHERE "}
+                        TRIM(COALESCE(hallucination_flags_json, '')) IN ('', '[]')
+                        """
+                    ).fetchone()[0]
+                )
+                metrics["benchmark_hallucination_cases_total"] = normative_total
+                metrics["benchmark_hallucination_clean_pct"] = round(
+                    _pct(hallucination_clean_total, normative_total),
+                    3,
+                )
+                payload["sections"]["hallucination"] = {
+                    "facts_checked": normative_total,
+                    "clean_facts": hallucination_clean_total,
+                    "hallucination_clean_pct": metrics["benchmark_hallucination_clean_pct"],
+                }
+
+        if _table_exists(con, "lex_consistency_issues"):
+            consistency_total = int(con.execute("SELECT COUNT(*) FROM lex_consistency_issues").fetchone()[0])
+            resolved_total = 0
+            if _column_exists(con, "lex_consistency_issues", "requires_manual_review"):
+                resolved_total = int(
+                    con.execute(
+                        """
+                        SELECT COUNT(*)
+                        FROM lex_consistency_issues
+                        WHERE COALESCE(requires_manual_review, TRUE) = FALSE
+                        """
+                    ).fetchone()[0]
+                )
+            elif _column_exists(con, "lex_consistency_issues", "prevailing_doc_id"):
+                resolved_total = int(
+                    con.execute(
+                        """
+                        SELECT COUNT(*)
+                        FROM lex_consistency_issues
+                        WHERE TRIM(COALESCE(prevailing_doc_id, '')) != ''
+                        """
+                    ).fetchone()[0]
+                )
+            metrics["benchmark_consistency_cases_total"] = consistency_total
+            metrics["benchmark_consistency_resolution_ready_pct"] = round(
+                _pct(resolved_total, consistency_total),
+                3,
+            )
+            payload["sections"]["consistency"] = {
+                "issues_total": consistency_total,
+                "resolved_issues": resolved_total,
+                "resolution_ready_pct": metrics["benchmark_consistency_resolution_ready_pct"],
+            }
+
+    payload["metrics"] = metrics
+    return payload, metrics
+
+
 def _evaluate_readiness(metrics: dict[str, float | int]) -> tuple[bool, list[str]]:
     failed: list[str] = []
     for metric_name, threshold in READINESS_THRESHOLDS.items():
@@ -504,6 +730,9 @@ def run_benchmark(config: BatchConfig) -> BenchmarkOutcome:
             domains=domains,
         )
         normpack_payload, normpack_metrics = _run_normpack_benchmark(config)
+        quality_capability_payload, quality_capability_metrics = _run_quality_capability_benchmark(
+            db_path=config.db_path,
+        )
     finally:
         graph.close()
 
@@ -512,6 +741,7 @@ def run_benchmark(config: BatchConfig) -> BenchmarkOutcome:
         **constraint_metrics,
         **cross_graph_metrics,
         **normpack_metrics,
+        **quality_capability_metrics,
     }
     passed, failed_checks = _evaluate_readiness(metrics)
     payload = {
@@ -529,6 +759,7 @@ def run_benchmark(config: BatchConfig) -> BenchmarkOutcome:
             "constraints": constraint_payload,
             "cross_graph": cross_graph_payload,
             "normpack": normpack_payload,
+            "quality_capabilities": quality_capability_payload,
         },
     }
     config.benchmark_report_path.parent.mkdir(parents=True, exist_ok=True)

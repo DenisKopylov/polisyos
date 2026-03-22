@@ -37,11 +37,10 @@ Pearl, J. (2009). Causality: Models, Reasoning, and Inference, 2nd ed. Cambridge
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable
 
 from polisyos.foundry.methods.catalog.causal.admg_ops import (
     ancestors,
-    augment_with_s_nodes,
     m_separation,
     remove_incoming_edges,
     remove_outgoing_edges,
@@ -56,9 +55,20 @@ from polisyos.ir.analytics.estimand import (
     SumNode,
 )
 from polisyos.ir.analytics.evidence_bundle import ProofStep as IRProofStep
+from polisyos.foundry.methods.catalog.causal.sigma_calculus import (
+    apply_sigma_rule1,
+    apply_sigma_rule2,
+    apply_sigma_rule3,
+    rewrite_estimand_with_selection,
+    sigma_identify,
+    sigma_z_identify,
+)
 
 if TYPE_CHECKING:
     from polisyos.ir.analytics.causal_graph import CausalGraphModel
+
+
+CtfPostPass = Callable[[EstimandAST, "CausalGraphModel"], tuple[EstimandAST, list[IRProofStep]]]
 
 
 # ---------------------------------------------------------------------------
@@ -367,10 +377,33 @@ def _rewrite_node(
     return node, steps
 
 
+def _resolve_ctf_postpass(
+    ast: EstimandAST,
+    ctf_postpass: CtfPostPass | None,
+) -> CtfPostPass | None:
+    if ctf_postpass is not None:
+        return ctf_postpass
+
+    from polisyos.foundry.methods.catalog.causal.ctf_calculus import (
+        ast_contains_counterfactual,
+        rewrite_ctf_estimand,
+    )
+
+    if not ast_contains_counterfactual(ast.root):
+        return None
+
+    return lambda rewritten_ast, rewritten_graph: rewrite_ctf_estimand(
+        rewritten_ast,
+        rewritten_graph,
+    )
+
+
 def rewrite_estimand(
     ast: EstimandAST,
     graph: "CausalGraphModel",
     max_iterations: int = 20,
+    *,
+    ctf_postpass: CtfPostPass | None = None,
 ) -> tuple[EstimandAST, list[IRProofStep]]:
     """Apply Pearl's 3 do-calculus rules exhaustively until fixed point.
 
@@ -406,417 +439,14 @@ def rewrite_estimand(
             break  # fixed point
         current_root = new_root  # type: ignore[assignment]
 
-    if current_root is ast.root:
-        return ast, all_steps
+    simplified = ast if current_root is ast.root else ast.model_copy(update={"root": current_root})
+    resolved_postpass = _resolve_ctf_postpass(simplified, ctf_postpass)
+    if resolved_postpass is None:
+        return simplified, all_steps
 
-    simplified = ast.model_copy(update={"root": current_root})
+    simplified, ctf_steps = resolved_postpass(simplified, graph)
+    all_steps.extend(ctf_steps)
     return simplified, all_steps
-
-
-# ---------------------------------------------------------------------------
-# σ-calculus — Correa & Bareinboim (2020), NeurIPS
-# ---------------------------------------------------------------------------
-# The σ-calculus provides 3 rules for manipulating probabilities conditioned
-# on selection variables S: P(Y | do(X), Z, S=1).
-#
-# The rules operate on the selection-augmented graph G^σ, which adds directed
-# edges S_v → v for each selection variable v.  All m-separation conditions
-# are evaluated on G^σ with S-nodes included in the conditioning set.
-#
-# Rule σ-R1 — Insertion/Deletion of observations under selection:
-#   P(Y | do(X), Z, W, S=1) = P(Y | do(X), W, S=1)
-#   iff  Y ⊥ Z | X, W, S  in  G^σ_{X̄}
-#
-# Rule σ-R2 — Action/Observation exchange under selection:
-#   P(Y | do(X), do(Z), W, S=1) = P(Y | do(X), Z, W, S=1)
-#   iff  Y ⊥ Z | X, W, S  in  G^σ_{X̄Z̲}
-#
-# Rule σ-R3 — Deletion of actions under selection:
-#   P(Y | do(X), do(Z), W, S=1) = P(Y | do(X), W, S=1)
-#   iff  Y ⊥ Z(S) | X, W, S  in  G^σ_{X̄Z̄(S)}
-#   where  Z(S) = Z \ An(S)_{G^σ_{X̄}}
-#
-# Reference: Correa, J.D., Bareinboim, E. (2020). "A Calculus for Stochastic
-#   Interventions: Causal Effect Identification and Surrogate Experiments."
-#   NeurIPS 2020.
-# ---------------------------------------------------------------------------
-
-
-def _build_sigma_graph(
-    graph: "CausalGraphModel",
-    selection_vars: frozenset[str],
-) -> tuple["CausalGraphModel", frozenset[str]]:
-    """Build the selection-augmented graph G^σ and return S-node names.
-
-    Adds directed edges ``S_v → v`` for each ``v`` in *selection_vars*,
-    following the convention in :func:`~admg_ops.augment_with_s_nodes`.
-
-    Returns
-    -------
-    (g_sigma, s_node_names)
-        g_sigma      : augmented graph with S-node edges
-        s_node_names : frozenset of S-node identifiers (e.g. ``{"S_X", "S_Y"}``)
-    """
-    g_sigma = augment_with_s_nodes(graph, selection_vars)
-    s_node_names = frozenset(f"S_{v}" for v in selection_vars)
-    return g_sigma, s_node_names
-
-
-def apply_sigma_rule1(
-    dist_ref: DistributionRef,
-    graph: "CausalGraphModel",
-    z_vars: frozenset[str],
-    selection_vars: frozenset[str],
-) -> tuple[DistributionRef, IRProofStep] | None:
-    """σ-R1: Delete *z_vars* from conditioning under selection S.
-
-    Transforms ``P(Y | do(X), Z, W, S=1)`` → ``P(Y | do(X), W, S=1)`` when
-    ``Y ⊥ Z | X, W, S`` holds in ``G^σ_{X̄}``.
-
-    Parameters
-    ----------
-    dist_ref       : leaf DistributionRef to transform
-    graph          : base causal graph (without S-nodes)
-    z_vars         : candidate variables to delete from ``conditioning``
-    selection_vars : variables targeted by selection nodes (base variable names)
-
-    Returns
-    -------
-    ``(new_ref, proof_step)`` if the rule fires, ``None`` otherwise.
-    """
-    if not selection_vars:
-        return None
-    z = z_vars & frozenset(dist_ref.conditioning)
-    if not z:
-        return None
-
-    X = frozenset(dist_ref.intervention_set)
-    Y = frozenset(dist_ref.variables)
-    W = frozenset(dist_ref.conditioning) - z
-
-    g_sigma, s_node_names = _build_sigma_graph(graph, selection_vars)
-    g_sigma_xbar = remove_incoming_edges(g_sigma, X)
-    cond_set = X | W | s_node_names
-
-    if not (m_separation(g_sigma_xbar, Y, z, cond_set) and
-            m_separation(g_sigma_xbar, z, Y, cond_set)):
-        return None
-
-    new_ref = dist_ref.model_copy(update={"conditioning": tuple(sorted(W))})
-    step = IRProofStep(
-        rule_name="SIGMA_R1",
-        description=(
-            f"σ-R1: deleted {sorted(z)} from conditioning under S={sorted(selection_vars)} "
-            f"(Y⊥_σ Z|X,W,S in G^σ_{{X̄}} with X={sorted(X)})"
-        ),
-        variables_affected=tuple(sorted(z)),
-        graph_subset=f"G^σ_{{X̄}}: selection-augmented graph with incoming to {sorted(X)} removed",
-        rule_formal_name="σ-calculus Rule 1 — Insertion/Deletion under Selection",
-        applicable_theorem="Correa & Bareinboim (2020), NeurIPS — Theorem 1",
-        graph_state_before=f"G^σ_{{X̄}}: S-augmented with incoming to {sorted(X)} removed",
-        graph_state_after=f"Z={sorted(z)} σ-separated → removed from conditioning",
-    )
-    return new_ref, step
-
-
-def apply_sigma_rule2(
-    dist_ref: DistributionRef,
-    graph: "CausalGraphModel",
-    z_vars: frozenset[str],
-    selection_vars: frozenset[str],
-) -> tuple[DistributionRef, IRProofStep] | None:
-    """σ-R2: Move *z_vars* from ``intervention_set`` to conditioning under selection S.
-
-    Transforms ``P(Y | do(X), do(Z), W, S=1)`` → ``P(Y | do(X), Z, W, S=1)``
-    when ``Y ⊥ Z | X, W, S`` holds in ``G^σ_{X̄Z̲}``.
-
-    Parameters
-    ----------
-    dist_ref       : leaf DistributionRef to transform
-    graph          : base causal graph (without S-nodes)
-    z_vars         : candidate variables to move from ``intervention_set`` to ``conditioning``
-    selection_vars : variables targeted by selection nodes
-
-    Returns
-    -------
-    ``(new_ref, proof_step)`` if the rule fires, ``None`` otherwise.
-    """
-    if not selection_vars:
-        return None
-    z = z_vars & frozenset(dist_ref.intervention_set)
-    if not z:
-        return None
-
-    X = frozenset(dist_ref.intervention_set) - z
-    Y = frozenset(dist_ref.variables)
-    W = frozenset(dist_ref.conditioning)
-
-    g_sigma, s_node_names = _build_sigma_graph(graph, selection_vars)
-    g_sigma_xbar = remove_incoming_edges(g_sigma, X)
-    g_sigma_xbar_zunder = remove_outgoing_edges(g_sigma_xbar, z)
-    cond_set = X | W | s_node_names
-
-    if not (m_separation(g_sigma_xbar_zunder, Y, z, cond_set) and
-            m_separation(g_sigma_xbar_zunder, z, Y, cond_set)):
-        return None
-
-    new_intervention = tuple(sorted(frozenset(dist_ref.intervention_set) - z))
-    new_conditioning = tuple(sorted(frozenset(dist_ref.conditioning) | z))
-    new_ref = dist_ref.model_copy(update={
-        "intervention_set": new_intervention,
-        "conditioning": new_conditioning,
-    })
-    step = IRProofStep(
-        rule_name="SIGMA_R2",
-        description=(
-            f"σ-R2: moved {sorted(z)} from do() to conditioning under S={sorted(selection_vars)} "
-            f"(Y⊥_σ Z|X,W,S in G^σ_{{X̄Z̲}})"
-        ),
-        variables_affected=tuple(sorted(z)),
-        graph_subset=(
-            f"G^σ_{{X̄Z̲}}: selection-augmented with incoming to {sorted(X)} "
-            f"and outgoing from {sorted(z)} removed"
-        ),
-        rule_formal_name="σ-calculus Rule 2 — Action/Observation Exchange under Selection",
-        applicable_theorem="Correa & Bareinboim (2020), NeurIPS — Theorem 2",
-        graph_state_before=(
-            f"G^σ_{{X̄Z̲}}: S-augmented with incoming to {sorted(X)} "
-            f"and outgoing from {sorted(z)} removed"
-        ),
-        graph_state_after=f"Z={sorted(z)} σ-separated → moved from do() to conditioning",
-    )
-    return new_ref, step
-
-
-def apply_sigma_rule3(
-    dist_ref: DistributionRef,
-    graph: "CausalGraphModel",
-    z_vars: frozenset[str],
-    selection_vars: frozenset[str],
-) -> tuple[DistributionRef, IRProofStep] | None:
-    """σ-R3: Delete *z_vars* from ``intervention_set`` under selection S.
-
-    Transforms ``P(Y | do(X), do(Z), W, S=1)`` → ``P(Y | do(X), W, S=1)`` when
-    ``Y ⊥ Z(S) | X, W, S`` holds in ``G^σ_{X̄Z̄(S)}``,
-    where ``Z(S) = Z \\ An(S)_{G^σ_{X̄}}``.
-
-    Parameters
-    ----------
-    dist_ref       : leaf DistributionRef to transform
-    graph          : base causal graph (without S-nodes)
-    z_vars         : candidate variables to delete from ``intervention_set``
-    selection_vars : variables targeted by selection nodes
-
-    Returns
-    -------
-    ``(new_ref, proof_step)`` if the rule fires, ``None`` otherwise.
-    """
-    if not selection_vars:
-        return None
-    z = z_vars & frozenset(dist_ref.intervention_set)
-    if not z:
-        return None
-
-    X = frozenset(dist_ref.intervention_set) - z
-    Y = frozenset(dist_ref.variables)
-    W = frozenset(dist_ref.conditioning)
-
-    g_sigma, s_node_names = _build_sigma_graph(graph, selection_vars)
-    g_sigma_xbar = remove_incoming_edges(g_sigma, X)
-
-    # Z(S) = Z \ An(S in G^σ_{X̄})
-    # An(S) is computed on g_sigma_xbar using the S-node names
-    an_s = ancestors(g_sigma_xbar, s_node_names) if s_node_names else frozenset()
-    z_s = z - an_s  # Z(S) — Z variables not ancestors of any S-node
-
-    if not z_s:
-        return None  # all Z are ancestors of S in G^σ_{X̄} → rule not applicable
-
-    g_sigma_xbar_zs_bar = remove_incoming_edges(g_sigma_xbar, z_s)
-    cond_set = X | W | s_node_names
-
-    if not (m_separation(g_sigma_xbar_zs_bar, Y, z_s, cond_set) and
-            m_separation(g_sigma_xbar_zs_bar, z_s, Y, cond_set)):
-        return None
-
-    new_intervention = tuple(sorted(frozenset(dist_ref.intervention_set) - z_s))
-    new_ref = dist_ref.model_copy(update={"intervention_set": new_intervention})
-    step = IRProofStep(
-        rule_name="SIGMA_R3",
-        description=(
-            f"σ-R3: deleted do({sorted(z_s)}) from intervention set under S={sorted(selection_vars)} "
-            f"(Y⊥_σ Z(S)|X,W,S in G^σ_{{X̄Z̄(S)}}, Z(S)={sorted(z_s)})"
-        ),
-        variables_affected=tuple(sorted(z_s)),
-        graph_subset=(
-            f"G^σ_{{X̄Z̄(S)}}: S-augmented with incoming to {sorted(X)} "
-            f"and Z(S)={sorted(z_s)} removed (Z(S)=Z\\An(S)_{{G^σ_{{X̄}}}})"
-        ),
-        rule_formal_name="σ-calculus Rule 3 — Deletion of Actions under Selection",
-        applicable_theorem="Correa & Bareinboim (2020), NeurIPS — Theorem 3",
-        graph_state_before=(
-            f"G^σ_{{X̄Z̄(S)}}: S-augmented with incoming to {sorted(X)} "
-            f"and Z(S)={sorted(z_s)} removed"
-        ),
-        graph_state_after=f"Z(S)={sorted(z_s)} σ-separated → removed from do()",
-    )
-    return new_ref, step
-
-
-def _try_all_rules_with_selection(
-    dist_ref: DistributionRef,
-    graph: "CausalGraphModel",
-    selection_vars: frozenset[str],
-) -> tuple[DistributionRef, list[IRProofStep]]:
-    """Try all 3 do-calculus rules AND all 3 σ-calculus rules on a single DistributionRef.
-
-    Extends :func:`_try_all_rules` with a σ-calculus pass for each candidate
-    variable when *selection_vars* is non-empty.
-    """
-    current = dist_ref
-    steps: list[IRProofStep] = []
-    changed = True
-
-    while changed:
-        changed = False
-
-        # Standard do-calculus rules
-        for z_var in list(current.conditioning):
-            result = apply_rule1(current, graph, frozenset({z_var}))
-            if result is not None:
-                current, step = result
-                steps.append(step)
-                changed = True
-
-        for z_var in list(current.intervention_set):
-            result = apply_rule2(current, graph, frozenset({z_var}))
-            if result is not None:
-                current, step = result
-                steps.append(step)
-                changed = True
-
-        for z_var in list(current.intervention_set):
-            result = apply_rule3(current, graph, frozenset({z_var}))
-            if result is not None:
-                current, step = result
-                steps.append(step)
-                changed = True
-
-        # σ-calculus rules (only when selection variables are present)
-        if selection_vars:
-            for z_var in list(current.conditioning):
-                result = apply_sigma_rule1(current, graph, frozenset({z_var}), selection_vars)
-                if result is not None:
-                    current, step = result
-                    steps.append(step)
-                    changed = True
-
-            for z_var in list(current.intervention_set):
-                result = apply_sigma_rule2(current, graph, frozenset({z_var}), selection_vars)
-                if result is not None:
-                    current, step = result
-                    steps.append(step)
-                    changed = True
-
-            for z_var in list(current.intervention_set):
-                result = apply_sigma_rule3(current, graph, frozenset({z_var}), selection_vars)
-                if result is not None:
-                    current, step = result
-                    steps.append(step)
-                    changed = True
-
-    return current, steps
-
-
-def _rewrite_node_with_selection(
-    node: object,
-    graph: "CausalGraphModel",
-    selection_vars: frozenset[str],
-) -> tuple[object, list[IRProofStep]]:
-    """Recursively rewrite an EstimandNode using do-calculus + σ-calculus rules."""
-    steps: list[IRProofStep] = []
-
-    if isinstance(node, DistributionRef):
-        new_node, new_steps = _try_all_rules_with_selection(node, graph, selection_vars)
-        steps.extend(new_steps)
-        return new_node, steps
-
-    if isinstance(node, SumNode):
-        new_operand, child_steps = _rewrite_node_with_selection(node.operand, graph, selection_vars)
-        steps.extend(child_steps)
-        if new_operand is not node.operand:
-            node = node.model_copy(update={"operand": new_operand})
-        return node, steps
-
-    if isinstance(node, ProductNode):
-        new_factors = []
-        for factor in node.factors:
-            new_factor, child_steps = _rewrite_node_with_selection(factor, graph, selection_vars)
-            steps.extend(child_steps)
-            new_factors.append(new_factor)
-        if any(nf is not f for nf, f in zip(new_factors, node.factors)):
-            node = node.model_copy(update={"factors": tuple(new_factors)})
-        return node, steps
-
-    if isinstance(node, RatioNode):
-        new_num, num_steps = _rewrite_node_with_selection(node.numerator, graph, selection_vars)
-        new_den, den_steps = _rewrite_node_with_selection(node.denominator, graph, selection_vars)
-        steps.extend(num_steps)
-        steps.extend(den_steps)
-        if new_num is not node.numerator or new_den is not node.denominator:
-            node = node.model_copy(update={"numerator": new_num, "denominator": new_den})
-        return node, steps
-
-    if isinstance(node, IntegralNode):
-        new_operand, child_steps = _rewrite_node_with_selection(node.operand, graph, selection_vars)
-        steps.extend(child_steps)
-        if new_operand is not node.operand:
-            node = node.model_copy(update={"operand": new_operand})
-        return node, steps
-
-    return node, steps
-
-
-def rewrite_estimand_with_selection(
-    ast: EstimandAST,
-    graph: "CausalGraphModel",
-    selection_vars: frozenset[str],
-    max_iterations: int = 20,
-) -> tuple[EstimandAST, list[IRProofStep]]:
-    """Apply Pearl's 3 do-calculus rules AND the 3 σ-calculus rules exhaustively.
-
-    Extends :func:`rewrite_estimand` to also apply the σ-calculus rules from
-    Correa & Bareinboim (2020) at each :class:`DistributionRef` leaf when
-    *selection_vars* is non-empty.
-
-    Parameters
-    ----------
-    ast            : input estimand (possibly containing selection-conditioned terms)
-    graph          : base causal graph (without S-node augmentation)
-    selection_vars : base variable names targeted by selection S-nodes
-    max_iterations : maximum rewriting rounds (safety limit)
-
-    Returns
-    -------
-    ``(simplified_ast, proof_steps)`` — simplified estimand and ordered list of
-    all :class:`~polisyos.ir.analytics.evidence_bundle.ProofStep` objects produced.
-    """
-    all_steps: list[IRProofStep] = []
-    current_root = ast.root
-
-    for _iteration in range(max_iterations):
-        new_root, round_steps = _rewrite_node_with_selection(current_root, graph, selection_vars)
-        all_steps.extend(round_steps)
-        if not round_steps:
-            break
-        current_root = new_root  # type: ignore[assignment]
-
-    if current_root is ast.root:
-        return ast, all_steps
-
-    simplified = ast.model_copy(update={"root": current_root})
-    return simplified, all_steps
-
 
 __all__ = [
     "apply_rule1",
@@ -827,4 +457,6 @@ __all__ = [
     "apply_sigma_rule2",
     "apply_sigma_rule3",
     "rewrite_estimand_with_selection",
+    "sigma_identify",
+    "sigma_z_identify",
 ]

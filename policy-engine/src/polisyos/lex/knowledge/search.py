@@ -24,9 +24,13 @@ import numpy as np
 from polisyos.common.logger import get_logger
 from polisyos.lex.knowledge.store import LegalKnowledgeStore
 from polisyos.lex.knowledge.types import (
+    LegalDocVersionResult,
     LegalFactResult,
     LegalProvisionResult,
+    LegalReferenceEdgeResult,
     LegalSearchResult,
+    LegalSourceAnchor,
+    LegalSourceBundle,
 )
 
 logger = get_logger(__name__)
@@ -110,6 +114,8 @@ class LegalKnowledgeGraph:
         legal_unit_subtype: str | None = None,
         route_class: str | None = None,
         include_candidates: bool = False,
+        min_fused_confidence: float | None = None,
+        quality_band: str | None = None,
     ) -> list[LegalFactResult]:
         """Vector similarity search on facts."""
         vec = self._get_query_embedding(query)
@@ -126,6 +132,8 @@ class LegalKnowledgeGraph:
             legal_unit_subtype=legal_unit_subtype,
             route_class=route_class,
             include_candidates=include_candidates,
+            min_fused_confidence=min_fused_confidence,
+            quality_band=quality_band,
         )
 
     def search_provisions(
@@ -161,6 +169,8 @@ class LegalKnowledgeGraph:
         legal_unit_subtype: str | None = None,
         route_class: str | None = None,
         include_candidates: bool = False,
+        min_fused_confidence: float | None = None,
+        quality_band: str | None = None,
     ) -> list[LegalFactResult]:
         """Full-text search on fact_text using DuckDB ILIKE."""
         return self._store.text_search_facts(
@@ -173,6 +183,8 @@ class LegalKnowledgeGraph:
             legal_unit_subtype=legal_unit_subtype,
             route_class=route_class,
             include_candidates=include_candidates,
+            min_fused_confidence=min_fused_confidence,
+            quality_band=quality_band,
         )
 
     def search_facts_by_action(
@@ -187,6 +199,8 @@ class LegalKnowledgeGraph:
         legal_unit_subtype: str | None = None,
         route_class: str | None = None,
         include_candidates: bool = False,
+        min_fused_confidence: float | None = None,
+        quality_band: str | None = None,
     ) -> list[LegalFactResult]:
         """Structured retrieval by canonical action."""
         return self._store.search_facts_by_action(
@@ -199,6 +213,8 @@ class LegalKnowledgeGraph:
             legal_unit_subtype=legal_unit_subtype,
             route_class=route_class,
             include_candidates=include_candidates,
+            min_fused_confidence=min_fused_confidence,
+            quality_band=quality_band,
         )
 
     def search_facts_with_threshold(
@@ -213,6 +229,8 @@ class LegalKnowledgeGraph:
         legal_unit_subtype: str | None = None,
         route_class: str | None = None,
         include_candidates: bool = False,
+        min_fused_confidence: float | None = None,
+        quality_band: str | None = None,
     ) -> list[LegalFactResult]:
         """Structured retrieval by threshold metric."""
         return self._store.search_facts_with_threshold(
@@ -225,6 +243,8 @@ class LegalKnowledgeGraph:
             legal_unit_subtype=legal_unit_subtype,
             route_class=route_class,
             include_candidates=include_candidates,
+            min_fused_confidence=min_fused_confidence,
+            quality_band=quality_band,
         )
 
     def find_legal_constraints(
@@ -237,6 +257,8 @@ class LegalKnowledgeGraph:
         as_of: str | None = None,
         legal_unit_subtype: str | None = None,
         route_class: str | None = None,
+        min_fused_confidence: float | None = None,
+        quality_band: str | None = None,
     ) -> list[LegalFactResult]:
         """Retrieve high-trust legal constraints for governance and foundry."""
         return self._store.find_constraints(
@@ -247,6 +269,8 @@ class LegalKnowledgeGraph:
             as_of=as_of,
             legal_unit_subtype=legal_unit_subtype,
             route_class=route_class,
+            min_fused_confidence=min_fused_confidence,
+            quality_band=quality_band,
         )
 
     def get_applicable_norms(
@@ -258,6 +282,8 @@ class LegalKnowledgeGraph:
         top_k: int = 100,
         legal_unit_subtype: str | None = None,
         route_class: str | None = None,
+        min_fused_confidence: float | None = None,
+        quality_band: str | None = None,
     ) -> list[LegalFactResult]:
         """Retrieve high-trust norms filtered by domain/jurisdiction/time."""
         return self._store.get_applicable_norms(
@@ -267,6 +293,8 @@ class LegalKnowledgeGraph:
             top_k=top_k,
             legal_unit_subtype=legal_unit_subtype,
             route_class=route_class,
+            min_fused_confidence=min_fused_confidence,
+            quality_band=quality_band,
         )
 
     def hybrid_search(
@@ -283,6 +311,8 @@ class LegalKnowledgeGraph:
         legal_unit_subtype: str | None = None,
         route_class: str | None = None,
         include_candidates: bool = False,
+        min_fused_confidence: float | None = None,
+        quality_band: str | None = None,
     ) -> list[LegalFactResult]:
         """Combined vector + text search with score fusion.
 
@@ -298,6 +328,8 @@ class LegalKnowledgeGraph:
             legal_unit_subtype=legal_unit_subtype,
             route_class=route_class,
             include_candidates=include_candidates,
+            min_fused_confidence=min_fused_confidence,
+            quality_band=quality_band,
         )
 
         vec = self._get_query_embedding(query)
@@ -316,6 +348,8 @@ class LegalKnowledgeGraph:
             legal_unit_subtype=legal_unit_subtype,
             route_class=route_class,
             include_candidates=include_candidates,
+            min_fused_confidence=min_fused_confidence,
+            quality_band=quality_band,
         )
 
         # Score fusion: merge by fact_id
@@ -356,12 +390,27 @@ class LegalKnowledgeGraph:
                 reference_resolution_status=fact_map[fid].reference_resolution_status,
                 structure_quality=fact_map[fid].structure_quality,
                 constraint_type_canon=fact_map[fid].constraint_type_canon,
+                legal_unit_subtype=fact_map[fid].legal_unit_subtype,
+                route_class=fact_map[fid].route_class,
+                empty_spo_retry_eligible=fact_map[fid].empty_spo_retry_eligible,
+                audit_miss_prone=fact_map[fid].audit_miss_prone,
+                reference_bearing=fact_map[fid].reference_bearing,
+                threshold_bearing=fact_map[fid].threshold_bearing,
+                fused_confidence=fact_map[fid].fused_confidence,
+                confidence_breakdown_json=fact_map[fid].confidence_breakdown_json,
+                consistency_score=fact_map[fid].consistency_score,
+                hallucination_flags_json=fact_map[fid].hallucination_flags_json,
+                quality_band=fact_map[fid].quality_band,
+                doc_id=fact_map[fid].doc_id,
+                doc_family_id=fact_map[fid].doc_family_id,
+                version_id=fact_map[fid].version_id,
                 jurisdiction=fact_map[fid].jurisdiction,
                 top_domain=fact_map[fid].top_domain,
                 effective_from=fact_map[fid].effective_from,
                 effective_to=fact_map[fid].effective_to,
                 doc_name=fact_map[fid].doc_name,
                 doc_reestr_code=fact_map[fid].doc_reestr_code,
+                provision_anchor=fact_map[fid].provision_anchor,
                 provision_citation=fact_map[fid].provision_citation,
                 similarity=score,
             )
@@ -410,6 +459,70 @@ class LegalKnowledgeGraph:
             trust_tier=trust_tier,
             include_candidates=include_candidates,
         )
+
+    def load_provisions_by_anchor(
+        self,
+        doc_id: str,
+        anchors: list[str],
+    ) -> list[LegalSourceAnchor]:
+        return self._store.load_provisions_by_anchor(doc_id, anchors)
+
+    def load_doc_version_chain(
+        self,
+        *,
+        doc_id: str | None = None,
+        doc_family_id: str | None = None,
+    ) -> list[LegalDocVersionResult]:
+        return self._store.load_doc_version_chain(doc_id=doc_id, doc_family_id=doc_family_id)
+
+    def load_appendix_context(
+        self,
+        doc_id: str,
+        anchor: str,
+        *,
+        max_depth: int = 4,
+    ) -> list[str]:
+        return self._store.load_appendix_context(doc_id, anchor, max_depth=max_depth)
+
+    def expand_reference_neighborhood(
+        self,
+        *,
+        doc_id: str,
+        anchors: list[str],
+        max_hops: int = 2,
+    ) -> list[LegalReferenceEdgeResult]:
+        return self._store.expand_reference_neighborhood(
+            doc_id=doc_id,
+            anchors=anchors,
+            max_hops=max_hops,
+        )
+
+    def load_source_bundle(
+        self,
+        *,
+        doc_id: str,
+        anchors: list[str],
+        version_id: str | None = None,
+        max_reference_hops: int = 2,
+        candidate_fact_ids: list[str] | None = None,
+        candidate_provision_ids: list[str] | None = None,
+    ) -> LegalSourceBundle | None:
+        return self._store.load_source_bundle(
+            doc_id=doc_id,
+            anchors=anchors,
+            version_id=version_id,
+            max_reference_hops=max_reference_hops,
+            candidate_fact_ids=candidate_fact_ids,
+            candidate_provision_ids=candidate_provision_ids,
+        )
+
+    def get_versioned_source_refs(
+        self,
+        *,
+        doc_id: str | None = None,
+        doc_family_id: str | None = None,
+    ) -> list[LegalDocVersionResult]:
+        return self.load_doc_version_chain(doc_id=doc_id, doc_family_id=doc_family_id)
 
     # ------------------------------------------------------------------
     # Lifecycle

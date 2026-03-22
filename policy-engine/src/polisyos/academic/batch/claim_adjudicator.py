@@ -35,6 +35,7 @@ from polisyos.scientist.autotune.claim_adjudication import (
 
 def _load_article_results(config: AcademicBatchConfig) -> list[ArticleExtractionResult]:
     rows: list[ArticleExtractionResult] = []
+    retracted_work_ids = _retracted_work_ids(config)
     source_path = (
         config.resolve_extract_final_results_path
         if config.resolve_extract_final_results_path.exists()
@@ -47,8 +48,47 @@ def _load_article_results(config: AcademicBatchConfig) -> list[ArticleExtraction
             line = line.strip()
             if not line:
                 continue
-            rows.append(ArticleExtractionResult.model_validate_json(line))
+            result = ArticleExtractionResult.model_validate_json(line)
+            if result.openalex_id in retracted_work_ids:
+                continue
+            rows.append(result)
     return rows
+
+
+def _retracted_work_ids(config: AcademicBatchConfig) -> set[str]:
+    work_ids: set[str] = set()
+    if not config.merged_records_path.exists():
+        return work_ids
+    with open(config.merged_records_path, "r", encoding="utf-8") as fh:
+        for line in fh:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                row = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if not isinstance(row, dict):
+                continue
+            if bool(row.get("is_retracted")) or bool((row.get("metadata") or {}).get("is_retracted")):
+                work_id = str(row.get("id") or row.get("openalex_id") or "").strip()
+                if work_id:
+                    work_ids.add(work_id)
+    return work_ids
+
+
+def _intra_paper_contradictions(rows: list[ArticleExtractionResult]) -> set[str]:
+    contradictory_claim_ids: set[str] = set()
+    for result in rows:
+        grouped: dict[tuple[str, str], dict[str, list[str]]] = defaultdict(lambda: defaultdict(list))
+        for claim in result.causal_claims:
+            key = (claim.cause_variable, claim.effect_variable)
+            grouped[key][claim.direction.value].append(_claim_id_for(result, claim))
+        for direction_map in grouped.values():
+            if direction_map.get("positive") and direction_map.get("negative"):
+                for claim_ids in direction_map.values():
+                    contradictory_claim_ids.update(claim_ids)
+    return contradictory_claim_ids
 
 
 def _coerce_float(value: Any, default: float) -> float:
@@ -139,6 +179,7 @@ def _claim_id_for(result: ArticleExtractionResult, claim: CausalClaim) -> str:
         effect=claim.effect_variable,
         claim_text=claim.claim_text,
         direction=claim.direction.value,
+        supporting_span_ids=tuple(claim.supporting_span_ids),
     )
 
 
@@ -146,8 +187,7 @@ def _fallback_adjudication(result: ArticleExtractionResult, claim: CausalClaim) 
     claim_id = _claim_id_for(result, claim)
     source_basis = claim.source_basis if isinstance(claim.source_basis, SourceBasis) else result.source_basis
     publishable = bool(
-        source_basis == SourceBasis.FULLTEXT
-        and claim.design_family_hint in {DesignFamily.RCT, DesignFamily.IV, DesignFamily.DID, DesignFamily.RDD, DesignFamily.SYNTHETIC_CONTROL}
+        claim.design_family_hint in {DesignFamily.RCT, DesignFamily.IV, DesignFamily.DID, DesignFamily.RDD, DesignFamily.SYNTHETIC_CONTROL}
         and claim.supporting_spans
     )
     return ClaimAdjudicationResult(
@@ -205,8 +245,13 @@ def _normalize_adjudication_payload(
 
     publishable = bool(parsed.get("publishable_edge", False))
     if source_basis == SourceBasis.ABSTRACT_ONLY and causal_credibility == CausalCredibility.STRONG:
-        publishable = False
-        claim_validity = min(claim_validity, 0.65)
+        _strong_abstract_designs = {
+            DesignFamily.RCT, DesignFamily.IV, DesignFamily.DID,
+            DesignFamily.RDD, DesignFamily.SYNTHETIC_CONTROL,
+        }
+        if design_family not in _strong_abstract_designs:
+            publishable = False
+            claim_validity = min(claim_validity, 0.65)
 
     return {
         "claim_id": _claim_id_for(result, claim),
@@ -249,8 +294,10 @@ Rules:
 - Distinguish between the paper asserting causality and the graph treating it as a credible causal edge.
 - Be conservative.
 - panel FE, OLS, generic regression, and ML prediction are not strong causal evidence by themselves.
-- abstract_only claims cannot be strong and should almost never be publishable.
+- abstract_only claims with weak designs (OLS, panel_FE) should almost never be publishable.
+- abstract_only claims with strong designs (RCT, IV, DiD, RDD) CAN be publishable if the abstract clearly describes the identification strategy.
 - If design evidence is missing, prefer weak or unclear.
+- Use the effect_size and confidence_interval below (if available) to assess whether the claim is quantitatively grounded. A precise numeric effect with CI is more credible than a vague directional claim.
 
 Calibration note:
 {variant}
@@ -269,6 +316,8 @@ effect_variable: {claim.effect_variable}
 direction: {claim.direction.value}
 claim_explicitness: {claim.claim_explicitness.value}
 design_family_hint: {claim.design_family_hint.value}
+effect_size: {claim.effect_size if claim.effect_size is not None else "[not provided]"}
+scope_conditions: {json.dumps(claim.scope_conditions or [], ensure_ascii=False)}
 
 Supporting spans:
 {json.dumps(supporting, ensure_ascii=False)}
@@ -379,6 +428,7 @@ def run_consensus_aggregate(config: AcademicBatchConfig) -> dict[str, int | floa
     started_at = datetime.now(UTC).isoformat()
     search_config = load_claim_adjudication_config(context={"academic_config": config})
     grouped: dict[str, list[ClaimAdjudicationResult]] = defaultdict(list)
+    contradiction_ids = _intra_paper_contradictions(_load_article_results(config))
     if not config.claim_adjudication_passes_path.exists():
         write_stage_manifest(
             manifest_path=config.manifests_dir / "consensus_aggregate.json",
@@ -400,7 +450,19 @@ def run_consensus_aggregate(config: AcademicBatchConfig) -> dict[str, int | floa
             adjudication = ClaimAdjudicationResult.model_validate(row)
             grouped[adjudication.claim_id].append(adjudication)
 
-    aggregated = [aggregate_claim_rows(rows, search_config) for rows in grouped.values()]
+    aggregated: list[ClaimAdjudicationResult] = []
+    for rows in grouped.values():
+        item = aggregate_claim_rows(rows, search_config)
+        if item.claim_id in contradiction_ids:
+            notes = " | ".join(part for part in [item.adjudication_notes, "intra_paper_direction_contradiction"] if part)
+            item = item.model_copy(
+                update={
+                    "publishable_edge": False,
+                    "intra_paper_contradiction": True,
+                    "adjudication_notes": notes[:800],
+                }
+            )
+        aggregated.append(item)
     with open(config.claim_adjudications_path, "w", encoding="utf-8") as fh:
         for item in sorted(aggregated, key=lambda row: (row.openalex_id, row.claim_id)):
             fh.write(item.model_dump_json() + "\n")

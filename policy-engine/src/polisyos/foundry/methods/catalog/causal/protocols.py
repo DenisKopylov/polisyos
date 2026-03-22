@@ -32,6 +32,11 @@ def _to_numpy(value: Any) -> np.ndarray:
     return np.asarray(value)
 
 
+def _is_repeated_cross_section(metadata: Mapping[str, Any]) -> bool:
+    shape = str(metadata.get("data_shape", "")).strip().lower()
+    return shape in {"repeated_cross_section", "survey_repeated_cross_section", "survey_microdata"}
+
+
 class PanelObservationalData(BaseModel):
     """Panel data used by SCM / DiD / Structural Time Series methods."""
 
@@ -65,6 +70,11 @@ class PanelObservationalData(BaseModel):
 
     @model_validator(mode="after")
     def _validate_shapes(self) -> "PanelObservationalData":
+        if _is_repeated_cross_section(self.metadata):
+            raise ValueError(
+                "panel methods require dense panel data; received repeated cross-section/survey data. "
+                "Route this payload to transport, survey, or HTE workflows instead."
+            )
         if not isinstance(self.outcome, np.ndarray) or self.outcome.ndim != 2:
             raise ValueError("outcome must be a 2D numpy array: (n_units, n_periods)")
 

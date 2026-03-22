@@ -22,7 +22,7 @@ from __future__ import annotations
 import itertools
 import math
 import time
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from typing import Any, ClassVar
 
 import numpy as np
@@ -59,6 +59,75 @@ from polisyos.ir.analytics.ncm import NCMSpec
 
 
 # ── Tian-Pearl observational bounds (no SCM required) ─────────────────────────
+
+
+def _normalize_cause_assignment(
+    cause_var: str,
+    cause_value: float,
+    *,
+    cause_vars: list[str] | None = None,
+    cause_values: Mapping[str, float] | None = None,
+) -> tuple[list[str], dict[str, float]]:
+    """Normalize single- and multi-variable cause assignments."""
+    if not cause_vars:
+        return [cause_var], {cause_var: float(cause_value)}
+
+    ordered_vars = [str(var) for var in cause_vars]
+    values: dict[str, float] = {}
+    for var in ordered_vars:
+        values[var] = float(cause_values[var]) if cause_values is not None and var in cause_values else float(cause_value)
+    return ordered_vars, values
+
+
+def _normalize_counterfactual_assignment(
+    cause_vars: Sequence[str],
+    counterfactual_cause_value: float,
+    *,
+    counterfactual_cause_values: Mapping[str, float] | None = None,
+) -> dict[str, float]:
+    """Normalize counterfactual intervention values for a cause set."""
+    cf_values: dict[str, float] = {}
+    for var in cause_vars:
+        cf_values[str(var)] = (
+            float(counterfactual_cause_values[var])
+            if counterfactual_cause_values is not None and var in counterfactual_cause_values
+            else float(counterfactual_cause_value)
+        )
+    return cf_values
+
+
+def _normalize_context_distribution(raw: Any) -> tuple[list[dict[str, float]], list[float]]:
+    """Parse a simple epistemic context distribution payload."""
+    if raw is None:
+        return [], []
+    if isinstance(raw, dict) and raw and all(isinstance(v, (int, float)) for v in raw.values()):
+        return [{str(k): float(v) for k, v in raw.items()}], [1.0]
+    if isinstance(raw, dict):
+        contexts = raw.get("contexts")
+        weights = raw.get("weights")
+        if contexts is None:
+            return [], []
+        if not isinstance(contexts, list):
+            raise ValueError("context_distribution['contexts'] must be a list")
+        parsed_contexts = [{str(k): float(v) for k, v in ctx.items()} for ctx in contexts if isinstance(ctx, dict)]
+        if len(parsed_contexts) != len(contexts):
+            raise ValueError("context_distribution['contexts'] must contain mappings")
+        if weights is None:
+            parsed_weights = [1.0 / len(parsed_contexts)] * len(parsed_contexts) if parsed_contexts else []
+        else:
+            parsed_weights = [float(w) for w in weights]
+            if len(parsed_weights) != len(parsed_contexts):
+                raise ValueError("context_distribution['weights'] length must match contexts")
+        return parsed_contexts, parsed_weights
+    if isinstance(raw, list):
+        if not raw:
+            return [], []
+        if isinstance(raw[0], dict):
+            return (
+                [{str(k): float(v) for k, v in ctx.items()} for ctx in raw],
+                [1.0 / len(raw)] * len(raw),
+            )
+    raise ValueError("context_distribution must be a mapping or a list of mappings")
 
 
 def _tian_pearl_pn_bounds(
@@ -393,6 +462,9 @@ def _check_ac1(
     context: dict[str, float],
     outcome_threshold: float,
     warnings: list[str],
+    *,
+    cause_vars: list[str] | None = None,
+    cause_values: dict[str, float] | None = None,
 ) -> bool:
     """AC1: X=x and Y=y hold in the actual context.
 
@@ -410,8 +482,26 @@ def _check_ac1(
         sim_result = _forward_simulate(ncm, context, warnings)
         y_in_context = sim_result.get(effect_var, 0.0)
 
-    # Check cause matches
-    cause_ok = abs(float(x_in_context) - cause_value) < 1e-9
+    cause_vars_norm, _cause_values_norm = _normalize_cause_assignment(
+        cause_var,
+        cause_value,
+        cause_vars=cause_vars,
+        cause_values=cause_values,
+    )
+
+    if len(cause_vars_norm) == 1 and cause_vars is None and cause_values is None:
+        observed = context.get(cause_vars_norm[0], _cause_values_norm[cause_vars_norm[0]])
+        cause_ok = abs(float(observed) - float(_cause_values_norm[cause_vars_norm[0]])) < 1e-9
+    else:
+        cause_ok = True
+        for var in cause_vars_norm:
+            observed = context.get(var)
+            if observed is None:
+                cause_ok = False
+                break
+            if abs(float(observed) - float(_cause_values_norm[var])) >= 1e-9:
+                cause_ok = False
+                break
 
     # Check effect matches (binary threshold or exact)
     if outcome_threshold is not None:
@@ -425,13 +515,12 @@ def _check_ac1(
 
 def _simulate_with_intervention_and_context(
     ncm: NCMSpec,
-    cause_var: str,
-    cause_value: float,
+    cause_intervention: dict[str, float],
     contingency: dict[str, float],
     context: dict[str, float],
     warnings: list[str],
 ) -> dict[str, float]:
-    """Simulate NCM with do(X=cause_value, W=contingency) given context as evidence.
+    """Simulate NCM with do(X=x, W=w) given context as evidence.
 
     Step 1: Abduct exogenous noise U from the full observed context.
     Step 2: Apply intervention do(X=cause_value, W=w) — ONLY the cause and
@@ -446,7 +535,7 @@ def _simulate_with_intervention_and_context(
     # Step 1: Abduct U from context (which may include outcome = factual value)
     abducted = _abduce_exogenous(ncm, context, "exact", warnings=warnings)
     # Step 2: Intervention dict = only do(X=x', W=w), nothing else
-    intervention = {cause_var: cause_value, **contingency}
+    intervention = {**cause_intervention, **contingency}
     return _predict_from_abducted(ncm, abducted, intervention, order, parents_map, warnings)
 
 
@@ -462,6 +551,9 @@ def _check_ac2_find_contingency(
     *,
     max_contingency_size: int,
     warnings: list[str],
+    cause_vars: list[str] | None = None,
+    cause_values: dict[str, float] | None = None,
+    counterfactual_cause_values: dict[str, float] | None = None,
 ) -> ContingencySet | None:
     """Search for a contingency set W satisfying AC2.
 
@@ -481,10 +573,22 @@ def _check_ac2_find_contingency(
             "Cyclic models are not currently supported."
         )
 
+    cause_vars_norm, cause_values_norm = _normalize_cause_assignment(
+        cause_var,
+        cause_value,
+        cause_vars=cause_vars,
+        cause_values=cause_values,
+    )
+    cf_values = _normalize_counterfactual_assignment(
+        cause_vars_norm,
+        counterfactual_cause_value,
+        counterfactual_cause_values=counterfactual_cause_values,
+    )
+
     # Helper to check if intervention produces Y ≠ y
     def _effect_changes(interv_context: dict[str, float]) -> bool:
         sim = _simulate_with_intervention_and_context(
-            ncm, cause_var, counterfactual_cause_value, interv_context, context, warnings
+            ncm, cf_values, interv_context, context, warnings
         )
         y_sim = sim.get(effect_var, effect_value)
         if outcome_threshold is not None:
@@ -506,7 +610,7 @@ def _check_ac2_find_contingency(
         for eq in ncm.structural_equations:
             all_nodes.update(eq.parents)
 
-    candidates = sorted(all_nodes - {cause_var, effect_var})
+    candidates = sorted(all_nodes - set(cause_vars_norm) - {effect_var})
 
     # Heuristic: if many candidates, try parents of effect first
     if len(candidates) > 10:
@@ -554,12 +658,68 @@ def _check_ac3_minimality(
     *,
     max_contingency_size: int,
     warnings: list[str],
+    cause_vars: list[str] | None = None,
+    cause_values: dict[str, float] | None = None,
+    counterfactual_cause_values: dict[str, float] | None = None,
 ) -> bool:
     """AC3: Check minimality — no proper subset of the cause assignment satisfies AC1+AC2.
 
     For single-variable causes (the common case), AC3 is trivially True.
     """
-    # For single-variable causes: no proper subset → trivially minimal
+    cause_vars_norm, cause_values_norm = _normalize_cause_assignment(
+        cause_var,
+        cause_value,
+        cause_vars=cause_vars,
+        cause_values=cause_values,
+    )
+    if len(cause_vars_norm) <= 1:
+        return True
+
+    cf_values = _normalize_counterfactual_assignment(
+        cause_vars_norm,
+        counterfactual_cause_value,
+        counterfactual_cause_values=counterfactual_cause_values,
+    )
+
+    # Any proper subset that satisfies AC1+AC2 violates minimality.
+    for size in range(len(cause_vars_norm) - 1, 0, -1):
+        for subset in itertools.combinations(cause_vars_norm, size):
+            subset_vars = list(subset)
+            subset_values = {var: cause_values_norm[var] for var in subset_vars}
+            subset_cf_values = {var: cf_values[var] for var in subset_vars}
+
+            if not _check_ac1(
+                ncm,
+                subset_vars[0],
+                subset_values[subset_vars[0]],
+                effect_var,
+                effect_value,
+                context,
+                outcome_threshold,
+                warnings,
+                cause_vars=subset_vars,
+                cause_values=subset_values,
+            ):
+                continue
+
+            contingency_subset = _check_ac2_find_contingency(
+                ncm,
+                subset_vars[0],
+                subset_values[subset_vars[0]],
+                subset_cf_values[subset_vars[0]],
+                effect_var,
+                effect_value,
+                context,
+                outcome_threshold,
+                max_contingency_size=max_contingency_size,
+                warnings=warnings,
+                cause_vars=subset_vars,
+                cause_values=subset_values,
+                counterfactual_cause_values=subset_cf_values,
+            )
+            if contingency_subset is not None:
+                return False
+
     return True
 
 
@@ -575,6 +735,9 @@ def _degree_of_responsibility(
     *,
     max_contingency_size: int,
     warnings: list[str],
+    cause_vars: list[str] | None = None,
+    cause_values: dict[str, float] | None = None,
+    counterfactual_cause_values: dict[str, float] | None = None,
 ) -> float:
     """Compute Chockler-Halpern degree of responsibility.
 
@@ -587,9 +750,21 @@ def _degree_of_responsibility(
     if not ncm.is_acyclic:
         return 0.0
 
+    cause_vars_norm, _ = _normalize_cause_assignment(
+        cause_var,
+        cause_value,
+        cause_vars=cause_vars,
+        cause_values=cause_values,
+    )
+    cf_values = _normalize_counterfactual_assignment(
+        cause_vars_norm,
+        counterfactual_cause_value,
+        counterfactual_cause_values=counterfactual_cause_values,
+    )
+
     def _effect_changes_with_w(w_dict: dict[str, float]) -> bool:
         sim = _simulate_with_intervention_and_context(
-            ncm, cause_var, counterfactual_cause_value, w_dict, context, warnings
+            ncm, cf_values, w_dict, context, warnings
         )
         y_sim = sim.get(effect_var, effect_value)
         if outcome_threshold is not None:
@@ -603,7 +778,7 @@ def _degree_of_responsibility(
     all_nodes = set(ncm.endogenous_vars)
     if ncm.scm_spec is not None:
         all_nodes = set(ncm.scm_spec.graph.nodes)
-    candidates = sorted(all_nodes - {cause_var, effect_var})
+    candidates = sorted(all_nodes - set(cause_vars_norm) - {effect_var})
 
     for size in range(1, min(max_contingency_size + 1, len(candidates) + 1)):
         for combo in itertools.combinations(candidates, size):
@@ -613,6 +788,74 @@ def _degree_of_responsibility(
 
     # No witness found within max_contingency_size
     return 0.0
+
+
+def _degree_of_blame(
+    ncm: NCMSpec,
+    cause_var: str,
+    cause_value: float,
+    counterfactual_cause_value: float,
+    effect_var: str,
+    effect_value: float,
+    context_distribution: list[dict[str, float]],
+    outcome_threshold: float,
+    *,
+    max_contingency_size: int,
+    warnings: list[str],
+    context_weights: list[float] | None = None,
+    bootstrap_samples: int = 200,
+    cause_vars: list[str] | None = None,
+    cause_values: dict[str, float] | None = None,
+    counterfactual_cause_values: dict[str, float] | None = None,
+) -> tuple[float, tuple[float, float] | None]:
+    """Compute epistemic degree of blame as expected responsibility.
+
+    The returned confidence interval is a bootstrap CI over the supplied
+    epistemic contexts.  When only one context is available, the interval
+    collapses to a point.
+    """
+    if not context_distribution:
+        return 0.0, None
+
+    weights = context_weights or [1.0 / len(context_distribution)] * len(context_distribution)
+    if len(weights) != len(context_distribution):
+        raise ValueError("context_weights length must match context_distribution")
+
+    responsibilities: list[float] = []
+    for context in context_distribution:
+        resp = _degree_of_responsibility(
+            ncm,
+            cause_var,
+            cause_value,
+            counterfactual_cause_value,
+            effect_var,
+            effect_value,
+            context,
+            outcome_threshold,
+            max_contingency_size=max_contingency_size,
+            warnings=warnings,
+            cause_vars=cause_vars,
+            cause_values=cause_values,
+            counterfactual_cause_values=counterfactual_cause_values,
+        )
+        responsibilities.append(float(resp))
+
+    blame = float(np.average(np.asarray(responsibilities, dtype=float), weights=np.asarray(weights, dtype=float)))
+    if len(responsibilities) == 1 or bootstrap_samples <= 1:
+        return blame, (blame, blame)
+
+    rng = np.random.default_rng(0)
+    boot = []
+    probs = np.asarray(weights, dtype=float)
+    probs = probs / probs.sum() if probs.sum() > 0 else np.full(len(weights), 1.0 / len(weights))
+    for _ in range(bootstrap_samples):
+        idx = rng.choice(len(context_distribution), size=len(context_distribution), replace=True, p=probs)
+        sample_responsibilities = np.asarray([responsibilities[i] for i in idx], dtype=float)
+        sample_weights = np.full(len(idx), 1.0 / len(idx), dtype=float)
+        boot.append(float(np.average(sample_responsibilities, weights=sample_weights)))
+
+    lo, hi = np.percentile(np.asarray(boot, dtype=float), [2.5, 97.5]).tolist()
+    return blame, (float(lo), float(hi))
 
 
 # ── Foundry methods ────────────────────────────────────────────────────────────
@@ -798,11 +1041,17 @@ class HPActualCauseMethod:
             ParameterSpec(name="cause_variable", default="X"),
             ParameterSpec(name="cause_value", default=1.0),
             ParameterSpec(name="counterfactual_cause_value", default=0.0),
+            ParameterSpec(name="cause_variables", default=None),
+            ParameterSpec(name="cause_values", default=None),
+            ParameterSpec(name="counterfactual_cause_values", default=None),
             ParameterSpec(name="effect_variable", default="Y"),
             ParameterSpec(name="effect_value", default=1.0),
             ParameterSpec(name="max_contingency_size", default=3),
             ParameterSpec(name="outcome_threshold", default=0.5),
             ParameterSpec(name="compute_responsibility", default=True),
+            ParameterSpec(name="context_distribution", default=None),
+            ParameterSpec(name="estimate_blame", default=False),
+            ParameterSpec(name="bootstrap_samples", default=200),
         ),
         fidelity=FidelityLevel.HIGH,
         complexity=ComplexityClass.O_N2,
@@ -852,11 +1101,16 @@ class HPActualCauseMethod:
         cause_var = str(params.get("cause_variable", "X"))
         cause_val = float(params.get("cause_value", 1.0))
         cf_cause_val = float(params.get("counterfactual_cause_value", 0.0))
+        cause_vars_raw = params.get("cause_variables")
+        cause_values_raw = params.get("cause_values")
+        cf_cause_values_raw = params.get("counterfactual_cause_values")
         effect_var = str(params.get("effect_variable", "Y"))
         effect_val = float(params.get("effect_value", 1.0))
         max_size = int(params.get("max_contingency_size", 3))
         outcome_threshold = float(params.get("outcome_threshold", 0.5))
         compute_dr = bool(params.get("compute_responsibility", True))
+        estimate_blame = bool(params.get("estimate_blame", False))
+        bootstrap_samples = int(params.get("bootstrap_samples", 200))
 
         raw = state.get("ncm_query_data", state)
         if isinstance(raw, NCMQueryData):
@@ -866,6 +1120,18 @@ class HPActualCauseMethod:
 
         ncm: NCMSpec = query_data.ncm_spec  # type: ignore[assignment]
         context: dict[str, float] = dict(query_data.evidence)
+        cause_vars, cause_values = _normalize_cause_assignment(
+            cause_var,
+            cause_val,
+            cause_vars=list(cause_vars_raw) if isinstance(cause_vars_raw, (list, tuple, set, frozenset)) else None,
+            cause_values=cause_values_raw if isinstance(cause_values_raw, Mapping) else None,
+        )
+        cf_cause_values = _normalize_counterfactual_assignment(
+            cause_vars,
+            cf_cause_val,
+            counterfactual_cause_values=cf_cause_values_raw if isinstance(cf_cause_values_raw, Mapping) else None,
+        )
+        cause_assignment_text = ", ".join(f"{var}={cause_values[var]}" for var in cause_vars)
 
         warnings: list[str] = []
 
@@ -873,6 +1139,8 @@ class HPActualCauseMethod:
         ac1 = _check_ac1(
             ncm, cause_var, cause_val, effect_var, effect_val, context,
             outcome_threshold, warnings,
+            cause_vars=cause_vars if len(cause_vars) > 1 else None,
+            cause_values=cause_values if len(cause_vars) > 1 else None,
         )
 
         ac2 = False
@@ -886,6 +1154,9 @@ class HPActualCauseMethod:
                 ncm, cause_var, cause_val, cf_cause_val,
                 effect_var, effect_val, context, outcome_threshold,
                 max_contingency_size=max_size, warnings=warnings,
+                cause_vars=cause_vars if len(cause_vars) > 1 else None,
+                cause_values=cause_values if len(cause_vars) > 1 else None,
+                counterfactual_cause_values=cf_cause_values if len(cause_vars) > 1 else None,
             )
             ac2 = contingency is not None
 
@@ -895,6 +1166,9 @@ class HPActualCauseMethod:
                 ncm, cause_var, cause_val, cf_cause_val,
                 effect_var, effect_val, context, contingency,
                 outcome_threshold, max_contingency_size=max_size, warnings=warnings,
+                cause_vars=cause_vars if len(cause_vars) > 1 else None,
+                cause_values=cause_values if len(cause_vars) > 1 else None,
+                counterfactual_cause_values=cf_cause_values if len(cause_vars) > 1 else None,
             )
 
         is_actual = ac1 and ac2 and ac3
@@ -905,22 +1179,48 @@ class HPActualCauseMethod:
                 ncm, cause_var, cause_val, cf_cause_val,
                 effect_var, effect_val, context, outcome_threshold,
                 max_contingency_size=max_size, warnings=warnings,
+                cause_vars=cause_vars if len(cause_vars) > 1 else None,
+                cause_values=cause_values if len(cause_vars) > 1 else None,
+                counterfactual_cause_values=cf_cause_values if len(cause_vars) > 1 else None,
             )
         elif is_actual:
             dr = 1.0 / ((contingency.size if contingency else 0) + 1) if contingency is not None else 1.0
 
+        degree_of_blame: float | None = None
+        blame_ci: tuple[float, float] | None = None
+        context_dist_raw = params.get("context_distribution", query_data.metadata.get("context_distribution"))
+        context_distribution, context_weights = _normalize_context_distribution(context_dist_raw)
+        if estimate_blame or context_distribution:
+            degree_of_blame, blame_ci = _degree_of_blame(
+                ncm,
+                cause_var,
+                cause_val,
+                cf_cause_val,
+                effect_var,
+                effect_val,
+                context_distribution or [context],
+                outcome_threshold,
+                max_contingency_size=max_size,
+                warnings=warnings,
+                context_weights=context_weights if context_distribution else None,
+                bootstrap_samples=bootstrap_samples,
+                cause_vars=cause_vars if len(cause_vars) > 1 else None,
+                cause_values=cause_values if len(cause_vars) > 1 else None,
+                counterfactual_cause_values=cf_cause_values if len(cause_vars) > 1 else None,
+            )
+
         # Build explanation
         if is_actual:
             explanation = (
-                f"{cause_var}={cause_val} is an actual cause of {effect_var}={effect_val}. "
+                f"{cause_assignment_text} is an actual cause of {effect_var}={effect_val}. "
                 f"DR={dr:.3f}."
             )
         elif not ac1:
-            explanation = f"AC1 failed: {cause_var}={cause_val} or {effect_var}={effect_val} not in context."
+            explanation = f"AC1 failed: {cause_assignment_text} or {effect_var}={effect_val} not in context."
         elif not ac2:
             explanation = (
                 f"AC2 failed: no contingency set of size ≤{max_size} makes "
-                f"do({cause_var}={cf_cause_val}) change {effect_var}."
+                f"do({cause_assignment_text}) change {effect_var}."
             )
         else:
             explanation = "AC3 minimality check failed."
@@ -929,6 +1229,9 @@ class HPActualCauseMethod:
             cause_variable=cause_var,
             cause_value=cause_val,
             counterfactual_cause_value=cf_cause_val,
+            cause_variables=cause_vars if len(cause_vars) > 1 else None,
+            cause_values=cause_values if len(cause_vars) > 1 else None,
+            counterfactual_cause_values=cf_cause_values if len(cause_vars) > 1 else None,
             effect_variable=effect_var,
             effect_value=effect_val,
             ac1_satisfied=ac1,
@@ -937,6 +1240,8 @@ class HPActualCauseMethod:
             is_actual_cause=is_actual,
             contingency=contingency,
             degree_of_responsibility=float(np.clip(dr, 0.0, 1.0)),
+            degree_of_blame=float(np.clip(degree_of_blame, 0.0, 1.0)) if degree_of_blame is not None else None,
+            blame_ci=blame_ci,
             explanation=explanation,
             metadata={"warnings": warnings, "computation_time_seconds": time.time() - t0},
         )
@@ -959,4 +1264,5 @@ __all__ = [
     "_check_ac2_find_contingency",
     "_check_ac3_minimality",
     "_degree_of_responsibility",
+    "_degree_of_blame",
 ]

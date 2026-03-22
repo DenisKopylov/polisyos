@@ -268,7 +268,14 @@ class UNPDConnector(HTTPConnectorBase[pd.DataFrame]):
             rows.append(
                 {
                     "indicator_id": str(row.get("indicatorId") or indicator_id),
-                    "country_code": str(row.get("iso3Code") or row.get("locationCode") or "").strip().upper(),
+                    "country_code": str(
+                        row.get("iso3Code")
+                        or row.get("iso3")
+                        or row.get("iso2Code")
+                        or row.get("iso2")
+                        or row.get("locationCode")
+                        or ""
+                    ).strip().upper(),
                     "location_id": str(row.get("locationId") or location_id),
                     "year": safe_int(row.get("timeLabel") or row.get("timeId") or row.get("year")),
                     "value": value,

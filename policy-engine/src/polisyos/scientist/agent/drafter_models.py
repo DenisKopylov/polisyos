@@ -10,6 +10,7 @@ from typing import Any
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from polisyos.scientist.agent.protocols import DraftResult
+from polisyos.scientist.engine.convergence import ConvergenceConfig
 
 
 def _as_bool(raw: str | None, default: bool = False) -> bool:
@@ -104,6 +105,10 @@ class MultiPassConfig(BaseModel):
     critique_model: str | None = Field(default=None)
     enable_memory_logging: bool = Field(default=True)
     shadow_mode: bool = Field(default=False)
+    convergence: ConvergenceConfig | None = Field(
+        default=None,
+        description="Adaptive convergence — stop early when passes stop improving",
+    )
     rag_enabled: bool = Field(default=False)
     rag_top_k: int = Field(default=3, ge=1, le=10)
     rag_similarity_threshold: float = Field(default=0.5, ge=0.0, le=1.0)

@@ -2,9 +2,12 @@ from __future__ import annotations
 
 import asyncio
 
+import aiohttp
+
 from polisyos.datasets.batch.ckan_curation import curate_ckan_package, guess_ckan_resource_format
+from polisyos.datasets.batch import harvester as batch_harvester
 from polisyos.datasets.batch.config import DatasetBatchConfig
-from polisyos.datasets.batch.harvester import harvest_one_source
+from polisyos.datasets.batch.harvester import _harvest_ckan, _harvest_json_with_retries, harvest_one_source
 from polisyos.datasets.batch.source_registry import SourceSpec
 
 
@@ -313,3 +316,114 @@ def test_harvest_one_source_prioritizes_poland_policy_domains(monkeypatch, tmp_p
     assert "edu-1" in selected_ids
     assert "health-1" in selected_ids
     assert "labor-1" in selected_ids or "migration-1" in selected_ids
+
+
+def test_harvest_json_with_retries_recovers_from_timeout() -> None:
+    class _Response:
+        def __init__(self, status: int, payload: dict) -> None:
+            self.status = status
+            self.headers: dict[str, str] = {}
+            self._payload = payload
+
+        async def __aenter__(self) -> "_Response":
+            return self
+
+        async def __aexit__(self, exc_type, exc, tb) -> bool:  # noqa: ANN001
+            return False
+
+        async def json(self, content_type=None):  # noqa: ANN001
+            return self._payload
+
+    class _Session:
+        def __init__(self) -> None:
+            self.calls = 0
+
+        def get(self, url, *, params, headers):  # noqa: ANN001
+            del url, params, headers
+            self.calls += 1
+            if self.calls == 1:
+                raise asyncio.TimeoutError()
+            return _Response(200, {"result": {"results": [{"id": "ok"}]}})
+
+    payload = asyncio.run(
+        _harvest_json_with_retries(
+            _Session(),  # type: ignore[arg-type]
+            "https://example.test/api",
+            params={"rows": 100, "start": 0},
+            context="ckan retry test",
+        )
+    )
+
+    assert payload == {"result": {"results": [{"id": "ok"}]}}
+
+
+def test_harvest_json_with_retries_respects_retry_after_header(monkeypatch) -> None:
+    sleeps: list[float] = []
+
+    class _Response:
+        def __init__(self, status: int, payload: dict, headers: dict[str, str] | None = None) -> None:
+            self.status = status
+            self.headers = headers or {}
+            self._payload = payload
+
+        async def __aenter__(self) -> "_Response":
+            return self
+
+        async def __aexit__(self, exc_type, exc, tb) -> bool:  # noqa: ANN001
+            return False
+
+        async def json(self, content_type=None):  # noqa: ANN001
+            return self._payload
+
+    class _Session:
+        def __init__(self) -> None:
+            self.calls = 0
+
+        def get(self, url, *, params, headers):  # noqa: ANN001
+            del url, params, headers
+            self.calls += 1
+            if self.calls == 1:
+                return _Response(429, {}, {"Retry-After": "1"})
+            return _Response(200, {"result": {"results": [{"id": "ok"}]}})
+
+    async def _fake_sleep(seconds: float) -> None:
+        sleeps.append(seconds)
+
+    monkeypatch.setattr(asyncio, "sleep", _fake_sleep)
+
+    payload = asyncio.run(
+        _harvest_json_with_retries(
+            _Session(),  # type: ignore[arg-type]
+            "https://example.test/api",
+            params={"rows": 100, "start": 0},
+            context="ckan retry-after test",
+        )
+    )
+
+    assert payload == {"result": {"results": [{"id": "ok"}]}}
+    assert sleeps == [1.0]
+
+
+def test_harvest_ckan_reduces_page_size_after_timeout(monkeypatch) -> None:
+    attempted_rows: list[int] = []
+
+    async def _fake_harvest_json_with_retries(_session, _url, *, params, context, headers=None, max_attempts=3):  # noqa: ARG001
+        attempted_rows.append(int(params["rows"]))
+        if int(params["rows"]) == 100:
+            raise asyncio.TimeoutError()
+        return {"result": {"results": [{"id": "pkg-1"}], "count": 1}}
+
+    class _Session:
+        async def __aenter__(self) -> "_Session":
+            return self
+
+        async def __aexit__(self, exc_type, exc, tb) -> bool:  # noqa: ANN001
+            return False
+
+    monkeypatch.setattr(batch_harvester, "_harvest_json_with_retries", _fake_harvest_json_with_retries)
+    monkeypatch.setattr(aiohttp, "ClientSession", lambda timeout: _Session())  # type: ignore[arg-type]
+
+    rows = asyncio.run(_harvest_ckan("https://example.test/api", limit=1, timeout_s=5))
+
+    assert rows == [{"id": "pkg-1"}]
+    assert attempted_rows[:2] == [100, 50]

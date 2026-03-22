@@ -12,15 +12,21 @@ from polisyos.academic.batch.config import ALL_STAGES, AcademicBatchConfig
 
 _STAGE_ALIAS = {
     "topic-select": "topic_select",
+    "doc-normalize": "doc_normalize",
     "resolve-extract": "resolve_extract",
+    "claim-extract": "claim_extract",
+    "context-extract": "context_extract",
+    "mechanism-extract": "mechanism_extract",
     "resolve-finalize": "resolve_finalize",
     "numeric-extract": "numeric_extract",
     "merge-dedup": "merge_dedup",
     "claim-adjudicate": "claim_adjudicate",
+    "conflict-resolve": "conflict_resolve",
     "graph-load": "graph_load",
     "edge-synthesize": "edge_synthesize",
     "graph-index": "graph_index",
     "transport-score": "transport_score",
+    "benchmark-run": "benchmark",
 }
 
 
@@ -46,6 +52,12 @@ def _build_config(args: argparse.Namespace, *, stages: frozenset[str]) -> Academ
         if resolver_order_raw
         else ("unpaywall", "crossref", "semanticscholar")
     )
+    doc_infra_precedence_raw = str(getattr(args, "doc_infra_precedence", "")).strip()
+    doc_infra_precedence = (
+        tuple(token.strip() for token in doc_infra_precedence_raw.split(",") if token.strip())
+        if doc_infra_precedence_raw
+        else ("publisher_xml", "pdf", "text")
+    )
     target_country_codes_raw = str(getattr(args, "transport_target_country_codes", "")).strip()
     transport_target_country_codes = tuple(
         token.strip().upper() for token in target_country_codes_raw.split(",") if token.strip()
@@ -64,6 +76,7 @@ def _build_config(args: argparse.Namespace, *, stages: frozenset[str]) -> Academ
         else AcademicBatchConfig.priority_context_subblocks
     )
     demand_backlog_path_raw = str(getattr(args, "demand_backlog_path", "")).strip()
+    benchmark_suite_path_raw = str(getattr(args, "benchmark_suite_path", "")).strip()
 
     return AcademicBatchConfig(
         snapshot_root=Path(args.snapshot_root),
@@ -134,6 +147,16 @@ def _build_config(args: argparse.Namespace, *, stages: frozenset[str]) -> Academ
         ),
         fulltext_shared_cache_dir=Path(shared_cache_dir_raw) if shared_cache_dir_raw else None,
         fulltext_cache_ttl_days=int(getattr(args, "fulltext_cache_ttl_days", 30)),
+        doc_infra_enable_pub2tei=bool(getattr(args, "doc_infra_enable_pub2tei", True)),
+        doc_infra_enable_grobid=bool(getattr(args, "doc_infra_enable_grobid", True)),
+        doc_pub2tei_base_url=str(getattr(args, "doc_pub2tei_base_url", "http://localhost:8074")),
+        doc_grobid_base_url=str(getattr(args, "doc_grobid_base_url", "http://localhost:8070")),
+        doc_infra_timeout_seconds=int(getattr(args, "doc_infra_timeout_seconds", 45)),
+        doc_infra_precedence=doc_infra_precedence,
+        stream_doc_normalize_to_resolve_extract=bool(
+            getattr(args, "stream_doc_normalize_to_resolve_extract", False)
+        ),
+        stream_doc_ready_poll_seconds=float(getattr(args, "stream_doc_ready_poll_seconds", 2.0)),
         provider_circuit_breaker_failures=int(getattr(args, "provider_circuit_breaker_failures", 5)),
         provider_circuit_breaker_reset_seconds=int(getattr(args, "provider_circuit_breaker_reset_seconds", 60)),
         llm_gate_enabled=bool(getattr(args, "llm_gate_enabled", True)),
@@ -152,16 +175,21 @@ def _build_config(args: argparse.Namespace, *, stages: frozenset[str]) -> Academ
         track_c_extraction_model=str(getattr(args, "track_c_extraction_model", "")),
         numeric_precision_mode=str(getattr(args, "numeric_precision_mode", "high_precision")),
         claim_adjudication_passes=int(getattr(args, "claim_adjudication_passes", 3)),
+        extraction_lane=str(getattr(args, "extraction_lane", "all")),
         transport_target_context_id=str(getattr(args, "transport_target_context_id", "")),
         transport_target_country_codes=transport_target_country_codes,
         transport_target_time_period=str(getattr(args, "transport_target_time_period", "")),
+        benchmark_suite_path_override=Path(benchmark_suite_path_raw) if benchmark_suite_path_raw else None,
         fail_fast_qc=bool(getattr(args, "fail_fast", True)),
     )
 
 
 async def _run_stage(args: argparse.Namespace, stage: str) -> None:
+    from polisyos.academic.batch.benchmark import run_benchmark
     from polisyos.academic.batch.claim_adjudicator import run_claim_adjudicate, run_consensus_aggregate
+    from polisyos.academic.batch.conflict_resolve import run_conflict_resolve
     from polisyos.academic.batch.dedup import merge_and_dedup
+    from polisyos.academic.batch.doc_normalize import run_doc_normalize
     from polisyos.academic.batch.edge_synthesize import run_edge_synthesize
     from polisyos.academic.batch.embedder import run_embed
     from polisyos.academic.batch.graph_builder import run_graph_index, run_graph_load
@@ -186,11 +214,23 @@ async def _run_stage(args: argparse.Namespace, stage: str) -> None:
         return
 
     cfg = _build_config(args, stages=frozenset({stage_name}))
+    if stage_name == "claim_extract":
+        cfg.extraction_lane = "claim"
+        stage_name = "resolve_extract"
+    elif stage_name == "context_extract":
+        cfg.extraction_lane = "context"
+        stage_name = "resolve_extract"
+    elif stage_name == "mechanism_extract":
+        cfg.extraction_lane = "mechanism"
+        stage_name = "resolve_extract"
     if stage_name == "topic_select":
         out = await run_topic_select(cfg)
         print(f"Topics: {out.get('topics', 0)}")
         print(f"Selected rows: {out.get('selected_rows', 0)}")
         print(f"Unique works: {out.get('selected_unique', 0)}")
+    elif stage_name == "doc_normalize":
+        out = await run_doc_normalize(cfg)
+        print(json_dumps_pretty(out))
     elif stage_name == "harvest":
         out = await harvest_all(cfg)
         print(f"Harvested groups: {len(out)}")
@@ -219,6 +259,9 @@ async def _run_stage(args: argparse.Namespace, stage: str) -> None:
             {f"consensus_{key}": value for key, value in run_consensus_aggregate(cfg).items()}
         )
         print(json_dumps_pretty(adjudication_stats))
+    elif stage_name == "conflict_resolve":
+        stats = run_conflict_resolve(cfg)
+        print(json_dumps_pretty(stats))
     elif stage_name == "graph_load":
         gstats = run_graph_load(cfg)
         print(
@@ -235,6 +278,18 @@ async def _run_stage(args: argparse.Namespace, stage: str) -> None:
     elif stage_name == "transport_score":
         stats = run_transport_score(cfg)
         print(json_dumps_pretty(stats))
+    elif stage_name == "benchmark":
+        stats = run_benchmark(cfg)
+        print(
+            json_dumps_pretty(
+                {
+                    "report_path": str(stats.report_path),
+                    "metrics": stats.metrics,
+                    "passed": stats.passed,
+                    "failed_checks": list(stats.failed_checks),
+                }
+            )
+        )
     elif stage_name == "embed":
         count = run_embed(cfg, thermal=bool(getattr(args, "thermal", False)))
         print(f"Embedded works: {count}")
@@ -391,6 +446,28 @@ def _build_parser() -> argparse.ArgumentParser:
     common.set_defaults(fulltext_soft_usable_requires_section_cues=True)
     common.add_argument("--fulltext-shared-cache-dir", default="")
     common.add_argument("--fulltext-cache-ttl-days", type=int, default=30)
+    common.add_argument("--doc-infra-enable-pub2tei", dest="doc_infra_enable_pub2tei", action="store_true")
+    common.add_argument("--no-doc-infra-enable-pub2tei", dest="doc_infra_enable_pub2tei", action="store_false")
+    common.set_defaults(doc_infra_enable_pub2tei=True)
+    common.add_argument("--doc-infra-enable-grobid", dest="doc_infra_enable_grobid", action="store_true")
+    common.add_argument("--no-doc-infra-enable-grobid", dest="doc_infra_enable_grobid", action="store_false")
+    common.set_defaults(doc_infra_enable_grobid=True)
+    common.add_argument("--doc-pub2tei-base-url", default="http://localhost:8074")
+    common.add_argument("--doc-grobid-base-url", default="http://localhost:8070")
+    common.add_argument("--doc-infra-timeout-seconds", type=int, default=45)
+    common.add_argument("--doc-infra-precedence", default="publisher_xml,pdf,text")
+    common.add_argument(
+        "--stream-doc-normalize-to-resolve-extract",
+        dest="stream_doc_normalize_to_resolve_extract",
+        action="store_true",
+    )
+    common.add_argument(
+        "--no-stream-doc-normalize-to-resolve-extract",
+        dest="stream_doc_normalize_to_resolve_extract",
+        action="store_false",
+    )
+    common.set_defaults(stream_doc_normalize_to_resolve_extract=False)
+    common.add_argument("--stream-doc-ready-poll-seconds", type=float, default=2.0)
     common.add_argument("--provider-circuit-breaker-failures", type=int, default=5)
     common.add_argument("--provider-circuit-breaker-reset-seconds", type=int, default=60)
 
@@ -426,6 +503,7 @@ def _build_parser() -> argparse.ArgumentParser:
     common.add_argument("--track-c-extraction-model", default="")
     common.add_argument("--numeric-precision-mode", default="high_precision", choices=["off", "balanced", "high_precision"])
     common.add_argument("--claim-adjudication-passes", type=int, default=3)
+    common.add_argument("--benchmark-suite-path", default="")
     common.add_argument("--transport-target-context-id", default="")
     common.add_argument("--transport-target-country-codes", default="UA")
     common.add_argument("--transport-target-time-period", default="")
@@ -433,16 +511,22 @@ def _build_parser() -> argparse.ArgumentParser:
     common.add_argument("--resume", action="store_true")
 
     sub.add_parser("topic-select", parents=[common], help="Select topic works from OpenAlex")
+    sub.add_parser("doc-normalize", parents=[common], help="Normalize academic documents into substrate artifacts")
     sub.add_parser("harvest", parents=[common], help="Harvest OpenAlex snapshots")
     sub.add_parser("parse", parents=[common], help="Parse raw snapshots")
     sub.add_parser("resolve-extract", parents=[common], help="Streaming fulltext-first one-call extraction")
+    sub.add_parser("claim-extract", parents=[common], help="Run claim-focused routed extraction")
+    sub.add_parser("context-extract", parents=[common], help="Run context-focused routed extraction")
+    sub.add_parser("mechanism-extract", parents=[common], help="Run mechanism-focused routed extraction")
     sub.add_parser("resolve-finalize", parents=[common], help="Consolidate resolve attempts into one canonical result per work")
     sub.add_parser("merge-dedup", parents=[common], help="Merge parsed records and dedup by work_id")
     sub.add_parser("claim-adjudicate", parents=[common], help="Run multi-pass claim adjudication on finalized extraction results")
+    sub.add_parser("conflict-resolve", parents=[common], help="Build claim sets and conflict resolution artifacts")
     sub.add_parser("graph-load", parents=[common], help="Load merged works into DuckDB")
     sub.add_parser("edge-synthesize", parents=[common], help="Build family-aggregated evidence layers and canonical review queues")
     sub.add_parser("graph-index", parents=[common], help="Build DuckDB indexes")
     sub.add_parser("transport-score", parents=[common], help="Score edge transportability")
+    sub.add_parser("benchmark-run", parents=[common], help="Run academic readiness benchmark suite")
 
     embed = sub.add_parser("embed", parents=[common], help="Build local embeddings and HNSW")
     embed.add_argument("--thermal", action="store_true")
@@ -491,16 +575,22 @@ def main() -> None:
 
     if args.command in {
         "topic-select",
+        "doc-normalize",
         "harvest",
         "parse",
         "resolve-extract",
+        "claim-extract",
+        "context-extract",
+        "mechanism-extract",
         "resolve-finalize",
         "merge-dedup",
         "claim-adjudicate",
+        "conflict-resolve",
         "graph-load",
         "edge-synthesize",
         "graph-index",
         "transport-score",
+        "benchmark-run",
         "embed",
         "qc",
         "publish",

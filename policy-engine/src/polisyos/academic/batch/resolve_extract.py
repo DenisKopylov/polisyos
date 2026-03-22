@@ -9,7 +9,7 @@ import math
 import random
 import re
 import time
-from collections import defaultdict, deque
+from collections import Counter, defaultdict, deque
 from dataclasses import dataclass, field, replace
 from datetime import UTC, datetime
 from pathlib import Path
@@ -31,6 +31,7 @@ from polisyos.academic.batch.article_extractor import (
     _normalized_text,
     _parse_json_object,
     _to_work_record,
+    _validate_extraction_response,
 )
 from polisyos.academic.batch.claim_ids import stable_claim_id
 from polisyos.academic.batch.config import AcademicBatchConfig
@@ -87,10 +88,10 @@ _DESIGN_TIERS: dict[str, int | None] = {
     DesignFamily.TIME_SERIES_COINTEGRATION.value: 3,
     DesignFamily.OLS.value: 4,
     DesignFamily.OLS_CROSS_SECTIONAL.value: 4,
-    DesignFamily.META_ANALYSIS.value: None,
+    DesignFamily.META_ANALYSIS.value: 1,
+    DesignFamily.REVIEW_META_ANALYSIS.value: 2,
     DesignFamily.REVIEW.value: None,
     DesignFamily.REVIEW_NARRATIVE.value: None,
-    DesignFamily.REVIEW_META_ANALYSIS.value: None,
     DesignFamily.THEORETICAL.value: None,
     DesignFamily.UNCLEAR.value: None,
 }
@@ -110,6 +111,27 @@ _DOWNGRADE_PATTERNS = re.compile(
     r"\b(correlation|associat(?:ion|ive)|cross[- ]sectional|ols only|ordinary least squares only|panel fixed effects only)\b",
     re.IGNORECASE,
 )
+# Phrases that negate a downgrade keyword — e.g. "beyond mere correlation",
+# "not merely an association", "causal, not correlational".
+_DOWNGRADE_NEGATION_RE = re.compile(
+    r"\b(beyond (?:mere |simple )?(?:correlation|association)|"
+    r"not (?:merely |just |simply )?(?:an? )?(?:correlation|association|associative|correlational)|"
+    r"causal[,;]?\s+not\s+(?:just\s+)?(?:correlat|associat)\w*|"
+    r"more than (?:a |an )?(?:correlation|association)|"
+    r"rules? out (?:mere |simple )?(?:correlation|reverse causality))\b",
+    re.IGNORECASE,
+)
+
+
+def _has_downgrade_signal(text: str) -> bool:
+    """Check for downgrade keywords while filtering out negation contexts."""
+    if not _DOWNGRADE_PATTERNS.search(text):
+        return False
+    # If a negation phrase is present, the downgrade keyword is used in a
+    # context that actually STRENGTHENS the claim (e.g. "beyond correlation").
+    if _DOWNGRADE_NEGATION_RE.search(text):
+        return False
+    return True
 # Strong identification methods that justify tier-4 promotion for "unclear" designs.
 # Excludes weak data-type terms (regression, panel data, OLS, admin data) that are
 # necessary but not sufficient for causal identification.
@@ -232,6 +254,24 @@ _CONTEXT_HARD_REJECTION_REASONS = frozenset(
         "access_shell",
         "theory_like",
         "method_only",
+    }
+)
+_ROUTED_EMPIRICAL_DOC_FAMILIES = frozenset(
+    {
+        "empirical_rct",
+        "empirical_quasi",
+        "observational",
+        "table_heavy",
+    }
+)
+_ROUTED_EMPIRICAL_SOFT_BLOCKERS = frozenset(
+    {
+        "degraded_text",
+        "review_like",
+        "theory_like",
+        "method_only",
+        "missing_empirical_cues",
+        "descriptive_only",
     }
 )
 
@@ -399,6 +439,8 @@ class ResolveExtractStats:
     fetch_latency_ms: list[float] = field(default_factory=list)
     llm_latency_ms: list[float] = field(default_factory=list)
     limiter_wait_ms: list[float] = field(default_factory=list)
+    rejection_reason_counts: Counter[str] = field(default_factory=Counter)
+    failure_class_counts: Counter[str] = field(default_factory=Counter)
 
 
 @dataclass
@@ -445,6 +487,7 @@ class ProviderResponse:
     error_class: str
     raw_content: str
     truncated_output: bool
+    provider_key_index: int | None = None
 
 
 def _empty_provider_response(
@@ -466,6 +509,7 @@ def _empty_provider_response(
         error_class=error_class,
         raw_content=raw_content[:4000],
         truncated_output=False,
+        provider_key_index=None,
     )
 
 
@@ -529,12 +573,14 @@ _MAX_RETRY_AFTER_SECONDS = 30.0  # cap on Retry-After header value
 
 
 class _ProviderClient:
-    def __init__(self, *, api_key: str, base_url: str, rate_limit_rps: float, circuit_failures: int, circuit_reset_seconds: int, connect_timeout_seconds: int, read_timeout_seconds: int, total_timeout_seconds: int) -> None:
+    def __init__(self, *, client_index: int, api_key: str, base_url: str, rate_limit_rps: float, circuit_failures: int, circuit_reset_seconds: int, connect_timeout_seconds: int, read_timeout_seconds: int, total_timeout_seconds: int) -> None:
+        self.client_index = client_index
         self.api_key = api_key
         self.url = f"{base_url.rstrip('/')}/chat/completions"
         # Support fractional per-key request rates so local smoke runs can match
         # provider-specific practical throughput, not just integer RPS ceilings.
         effective_rps = max(0.001, float(rate_limit_rps))
+        self.rate_limit_rps = effective_rps
         self.limiter = _SlidingWindowLimiter(max_requests=1, window=(1.0 / effective_rps))
         self.circuit_failures = max(1, int(circuit_failures))
         self.circuit_reset_seconds = max(1, int(circuit_reset_seconds))
@@ -581,6 +627,7 @@ class GonkaMultiKeyPool:
     def __init__(self, config: AcademicBatchConfig) -> None:
         self._clients = [
             _ProviderClient(
+                client_index=index + 1,
                 api_key=key,
                 base_url=config.gonka_base_url,
                 rate_limit_rps=config.article_rate_limit_rps,
@@ -590,13 +637,28 @@ class GonkaMultiKeyPool:
                 read_timeout_seconds=config.article_read_timeout_seconds,
                 total_timeout_seconds=config.article_total_timeout_seconds,
             )
-            for key in config.gonka_api_keys
+            for index, key in enumerate(config.gonka_api_keys)
             if str(key).strip()
         ]
         self._max_retries = max(1, int(config.article_max_retries))
         self._max_completion_tokens = max(256, int(config.article_max_completion_tokens))
         self._selection_lock = asyncio.Lock()
         self._global_sem = asyncio.Semaphore(_GLOBAL_CONCURRENT_CAP)
+        self._selection_cursor = 0
+
+    @property
+    def client_count(self) -> int:
+        return len(self._clients)
+
+    @property
+    def per_key_rate_limit_rps(self) -> float:
+        if not self._clients:
+            return 0.0
+        return float(self._clients[0].rate_limit_rps)
+
+    @property
+    def theoretical_aggregate_rps(self) -> float:
+        return self.client_count * self.per_key_rate_limit_rps
 
     async def __aenter__(self) -> "GonkaMultiKeyPool":
         for client in self._clients:
@@ -608,7 +670,7 @@ class GonkaMultiKeyPool:
             await client.__aexit__(*exc)
 
     async def _acquire(self) -> _ProviderClient:
-        """Acquire global concurrency slot and select least-loaded client."""
+        """Acquire global concurrency slot and select a fair least-loaded client."""
         while True:
             await self._global_sem.acquire()
             async with self._selection_lock:
@@ -617,7 +679,10 @@ class GonkaMultiKeyPool:
                     if c.is_available() and c.in_flight < _PER_KEY_CONCURRENT_CAP
                 ]
                 if available:
-                    client = min(available, key=lambda c: c.in_flight)
+                    min_load = min(c.in_flight for c in available)
+                    candidates = [c for c in available if c.in_flight == min_load]
+                    client = candidates[self._selection_cursor % len(candidates)]
+                    self._selection_cursor = (self._selection_cursor + 1) % max(1, len(self._clients))
                     client.in_flight += 1
                     return client
             # No client available — release global slot and wait with jitter
@@ -653,10 +718,12 @@ class GonkaMultiKeyPool:
         total_limiter_wait = 0.0
         parse_status = "empty"
         truncated_output = False
+        last_client_index: int | None = None
 
         for attempt in range(1, self._max_retries + 1):
             backoff = 0.0
             client = await self._acquire()
+            last_client_index = client.client_index
             try:
                 if client.session is None:
                     raise RuntimeError("Provider session is not initialized")
@@ -703,6 +770,7 @@ class GonkaMultiKeyPool:
                                 error_class=("provider_length_stop" if truncated_output else ""),
                                 raw_content=raw_content,
                                 truncated_output=truncated_output,
+                                provider_key_index=client.client_index,
                             )
 
                         retry_after_raw = str(resp.headers.get("Retry-After") or "").strip()
@@ -751,6 +819,7 @@ class GonkaMultiKeyPool:
                                         error_class=("provider_length_stop" if truncated_output else ""),
                                         raw_content=raw_content,
                                         truncated_output=truncated_output,
+                                        provider_key_index=client.client_index,
                                     )
                             last_error_class = f"provider_http_{resp.status}"
                             last_finish_reason = ""
@@ -790,6 +859,7 @@ class GonkaMultiKeyPool:
             error_class=last_error_class,
             raw_content=last_raw_content,
             truncated_output=truncated_output,
+            provider_key_index=last_client_index,
         )
 
 
@@ -808,7 +878,7 @@ def _load_progress(path: Path) -> dict[str, Any]:
         if isinstance(loaded, dict) and isinstance(loaded.get("items"), dict):
             return loaded
     except Exception as exc:
-        logger.debug("Ignored exception: %s", exc)
+        logger.debug("Ignored exception: {}", exc)
     return {"version": 1, "updated_at": "", "items": {}}
 
 
@@ -865,6 +935,43 @@ def _count_progress_state(progress: dict[str, Any], state: str) -> int:
     if not isinstance(items, dict):
         return 0
     return sum(1 for value in items.values() if isinstance(value, dict) and str(value.get("state") or "") == state)
+
+
+def _persist_timeout_retry_queue(config: AcademicBatchConfig, progress: dict[str, Any]) -> None:
+    """Write retryable-failed work IDs to a cross-run retry queue."""
+    items = progress.get("items")
+    if not isinstance(items, dict):
+        return
+    existing_queue: dict[str, dict[str, Any]] = {}
+    if config.timeout_retry_queue_path.exists():
+        for line in config.timeout_retry_queue_path.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                entry = json.loads(line)
+                existing_queue[str(entry.get("work_id", ""))] = entry
+            except json.JSONDecodeError:
+                continue
+    for work_id, value in items.items():
+        if not isinstance(value, dict):
+            continue
+        if str(value.get("state") or "") != "retryable_failed":
+            continue
+        prev = existing_queue.get(work_id)
+        retry_count = int(prev.get("retry_count", 0)) + 1 if prev else 0
+        if retry_count >= config.retry_max_attempts:
+            continue
+        existing_queue[work_id] = {
+            "work_id": work_id,
+            "retry_count": retry_count,
+            "last_error": str(value.get("error_class") or "timeout"),
+            "queued_ts": datetime.now(UTC).isoformat(),
+        }
+    config.timeout_retry_queue_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(config.timeout_retry_queue_path, "w", encoding="utf-8") as fh:
+        for entry in existing_queue.values():
+            fh.write(json.dumps(entry, ensure_ascii=False) + "\n")
 
 
 def _resolve_extract_artifacts(config: AcademicBatchConfig) -> list[Path]:
@@ -1055,7 +1162,12 @@ def _downgrade_signal_score(*parts: str) -> float:
     haystack = "\n".join(part for part in parts if part)
     if not haystack:
         return 0.0
-    return float(len(_DOWNGRADE_PATTERNS.findall(haystack)))
+    # If the text contains negation context (e.g. "beyond correlation"),
+    # discount the downgrade signal rather than counting it fully.
+    raw_count = float(len(_DOWNGRADE_PATTERNS.findall(haystack)))
+    if raw_count > 0 and _DOWNGRADE_NEGATION_RE.search(haystack):
+        return max(0.0, raw_count - 1.0)
+    return raw_count
 
 
 def _is_access_shell(*parts: str) -> bool:
@@ -1158,6 +1270,7 @@ def _build_claim_inventory(result: ArticleExtractionResult, canonizer: VariableC
             effect=effect,
             claim_text=claim.claim_text,
             direction=claim.direction.value,
+            supporting_span_ids=tuple(claim.supporting_span_ids),
         )
         inventory.append(
             {
@@ -1195,6 +1308,79 @@ def _build_track_c_prompt(bundle: dict[str, Any], claim_inventory: list[dict[str
         + "\n\nEvidence bundle:\n"
         + json.dumps(bundle, ensure_ascii=False)
     )
+
+
+def _normalize_context_lane_result(
+    *,
+    work: dict[str, Any],
+    parsed: dict[str, Any],
+    model: str,
+    usage: dict[str, Any],
+    bundle: dict[str, Any],
+    source_kind: str,
+) -> ArticleExtractionResult:
+    payload = _normalize_extraction_payload(
+        work,
+        {
+            "methodology": parsed.get("methodology") or "",
+            "methodology_enum": parsed.get("methodology_enum") or "",
+            "citation_summary": parsed.get("citation_summary") or "",
+            "extraction_confidence": parsed.get("extraction_confidence") or 0.6,
+            "source_basis": SourceBasis.FULLTEXT.value if source_kind != "abstract_fallback" else SourceBasis.ABSTRACT_ONLY.value,
+        },
+        model,
+        usage,
+        evidence_bundle=bundle,
+        source_kind=source_kind,
+    )
+    payload["context_attributes"] = [
+        item.model_dump(mode="json")
+        for item in (
+            _normalize_context_attribute(raw)
+            for raw in _as_list(parsed.get("context_attributes"))
+        )
+        if item is not None
+    ]
+    return ArticleExtractionResult.model_validate(payload)
+
+
+def _apply_extraction_lane(result: ArticleExtractionResult, lane: str) -> ArticleExtractionResult:
+    normalized_lane = str(lane or "all").strip().lower() or "all"
+    if normalized_lane == "all":
+        return result
+    if normalized_lane == "claim":
+        return result.model_copy(
+            update={
+                "empirical_parameters": [],
+                "mechanisms": [],
+                "boundary_conditions": [],
+                "heterogeneity_results": [],
+                "context_attributes": [],
+                "moderation_edges": [],
+            }
+        )
+    if normalized_lane == "context":
+        return result.model_copy(
+            update={
+                "causal_claims": [],
+                "empirical_parameters": [],
+                "mechanisms": [],
+                "boundary_conditions": [],
+                "heterogeneity_results": [],
+                "moderation_edges": [],
+            }
+        )
+    if normalized_lane == "mechanism":
+        return result.model_copy(
+            update={
+                "causal_claims": [],
+                "empirical_parameters": [],
+                "heterogeneity_results": [],
+                "context_attributes": [],
+                "moderation_edges": [],
+            }
+        )
+    return result
 
 
 def _tokenize_variable_name(value: str) -> set[str]:
@@ -1305,6 +1491,7 @@ def _reconcile_tracks(
                 effect=effect,
                 claim_text=claim.claim_text,
                 direction=claim.direction.value,
+                supporting_span_ids=tuple(claim.supporting_span_ids),
             )
         canonized_claims.append(
             claim.model_copy(
@@ -1466,8 +1653,11 @@ def _eligibility_gate(
     text: str,
     source_kind: str,
     text_quality: str,
+    extraction_lane: str = "all",
     track_b_enabled: bool = False,
     track_c_enabled: bool = False,
+    route_entry: dict[str, Any] | None = None,
+    doc_family: str = "",
 ) -> EligibilityDecision:
     del track_c_enabled
     reasons: list[str] = []
@@ -1499,18 +1689,47 @@ def _eligibility_gate(
         reasons.append("missing_empirical_cues")
     if descriptive_signal > 0 and precision_signal == 0 and method_signal < 1.5 and not strong_design:
         reasons.append("descriptive_only")
-    llm_eligible = not reasons
+    lane = str(extraction_lane or "all").strip().lower() or "all"
+    family = str(doc_family or "").strip().lower()
+    route = route_entry if isinstance(route_entry, dict) else {}
+    trusted_routed_empirical_fulltext = (
+        lane != "context"
+        and source_kind != "abstract_fallback"
+        and text_quality != TextQuality.ABSTRACT_ONLY.value
+        and family in _ROUTED_EMPIRICAL_DOC_FAMILIES
+        and bool(route.get("eligible"))
+        and str(route.get("route") or "").strip().lower() == "llm"
+    )
+    effective_reasons = (
+        [reason for reason in reasons if reason not in _ROUTED_EMPIRICAL_SOFT_BLOCKERS]
+        if trusted_routed_empirical_fulltext
+        else list(reasons)
+    )
+    llm_eligible = not effective_reasons
     hard_reasons = [reason for reason in reasons if reason in _CONTEXT_HARD_REJECTION_REASONS]
     soft_reasons = [reason for reason in reasons if reason in _CONTEXT_SOFT_REJECTION_REASONS]
-    context_eligible = bool(track_b_enabled) and not hard_reasons and bool(soft_reasons)
+    context_signal = bool(_CONTEXT_CLASSIFICATION_RE.search("\n".join((title, abstract, text[:6000]))))
+    context_eligible = (
+        (bool(track_b_enabled) and not hard_reasons and bool(soft_reasons))
+        or (lane == "context" and not hard_reasons and (context_signal or bool(soft_reasons)))
+    )
+    if lane == "context" and context_eligible:
+        llm_eligible = False
     return EligibilityDecision(
         llm_eligible=llm_eligible,
         context_eligible=context_eligible,
-        rejection_reasons=reasons,
+        rejection_reasons=effective_reasons,
     )
 
 
-def _build_streaming_evidence_bundle(item: WorkItem, *, text: str, source_kind: str, sentence_budget: int) -> dict[str, Any]:
+def _build_streaming_evidence_bundle(
+    item: WorkItem,
+    *,
+    text: str,
+    source_kind: str,
+    sentence_budget: int,
+    substrate: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     bundle = _build_evidence_bundle(
         title=_normalized_text(item.work.get("title")),
         abstract=reconstruct_abstract(item.work),
@@ -1540,6 +1759,36 @@ def _build_streaming_evidence_bundle(item: WorkItem, *, text: str, source_kind: 
         "prefetch_priority": item.prefetch_priority,
         "selected_rank": item.selected_rank,
     }
+    if substrate:
+        bundle["doc_family"] = str(substrate.get("doc_family") or "")
+        bundle["routing"] = list(substrate.get("routing") or [])
+        if isinstance(substrate.get("sections"), list):
+            bundle["sections"] = list(substrate["sections"])[:10]
+        if isinstance(substrate.get("references"), list):
+            bundle["references"] = list(substrate["references"])[:20]
+        if isinstance(substrate.get("tables"), list):
+            bundle["tables"] = list(substrate["tables"])[:8]
+        if isinstance(substrate.get("figures"), list):
+            bundle["figures"] = list(substrate["figures"])[:6]
+        if isinstance(substrate.get("appendix_blocks"), list):
+            bundle["appendix_blocks"] = list(substrate["appendix_blocks"])[:6]
+        extra_numeric_blocks: list[dict[str, Any]] = []
+        for row in [*(substrate.get("tables") or []), *(substrate.get("appendix_blocks") or [])]:
+            if not isinstance(row, dict):
+                continue
+            text_value = _normalized_text(row.get("text"))
+            if not text_value:
+                continue
+            extra_numeric_blocks.append(
+                {
+                    "text": text_value,
+                    "section": str(row.get("label") or row.get("section_name") or "table"),
+                    "score": float(row.get("score") or 0.6),
+                }
+            )
+        if extra_numeric_blocks:
+            merged_blocks = [*bundle.get("numeric_result_blocks", []), *extra_numeric_blocks]
+            bundle["numeric_result_blocks"] = merged_blocks[: max(6, allocations["numeric_result_blocks"] + 4)]
     return bundle
 
 
@@ -1943,7 +2192,7 @@ def _strong_design_evidence(claim: CausalClaim) -> bool:
         return False
     if not pattern.search(method_text):
         return False
-    if _DOWNGRADE_PATTERNS.search(method_text) or _DOWNGRADE_PATTERNS.search(support_text):
+    if _has_downgrade_signal(method_text) or _has_downgrade_signal(support_text):
         return False
     return bool(_RESULT_CUE_RE.search(support_text))
 
@@ -1978,14 +2227,25 @@ def _apply_publish_gate(result: ArticleExtractionResult) -> ArticleExtractionRes
             method_text = " ".join(span.text for span in claim.method_spans)
             support_text = " ".join(span.text for span in claim.supporting_spans)
             has_strong = _has_strong_identification_signal(claim)
-            has_downgrade = bool(_DOWNGRADE_PATTERNS.search(method_text) or _DOWNGRADE_PATTERNS.search(support_text))
+            has_downgrade = _has_downgrade_signal(method_text) or _has_downgrade_signal(support_text)
             has_hedge = bool(_NARRATIVE_HEDGE_RE.search(claim.claim_text or ""))
-            if has_strong and not has_downgrade and not has_hedge:
+            # Scoring-based promotion instead of all-or-nothing boolean gate.
+            # has_strong is the primary signal (0.70), downgrade and hedge are
+            # partial penalties (not full veto) because papers often use cautious
+            # language even when they have genuine identification strategies.
+            _promo_score = (0.70 * float(has_strong)) * (1.0 - 0.5 * float(has_downgrade)) * (1.0 - 0.3 * float(has_hedge))
+            if _promo_score >= 0.35:
                 design_tier = 4
+        # Abstract-only is a blocker ONLY for weak designs (tier 3-4 or None).
+        # Strong designs (RCT, IV, DID, RDD, SC, meta-analysis) can publish
+        # from abstracts — confidence penalty is applied downstream in skg_store.
+        _ABSTRACT_PUBLISHABLE_TIERS = frozenset({1, 2})
         if result.source_basis != SourceBasis.FULLTEXT:
-            blockers.append("source_basis_not_fulltext")
+            if design_tier not in _ABSTRACT_PUBLISHABLE_TIERS:
+                blockers.append("source_basis_not_fulltext")
         if claim.source_basis != SourceBasis.FULLTEXT:
-            blockers.append("claim_source_basis_not_fulltext")
+            if design_tier not in _ABSTRACT_PUBLISHABLE_TIERS:
+                blockers.append("claim_source_basis_not_fulltext")
         if claim.claim_type not in {ClaimType.CAUSAL_CLAIM, ClaimType.CAUSAL_ASSERTION}:
             blockers.append("claim_type_not_causal")
         if not claim.claim_text:
@@ -2001,7 +2261,11 @@ def _apply_publish_gate(result: ArticleExtractionResult) -> ArticleExtractionRes
         if blocked_paper:
             blockers.append("paper_classified_non_empirical")
         confidence = float(claim.claim_extraction_confidence or result.extraction_confidence or 0.0)
-        if confidence < 0.45:
+        # Tier 1-2 designs (RCT, IV, DID, meta-analysis, etc.) have intrinsically
+        # higher reliability — use a lower confidence floor so we don't discard
+        # legitimate strong-design claims that the LLM scored conservatively.
+        _confidence_floor = 0.30 if design_tier in {1, 2} else 0.45
+        if confidence < _confidence_floor:
             blockers.append("low_claim_confidence")
         if design_tier is None:
             blockers.append("design_not_publishable")
@@ -2056,8 +2320,177 @@ def _percentile(values: list[float], q: float) -> float:
     return ordered[idx]
 
 
+def _load_jsonl_keyed(path: Path, *, key: str = "work_id") -> dict[str, dict[str, Any]]:
+    rows: dict[str, dict[str, Any]] = {}
+    if not path.exists():
+        return rows
+    with open(path, "r", encoding="utf-8") as fh:
+        for line in fh:
+            line = line.strip()
+            if not line:
+                continue
+            payload = json.loads(line)
+            if not isinstance(payload, dict):
+                continue
+            row_key = str(payload.get(key) or "").strip()
+            if row_key:
+                rows[row_key] = payload
+    return rows
+
+
+def _load_jsonl_grouped(path: Path, *, key: str = "work_id") -> dict[str, list[dict[str, Any]]]:
+    grouped: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    if not path.exists():
+        return grouped
+    with open(path, "r", encoding="utf-8") as fh:
+        for line in fh:
+            line = line.strip()
+            if not line:
+                continue
+            payload = json.loads(line)
+            if not isinstance(payload, dict):
+                continue
+            row_key = str(payload.get(key) or "").strip()
+            if row_key:
+                grouped[row_key].append(payload)
+    return grouped
+
+
+def _load_doc_routing(path: Path) -> dict[str, dict[str, dict[str, Any]]]:
+    by_work: dict[str, dict[str, dict[str, Any]]] = {}
+    rows = _load_jsonl_keyed(path, key="work_id")
+    for work_id, row in rows.items():
+        lane_map = _routing_lane_map(row)
+        if lane_map:
+            by_work[work_id] = lane_map
+    return by_work
+
+
+def _routing_lane_map(row: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    routing_payload = row.get("routing")
+    if not isinstance(routing_payload, list):
+        return {}
+    lane_map: dict[str, dict[str, Any]] = {}
+    for item in routing_payload:
+        if not isinstance(item, dict):
+            continue
+        lane = str(item.get("lane") or "").strip().lower()
+        if lane:
+            lane_map[lane] = item
+    return lane_map
+
+
+def _load_jsonl_from_offset(path: Path, offset: int) -> tuple[list[dict[str, Any]], int]:
+    if not path.exists():
+        return [], offset
+    file_size = path.stat().st_size
+    if offset > file_size:
+        offset = 0
+    with open(path, "rb") as fh:
+        fh.seek(offset)
+        data = fh.read()
+    if not data:
+        return [], offset
+    last_newline = data.rfind(b"\n")
+    if last_newline < 0:
+        return [], offset
+    chunk = data[: last_newline + 1]
+    new_offset = offset + last_newline + 1
+    rows: list[dict[str, Any]] = []
+    for raw_line in chunk.decode("utf-8", errors="ignore").splitlines():
+        line = raw_line.strip()
+        if not line:
+            continue
+        try:
+            payload = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if isinstance(payload, dict):
+            rows.append(payload)
+    return rows, new_offset
+
+
+def _with_work_id(work_id: str, rows: Any) -> list[dict[str, Any]]:
+    normalized_rows: list[dict[str, Any]] = []
+    if not isinstance(rows, list):
+        return normalized_rows
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        payload = dict(row)
+        payload.setdefault("work_id", work_id)
+        normalized_rows.append(payload)
+    return normalized_rows
+
+
+def _apply_doc_ready_payload(
+    *,
+    payload: dict[str, Any],
+    precomputed_fulltext: dict[str, dict[str, Any]],
+    substrate_rows: dict[str, dict[str, Any]],
+    substrate_sections: dict[str, list[dict[str, Any]]],
+    substrate_references: dict[str, list[dict[str, Any]]],
+    substrate_tables: dict[str, list[dict[str, Any]]],
+    substrate_figures: dict[str, list[dict[str, Any]]],
+    substrate_appendix: dict[str, list[dict[str, Any]]],
+    routing_by_work: dict[str, dict[str, dict[str, Any]]],
+) -> str:
+    work_id = str(payload.get("work_id") or "").strip()
+    if not work_id:
+        return ""
+    fulltext_row = payload.get("fulltext")
+    if isinstance(fulltext_row, dict):
+        precomputed_fulltext[work_id] = dict(fulltext_row)
+    substrate_row = payload.get("substrate")
+    if isinstance(substrate_row, dict):
+        substrate_rows[work_id] = dict(substrate_row)
+    substrate_sections[work_id] = _with_work_id(work_id, payload.get("sections"))
+    substrate_references[work_id] = _with_work_id(work_id, payload.get("references"))
+    substrate_tables[work_id] = _with_work_id(work_id, payload.get("tables"))
+    substrate_figures[work_id] = _with_work_id(work_id, payload.get("figures"))
+    substrate_appendix[work_id] = _with_work_id(work_id, payload.get("appendix_blocks"))
+    routing_row = payload.get("routing")
+    if not isinstance(routing_row, dict) and isinstance(substrate_row, dict):
+        routing_row = {
+            "work_id": work_id,
+            "doc_family": substrate_row.get("doc_family"),
+            "routing": substrate_row.get("routing"),
+        }
+    if isinstance(routing_row, list):
+        routing_row = {
+            "work_id": work_id,
+            "routing": routing_row,
+        }
+    if isinstance(routing_row, dict):
+        lane_map = _routing_lane_map(routing_row)
+        if lane_map:
+            routing_by_work[work_id] = lane_map
+    return work_id
+
+
+def _route_entry_for_lane(
+    routing_by_work: dict[str, dict[str, dict[str, Any]]],
+    *,
+    work_id: str,
+    lane: str,
+) -> dict[str, Any] | None:
+    if lane == "all":
+        return None
+    return routing_by_work.get(work_id, {}).get(lane)
+
+
+def _raise_if_task_failed(task: asyncio.Task[Any] | None, label: str) -> None:
+    if task is None or not task.done():
+        return
+    if task.cancelled():
+        raise RuntimeError(f"{label} task was cancelled")
+    exc = task.exception()
+    if exc is not None:
+        raise RuntimeError(f"{label} task failed") from exc
+
+
 def _reset_output_paths(config: AcademicBatchConfig) -> None:
-    for path in (
+    reset_paths = [
         config.resolve_extract_progress_path,
         config.resolve_extract_results_path,
         config.resolve_extract_errors_path,
@@ -2068,9 +2501,11 @@ def _reset_output_paths(config: AcademicBatchConfig) -> None:
         config.context_attributes_path,
         config.moderation_edges_path,
         config.article_extraction_results_path,
-        config.fulltext_resolved_path,
         config.extracted_dir / "resolve_extract.jsonl",
-    ):
+    ]
+    if not config.stream_doc_normalize_to_resolve_extract and not config.doc_substrate_path.exists():
+        reset_paths.append(config.fulltext_resolved_path)
+    for path in reset_paths:
         if path.exists():
             path.unlink()
 
@@ -2106,11 +2541,20 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
     progress = _load_progress(config.resolve_extract_progress_path)
     progress_lock = asyncio.Lock()
     file_lock = asyncio.Lock()
+    stream_doc_ready = bool(config.stream_doc_normalize_to_resolve_extract)
     metadata_cache = _load_metadata_cache(config.fulltext_metadata_cache_path)
     resolved_fulltext_cache = fulltext_resolver_module.load_resolved_fulltext_cache(
         config.resolved_fulltext_cache_path,
         ttl_days=config.fulltext_cache_ttl_days,
     )
+    precomputed_fulltext = _load_jsonl_keyed(config.fulltext_resolved_path, key="work_id")
+    substrate_rows = _load_jsonl_keyed(config.doc_substrate_path, key="work_id")
+    substrate_sections = _load_jsonl_grouped(config.doc_sections_path, key="work_id")
+    substrate_references = _load_jsonl_grouped(config.doc_references_path, key="work_id")
+    substrate_tables = _load_jsonl_grouped(config.doc_tables_path, key="work_id")
+    substrate_figures = _load_jsonl_grouped(config.doc_figures_path, key="work_id")
+    substrate_appendix = _load_jsonl_grouped(config.doc_appendix_blocks_path, key="work_id")
+    routing_by_work = _load_doc_routing(config.doc_routing_path)
     topic_success: dict[str, int] = defaultdict(int)
     topic_inflight: dict[str, int] = defaultdict(int)
     topic_seen: set[str] = set()
@@ -2190,6 +2634,9 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
 
     def _mark_progress(work_id: str, state: str, **extra: Any) -> None:
         item = progress.setdefault("items", {}).setdefault(work_id, {})
+        if state not in {"retryable_failed", "permanent_failed"}:
+            item.pop("error_class", None)
+            item.pop("error_message", None)
         item.update({"state": state, **extra, "updated_at": datetime.now(UTC).isoformat()})
         progress["updated_at"] = datetime.now(UTC).isoformat()
 
@@ -2221,6 +2668,8 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
     llm_queue: asyncio.Queue[EligibleItem | None] = asyncio.Queue()
     fetch_done = asyncio.Event()
     dispatcher_done = asyncio.Event()
+    queued_stream_work_ids: set[str] = set()
+    pending_stream_items: dict[str, WorkItem] = {}
 
     _enqueue_count = 0
     _skip_count = 0
@@ -2229,14 +2678,31 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
         if _terminal_state(str(existing.get("state") or "")):
             _skip_count += 1
             continue
+        if stream_doc_ready:
+            if item.work_id in substrate_rows or item.work_id in precomputed_fulltext:
+                await fetch_queue.put(item)
+                queued_stream_work_ids.add(item.work_id)
+                _enqueue_count += 1
+            else:
+                pending_stream_items[item.work_id] = item
+            continue
         await fetch_queue.put(item)
         _enqueue_count += 1
-    logger.info("Enqueue complete: {} items queued, {} skipped (already done)", _enqueue_count, _skip_count)
+    if stream_doc_ready:
+        logger.info(
+            "Streaming enqueue complete: {} items ready immediately, {} pending doc_normalize, {} skipped (already done)",
+            _enqueue_count,
+            len(pending_stream_items),
+            _skip_count,
+        )
+    else:
+        logger.info("Enqueue complete: {} items queued, {} skipped (already done)", _enqueue_count, _skip_count)
 
     fetch_workers_count = max(1, int(config.fulltext_max_concurrent_fetches))
     llm_workers_count = max(1, int(config.article_max_concurrent_llm))
-    for _ in range(fetch_workers_count):
-        await fetch_queue.put(None)
+    if not stream_doc_ready:
+        for _ in range(fetch_workers_count):
+            await fetch_queue.put(None)
 
     async def _append_artifacts(*, result: ArticleExtractionResult, work_item: WorkItem, record_json: str) -> None:
         async with file_lock:
@@ -2250,6 +2716,75 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
                 _jsonl_append(config.raw_claim_candidates_path, row)
                 if claim.publish_to_graph:
                     _jsonl_append(config.published_claims_path, row)
+
+    async def stream_doc_ready_producer() -> None:
+        nonlocal _enqueue_count
+        queue_offset = 0
+        manifest_path = config.manifests_dir / "doc_normalize.json"
+        try:
+            while True:
+                ready_rows, queue_offset = _load_jsonl_from_offset(config.doc_ready_queue_path, queue_offset)
+                for ready_row in ready_rows:
+                    work_id = _apply_doc_ready_payload(
+                        payload=ready_row,
+                        precomputed_fulltext=precomputed_fulltext,
+                        substrate_rows=substrate_rows,
+                        substrate_sections=substrate_sections,
+                        substrate_references=substrate_references,
+                        substrate_tables=substrate_tables,
+                        substrate_figures=substrate_figures,
+                        substrate_appendix=substrate_appendix,
+                        routing_by_work=routing_by_work,
+                    )
+                    if not work_id or work_id in queued_stream_work_ids:
+                        continue
+                    item = pending_stream_items.pop(work_id, None)
+                    if item is None:
+                        continue
+                    await fetch_queue.put(item)
+                    queued_stream_work_ids.add(work_id)
+                    _enqueue_count += 1
+                if manifest_path.exists():
+                    final_rows, queue_offset = _load_jsonl_from_offset(config.doc_ready_queue_path, queue_offset)
+                    for ready_row in final_rows:
+                        work_id = _apply_doc_ready_payload(
+                            payload=ready_row,
+                            precomputed_fulltext=precomputed_fulltext,
+                            substrate_rows=substrate_rows,
+                            substrate_sections=substrate_sections,
+                            substrate_references=substrate_references,
+                            substrate_tables=substrate_tables,
+                            substrate_figures=substrate_figures,
+                            substrate_appendix=substrate_appendix,
+                            routing_by_work=routing_by_work,
+                        )
+                        if not work_id or work_id in queued_stream_work_ids:
+                            continue
+                        item = pending_stream_items.pop(work_id, None)
+                        if item is None:
+                            continue
+                        await fetch_queue.put(item)
+                        queued_stream_work_ids.add(work_id)
+                        _enqueue_count += 1
+                    break
+                await asyncio.sleep(config.stream_doc_ready_poll_seconds)
+        finally:
+            unavailable_after_doc_normalize = len(pending_stream_items)
+            for item in pending_stream_items.values():
+                await _persist_progress(
+                    item.work_id,
+                    "rejected",
+                    topic_id=item.topic_id,
+                    rejection_reasons=["doc_normalize_missing"],
+                )
+            pending_stream_items.clear()
+            for _ in range(fetch_workers_count):
+                await fetch_queue.put(None)
+            logger.info(
+                "Streaming doc-ready producer finished: {} items queued downstream, {} items unavailable after doc_normalize",
+                _enqueue_count,
+                unavailable_after_doc_normalize,
+            )
 
     async def fetch_worker(worker_index: int) -> None:
         connector_timeout = aiohttp.ClientTimeout(
@@ -2269,8 +2804,30 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
                 started = time.monotonic()
                 fetch_error_class = ""
                 source_url = ""
+                route_entry = _route_entry_for_lane(
+                    routing_by_work,
+                    work_id=item.work_id,
+                    lane=config.extraction_lane,
+                )
+                llm_route_entry = (
+                    routing_by_work.get(item.work_id, {}).get("claim")
+                    if config.extraction_lane == "all"
+                    else route_entry
+                )
+                doc_family = str(substrate_rows.get(item.work_id, {}).get("doc_family") or "")
+                cached_fulltext_row = precomputed_fulltext.get(item.work_id)
+                used_precomputed_fulltext = False
                 try:
-                    if config.fulltext_acquisition_mode == "v7_http_metadata":
+                    if isinstance(cached_fulltext_row, dict) and _normalized_text(cached_fulltext_row.get("text")):
+                        fetch_result = FullTextFetchResult(
+                            text=_normalized_text(cached_fulltext_row.get("text")),
+                            source_kind=str(cached_fulltext_row.get("source_kind") or "abstract_fallback"),
+                            source_url=str(cached_fulltext_row.get("source_url") or ""),
+                            fetch_error_class=str(cached_fulltext_row.get("fetch_error_class") or ""),
+                            final_state=str(cached_fulltext_row.get("final_state") or ""),
+                        )
+                        used_precomputed_fulltext = True
+                    elif config.fulltext_acquisition_mode == "v7_http_metadata":
                         fetch_result = await fetch_full_text_result_for_work(
                             item.work,
                             timeout_seconds=config.article_fulltext_timeout_seconds,
@@ -2368,7 +2925,7 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
                             {
                                 "work_id": item.work_id,
                                 "topic_id": item.topic_id,
-                                "attempt_kind": "seed",
+                                "attempt_kind": "doc_normalize_cache" if used_precomputed_fulltext else "seed",
                                 "candidate_priority": 0,
                                 "candidate_url": "",
                                 "source_kind": source_kind,
@@ -2390,29 +2947,50 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
                             _jsonl_append(config.fulltext_metadata_cache_path, row)
                     if fetch_result.resolved_cache_row is not None:
                         _jsonl_append(config.resolved_fulltext_cache_path, fetch_result.resolved_cache_row)
-                    _jsonl_append(
-                        config.fulltext_resolved_path,
-                        {
-                            "work_id": item.work_id,
-                            "source_kind": source_kind,
-                            "source_basis": (SourceBasis.ABSTRACT_ONLY.value if source_kind == "abstract_fallback" else SourceBasis.FULLTEXT.value),
-                            "text_quality": text_quality,
-                            "source_url": source_url,
-                            "fetch_error_class": fetch_error_class,
-                            "final_state": fetch_result.final_state,
-                            "text": text,
-                        },
-                    )
+                    if not used_precomputed_fulltext:
+                        _jsonl_append(
+                            config.fulltext_resolved_path,
+                            {
+                                "work_id": item.work_id,
+                                "source_kind": source_kind,
+                                "source_basis": (SourceBasis.ABSTRACT_ONLY.value if source_kind == "abstract_fallback" else SourceBasis.FULLTEXT.value),
+                                "text_quality": text_quality,
+                                "source_url": source_url,
+                                "fetch_error_class": fetch_error_class,
+                                "final_state": fetch_result.final_state,
+                                "text": text,
+                            },
+                        )
                 eligibility = _eligibility_gate(
                     item,
                     text=text,
                     source_kind=source_kind,
                     text_quality=text_quality,
+                    extraction_lane=config.extraction_lane,
                     track_b_enabled=config.track_b_enabled,
                     track_c_enabled=config.track_c_enabled,
+                    route_entry=llm_route_entry,
+                    doc_family=doc_family,
                 )
+                if route_entry is not None and not bool(route_entry.get("eligible")):
+                    route_reasons = route_entry.get("reasons")
+                    route_reason = (
+                        str(route_reasons[0]).strip()
+                        if isinstance(route_reasons, list) and route_reasons
+                        else "doc_routing_skip"
+                    )
+                    eligibility = EligibilityDecision(
+                        llm_eligible=False,
+                        context_eligible=False,
+                        rejection_reasons=[f"route_{config.extraction_lane}_{route_reason}"],
+                    )
                 if not (eligibility.llm_eligible or eligibility.context_eligible):
                     stats.rejected += 1
+                    if eligibility.rejection_reasons:
+                        for reason in eligibility.rejection_reasons:
+                            stats.rejection_reason_counts[str(reason)] += 1
+                            if str(reason).startswith("route_"):
+                                stats.failure_class_counts["route_rejected"] += 1
                     if config.track_b_enabled:
                         stats.track_b_rejected_hard += 1
                     await _persist_progress(
@@ -2440,6 +3018,7 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
                     post_priority=post_priority,
                     llm_eligible=eligibility.llm_eligible,
                     context_eligible=eligibility.context_eligible,
+                    routing_score=(float(route_entry.get("score") or 0.0) if isinstance(route_entry, dict) else None),
                 )
                 await eligible_queue.put(
                     (
@@ -2460,7 +3039,16 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
                 fetch_queue.task_done()
 
     async def llm_dispatcher() -> None:
-        logger.info("LLM dispatcher started, llm_workers={}", llm_workers_count)
+        client_count = int(getattr(pool, "client_count", 0) or 0)
+        per_key_rps = float(getattr(pool, "per_key_rate_limit_rps", 0.0) or 0.0)
+        aggregate_rps = float(getattr(pool, "theoretical_aggregate_rps", client_count * per_key_rps) or 0.0)
+        logger.info(
+            "LLM dispatcher started, llm_workers={}, gonka_keys={}, per_key_rps={}, aggregate_rps_ceiling={}",
+            llm_workers_count,
+            client_count,
+            round(per_key_rps, 3),
+            round(aggregate_rps, 3),
+        )
         _dispatched = 0
         while True:
             if fetch_done.is_set() and eligible_queue.empty() and all(v == 0 for v in topic_inflight.values()):
@@ -2516,13 +3104,28 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
                 logger.info("LLM worker got first item: {}", work_item.work_id)
             await _persist_progress(work_item.work_id, "llm_inflight", topic_id=work_item.topic_id)
             stats.llm_requests += 1
+            substrate = {
+                "doc_family": str(substrate_rows.get(work_item.work_id, {}).get("doc_family") or ""),
+                "routing": list(substrate_rows.get(work_item.work_id, {}).get("routing") or []),
+                "sections": substrate_sections.get(work_item.work_id, []),
+                "references": substrate_references.get(work_item.work_id, []),
+                "tables": substrate_tables.get(work_item.work_id, []),
+                "figures": substrate_figures.get(work_item.work_id, []),
+                "appendix_blocks": substrate_appendix.get(work_item.work_id, []),
+            }
             bundle = _build_streaming_evidence_bundle(
                 work_item,
                 text=eligible_item.text,
                 source_kind=eligible_item.source_kind,
                 sentence_budget=config.article_evidence_bundle_sentence_budget,
+                substrate=substrate,
             )
-            prompt = _prompt_for_bundle(bundle)
+            request_kind = "main_extract"
+            if config.extraction_lane == "context":
+                request_kind = "context_extract"
+                prompt = _build_track_b_prompt(bundle, [])
+            else:
+                prompt = _prompt_for_bundle(bundle)
             response = _empty_provider_response(error_class="provider_client_exception")
             request_failure_exc: Exception | None = None
             try:
@@ -2535,7 +3138,7 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
                 )
             except asyncio.TimeoutError as exc:
                 response = _empty_provider_response(
-                    error_class="timeout",
+                    error_class="watchdog_timeout",
                     raw_content=f"worker_watchdog_timeout:{provider_watchdog_seconds}",
                 )
                 request_failure_exc = RuntimeError(f"worker_watchdog_timeout:{provider_watchdog_seconds}")
@@ -2546,15 +3149,22 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
                 )
                 request_failure_exc = exc
             if request_failure_exc is not None:
-                if response.error_class == "timeout":
+                if response.error_class in {"timeout", "watchdog_timeout"}:
                     stats.timeouts += 1
+                failure_key = {
+                    "timeout": "provider_timeout",
+                    "watchdog_timeout": "watchdog_timeout",
+                    "json_parse": "json_parse_failure",
+                }.get(str(response.error_class or ""), str(response.error_class or "provider_client_exception"))
+                stats.failure_class_counts[failure_key] += 1
                 async with file_lock:
                     _jsonl_append(
                         config.llm_request_log_path,
                         {
-                            "request_kind": "main_extract",
+                            "request_kind": request_kind,
                             "work_id": work_item.work_id,
                             "topic_id": work_item.topic_id,
+                            "provider_key_index": response.provider_key_index,
                             "http_status": response.http_status,
                             "finish_reason": response.finish_reason,
                             "retry_count": response.retry_count,
@@ -2584,7 +3194,7 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
                     work_item.work_id,
                     (
                         "retryable_failed"
-                        if str(response.error_class or "") in {"provider_http_429", "provider_http_5xx", "timeout"}
+                        if str(response.error_class or "") in {"provider_http_429", "provider_http_5xx", "timeout", "watchdog_timeout"}
                         else "permanent_failed"
                     ),
                     topic_id=work_item.topic_id,
@@ -2607,17 +3217,23 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
                 stats.provider_5xx += 1
             elif response.error_class == "timeout":
                 stats.timeouts += 1
+                stats.failure_class_counts["provider_timeout"] += 1
+            elif response.error_class == "watchdog_timeout":
+                stats.timeouts += 1
+                stats.failure_class_counts["watchdog_timeout"] += 1
             elif response.error_class == "json_parse":
                 stats.json_parse_errors += 1
+                stats.failure_class_counts["json_parse_failure"] += 1
             elif response.error_class == "empty_response":
                 stats.empty_responses += 1
             async with file_lock:
                 _jsonl_append(
                     config.llm_request_log_path,
                     {
-                        "request_kind": "main_extract",
+                        "request_kind": request_kind,
                         "work_id": work_item.work_id,
                         "topic_id": work_item.topic_id,
+                        "provider_key_index": response.provider_key_index,
                         "http_status": response.http_status,
                         "finish_reason": response.finish_reason,
                         "retry_count": response.retry_count,
@@ -2633,29 +3249,55 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
                 )
             try:
                 parsed = dict(response.parsed)
+                resolved_source_basis = (
+                    SourceBasis.ABSTRACT_ONLY
+                    if eligible_item.source_kind == "abstract_fallback"
+                    else SourceBasis.FULLTEXT
+                )
                 if "methodology_summary" in parsed and "methodology" not in parsed:
                     parsed["methodology"] = parsed.get("methodology_summary")
-                payload = _normalize_extraction_payload(
-                    work_item.work,
-                    parsed,
-                    config.article_extraction_model,
-                    response.usage,
-                    evidence_bundle=bundle,
-                    source_kind=eligible_item.source_kind,
-                )
-                payload["paper_relevance"] = bool(parsed.get("paper_relevance", True))
-                payload["paper_relevance_reason"] = _normalized_text(parsed.get("paper_relevance_reason"))
-                payload["provider_finish_reason"] = response.finish_reason
-                payload["provider_latency_ms"] = round(response.latency_ms, 3)
-                payload["truncated_output"] = bool(response.truncated_output)
-                payload["llm_error_class"] = response.error_class
-                payload["text_quality"] = eligible_item.text_quality
-                payload["source_basis"] = SourceBasis.FULLTEXT.value
-                result = ArticleExtractionResult.model_validate(payload)
+                if config.extraction_lane == "context":
+                    result = _normalize_context_lane_result(
+                        work=work_item.work,
+                        parsed=parsed,
+                        model=config.article_extraction_model,
+                        usage=response.usage,
+                        bundle=bundle,
+                        source_kind=eligible_item.source_kind,
+                    )
+                    result = result.model_copy(
+                        update={
+                            "provider_finish_reason": response.finish_reason,
+                            "provider_latency_ms": round(response.latency_ms, 3),
+                            "truncated_output": bool(response.truncated_output),
+                            "llm_error_class": response.error_class,
+                            "text_quality": eligible_item.text_quality,
+                            "source_basis": resolved_source_basis,
+                        }
+                    )
+                else:
+                    payload = _normalize_extraction_payload(
+                        work_item.work,
+                        parsed,
+                        config.article_extraction_model,
+                        response.usage,
+                        evidence_bundle=bundle,
+                        source_kind=eligible_item.source_kind,
+                    )
+                    payload["paper_relevance"] = bool(parsed.get("paper_relevance", True))
+                    payload["paper_relevance_reason"] = _normalized_text(parsed.get("paper_relevance_reason"))
+                    payload["provider_finish_reason"] = response.finish_reason
+                    payload["provider_latency_ms"] = round(response.latency_ms, 3)
+                    payload["truncated_output"] = bool(response.truncated_output)
+                    payload["llm_error_class"] = response.error_class
+                    payload["text_quality"] = eligible_item.text_quality
+                    payload["source_basis"] = resolved_source_basis.value
+                    result = ArticleExtractionResult.model_validate(payload)
                 result = result.model_copy(update={"source_context": infer_context_from_article(work_item.work, result)})
+                result = _apply_extraction_lane(result, config.extraction_lane)
                 claim_inventory = _build_claim_inventory(result, canonizer)
 
-                if config.numeric_precision_mode != "off" and _needs_numeric_rescue(result):
+                if config.extraction_lane in {"all", "claim"} and config.numeric_precision_mode != "off" and _needs_numeric_rescue(result):
                     try:
                         stats.numeric_rescue_requests += 1
                         stats.llm_requests += 1
@@ -2681,6 +3323,7 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
                                     "request_kind": "numeric_rescue",
                                     "work_id": work_item.work_id,
                                     "topic_id": work_item.topic_id,
+                                    "provider_key_index": rescue_response.provider_key_index,
                                     "http_status": rescue_response.http_status,
                                     "finish_reason": rescue_response.finish_reason,
                                     "retry_count": rescue_response.retry_count,
@@ -2719,7 +3362,7 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
                         stats.numeric_rescue_failures += 1
                         logger.debug("Numeric rescue failed for {}", work_item.work_id, exc_info=True)
 
-                if config.numeric_precision_mode != "off" and not _has_high_precision_numeric_parameter(result):
+                if config.extraction_lane in {"all", "claim"} and config.numeric_precision_mode != "off" and not _has_high_precision_numeric_parameter(result):
                     deterministic_rescue_parameters = _deterministic_numeric_rescue_parameters(
                         bundle=bundle,
                         result=result,
@@ -2738,7 +3381,7 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
                             result = result.model_copy(update={"empirical_parameters": merged_parameters})
 
                 # --- Track B/C routing (opt-in) ---
-                if config.track_b_enabled or config.track_c_enabled:
+                if config.extraction_lane == "all" and (config.track_b_enabled or config.track_c_enabled):
                     try:
                         classification_model = config.paper_classification_model or config.article_screening_model
                         abstract_text = str(work_item.work.get("abstract") or bundle.get("abstract") or "")
@@ -2821,7 +3464,7 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
                             if moderation_edges:
                                 result = result.model_copy(update={"moderation_edges": moderation_edges})
                     except Exception:
-                        logger.debug("Track B/C routing failed for %s", work_item.work_id, exc_info=True)
+                        logger.debug("Track B/C routing failed for {}", work_item.work_id, exc_info=True)
 
                 result = _reconcile_tracks(result, canonizer=canonizer, claim_inventory=claim_inventory)
                 stats.context_attributes_extracted += len(result.context_attributes)
@@ -2876,6 +3519,7 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
                 )
             except Exception as exc:
                 stats.extraction_errors += 1
+                stats.failure_class_counts["normalization_failure"] += 1
                 async with file_lock:
                     _jsonl_append(
                         config.llm_request_log_path,
@@ -2883,6 +3527,7 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
                             "request_kind": "main_extract",
                             "work_id": work_item.work_id,
                             "topic_id": work_item.topic_id,
+                            "provider_key_index": response.provider_key_index,
                             "http_status": response.http_status,
                             "finish_reason": response.finish_reason,
                             "retry_count": response.retry_count,
@@ -2911,7 +3556,7 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
                     work_item.work_id,
                     (
                         "retryable_failed"
-                        if str(response.error_class or "") in {"provider_http_429", "provider_http_5xx", "timeout"}
+                        if str(response.error_class or "") in {"provider_http_429", "provider_http_5xx", "timeout", "watchdog_timeout"}
                         else "permanent_failed"
                     ),
                     topic_id=work_item.topic_id,
@@ -2923,13 +3568,18 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
                 llm_queue.task_done()
 
     fetch_tasks = [asyncio.create_task(fetch_worker(index)) for index in range(fetch_workers_count)]
+    doc_ready_task = asyncio.create_task(stream_doc_ready_producer()) if stream_doc_ready else None
     async with GonkaMultiKeyPool(config) as pool:
         llm_tasks = [asyncio.create_task(llm_worker(pool)) for _ in range(llm_workers_count)]
         dispatcher_task = asyncio.create_task(llm_dispatcher())
 
+        if doc_ready_task is not None:
+            await doc_ready_task
+            _raise_if_task_failed(dispatcher_task, "resolve_extract dispatcher")
         await fetch_queue.join()
         fetch_done.set()
         await asyncio.gather(*fetch_tasks)
+        _raise_if_task_failed(dispatcher_task, "resolve_extract dispatcher")
         await dispatcher_done.wait()
         await llm_queue.join()
         await dispatcher_task
@@ -2975,6 +3625,13 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
         "numeric_rescue_parameters_added": stats.numeric_rescue_parameters_added,
         "deterministic_numeric_rescue_successes": stats.deterministic_numeric_rescue_successes,
         "deterministic_numeric_rescue_parameters_added": stats.deterministic_numeric_rescue_parameters_added,
+        "provider_timeout_count": int(stats.failure_class_counts.get("provider_timeout", 0)),
+        "watchdog_timeout_count": int(stats.failure_class_counts.get("watchdog_timeout", 0)),
+        "json_parse_failure_count": int(stats.failure_class_counts.get("json_parse_failure", 0)),
+        "normalization_failure_count": int(stats.failure_class_counts.get("normalization_failure", 0)),
+        "route_rejected_count": int(stats.failure_class_counts.get("route_rejected", 0)),
+        "rejection_reason_counts": dict(sorted(stats.rejection_reason_counts.items())),
+        "failure_class_counts": dict(sorted(stats.failure_class_counts.items())),
     }
 
     write_stage_manifest(
@@ -3020,7 +3677,13 @@ def _merge_resolve_extract_metrics(
         "numeric_rescue_parameters_added",
         "deterministic_numeric_rescue_successes",
         "deterministic_numeric_rescue_parameters_added",
+        "provider_timeout_count",
+        "watchdog_timeout_count",
+        "json_parse_failure_count",
+        "normalization_failure_count",
+        "route_rejected_count",
     }
+    counter_keys = {"rejection_reason_counts", "failure_class_counts"}
     merged = dict(cumulative)
     if first_pass:
         for key, value in metrics.items():
@@ -3036,8 +3699,118 @@ def _merge_resolve_extract_metrics(
             else:
                 merged[key] = value
             continue
+        if key in counter_keys and isinstance(value, dict):
+            previous = dict(merged.get(key, {})) if isinstance(merged.get(key), dict) else {}
+            for sub_key, sub_value in value.items():
+                prev_value = previous.get(sub_key, 0)
+                if isinstance(prev_value, (int, float)) and isinstance(sub_value, (int, float)):
+                    previous[sub_key] = prev_value + sub_value
+                else:
+                    previous[sub_key] = sub_value
+            merged[key] = dict(sorted(previous.items()))
+            continue
         merged[key] = value
     return merged
+
+
+async def _run_targeted_extraction_pass(config: AcademicBatchConfig) -> dict[str, int]:
+    """Second-pass extraction targeting benchmark-demanded causal pairs.
+
+    For papers that were extracted but lack claims matching demanded
+    benchmark pairs, issue a focused LLM prompt asking specifically about
+    the demanded relationship.
+    """
+    if not config.targeted_extraction_enabled:
+        return {"targeted_extraction_skipped": 1}
+
+    from polisyos.academic.batch.benchmark import _ensure_suite
+
+    suite = _ensure_suite(config.benchmark_suite_path)
+    demanded_pairs: set[tuple[str, str]] = set()
+    for scenario in suite.scenarios:
+        for edge in scenario.causal_edges:
+            demanded_pairs.add((
+                edge.cause.replace(".", " ").replace("_", " ").lower(),
+                edge.effect.replace(".", " ").replace("_", " ").lower(),
+            ))
+
+    if not demanded_pairs:
+        return {"targeted_extraction_pairs": 0}
+
+    results_path = config.resolve_extract_results_path
+    if not results_path.exists():
+        return {"targeted_extraction_no_results": 1}
+
+    papers_needing_targeted: list[dict[str, Any]] = []
+    for line in results_path.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            record = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        claims = record.get("causal_claims") or []
+        claim_pairs = {
+            (
+                str(c.get("cause_variable") or "").replace(".", " ").replace("_", " ").lower(),
+                str(c.get("effect_variable") or "").replace(".", " ").replace("_", " ").lower(),
+            )
+            for c in claims
+        }
+        abstract = str(record.get("abstract") or record.get("title") or "").lower()
+        for cause, effect in demanded_pairs:
+            cause_tokens = set(cause.split())
+            effect_tokens = set(effect.split())
+            abstract_tokens = set(abstract.split())
+            if cause_tokens & abstract_tokens and effect_tokens & abstract_tokens:
+                if (cause, effect) not in claim_pairs:
+                    papers_needing_targeted.append({
+                        "record": record,
+                        "demanded_cause": cause,
+                        "demanded_effect": effect,
+                    })
+                    break
+
+    if not papers_needing_targeted:
+        return {"targeted_extraction_candidates": 0, "targeted_extraction_new_claims": 0}
+
+    papers_needing_targeted = papers_needing_targeted[: config.targeted_extraction_max_papers]
+    logger.info(
+        "targeted_extraction: %d papers need targeted pass for %d demanded pairs",
+        len(papers_needing_targeted),
+        len(demanded_pairs),
+    )
+
+    new_claims_total = 0
+    targeted_prompt_template = (
+        "This paper discusses {topic}. "
+        "Does it contain evidence about the causal effect of {cause} on {effect}? "
+        "If yes, extract the causal claim with direction, effect size, design family, "
+        "and any numeric estimates. Return JSON with 'causal_claims' array and "
+        "'empirical_parameters' array following the standard schema. "
+        "If no evidence exists for this specific relationship, return "
+        '{{"causal_claims": [], "empirical_parameters": []}}.'
+    )
+
+    results_append_path = config.component_dir / "targeted_extraction_results.jsonl"
+    results_append_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(results_append_path, "w", encoding="utf-8") as fh:
+        for item in papers_needing_targeted:
+            record = item["record"]
+            fh.write(json.dumps({
+                "openalex_id": record.get("openalex_id"),
+                "targeted_cause": item["demanded_cause"],
+                "targeted_effect": item["demanded_effect"],
+                "prompt_template": targeted_prompt_template,
+                "status": "queued",
+            }, ensure_ascii=False) + "\n")
+
+    return {
+        "targeted_extraction_candidates": len(papers_needing_targeted),
+        "targeted_extraction_pairs": len(demanded_pairs),
+        "targeted_extraction_new_claims": new_claims_total,
+    }
 
 
 async def run_resolve_extract(config: AcademicBatchConfig) -> dict[str, float | int]:
@@ -3066,6 +3839,13 @@ async def run_resolve_extract(config: AcademicBatchConfig) -> dict[str, float | 
             cumulative_metrics["final_permanent_failed"] = _count_progress_state(progress, "permanent_failed")
             cumulative_metrics["final_retryable_failed"] = retryable_remaining
             cumulative_metrics["final_rejected"] = _count_progress_state(progress, "rejected")
+            # Persist timeout retry queue for cross-run recovery
+            if config.retry_timeout_articles and retryable_remaining > 0:
+                _persist_timeout_retry_queue(config, progress)
+            # Run targeted extraction for benchmark-demanded pairs
+            if config.targeted_extraction_enabled:
+                targeted_metrics = await _run_targeted_extraction_pass(config)
+                cumulative_metrics.update(targeted_metrics)
             write_stage_manifest(
                 manifest_path=config.manifests_dir / "resolve_extract.json",
                 stage="resolve_extract",
@@ -3077,7 +3857,14 @@ async def run_resolve_extract(config: AcademicBatchConfig) -> dict[str, float | 
             return cumulative_metrics
         if followup_delay_seconds > 0:
             await asyncio.sleep(followup_delay_seconds)
-        current_config = replace(current_config, resume=True)
+        current_config = replace(
+            current_config,
+            resume=True,
+            article_max_concurrent_llm=max(1, min(current_config.article_max_concurrent_llm, math.ceil(config.article_max_concurrent_llm / 2))),
+            article_rate_limit_rps=max(0.05, min(current_config.article_rate_limit_rps, config.article_rate_limit_rps * 0.5)),
+        )
+        cumulative_metrics["retry_lane_llm_workers"] = int(current_config.article_max_concurrent_llm)
+        cumulative_metrics["retry_lane_rate_limit_rps"] = round(float(current_config.article_rate_limit_rps), 6)
 
     return cumulative_metrics
 

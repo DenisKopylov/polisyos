@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import importlib
+import logging
 from typing import Sequence
 
 from polisyos.foundry.methods.catalog.causal.interference import (
@@ -66,11 +68,6 @@ from polisyos.foundry.methods.catalog.causal.did import (
     StandardDifferenceInDifferences,
     StaggeredDifferenceInDifferences,
 )
-from polisyos.foundry.methods.catalog.causal.dowhy_identify_estimate import (
-    DoWhyIdentifyEstimate,
-    DoWhyIdentifyEstimateV1,
-)
-from polisyos.foundry.methods.catalog.causal.dowhy_refute import DoWhyRefute
 from polisyos.foundry.methods.catalog.causal.gcm_fit import HybridSCMFit
 from polisyos.foundry.methods.catalog.causal.gcm_query import GCMQuery
 from polisyos.foundry.methods.catalog.causal.twin_network_query import TwinNetworkQuery
@@ -85,6 +82,8 @@ from polisyos.foundry.methods.catalog.causal.mediation import (
     ControlledDirectEffectEstimator,
     NaturalEffectEstimator,
 )
+from polisyos.foundry.methods.catalog.causal.causal_bcf import CausalBCF
+from polisyos.foundry.methods.catalog.causal.forest_dr import ForestDRLearnerEstimator
 from polisyos.foundry.methods.catalog.causal.path_specific import PathSpecificEffectEstimator
 from polisyos.foundry.methods.catalog.causal.ncm_engine import NCMEngineMethod
 from polisyos.foundry.methods.catalog.causal.modern_did import (
@@ -103,22 +102,6 @@ from polisyos.foundry.methods.catalog.causal.symbolic_identify import (
     SymbolicIdentifyV2,
 )
 from polisyos.foundry.methods.catalog.causal.synthetic_control import SyntheticControlMethod
-from polisyos.foundry.methods.catalog.causal.g_computation import (
-    ICEGFormula,
-    LTMLEEstimator,
-    ParametricGFormula,
-)
-from polisyos.foundry.methods.catalog.causal.g_estimation import StructuralNestedMeanModel
-from polisyos.foundry.methods.catalog.causal.dtr import (
-    ALearningDTR,
-    DoublyRobustDTR,
-    OutcomeWeightedLearning,
-    QLearningDTR,
-)
-from polisyos.foundry.methods.catalog.causal.causal_rl import (
-    CausalBandit,
-    OffPolicyEvaluator,
-)
 from polisyos.foundry.methods.catalog.causal.transport_check import CheckTransportability
 from polisyos.foundry.methods.catalog.causal.treatment_effects import (
     AIPWEstimator,
@@ -149,8 +132,33 @@ from polisyos.foundry.methods.catalog.causal.fairness import (
     PathSpecificFairnessEstimator,
     TVFairnessDecomposer,
 )
+from polisyos.foundry.methods.catalog.causal.causal_fairness import CausalFairnessEngine
 from polisyos.foundry.methods.catalog.causal.data_fusion import DataFusionEngine
 from polisyos.foundry.methods.catalog.causal.optimal_design import CausalExperimentDesigner
+
+_logger = logging.getLogger(__name__)
+
+
+def _optional_method_types(
+    module_name: str,
+    type_names: tuple[str, ...],
+    *,
+    optional_deps: tuple[str, ...],
+) -> tuple[type, ...]:
+    """Import optional method classes without breaking unrelated registry use."""
+    try:
+        module = importlib.import_module(module_name)
+    except ModuleNotFoundError as exc:
+        missing = exc.name or ""
+        if any(missing == dep or missing.startswith(f"{dep}.") for dep in optional_deps):
+            _logger.info(
+                "Skipping optional causal methods from %s because dependency %s is not installed.",
+                module_name,
+                missing,
+            )
+            return ()
+        raise
+    return tuple(getattr(module, type_name) for type_name in type_names)
 
 
 def register_causal_methods() -> Sequence[type]:
@@ -170,9 +178,6 @@ def register_causal_methods() -> Sequence[type]:
         StaggeredDifferenceInDifferences,
         RegressionDiscontinuity,
         StructuralTimeSeries,
-        DoWhyIdentifyEstimateV1,
-        DoWhyIdentifyEstimate,
-        DoWhyRefute,
         HybridSCMFit,
         GCMQuery,
         TwinNetworkQuery,
@@ -199,6 +204,8 @@ def register_causal_methods() -> Sequence[type]:
         PropensityScoreMatchingEstimator,
         EntropyBalancingEstimator,
         CBPSEstimator,
+        CausalBCF,
+        ForestDRLearnerEstimator,
         # Modern DiD
         CallawaySantAnnaEstimator,
         SunAbrahamEstimator,
@@ -237,17 +244,6 @@ def register_causal_methods() -> Sequence[type]:
         ShiftShareIVEstimator,
         DRLearnerEstimator,
         RLearnerEstimator,
-        # Phase 3: Dynamic causal inference (g-computation, DTR, causal RL)
-        ParametricGFormula,
-        ICEGFormula,
-        LTMLEEstimator,
-        StructuralNestedMeanModel,
-        QLearningDTR,
-        ALearningDTR,
-        OutcomeWeightedLearning,
-        DoublyRobustDTR,
-        OffPolicyEvaluator,
-        CausalBandit,
         # Phase 4: Interference and network causal inference
         PartialInterferenceEstimator,
         NetworkAIPWEstimator,
@@ -270,10 +266,53 @@ def register_causal_methods() -> Sequence[type]:
         TVFairnessDecomposer,
         PathSpecificFairnessEstimator,
         CounterfactualFairnessEstimator,
+        CausalFairnessEngine,
         # Phase 9: Data Fusion and Optimal Experimental Design
         DataFusionEngine,
         CausalExperimentDesigner,
     ]
+    methods.extend(
+        _optional_method_types(
+            "polisyos.foundry.methods.catalog.causal.g_computation",
+            ("ParametricGFormula", "ICEGFormula", "LTMLEEstimator"),
+            optional_deps=(),
+        )
+    )
+    methods.extend(
+        _optional_method_types(
+            "polisyos.foundry.methods.catalog.causal.g_estimation",
+            ("StructuralNestedMeanModel",),
+            optional_deps=(),
+        )
+    )
+    methods.extend(
+        _optional_method_types(
+            "polisyos.foundry.methods.catalog.causal.dowhy_identify_estimate",
+            ("DoWhyIdentifyEstimateV1", "DoWhyIdentifyEstimate"),
+            optional_deps=("dowhy", "cvxpy"),
+        )
+    )
+    methods.extend(
+        _optional_method_types(
+            "polisyos.foundry.methods.catalog.causal.dowhy_refute",
+            ("DoWhyRefute",),
+            optional_deps=("dowhy", "cvxpy"),
+        )
+    )
+    methods.extend(
+        _optional_method_types(
+            "polisyos.foundry.methods.catalog.causal.dtr",
+            ("QLearningDTR", "ALearningDTR", "OutcomeWeightedLearning", "DoublyRobustDTR"),
+            optional_deps=("sklearn",),
+        )
+    )
+    methods.extend(
+        _optional_method_types(
+            "polisyos.foundry.methods.catalog.causal.causal_rl",
+            ("OffPolicyEvaluator", "CausalBandit"),
+            optional_deps=("sklearn",),
+        )
+    )
     try:
         from polisyos.foundry.methods.catalog.causal.cate import CausalForestEstimator
         from polisyos.foundry.methods.catalog.causal.dml import DoubleMachineLearning

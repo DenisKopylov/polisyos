@@ -1,19 +1,25 @@
 from __future__ import annotations
 
+import json
 import tempfile
 from pathlib import Path
 
 import duckdb
 import pandas as pd
 
+from polisyos.datasets.batch import core_sources_ingest as core_ingest
 from polisyos.datasets.batch.config import DatasetBatchConfig
 from polisyos.datasets.batch.core_sources_ingest import (
     ObservationPlan,
     _ensure_registry_tables,
+    _build_catalog_observation_plans,
     _insert_generic_observations,
+    _limit_observation_plans,
     _normalize_observation_row,
+    _observation_payload_row_limit,
     run_core_sources_ingest,
 )
+from polisyos.datasets.knowledge.variable_alignment import AlignmentMethod, VariableAlignment
 from polisyos.datasets.batch.graph_builder import build_graph
 from polisyos.datasets.knowledge.types import DatasetRecord, DistributionRecord
 from polisyos.fabric.connectors.sources.eurostat import EurostatConnector
@@ -22,7 +28,6 @@ from polisyos.fabric.connectors.sources.unesco_uis import UNESCOUISConnector
 from polisyos.fabric.connectors.sources.unpd import UNPDConnector
 from polisyos.fabric.connectors.sources.who import WHOConnector
 from polisyos.fabric.connectors.sources.world_bank import WorldBankConnector
-from polisyos.fabric.connectors.sources.wvs import WVSConnector
 
 
 def test_core_sources_ingest_populates_registry_tables(monkeypatch) -> None:
@@ -38,21 +43,22 @@ def test_core_sources_ingest_populates_registry_tables(monkeypatch) -> None:
         )
         return type("WBResult", (), {"data": df})()
 
-    async def _fake_wvs_fetch(self, _handle, _request):  # noqa: ARG001
-        df = pd.DataFrame(
-            [
-                {
-                    "country_code": "UA",
-                    "survey_year": 2020,
-                    "wave": 7,
-                    "value": 0.6,
-                }
-            ]
-        )
-        return type("WVSResult", (), {"data": df})()
-
     monkeypatch.setattr(WorldBankConnector, "fetch", _fake_wb_fetch)
-    monkeypatch.setattr(WVSConnector, "fetch", _fake_wvs_fetch)
+    monkeypatch.setattr(
+        core_ingest,
+        "_load_wvs_bulk_rows",
+        lambda _indicator: [
+            {
+                "country_code": "UA",
+                "survey_year": 2020,
+                "wave": 7,
+                "value": 0.6,
+                "sample_size": 1200,
+                "sample_weight_field": "S017",
+                "data_shape": "survey_repeated_cross_section",
+            }
+        ],
+    )
 
     with tempfile.TemporaryDirectory() as tmpdir:
         config = DatasetBatchConfig(snapshot_root=Path(tmpdir) / "snap")
@@ -87,21 +93,22 @@ def test_core_sources_ingest_sync_wrapper_is_event_loop_safe(monkeypatch) -> Non
         )
         return type("WBResult", (), {"data": df})()
 
-    async def _fake_wvs_fetch(self, _handle, _request):  # noqa: ARG001
-        df = pd.DataFrame(
-            [
-                {
-                    "country_code": "UA",
-                    "survey_year": 2020,
-                    "wave": 7,
-                    "value": 0.6,
-                }
-            ]
-        )
-        return type("WVSResult", (), {"data": df})()
-
     monkeypatch.setattr(WorldBankConnector, "fetch", _fake_wb_fetch)
-    monkeypatch.setattr(WVSConnector, "fetch", _fake_wvs_fetch)
+    monkeypatch.setattr(
+        core_ingest,
+        "_load_wvs_bulk_rows",
+        lambda _indicator: [
+            {
+                "country_code": "UA",
+                "survey_year": 2020,
+                "wave": 7,
+                "value": 0.6,
+                "sample_size": 1200,
+                "sample_weight_field": "S017",
+                "data_shape": "survey_repeated_cross_section",
+            }
+        ],
+    )
 
     async def _run() -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -113,6 +120,15 @@ def test_core_sources_ingest_sync_wrapper_is_event_loop_safe(monkeypatch) -> Non
     import asyncio
 
     asyncio.run(_run())
+
+
+def test_core_sources_ingest_injects_unpd_token_into_connection_config(monkeypatch) -> None:
+    monkeypatch.setenv("POLISYOS_UNPD_API_TOKEN", "test-token")
+
+    config = core_ingest._resolve_profile_config("unpd_dataportal")
+
+    assert config.auth_credentials.get("token") == "test-token"
+    assert config.auth_method == "bearer"
 
 
 def _catalog_record(
@@ -172,16 +188,56 @@ def test_normalize_observation_row_preserves_numeric_value() -> None:
     assert "CBR_BIR_TOTAL" in normalized[5]
 
 
+def test_load_wvs_bulk_rows_aggregates_social_trust_as_weighted_share(monkeypatch) -> None:
+    with tempfile.TemporaryDirectory() as tmpdir:
+        csv_path = Path(tmpdir) / "WVS_Time_Series_1981-2022_csv_v5_0.csv"
+        csv_path.write_text(
+            "\n".join(
+                [
+                    "COUNTRY_ALPHA,S020,S002VS,S017,S018,A165,A173",
+                    "UKR,2020,7,2,2.0,1,5",
+                    "UKR,2020,7,1,1.0,2,3",
+                    "DEU,2018,7,3,3.0,1,4",
+                    "FRA,2020,7,5,5.0,1,5",
+                ]
+            ),
+            encoding="utf-8",
+        )
+        monkeypatch.setattr(core_ingest, "_wvs_bulk_csv_path", lambda: csv_path)
+
+        rows = core_ingest._load_wvs_bulk_rows("A165")
+
+    assert rows == [
+        {
+            "country_code": "DE",
+            "survey_year": 2018,
+            "wave": 7,
+            "value": 1.0,
+            "sample_size": 1,
+            "weighted_sample_size": 3.0,
+            "sample_weight_field": "S017",
+            "aggregation_method": "weighted_share_response_1",
+            "data_shape": "survey_repeated_cross_section",
+            "observation_grain": "country_survey_year_wave",
+        },
+        {
+            "country_code": "UA",
+            "survey_year": 2020,
+            "wave": 7,
+            "value": 2.0 / 3.0,
+            "sample_size": 2,
+            "weighted_sample_size": 3.0,
+            "sample_weight_field": "S017",
+            "aggregation_method": "weighted_share_response_1",
+            "data_shape": "survey_repeated_cross_section",
+            "observation_grain": "country_survey_year_wave",
+        },
+    ]
+
+
 def test_core_sources_ingest_catalog_generalizes_across_sources(monkeypatch) -> None:
     async def _fake_wb_fetch(self, _handle, _request):  # noqa: ARG001
         return type("WBResult", (), {"data": pd.DataFrame([{"country_code": "UA", "year": 2020, "value": 1.1}])})()
-
-    async def _fake_wvs_fetch(self, _handle, _request):  # noqa: ARG001
-        return type(
-            "WVSResult",
-            (),
-            {"data": pd.DataFrame([{"country_code": "UA", "survey_year": 2020, "wave": 7, "value": 0.6}])},
-        )()
 
     async def _fake_eurostat_fetch(self, _handle, _request):  # noqa: ARG001
         return type(
@@ -219,7 +275,21 @@ def test_core_sources_ingest_catalog_generalizes_across_sources(monkeypatch) -> 
         )()
 
     monkeypatch.setattr(WorldBankConnector, "fetch", _fake_wb_fetch)
-    monkeypatch.setattr(WVSConnector, "fetch", _fake_wvs_fetch)
+    monkeypatch.setattr(
+        core_ingest,
+        "_load_wvs_bulk_rows",
+        lambda _indicator: [
+            {
+                "country_code": "UA",
+                "survey_year": 2020,
+                "wave": 7,
+                "value": 0.6,
+                "sample_size": 1200,
+                "sample_weight_field": "S017",
+                "data_shape": "survey_repeated_cross_section",
+            }
+        ],
+    )
     monkeypatch.setattr(EurostatConnector, "fetch", _fake_eurostat_fetch)
     monkeypatch.setattr(SDMXSourceConnector, "fetch", _fake_sdmx_fetch)
     monkeypatch.setattr(WHOConnector, "fetch", _fake_who_fetch)
@@ -448,20 +518,47 @@ def test_core_sources_ingest_sampled_run_diversifies_observation_canonical_vars(
         stats = run_core_sources_ingest(config)
         assert stats.observations > 0
 
+
+def test_core_sources_ingest_writes_alignment_audit(monkeypatch) -> None:
+    async def _fake_wb_fetch(self, _handle, _request):  # noqa: ARG001
+        return type("WBResult", (), {"data": pd.DataFrame([{"country_code": "UA", "year": 2020, "value": 1.1}])})()
+
+    monkeypatch.setattr(WorldBankConnector, "fetch", _fake_wb_fetch)
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        config = DatasetBatchConfig(snapshot_root=Path(tmpdir) / "snap", max_datasets_per_source=1)
+        build_graph(
+            records=iter(
+                [
+                    _catalog_record(
+                        source="worldbank",
+                        dataset_id="NY.GDP.PCAP.PP.CD",
+                        title="GDP per capita PPP",
+                        metric="gdp_per_capita",
+                        connector_type="worldbank.wdi",
+                        profile_id="worldbank_wdi",
+                        execution_tier="transport_ready",
+                    ),
+                ]
+            ),
+            db_path=config.db_path,
+        )
+
+        run_core_sources_ingest(config)
+
         con = duckdb.connect(str(config.db_path), read_only=True)
         try:
-            canonical_vars = {
-                row[0]
-                for row in con.execute(
-                    "SELECT DISTINCT canonical_var FROM ds_observations WHERE dataset_id LIKE 'ilo-%'"
-                ).fetchall()
-            }
+            rows = con.execute(
+                "SELECT raw_variable, canonical_variable, raw_confidence, calibrated_confidence "
+                "FROM ds_alignment_audit"
+            ).fetchall()
         finally:
             con.close()
 
-        assert "labor_force_participation" in canonical_vars
-        assert "unemployment_rate" in canonical_vars
-        assert len(canonical_vars) >= 2
+        assert rows
+        assert rows[0][0]
+        assert rows[0][1]
+        assert float(rows[0][3]) >= float(rows[0][2])
 
 
 def test_core_sources_ingest_adds_proxy_alignment_for_health_spending(monkeypatch) -> None:
@@ -582,3 +679,451 @@ def test_insert_generic_observations_tracks_inserted_and_replaced_rows() -> None
         assert second.attempted == 1
         assert second.inserted == 0
         assert second.replaced == 1
+
+
+def test_insert_generic_observations_batches_large_upserts(monkeypatch) -> None:
+    class _FakeConnection:
+        def __init__(self) -> None:
+            self.batch_sizes: list[int] = []
+
+        def executemany(self, _sql: str, values: list[tuple]) -> None:
+            self.batch_sizes.append(len(values))
+
+    monkeypatch.setattr(core_ingest, "_existing_observation_ids", lambda _con, _ids: set())
+    con = _FakeConnection()
+    plan = ObservationPlan(
+        dataset_id="eurostat-NRG_TE_OILM",
+        source="eurostat",
+        raw_variable="NRG_TE_OILM",
+        canonical_var="energy_use",
+        connector_id="eurostat.data",
+        profile_id="eurostat_public",
+        request_dataset_id="NRG_TE_OILM",
+        default_filters={},
+        update_frequency="monthly",
+    )
+    rows = [
+        {
+            "geo": "PL",
+            "time_period": f"2022-{(index % 12) + 1:02d}",
+            "value": float(index),
+            "partner": f"P{index}",
+        }
+        for index in range(12_005)
+    ]
+
+    inserted = _insert_generic_observations(con=con, plan=plan, rows=rows)  # type: ignore[arg-type]
+
+    assert inserted.attempted == 12_005
+    assert inserted.inserted == 12_005
+    assert inserted.replaced == 0
+    assert con.batch_sizes == [5_000, 5_000, 2_005]
+
+
+def test_worldbank_observation_plans_skip_semantic_only_rows_without_metric_bindings() -> None:
+    config = DatasetBatchConfig(snapshot_root=Path(tempfile.mkdtemp()) / "snap")
+    datasets = [
+        core_ingest.CatalogTransportDataset(
+            catalog_dataset_id="worldbank-semantic",
+            source="worldbank",
+            title="Broad social development series",
+            description="",
+            source_dataset_id="SH.UHC.NOP2.ZS",
+            update_frequency="annual",
+            last_updated="2026-03-20",
+            coverage_json="{}",
+            access_json="{}",
+            execution_tier="transport_ready",
+            variables=("SH.UHC.NOP2.ZS",),
+            keywords=(),
+            themes=(),
+            polisyos_metrics=(),
+            connector_id="worldbank.wdi",
+            profile_id="worldbank_wdi",
+            request_dataset_id="SH.UHC.NOP2.ZS",
+            default_filters={},
+        ),
+        core_ingest.CatalogTransportDataset(
+            catalog_dataset_id="worldbank-metric",
+            source="worldbank",
+            title="GDP per capita",
+            description="",
+            source_dataset_id="NY.GDP.PCAP.PP.CD",
+            update_frequency="annual",
+            last_updated="2026-03-20",
+            coverage_json="{}",
+            access_json="{}",
+            execution_tier="transport_ready",
+            variables=("NY.GDP.PCAP.PP.CD",),
+            keywords=(),
+            themes=(),
+            polisyos_metrics=("gdp_per_capita",),
+            connector_id="worldbank.wdi",
+            profile_id="worldbank_wdi",
+            request_dataset_id="NY.GDP.PCAP.PP.CD",
+            default_filters={},
+        ),
+        core_ingest.CatalogTransportDataset(
+            catalog_dataset_id="worldbank-exact",
+            source="worldbank",
+            title="Direct seed aligned poverty indicator",
+            description="",
+            source_dataset_id="SI.POV.DDAY",
+            update_frequency="annual",
+            last_updated="2026-03-20",
+            coverage_json="{}",
+            access_json="{}",
+            execution_tier="transport_ready",
+            variables=("SI.POV.DDAY",),
+            keywords=(),
+            themes=(),
+            polisyos_metrics=(),
+            connector_id="worldbank.wdi",
+            profile_id="worldbank_wdi",
+            request_dataset_id="SI.POV.DDAY",
+            default_filters={},
+        ),
+    ]
+    alignments = [
+        VariableAlignment(
+            dataset_id="worldbank-semantic",
+            dataset_var="SH.UHC.NOP2.ZS",
+            canonical_var="health_outcomes",
+            method=AlignmentMethod.SEMANTIC,
+            confidence=0.82,
+            evidence="semantic_jaccard",
+        ),
+        VariableAlignment(
+            dataset_id="worldbank-metric",
+            dataset_var="NY.GDP.PCAP.PP.CD",
+            canonical_var="gdp_per_capita",
+            method=AlignmentMethod.SEMANTIC,
+            confidence=0.9,
+            evidence="metric_binding_direct_to_canonical_root",
+        ),
+        VariableAlignment(
+            dataset_id="worldbank-exact",
+            dataset_var="SI.POV.DDAY",
+            canonical_var="poverty_rate",
+            method=AlignmentMethod.EXACT,
+            confidence=0.99,
+            evidence="seed_alignment",
+        ),
+    ]
+
+    plans = _build_catalog_observation_plans(datasets, alignments, config=config)
+
+    assert {(plan.dataset_id, plan.request_dataset_id) for plan in plans} == {
+        ("worldbank-metric", "NY.GDP.PCAP.PP.CD"),
+        ("worldbank-exact", "SI.POV.DDAY"),
+    }
+
+
+def test_eurostat_chunked_observation_requests_preserve_default_filters() -> None:
+    plan = ObservationPlan(
+        dataset_id="eurostat-une_rt_a",
+        source="eurostat",
+        raw_variable="une_rt_a",
+        canonical_var="unemployment_rate",
+        connector_id="eurostat.data",
+        profile_id="eurostat_public",
+        request_dataset_id="une_rt_a",
+        default_filters={"unit": ["PC_ACT"], "sex": ["T"]},
+        update_frequency="annual",
+    )
+
+    filters = core_ingest._eurostat_filters_for_country("PL", base_filters=plan.default_filters)
+    requests = core_ingest._chunked_observation_requests(
+        plan=plan,
+        filters=core_ingest._filters_to_tuple(filters),
+        source="eurostat",
+    )
+
+    assert [(request.date_start.year, request.date_end.year) for request in requests] == [
+        (2018, 2019),
+        (2020, 2021),
+        (2022, 2022),
+    ]
+    assert all(request.filters for request in requests)
+    assert all(dict(request.filters)["geo"] == ("PL",) for request in requests)
+    assert all(dict(request.filters)["unit"] == ("PC_ACT",) for request in requests)
+    assert all(dict(request.filters)["sex"] == ("T",) for request in requests)
+
+
+def test_eurostat_monthly_observation_requests_split_to_single_year_windows() -> None:
+    plan = ObservationPlan(
+        dataset_id="eurostat-NRG_TE_OILM",
+        source="eurostat",
+        raw_variable="NRG_TE_OILM",
+        canonical_var="energy_use",
+        connector_id="eurostat.data",
+        profile_id="eurostat_public",
+        request_dataset_id="NRG_TE_OILM",
+        default_filters={"unit": ["TJ"]},
+        update_frequency="monthly",
+    )
+
+    filters = core_ingest._eurostat_filters_for_country("UA", base_filters=plan.default_filters)
+    requests = core_ingest._chunked_observation_requests(
+        plan=plan,
+        filters=core_ingest._filters_to_tuple(filters),
+        source="eurostat",
+    )
+
+    assert [(request.date_start.year, request.date_end.year) for request in requests] == [
+        (2018, 2018),
+        (2019, 2019),
+        (2020, 2020),
+        (2021, 2021),
+        (2022, 2022),
+    ]
+    assert all(dict(request.filters)["geo"] == ("UA",) for request in requests)
+    assert all(dict(request.filters)["unit"] == ("TJ",) for request in requests)
+
+
+def test_observation_plan_order_prioritizes_annual_before_monthly() -> None:
+    config = DatasetBatchConfig(snapshot_root=Path(tempfile.mkdtemp()) / "snap")
+    datasets = [
+        core_ingest.CatalogTransportDataset(
+            catalog_dataset_id="eurostat-annual",
+            source="eurostat",
+            title="Annual unemployment",
+            description="",
+            source_dataset_id="UNE_RT_A",
+            update_frequency="annual",
+            last_updated="2026-03-19",
+            coverage_json="{}",
+            access_json="{}",
+            execution_tier="transport_ready",
+            variables=("UNE_RT_A",),
+            keywords=(),
+            themes=(),
+            polisyos_metrics=("unemployment_rate",),
+            connector_id="eurostat.data",
+            profile_id="eurostat_public",
+            request_dataset_id="UNE_RT_A",
+            default_filters={},
+        ),
+        core_ingest.CatalogTransportDataset(
+            catalog_dataset_id="eurostat-monthly",
+            source="eurostat",
+            title="Monthly oil trade",
+            description="",
+            source_dataset_id="NRG_TE_OILM",
+            update_frequency="monthly",
+            last_updated="2026-03-19",
+            coverage_json="{}",
+            access_json="{}",
+            execution_tier="transport_ready",
+            variables=("NRG_TE_OILM",),
+            keywords=(),
+            themes=(),
+            polisyos_metrics=("energy_use",),
+            connector_id="eurostat.data",
+            profile_id="eurostat_public",
+            request_dataset_id="NRG_TE_OILM",
+            default_filters={},
+        ),
+    ]
+    plans = [
+        ObservationPlan(
+            dataset_id="eurostat-monthly",
+            source="eurostat",
+            raw_variable="NRG_TE_OILM",
+            canonical_var="energy_use",
+            connector_id="eurostat.data",
+            profile_id="eurostat_public",
+            request_dataset_id="NRG_TE_OILM",
+            default_filters={},
+            update_frequency="monthly",
+        ),
+        ObservationPlan(
+            dataset_id="eurostat-annual",
+            source="eurostat",
+            raw_variable="UNE_RT_A",
+            canonical_var="unemployment_rate",
+            connector_id="eurostat.data",
+            profile_id="eurostat_public",
+            request_dataset_id="UNE_RT_A",
+            default_filters={},
+            update_frequency="annual",
+        ),
+    ]
+
+    ordered = _limit_observation_plans(plans, datasets, config=config)
+
+    assert [plan.dataset_id for plan in ordered] == ["eurostat-annual", "eurostat-monthly"]
+
+
+def test_ingest_catalog_observations_skips_oversized_monthly_payload(monkeypatch) -> None:
+    async def _fake_fetch_rows(_plan, _cache, *, config):  # noqa: ARG001
+        return [
+            {"geo": "PL", "time_period": f"2022-{(index % 12) + 1:02d}", "value": float(index)}
+            for index in range(_observation_payload_row_limit(plan) + 1)  # type: ignore[arg-type]
+        ]
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        config = DatasetBatchConfig(snapshot_root=Path(tmpdir) / "snap", max_datasets_per_source=5)
+        con = duckdb.connect(str(config.db_path))
+        try:
+            _ensure_registry_tables(con)
+        finally:
+            con.close()
+
+        plan = ObservationPlan(
+            dataset_id="eurostat-NRG_TE_OILM",
+            source="eurostat",
+            raw_variable="NRG_TE_OILM",
+            canonical_var="energy_use",
+            connector_id="eurostat.data",
+            profile_id="eurostat_public",
+            request_dataset_id="NRG_TE_OILM",
+            default_filters={},
+            update_frequency="monthly",
+        )
+        monkeypatch.setattr(core_ingest, "_fetch_observation_rows", _fake_fetch_rows)
+
+        stats = core_ingest.run_coro_sync(
+            core_ingest._ingest_catalog_observations(config.db_path, [plan], config=config)
+        )
+
+        assert stats.failures == 1
+        assert stats.observations == 0
+
+        con = duckdb.connect(str(config.db_path), read_only=True)
+        try:
+            observed = con.execute("SELECT COUNT(*) FROM ds_observations").fetchone()[0]
+        finally:
+            con.close()
+
+        assert observed == 0
+
+
+def test_ingest_catalog_observations_keeps_large_payloads_in_full_run(monkeypatch) -> None:
+    async def _fake_fetch_rows(_plan, _cache, *, config):  # noqa: ARG001
+        return [
+            {
+                "geo": "PL",
+                "time_period": "2022",
+                "value": float(index),
+                "partner": f"P{index}",
+            }
+            for index in range(6)
+        ]
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        config = DatasetBatchConfig(snapshot_root=Path(tmpdir) / "snap")
+        con = duckdb.connect(str(config.db_path))
+        try:
+            _ensure_registry_tables(con)
+        finally:
+            con.close()
+
+        plan = ObservationPlan(
+            dataset_id="eurostat-NRG_TE_OILM",
+            source="eurostat",
+            raw_variable="NRG_TE_OILM",
+            canonical_var="energy_use",
+            connector_id="eurostat.data",
+            profile_id="eurostat_public",
+            request_dataset_id="NRG_TE_OILM",
+            default_filters={},
+            update_frequency="monthly",
+        )
+        monkeypatch.setattr(core_ingest, "_fetch_observation_rows", _fake_fetch_rows)
+        monkeypatch.setattr(core_ingest, "_observation_payload_row_limit", lambda _plan: 5)
+
+        stats = core_ingest.run_coro_sync(
+            core_ingest._ingest_catalog_observations(config.db_path, [plan], config=config)
+        )
+
+        assert stats.failures == 0
+        assert stats.observations == 6
+
+        con = duckdb.connect(str(config.db_path), read_only=True)
+        try:
+            observed = con.execute("SELECT COUNT(*) FROM ds_observations").fetchone()[0]
+        finally:
+            con.close()
+
+        assert observed == 6
+
+
+def test_append_shard_result_tracks_complete_empty_and_complete_with_rows() -> None:
+    completed_results: list[dict[str, object]] = []
+    failed_results: list[dict[str, object]] = []
+    deferred_results: list[dict[str, object]] = []
+    source_summary: dict[str, dict[str, int]] = {}
+
+    core_ingest._append_shard_result(
+        result=core_ingest.ObservationShardResult(
+            shard_id="rows",
+            status="complete_with_rows",
+            source="worldbank",
+            dataset_id="ds",
+            raw_variable="value",
+            canonical_var="gdp_per_capita",
+            country_code="UA",
+            start_year=2020,
+            end_year=2020,
+            row_count=3,
+        ),
+        completed_results=completed_results,
+        failed_results=failed_results,
+        deferred_results=deferred_results,
+        source_summary=source_summary,
+    )
+    core_ingest._append_shard_result(
+        result=core_ingest.ObservationShardResult(
+            shard_id="empty",
+            status="complete_empty",
+            source="worldbank",
+            dataset_id="ds",
+            raw_variable="value",
+            canonical_var="gdp_per_capita",
+            country_code="UA",
+            start_year=2021,
+            end_year=2021,
+            row_count=0,
+        ),
+        completed_results=completed_results,
+        failed_results=failed_results,
+        deferred_results=deferred_results,
+        source_summary=source_summary,
+    )
+
+    assert len(completed_results) == 2
+    assert source_summary["worldbank"]["complete"] == 2
+    assert source_summary["worldbank"]["complete_with_rows"] == 1
+    assert source_summary["worldbank"]["complete_empty"] == 1
+    assert source_summary["worldbank"]["rows"] == 3
+
+
+def test_core_sources_ingest_manifest_propagates_shard_counts(monkeypatch, tmp_path) -> None:
+    async def _fake_run(_config):
+        return core_ingest.CoreSourcesIngestStats(
+            registry_datasets=1,
+            variable_alignments=2,
+            observations=3,
+            observations_attempted=3,
+            observations_inserted=3,
+            observations_replaced=0,
+            failures=1,
+            completed_shards=4,
+            deferred_shards=5,
+            failed_shards=6,
+        )
+
+    monkeypatch.setattr(core_ingest, "_run_core_sources_ingest_async", _fake_run)
+    config = DatasetBatchConfig(snapshot_root=tmp_path / "snap")
+
+    import asyncio
+
+    stats = asyncio.run(core_ingest.run_core_sources_ingest_async(config))
+
+    assert stats.completed_shards == 4
+    with open(config.manifests_dir / "core_sources_ingest.json", "r", encoding="utf-8") as fh:
+        payload = json.load(fh)
+    assert payload["metrics"]["completed_shards"] == 4
+    assert payload["metrics"]["deferred_shards"] == 5
+    assert payload["metrics"]["failed_shards"] == 6

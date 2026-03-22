@@ -40,7 +40,7 @@ dependencies = [
     "cryptography>=42.0.0",
     "loguru>=0.7.2",
     "packaging>=23.0",
-    "jax-metal>=0.1.1",
+    "jax-metal>=0.1.1; sys_platform == 'darwin'",
     "chex>=0.1.91",
     "streamlit>=1.52.2",
     "plotly>=6.5.0",
@@ -78,13 +78,21 @@ sensitivity = [
     "SALib>=1.5,<2.0",
     "scipy>=1.11.0",
 ]
+# Keep DoWhy in a separate compatibility extra: 0.13 hard-pins cvxpy<1.5,
+# which conflicts with the modern optimization stack used elsewhere.
 causal = [
-    "dowhy>=0.13,<0.14",
-    "econml>=0.15",
+    "policy-engine[causal-core]",
+    "policy-engine[causal-dowhy]",
 ]
 causal-core = [
-    "dowhy>=0.13,<0.14",
     "econml>=0.15",
+]
+causal-dowhy = [
+    "dowhy>=0.13,<0.14; python_version < '3.13'",
+    "cvxpy<1.5; python_version < '3.13'",
+]
+causal-bcf = [
+    "stochtree>=0.1.0",
 ]
 causal-discovery = [
     "tigramite>=5.2",
@@ -103,9 +111,12 @@ causal-symbolic-r = [
     "rpy2>=3.5,<4.0",
 ]
 causal-full = [
-    "policy-engine[causal-core]",
+    "policy-engine[causal]",
     "policy-engine[causal-symbolic-y0]",
     "policy-engine[causal-symbolic-r]",
+]
+table-extraction = [
+    "marker-pdf>=0.3.0",
 ]
 solvers = [
     "ortools>=9.8",

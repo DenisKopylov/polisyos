@@ -61,6 +61,8 @@ class SmokeProfile:
     llm_gate_threshold: float
     llm_gate_max_share: float
     llm_gate_audit_sample_rate: float
+    llm_gap_fill_mode: str
+    llm_gap_fill_max_share: float
 
 
 SMOKE_PROFILES: dict[str, SmokeProfile] = {
@@ -83,6 +85,8 @@ SMOKE_PROFILES: dict[str, SmokeProfile] = {
         llm_gate_threshold=0.58,
         llm_gate_max_share=0.30,
         llm_gate_audit_sample_rate=0.01,
+        llm_gap_fill_mode="off",
+        llm_gap_fill_max_share=0.0,
     ),
     "informative": SmokeProfile(
         name="informative",
@@ -103,6 +107,8 @@ SMOKE_PROFILES: dict[str, SmokeProfile] = {
         llm_gate_threshold=0.55,
         llm_gate_max_share=0.35,
         llm_gate_audit_sample_rate=0.01,
+        llm_gap_fill_mode="off",
+        llm_gap_fill_max_share=0.0,
     ),
     "acceptance_safe": SmokeProfile(
         name="acceptance_safe",
@@ -123,6 +129,30 @@ SMOKE_PROFILES: dict[str, SmokeProfile] = {
         llm_gate_threshold=0.52,
         llm_gate_max_share=0.28,
         llm_gate_audit_sample_rate=0.005,
+        llm_gap_fill_mode="off",
+        llm_gap_fill_max_share=0.0,
+    ),
+    "production_gap_fill_wide": SmokeProfile(
+        name="production_gap_fill_wide",
+        sample_docs=96,
+        scan_docs=1200,
+        xml_parse_chunk=192,
+        structure_workers=3,
+        spo_batch_docs=24,
+        spo_task_batch_size=48,
+        spo_request_batch_size=2,
+        spo_request_batch_chars=2600,
+        spo_group_timeout_seconds=90.0,
+        spo_max_provisions_per_doc=10,
+        parallel_llm=10,
+        gonka_rate_limit_rps=1.2,
+        max_retries=8,
+        llm_gate_mode="balanced",
+        llm_gate_threshold=0.52,
+        llm_gate_max_share=0.35,
+        llm_gate_audit_sample_rate=0.005,
+        llm_gap_fill_mode="wide",
+        llm_gap_fill_max_share=0.80,
     ),
 }
 
@@ -631,6 +661,9 @@ def run_smoke(
     max_retries: int | None = None,
     spo_request_batch_chars: int | None = None,
     spo_group_timeout_seconds: float | None = None,
+    llm_gap_fill_mode: str | None = None,
+    llm_gap_fill_max_share: float | None = None,
+    stages: set[str] | None = None,
 ) -> dict[str, Any]:
     if profile_name not in SMOKE_PROFILES:
         raise ValueError(f"Unknown smoke profile: {profile_name}")
@@ -651,6 +684,10 @@ def run_smoke(
         overrides["spo_request_batch_chars"] = int(spo_request_batch_chars)
     if spo_group_timeout_seconds is not None:
         overrides["spo_group_timeout_seconds"] = float(spo_group_timeout_seconds)
+    if llm_gap_fill_mode is not None:
+        overrides["llm_gap_fill_mode"] = str(llm_gap_fill_mode)
+    if llm_gap_fill_max_share is not None:
+        overrides["llm_gap_fill_max_share"] = float(llm_gap_fill_max_share)
     profile = SmokeProfile(**overrides)
 
     candidates = scan_smoke_candidates(
@@ -693,7 +730,7 @@ def run_smoke(
         status_filter=status_filter,
         type_filter=type_filter,
         doc_id_filter=doc_ids,
-        stages=ALL_STAGES,
+        stages=stages if stages else ALL_STAGES,
         resume=resume,
         max_docs=len(doc_ids),
         xml_parse_chunk=profile.xml_parse_chunk,
@@ -711,6 +748,9 @@ def run_smoke(
         llm_gate_threshold=profile.llm_gate_threshold,
         llm_gate_max_share=profile.llm_gate_max_share,
         llm_gate_audit_sample_rate=profile.llm_gate_audit_sample_rate,
+        llm_gap_fill_enabled=profile.llm_gap_fill_mode != "off",
+        llm_gap_fill_mode=profile.llm_gap_fill_mode,
+        llm_gap_fill_max_share=profile.llm_gap_fill_max_share,
         publish_require_embeddings=False,
         export_claims_to_cas=enable_claim_cas,
         cas_root=cas_root if enable_claim_cas else None,

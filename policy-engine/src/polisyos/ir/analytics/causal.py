@@ -29,6 +29,8 @@ class CausalMethod(str, Enum):
     DOWHY_IV = "dowhy_iv"
     DOWHY_FRONTDOOR = "dowhy_frontdoor"
     CAUSAL_FOREST = "causal_forest"
+    FOREST_DR = "forest_dr"
+    CAUSAL_BCF = "causal_bcf"
     DOUBLE_ML = "double_ml"
     S_LEARNER = "s_learner"
     T_LEARNER = "t_learner"

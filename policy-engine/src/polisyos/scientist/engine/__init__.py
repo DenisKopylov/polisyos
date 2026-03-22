@@ -2,6 +2,27 @@
 
 from __future__ import annotations
 
+from polisyos.scientist.engine.fan_out import (
+    FanOutConfig,
+    FanOutNode,
+    FanOutResult,
+)
+from polisyos.scientist.engine.sub_workflow import (
+    StateMapping,
+    SubWorkflowConfig,
+    SubWorkflowNode,
+)
+from polisyos.scientist.engine.convergence import (
+    ConvergenceConfig,
+    ConvergenceDetector,
+    ConvergenceState,
+    ConvergenceStrategy,
+)
+from polisyos.scientist.engine.condition import (
+    ConditionSyntaxError,
+    NodeCondition,
+    evaluate_condition,
+)
 from polisyos.scientist.engine.checkpoint import (
     CHECKPOINT_HEAD_FILENAME,
     CHECKPOINT_KIND,
@@ -29,10 +50,22 @@ from polisyos.scientist.engine.errors import (
     EngineError,
     MissingDependencyError,
     NodeExecutionError,
+    NodeTimeoutError,
+    RetryExhaustedError,
     UnknownNodeError,
     WorkflowSpecError,
 )
+from polisyos.scientist.engine.async_executor import AsyncWorkflowExecutor
 from polisyos.scientist.engine.executor import WorkflowExecutor
+from polisyos.scientist.engine.budget import (
+    BudgetExhaustedError,
+    BudgetLimit,
+    BudgetState,
+)
+from polisyos.scientist.engine.metrics_protocol import (
+    EngineMetricsCollector,
+    NoopEngineMetrics,
+)
 from polisyos.scientist.engine.idempotency import (
     IDEMPOTENCY_CONTRACT_VERSION,
     NodeCacheEntry,
@@ -65,6 +98,7 @@ __all__ = [
     "NodeInvocation",
     "NodeRegistry",
     "discover_nodes",
+    "AsyncWorkflowExecutor",
     "WorkflowExecutor",
     "EngineError",
     "WorkflowSpecError",
@@ -73,6 +107,8 @@ __all__ = [
     "MissingDependencyError",
     "CycleDetectedError",
     "NodeExecutionError",
+    "NodeTimeoutError",
+    "RetryExhaustedError",
     "CheckpointError",
     "CheckpointNotFoundError",
     "CheckpointCorruptedError",
@@ -98,4 +134,22 @@ __all__ = [
     "extract_state_slice",
     "NodeCacheEntry",
     "NodeResultCache",
+    "EngineMetricsCollector",
+    "NoopEngineMetrics",
+    "BudgetState",
+    "BudgetLimit",
+    "BudgetExhaustedError",
+    "NodeCondition",
+    "ConditionSyntaxError",
+    "evaluate_condition",
+    "ConvergenceConfig",
+    "ConvergenceDetector",
+    "ConvergenceState",
+    "ConvergenceStrategy",
+    "FanOutConfig",
+    "FanOutNode",
+    "FanOutResult",
+    "StateMapping",
+    "SubWorkflowConfig",
+    "SubWorkflowNode",
 ]

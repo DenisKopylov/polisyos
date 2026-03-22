@@ -10,22 +10,18 @@ from __future__ import annotations
 
 import asyncio
 import json
-import random
 import time
-from collections import deque
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable
 
-import aiohttp
-
 from polisyos.common.logger import get_logger
-from polisyos.lex.batch.canonicalizers import (
-    canonicalize_action,
-    canonicalize_norm_type,
-    extract_thresholds_from_text,
-)
 from polisyos.lex.batch.provisions_io import _shard_prefix
+from polisyos.lex.batch.spo_client import (
+    GonkaClient,
+    GonkaClientPool,
+    _SlidingWindowLimiter,
+    _retry_delay_seconds,
+)
 from polisyos.lex.batch.spo_prompts import (
     SPO_EXTRACT_BATCH_SYSTEM_PROMPT,
     SPO_EXTRACT_SYSTEM_PROMPT,
@@ -40,981 +36,27 @@ from polisyos.lex.batch.spo_prompts import (
     build_spo_light_user_prompt,
     build_spo_verify_user_prompt,
 )
+from polisyos.lex.batch.spo_utils import (
+    _BatchProvisionItem,
+    _choose_verify_statements,
+    _group_request_items,
+    _is_json_mode_invalid_request,
+    _materialize_fallback_row,
+    _merge_statement_lists,
+    _normalize_statements,
+    _parse_batch_extract_payload,
+    _parse_json_object,
+    _parse_light_statements,
+    _parse_spo_statements,
+    _split_float,
+    _split_int,
+    _usage_counts,
+)
 from polisyos.lex.batch.structurer import ProvisionSpan
 from polisyos.lex.batch.xml_parser import NPADocument
 from polisyos.lex.knowledge.types import SPOCandidate, SPOExtractionResult
 
 logger = get_logger(__name__)
-_MAX_RETRY_AFTER_SECONDS = 30.0
-
-
-def _retry_delay_seconds(*, attempt: int, retry_after: str | None) -> float:
-    """Compute retry delay honoring Retry-After header when present."""
-    if retry_after:
-        try:
-            parsed = float(retry_after.strip())
-            if parsed > 0:
-                return min(parsed, _MAX_RETRY_AFTER_SECONDS) * random.uniform(0.85, 1.2)
-        except ValueError:
-            pass
-    return min(2 ** (attempt - 1) + 0.5, _MAX_RETRY_AFTER_SECONDS) * random.uniform(0.85, 1.25)
-
-
-class _SlidingWindowLimiter:
-    """Async sliding-window rate limiter with optional jitter and 429 cooldown."""
-
-    __slots__ = ("_max", "_window", "_lock", "_timestamps", "_backoff_until", "_jitter_ratio")
-
-    def __init__(self, max_requests: int, window: float = 1.0, *, jitter_ratio: float = 0.0) -> None:
-        self._max = max(1, int(max_requests))
-        self._window = max(0.01, float(window))
-        self._lock = asyncio.Lock()
-        self._timestamps: deque[float] = deque()
-        self._backoff_until = 0.0
-        self._jitter_ratio = max(0.0, float(jitter_ratio))
-
-    async def acquire(self) -> float:
-        waited = 0.0
-        while True:
-            async with self._lock:
-                now = time.monotonic()
-                if now < self._backoff_until:
-                    wait = self._backoff_until - now
-                else:
-                    cutoff = now - self._window
-                    while self._timestamps and self._timestamps[0] <= cutoff:
-                        self._timestamps.popleft()
-                    if len(self._timestamps) < self._max:
-                        self._timestamps.append(time.monotonic())
-                        return waited
-                    wait = self._timestamps[0] + self._window - now
-            if self._jitter_ratio > 0.0 and wait > 0.05:
-                wait *= 1.0 + random.uniform(-self._jitter_ratio, self._jitter_ratio)
-            started = time.monotonic()
-            await asyncio.sleep(max(0.01, wait))
-            waited += time.monotonic() - started
-
-    async def penalise(self, penalty_seconds: float = 5.0) -> None:
-        async with self._lock:
-            future = time.monotonic() + penalty_seconds - self._window
-            self._backoff_until = max(self._backoff_until, time.monotonic() + max(0.1, penalty_seconds))
-            for _ in range(self._max):
-                self._timestamps.append(future)
-
-
-class GonkaClient:
-    """Async OpenAI-compatible chat completion client with rate limiting."""
-
-    def __init__(
-        self,
-        *,
-        api_key: str,
-        base_url: str,
-        model: str,
-        disable_json_mode: bool = False,
-        max_concurrent: int = 50,
-        rate_limit_rps: float = 100.0,
-        temperature: float = 0.1,
-        max_retries: int = 7,
-        shared_limiter: _SlidingWindowLimiter | None = None,
-        circuit_failures: int = 3,
-        circuit_reset_seconds: float = 12.0,
-    ) -> None:
-        self._api_key = api_key
-        self._url = f"{base_url.rstrip('/')}/chat/completions"
-        self._model = model
-        self._temperature = temperature
-        self._max_retries = max_retries
-        self._semaphore = asyncio.Semaphore(max_concurrent)
-        self._shared_limiter = shared_limiter
-        self._circuit_failures = max(1, int(circuit_failures))
-        self._circuit_reset_seconds = max(1.0, float(circuit_reset_seconds))
-        self._consecutive_failures = 0
-        self._circuit_open_until = 0.0
-        self._limiter = _SlidingWindowLimiter(
-            max_requests=1,
-            window=(1.0 / max(0.001, float(rate_limit_rps))),
-        )
-        self._session: aiohttp.ClientSession | None = None
-        # Some deployments reject OpenAI JSON-mode ("response_format") even though
-        # the rest of the Chat Completions surface is compatible. When we detect
-        # that pattern once, disable JSON-mode for the rest of the run to avoid
-        # doubling request volume.
-        self._json_mode_disabled = disable_json_mode
-        if disable_json_mode:
-            logger.info("Gonka JSON-mode disabled by configuration; sending plain chat completions.")
-
-    @property
-    def model_id(self) -> str:
-        return self._model
-
-    @property
-    def json_mode_disabled(self) -> bool:
-        return self._json_mode_disabled
-
-    def disable_json_mode(self) -> None:
-        self._json_mode_disabled = True
-
-    def set_cache(self, cache: object | None) -> None:
-        """Attach an optional SPOCache instance for response caching."""
-        self._cache = cache  # type: ignore[attr-defined]
-
-    def is_available(self) -> bool:
-        return time.monotonic() >= self._circuit_open_until
-
-    def backoff_until(self) -> float:
-        return self._circuit_open_until
-
-    def _record_success(self) -> None:
-        self._consecutive_failures = 0
-        self._circuit_open_until = 0.0
-
-    def _record_failure(self) -> None:
-        self._consecutive_failures += 1
-        if self._consecutive_failures < self._circuit_failures:
-            return
-        jitter = random.uniform(0.85, 1.25)
-        self._circuit_open_until = max(
-            self._circuit_open_until,
-            time.monotonic() + (self._circuit_reset_seconds * jitter),
-        )
-
-    async def __aenter__(self) -> GonkaClient:
-        self._session = aiohttp.ClientSession(
-            headers={
-                "Authorization": f"Bearer {self._api_key}",
-                "Content-Type": "application/json",
-            },
-            timeout=aiohttp.ClientTimeout(total=180),
-        )
-        return self
-
-    async def __aexit__(self, *exc: object) -> None:
-        if self._session:
-            await self._session.close()
-            self._session = None
-
-    async def chat_completion(
-        self,
-        messages: list[dict[str, str]],
-        *,
-        response_format: dict[str, str] | None = None,
-    ) -> dict[str, Any]:
-        """Send a chat completion request with retry + rate limiting."""
-        assert self._session is not None, "Use 'async with GonkaClient(...)'"
-
-        payload_base: dict[str, Any] = {
-            "model": self._model,
-            "messages": messages,
-            "temperature": self._temperature,
-        }
-
-        last_error: Exception | None = None
-        for attempt in range(1, self._max_retries + 1):
-            if self._shared_limiter is not None:
-                await self._shared_limiter.acquire()
-            await self._limiter.acquire()
-            async with self._semaphore:
-                payload = dict(payload_base)
-                if response_format and not self._json_mode_disabled:
-                    payload["response_format"] = response_format
-                try:
-                    async with self._session.post(self._url, json=payload) as resp:
-                        if resp.status == 200:
-                            self._record_success()
-                            return await resp.json()
-
-                        body = await resp.text()
-                        if (
-                            "response_format" in payload
-                            and _is_json_mode_invalid_request(resp.status, body)
-                        ):
-                            if not self._json_mode_disabled:
-                                logger.warning(
-                                    "Gonka 400 invalid_request with response_format; "
-                                    "retrying without JSON-mode for subsequent requests."
-                                )
-                            self.disable_json_mode()
-                            payload.pop("response_format", None)
-                            # Known compatibility fallback; do not spend retry budget.
-                            continue
-
-                        if resp.status < 500 and resp.status not in (429,):
-                            logger.warning("Gonka {} (non-retryable): {}", resp.status, body[:200])
-                            raise RuntimeError(
-                                f"Gonka non-retryable error: HTTP {resp.status}: {body[:500]}"
-                            )
-
-                        delay = _retry_delay_seconds(
-                            attempt=attempt,
-                            retry_after=resp.headers.get("Retry-After"),
-                        )
-                        if resp.status == 429:
-                            self._record_failure()
-                            await self._limiter.penalise(delay)
-                            if self._shared_limiter is not None:
-                                await self._shared_limiter.penalise(min(delay, _MAX_RETRY_AFTER_SECONDS))
-                        elif resp.status >= 500:
-                            self._record_failure()
-
-                        logger.warning(
-                            "Gonka {} (attempt {}/{}), retry in {:.1f}s: {}",
-                            resp.status,
-                            attempt,
-                            self._max_retries,
-                            delay,
-                            body[:200],
-                        )
-                        last_error = RuntimeError(
-                            f"Gonka retryable HTTP {resp.status}: {body[:200]}"
-                        )
-                        await asyncio.sleep(delay)
-                        continue
-
-                except (aiohttp.ClientError, asyncio.TimeoutError) as exc:
-                    exc_str = str(exc)
-                    if "413" in exc_str:
-                        logger.warning("Gonka client error (non-retryable): {}", exc)
-                        raise RuntimeError(f"Gonka non-retryable error: {exc}") from exc
-
-                    last_error = exc
-                    self._record_failure()
-                    delay = min(2 ** (attempt - 1) + 0.5, 30.0)
-                    logger.warning(
-                        "Gonka network error (attempt {}/{}), retry in {:.1f}s: {}",
-                        attempt,
-                        self._max_retries,
-                        delay,
-                        exc,
-                    )
-                    await asyncio.sleep(delay)
-
-        raise RuntimeError(f"Gonka request failed after {self._max_retries} attempts") from last_error
-
-
-class GonkaClientPool:
-    """Least-loaded pool of Gonka clients, one per API key."""
-
-    def __init__(
-        self,
-        *,
-        api_keys: list[str],
-        base_url: str,
-        model: str,
-        disable_json_mode: bool = False,
-        max_concurrent: int = 50,
-        rate_limit_rps: float = 100.0,
-        temperature: float = 0.1,
-        max_retries: int = 7,
-    ) -> None:
-        cleaned = [str(key).strip() for key in api_keys if str(key).strip()]
-        if not cleaned:
-            raise ValueError("GonkaClientPool requires at least one API key")
-        total_rps = max(0.001, float(rate_limit_rps) * max(1, len(cleaned)))
-        self._shared_limiter = _SlidingWindowLimiter(
-            max_requests=1,
-            window=(1.0 / total_rps),
-            jitter_ratio=0.12,
-        )
-        self._clients = [
-            GonkaClient(
-                api_key=key,
-                base_url=base_url,
-                model=model,
-                disable_json_mode=disable_json_mode,
-                max_concurrent=max_concurrent,
-                rate_limit_rps=rate_limit_rps,
-                temperature=temperature,
-                max_retries=max_retries,
-                shared_limiter=self._shared_limiter,
-            )
-            for key in cleaned
-        ]
-        self._in_flight = [0 for _ in self._clients]
-        self._selection_lock = asyncio.Lock()
-        self._json_mode_disabled = disable_json_mode
-        self._rr_cursor = 0
-
-    @property
-    def model_id(self) -> str:
-        return self._clients[0].model_id
-
-    @property
-    def key_count(self) -> int:
-        return len(self._clients)
-
-    def set_cache(self, cache: object | None) -> None:
-        for client in self._clients:
-            client.set_cache(cache)
-
-    def disable_json_mode(self) -> None:
-        if self._json_mode_disabled:
-            return
-        self._json_mode_disabled = True
-        for client in self._clients:
-            client.disable_json_mode()
-
-    async def __aenter__(self) -> "GonkaClientPool":
-        for client in self._clients:
-            await client.__aenter__()
-        return self
-
-    async def __aexit__(self, *exc: object) -> None:
-        for client in self._clients:
-            await client.__aexit__(*exc)
-
-    async def _acquire_client_index(self) -> int:
-        while True:
-            async with self._selection_lock:
-                available = [i for i, client in enumerate(self._clients) if client.is_available()]
-                if available:
-                    min_load = min(self._in_flight[i] for i in available)
-                    tied = [i for i in available if self._in_flight[i] == min_load]
-                    tied.sort()
-                    offset = self._rr_cursor % len(tied)
-                    idx = tied[offset]
-                    self._rr_cursor = (self._rr_cursor + 1) % max(1, len(self._clients))
-                    self._in_flight[idx] += 1
-                    return idx
-                earliest = min((client.backoff_until() for client in self._clients), default=time.monotonic() + 0.25)
-            wait_for = max(0.05, earliest - time.monotonic())
-            await asyncio.sleep(wait_for * random.uniform(0.85, 1.2))
-
-    async def _release_client_index(self, idx: int) -> None:
-        async with self._selection_lock:
-            self._in_flight[idx] = max(0, self._in_flight[idx] - 1)
-
-    async def chat_completion(
-        self,
-        messages: list[dict[str, str]],
-        *,
-        response_format: dict[str, str] | None = None,
-    ) -> dict[str, Any]:
-        idx = await self._acquire_client_index()
-        try:
-            effective_response_format = None if self._json_mode_disabled else response_format
-            result = await self._clients[idx].chat_completion(
-                messages,
-                response_format=effective_response_format,
-            )
-            if self._clients[idx].json_mode_disabled:
-                self.disable_json_mode()
-            return result
-        finally:
-            await self._release_client_index(idx)
-
-
-def _parse_json_object(raw_content: str) -> dict[str, Any] | None:
-    try:
-        data = json.loads(raw_content)
-        if isinstance(data, dict):
-            return data
-        return None
-    except json.JSONDecodeError:
-        import re
-
-        # Robust fallback for responses with trailing junk (common in non-JSON-mode).
-        start = raw_content.find("{")
-        if start != -1:
-            try:
-                parsed, _ = json.JSONDecoder().raw_decode(raw_content[start:])
-                if isinstance(parsed, dict):
-                    return parsed
-            except json.JSONDecodeError:
-                pass
-
-        match = re.search(r"```(?:json)?\s*(\{.*?\})\s*```", raw_content, re.DOTALL)
-        if match:
-            try:
-                parsed = json.loads(match.group(1))
-                if isinstance(parsed, dict):
-                    return parsed
-            except json.JSONDecodeError:
-                logger.warning("Failed to parse extracted codeblock JSON: {}", raw_content[:200])
-
-        # Non-JSON-mode fallback: extract outermost object from mixed text.
-        start = raw_content.find("{")
-        end = raw_content.rfind("}")
-        if start != -1 and end > start:
-            candidate = raw_content[start : end + 1]
-            try:
-                parsed = json.loads(candidate)
-                if isinstance(parsed, dict):
-                    return parsed
-            except json.JSONDecodeError:
-                pass
-
-        logger.warning("Failed to parse LLM response as JSON: {}", raw_content[:200])
-        return None
-
-
-def _is_json_mode_invalid_request(status: int, body: str) -> bool:
-    """Return True when provider rejects JSON-mode with generic 400 invalid_request."""
-    if status != 400:
-        return False
-    try:
-        payload = json.loads(body)
-    except json.JSONDecodeError:
-        return False
-    if not isinstance(payload, dict):
-        return False
-    err = payload.get("error")
-    if not isinstance(err, dict):
-        return False
-    err_type = str(err.get("type") or "").strip().lower()
-    err_code = str(err.get("code") or "").strip().lower()
-    return err_type == "invalid_request_error" and err_code == "invalid_request"
-
-
-def _parse_spo_statements(raw_data: dict[str, Any] | None) -> list[SPOCandidate]:
-    if not raw_data:
-        return []
-    statements = raw_data.get("statements", [])
-    if not isinstance(statements, list):
-        return []
-
-    parsed: list[SPOCandidate] = []
-    for stmt in statements:
-        if not isinstance(stmt, dict):
-            continue
-        payload = _normalize_provider_statement(stmt)
-        try:
-            parsed.append(SPOCandidate.model_validate(payload))
-        except Exception as exc:
-            # Last-resort salvage: keep statement even when threshold objects are malformed.
-            payload_no_thresholds = dict(payload)
-            payload_no_thresholds["thresholds"] = []
-            try:
-                parsed.append(SPOCandidate.model_validate(payload_no_thresholds))
-            except Exception:
-                logger.debug("Skipping invalid SPO statement: {} -- {}", payload, exc)
-    return parsed
-
-
-def _parse_light_statements(raw_data: dict[str, Any] | None) -> list[SPOCandidate]:
-    """Parse 7-field light JSON into full SPOCandidate via code enrichment."""
-    if not raw_data:
-        return []
-    statements = raw_data.get("statements", [])
-    if not isinstance(statements, list):
-        return []
-
-    parsed: list[SPOCandidate] = []
-    for stmt in statements:
-        if not isinstance(stmt, dict):
-            continue
-
-        subject_uk = str(stmt.get("subject_uk") or "").strip()
-        predicate = str(stmt.get("predicate") or "requires").strip()
-        object_uk = str(stmt.get("object_uk") or "").strip()
-        norm_type = str(stmt.get("norm_type") or "obligation").strip()
-        fact_text = str(stmt.get("fact_text") or "").strip()
-        source_quote_uk = str(stmt.get("source_quote_uk") or "").strip()
-
-        confidence = stmt.get("confidence")
-        try:
-            confidence_value = float(confidence)
-        except (TypeError, ValueError):
-            confidence_value = 0.7
-        confidence_value = min(1.0, max(0.0, confidence_value))
-
-        if not subject_uk and not object_uk:
-            continue
-
-        # Code-based canonicalization (no LLM verify pass needed).
-        action_canon, action_oov = canonicalize_action(predicate)
-        norm_type_canon, norm_oov = canonicalize_norm_type(norm_type)
-
-        # Extract thresholds from text fields.
-        threshold_text = "\n".join(part for part in (fact_text, source_quote_uk, object_uk) if part)
-        thresholds = extract_thresholds_from_text(threshold_text, applies_to=object_uk)
-
-        payload: dict[str, Any] = {
-            "subject_en": subject_uk,
-            "subject_uk": subject_uk or "unknown_subject",
-            "predicate": predicate,
-            "object_en": object_uk,
-            "object_uk": object_uk or "unknown_object",
-            "fact_text": fact_text or f"{subject_uk} {predicate} {object_uk}".strip(),
-            "confidence": confidence_value,
-            "norm_type": norm_type,
-            "action_raw": predicate,
-            "action_canon": action_canon,
-            "norm_type_raw": norm_type,
-            "norm_type_canon": norm_type_canon,
-            "source_quote_uk": source_quote_uk,
-            "thresholds": [th.model_dump(mode="json") for th in thresholds],
-        }
-        try:
-            parsed.append(SPOCandidate.model_validate(payload))
-        except Exception as exc:
-            logger.debug("Skipping invalid light SPO statement: {} -- {}", payload, exc)
-    return parsed
-
-
-def _normalize_provider_statement(stmt: dict[str, Any]) -> dict[str, Any]:
-    """Loose schema mapper from provider payload to strict SPOCandidate fields."""
-    payload = dict(stmt)
-
-    alias_map = {
-        "quote_start": "source_quote_start",
-        "quote_end": "source_quote_end",
-        "start": "source_quote_start",
-        "end": "source_quote_end",
-        "source_quote": "source_quote_uk",
-        "subject": "subject_uk",
-        "subject_name": "subject_uk",
-        "subject_role": "subject_uk",
-        "object": "object_uk",
-        "object_name": "object_uk",
-        "object_role": "object_uk",
-        "condition": "condition_text_uk",
-        "exception": "exception_text_uk",
-        "procedure": "procedure_text_uk",
-        "temporal": "temporal_text_uk",
-        "sanction": "sanction_text_uk",
-    }
-    for src, dst in alias_map.items():
-        src_val = payload.get(src)
-        dst_val = payload.get(dst)
-        if src_val not in (None, "") and dst_val in (None, ""):
-            payload[dst] = src_val
-
-    if "thresholds" not in payload and isinstance(payload.get("threshold"), dict):
-        payload["thresholds"] = [payload["threshold"]]
-    thresholds = payload.get("thresholds")
-    if not isinstance(thresholds, list):
-        thresholds = []
-    payload["thresholds"] = [_normalize_threshold_item(item) for item in thresholds if isinstance(item, dict)]
-
-    if not isinstance(payload.get("links"), list):
-        payload["links"] = []
-
-    subject_uk = str(payload.get("subject_uk") or "").strip()
-    object_uk = str(payload.get("object_uk") or "").strip()
-    payload["subject_en"] = str(payload.get("subject_en") or payload.get("actor_en") or subject_uk or "unknown_subject")
-    payload["subject_uk"] = subject_uk or payload["subject_en"]
-    payload["object_en"] = str(payload.get("object_en") or payload.get("target_en") or object_uk or "unknown_object")
-    payload["object_uk"] = object_uk or payload["object_en"]
-
-    payload["predicate"] = str(payload.get("predicate") or payload.get("action_canon") or payload.get("action_raw") or "requires")
-    payload["norm_type"] = str(payload.get("norm_type") or payload.get("norm_type_canon") or payload.get("norm_type_raw") or "obligation")
-
-    fact_text = payload.get("fact_text")
-    if not isinstance(fact_text, str) or not fact_text.strip():
-        fact_text = payload.get("fact_text_en") or payload.get("fact_text_uk") or payload.get("source_quote_uk")
-    if not isinstance(fact_text, str) or not fact_text.strip():
-        fact_text = f"{payload['subject_uk']} {payload['predicate']} {payload['object_uk']}".strip()
-    payload["fact_text"] = fact_text
-
-    confidence = payload.get("confidence")
-    if confidence is None:
-        confidence = (
-            payload.get("confidence_final")
-            or payload.get("confidence_extract")
-            or payload.get("confidence_verify")
-            or 0.7
-        )
-    try:
-        confidence_value = float(confidence)
-    except (TypeError, ValueError):
-        confidence_value = 0.7
-    payload["confidence"] = min(1.0, max(0.0, confidence_value))
-
-    for key in ("source_quote_start", "source_quote_end"):
-        value = payload.get(key)
-        if value in ("", None):
-            payload[key] = None
-            continue
-        try:
-            payload[key] = int(value)
-        except (TypeError, ValueError):
-            payload[key] = None
-
-    for key in (
-        "statement_id",
-        "actor_en",
-        "actor_uk",
-        "target_en",
-        "target_uk",
-        "beneficiary_en",
-        "beneficiary_uk",
-        "action_raw",
-        "action_canon",
-        "norm_type_raw",
-        "norm_type_canon",
-        "fact_text_en",
-        "fact_text_uk",
-        "condition_text_uk",
-        "exception_text_uk",
-        "procedure_text_uk",
-        "temporal_text_uk",
-        "sanction_text_uk",
-        "source_quote_uk",
-    ):
-        if key in payload and payload[key] is not None and not isinstance(payload[key], str):
-            payload[key] = str(payload[key])
-
-    # Drop provider-side alias keys to satisfy SPOCandidate(extra="forbid").
-    for key in (
-        "subject",
-        "subject_name",
-        "subject_role",
-        "object",
-        "object_name",
-        "object_role",
-        "quote_start",
-        "quote_end",
-        "start",
-        "end",
-        "source_quote",
-        "condition",
-        "exception",
-        "procedure",
-        "temporal",
-        "sanction",
-        "threshold",
-    ):
-        payload.pop(key, None)
-
-    return payload
-
-
-def _normalize_threshold_item(raw: dict[str, Any]) -> dict[str, Any]:
-    metric = raw.get("metric")
-    if metric in (None, ""):
-        metric = raw.get("type") or ""
-
-    operator = raw.get("operator")
-    if operator in (None, ""):
-        operator = raw.get("comparator") or ""
-
-    value_decimal = raw.get("value_decimal")
-    if value_decimal in (None, ""):
-        value_decimal = raw.get("value")
-    if value_decimal in (None, ""):
-        value_decimal = raw.get("amount")
-    if value_decimal not in (None, "") and not isinstance(value_decimal, str):
-        value_decimal = str(value_decimal)
-
-    value_text = raw.get("value_text")
-    if value_text in (None, "") and value_decimal not in (None, ""):
-        value_text = str(value_decimal)
-    if value_text not in (None, "") and not isinstance(value_text, str):
-        value_text = str(value_text)
-
-    unit = raw.get("unit")
-    if unit not in (None, "") and not isinstance(unit, str):
-        unit = str(unit)
-
-    applies_to = raw.get("applies_to")
-    if applies_to in (None, ""):
-        applies_to = raw.get("applicable_to")
-    if applies_to not in (None, "") and not isinstance(applies_to, str):
-        applies_to = str(applies_to)
-
-    return {
-        "metric": str(metric or ""),
-        "operator": str(operator or ""),
-        "value_decimal": value_decimal if value_decimal not in (None, "") else None,
-        "value_text": value_text if value_text not in (None, "") else None,
-        "unit": unit if unit not in (None, "") else None,
-        "applies_to": applies_to if applies_to not in (None, "") else None,
-    }
-
-
-def _choose_verify_statements(
-    *,
-    doc_id: str,
-    provision_anchor: str,
-    statements_pass1: list[SPOCandidate],
-    data_verify: dict[str, Any] | None,
-) -> tuple[list[SPOCandidate], bool]:
-    """Choose pass2 statements; fallback to pass1 on verify schema mismatch."""
-    if data_verify is None:
-        return statements_pass1, False
-
-    statements_pass2 = _parse_spo_statements(data_verify)
-    if statements_pass2:
-        return statements_pass2, False
-
-    if statements_pass1:
-        logger.warning(
-            "SPO verify returned incompatible schema for {} {}; keeping pass1 statements.",
-            doc_id,
-            provision_anchor,
-        )
-        return statements_pass1, True
-    return statements_pass2, False
-
-
-def _usage_counts(resp: dict[str, Any]) -> tuple[int, int, float, float, float]:
-    usage = resp.get("usage", {})
-    if not isinstance(usage, dict):
-        usage = {}
-    prompt = int(usage.get("prompt_tokens") or 0)
-    completion = int(usage.get("completion_tokens") or 0)
-
-    cost_base = float(
-        usage.get("base_cost_usd")
-        or usage.get("cost_base_usd")
-        or usage.get("prompt_cost_usd")
-        or 0.0
-    )
-    cost_platform = float(
-        usage.get("platform_cost_usd")
-        or usage.get("cost_platform_usd")
-        or usage.get("service_cost_usd")
-        or 0.0
-    )
-    total_candidates = [
-        usage.get("total_cost_usd"),
-        usage.get("cost_total_usd"),
-        usage.get("total_cost"),
-    ]
-    total = 0.0
-    for value in total_candidates:
-        if value is None:
-            continue
-        try:
-            total = float(value)
-            break
-        except (TypeError, ValueError):
-            continue
-    if total <= 0.0:
-        total = max(0.0, cost_base + cost_platform)
-
-    return prompt, completion, cost_base, cost_platform, total
-
-
-def _normalize_statements(statements: list[SPOCandidate]) -> tuple[list[SPOCandidate], list[str], dict[str, int]]:
-    normalized: list[SPOCandidate] = []
-    reasons: list[str] = []
-    stats = {
-        "oov_action": 0,
-        "oov_norm_type": 0,
-        "missing_quote": 0,
-        "added_thresholds": 0,
-    }
-
-    for stmt in statements:
-        # Verify pass may already provide canonical values, but on noisy outputs
-        # we fallback to predicate/norm_type when canon/raw are out-of-vocab.
-        action_candidates = [
-            stmt.action_canon,
-            stmt.predicate,
-            stmt.action_raw,
-        ]
-        norm_candidates = [
-            stmt.norm_type_canon,
-            stmt.norm_type,
-            stmt.norm_type_raw,
-        ]
-
-        action_canon = "requires"
-        action_oov = True
-        for candidate in action_candidates:
-            if not candidate:
-                continue
-            c_canon, c_oov = canonicalize_action(candidate)
-            action_canon = c_canon
-            action_oov = c_oov
-            if not c_oov:
-                break
-
-        norm_canon = "obligation"
-        norm_oov = True
-        for candidate in norm_candidates:
-            if not candidate:
-                continue
-            c_canon, c_oov = canonicalize_norm_type(candidate)
-            norm_canon = c_canon
-            norm_oov = c_oov
-            if not c_oov:
-                break
-
-        thresholds = list(stmt.thresholds)
-        if not thresholds:
-            derived = extract_thresholds_from_text(
-                "\n".join(
-                    part
-                    for part in (
-                        stmt.condition_text_uk,
-                        stmt.fact_text_uk,
-                        stmt.source_quote_uk,
-                        stmt.object_uk,
-                    )
-                    if part
-                ),
-                applies_to=stmt.target_en or stmt.object_en,
-            )
-            if derived:
-                thresholds = derived
-                stats["added_thresholds"] += len(derived)
-
-        if action_oov:
-            stats["oov_action"] += 1
-            reasons.append("oov_action")
-        if norm_oov:
-            stats["oov_norm_type"] += 1
-            reasons.append("oov_norm_type")
-
-        if not stmt.source_quote_uk.strip() or stmt.source_quote_start is None or stmt.source_quote_end is None:
-            stats["missing_quote"] += 1
-            reasons.append("missing_quote")
-
-        payload = stmt.model_dump(mode="json")
-        payload["action_raw"] = stmt.action_raw or stmt.predicate
-        payload["action_canon"] = action_canon
-        payload["norm_type_raw"] = stmt.norm_type_raw or stmt.norm_type
-        payload["norm_type_canon"] = norm_canon
-        payload["thresholds"] = [th.model_dump(mode="json") for th in thresholds]
-
-        normalized.append(SPOCandidate.model_validate(payload))
-
-    dedup_reasons = sorted(set(reasons))
-    return normalized, dedup_reasons, stats
-
-
-@dataclass(frozen=True, slots=True)
-class _BatchProvisionItem:
-    item_id: str
-    doc: NPADocument
-    provision: ProvisionSpan
-
-
-def _split_int(total: int, parts: int) -> list[int]:
-    if parts <= 0:
-        return []
-    base = total // parts
-    remainder = total % parts
-    return [base + (1 if idx < remainder else 0) for idx in range(parts)]
-
-
-def _split_float(total: float, parts: int) -> list[float]:
-    if parts <= 0:
-        return []
-    if parts == 1:
-        return [total]
-    share = total / parts
-    return [share for _ in range(parts)]
-
-
-def _estimate_request_item_chars(doc: NPADocument, provision: ProvisionSpan) -> int:
-    return (
-        len(provision.text)
-        + len(provision.citation_label or "")
-        + len(doc.card.name or "")
-        + len(doc.card.doc_type or "")
-        + 128
-    )
-
-
-def _group_request_items(
-    items: list[tuple[NPADocument, ProvisionSpan]],
-    *,
-    request_batch_size: int,
-    request_batch_chars: int | None,
-) -> list[list[tuple[NPADocument, ProvisionSpan]]]:
-    groups: list[list[tuple[NPADocument, ProvisionSpan]]] = []
-    current: list[tuple[NPADocument, ProvisionSpan]] = []
-    current_chars = 0
-    max_items = max(1, request_batch_size)
-    max_chars = int(request_batch_chars) if request_batch_chars is not None else 0
-
-    for item in items:
-        item_chars = _estimate_request_item_chars(item[0], item[1])
-        would_overflow_items = len(current) >= max_items
-        would_overflow_chars = bool(
-            current
-            and max_chars > 0
-            and current_chars + item_chars > max_chars
-        )
-        if would_overflow_items or would_overflow_chars:
-            groups.append(current)
-            current = []
-            current_chars = 0
-        current.append(item)
-        current_chars += item_chars
-
-    if current:
-        groups.append(current)
-    return groups
-
-
-def _materialize_fallback_row(
-    base_row: dict[str, Any],
-    *,
-    error_message: str,
-    timeout: bool,
-) -> dict[str, Any]:
-    row = json.loads(json.dumps(base_row, ensure_ascii=False))
-    existing_reasons = row.get("low_confidence_reasons")
-    reasons = list(existing_reasons) if isinstance(existing_reasons, list) else []
-    reason_code = "llm_group_timeout_fallback" if timeout else "llm_group_error_fallback"
-    if reason_code not in reasons:
-        reasons.append(reason_code)
-    row["low_confidence"] = True
-    row["low_confidence_reasons"] = reasons
-    row["raw_llm_response"] = error_message[:1000]
-    row["raw_extract_response"] = error_message[:1000]
-    row["extraction_source"] = "llm_timeout_fallback" if timeout else "llm_error_fallback"
-    return row
-
-
-def _coerce_batch_item_payload(item_payload: Any) -> dict[str, Any] | None:
-    if isinstance(item_payload, list):
-        return {"statements": item_payload}
-    if not isinstance(item_payload, dict):
-        return None
-
-    statements = item_payload.get("statements")
-    payload: dict[str, Any] = {
-        "statements": statements if isinstance(statements, list) else [],
-    }
-    for key in ("low_confidence", "low_confidence_reasons", "verify_report"):
-        if key in item_payload:
-            payload[key] = item_payload[key]
-    return payload
-
-
-def _parse_batch_extract_payload(raw_data: dict[str, Any] | None) -> dict[str, dict[str, Any]]:
-    if not raw_data:
-        return {}
-
-    parsed: dict[str, dict[str, Any]] = {}
-    raw_items = raw_data.get("items")
-    if raw_items is None:
-        raw_items = raw_data.get("results")
-
-    if isinstance(raw_items, list):
-        for raw_item in raw_items:
-            if not isinstance(raw_item, dict):
-                continue
-            raw_id = raw_item.get("id") or raw_item.get("item_id")
-            if not isinstance(raw_id, str):
-                continue
-            item_id = raw_id.strip()
-            if not item_id:
-                continue
-            payload = _coerce_batch_item_payload(raw_item)
-            if payload is not None:
-                parsed[item_id] = payload
-        return parsed
-
-    if isinstance(raw_items, dict):
-        for raw_id, item_payload in raw_items.items():
-            if not isinstance(raw_id, str):
-                continue
-            item_id = raw_id.strip()
-            if not item_id:
-                continue
-            payload = _coerce_batch_item_payload(item_payload)
-            if payload is not None:
-                parsed[item_id] = payload
-        return parsed
-
-    return parsed
 
 
 def _build_extract_failed_result(
@@ -1777,6 +819,60 @@ async def _extract_provision_group(
     return await _extract_batch_provisions(client, group, verify_mode=verify_mode)
 
 
+async def _extract_provision_group_with_timeout(
+    client: GonkaClient,
+    group: list[tuple[NPADocument, ProvisionSpan]],
+    *,
+    verify_mode: str,
+    extract_mode: str,
+    group_timeout_seconds: float | None,
+) -> list[SPOExtractionResult]:
+    coroutine = _extract_provision_group(
+        client,
+        group,
+        verify_mode=verify_mode,
+        extract_mode=extract_mode,
+    )
+    if group_timeout_seconds is None:
+        return await coroutine
+    return await asyncio.wait_for(coroutine, timeout=group_timeout_seconds)
+
+
+def _increment_counter(telemetry: dict[str, int] | None, key: str, amount: int = 1) -> None:
+    if telemetry is None:
+        return
+    telemetry[key] = int(telemetry.get(key, 0) or 0) + amount
+
+
+async def _retry_timed_out_group(
+    client: GonkaClient,
+    group: list[tuple[NPADocument, ProvisionSpan]],
+    *,
+    verify_mode: str,
+    extract_mode: str,
+    retry_batch_size: int,
+    retry_batch_chars: int | None,
+    group_timeout_seconds: float | None,
+) -> list[SPOExtractionResult]:
+    retried_results: list[SPOExtractionResult] = []
+    retry_groups = _group_request_items(
+        group,
+        request_batch_size=max(1, retry_batch_size),
+        request_batch_chars=retry_batch_chars,
+    )
+    for retry_group in retry_groups:
+        retried_results.extend(
+            await _extract_provision_group_with_timeout(
+                client,
+                retry_group,
+                verify_mode=verify_mode,
+                extract_mode=extract_mode,
+                group_timeout_seconds=group_timeout_seconds,
+            )
+        )
+    return retried_results
+
+
 async def extract_spo_for_documents(
     client: GonkaClient,
     documents: list[NPADocument],
@@ -1793,7 +889,12 @@ async def extract_spo_for_documents(
     extraction_source: str = "llm",
     gate_meta_by_anchor: dict[str, dict[str, dict[str, Any]]] | None = None,
     fallback_rows_by_anchor: dict[str, dict[str, dict[str, Any]]] | None = None,
+    merge_baseline_rows_by_anchor: dict[str, dict[str, dict[str, Any]]] | None = None,
     result_sink: Callable[[dict[str, Any]], None] | None = None,
+    timeout_retry_enabled: bool = False,
+    timeout_retry_batch_size: int = 1,
+    timeout_retry_chars: int | None = None,
+    telemetry: dict[str, int] | None = None,
 ) -> tuple[int, set[str]]:
     """Extract SPO for all provisions across documents.
 
@@ -1828,24 +929,13 @@ async def extract_spo_for_documents(
         )
         tasks = [
             asyncio.create_task(
-                asyncio.wait_for(
-                    _extract_provision_group(
-                        client,
-                        group,
-                        verify_mode=verify_mode,
-                        extract_mode=extract_mode,
-                    ),
-                    timeout=group_timeout_seconds,
-                )
-            )
-            if group_timeout_seconds is not None
-            else asyncio.create_task(
-                _extract_provision_group(
+                _extract_provision_group_with_timeout(
                     client,
                     group,
                     verify_mode=verify_mode,
                     extract_mode=extract_mode,
-                ),
+                    group_timeout_seconds=group_timeout_seconds,
+                )
             )
             for group in request_groups
         ]
@@ -1855,41 +945,64 @@ async def extract_spo_for_documents(
         for group, group_result in zip(request_groups, group_results, strict=True):
             if isinstance(group_result, Exception):
                 timeout = isinstance(group_result, asyncio.TimeoutError)
-                error_label = "timeout" if timeout else "failure"
-                logger.warning(
-                    "Provision-group task {} for {} items: {}",
-                    error_label,
-                    len(group),
-                    group_result,
-                )
-                fallback_rows: list[tuple[str, dict[str, Any]]] = []
-                if fallback_rows_by_anchor:
-                    for doc, prov in group:
-                        base_row = fallback_rows_by_anchor.get(doc.card.doc_id, {}).get(prov.anchor_path)
-                        if base_row is None:
-                            fallback_rows = []
-                            break
-                        fallback_rows.append(
-                            (
-                                doc.card.doc_id,
-                                _materialize_fallback_row(
-                                    base_row,
-                                    error_message=str(group_result),
-                                    timeout=timeout,
-                                ),
-                            )
+                if timeout and timeout_retry_enabled:
+                    _increment_counter(telemetry, "timeout_retry_groups_total")
+                    try:
+                        group_result = await _retry_timed_out_group(
+                            client,
+                            group,
+                            verify_mode=verify_mode,
+                            extract_mode=extract_mode,
+                            retry_batch_size=max(1, timeout_retry_batch_size),
+                            retry_batch_chars=timeout_retry_chars,
+                            group_timeout_seconds=group_timeout_seconds,
                         )
-                if fallback_rows:
-                    for doc_id, row in fallback_rows:
-                        if result_sink is not None:
-                            result_sink(row)
-                        doc_buffers.setdefault(doc_id, []).append(row)
-                        statements = row.get("statements")
-                        total_statements += len(statements) if isinstance(statements, list) else 0
+                        timeout = False
+                        _increment_counter(telemetry, "timeout_retry_success_total")
+                        logger.info(
+                            "Recovered timed-out provision group of {} items via retry split",
+                            len(group),
+                        )
+                    except Exception as retry_exc:
+                        group_result = retry_exc
+                        timeout = isinstance(retry_exc, asyncio.TimeoutError)
+                        _increment_counter(telemetry, "timeout_retry_failure_total")
+                if isinstance(group_result, Exception):
+                    error_label = "timeout" if timeout else "failure"
+                    logger.warning(
+                        "Provision-group task {} for {} items: {}",
+                        error_label,
+                        len(group),
+                        group_result,
+                    )
+                    fallback_rows: list[tuple[str, dict[str, Any]]] = []
+                    if fallback_rows_by_anchor:
+                        for doc, prov in group:
+                            base_row = fallback_rows_by_anchor.get(doc.card.doc_id, {}).get(prov.anchor_path)
+                            if base_row is None:
+                                fallback_rows = []
+                                break
+                            fallback_rows.append(
+                                (
+                                    doc.card.doc_id,
+                                    _materialize_fallback_row(
+                                        base_row,
+                                        error_message=str(group_result),
+                                        timeout=timeout,
+                                    ),
+                                )
+                            )
+                    if fallback_rows:
+                        for doc_id, row in fallback_rows:
+                            if result_sink is not None:
+                                result_sink(row)
+                            doc_buffers.setdefault(doc_id, []).append(row)
+                            statements = row.get("statements")
+                            total_statements += len(statements) if isinstance(statements, list) else 0
+                        continue
+                    for doc, _ in group:
+                        failed_doc_ids.add(doc.card.doc_id)
                     continue
-                for doc, _ in group:
-                    failed_doc_ids.add(doc.card.doc_id)
-                continue
 
             for result in group_result:
                 if not result.statements and "failed" in result.raw_llm_response.lower():
@@ -1918,10 +1031,28 @@ async def extract_spo_for_documents(
                 row["gate_score"] = gate_score
                 row["gate_reason_codes"] = gate_reasons
                 row["extraction_source"] = extraction_source
+                if merge_baseline_rows_by_anchor:
+                    baseline_row = merge_baseline_rows_by_anchor.get(result.doc_id, {}).get(result.provision_anchor)
+                    baseline_statements = (
+                        baseline_row.get("statements", [])
+                        if isinstance(baseline_row, dict)
+                        else []
+                    )
+                    if not isinstance(baseline_statements, list):
+                        baseline_statements = []
+                    llm_statements = row.get("statements", [])
+                    if not isinstance(llm_statements, list):
+                        llm_statements = []
+                    merged_statements, added_count = _merge_statement_lists(baseline_statements, llm_statements)
+                    row["statements"] = merged_statements
+                    row["baseline_statement_count"] = len(baseline_statements)
+                    row["llm_gap_fill_llm_statement_count"] = len(llm_statements)
+                    row["llm_gap_fill_added_statement_count"] = added_count
                 if result_sink is not None:
                     result_sink(row)
                 doc_buffers.setdefault(result.doc_id, []).append(row)
-                total_statements += len(result.statements)
+                statements = row.get("statements")
+                total_statements += len(statements) if isinstance(statements, list) else 0
 
         for doc_id, rows in doc_buffers.items():
             out_path = results_dir / _shard_prefix(doc_id) / f"{doc_id}.jsonl"

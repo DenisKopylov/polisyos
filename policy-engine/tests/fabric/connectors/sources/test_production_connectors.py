@@ -329,7 +329,7 @@ def test_unpd_fetch_with_mock_http(monkeypatch) -> None:
         "data": [
             {
                 "indicatorId": "1",
-                "iso3Code": "UKR",
+                "iso3": "UKR",
                 "locationId": 804,
                 "timeLabel": "2020",
                 "value": 55.1,

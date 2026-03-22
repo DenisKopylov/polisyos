@@ -11,6 +11,7 @@ Covers:
 from __future__ import annotations
 
 import pytest
+import numpy as np
 
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType
 from polisyos.ir.analytics.mgraph import (
@@ -239,6 +240,64 @@ def test_partial_nonrecoverability():
     assert "R_Y" in result.blocking_r_nodes
     # R_X (MCAR) must NOT be blocking
     assert "R_X" not in result.blocking_r_nodes
+
+
+# ---------------------------------------------------------------------------
+# T6b: build_mgraph legacy/base_graph compatibility
+# ---------------------------------------------------------------------------
+
+
+def test_build_mgraph_legacy_base_graph_api_preserves_mnar_blocking():
+    """Legacy base_graph + missing_variables input should still build a valid M-graph."""
+    base_graph = CausalGraphModel(
+        graph_type=GraphType.DAG,
+        nodes=["X", "Y"],
+        edges=[CausalEdge(src="X", dst="Y")],
+    )
+    graph = build_mgraph(
+        base_graph=base_graph,
+        missing_variables={"X": MissingnessKind.MNAR},
+    )
+
+    from polisyos.foundry.methods.catalog.causal.recoverability_engine import (
+        RecoverabilityStatus,
+        test_recoverability,
+    )
+
+    meta = extract_mgraph_metadata(graph)
+    result = test_recoverability(
+        query_vars=frozenset({"X"}),
+        graph=graph,
+        mgraph_meta=meta,
+    )
+    assert result.status == RecoverabilityStatus.NOT_RECOVERABLE
+    assert result.blocking_r_nodes == frozenset({"R_X"})
+
+
+def test_build_mgraph_accepts_explicit_missingness_edges():
+    """Explicit missingness edges should be routed into the M-graph metadata correctly."""
+    graph = build_mgraph(
+        substantive_vars=["X", "Y", "Z"],
+        directed_edges=[("X", "Y")],
+        missingness_map={"X": MissingnessKind.MAR},
+        missingness_edges=[("Z", "R_X")],
+    )
+
+    meta = extract_mgraph_metadata(graph)
+    assert frozenset(meta.substantive_vars) == frozenset({"X", "Y", "Z"})
+    assert {f"R_{node.target_variable}" for node in meta.r_nodes} == {"R_X"}
+
+    from polisyos.foundry.methods.catalog.causal.recoverability_engine import (
+        RecoverabilityStatus,
+        test_recoverability,
+    )
+
+    result = test_recoverability(
+        query_vars=frozenset({"X"}),
+        graph=graph,
+        mgraph_meta=meta,
+    )
+    assert result.status == RecoverabilityStatus.RECOVERABLE
 
 
 # ---------------------------------------------------------------------------
@@ -515,3 +574,202 @@ def test_foundry_methods_pure_step_all_three():
     assert "identification_result" in out_fl
     assert "status" in out_fl["identification_result"]
     assert out_fl["identification_result"]["status"] == "identified"
+
+
+# ---------------------------------------------------------------------------
+# T19: testable_implications derives observable CI claims only
+# ---------------------------------------------------------------------------
+
+
+def test_testable_implications_are_observed_only():
+    from polisyos.foundry.methods.catalog.causal.missing_data import (
+        testable_implications,
+    )
+
+    graph = make_mcar_mgraph()
+    meta = extract_mgraph_metadata(graph)
+    implications = testable_implications(graph, meta, max_conditioning_set_size=1)
+
+    observed = set(meta.fully_observed_vars)
+    observed.update(p.proxy_name for p in meta.proxy_nodes)
+    observed.update(f"R_{r.target_variable}" for r in meta.r_nodes)
+
+    assert implications
+    assert all({imp.x, imp.y}.issubset(observed) for imp in implications)
+    assert all(set(imp.z).issubset(observed) for imp in implications)
+    assert any({imp.x, imp.y} == {"R_X", "Y"} and imp.z == () for imp in implications)
+
+
+# ---------------------------------------------------------------------------
+# T20: continuous route uses partial correlation and BH correction
+# ---------------------------------------------------------------------------
+
+
+def test_mgraph_implications_continuous_route():
+    from polisyos.foundry.methods.catalog.causal.missing_data import (
+        ConditionalIndependence,
+        test_mgraph_implications,
+    )
+
+    graph = build_mgraph(
+        substantive_vars=["X", "Y", "Y_dep", "Z"],
+        directed_edges=[],
+        missingness_map={},
+    )
+    meta = extract_mgraph_metadata(graph)
+    rng = np.random.default_rng(7)
+    n = 500
+    z = rng.normal(size=n)
+    x = z + 0.15 * rng.normal(size=n)
+    y = z + 0.15 * rng.normal(size=n)
+    y_dep = x + 0.3 * rng.normal(size=n)
+    data = {"X": x, "Y": y, "Y_dep": y_dep, "Z": z}
+
+    implications = [
+        ConditionalIndependence(x="X", y="Y", z=("Z",)),
+        ConditionalIndependence(x="X", y="Y_dep", z=("Z",)),
+    ]
+    report = test_mgraph_implications(
+        graph=graph,
+        mgraph_meta=meta,
+        data=data,
+        implications=implications,
+        alpha=0.05,
+    )
+
+    assert report.test_method == "adaptive_mgraph_ci"
+    assert report.results[0].test_name == "partial_correlation"
+    assert report.results[0].metadata["route"] == "partial_correlation"
+    assert report.results[0].passed is True
+    assert report.results[1].passed is False
+    assert report.implications_tested == 2
+    assert report.implications_passed == 1
+    assert report.overall_valid is False
+
+
+# ---------------------------------------------------------------------------
+# T21: categorical route uses G-test / conditional G-test
+# ---------------------------------------------------------------------------
+
+
+def test_mgraph_implications_categorical_route():
+    from polisyos.foundry.methods.catalog.causal.missing_data import (
+        ConditionalIndependence,
+        test_mgraph_implications,
+    )
+
+    graph = build_mgraph(
+        substantive_vars=["X", "Y", "Y_dep", "Z"],
+        directed_edges=[],
+        missingness_map={},
+    )
+    meta = extract_mgraph_metadata(graph)
+    rng = np.random.default_rng(17)
+    n = 600
+    z = rng.integers(0, 2, size=n).astype(str)
+    x = np.where(z == "0", rng.integers(0, 3, size=n), rng.integers(0, 3, size=n)).astype(str)
+    y = np.where(z == "0", rng.integers(0, 3, size=n), rng.integers(0, 3, size=n)).astype(str)
+    y_dep = x.copy()
+    data = {"X": x, "Y": y, "Y_dep": y_dep, "Z": z}
+
+    implications = [
+        ConditionalIndependence(x="X", y="Y", z=("Z",)),
+        ConditionalIndependence(x="X", y="Y_dep", z=("Z",)),
+    ]
+    report = test_mgraph_implications(
+        graph=graph,
+        mgraph_meta=meta,
+        data=data,
+        implications=implications,
+        alpha=0.05,
+    )
+
+    assert report.results[0].test_name == "conditional_g_test"
+    assert report.results[0].metadata["route"] == "conditional_g_test"
+    assert report.results[0].passed is True
+    assert report.results[1].passed is False
+    assert report.results[1].adjusted_p_value <= 0.05
+    assert report.warnings == []
+
+
+# ---------------------------------------------------------------------------
+# T22: mixed route uses kernel-based CMI-style approximation
+# ---------------------------------------------------------------------------
+
+
+def test_mgraph_implications_mixed_route_and_serialization():
+    from polisyos.foundry.methods.catalog.causal.missing_data import (
+        ConditionalIndependence,
+        MGraphImplicationTester,
+        test_mgraph_implications,
+    )
+
+    graph = build_mgraph(
+        substantive_vars=["X", "Y", "Y_dep", "Z"],
+        directed_edges=[],
+        missingness_map={},
+    )
+    meta = extract_mgraph_metadata(graph)
+    rng = np.random.default_rng(29)
+    n = 450
+    z = rng.integers(0, 2, size=n).astype(str)
+    x = rng.normal(size=n) + (z == "1").astype(float) * 1.5
+    y = rng.normal(size=n) + (z == "1").astype(float) * 1.5
+    y_dep = x + 0.05 * rng.normal(size=n)
+    data = {"X": x, "Y": y, "Y_dep": y_dep, "Z": z}
+
+    implications = [
+        ConditionalIndependence(x="X", y="Y", z=("Z",)),
+        ConditionalIndependence(x="X", y="Y_dep", z=("Z",)),
+    ]
+    report = test_mgraph_implications(
+        graph=graph,
+        mgraph_meta=meta,
+        data=data,
+        implications=implications,
+        alpha=0.05,
+    )
+
+    assert report.results[0].test_name == "kci_mixed"
+    assert report.results[0].metadata["route"] == "kci_mixed"
+    assert report.results[0].passed is True
+    assert report.results[1].passed is False
+    assert report.warnings
+    assert any("kci_mixed" in warning for warning in report.warnings)
+
+    graph_dict = graph.model_dump(mode="json")
+    out = MGraphImplicationTester.pure_step(
+        {"mgraph_data": graph_dict, "data": data},
+        {"implications": implications, "alpha": 0.05, "max_conditioning_set_size": 1},
+    )
+    assert out["test_report"]["test_method"] == "adaptive_mgraph_ci"
+    assert out["test_report"]["results"][0]["test_name"] == "kci_mixed"
+
+
+# ---------------------------------------------------------------------------
+# T23: missing columns fail loudly
+# ---------------------------------------------------------------------------
+
+
+def test_mgraph_implications_missing_column_raises():
+    from polisyos.foundry.methods.catalog.causal.missing_data import (
+        ConditionalIndependence,
+        test_mgraph_implications,
+    )
+
+    graph = build_mgraph(
+        substantive_vars=["X", "Y"],
+        directed_edges=[],
+        missingness_map={},
+    )
+    meta = extract_mgraph_metadata(graph)
+    data = {"X": np.array([0.0, 1.0, 0.5]), "Y": np.array([1.0, 0.0, 0.25])}
+
+    with pytest.raises(KeyError, match="Missing data column"):
+        test_mgraph_implications(
+            graph=graph,
+            mgraph_meta=meta,
+            data=data,
+            implications=[ConditionalIndependence(x="X", y="Z", z=())],
+            alpha=0.05,
+        )

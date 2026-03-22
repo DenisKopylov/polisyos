@@ -34,6 +34,8 @@ from polisyos.scientist.agent.protocols import (
 )
 from polisyos.scientist.agent.rag import CASRAGIndex, RAGConfig, format_few_shot_block
 
+from polisyos.scientist.engine.convergence import ConvergenceDetector
+
 from ._drafter_formatting import _DrafterFormattingMixin
 from ._drafter_llm import _DrafterLLMMixin
 from ._drafter_parsing import _DrafterParsingMixin
@@ -174,6 +176,9 @@ class MultiPassLLMDrafter(
         extra_llm_calls = 0
         early_exit = False
         stop_reason = ""
+        convergence_detector: ConvergenceDetector | None = None
+        if self._config.convergence is not None:
+            convergence_detector = ConvergenceDetector(self._config.convergence)
 
         with tracer.start_as_current_span(
             "drafter.multi_pass",
@@ -205,6 +210,11 @@ class MultiPassLLMDrafter(
             )
 
             all_findings: list[PassFinding] = list(deterministic.findings)
+
+            # Feed convergence detector with initial confidence
+            if convergence_detector is not None:
+                convergence_detector.check(current_draft.confidence)
+
             if self._config.max_passes <= 1:
                 return self._finalize(
                     problem_frame=problem_frame,
@@ -258,6 +268,29 @@ class MultiPassLLMDrafter(
                     pass2.findings,
                     confidence_adjustment=pass2.confidence_adjustment,
                 )
+
+            # Convergence check after pass 2
+            if convergence_detector is not None:
+                conv_state = convergence_detector.check(current_draft.confidence)
+                if conv_state.converged:
+                    early_exit = True
+                    stop_reason = f"convergence:{conv_state.reason}"
+                    remaining = list(range(3, self._config.max_passes + 1))
+                    pass_names = {3: "constraint_verify", 4: "consolidation"}
+                    for pn in remaining:
+                        if pn in pass_names:
+                            pass_results.append(self._skipped_pass(pass_names[pn], pn, stop_reason))
+                    return self._finalize(
+                        problem_frame=problem_frame,
+                        draft=current_draft,
+                        pass_results=pass_results,
+                        cumulative_cost_usd=cumulative_cost_usd,
+                        extra_llm_calls=extra_llm_calls,
+                        early_exit=early_exit,
+                        stop_reason=stop_reason,
+                        parent_span=parent_span,
+                        metrics=metrics,
+                    )
 
             if self._should_early_exit(current_draft, all_findings):
                 early_exit = True
@@ -334,6 +367,25 @@ class MultiPassLLMDrafter(
                     pass3.findings,
                     confidence_adjustment=pass3.confidence_adjustment,
                 )
+
+            # Convergence check after pass 3
+            if convergence_detector is not None:
+                conv_state = convergence_detector.check(current_draft.confidence)
+                if conv_state.converged:
+                    early_exit = True
+                    stop_reason = f"convergence:{conv_state.reason}"
+                    pass_results.append(self._skipped_pass("consolidation", 4, stop_reason))
+                    return self._finalize(
+                        problem_frame=problem_frame,
+                        draft=current_draft,
+                        pass_results=pass_results,
+                        cumulative_cost_usd=cumulative_cost_usd,
+                        extra_llm_calls=extra_llm_calls,
+                        early_exit=early_exit,
+                        stop_reason=stop_reason,
+                        parent_span=parent_span,
+                        metrics=metrics,
+                    )
 
             if self._config.max_passes <= 3:
                 return self._finalize(

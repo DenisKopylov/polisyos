@@ -21,7 +21,6 @@ from __future__ import annotations
 from typing import Any, ClassVar, Mapping
 
 import numpy as np
-from sklearn.linear_model import LinearRegression, LogisticRegression
 
 from polisyos.core.observability.determinism import DeterminismTier
 from polisyos.foundry.methods.base import (
@@ -35,6 +34,10 @@ from polisyos.foundry.methods.base import (
     SlotType,
     Unit,
     foundry_method,
+)
+from polisyos.foundry.methods.catalog.causal._sklearn_compat import (
+    LinearRegression,
+    LogisticRegression,
 )
 from polisyos.foundry.methods.catalog.causal._common import (
     bootstrap_ci,

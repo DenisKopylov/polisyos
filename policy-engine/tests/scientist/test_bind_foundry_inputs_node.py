@@ -79,11 +79,18 @@ def _setup_ctx(store: FileSystemCAS):
     return ctx, registry_bundle
 
 
-def _put_data_snapshot(store: FileSystemCAS) -> DataSnapshotRef:
+def _put_data_snapshot(
+    store: FileSystemCAS,
+    *,
+    stats: dict[str, int | str] | None = None,
+) -> DataSnapshotRef:
     base_state = GlobalState.empty(n_agents=5, n_firms=2)
     state_snapshot_ref = put_state_snapshot(store, state=base_state, step=0)
     snapshot_ref = store.put_json(
-        DataSnapshot(data_ref=StateSnapshotRef(artifact_id=state_snapshot_ref.artifact_id)),
+        DataSnapshot(
+            data_ref=StateSnapshotRef(artifact_id=state_snapshot_ref.artifact_id),
+            stats=stats or {},
+        ),
         PutOptions(
             kind="fabric.data_snapshot",
             media_type="application/json",
@@ -181,3 +188,40 @@ def test_bind_foundry_inputs_node_blocks_on_model_spec_mismatch(tmp_path) -> Non
     assert outcome.status == "fail"
     assert outcome.error is not None
     assert outcome.error.code == "node.invalid_state"
+
+
+def test_bind_foundry_inputs_node_carries_shape_warning_for_survey_snapshots(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+    ctx, registry_bundle_ref = _setup_ctx(store)
+    data_snapshot_ref = _put_data_snapshot(
+        store,
+        stats={
+            "data_shape": "survey_repeated_cross_section",
+            "survey_year_field": "survey_year",
+            "wave_field": "wave",
+            "sample_weight_field": "sample_weight",
+        },
+    )
+    trinity_ref = _put_trinity_bundle(
+        store,
+        registry_bundle_ref=registry_bundle_ref,
+        data_snapshot_ref=str(data_snapshot_ref.artifact_id),
+    )
+
+    state = ExperimentState(
+        run_id="R_bind_shape",
+        inputs={
+            INPUT_TRINITY_BUNDLE_REF: trinity_ref,
+            INPUT_REGISTRY_BUNDLE_REF: registry_bundle_ref,
+            INPUT_DATA_SNAPSHOT_REF: data_snapshot_ref,
+        },
+    )
+
+    outcome = BindFoundryInputsNode().execute(ctx, state)
+    assert outcome.status == "ok"
+
+    bindings_ref = outcome.state.inputs[INPUT_INPUT_BINDINGS_REF]
+    payload = from_canonical_bytes(store.get_bytes(bindings_ref.artifact_id))
+    bindings = FoundryInputBindings.model_validate(payload)
+    assert "snapshot.data_shape=survey_repeated_cross_section" in bindings.notes
+    assert any("panel SCM/DiD/econometrics" in note for note in bindings.notes if note.startswith("warning:"))

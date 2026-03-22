@@ -13,14 +13,17 @@ import duckdb
 from polisyos.batch_common.manifest import write_stage_manifest
 from polisyos.batch_common.qc import QCCheck, QCReport, evaluate_fail_fast, write_qc_report
 from polisyos.common.logger import get_logger
-from polisyos.datasets.batch.benchmark import READINESS_THRESHOLDS
+from polisyos.datasets.batch.benchmark import (
+    active_readiness_thresholds_for_profile,
+    readiness_thresholds_for_profile,
+)
 from polisyos.datasets.batch.config import DatasetBatchConfig
 
 logger = get_logger(__name__)
 
 
 def _is_smoke_like_run(config: DatasetBatchConfig) -> bool:
-    return config.is_sampled_run or config.uses_custom_registry
+    return config.is_sampled_run or config.uses_custom_registry or config.run_profile == "preflight_core"
 
 
 def _line_count(path: Path) -> int:
@@ -34,6 +37,38 @@ def _file_size(path: Path) -> int:
     if not path.exists():
         return 0
     return int(path.stat().st_size)
+
+
+def _source_counts_towards_description_qc(spec: object) -> bool:
+    family = str(getattr(spec, "family", "") or "").strip().lower()
+    run_lane = str(getattr(spec, "run_lane", "") or "").strip().lower()
+    if run_lane == "enrichment":
+        return False
+    if family in {"sdmx", "who", "uis", "worldbank", "unpd", "wvs"} and run_lane == "empirical":
+        return False
+    return True
+
+
+def _url_is_reachable(url: str, *, timeout: int = 10) -> bool:
+    if not isinstance(url, str) or not url.startswith(("http://", "https://")):
+        return False
+
+    requests = (
+        urllib.request.Request(url, method="HEAD", headers={"User-Agent": "Mozilla/5.0"}),
+        urllib.request.Request(
+            url,
+            method="GET",
+            headers={"User-Agent": "Mozilla/5.0", "Range": "bytes=0-0"},
+        ),
+    )
+    for request in requests:
+        try:
+            with urllib.request.urlopen(request, timeout=timeout) as resp:
+                if int(resp.status) < 500:
+                    return True
+        except Exception as exc:
+            logger.debug("Ignored exception for %s %s: {}", request.get_method(), url, exc)
+    return False
 
 
 def _latest_manifest(source_dir: Path) -> Path | None:
@@ -103,10 +138,129 @@ def _duplicate_ratio(config: DatasetBatchConfig, merged_total: int) -> float:
     return round((100.0 * duplicate_rows) / merged_total, 3)
 
 
+def _coverage_heatmap_path(config: DatasetBatchConfig) -> Path:
+    return config.component_dir / "coverage_heatmap.json"
+
+
+def _generate_coverage_heatmap(
+    con: duckdb.DuckDBPyConnection,
+    *,
+    countries: tuple[str, ...],
+    variables: tuple[str, ...],
+    year_range: tuple[int, int],
+) -> dict[str, dict[str, dict[str, object]]]:
+    start_year, end_year = year_range
+    matrix: dict[str, dict[str, dict[str, object]]] = {}
+    for country in countries:
+        country_data: dict[str, dict[str, object]] = {}
+        for variable in variables:
+            rows = con.execute(
+                "SELECT DISTINCT COALESCE(year, survey_year) AS observed_year "
+                "FROM ds_observations "
+                "WHERE country_code = ? AND canonical_var = ? "
+                "AND COALESCE(year, survey_year) BETWEEN ? AND ? "
+                "ORDER BY observed_year",
+                [country, variable, start_year, end_year],
+            ).fetchall()
+            observed_years = [int(row[0]) for row in rows if row and row[0] is not None]
+            if len(observed_years) >= (end_year - start_year + 1):
+                status = "full"
+            elif observed_years:
+                status = "partial"
+            else:
+                status = "missing"
+            country_data[variable] = {
+                "available_years": observed_years,
+                "latest_year": observed_years[-1] if observed_years else None,
+                "count": len(observed_years),
+                "status": status,
+            }
+        matrix[country] = country_data
+    return matrix
+
+
+def _check_observation_coverage(
+    con: duckdb.DuckDBPyConnection,
+    *,
+    countries: tuple[str, ...],
+    variables: tuple[str, ...],
+    year_range: tuple[int, int],
+) -> QCCheck:
+    start_year, end_year = year_range
+    total_cells = len(countries) * len(variables) * ((end_year - start_year) + 1)
+    if total_cells <= 0:
+        return QCCheck(
+            name="observation_coverage_pct",
+            passed=True,
+            value=100.0,
+            threshold=60.0,
+            severity="info",
+        )
+    filled = con.execute(
+        "SELECT COUNT(*) FROM ("
+        "SELECT DISTINCT country_code, canonical_var, COALESCE(year, survey_year) AS observed_year "
+        "FROM ds_observations "
+        "WHERE country_code IN (SELECT UNNEST(?::VARCHAR[])) "
+        "AND canonical_var IN (SELECT UNNEST(?::VARCHAR[])) "
+        "AND COALESCE(year, survey_year) BETWEEN ? AND ?"
+        ")",
+        [list(countries), list(variables), start_year, end_year],
+    ).fetchone()[0]
+    coverage = (100.0 * float(filled or 0)) / float(total_cells)
+    return QCCheck(
+        name="observation_coverage_pct",
+        passed=coverage >= 60.0,
+        value=round(coverage, 3),
+        threshold=60.0,
+        severity="warning",
+        message="Coverage across active countries, core variables, and requested years",
+    )
+
+
+def _check_cross_source_consistency(con: duckdb.DuckDBPyConnection) -> QCCheck:
+    disagreements = con.execute(
+        "WITH multi_source AS ("
+        "SELECT canonical_var, country_code, COALESCE(year, survey_year) AS observed_year, "
+        "MIN(value) AS min_val, MAX(value) AS max_val, AVG(value) AS mean_val, "
+        "COUNT(DISTINCT dataset_id) AS n_sources "
+        "FROM ds_observations "
+        "WHERE value IS NOT NULL "
+        "GROUP BY canonical_var, country_code, COALESCE(year, survey_year) "
+        "HAVING COUNT(DISTINCT dataset_id) > 1"
+        ") "
+        "SELECT canonical_var, country_code, observed_year, min_val, max_val, n_sources, "
+        "(max_val - min_val) / NULLIF(ABS(mean_val), 0) AS relative_spread "
+        "FROM multi_source "
+        "WHERE (max_val - min_val) / NULLIF(ABS(mean_val), 0) > 0.15 "
+        "ORDER BY relative_spread DESC "
+        "LIMIT 20"
+    ).fetchall()
+    return QCCheck(
+        name="cross_source_value_spread",
+        passed=len(disagreements) <= 5,
+        value=len(disagreements),
+        threshold=5,
+        severity="warning",
+        message="Cross-source disagreements above 15% relative spread",
+    )
+
+
+def _non_blocking_smoke_check(check: QCCheck, *, message: str) -> QCCheck:
+    return QCCheck(
+        name=check.name,
+        passed=True,
+        severity="info",
+        value=check.value,
+        threshold=check.threshold,
+        message=message,
+    )
+
+
 def run_qc(config: DatasetBatchConfig, *, fail_fast: bool | None = None) -> QCReport:
     started_at = datetime.now(UTC).isoformat()
     checks: list[QCCheck] = []
     metrics: dict[str, float | int] = {}
+    smoke_like = _is_smoke_like_run(config)
 
     source_dirs = [p for p in config.raw_dir.iterdir() if p.is_dir()] if config.raw_dir.exists() else []
     manifest_actual_counts: dict[str, int] = {}
@@ -181,7 +335,8 @@ def run_qc(config: DatasetBatchConfig, *, fail_fast: bool | None = None) -> QCRe
     anomalies_total = 0
     anomaly_drops = 0
     anomaly_spikes = 0
-    anomaly_checks_skipped = int(_is_smoke_like_run(config))
+    anomaly_baseline_resets = 0
+    anomaly_checks_skipped = int(smoke_like)
 
     if previous_snapshot_root is not None and not anomaly_checks_skipped:
         execution_sources = {
@@ -215,6 +370,14 @@ def run_qc(config: DatasetBatchConfig, *, fail_fast: bool | None = None) -> QCRe
             if previous <= 0:
                 continue
             delta_pct = round((100.0 * (actual - previous)) / previous, 3)
+            if source == "wvs" and previous <= 5 and actual >= 10:
+                anomaly_baseline_resets += 1
+                logger.info(
+                    "Skipping anomaly spike for WVS baseline reset: previous={}, current={}",
+                    previous,
+                    actual,
+                )
+                continue
             if delta_pct <= -70.0:
                 anomalies_total += 1
                 anomaly_drops += 1
@@ -249,6 +412,7 @@ def run_qc(config: DatasetBatchConfig, *, fail_fast: bool | None = None) -> QCRe
     metrics["source_anomalies_total"] = anomalies_total
     metrics["source_anomaly_drops_total"] = anomaly_drops
     metrics["source_anomaly_spikes_total"] = anomaly_spikes
+    metrics["source_anomaly_baseline_resets_total"] = anomaly_baseline_resets
     metrics["source_anomaly_checks_skipped"] = anomaly_checks_skipped
     checks.append(
         QCCheck(
@@ -262,6 +426,7 @@ def run_qc(config: DatasetBatchConfig, *, fail_fast: bool | None = None) -> QCRe
     )
 
     merged_total = 0
+    description_qc_total = 0
     empty_title = 0
     empty_desc = 0
     if config.merged_records_path.exists():
@@ -272,14 +437,20 @@ def run_qc(config: DatasetBatchConfig, *, fail_fast: bool | None = None) -> QCRe
                     continue
                 row = json.loads(line)
                 merged_total += 1
+                source = str(row.get("source", "")).strip()
+                spec = registry_specs.get(source)
+                if not _source_counts_towards_description_qc(spec):
+                    continue
+                description_qc_total += 1
                 if not str(row.get("title", "")).strip():
                     empty_title += 1
                 if not str(row.get("description", "")).strip():
                     empty_desc += 1
 
-    title_pct = (100.0 * empty_title / merged_total) if merged_total else 0.0
-    desc_pct = (100.0 * empty_desc / merged_total) if merged_total else 0.0
+    title_pct = (100.0 * empty_title / description_qc_total) if description_qc_total else 0.0
+    desc_pct = (100.0 * empty_desc / description_qc_total) if description_qc_total else 0.0
     metrics["merged_total"] = merged_total
+    metrics["description_qc_total"] = description_qc_total
     metrics["empty_title_pct"] = round(title_pct, 3)
     metrics["empty_description_pct"] = round(desc_pct, 3)
     metrics["duplicate_ratio_pct"] = _duplicate_ratio(config, merged_total)
@@ -293,7 +464,8 @@ def run_qc(config: DatasetBatchConfig, *, fail_fast: bool | None = None) -> QCRe
         con = duckdb.connect(str(config.db_path), read_only=True)
         try:
             rows = con.execute(
-                "SELECT url FROM ds_distributions WHERE url IS NOT NULL AND url != '' LIMIT 200"
+                "SELECT DISTINCT url FROM ds_distributions "
+                "WHERE url IS NOT NULL AND length(trim(url)) > 0 LIMIT 500"
             ).fetchall()
         finally:
             con.close()
@@ -303,13 +475,8 @@ def run_qc(config: DatasetBatchConfig, *, fail_fast: bool | None = None) -> QCRe
         sample = random.sample(urls, k=min(20, len(urls))) if urls else []
         for url in sample:
             checked += 1
-            try:
-                req = urllib.request.Request(url, method="HEAD")
-                with urllib.request.urlopen(req, timeout=10) as resp:
-                    if int(resp.status) < 500:
-                        reachable += 1
-            except Exception as exc:
-                logger.debug("Ignored exception: {}", exc)
+            if _url_is_reachable(url, timeout=10):
+                reachable += 1
 
     reach_pct = (100.0 * reachable / checked) if checked else 100.0
     metrics["url_sample_checked"] = checked
@@ -407,6 +574,56 @@ def run_qc(config: DatasetBatchConfig, *, fail_fast: bool | None = None) -> QCRe
                     metrics["datasets_with_schema_profile_pct"] = round(schema_pct, 3)
                 else:
                     metrics["datasets_with_schema_profile_pct"] = 0.0
+
+                if _table_exists(con, "ds_observations"):
+                    coverage_variables = (
+                        "gdp_per_capita",
+                        "unemployment_rate",
+                        "inflation",
+                        "migration",
+                        "health_outcomes",
+                        "education_outcomes",
+                        "social_trust",
+                        "poverty_rate",
+                        "labor_force_participation",
+                        "institutional_quality",
+                    )
+                    active_countries = tuple(config.resolved_active_countries[:10])
+                    coverage_check = _check_observation_coverage(
+                        con,
+                        countries=active_countries,
+                        variables=coverage_variables,
+                        year_range=config.resolved_year_window,
+                    )
+                    metrics["observation_coverage_pct"] = float(coverage_check.value or 0.0)
+                    heatmap = _generate_coverage_heatmap(
+                        con,
+                        countries=active_countries,
+                        variables=coverage_variables,
+                        year_range=config.resolved_year_window,
+                    )
+                    heatmap_path = _coverage_heatmap_path(config)
+                    heatmap_path.parent.mkdir(parents=True, exist_ok=True)
+                    with open(heatmap_path, "w", encoding="utf-8") as fh:
+                        json.dump(heatmap, fh, ensure_ascii=False, indent=2)
+                    metrics["coverage_heatmap_path"] = str(heatmap_path)
+                    cross_source_check = _check_cross_source_consistency(con)
+                    if smoke_like:
+                        checks.append(
+                            _non_blocking_smoke_check(
+                                coverage_check,
+                                message="Observation coverage recorded for smoke/preflight run but not enforced as blocking gate",
+                            )
+                        )
+                        checks.append(
+                            _non_blocking_smoke_check(
+                                cross_source_check,
+                                message="Cross-source spread recorded for smoke/preflight run but not enforced as blocking gate",
+                            )
+                        )
+                    else:
+                        checks.append(coverage_check)
+                        checks.append(cross_source_check)
 
                 if has_alignments and "execution_tier" in dataset_columns:
                     transport_pct = _scalar(
@@ -563,12 +780,15 @@ def run_qc(config: DatasetBatchConfig, *, fail_fast: bool | None = None) -> QCRe
             benchmark_payload = json.load(fh)
         benchmark_metrics = benchmark_payload.get("metrics") if isinstance(benchmark_payload, dict) else {}
         if isinstance(benchmark_metrics, dict):
-            smoke_like = _is_smoke_like_run(config)
+            readiness_thresholds = readiness_thresholds_for_profile(config.run_profile)
+            active_thresholds = active_readiness_thresholds_for_profile(config.run_profile)
             vector_index_available = bool(benchmark_metrics.get("benchmark_search_vector_index_available", 0))
             for key, value in benchmark_metrics.items():
                 if isinstance(value, (int, float)):
                     metrics[key] = value
-            for metric_name, threshold in READINESS_THRESHOLDS.items():
+            for metric_name, threshold in active_thresholds.items():
+                if metric_name not in benchmark_metrics:
+                    continue
                 value = float(benchmark_metrics.get(metric_name, 0.0) or 0.0)
                 severity = "critical"
                 effective_threshold = threshold
@@ -591,6 +811,7 @@ def run_qc(config: DatasetBatchConfig, *, fail_fast: bool | None = None) -> QCRe
                         message=message,
                     )
                 )
+            metrics["benchmark_thresholds"] = readiness_thresholds
     else:
         checks.append(
             QCCheck(

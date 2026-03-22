@@ -1,6 +1,47 @@
 from __future__ import annotations
 
+import re
+
+from polisyos.lex.batch.jurisdictions.protocol import NormativeSignalPatterns, StructurePatterns
 from polisyos.lex.batch.legal_unit import build_legal_unit_signals
+
+
+class _EnglishPlugin:
+    @property
+    def jurisdiction_code(self) -> str:
+        return "EN"
+
+    @property
+    def language_codes(self) -> list[str]:
+        return ["en"]
+
+    def structure_patterns(self) -> StructurePatterns:
+        return StructurePatterns(
+            article_re=re.compile(r"^Article\s+\d+", re.IGNORECASE),
+            part_re=None,
+            point_res=(),
+            subpoint_re=None,
+            paragraph_re=None,
+            section_heading_re=None,
+        )
+
+    def normative_signal_patterns(self) -> NormativeSignalPatterns:
+        return NormativeSignalPatterns(
+            obligation_re=re.compile(r"\bshall\b|\bmust\b", re.IGNORECASE),
+            prohibition_re=re.compile(r"\bshall not\b|\bmust not\b", re.IGNORECASE),
+            permission_re=re.compile(r"\bmay\b", re.IGNORECASE),
+            approval_re=re.compile(r"\bapprove\b|\badopt\b", re.IGNORECASE),
+            amendment_re=re.compile(r"\bamend\b|\breplace\b", re.IGNORECASE),
+            temporal_re=re.compile(r"\benters into force\b|\bwithin \d+ days\b", re.IGNORECASE),
+            reference_re=re.compile(r"\barticle\s+\d+\b|\bregulation\s+\d+\b", re.IGNORECASE),
+            threshold_re=re.compile(r"\b\d+(?:[.,]\d+)?\s*%\b", re.IGNORECASE),
+        )
+
+    def reference_patterns(self) -> tuple[tuple[str, re.Pattern[str], float], ...]:
+        return ()
+
+    def document_type_hierarchy(self) -> dict[str, int]:
+        return {"Act": 1}
 
 
 def test_build_legal_unit_signals_marks_amendment_bundle_as_deterministic_only() -> None:
@@ -146,6 +187,25 @@ def test_build_legal_unit_signals_marks_appendix_header_as_search_only() -> None
     assert signals.route_class == "search_only"
 
 
+def test_build_legal_unit_signals_routes_appendix_heavy_cnc_through_deterministic_retry() -> None:
+    """appendix_heavy + core_normative_clause should now use deterministic_then_llm_retry."""
+    signals = build_legal_unit_signals(
+        text=(
+            "Перевізник зобов'язується безпечно перевезти пасажира до пункту призначення, "
+            "а пасажир зобов'язується внести установлену плату за проїзд."
+        ),
+        struct_kind="point",
+        section_role="normative_unit",
+        fallback_allowed_for_reasoning=True,
+        doc_family="appendix_heavy",
+        doc_title="Правила перевезення",
+        citation_label="Пункт 19",
+    )
+
+    assert signals.legal_unit_subtype == "core_normative_clause"
+    assert signals.route_class == "deterministic_then_llm_retry"
+
+
 def test_build_legal_unit_signals_marks_amendment_wording_item_as_deterministic() -> None:
     signals = build_legal_unit_signals(
         text='25. У додатках NN 1, 2, 4 слова "карбованці" замінити на слово "гривні".',
@@ -159,3 +219,154 @@ def test_build_legal_unit_signals_marks_amendment_wording_item_as_deterministic(
 
     assert signals.legal_unit_subtype == "amendment_bundle"
     assert signals.route_class == "deterministic_only"
+
+
+def test_build_legal_unit_signals_marks_form_section_heading_as_search_only() -> None:
+    signals = build_legal_unit_signals(
+        text="Вимоги щодо порядку підготовки і подання заяви, повідомлення та документів, що додаються до них",
+        struct_kind="paragraph",
+        section_role="procedure",
+        fallback_allowed_for_reasoning=True,
+        doc_family="appendix_heavy",
+        doc_title="Форма заяви",
+        citation_label="Додаток 1",
+    )
+
+    assert signals.legal_unit_subtype == "form_scaffold"
+    assert signals.route_class == "search_only"
+
+
+def test_build_legal_unit_signals_marks_fee_schedule_as_threshold_not_application() -> None:
+    signals = build_legal_unit_signals(
+        text='1. Із заяв і скарг, що подаються до суду: а) із позивних заяв 5 відсотків ціни позову',
+        struct_kind="paragraph",
+        section_role="table_clause",
+        fallback_allowed_for_reasoning=True,
+        doc_family="appendix_heavy",
+        doc_title="Декрет про державне мито",
+        citation_label="Пункт 1",
+    )
+
+    assert signals.legal_unit_subtype == "tariff_threshold_row"
+    assert signals.route_class == "deterministic_only"
+
+
+def test_build_legal_unit_signals_does_not_treat_bare_dopovnennia_as_amendment() -> None:
+    signals = build_legal_unit_signals(
+        text="Якщо заява подається більше ніж однією особою, інформацію можна подавати окремо і посилатись на неї як на доповнення.",
+        struct_kind="enumeration_item",
+        section_role="normative_unit",
+        fallback_allowed_for_reasoning=True,
+        doc_family="appendix_heavy",
+        doc_title="Форма заяви",
+        citation_label="Пункт 8",
+    )
+
+    assert signals.legal_unit_subtype != "amendment_bundle"
+
+
+def test_build_legal_unit_signals_marks_core_micro_subtypes() -> None:
+    condition = build_legal_unit_signals(
+        text="Якщо перевізник порушує умови договору, він зобов'язаний повідомити орган.",
+        struct_kind="point",
+        section_role="normative_unit",
+        fallback_allowed_for_reasoning=True,
+        doc_family="law",
+        doc_title="Закон України про перевезення",
+        citation_label="Стаття 12",
+    )
+    scope = build_legal_unit_signals(
+        text="Ця Інструкція поширюється на всі державні підприємства.",
+        struct_kind="point",
+        section_role="normative_unit",
+        fallback_allowed_for_reasoning=True,
+        doc_family="appendix_heavy",
+        doc_title="Інструкція з обліку",
+        citation_label="Пункт 2",
+    )
+
+    assert condition.legal_unit_subtype == "core_normative_clause"
+    assert condition.legal_unit_micro_subtype == "condition_tail"
+    assert scope.legal_unit_subtype == "core_normative_clause"
+    assert scope.legal_unit_micro_subtype == "scope_tail"
+
+
+def test_build_legal_unit_signals_inherits_appendix_remove_action_from_context() -> None:
+    signals = build_legal_unit_signals(
+        text="імені 40-річчя Радянської України",
+        struct_kind="enumeration_item",
+        section_role="catalog_item",
+        fallback_allowed_for_reasoning=True,
+        doc_family="appendix_heavy",
+        doc_title="Про внесення змін до переліку",
+        citation_label="Додаток 1",
+        context_prefix="I. Виключаються з переліку колгоспи:",
+    )
+
+    assert signals.legal_unit_subtype == "amendment_bundle"
+    assert signals.route_class == "deterministic_only"
+
+
+def test_build_legal_unit_signals_demotes_front_matter_to_search_only() -> None:
+    signals = build_legal_unit_signals(
+        text="ЗАРЕЄСТРОВАНО в Міністерстві юстиції України 11.03.1996 р. № 121/1146 НАКАЗУЮ:",
+        struct_kind="paragraph",
+        section_role="normative_unit",
+        fallback_allowed_for_reasoning=True,
+        doc_family="appendix_heavy",
+        doc_title="Наказ Міністерства фінансів України",
+        citation_label="Повний текст",
+    )
+
+    assert signals.legal_unit_subtype == "table_scaffold"
+    assert signals.route_class == "search_only"
+
+
+def test_build_legal_unit_signals_demotes_short_form_label_to_scaffold() -> None:
+    signals = build_legal_unit_signals(
+        text="Назва об'єднання фінансових установ",
+        struct_kind="paragraph",
+        section_role="procedure",
+        fallback_allowed_for_reasoning=True,
+        doc_family="appendix_heavy",
+        doc_title="Форма заяви",
+        citation_label="Додаток 2",
+    )
+
+    assert signals.legal_unit_subtype == "form_scaffold"
+    assert signals.route_class == "search_only"
+
+
+def test_build_legal_unit_signals_does_not_mark_treaty_temporal_clause_as_threshold_tail() -> None:
+    signals = build_legal_unit_signals(
+        text=(
+            "Чорноморський флот Російської Федерації використовує об'єкти "
+            "на умовах та протягом строку дії Угоди від 28 травня 1997 року."
+        ),
+        struct_kind="point",
+        section_role="normative_unit",
+        fallback_allowed_for_reasoning=True,
+        doc_family="treaty_protocol",
+        doc_title="Угода між Україною і Російською Федерацією",
+        citation_label="Стаття 1",
+    )
+
+    assert signals.legal_unit_subtype == "core_normative_clause"
+    assert signals.legal_unit_micro_subtype != "threshold_tail"
+
+
+def test_build_legal_unit_signals_uses_plugin_specific_normative_and_reference_patterns() -> None:
+    signals = build_legal_unit_signals(
+        text="Article 5. The authority shall notify the regulator under Regulation 7.",
+        struct_kind="article",
+        section_role="normative_unit",
+        fallback_allowed_for_reasoning=True,
+        doc_family="law",
+        doc_title="Foreign Act",
+        citation_label="Article 5",
+        jurisdiction_plugin=_EnglishPlugin(),
+    )
+
+    assert signals.legal_unit_subtype == "core_normative_clause"
+    assert signals.legal_unit_micro_subtype == "reference_tail"
+    assert signals.reference_bearing is True

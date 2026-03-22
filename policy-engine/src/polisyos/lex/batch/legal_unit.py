@@ -4,112 +4,79 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 from polisyos.lex.batch.doc_family import classify_doc_family, infer_doc_type_category
+from polisyos.lex.batch.patterns import (
+    ACTION_INHERIT_ADD_RE,
+    ACTION_INHERIT_APPROVAL_RE,
+    ACTION_INHERIT_REMOVE_RE,
+    AMENDMENT_CORE_RE,
+    APPLICATION_BULLET_RE,
+    APPLICATION_CORE_RE,
+    APPLICATION_LEAD_RE,
+    APPROVAL_PASSIVE_RE,
+    APPROVAL_CORE_RE,
+    AREA_HEADER_RE,
+    CITATION_ONLY_RE,
+    COMPLETION_TAIL_RE,
+    CONDITION_TAIL_RE,
+    EXCEPTION_CORE_RE,
+    FORM_FIELD_LABEL_RE,
+    FORM_LABEL_NOUN_RE,
+    FORM_PLACEHOLDER_RE,
+    FORM_SECTION_HEADING_RE,
+    FRONT_MATTER_RE,
+    MAIN_DEONTIC_RE,
+    NORMATIVE_CORE_RE,
+    REFERENCE_CORE_RE,
+    REGISTRY_TITLE_RE,
+    SALARY_TABLE_RE,
+    SANCTION_CORE_RE,
+    SCOPE_TAIL_RE,
+    SETTLEMENT_ITEM_RE,
+    TEMPORAL_CORE_RE,
+    THRESHOLD_MULTI_RE,
+    THRESHOLD_STRONG_RE,
+    THRESHOLD_CORE_RE,
+    UNITLESS_THRESHOLD_HINT_RE,
+)
 
-_AMENDMENT_RE = re.compile(
-    r"(внести\s+зміни|внесення\s+змін|викласти\s+у\s+(?:такій|новій)\s+редакції|"
-    r"доповнити|доповнення|доповнено|замінити\s+слов(?:о|а|ами)|"
-    r"слова?\s+\"?[^\"]+\"?\s+замінити|виключити|виключено|"
-    r"визнати\s+(?:таким|такими).+?чинність|скасувати)",
-    re.IGNORECASE,
-)
-_APPROVAL_RE = re.compile(
-    r"(затвердити|затверджується|затверджено|схвалити|схвалено|погодити|погоджується|доручити)",
-    re.IGNORECASE,
-)
-_APPROVAL_PASSIVE_RE = re.compile(
-    r"(затверджено|затверджений|затверджена|схвалено|погоджено|затверджується)",
-    re.IGNORECASE,
-)
-_TEMPORAL_RE = re.compile(
-    r"(набирає\s+чинності|набирають\s+чинності|вводиться\s+в\s+дію|вводяться\s+в\s+дію|"
-    r"не\s+пізніше|протягом\s+\d+|до\s+\d{1,2}[./]\d{1,2}[./]\d{2,4})",
-    re.IGNORECASE,
-)
-_SANCTION_RE = re.compile(
-    r"(тягне\s+за\s+собою|карається|караються|штраф(?:ується|уються)?|"
-    r"адміністративн(?:а|ої)\s+відповідальн)",
-    re.IGNORECASE,
-)
-_EXCEPTION_RE = re.compile(
-    r"(крім\s+випадків|крім\s+цього|якщо\s+інше\s+не\s+передбачено|за\s+винятком)",
-    re.IGNORECASE,
-)
-_REFERENCE_RE = re.compile(
-    r"(статт[іяею]|частин[аиі]|пункт[ауі]|розділ|глава|додат(?:ок|ки)|"
-    r"закон(?:у)?\s+україни|постанова|наказ|розпорядження|рішення|[№N]\s*\d)",
-    re.IGNORECASE,
-)
-_THRESHOLD_RE = re.compile(
-    r"(\d+(?:[.,]\d+)?\s*(?:%|грн|коп|рок(?:ів|и)?|дн(?:ів|і)?|місяц(?:ів|і)|"
-    r"квартал(?:ів|и)?|тонн(?:и)?|кг|см|мм)|не\s+менше|не\s+більше|мінімальн(?:ий|а|і)|"
-    r"максимальн(?:ий|а|і)|ставка|тариф|оклад)",
-    re.IGNORECASE,
-)
-_APPLICATION_RE = re.compile(
-    r"(заявник|заяв[ауи]\b|сертифікац|просить\s+провести|подати|надати|повідомити|"
-    r"дода(?:ти|ються)|подає|надає)",
-    re.IGNORECASE,
-)
-_APPLICATION_BULLET_RE = re.compile(
-    r"^\s*(?:[-\u2013\u2014\u2022]|\d+[.)])?\s*"
-    r"(?:виконувати|забезпечувати|сплатити|сплачувати|подати|подавати|надати|надавати|"
-    r"повідомити|повідомляти|дотримуватися|зберігати|здійснювати|використовувати|"
-    r"одержати|одержувати)\b",
-    re.IGNORECASE,
-)
-_FORM_PLACEHOLDER_RE = re.compile(
-    r"(вноситься\s+потрібне|вписується\s+потрібне|потрібне\s+підкреслити|"
-    r"непотрібне\s+закреслити|\(\s*дата\s*\)|\bм\.\s*п\.\b)",
-    re.IGNORECASE,
-)
-_FORM_FIELD_LABEL_RE = re.compile(
-    r"^(?:дата|примітки|реєстраційний\s+номер|контрольна\s+сума\s+звіту|"
-    r"контактна\s+особа(?:\s+з\s+питань\s+складеного\s+звіту)?|"
-    r"посада(?:,?\s*підрозділ)?|прізвище,?\s*ім['’`ʼ]я,?\s*по\s+батькові|"
-    r"міжміський\s+код,?\s*телефон,?\s*факс|e-mail|статутний\s+капітал|"
-    r"номінальна\s+вартість|частка\s+привілейованих\s+акцій|"
-    r"сумарна\s+вартість\s+непогашених\s+облігацій|дата\s+прийняття\s+звіту|"
-    r"попередній\s+звіт\s+зареєстровано\s+за\s+номером)\b",
-    re.IGNORECASE,
-)
-_REGISTRY_TITLE_RE = re.compile(
-    r"^(?:перелік|список|реєстр|номенклатура|класифікатор|збірник|схема)\b",
-    re.IGNORECASE,
-)
-_SETTLEMENT_ITEM_RE = re.compile(
-    r"(?:(?:^|\s)\d+\s*)?(?:с\.|смт|м\.|місто)\s*[А-ЯІЇЄҐ][^0-9,;]{1,40}",
-    re.IGNORECASE,
-)
-_AREA_HEADER_RE = re.compile(
-    r"^(?:[А-ЯІЇЄҐ][а-яіїєґ'’`ʼ-]+(?:\s+[А-ЯІЇЄҐ][а-яіїєґ'’`ʼ-]+){0,3}\s+"
-    r"(?:область|район)|ЗОНА\s+[А-ЯІЇЄҐA-Z'’`ʼ -]+)$",
-    re.IGNORECASE,
-)
-_SALARY_TABLE_RE = re.compile(
-    r"(посадов(?:ий|ого)\s+оклад|окладів|ставка|тариф|гривень|грн\b)",
-    re.IGNORECASE,
-)
-_THRESHOLD_MULTI_RE = re.compile(
-    r"^[^\d\n]{2,180}?\s+\d+(?:[.,]\d+)?(?:\s+\d+(?:[.,]\d+)?){1,}",
-    re.IGNORECASE,
-)
-_THRESHOLD_STRONG_RE = re.compile(
-    r"(ставка|тариф|оклад|ліміт|ліміти|квота|квоти|мінімальн(?:ий|а|і)|"
-    r"максимальн(?:ий|а|і)|не\s+менше|не\s+більше|\b\d+(?:[.,]\d+)?\s*(?:%|грн|коп)\b)",
-    re.IGNORECASE,
-)
-_NORMATIVE_RE = re.compile(
-    r"(має|мають|повинен|повинні|зобов|заборон|не\s+допускається|не\s+має\s+права|"
-    r"підляга|доручити|затвердити|встановити|визначити|поширюється)",
-    re.IGNORECASE,
-)
-_CITATION_ONLY_RE = re.compile(
-    r"^(?:відповідно\s+до|згідно\s+з|на\s+підставі)\s+"
-    r"(?:(?:статт[іяею]|частин[аиі]|пункт[ауі]|розділ)\s+.+|.+(?:закону|кодексу|порядку))$",
-    re.IGNORECASE,
-)
+if TYPE_CHECKING:
+    from polisyos.lex.batch.jurisdictions.protocol import JurisdictionPlugin, NormativeSignalPatterns
+
+_AMENDMENT_RE = AMENDMENT_CORE_RE
+_APPROVAL_RE = APPROVAL_CORE_RE
+_APPROVAL_PASSIVE_RE = APPROVAL_PASSIVE_RE
+_TEMPORAL_RE = TEMPORAL_CORE_RE
+_SANCTION_RE = SANCTION_CORE_RE
+_EXCEPTION_RE = EXCEPTION_CORE_RE
+_REFERENCE_RE = REFERENCE_CORE_RE
+_THRESHOLD_RE = THRESHOLD_CORE_RE
+_APPLICATION_RE = APPLICATION_CORE_RE
+_APPLICATION_BULLET_RE = APPLICATION_BULLET_RE
+_APPLICATION_LEAD_RE = APPLICATION_LEAD_RE
+_FORM_PLACEHOLDER_RE = FORM_PLACEHOLDER_RE
+_FORM_SECTION_HEADING_RE = FORM_SECTION_HEADING_RE
+_FORM_FIELD_LABEL_RE = FORM_FIELD_LABEL_RE
+_FORM_LABEL_NOUN_RE = FORM_LABEL_NOUN_RE
+_ACTION_INHERIT_REMOVE_RE = ACTION_INHERIT_REMOVE_RE
+_ACTION_INHERIT_ADD_RE = ACTION_INHERIT_ADD_RE
+_ACTION_INHERIT_APPROVAL_RE = ACTION_INHERIT_APPROVAL_RE
+_FRONT_MATTER_RE = FRONT_MATTER_RE
+_REGISTRY_TITLE_RE = REGISTRY_TITLE_RE
+_SETTLEMENT_ITEM_RE = SETTLEMENT_ITEM_RE
+_AREA_HEADER_RE = AREA_HEADER_RE
+_SALARY_TABLE_RE = SALARY_TABLE_RE
+_THRESHOLD_MULTI_RE = THRESHOLD_MULTI_RE
+_UNITLESS_THRESHOLD_HINT_RE = UNITLESS_THRESHOLD_HINT_RE
+_THRESHOLD_STRONG_RE = THRESHOLD_STRONG_RE
+_NORMATIVE_RE = NORMATIVE_CORE_RE
+_CITATION_ONLY_RE = CITATION_ONLY_RE
+_CONDITION_TAIL_RE = CONDITION_TAIL_RE
+_SCOPE_TAIL_RE = SCOPE_TAIL_RE
+_COMPLETION_TAIL_RE = COMPLETION_TAIL_RE
+_MAIN_DEONTIC_RE = MAIN_DEONTIC_RE
 
 _SEARCH_ONLY_SECTION_ROLES = {
     "appendix_header",
@@ -146,6 +113,7 @@ _HIGH_PRIORITY_NORMATIVE_SUBTYPES = {
 @dataclass(frozen=True)
 class LegalUnitSignals:
     legal_unit_subtype: str
+    legal_unit_micro_subtype: str
     route_class: str
     empty_spo_retry_eligible: bool
     audit_miss_prone: bool
@@ -155,6 +123,77 @@ class LegalUnitSignals:
 
 def _compact(text: str) -> str:
     return re.sub(r"\s+", " ", text).strip()
+
+
+def _signal_patterns(jurisdiction_plugin: JurisdictionPlugin | None) -> NormativeSignalPatterns | None:
+    if jurisdiction_plugin is None:
+        return None
+    cached = getattr(jurisdiction_plugin, "_cached_normative_signal_patterns", None)
+    if cached is None:
+        cached = jurisdiction_plugin.normative_signal_patterns()
+        try:
+            setattr(jurisdiction_plugin, "_cached_normative_signal_patterns", cached)
+        except Exception:  # pragma: no cover - defensive for exotic plugin objects
+            pass
+    return cached
+
+
+def _count_matches(pattern: re.Pattern[str], text: str) -> int:
+    return len(pattern.findall(text))
+
+
+def _any_match(text: str, *patterns: re.Pattern[str] | None) -> bool:
+    return any(pattern is not None and bool(pattern.search(text)) for pattern in patterns)
+
+
+def _is_amendment_like(text: str, jurisdiction_plugin: JurisdictionPlugin | None) -> bool:
+    patterns = _signal_patterns(jurisdiction_plugin)
+    return _any_match(text, patterns.amendment_re if patterns is not None else _AMENDMENT_RE)
+
+
+def _is_approval_like(text: str, jurisdiction_plugin: JurisdictionPlugin | None) -> bool:
+    patterns = _signal_patterns(jurisdiction_plugin)
+    return _any_match(text, patterns.approval_re if patterns is not None else _APPROVAL_RE)
+
+
+def _is_temporal_like(text: str, jurisdiction_plugin: JurisdictionPlugin | None) -> bool:
+    patterns = _signal_patterns(jurisdiction_plugin)
+    return _any_match(text, patterns.temporal_re if patterns is not None else _TEMPORAL_RE)
+
+
+def _is_reference_like(text: str, jurisdiction_plugin: JurisdictionPlugin | None) -> bool:
+    patterns = _signal_patterns(jurisdiction_plugin)
+    return _any_match(text, patterns.reference_re if patterns is not None else _REFERENCE_RE)
+
+
+def _is_threshold_like(text: str, jurisdiction_plugin: JurisdictionPlugin | None) -> bool:
+    patterns = _signal_patterns(jurisdiction_plugin)
+    return _any_match(text, patterns.threshold_re if patterns is not None else _THRESHOLD_RE)
+
+
+def _is_normative_like(text: str, jurisdiction_plugin: JurisdictionPlugin | None) -> bool:
+    patterns = _signal_patterns(jurisdiction_plugin)
+    if patterns is None:
+        return bool(_NORMATIVE_RE.search(text))
+    return _any_match(
+        text,
+        patterns.obligation_re,
+        patterns.prohibition_re,
+        patterns.permission_re,
+        patterns.approval_re,
+    )
+
+
+def _is_main_deontic(text: str, jurisdiction_plugin: JurisdictionPlugin | None) -> bool:
+    patterns = _signal_patterns(jurisdiction_plugin)
+    if patterns is None:
+        return bool(_MAIN_DEONTIC_RE.search(text))
+    return _any_match(
+        text,
+        patterns.obligation_re,
+        patterns.prohibition_re,
+        patterns.permission_re,
+    )
 
 
 def infer_doc_family_for_unit(
@@ -180,18 +219,41 @@ def detect_legal_unit_subtype(
     doc_family: str,
     doc_title: str = "",
     citation_label: str = "",
+    context_prefix: str = "",
+    jurisdiction_plugin: JurisdictionPlugin | None = None,
 ) -> str:
     compact = _compact(text)
     lower = compact.lower()
     title = (doc_title or "").strip()
     title_lower = title.lower()
+    context = _compact(context_prefix)
+    context_lower = context.lower()
     threshold_like = False
     if struct_kind == "table_row":
-        threshold_like = bool(_THRESHOLD_RE.search(compact) or _THRESHOLD_MULTI_RE.match(compact) or _THRESHOLD_STRONG_RE.search(compact))
+        threshold_like = bool(
+            _is_threshold_like(compact, jurisdiction_plugin)
+            or _THRESHOLD_MULTI_RE.match(compact)
+            or _THRESHOLD_STRONG_RE.search(compact)
+            or (
+                _UNITLESS_THRESHOLD_HINT_RE.match(compact)
+                and _SALARY_TABLE_RE.search(f"{title} {compact}")
+            )
+        )
     elif struct_kind in {"paragraph", "enumeration_item"}:
-        threshold_like = bool(_THRESHOLD_MULTI_RE.match(compact) or _THRESHOLD_STRONG_RE.search(compact))
+        threshold_like = bool(
+            _is_threshold_like(compact, jurisdiction_plugin)
+            or _THRESHOLD_MULTI_RE.match(compact)
+            or _THRESHOLD_STRONG_RE.search(compact)
+        )
 
     if not compact:
+        return "table_scaffold"
+    if (
+        struct_kind in {"paragraph", "fallback_unit"}
+        and not re.match(r"^\s*\d+[.)]", compact)
+        and _FRONT_MATTER_RE.search(compact)
+        and ("зареєстровано" in lower or "наказую" in lower or "затверджено" in lower)
+    ):
         return "table_scaffold"
     if section_role in {"appendix_header", "table_header", "attachment_inventory", "questionnaire_item", "form_field", "decorative_separator"}:
         if section_role == "attachment_inventory":
@@ -205,8 +267,8 @@ def detect_legal_unit_subtype(
         return "composition_list"
     if (
         doc_family == "appendix_heavy"
-        and not _NORMATIVE_RE.search(compact)
-        and not _AMENDMENT_RE.search(compact)
+        and not _is_normative_like(compact, jurisdiction_plugin)
+        and not _is_amendment_like(compact, jurisdiction_plugin)
         and not _APPLICATION_RE.search(compact)
     ):
         settlement_hits = len(_SETTLEMENT_ITEM_RE.findall(compact))
@@ -222,15 +284,51 @@ def detect_legal_unit_subtype(
             return "form_scaffold"
     if _FORM_PLACEHOLDER_RE.search(compact):
         return "form_scaffold"
-    if _AMENDMENT_RE.search(compact):
+    if (
+        doc_family == "appendix_heavy"
+        and (
+            _FORM_SECTION_HEADING_RE.match(compact)
+            or (
+                section_role == "procedure"
+                and _FORM_LABEL_NOUN_RE.match(compact)
+                and len(compact.split()) <= 18
+                and not compact.endswith((".", ";", ":"))
+                and not _is_approval_like(compact, jurisdiction_plugin)
+                and not _is_amendment_like(compact, jurisdiction_plugin)
+                and not _is_normative_like(compact, jurisdiction_plugin)
+            )
+        )
+        and len(compact.split()) <= 20
+        and not _is_normative_like(compact, jurisdiction_plugin)
+        and not _is_threshold_like(compact, jurisdiction_plugin)
+    ):
+        return "form_scaffold"
+    if (
+        doc_family == "appendix_heavy"
+        and context
+        and struct_kind in {"enumeration_item", "paragraph", "point"}
+        and len(compact.split()) <= 18
+        and not _is_normative_like(compact, jurisdiction_plugin)
+        and not _is_threshold_like(compact, jurisdiction_plugin)
+    ):
+        if _ACTION_INHERIT_REMOVE_RE.search(context):
+            return "amendment_bundle"
+        if _ACTION_INHERIT_ADD_RE.search(context):
+            return "amendment_bundle"
+        if _ACTION_INHERIT_APPROVAL_RE.search(context):
+            return "approval_bundle"
+    if _is_amendment_like(compact, jurisdiction_plugin):
         return "amendment_bundle"
-    if (_APPROVAL_RE.search(compact) or _APPROVAL_PASSIVE_RE.search(compact)) and (
+    if (_is_approval_like(compact, jurisdiction_plugin) or _APPROVAL_PASSIVE_RE.search(compact)) and (
         "додат" in lower or "положення" in lower or "порядок" in lower or title
     ):
         return "approval_bundle"
     if threshold_like:
         return "tariff_threshold_row"
-    if doc_family == "appendix_heavy" and (_APPLICATION_RE.search(compact) or _APPLICATION_BULLET_RE.match(compact)):
+    application_like = bool(_APPLICATION_BULLET_RE.match(compact) or _APPLICATION_LEAD_RE.search(compact))
+    if not application_like and section_role == "procedure" and len(compact.split()) <= 40:
+        application_like = bool(_APPLICATION_RE.search(compact))
+    if doc_family == "appendix_heavy" and application_like:
         return "application_requirement"
     if not fallback_allowed_for_reasoning or section_role in _SEARCH_ONLY_SECTION_ROLES:
         if section_role in {"signature_block", "form_header", "form_field", "questionnaire_item"}:
@@ -244,21 +342,55 @@ def detect_legal_unit_subtype(
         return "table_scaffold"
     if _SANCTION_RE.search(compact):
         return "sanction_clause"
-    if _TEMPORAL_RE.search(compact):
+    if _is_temporal_like(compact, jurisdiction_plugin):
         return "temporal_clause"
     if _EXCEPTION_RE.search(compact):
         return "exception_clause"
-    if _CITATION_ONLY_RE.match(compact) and not _NORMATIVE_RE.search(compact):
+    if _CITATION_ONLY_RE.match(compact) and not _is_normative_like(compact, jurisdiction_plugin):
         return "citation_only"
-    if section_role in {"catalog_item"} and not _NORMATIVE_RE.search(compact) and not _THRESHOLD_RE.search(compact):
+    if section_role in {"catalog_item"} and not _is_normative_like(compact, jurisdiction_plugin) and not _is_threshold_like(compact, jurisdiction_plugin):
         return "registry_catalog_row"
     if section_role in {"composition_member"}:
         return "composition_list"
     if doc_family in {"law", "treaty_protocol"} and struct_kind in {"article", "part", "point", "subpoint"}:
         return "core_normative_clause"
-    if _NORMATIVE_RE.search(compact) or _REFERENCE_RE.search(compact):
+    if _is_normative_like(compact, jurisdiction_plugin) or _is_reference_like(compact, jurisdiction_plugin):
         return "core_normative_clause"
     return "core_normative_clause"
+
+
+def detect_legal_unit_micro_subtype(
+    *,
+    text: str,
+    legal_unit_subtype: str,
+    reference_bearing: bool,
+    threshold_bearing: bool,
+    jurisdiction_plugin: JurisdictionPlugin | None = None,
+) -> str:
+    compact = _compact(text)
+    if legal_unit_subtype != "core_normative_clause" or not compact:
+        return ""
+    if threshold_bearing:
+        return "threshold_tail"
+    if _CONDITION_TAIL_RE.search(compact):
+        return "condition_tail"
+    if _SCOPE_TAIL_RE.search(compact):
+        return "scope_tail"
+    if reference_bearing and (
+        _is_amendment_like(compact, jurisdiction_plugin)
+        or _is_reference_like(compact, jurisdiction_plugin)
+        or re.search(
+            r"\b(відповідно\s+до|згідно\s+з|передбачен[оі]\s+статтею|додат(?:ок|ки))\b",
+            compact,
+            re.IGNORECASE,
+        )
+    ):
+        return "reference_tail"
+    if _COMPLETION_TAIL_RE.search(compact):
+        return "completion_tail"
+    if _is_main_deontic(compact, jurisdiction_plugin):
+        return "main_deontic"
+    return "main_deontic"
 
 
 def build_legal_unit_signals(
@@ -270,8 +402,11 @@ def build_legal_unit_signals(
     doc_family: str,
     doc_title: str = "",
     citation_label: str = "",
+    context_prefix: str = "",
+    jurisdiction_plugin: JurisdictionPlugin | None = None,
 ) -> LegalUnitSignals:
     compact = _compact(text)
+    lower = compact.lower()
     subtype = detect_legal_unit_subtype(
         text=compact,
         struct_kind=struct_kind,
@@ -280,15 +415,55 @@ def build_legal_unit_signals(
         doc_family=doc_family,
         doc_title=doc_title,
         citation_label=citation_label,
+        context_prefix=context_prefix,
+        jurisdiction_plugin=jurisdiction_plugin,
     )
-    reference_bearing = bool(_REFERENCE_RE.search(compact))
-    threshold_bearing = bool(_THRESHOLD_RE.search(compact) or _THRESHOLD_MULTI_RE.match(compact))
+    reference_bearing = _is_reference_like(compact, jurisdiction_plugin)
+    threshold_bearing = bool(
+        _is_threshold_like(compact, jurisdiction_plugin)
+        or (
+            struct_kind in {"table_row", "paragraph", "enumeration_item"}
+            and _THRESHOLD_MULTI_RE.match(compact)
+        )
+    )
+    if threshold_bearing and re.search(r"\b\d{4}\s+рок", lower):
+        strong_threshold_cues = (
+            "%" in compact
+            or any(
+                marker in lower
+                for marker in (
+                    "ставк",
+                    "тариф",
+                    "оклад",
+                    "поріг",
+                    "не менш",
+                    "не більш",
+                    "не нижче",
+                    "не вище",
+                    "грн",
+                    "коп",
+                    "кг",
+                    "км",
+                    "га",
+                    "тонн",
+                )
+            )
+        )
+        if not strong_threshold_cues:
+            threshold_bearing = False
+    micro_subtype = detect_legal_unit_micro_subtype(
+        text=compact,
+        legal_unit_subtype=subtype,
+        reference_bearing=reference_bearing,
+        threshold_bearing=threshold_bearing,
+        jurisdiction_plugin=jurisdiction_plugin,
+    )
 
     if subtype in _HIGH_PRIORITY_NORMATIVE_SUBTYPES:
         route_class = "deterministic_only"
     elif not fallback_allowed_for_reasoning or subtype in _SEARCH_ONLY_SUBTYPES:
         route_class = "search_only"
-    elif doc_family in {"law", "treaty_protocol"} and subtype in {
+    elif doc_family in {"law", "treaty_protocol", "appendix_heavy"} and subtype in {
         "core_normative_clause",
         "exception_clause",
         "temporal_clause",
@@ -315,6 +490,7 @@ def build_legal_unit_signals(
     }
     return LegalUnitSignals(
         legal_unit_subtype=subtype,
+        legal_unit_micro_subtype=micro_subtype,
         route_class=route_class,
         empty_spo_retry_eligible=empty_retry,
         audit_miss_prone=audit_miss_prone,
@@ -326,6 +502,7 @@ def build_legal_unit_signals(
 __all__ = [
     "LegalUnitSignals",
     "build_legal_unit_signals",
+    "detect_legal_unit_micro_subtype",
     "detect_legal_unit_subtype",
     "infer_doc_family_for_unit",
 ]

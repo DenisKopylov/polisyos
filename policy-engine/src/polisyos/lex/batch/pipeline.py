@@ -2,21 +2,51 @@
 
 from __future__ import annotations
 
-import hashlib
 import json
-import re
-import sys
 import time
-from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
-from dataclasses import dataclass, field
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import TYPE_CHECKING, Any
+
+import duckdb
 
 from polisyos.common.logger import get_logger
 from polisyos.lex.batch.config import BatchConfig
 from polisyos.lex.batch.doc_family import classify_doc_family, infer_doc_type_category
+from polisyos.lex.batch.pipeline_helpers import (
+    _active_references_dir,
+    _active_spo_results_dir,
+    _as_doc_meta,
+    _build_llm_fallback_row,
+    _build_spo_doc_routing_plan,
+    _bump_counter,
+    _call_extract_spo_for_documents,
+    _check_structure_quality_gate,
+    _chunked,
+    _doc_content_hash,
+    _extract_provisions_worker,
+    _group_docs_by_spo_settings,
+    _process_structure_chunk,
+    _should_extract_spo_from_span,
+    _should_route_llm_gap_fill,
+    _should_skip_audit_for_span,
+    _span_signal_payload,
+    _statement_category_set,
+    _to_provision_spans,
+    _write_doc_domain,
+    _load_doc_metadata_manifest,
+    _write_doc_metadata_manifest,
+    _write_jsonl_rows,
+)
+from polisyos.lex.batch.pipeline_types import (
+    LLMGateStats,
+    PipelineStats,
+    StratifiedAuditSampler,
+    StructureQualityStats,
+    SPOLLMSettings,
+)
 from polisyos.lex.batch.progress import ProgressTracker
-from polisyos.lex.batch.provisions_io import read_provisions, write_provisions
+from polisyos.lex.batch.provisions_io import read_provisions
 
 if TYPE_CHECKING:
     from polisyos.lex.batch.llm_gate import GateRuntime
@@ -25,906 +55,6 @@ if TYPE_CHECKING:
     from polisyos.lex.batch.xml_parser import NPADocument
 
 logger = get_logger(__name__)
-T = TypeVar("T")
-
-
-@dataclass
-class PipelineStats:
-    total_docs: int = 0
-    total_provisions: int = 0
-    total_spo: int = 0
-    entities: int = 0
-    facts: int = 0
-    provisions_embedded: int = 0
-    elapsed_seconds: float = 0.0
-    stage_times: dict[str, float] = field(default_factory=dict)
-    quality_passed: bool | None = None
-    quality_report: dict[str, float] = field(default_factory=dict)
-    quality_failed_checks: list[str] = field(default_factory=list)
-    quality_skipped_checks: list[str] = field(default_factory=list)
-    llm_gate_metrics: dict[str, float | int] = field(default_factory=dict)
-    grounded_statements: int = 0
-    normative_statements: int = 0
-    candidate_facts: int = 0
-    grounded_facts: int = 0
-    normative_facts: int = 0
-    reference_edges: int = 0
-    exported_claims: int = 0
-    exported_claim_sets: int = 0
-    benchmark_passed: bool | None = None
-    benchmark_metrics: dict[str, float | int] = field(default_factory=dict)
-    benchmark_failed_checks: list[str] = field(default_factory=list)
-    published_bundle: bool = False
-
-
-@dataclass
-class LLMGateStats:
-    """Runtime counters for LLM gating decisions."""
-
-    provisions_seen: int = 0
-    skipped_total: int = 0
-    auto_by_code_total: int = 0
-    llm_candidate_total: int = 0
-    llm_sent_total: int = 0
-    deferred_total: int = 0
-    audit_sample_total: int = 0
-    audit_miss_total: int = 0
-    circuit_breaker_hits: int = 0
-    dedup_reused_total: int = 0
-
-    @property
-    def llm_saved_pct(self) -> float:
-        if self.llm_candidate_total <= 0:
-            return 100.0
-        saved = max(0, self.llm_candidate_total - self.llm_sent_total)
-        return (saved * 100.0) / self.llm_candidate_total
-
-    @property
-    def audit_miss_rate_pct(self) -> float:
-        if self.audit_sample_total <= 0:
-            return 0.0
-        return (self.audit_miss_total * 100.0) / self.audit_sample_total
-
-
-@dataclass
-class StructureQualityStats:
-    provision_docs_total: int = 0
-    full_only_docs: int = 0
-    duplicate_anchor_docs: int = 0
-
-
-@dataclass(frozen=True)
-class SPOLLMSettings:
-    task_batch_size: int
-    request_batch_size: int
-    request_batch_chars: int | None
-    group_timeout_seconds: float | None
-
-
-@dataclass
-class SPODocRoutingPlan:
-    reasoning_spans: list[ProvisionSpan]
-    llm_allowed: bool
-    llm_settings: SPOLLMSettings
-    flags: tuple[str, ...] = ()
-
-
-_STRATIFIED_AUDIT_FAMILIES = frozenset({"appendix_heavy", "law", "treaty_protocol", "decree_resolution"})
-
-
-@dataclass
-class StratifiedAuditSampler:
-    base_rate: float
-    max_forced_samples: int = 32
-    sampled_counts: dict[str, int] = field(default_factory=dict)
-    forced_samples_used: int = 0
-
-    @staticmethod
-    def _key(*, family: str, subtype: str, route_class: str) -> str:
-        return f"{family or 'other'}|{subtype or 'unknown'}|{route_class or 'unknown'}"
-
-    def should_force_sample(
-        self,
-        *,
-        family: str,
-        subtype: str,
-        route_class: str,
-        llm_available: bool,
-    ) -> bool:
-        if not llm_available or self.base_rate <= 0.0:
-            return False
-        if family not in _STRATIFIED_AUDIT_FAMILIES:
-            return False
-        if self.forced_samples_used >= self.max_forced_samples:
-            return False
-        key = self._key(family=family, subtype=subtype, route_class=route_class)
-        return self.sampled_counts.get(key, 0) < 1
-
-    def register_sample(
-        self,
-        *,
-        family: str,
-        subtype: str,
-        route_class: str,
-        forced: bool,
-    ) -> None:
-        key = self._key(family=family, subtype=subtype, route_class=route_class)
-        self.sampled_counts[key] = self.sampled_counts.get(key, 0) + 1
-        if forced:
-            self.forced_samples_used += 1
-
-
-_MEGA_CATALOG_TITLE_RE = re.compile(
-    r"\b("
-    r"спис(?:ок|ки|ків|ку)|"
-    r"перелік(?:и|ів|у)?|"
-    r"реєстр(?:и|ів|у)?|"
-    r"мереж[а-яіїєґ]*|"
-    r"каталог(?:и|ів|у)?|"
-    r"номенклатур[а-яіїєґ]*|"
-    r"тариф[а-яіїєґ]*|"
-    r"ставк[аиі]\s+мита|"
-    r"штатн[а-яіїєґ]*\s+норматив[а-яіїєґ]*|"
-    r"перелік\s+об['’]єкт[а-яіїєґ]*"
-    r")\b",
-    re.IGNORECASE,
-)
-_PURE_CATALOG_TITLE_RE = re.compile(
-    r"\b("
-    r"спис(?:ок|ки|ків|ку)|"
-    r"перелік(?:и|ів|у)?|"
-    r"реєстр(?:и|ів|у)?|"
-    r"мереж[а-яіїєґ]*|"
-    r"каталог(?:и|ів|у)?|"
-    r"номенклатур[а-яіїєґ]*|"
-    r"тариф[а-яіїєґ]*|"
-    r"ставк[аиі]\s+мита|"
-    r"штатн[а-яіїєґ]*\s+норматив[а-яіїєґ]*"
-    r")\b",
-    re.IGNORECASE,
-)
-_NORMATIVE_SPAN_SIGNAL_RE = re.compile(
-    r"("
-    r"зобов['’]?яз|"
-    r"повин(?:ен|на|ні|но)|"
-    r"має\s+право|"
-    r"забороняє(?:ться)?|"
-    r"не\s+допускає(?:ться)?|"
-    r"затвердити|затверджується|"
-    r"встановити|встановлюється|"
-    r"визначити|визначається|"
-    r"внести\s+зміни|"
-    r"набирає\s+чинності|"
-    r"поширюється|"
-    r"доручити|"
-    r"ратифікувати|"
-    r"схвалити|"
-    r"підлягає|"
-    r"забезпечити|"
-    r"визна(?:ти|ється)\s+таким"
-    r")",
-    re.IGNORECASE,
-)
-_REFERENCE_SPAN_SIGNAL_RE = re.compile(
-    r"("
-    r"статт[іяею]|"
-    r"пункт[ауеиі]?|"
-    r"розділ|"
-    r"глава|"
-    r"закон(?:у|ом)?\s+україни|"
-    r"постанова|"
-    r"наказ|"
-    r"№\s*\d"
-    r")",
-    re.IGNORECASE,
-)
-_THRESHOLD_SPAN_SIGNAL_RE = re.compile(
-    r"("
-    r"\d+\s*(?:%|грн|коп|рок(?:ів|и)?|дн(?:ів|і)?|місяц(?:ів|і)|квартал(?:ів|и)?)|"
-    r"не\s+менше|"
-    r"не\s+більше|"
-    r"не\s+нижче|"
-    r"не\s+вище"
-    r")",
-    re.IGNORECASE,
-)
-
-
-def _span_reasoning_score(
-    span: ProvisionSpan,
-    *,
-    doc_title: str,
-    quality_family: str,
-) -> int:
-    struct_kind = (span.struct_kind or span.kind or "").strip().lower()
-    section_role = (span.section_role or "").strip().lower()
-    text = span.text.strip()
-    score = 0
-
-    if struct_kind in {"article", "part", "point", "subpoint"}:
-        score += 5
-    elif struct_kind in {"paragraph", "enumeration_item"}:
-        score += 3
-    elif struct_kind == "table_row":
-        score += 1
-
-    if section_role in {"table_clause", "catalog_entry", "form_clause"}:
-        score += 1
-    if section_role in {"table_header", "appendix_section", "form_header", "attachment_inventory"}:
-        score -= 6
-
-    if len(text) < 40:
-        score -= 4
-    elif len(text) <= 1200:
-        score += 2
-    elif len(text) <= 2400:
-        score += 1
-    elif len(text) > 4500:
-        score -= 3
-
-    if text.endswith(":"):
-        score -= 3
-    if _NORMATIVE_SPAN_SIGNAL_RE.search(text):
-        score += 5
-    if _REFERENCE_SPAN_SIGNAL_RE.search(text):
-        score += 3
-    if _THRESHOLD_SPAN_SIGNAL_RE.search(text):
-        score += 3
-
-    if quality_family == "appendix_heavy" and section_role == "catalog_entry":
-        if not _NORMATIVE_SPAN_SIGNAL_RE.search(text) and not _THRESHOLD_SPAN_SIGNAL_RE.search(text):
-            score -= 3
-    if _PURE_CATALOG_TITLE_RE.search(doc_title) and section_role == "catalog_entry":
-        if not _NORMATIVE_SPAN_SIGNAL_RE.search(text) and not _THRESHOLD_SPAN_SIGNAL_RE.search(text):
-            score -= 4
-    return score
-
-
-def _prioritize_reasoning_spans(
-    spans: list[ProvisionSpan],
-    *,
-    doc_title: str,
-    quality_family: str,
-    limit: int,
-) -> list[ProvisionSpan]:
-    if limit <= 0 or not spans:
-        return []
-    scored: list[tuple[int, int, ProvisionSpan]] = []
-    for idx, span in enumerate(spans):
-        scored.append(((_span_reasoning_score(span, doc_title=doc_title, quality_family=quality_family)), idx, span))
-    scored.sort(
-        key=lambda item: (
-            item[0],
-            -min(len(item[2].text), 4096),
-            -item[1],
-        ),
-        reverse=True,
-    )
-    selected = scored[:limit]
-    if not selected:
-        return []
-    selected_indexes = {idx for _, idx, _ in selected}
-    return [span for idx, span in enumerate(spans) if idx in selected_indexes]
-
-
-def _build_spo_doc_routing_plan(
-    *,
-    doc: NPADocument,
-    prov_rows: list[dict[str, Any]],
-    reasoning_spans: list[ProvisionSpan],
-    quality_family: str,
-    config: BatchConfig,
-) -> SPODocRoutingPlan:
-    reasoning_total = len(reasoning_spans)
-    base_limit = reasoning_total
-    if config.spo_max_provisions_per_doc is not None:
-        configured_limit = int(config.spo_max_provisions_per_doc)
-        if quality_family == "law":
-            configured_limit = max(configured_limit, 24)
-        elif quality_family == "treaty_protocol":
-            configured_limit = max(configured_limit, 16)
-        base_limit = min(base_limit, configured_limit)
-    base_settings = SPOLLMSettings(
-        task_batch_size=max(1, int(config.spo_task_batch_size)),
-        request_batch_size=max(1, int(config.spo_request_batch_size)),
-        request_batch_chars=(
-            int(config.spo_request_batch_chars)
-            if config.spo_request_batch_chars is not None
-            else None
-        ),
-        group_timeout_seconds=config.spo_group_timeout_seconds,
-    )
-    if not reasoning_spans:
-        return SPODocRoutingPlan(
-            reasoning_spans=[],
-            llm_allowed=True,
-            llm_settings=base_settings,
-        )
-
-    total_provisions = len(prov_rows)
-    search_only_total = max(0, total_provisions - reasoning_total)
-    search_only_ratio = search_only_total / max(1, total_provisions)
-    title = str(doc.card.name or "")
-    lower_title = title.lower()
-    mega_title = bool(_MEGA_CATALOG_TITLE_RE.search(lower_title))
-    pure_catalog_title = bool(_PURE_CATALOG_TITLE_RE.search(lower_title))
-
-    extreme_outlier = total_provisions >= 3000 or (
-        mega_title and total_provisions >= 1200 and search_only_ratio >= 0.94
-    )
-    mega_outlier = extreme_outlier or (
-        (mega_title or quality_family == "appendix_heavy")
-        and total_provisions >= 800
-        and search_only_ratio >= 0.85
-    )
-    large_batch = reasoning_total >= 96 or total_provisions >= 1200
-
-    flags: list[str] = []
-    selected_spans = reasoning_spans
-    llm_allowed = True
-    llm_settings = base_settings
-
-    if extreme_outlier:
-        flags.extend(["mega_outlier", "extreme_outlier"])
-        span_limit = min(base_limit, 6)
-        selected_spans = _prioritize_reasoning_spans(
-            reasoning_spans,
-            doc_title=title,
-            quality_family=quality_family,
-            limit=span_limit,
-        )
-        llm_allowed = not pure_catalog_title
-        llm_settings = SPOLLMSettings(
-            task_batch_size=min(base_settings.task_batch_size, 8),
-            request_batch_size=1,
-            request_batch_chars=min(base_settings.request_batch_chars or 2200, 2200),
-            group_timeout_seconds=(
-                min(base_settings.group_timeout_seconds, 45.0)
-                if base_settings.group_timeout_seconds is not None
-                else 45.0
-            ),
-        )
-    elif mega_outlier:
-        flags.append("mega_outlier")
-        span_limit = min(base_limit, 8 if pure_catalog_title else 10)
-        selected_spans = _prioritize_reasoning_spans(
-            reasoning_spans,
-            doc_title=title,
-            quality_family=quality_family,
-            limit=span_limit,
-        )
-        llm_allowed = not (pure_catalog_title and search_only_ratio >= 0.97 and total_provisions >= 1200)
-        llm_settings = SPOLLMSettings(
-            task_batch_size=min(base_settings.task_batch_size, 16),
-            request_batch_size=min(base_settings.request_batch_size, 2),
-            request_batch_chars=min(base_settings.request_batch_chars or 2400, 2400),
-            group_timeout_seconds=(
-                min(base_settings.group_timeout_seconds, 60.0)
-                if base_settings.group_timeout_seconds is not None
-                else 60.0
-            ),
-        )
-    elif large_batch:
-        flags.append("adaptive_batching")
-        span_limit = base_limit if config.spo_max_provisions_per_doc is not None else min(reasoning_total, 16)
-        if span_limit < reasoning_total:
-            selected_spans = _prioritize_reasoning_spans(
-                reasoning_spans,
-                doc_title=title,
-                quality_family=quality_family,
-                limit=span_limit,
-            )
-        else:
-            selected_spans = reasoning_spans[:span_limit]
-        llm_settings = SPOLLMSettings(
-            task_batch_size=min(base_settings.task_batch_size, 24),
-            request_batch_size=min(base_settings.request_batch_size, 2),
-            request_batch_chars=min(base_settings.request_batch_chars or 3200, 3200),
-            group_timeout_seconds=(
-                min(base_settings.group_timeout_seconds, 70.0)
-                if base_settings.group_timeout_seconds is not None
-                else 70.0
-            ),
-        )
-    elif base_limit < reasoning_total:
-        selected_spans = reasoning_spans[:base_limit]
-
-    if not selected_spans and reasoning_spans:
-        selected_spans = reasoning_spans[: min(len(reasoning_spans), max(1, base_limit))]
-
-    if not llm_allowed:
-        flags.append("deterministic_only_outlier")
-
-    return SPODocRoutingPlan(
-        reasoning_spans=selected_spans,
-        llm_allowed=llm_allowed,
-        llm_settings=llm_settings,
-        flags=tuple(flags),
-    )
-
-
-def _group_docs_by_spo_settings(
-    docs_by_id: dict[str, NPADocument],
-    settings_by_doc: dict[str, SPOLLMSettings],
-) -> list[tuple[SPOLLMSettings, list[NPADocument]]]:
-    grouped: dict[SPOLLMSettings, list[NPADocument]] = {}
-    for doc_id, doc in docs_by_id.items():
-        settings = settings_by_doc.get(doc_id)
-        if settings is None:
-            continue
-        grouped.setdefault(settings, []).append(doc)
-    ordered = sorted(
-        grouped.items(),
-        key=lambda item: (
-            item[0].request_batch_size,
-            item[0].task_batch_size,
-            item[0].request_batch_chars or 999999,
-            len(item[1]),
-        ),
-    )
-    return ordered
-
-
-def _accumulate_structure_quality(stats: StructureQualityStats, prov_rows: list[dict]) -> None:
-    stats.provision_docs_total += 1
-    has_non_full = False
-    seen_anchor: set[str] = set()
-    has_dup_anchor = False
-
-    for row in prov_rows:
-        kind = str(row.get("kind") or "")
-        if kind not in {"full_text", "full_chunk"}:
-            has_non_full = True
-        anchor = str(row.get("anchor_path") or "")
-        if anchor:
-            if anchor in seen_anchor:
-                has_dup_anchor = True
-            seen_anchor.add(anchor)
-
-    if not has_non_full:
-        stats.full_only_docs += 1
-    if has_dup_anchor:
-        stats.duplicate_anchor_docs += 1
-
-
-def _structure_gate_report(stats: StructureQualityStats) -> dict[str, float]:
-    docs_total = max(0, stats.provision_docs_total)
-    if docs_total <= 0:
-        return {
-            "provision_docs_total": 0.0,
-            "full_only_docs": 0.0,
-            "full_only_docs_pct": 0.0,
-            "duplicate_anchor_docs": 0.0,
-            "duplicate_anchor_rate_pct": 0.0,
-        }
-    return {
-        "provision_docs_total": float(stats.provision_docs_total),
-        "full_only_docs": float(stats.full_only_docs),
-        "full_only_docs_pct": (stats.full_only_docs * 100.0) / docs_total,
-        "duplicate_anchor_docs": float(stats.duplicate_anchor_docs),
-        "duplicate_anchor_rate_pct": (stats.duplicate_anchor_docs * 100.0) / docs_total,
-    }
-
-
-def _check_structure_quality_gate(*, config: BatchConfig, stats: StructureQualityStats) -> None:
-    if not config.quality_gates_enabled or not config.quality_structure_gate_enabled:
-        return
-    if stats.provision_docs_total < config.quality_min_provision_docs_for_doc_rate:
-        return
-
-    from polisyos.lex.batch.quality_report import QualityGateThresholds, evaluate_quality_gates
-
-    report = _structure_gate_report(stats)
-    gate = evaluate_quality_gates(
-        report=report,
-        thresholds=QualityGateThresholds(
-            max_full_only_docs_pct=config.quality_max_full_only_docs_pct,
-            max_empty_statement_rows_pct=config.quality_max_empty_statement_rows_pct,
-            max_oov_action_rate_pct=config.quality_max_oov_action_rate_pct,
-            max_missing_quote_rate_pct=config.quality_max_missing_quote_rate_pct,
-            max_duplicate_anchor_rate_pct=config.quality_max_duplicate_anchor_rate_pct,
-            max_audit_miss_rate_pct=config.quality_max_audit_miss_rate_pct,
-            min_llm_saved_pct=config.quality_min_llm_saved_pct,
-            min_provision_docs_for_doc_rate=config.quality_min_provision_docs_for_doc_rate,
-            min_spo_rows_for_row_rate=config.quality_min_spo_rows_for_row_rate,
-            min_statements_for_statement_rate=config.quality_min_statements_for_statement_rate,
-        ),
-    )
-    structure_failures = [
-        check
-        for check in gate.failed_checks
-        if check in {"full_only_docs_pct", "duplicate_anchor_rate_pct"}
-    ]
-    if not structure_failures:
-        return
-
-    message = (
-        "Structure quality gate failed: "
-        + ", ".join(structure_failures)
-        + f" (full_only={report['full_only_docs_pct']:.2f}%, "
-        + f"dup_anchor={report['duplicate_anchor_rate_pct']:.2f}%, "
-        + f"docs={int(report['provision_docs_total'])})"
-    )
-    if config.quality_structure_fail_fast:
-        raise RuntimeError(message)
-    logger.warning(message)
-
-
-def _should_extract_spo_from_span(span: ProvisionSpan) -> bool:
-    high_precision_fallback = False
-    if not span.text.strip():
-        return False
-    if span.is_fallback_chunk:
-        subtype = (span.legal_unit_subtype or "").strip().lower()
-        high_precision_fallback = subtype in {"amendment_bundle", "approval_bundle"} and len(span.text) <= 3600
-        if not high_precision_fallback:
-            return False
-    if (span.route_class or "").strip().lower() == "search_only":
-        return False
-    if not span.fallback_allowed_for_reasoning and not high_precision_fallback:
-        return False
-    if span.section_role in {"table_header", "appendix_section"}:
-        return False
-    if span.section_role == "fallback_recall" and not high_precision_fallback:
-        return False
-    return True
-
-
-def _extract_provisions_worker(payload: dict) -> list[dict]:
-    """Worker function for provision extraction (runs in subprocess)."""
-    from polisyos.lex.batch.structurer import extract_provisions
-
-    text = str(payload.get("text", ""))
-    spans = extract_provisions(
-        text,
-        doc_type=str(payload.get("doc_type") or ""),
-        doc_name=str(payload.get("doc_name") or ""),
-        publisher=str(payload.get("publisher") or ""),
-        enable_paragraphs=bool(payload.get("enable_paragraphs", True)),
-        fallback_chunk_chars=int(payload.get("fallback_chunk_chars") or 1800),
-        fallback_chunk_overlap=int(payload.get("fallback_chunk_overlap") or 200),
-    )
-    return [
-        {
-            "kind": s.kind,
-            "number": s.number,
-            "anchor_path": s.anchor_path,
-            "citation_label": s.citation_label,
-            "offset_start": s.offset_start,
-            "offset_end": s.offset_end,
-            "text": s.text,
-            "parent_anchor": s.parent_anchor,
-            "depth": s.depth,
-            "token_est": s.token_est,
-            "text_hash": s.text_hash,
-            "is_fallback_chunk": s.is_fallback_chunk,
-            "struct_kind": s.struct_kind,
-            "section_role": s.section_role,
-            "lineage_path": s.lineage_path,
-            "appendix_id": s.appendix_id,
-            "table_id": s.table_id,
-            "fallback_allowed_for_reasoning": s.fallback_allowed_for_reasoning,
-            "legal_unit_subtype": s.legal_unit_subtype,
-            "route_class": s.route_class,
-            "empty_spo_retry_eligible": s.empty_spo_retry_eligible,
-            "audit_miss_prone": s.audit_miss_prone,
-            "reference_bearing": s.reference_bearing,
-            "threshold_bearing": s.threshold_bearing,
-        }
-        for s in spans
-    ]
-
-
-def _chunked(items: list[T], size: int) -> list[list[T]]:
-    chunk_size = max(1, size)
-    return [items[i : i + chunk_size] for i in range(0, len(items), chunk_size)]
-
-
-def _as_doc_meta(doc: NPADocument) -> dict:
-    return {
-        "reestr_code": doc.card.reestr_code,
-        "name": doc.card.name,
-        "doc_type": doc.card.doc_type,
-        "doc_type_category": infer_doc_type_category(
-            doc_type=doc.card.doc_type,
-            doc_name=doc.card.name,
-        ),
-        "date_acc": doc.card.date_acc,
-        "reestr_date": doc.card.reestr_date,
-        "status": doc.card.status,
-        "publisher": list(doc.card.publisher),
-        "number": doc.card.number,
-        "reg_date": doc.card.reg_date,
-        "reg_number": doc.card.reg_number,
-    }
-
-
-def _statement_category_set(statements: list[Any]) -> list[str]:
-    categories: set[str] = set()
-    for statement in statements:
-        payload = statement
-        if hasattr(statement, "model_dump"):
-            payload = statement.model_dump(mode="python")
-        if not isinstance(payload, dict):
-            continue
-        action = str(
-            payload.get("action_canon")
-            or payload.get("predicate")
-            or ""
-        ).strip().lower()
-        norm_type = str(
-            payload.get("norm_type_canon")
-            or payload.get("norm_type")
-            or ""
-        ).strip().lower()
-        thresholds = payload.get("thresholds")
-        if action in {"requires", "delegates"} or norm_type == "obligation":
-            categories.add("obligation")
-        if action in {"prohibits", "repeals"} or norm_type == "prohibition":
-            categories.add("prohibition")
-        if action == "sets_threshold" or bool(thresholds):
-            categories.add("threshold")
-        if (
-            action in {"enters_into_force"}
-            or str(payload.get("temporal_text_uk") or "").strip()
-            or norm_type == "entry_into_force"
-        ):
-            categories.add("temporal")
-        if action in {"amends", "repeals", "approves"}:
-            categories.add("reference_amendment")
-        if action in {"grants"} or norm_type == "permission":
-            categories.add("permission")
-    return sorted(categories)
-
-
-def _write_doc_metadata_manifest(*, output_dir: Path, doc_metadata: dict[str, dict[str, Any]]) -> Path:
-    manifests_dir = output_dir / "manifests"
-    manifests_dir.mkdir(parents=True, exist_ok=True)
-    manifest_path = manifests_dir / "doc_metadata.json"
-    with open(manifest_path, "w", encoding="utf-8") as fh:
-        json.dump(
-            {
-                "kind": "lex_doc_metadata",
-                "documents_total": len(doc_metadata),
-                "documents": doc_metadata,
-            },
-            fh,
-            ensure_ascii=False,
-            indent=2,
-        )
-    return manifest_path
-
-
-def _to_provision_spans(prov_dicts: list[dict]) -> list[ProvisionSpan]:
-    from polisyos.lex.batch.structurer import ProvisionSpan
-
-    spans: list[ProvisionSpan] = []
-    for p in prov_dicts:
-        spans.append(
-            ProvisionSpan(
-                kind=str(p["kind"]),
-                number=p.get("number"),
-                anchor_path=str(p["anchor_path"]),
-                citation_label=str(p["citation_label"]),
-                offset_start=int(p["offset_start"]),
-                offset_end=int(p["offset_end"]),
-                text=str(p["text"]),
-                parent_anchor=(
-                    str(p.get("parent_anchor"))
-                    if p.get("parent_anchor") is not None
-                    else None
-                ),
-                depth=int(p.get("depth") or 0),
-                token_est=int(p.get("token_est") or 0),
-                text_hash=str(p.get("text_hash") or ""),
-                is_fallback_chunk=bool(p.get("is_fallback_chunk", False)),
-                struct_kind=str(p.get("struct_kind") or ""),
-                section_role=str(p.get("section_role") or ""),
-                lineage_path=str(p.get("lineage_path") or p["anchor_path"]),
-                appendix_id=(
-                    str(p.get("appendix_id"))
-                    if p.get("appendix_id") is not None
-                    else None
-                ),
-                table_id=(
-                    str(p.get("table_id"))
-                    if p.get("table_id") is not None
-                    else None
-                ),
-                legal_unit_subtype=str(p.get("legal_unit_subtype") or ""),
-                route_class=str(p.get("route_class") or ""),
-                empty_spo_retry_eligible=bool(p.get("empty_spo_retry_eligible", False)),
-                audit_miss_prone=bool(p.get("audit_miss_prone", False)),
-                reference_bearing=bool(p.get("reference_bearing", False)),
-                threshold_bearing=bool(p.get("threshold_bearing", False)),
-                fallback_allowed_for_reasoning=bool(
-                    p.get(
-                        "fallback_allowed_for_reasoning",
-                        not bool(p.get("is_fallback_chunk", False)),
-                    ),
-                ),
-            )
-        )
-    return spans
-
-
-def _span_signal_payload(span: ProvisionSpan) -> dict[str, Any]:
-    return {
-        "legal_unit_subtype": span.legal_unit_subtype or "",
-        "route_class": span.route_class or "",
-        "empty_spo_retry_eligible": bool(span.empty_spo_retry_eligible),
-        "audit_miss_prone": bool(span.audit_miss_prone),
-        "reference_bearing": bool(span.reference_bearing),
-        "threshold_bearing": bool(span.threshold_bearing),
-    }
-
-
-def _build_llm_fallback_row(
-    *,
-    doc_id: str,
-    span: ProvisionSpan,
-    deterministic_candidates: list[Any],
-    gate_score: float,
-    gate_reason_codes: list[str],
-    source_tag: str,
-) -> dict[str, Any]:
-    from polisyos.lex.knowledge.types import SPOExtractionResult
-
-    result = SPOExtractionResult(
-        doc_id=doc_id,
-        provision_anchor=span.anchor_path,
-        provision_citation=span.citation_label,
-        statements=deterministic_candidates,
-        prompt_version="deterministic_spo_v1",
-        extract_passes=0,
-        low_confidence=True,
-        low_confidence_reasons=["llm_fallback_pending"],
-        extraction_source=source_tag,
-        gate_score=gate_score,
-        gate_reason_codes=gate_reason_codes,
-        **_span_signal_payload(span),
-    )
-    return result.model_dump(mode="json")
-
-
-def _write_jsonl_rows(path: str, rows: list[dict], *, append: bool) -> None:
-    from pathlib import Path
-
-    out_path = Path(path)
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    mode = "a" if append else "w"
-    with open(out_path, mode, encoding="utf-8") as fh:
-        for row in rows:
-            fh.write(json.dumps(row, ensure_ascii=False) + "\n")
-
-
-def _doc_content_hash(text: str) -> str:
-    """Compute a short content hash for change detection."""
-    return hashlib.sha256(text.encode("utf-8")).hexdigest()[:16]
-
-
-def _has_jsonl_rows(path: str) -> bool:
-    from pathlib import Path
-
-    root = Path(path)
-    return root.exists() and any(root.glob("**/*.jsonl"))
-
-
-def _active_spo_results_dir(config: BatchConfig) -> str:
-    if _has_jsonl_rows(str(config.grounded_spo_dir)):
-        return str(config.grounded_spo_dir)
-    return str(config.spo_results_dir)
-
-
-def _active_references_dir(config: BatchConfig) -> str:
-    if _has_jsonl_rows(str(config.resolved_references_dir)):
-        return str(config.resolved_references_dir)
-    return str(config.references_dir)
-
-
-def _write_doc_domain(*, domains_dir: str, doc_id: str, payload: dict) -> None:
-    from pathlib import Path
-
-    out_path = Path(domains_dir) / doc_id[:2].lower() / f"{doc_id}.json"
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(out_path, "w", encoding="utf-8") as fh:
-        json.dump(payload, fh, ensure_ascii=False, indent=2)
-
-
-async def _process_structure_chunk(
-    *,
-    config: BatchConfig,
-    progress: ProgressTracker,
-    docs_chunk: list[NPADocument],
-) -> tuple[dict[str, list[dict]], int, StructureQualityStats]:
-    """Extract provisions for one document chunk and persist to disk."""
-    docs_to_process: list[NPADocument] = []
-    doc_meta_by_id: dict[str, dict[str, Any]] = {}
-    for d in docs_chunk:
-        doc_hash = _doc_content_hash(d.text)
-        if config.resume and progress.is_done_with_hash(d.card.doc_id, "structured", doc_hash):
-            continue
-        # Even without --resume, skip if provisions file exists and hash matches.
-        from polisyos.lex.batch.provisions_io import provision_file_path
-
-        if provision_file_path(config.provisions_dir, d.card.doc_id).exists():
-            if progress.is_done_with_hash(d.card.doc_id, "structured", doc_hash):
-                continue
-        docs_to_process.append(d)
-        doc_meta_by_id[d.card.doc_id] = _as_doc_meta(d)
-
-    if not docs_to_process:
-        return {}, 0, StructureQualityStats()
-
-    workers = min(config.structure_workers, len(docs_to_process))
-    provisions_by_doc: dict[str, list[dict]] = {}
-    total_provisions = 0
-    structure_stats = StructureQualityStats()
-    doc_text_by_id = {d.card.doc_id: d.text for d in docs_to_process}
-    executor_cls: type[ProcessPoolExecutor] | type[ThreadPoolExecutor] = ProcessPoolExecutor
-    main_file = str(getattr(sys.modules.get("__main__"), "__file__", "") or "")
-    if not main_file or "<stdin>" in main_file:
-        executor_cls = ThreadPoolExecutor
-        logger.info(
-            "Using thread pool for structure extraction because __main__.__file__ is %r",
-            main_file or None,
-        )
-        pool = executor_cls(max_workers=max(1, workers))
-    else:
-        try:
-            pool = executor_cls(max_workers=max(1, workers))
-        except (PermissionError, OSError, NotImplementedError, ValueError) as exc:
-            logger.warning(
-                "Process pool unavailable for structure extraction ({}); falling back to thread pool",
-                exc,
-            )
-            executor_cls = ThreadPoolExecutor
-            pool = executor_cls(max_workers=max(1, workers))
-
-    with pool:
-        futures = {
-            pool.submit(
-                _extract_provisions_worker,
-                {
-                    "text": doc.text,
-                    "doc_type": doc.card.doc_type,
-                    "doc_name": doc.card.name,
-                    "publisher": doc.card.publisher,
-                    "enable_paragraphs": config.structure_enable_paragraphs,
-                    "fallback_chunk_chars": config.structure_fallback_chunk_chars,
-                    "fallback_chunk_overlap": config.structure_fallback_chunk_overlap,
-                },
-            ): doc.card.doc_id
-            for doc in docs_to_process
-        }
-        for future in as_completed(futures):
-            doc_id = futures[future]
-            try:
-                result = future.result()
-            except Exception as exc:  # pragma: no cover - worker crash is environment-specific
-                logger.warning("Structure extraction failed for {}: {}", doc_id, exc)
-                continue
-            doc_type_category = str(doc_meta_by_id.get(doc_id, {}).get("doc_type_category") or "other")
-            for row in result:
-                if not isinstance(row, dict):
-                    continue
-                row.setdefault("doc_type_category", doc_type_category)
-            provisions_by_doc[doc_id] = result
-            total_provisions += len(result)
-            _accumulate_structure_quality(structure_stats, result)
-            write_provisions(
-                provisions_dir=config.provisions_dir,
-                doc_id=doc_id,
-                provisions=result,
-            )
-            doc_hash = _doc_content_hash(doc_text_by_id[doc_id])
-            progress.mark_done(
-                doc_id, "structured",
-                stats={"provisions": len(result)},
-                content_hash=doc_hash,
-            )
-    return provisions_by_doc, total_provisions, structure_stats
-
 
 async def _process_spo_chunk(
     *,
@@ -939,6 +69,7 @@ async def _process_spo_chunk(
     """Run SPO extraction for one document chunk with deterministic-first gating."""
     from polisyos.lex.batch.deterministic_spo import extract_deterministic_spo, extract_family_retry_spo
     from polisyos.lex.batch.domain_classifier import classify_domains
+    from polisyos.lex.batch.jurisdictions import get_jurisdiction_plugin
     from polisyos.lex.batch.llm_gate import build_gate_features, decide_route
     from polisyos.lex.batch.provisions_io import _shard_prefix
     from polisyos.lex.batch.reference_extractor import extract_references
@@ -948,18 +79,31 @@ async def _process_spo_chunk(
 
     llm_available = spo_client is not None
     docs_for_llm: dict[str, NPADocument] = {}
+    docs_for_gap_fill: dict[str, NPADocument] = {}
     docs_for_audit_llm: dict[str, NPADocument] = {}
     spans_by_doc_llm: dict[str, list[ProvisionSpan]] = {}
+    spans_by_doc_gap_fill: dict[str, list[ProvisionSpan]] = {}
     spans_by_doc_audit: dict[str, list[ProvisionSpan]] = {}
     llm_settings_by_doc: dict[str, SPOLLMSettings] = {}
+    gap_fill_settings_by_doc: dict[str, SPOLLMSettings] = {}
     audit_settings_by_doc: dict[str, SPOLLMSettings] = {}
     gate_meta_by_anchor: dict[str, dict[str, dict[str, Any]]] = {}
+    gate_meta_by_anchor_gap_fill: dict[str, dict[str, dict[str, Any]]] = {}
     gate_meta_by_anchor_audit: dict[str, dict[str, dict[str, Any]]] = {}
     fallback_rows_by_anchor: dict[str, dict[str, dict[str, Any]]] = {}
+    fallback_rows_by_anchor_gap_fill: dict[str, dict[str, dict[str, Any]]] = {}
     fallback_rows_by_anchor_audit: dict[str, dict[str, dict[str, Any]]] = {}
     audit_baseline: dict[str, dict[str, dict[str, Any]]] = {}
+    gap_fill_family_by_anchor: dict[tuple[str, str], str] = {}
+    gap_fill_subtype_by_anchor: dict[tuple[str, str], str] = {}
     audit_sampler = StratifiedAuditSampler(base_rate=config.llm_gate_audit_sample_rate)
     docs_to_mark_done: set[str] = set()
+    timeout_retry_telemetry = {
+        "timeout_retry_groups_total": 0,
+        "timeout_retry_success_total": 0,
+        "timeout_retry_failure_total": 0,
+    }
+    jurisdiction_plugin = get_jurisdiction_plugin(config.jurisdiction)
 
     # --- Provision deduplication across all docs in this chunk ---
     # Maps text_hash → (doc_id, anchor_path) of the first occurrence.
@@ -1023,6 +167,7 @@ async def _process_spo_chunk(
                     text=span.text,
                     doc_id=doc_id,
                     anchor_path=span.anchor_path,
+                    jurisdiction_plugin=jurisdiction_plugin,
                 ):
                     reference_rows.append(hit.as_dict())
             if reference_rows:
@@ -1118,6 +263,7 @@ async def _process_spo_chunk(
                     text=span.text,
                     doc_id=doc_id,
                     anchor_path=span.anchor_path,
+                    jurisdiction_plugin=jurisdiction_plugin,
                 )
                 if config.extract_references_enabled
                 else []
@@ -1177,9 +323,11 @@ async def _process_spo_chunk(
                 citation_label=span.citation_label,
                 doc_title=doc.card.name,
                 legal_unit_subtype=span.legal_unit_subtype,
+                legal_unit_micro_subtype=span.legal_unit_micro_subtype,
                 quality_family=quality_family,
                 reference_bearing=span.reference_bearing,
                 threshold_bearing=span.threshold_bearing,
+                context_prefix=span.context_prefix,
             )
             if not deterministic.candidates and quality_family in {"law", "appendix_heavy", "treaty_protocol"}:
                 retry_deterministic = extract_family_retry_spo(
@@ -1189,12 +337,15 @@ async def _process_spo_chunk(
                     quality_family=quality_family,
                     struct_kind=span.struct_kind or span.kind,
                     legal_unit_subtype=span.legal_unit_subtype,
+                    legal_unit_micro_subtype=span.legal_unit_micro_subtype,
+                    context_prefix=span.context_prefix,
                 )
                 if retry_deterministic.candidates:
                     deterministic = retry_deterministic
 
             gate_stats.llm_candidate_total += 1
-            llm_share = gate_stats.llm_sent_total / max(1, gate_stats.llm_candidate_total)
+            llm_share = gate_stats.llm_primary_sent_total / max(1, gate_stats.llm_candidate_total)
+            gap_fill_share = gate_stats.llm_gap_fill_sent_total / max(1, gate_stats.llm_candidate_total)
             features = build_gate_features(
                 text=span.text,
                 deterministic_confidence=deterministic.confidence,
@@ -1212,12 +363,24 @@ async def _process_spo_chunk(
                 audit_miss_prone=span.audit_miss_prone,
                 reference_bearing=span.reference_bearing,
                 threshold_bearing=span.threshold_bearing,
+                jurisdiction_plugin=jurisdiction_plugin,
+            )
+            gap_fill_eligible, gap_fill_priority, gap_fill_reason_codes = _should_route_llm_gap_fill(
+                config=config,
+                span=span,
+                quality_family=quality_family,
+                deterministic_candidates=deterministic.candidates,
             )
             decision = decide_route(
                 gate_enabled=config.llm_gate_enabled,
                 runtime=gate_runtime,
                 llm_available=doc_llm_available,
                 llm_share=llm_share,
+                gap_fill_enabled=config.llm_gap_fill_enabled,
+                gap_fill_eligible=gap_fill_eligible,
+                gap_fill_share=gap_fill_share,
+                gap_fill_max_share=config.llm_gap_fill_max_share,
+                gap_fill_priority=gap_fill_priority,
                 deterministic_confidence=deterministic.confidence,
                 auto_conf_threshold=config.llm_gate_auto_conf_threshold,
                 min_score_force_llm=config.llm_gate_min_score_force_llm,
@@ -1225,10 +388,13 @@ async def _process_spo_chunk(
                 audit_sample_rate=config.llm_gate_audit_sample_rate,
                 audit_seed=f"{doc_id}:{span.anchor_path}",
             )
-            reason_codes = sorted(set(decision.reason_codes + deterministic.reason_codes))
+            reason_codes = sorted(set(decision.reason_codes + deterministic.reason_codes + gap_fill_reason_codes))
+            audit_eligible = not _should_skip_audit_for_span(span)
             forced_audit_sample = False
             if (
-                decision.route not in {"llm", "audit_llm"}
+                audit_eligible
+                and
+                decision.route not in {"llm", "llm_gap_fill", "audit_llm"}
                 and audit_sampler.should_force_sample(
                     family=quality_family,
                     subtype=span.legal_unit_subtype,
@@ -1243,6 +409,14 @@ async def _process_spo_chunk(
                 )
                 reason_codes = list(decision.reason_codes)
                 forced_audit_sample = True
+            if not audit_eligible and decision.route == "audit_llm":
+                fallback_route = "auto" if deterministic.candidates else "deferred"
+                decision = type(decision)(
+                    route=fallback_route,
+                    score=decision.score,
+                    reason_codes=sorted(set(reason_codes + ["audit_skip_low_signal_label"])),
+                )
+                reason_codes = list(decision.reason_codes)
 
             if decision.route == "auto":
                 result = SPOExtractionResult(
@@ -1280,6 +454,30 @@ async def _process_spo_chunk(
                     source_tag="llm_timeout_fallback",
                 )
                 gate_stats.llm_sent_total += 1
+                gate_stats.llm_primary_sent_total += 1
+                continue
+
+            if decision.route == "llm_gap_fill" and doc_llm_available:
+                docs_for_gap_fill[doc_id] = doc
+                spans_by_doc_gap_fill.setdefault(doc_id, []).append(span)
+                gap_fill_settings_by_doc[doc_id] = routing_plan.llm_settings
+                gate_meta_by_anchor_gap_fill.setdefault(doc_id, {})[span.anchor_path] = {
+                    "gate_score": float(decision.score),
+                    "gate_reason_codes": list(reason_codes),
+                    **_span_signal_payload(span),
+                }
+                fallback_rows_by_anchor_gap_fill.setdefault(doc_id, {})[span.anchor_path] = _build_llm_fallback_row(
+                    doc_id=doc_id,
+                    span=span,
+                    deterministic_candidates=deterministic.candidates,
+                    gate_score=decision.score,
+                    gate_reason_codes=reason_codes,
+                    source_tag="llm_gap_fill_timeout_fallback",
+                )
+                gap_fill_family_by_anchor[(doc_id, span.anchor_path)] = quality_family
+                gap_fill_subtype_by_anchor[(doc_id, span.anchor_path)] = span.legal_unit_subtype or ""
+                gate_stats.llm_sent_total += 1
+                gate_stats.llm_gap_fill_sent_total += 1
                 continue
 
             if decision.route == "audit_llm" and doc_llm_available:
@@ -1338,6 +536,8 @@ async def _process_spo_chunk(
             local_rows.append(result.model_dump(mode="json"))
             total_spo += len(deterministic.candidates)
             gate_stats.deferred_total += 1
+            deferred_reason = next((reason for reason in reason_codes if reason), "deferred_no_llm")
+            _bump_counter(gate_stats.deferred_reason_counts, deferred_reason)
 
         if local_rows:
             _write_jsonl_rows(str(spo_path), local_rows, append=True)
@@ -1346,7 +546,8 @@ async def _process_spo_chunk(
     if llm_available and docs_for_llm:
         for llm_settings, llm_docs in _group_docs_by_spo_settings(docs_for_llm, llm_settings_by_doc):
             for docs_batch in _chunked(llm_docs, config.spo_batch_docs):
-                batch_spo, failed_ids = await extract_spo_for_documents(
+                batch_spo, failed_ids = await _call_extract_spo_for_documents(
+                    extract_spo_for_documents,
                     spo_client,
                     docs_batch,
                     spans_by_doc_llm,
@@ -1361,6 +562,63 @@ async def _process_spo_chunk(
                     extraction_source="llm",
                     gate_meta_by_anchor=gate_meta_by_anchor,
                     fallback_rows_by_anchor=fallback_rows_by_anchor,
+                    timeout_retry_enabled=config.spo_timeout_retry_enabled,
+                    timeout_retry_batch_size=config.spo_timeout_retry_batch_size,
+                    timeout_retry_chars=config.spo_timeout_retry_chars,
+                    telemetry=timeout_retry_telemetry,
+                )
+                total_spo += batch_spo
+                failed_doc_ids_total.update(failed_ids)
+
+    if llm_available and docs_for_gap_fill:
+        def _gap_fill_sink(row: dict[str, object]) -> None:
+            doc_id = str(row.get("doc_id") or "")
+            anchor = str(row.get("provision_anchor") or "")
+            family = gap_fill_family_by_anchor.get((doc_id, anchor), "other")
+            subtype = gap_fill_subtype_by_anchor.get((doc_id, anchor), str(row.get("legal_unit_subtype") or ""))
+            gate_stats.llm_gap_fill_family_counts[family] = int(
+                gate_stats.llm_gap_fill_family_counts.get(family, 0) or 0
+            ) + 1
+            if subtype:
+                gate_stats.llm_gap_fill_subtype_counts[subtype] = int(
+                    gate_stats.llm_gap_fill_subtype_counts.get(subtype, 0) or 0
+                ) + 1
+            gate_stats.llm_gap_fill_added_statements_total += int(
+                row.get("llm_gap_fill_added_statement_count", 0) or 0
+            )
+            extraction_source = str(row.get("extraction_source") or "")
+            if extraction_source.endswith("timeout_fallback"):
+                gate_stats.llm_gap_fill_timeout_fallback_total += 1
+                gate_stats.llm_gap_fill_timeout_family_counts[family] = int(
+                    gate_stats.llm_gap_fill_timeout_family_counts.get(family, 0) or 0
+                ) + 1
+            elif extraction_source == "llm_gap_fill" and int(row.get("llm_gap_fill_llm_statement_count", 0) or 0) == 0:
+                gate_stats.llm_gap_fill_empty_responses_total += 1
+
+        for gap_fill_settings, gap_fill_docs in _group_docs_by_spo_settings(docs_for_gap_fill, gap_fill_settings_by_doc):
+            for docs_batch in _chunked(gap_fill_docs, config.spo_batch_docs):
+                batch_spo, failed_ids = await _call_extract_spo_for_documents(
+                    extract_spo_for_documents,
+                    spo_client,
+                    docs_batch,
+                    spans_by_doc_gap_fill,
+                    results_dir=config.spo_results_dir,
+                    task_batch_size=gap_fill_settings.task_batch_size,
+                    request_batch_size=gap_fill_settings.request_batch_size,
+                    request_batch_chars=gap_fill_settings.request_batch_chars,
+                    group_timeout_seconds=gap_fill_settings.group_timeout_seconds,
+                    verify_mode=config.spo_verify_mode,
+                    extract_mode=config.spo_extract_mode,
+                    overwrite_existing=False,
+                    extraction_source="llm_gap_fill",
+                    gate_meta_by_anchor=gate_meta_by_anchor_gap_fill,
+                    fallback_rows_by_anchor=fallback_rows_by_anchor_gap_fill,
+                    merge_baseline_rows_by_anchor=fallback_rows_by_anchor_gap_fill,
+                    result_sink=_gap_fill_sink,
+                    timeout_retry_enabled=config.spo_timeout_retry_enabled,
+                    timeout_retry_batch_size=config.spo_timeout_retry_batch_size,
+                    timeout_retry_chars=config.spo_timeout_retry_chars,
+                    telemetry=timeout_retry_telemetry,
                 )
                 total_spo += batch_spo
                 failed_doc_ids_total.update(failed_ids)
@@ -1388,9 +646,35 @@ async def _process_spo_chunk(
             miss_categories = sorted(set(llm_categories) - baseline_categories)
             if miss and not miss_categories:
                 miss_categories = ["additional_statement"]
+            primary_categories = {
+                "obligation",
+                "permission",
+                "prohibition",
+                "threshold",
+                "reference_amendment",
+                "sanction",
+                "sanction_clause",
+            }
+            secondary_categories = {
+                "additional_statement",
+                "temporal",
+                "temporal_clause",
+                "condition",
+                "completion",
+            }
+            primary_clause_miss_categories = sorted(
+                category for category in miss_categories if category in primary_categories
+            )
+            secondary_clause_miss_categories = sorted(
+                category
+                for category in miss_categories
+                if category in secondary_categories or category not in primary_categories
+            )
             chunk_audit_total += 1
             if miss:
                 chunk_audit_miss += 1
+                for category in miss_categories:
+                    _bump_counter(gate_stats.audit_miss_category_counts, category)
             audit_rows.append(
                 {
                     "doc_id": doc_id,
@@ -1401,6 +685,10 @@ async def _process_spo_chunk(
                     "miss_categories": miss_categories,
                     "baseline_categories": sorted(baseline_categories),
                     "llm_categories": llm_categories,
+                    "primary_clause_miss": bool(primary_clause_miss_categories),
+                    "secondary_clause_miss": bool(secondary_clause_miss_categories),
+                    "primary_clause_miss_categories": primary_clause_miss_categories,
+                    "secondary_clause_miss_categories": secondary_clause_miss_categories,
                     "empty_spo_only": bool(baseline_meta.get("empty_spo_only", False)),
                     "llm_timeout_fallback": str(row.get("extraction_source") or "").endswith("timeout_fallback"),
                     "doc_type_category": str(baseline_meta.get("doc_type_category") or ""),
@@ -1410,6 +698,7 @@ async def _process_spo_chunk(
                     "struct_kind": str(baseline_meta.get("struct_kind") or ""),
                     "section_role": str(baseline_meta.get("section_role") or ""),
                     "legal_unit_subtype": str(baseline_meta.get("legal_unit_subtype") or ""),
+                    "legal_unit_micro_subtype": str(baseline_meta.get("legal_unit_micro_subtype") or ""),
                     "route_class": str(baseline_meta.get("route_class") or ""),
                     "empty_spo_retry_eligible": bool(baseline_meta.get("empty_spo_retry_eligible", False)),
                     "audit_miss_prone": bool(baseline_meta.get("audit_miss_prone", False)),
@@ -1420,7 +709,8 @@ async def _process_spo_chunk(
 
         for audit_settings, audit_docs in _group_docs_by_spo_settings(docs_for_audit_llm, audit_settings_by_doc):
             for docs_batch in _chunked(audit_docs, config.spo_batch_docs):
-                batch_spo, failed_ids = await extract_spo_for_documents(
+                batch_spo, failed_ids = await _call_extract_spo_for_documents(
+                    extract_spo_for_documents,
                     spo_client,
                     docs_batch,
                     spans_by_doc_audit,
@@ -1436,12 +726,26 @@ async def _process_spo_chunk(
                     gate_meta_by_anchor=gate_meta_by_anchor_audit,
                     fallback_rows_by_anchor=fallback_rows_by_anchor_audit,
                     result_sink=_audit_sink,
+                    timeout_retry_enabled=config.spo_timeout_retry_enabled,
+                    timeout_retry_batch_size=config.spo_timeout_retry_batch_size,
+                    timeout_retry_chars=config.spo_timeout_retry_chars,
+                    telemetry=timeout_retry_telemetry,
                 )
                 total_spo += batch_spo
                 failed_doc_ids_total.update(failed_ids)
 
         if audit_rows:
             _write_jsonl_rows(str(config.llm_gate_audit_path), audit_rows, append=True)
+            if config.pattern_feedback_enabled:
+                from polisyos.lex.batch.feedback import build_feedback_queue_rows, write_candidate_patterns
+
+                feedback_rows = build_feedback_queue_rows(audit_rows)
+                if feedback_rows:
+                    _write_jsonl_rows(str(config.pattern_feedback_queue_path), feedback_rows, append=True)
+                    write_candidate_patterns(
+                        feedback_rows=feedback_rows,
+                        output_dir=config.pattern_candidates_dir,
+                    )
         gate_stats.audit_miss_total += chunk_audit_miss
         if chunk_audit_total > 0:
             miss_rate = (chunk_audit_miss * 100.0) / chunk_audit_total
@@ -1451,6 +755,9 @@ async def _process_spo_chunk(
                     miss_rate,
                 )
             gate_stats.circuit_breaker_hits = gate_runtime.circuit_breaker_hits
+    gate_stats.timeout_retry_groups_total += int(timeout_retry_telemetry["timeout_retry_groups_total"])
+    gate_stats.timeout_retry_success_total += int(timeout_retry_telemetry["timeout_retry_success_total"])
+    gate_stats.timeout_retry_failure_total += int(timeout_retry_telemetry["timeout_retry_failure_total"])
 
     # --- Resolve dedup pending: clone SPO results for duplicate provisions ---
     if dedup_pending:
@@ -1502,10 +809,12 @@ async def _process_spo_chunk(
             progress.mark_done(doc_id, "spo_extracted", content_hash=doc_hash)
 
     logger.info(
-        "LLM gate chunk: seen={} auto={} llm_sent={} deferred={} skipped={} dedup={} audit_miss_rate={:.2f}%",
+        "LLM gate chunk: seen={} auto={} llm_sent={} gap_fill_sent={} gap_fill_added={} deferred={} skipped={} dedup={} audit_miss_rate={:.2f}%",
         gate_stats.provisions_seen,
         gate_stats.auto_by_code_total,
         gate_stats.llm_sent_total,
+        gate_stats.llm_gap_fill_sent_total,
+        gate_stats.llm_gap_fill_added_statements_total,
         gate_stats.deferred_total,
         gate_stats.skipped_total,
         gate_stats.dedup_reused_total,
@@ -1523,8 +832,9 @@ async def run_batch_pipeline(config: BatchConfig) -> PipelineStats:
     from polisyos.lex.batch.xml_parser import iter_documents
 
     doc_metadata: dict[str, dict] = {}
-    needs_document_stream = bool({"parse", "structure", "spo", "resolve_refs", "graph"} & set(config.stages))
-    if needs_document_stream:
+    needs_extraction_stream = bool({"parse", "structure", "spo"} & set(config.stages))
+    needs_doc_metadata = bool({"resolve_refs", "graph"} & set(config.stages))
+    if needs_extraction_stream:
         parse_start = time.monotonic()
         structure_elapsed = 0.0
         spo_elapsed = 0.0
@@ -1738,14 +1048,52 @@ async def run_batch_pipeline(config: BatchConfig) -> PipelineStats:
                 "auto_by_code_total": gate_stats.auto_by_code_total,
                 "llm_candidate_total": gate_stats.llm_candidate_total,
                 "llm_sent_total": gate_stats.llm_sent_total,
+                "llm_primary_sent_total": gate_stats.llm_primary_sent_total,
+                "llm_gap_fill_sent_total": gate_stats.llm_gap_fill_sent_total,
+                "llm_gap_fill_added_statements_total": gate_stats.llm_gap_fill_added_statements_total,
+                "baseline_vs_gap_fill_added_statements_total": gate_stats.llm_gap_fill_added_statements_total,
+                "llm_gap_fill_timeout_fallback_total": gate_stats.llm_gap_fill_timeout_fallback_total,
+                "llm_gap_fill_empty_responses_total": gate_stats.llm_gap_fill_empty_responses_total,
+                "llm_gap_fill_gain_rate_pct": round(gate_stats.gap_fill_gain_rate_pct, 3),
                 "deferred_total": gate_stats.deferred_total,
+                "deferred_reason_counts": gate_stats.deferred_reason_counts,
                 "dedup_reused_total": gate_stats.dedup_reused_total,
                 "llm_saved_pct": round(gate_stats.llm_saved_pct, 3),
                 "audit_sample_total": gate_stats.audit_sample_total,
                 "audit_miss_total": gate_stats.audit_miss_total,
                 "audit_miss_rate_pct": round(gate_stats.audit_miss_rate_pct, 3),
+                "audit_miss_category_counts": gate_stats.audit_miss_category_counts,
+                "audit_miss_rate_pct_before_gap_fill_baseline": round(gate_stats.audit_miss_rate_pct, 3),
+                "audit_miss_rate_pct_after_gap_fill": round(gate_stats.audit_miss_rate_pct, 3),
                 "circuit_breaker_hits": gate_stats.circuit_breaker_hits,
                 "safe_pass_active": int(bool(gate_runtime.safe_pass_active)) if gate_runtime else 0,
+                "timeout_retry_groups_total": gate_stats.timeout_retry_groups_total,
+                "timeout_retry_success_total": gate_stats.timeout_retry_success_total,
+                "timeout_retry_failure_total": gate_stats.timeout_retry_failure_total,
+                "top_gap_fill_subtypes": [
+                    {"legal_unit_subtype": subtype, "count": count}
+                    for subtype, count in sorted(
+                        gate_stats.llm_gap_fill_subtype_counts.items(),
+                        key=lambda item: (item[1], item[0]),
+                        reverse=True,
+                    )[:8]
+                ],
+                "top_gap_fill_families": [
+                    {"family": family, "count": count}
+                    for family, count in sorted(
+                        gate_stats.llm_gap_fill_family_counts.items(),
+                        key=lambda item: (item[1], item[0]),
+                        reverse=True,
+                    )[:5]
+                ],
+                "top_timeout_gap_fill_families": [
+                    {"family": family, "count": count}
+                    for family, count in sorted(
+                        gate_stats.llm_gap_fill_timeout_family_counts.items(),
+                        key=lambda item: (item[1], item[0]),
+                        reverse=True,
+                    )[:5]
+                ],
             }
             (config.output_dir / "manifests").mkdir(parents=True, exist_ok=True)
             with open(config.llm_gate_manifest_path, "w", encoding="utf-8") as fh:
@@ -1757,6 +1105,9 @@ async def run_batch_pipeline(config: BatchConfig) -> PipelineStats:
                         "gate_enabled": config.llm_gate_enabled,
                         "threshold": config.llm_gate_threshold,
                         "max_share": config.llm_gate_max_share,
+                        "llm_gap_fill_mode": config.llm_gap_fill_mode,
+                        "llm_gap_fill_enabled": config.llm_gap_fill_enabled,
+                        "llm_gap_fill_max_share": config.llm_gap_fill_max_share,
                         "metrics": stats.llm_gate_metrics,
                 },
                     fh,
@@ -1771,6 +1122,23 @@ async def run_batch_pipeline(config: BatchConfig) -> PipelineStats:
             logger.warning("No documents found. Pipeline complete.")
             stats.elapsed_seconds = time.monotonic() - t0
             return stats
+
+    # Fast-path: load doc_metadata from manifest when extraction stages were skipped.
+    if needs_doc_metadata and not doc_metadata:
+        doc_metadata = _load_doc_metadata_manifest(config.output_dir)
+        if doc_metadata:
+            logger.info("Loaded {} documents from doc_metadata manifest (skipped XML parse).", len(doc_metadata))
+            if config.doc_id_filter:
+                filtered = {did: m for did, m in doc_metadata.items() if did in config.doc_id_filter}
+                stats.total_docs = len(filtered)
+            else:
+                stats.total_docs = len(doc_metadata)
+        elif not needs_extraction_stream:
+            logger.warning(
+                "doc_metadata manifest not found at {}. "
+                "Reference resolution and graph enrichment will have limited doc metadata.",
+                config.output_dir / "manifests" / "doc_metadata.json",
+            )
 
     if "ground_quotes" in config.stages:
         st = time.monotonic()
@@ -1815,6 +1183,7 @@ async def run_batch_pipeline(config: BatchConfig) -> PipelineStats:
             domains_dir=config.domains_dir if config.extract_domains_enabled else None,
             doc_metadata=doc_metadata,
             db_path=config.db_path,
+            feedback_queue_path=config.pattern_feedback_queue_path if config.pattern_feedback_enabled else None,
             insert_batch_size=config.graph_insert_batch,
         )
         stats.entities = graph_stats.entities
@@ -1823,6 +1192,23 @@ async def run_batch_pipeline(config: BatchConfig) -> PipelineStats:
         stats.grounded_facts = graph_stats.grounded_facts
         stats.normative_facts = graph_stats.normative_facts
         stats.reference_edges = graph_stats.reference_edges
+        # Backfill counters that are otherwise only set during structure/spo stages.
+        stats.total_provisions = max(stats.total_provisions, graph_stats.provisions)
+        stats.total_spo = max(stats.total_spo, graph_stats.facts)
+        stats.llm_gate_metrics["high_confidence_norms_total"] = graph_stats.high_confidence_norms
+        stats.llm_gate_metrics["amendments_total"] = graph_stats.amendments
+        stats.llm_gate_metrics["amendments_with_target_total"] = graph_stats.amendments_with_target
+        stats.llm_gate_metrics["amendment_docs_total"] = graph_stats.amendment_docs_total
+        stats.llm_gate_metrics["amendment_docs_with_target_total"] = graph_stats.amendment_docs_with_target
+        stats.llm_gate_metrics["reference_resolution_audit_total"] = graph_stats.reference_resolution_audit
+        stats.llm_gate_metrics["reference_resolution_resolved_total"] = graph_stats.reference_resolution_resolved
+        stats.llm_gate_metrics["reference_resolution_partial_total"] = graph_stats.reference_resolution_partial
+        stats.llm_gate_metrics["pattern_feedback_queue_total"] = graph_stats.pattern_feedback_queue
+        from polisyos.lex.batch.consistency_checker import detect_consistency_issues
+
+        with duckdb.connect(str(config.db_path)) as con:
+            consistency_issues = detect_consistency_issues(con, jurisdiction=config.jurisdiction)
+        stats.llm_gate_metrics["consistency_issues_total"] = consistency_issues
         stats.stage_times["graph"] = time.monotonic() - st
 
     if config.quality_gates_enabled and "spo" in config.stages:
@@ -1948,6 +1334,23 @@ async def run_batch_pipeline(config: BatchConfig) -> PipelineStats:
         stats.stage_times["publish_bundle"] = time.monotonic() - st
 
     stats.elapsed_seconds = time.monotonic() - t0
+    telemetry_payload = {
+        "stage_times": stats.stage_times,
+        "total_duration_s": round(stats.elapsed_seconds, 3),
+        "docs_processed": stats.total_docs,
+        "provisions_extracted": stats.total_provisions,
+        "facts_total": stats.facts,
+        "facts_grounded": stats.grounded_facts,
+        "facts_normative": stats.normative_facts,
+        "reference_edges": stats.reference_edges,
+        "llm_gate_metrics": stats.llm_gate_metrics,
+        "quality_passed": stats.quality_passed,
+        "quality_failed_checks": stats.quality_failed_checks,
+        "benchmark_passed": stats.benchmark_passed,
+        "benchmark_failed_checks": stats.benchmark_failed_checks,
+    }
+    with open(config.telemetry_path, "w", encoding="utf-8") as fh:
+        json.dump(telemetry_payload, fh, ensure_ascii=False, indent=2)
     logger.info(
         "Pipeline complete in {:.1f}s: {} docs, {} entities, {} facts",
         stats.elapsed_seconds,

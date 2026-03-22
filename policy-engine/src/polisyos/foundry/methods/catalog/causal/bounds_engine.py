@@ -10,9 +10,10 @@ Decision table:
   has_selection=True              → LeeBoundsEstimator + ManskiBoundsEstimator
   has_monotone=True               → OptimizationBasedBoundsEstimator(assumption="mtr") + Manski
   sensitivity_lambda=True         → TanBoundsEstimator sensitivity sweep
-  run_all=True                    → all applicable methods
-  run_intersection=True           → IntersectionBoundsEstimator on all accumulated results
-  default                         → ManskiBoundsEstimator + ImbensManskiBoundsEstimator
+ run_all=True                    → all applicable methods
+ run_intersection=True           → IntersectionBoundsEstimator on all accumulated results
+  use_auto_bounds=True            → auto_bounds() as a first-pass bounds method
+ default                         → ManskiBoundsEstimator + ImbensManskiBoundsEstimator
 
 BoundsEngine calls inner estimators' pure_step() directly (same package;
 no registry lookup at execution time — fast and testable in isolation).
@@ -52,6 +53,7 @@ from polisyos.foundry.methods.catalog.causal.bounds import (
     ManskiBoundsEstimator,
     OptimizationBasedBoundsEstimator,
 )
+from polisyos.foundry.methods.catalog.causal.lp_bounds import auto_bounds
 from polisyos.foundry.methods.catalog.causal.sensitivity_bounds import (
     IntersectionBoundsEstimator,
     TanBoundsEstimator,
@@ -212,6 +214,21 @@ class BoundsEngineMethod:
                 default=None,
                 description="List of λ values for TanBoundsEstimator. None → default grid.",
             ),
+            ParameterSpec(
+                name="use_auto_bounds",
+                default=True,
+                description="If True, run auto_bounds() as a first-pass bounds method.",
+            ),
+            ParameterSpec(
+                name="treatment_target",
+                default=1.0,
+                description="Target treatment level passed to auto_bounds().",
+            ),
+            ParameterSpec(
+                name="treatment_ref",
+                default=0.0,
+                description="Reference treatment level passed to auto_bounds().",
+            ),
         ),
         fidelity=FidelityLevel.HIGH,
         complexity=ComplexityClass.O_N,
@@ -269,6 +286,7 @@ class BoundsEngineMethod:
         run_intersection = bool(params.get("run_intersection", False))
         sensitivity_lambda = bool(params.get("sensitivity_lambda", False))
         lambda_values = params.get("lambda_values")
+        use_auto_bounds = bool(params.get("use_auto_bounds", True))
         y_range = y_hi - y_lo if y_hi > y_lo else 1.0
 
         # Detect available optional slots
@@ -284,6 +302,25 @@ class BoundsEngineMethod:
 
         partial_id_results: list[PartialIdentificationResult] = []
         warnings: list[str] = []
+
+        # --- Auto bounds (Phase 7 first-pass LP / relaxation) ---
+        if use_auto_bounds:
+            try:
+                auto_pid = auto_bounds(
+                    outcome=Y,
+                    treatment=T,
+                    instrument=(
+                        None
+                        if (not has_iv or Z_raw is None)
+                        else np.asarray(Z_raw, dtype=float)
+                    ),
+                    target_treatment=float(params.get("treatment_target", 1.0)),
+                    reference_treatment=float(params.get("treatment_ref", 0.0)),
+                    constraints={"monotone": has_monotone},
+                )
+                partial_id_results.append(auto_pid)
+            except Exception as exc:  # pragma: no cover - defensive fallback
+                warnings.append(f"auto_bounds failed: {exc}")
 
         # --- Manski (always run — worst-case baseline) ---
         manski_out = ManskiBoundsEstimator.pure_step(base_state, base_params)

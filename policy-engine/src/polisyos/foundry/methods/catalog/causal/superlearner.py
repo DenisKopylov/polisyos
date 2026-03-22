@@ -35,9 +35,10 @@ van der Laan, M.J., Polley, E.C. & Hubbard, A.E. (2007).
 from __future__ import annotations
 
 import dataclasses
-from typing import Any, ClassVar, Mapping, Sequence
+from typing import Any, ClassVar, Literal, Mapping, Sequence
 
 import numpy as np
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core.observability.determinism import DeterminismTier
 from polisyos.foundry.methods.base import (
@@ -183,7 +184,15 @@ def _predict_learner(
     binary: bool = False,
 ) -> np.ndarray:
     """Generate predictions from a fitted (kind, model_or_beta) pair."""
-    kind, model = learner
+    feature_idx: np.ndarray | None = None
+    if isinstance(learner, tuple) and len(learner) == 3:
+        kind, model, feature_idx = learner
+    else:
+        kind, model = learner
+
+    if feature_idx is not None:
+        X = X[:, feature_idx]
+
     if kind == "numpy_beta":
         pred = _ols_predict(X, model)
         if binary:
@@ -212,6 +221,16 @@ def _nnls_weights(Z: np.ndarray, Y: np.ndarray, max_iter: int = 2000) -> np.ndar
     n, K = Z.shape
     w = np.ones(K, dtype=float) / K
 
+    try:  # pragma: no cover - optional dependency
+        from scipy.optimize import nnls  # type: ignore[import]
+
+        w_nnls, _ = nnls(Z, Y)
+        if float(np.sum(w_nnls)) > 0:
+            w_nnls = w_nnls / float(np.sum(w_nnls))
+            return np.asarray(w_nnls, dtype=float)
+    except Exception:
+        pass
+
     ZtZ = Z.T @ Z  # (K, K)
     ZtY = Z.T @ Y  # (K,)
 
@@ -227,6 +246,33 @@ def _nnls_weights(Z: np.ndarray, Y: np.ndarray, max_iter: int = 2000) -> np.ndar
         w = w_new
 
     return w
+
+
+def _screen_features(
+    X: np.ndarray,
+    Y: np.ndarray,
+    *,
+    top_k: int,
+) -> np.ndarray:
+    """Return indices of the strongest univariate features for screening."""
+    X = np.asarray(X, dtype=float)
+    Y = np.asarray(Y, dtype=float).ravel()
+    if X.ndim != 2 or X.shape[1] == 0:
+        return np.array([], dtype=int)
+    p = X.shape[1]
+    if top_k <= 0 or top_k >= p:
+        return np.arange(p, dtype=int)
+
+    y_centered = Y - np.mean(Y)
+    scores = np.zeros(p, dtype=float)
+    for j in range(p):
+        xj = X[:, j]
+        x_centered = xj - np.mean(xj)
+        denom = float(np.linalg.norm(x_centered) * np.linalg.norm(y_centered))
+        if denom > 0:
+            scores[j] = abs(float(x_centered @ y_centered) / denom)
+    order = np.argsort(-scores)
+    return np.sort(order[:top_k].astype(int))
 
 
 def _project_simplex(v: np.ndarray) -> np.ndarray:
@@ -266,15 +312,151 @@ class FittedSuperLearner:
     meta_learner: str
     n_folds: int
     binary: bool = False
+    feature_indices: np.ndarray | None = None
+    nested_cv_risk: float | None = None
 
     def predict(self, X_new: np.ndarray) -> np.ndarray:
         """Return weighted ensemble prediction on new covariates."""
         X_new = np.asarray(X_new, dtype=float)
+        if self.feature_indices is not None and self.feature_indices.size > 0:
+            X_new = X_new[:, self.feature_indices]
         preds = np.column_stack([
             _predict_learner(l, X_new, binary=self.binary)
             for l in self.fitted_learners
         ])  # (n_new, K)
         return preds @ self.weights
+
+
+# ---------------------------------------------------------------------------
+# Config model and selection helpers
+# ---------------------------------------------------------------------------
+
+
+class SuperLearnerConfig(BaseModel):
+    """Configuration for Super Learner stacking."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    n_folds: int = Field(default=5, ge=2)
+    method: Literal["nnls", "discrete", "loglik"] = "nnls"
+    screen: bool = True
+    screen_top_k: int = Field(default=20, ge=1)
+    candidates: list[str] = Field(default_factory=lambda: ["ols", "ridge", "lasso", "rf", "gbm"])
+    nested_cv: bool = False
+    seed: int = 42
+
+    @model_validator(mode="after")
+    def _validate_config(self) -> "SuperLearnerConfig":
+        if not self.candidates:
+            raise ValueError("candidates cannot be empty")
+        return self
+
+
+def _discrete_sl(cv_risks: dict[str, float]) -> str:
+    """Select the single best learner by minimum CV risk."""
+    if not cv_risks:
+        raise ValueError("cv_risks cannot be empty")
+    return min(cv_risks, key=cv_risks.get)
+
+
+def _cv_risk(
+    learner_name: str,
+    X: np.ndarray,
+    Y: np.ndarray,
+    *,
+    n_folds: int,
+    binary: bool,
+    seed: int,
+    feature_indices: np.ndarray | None = None,
+) -> float:
+    """Return the cross-validated risk for a single learner."""
+    X = np.asarray(X, dtype=float)
+    Y = np.asarray(Y, dtype=float).ravel()
+    if feature_indices is not None and feature_indices.size > 0:
+        X = X[:, feature_indices]
+
+    rng = np.random.default_rng(seed)
+    idx = rng.permutation(len(Y))
+    folds = np.array_split(idx, n_folds)
+    preds = np.zeros(len(Y), dtype=float)
+    for fold_k, val_idx in enumerate(folds):
+        tr_idx = np.concatenate([folds[j] for j in range(n_folds) if j != fold_k])
+        learner = _fit_learner(learner_name, X[tr_idx], Y[tr_idx], binary=binary)
+        preds[val_idx] = _predict_learner(learner, X[val_idx], binary=binary)
+    if binary:
+        p = np.clip(preds, 1e-10, 1.0 - 1e-10)
+        return float(-np.mean(Y * np.log(p) + (1 - Y) * np.log(1 - p)))
+    return float(np.mean((Y - preds) ** 2))
+
+
+def _nested_cv_weights(
+    X: np.ndarray,
+    Y: np.ndarray,
+    *,
+    library: Sequence[str],
+    n_outer: int,
+    n_inner: int,
+    outcome_type: str,
+    seed: int,
+    method: str,
+    screen: bool,
+    screen_top_k: int,
+) -> tuple[np.ndarray, float]:
+    """Honest nested-CV estimate and stack weights."""
+    X = np.asarray(X, dtype=float)
+    Y = np.asarray(Y, dtype=float).ravel()
+    binary = outcome_type == "binary"
+
+    rng = np.random.default_rng(seed)
+    idx = rng.permutation(len(Y))
+    outer_folds = np.array_split(idx, n_outer)
+    outer_preds = np.zeros(len(Y), dtype=float)
+
+    for outer_k, outer_val_idx in enumerate(outer_folds):
+        outer_tr_idx = np.concatenate([outer_folds[j] for j in range(n_outer) if j != outer_k])
+        inner_fit = SuperLearnerNuisance.fit(
+            X[outer_tr_idx],
+            Y[outer_tr_idx],
+            library=library,
+            v_folds=n_inner,
+            outcome_type=outcome_type,
+            seed=seed + outer_k + 1,
+            method=method,
+            screen=screen,
+            screen_top_k=screen_top_k,
+            nested_cv=False,
+        )
+        outer_preds[outer_val_idx] = inner_fit.predict(X[outer_val_idx])
+
+    if binary:
+        p = np.clip(outer_preds, 1e-10, 1.0 - 1e-10)
+        nested_risk = float(-np.mean(Y * np.log(p) + (1 - Y) * np.log(1 - p)))
+    else:
+        nested_risk = float(np.mean((Y - outer_preds) ** 2))
+
+    weights = np.zeros(len(library), dtype=float)
+    if method == "discrete":
+        risks = {
+            name: _cv_risk(name, X, Y, n_folds=n_inner, binary=binary, seed=seed + 17)
+            for name in library
+        }
+        weights[library.index(_discrete_sl(risks))] = 1.0
+    else:
+        inner = SuperLearnerNuisance.fit(
+            X,
+            Y,
+            library=library,
+            v_folds=n_inner,
+            outcome_type=outcome_type,
+            seed=seed,
+            method=method,
+            screen=screen,
+            screen_top_k=screen_top_k,
+            nested_cv=False,
+        )
+        weights = inner.weights
+
+    return weights, nested_risk
 
 
 # ---------------------------------------------------------------------------
@@ -293,6 +475,11 @@ class SuperLearnerNuisance:
         v_folds: int = 5,
         outcome_type: str = "continuous",
         seed: int = 42,
+        method: str = "nnls",
+        screen: bool = True,
+        screen_top_k: int = 20,
+        nested_cv: bool = False,
+        config: SuperLearnerConfig | None = None,
     ) -> FittedSuperLearner:
         """Fit a Super Learner ensemble.
 
@@ -309,12 +496,25 @@ class SuperLearnerNuisance:
         -------
         FittedSuperLearner
         """
+        if config is not None:
+            library = config.candidates
+            v_folds = config.n_folds
+            outcome_type = "binary" if outcome_type == "binary" else outcome_type
+            method = config.method
+            screen = config.screen
+            screen_top_k = config.screen_top_k
+            nested_cv = config.nested_cv
+            seed = config.seed
+
         X = np.asarray(X, dtype=float)
         Y = np.asarray(Y, dtype=float)
         n = len(Y)
         binary = outcome_type == "binary"
         learner_names = list(library)
         K = len(learner_names)
+
+        feature_indices = _screen_features(X, Y, top_k=screen_top_k) if screen else np.arange(X.shape[1], dtype=int)
+        X_work = X[:, feature_indices] if feature_indices.size > 0 else X
 
         # ---------- V-fold cross-validation ----------
         rng = np.random.default_rng(seed)
@@ -325,8 +525,8 @@ class SuperLearnerNuisance:
 
         for fold_k, val_idx in enumerate(folds):
             tr_idx = np.concatenate([folds[j] for j in range(v_folds) if j != fold_k])
-            X_tr, Y_tr = X[tr_idx], Y[tr_idx]
-            X_val = X[val_idx]
+            X_tr, Y_tr = X_work[tr_idx], Y[tr_idx]
+            X_val = X_work[val_idx]
             for l_idx, name in enumerate(learner_names):
                 lrn = _fit_learner(name, X_tr, Y_tr, binary=binary)
                 Z[val_idx, l_idx] = _predict_learner(lrn, X_val, binary=binary)
@@ -342,19 +542,39 @@ class SuperLearnerNuisance:
                 cv_risk[name] = float(np.mean((Y - Z[:, l_idx]) ** 2))
 
         # ---------- NNLS meta-learner ----------
-        if binary:
-            # Work in log-odds space for NNLS robustness; clip probabilities
+        if method == "discrete":
+            weights = np.zeros(K, dtype=float)
+            best = _discrete_sl(cv_risk)
+            weights[learner_names.index(best)] = 1.0
+        elif binary:
             Z_clipped = np.clip(Z, 1e-10, 1 - 1e-10)
             weights = _nnls_weights(Z_clipped, Y)
         else:
             weights = _nnls_weights(Z, Y)
 
+        nested_cv_risk: float | None = None
+        if nested_cv:
+            _, nested_cv_risk = _nested_cv_weights(
+                X,
+                Y,
+                library=learner_names,
+                n_outer=max(2, min(v_folds, 5)),
+                n_inner=v_folds,
+                outcome_type=outcome_type,
+                seed=seed,
+                method=method,
+                screen=screen,
+                screen_top_k=screen_top_k,
+            )
+
         # ---------- Refit on full data ----------
         fitted_learners = [
-            _fit_learner(name, X, Y, binary=binary) for name in learner_names
+            _fit_learner(name, X_work, Y, binary=binary) for name in learner_names
         ]
 
         meta = "nnls_logit" if binary else "nnls"
+        if method == "discrete":
+            meta = "discrete"
         return FittedSuperLearner(
             weights=weights,
             learner_names=learner_names,
@@ -363,6 +583,8 @@ class SuperLearnerNuisance:
             meta_learner=meta,
             n_folds=v_folds,
             binary=binary,
+            feature_indices=feature_indices,
+            nested_cv_risk=nested_cv_risk,
         )
 
 
@@ -419,6 +641,10 @@ class SuperLearnerNuisanceModel:
                           description="'continuous' or 'binary'"),
             ParameterSpec(name="seed", default=42,
                           description="Random seed for fold assignment"),
+            ParameterSpec(name="method", default="nnls"),
+            ParameterSpec(name="screen", default=True),
+            ParameterSpec(name="screen_top_k", default=20),
+            ParameterSpec(name="nested_cv", default=False),
         ),
         fidelity=FidelityLevel.HIGH,
         complexity=ComplexityClass.O_N2,
@@ -475,6 +701,10 @@ class SuperLearnerNuisanceModel:
         v_folds = int(params.get("v_folds", 5))
         outcome_type = str(params.get("outcome_type", "continuous"))
         seed = int(params.get("seed", 42))
+        method = str(params.get("method", "nnls"))
+        screen = bool(params.get("screen", True))
+        screen_top_k = int(params.get("screen_top_k", 20))
+        nested_cv = bool(params.get("nested_cv", False))
 
         fitted = SuperLearnerNuisance.fit(
             X, Y,
@@ -482,18 +712,31 @@ class SuperLearnerNuisanceModel:
             v_folds=v_folds,
             outcome_type=outcome_type,
             seed=seed,
+            method=method,
+            screen=screen,
+            screen_top_k=screen_top_k,
+            nested_cv=nested_cv,
         )
 
         preds = fitted.predict(X)
-        return {
+        output = {
             "predictions": preds,
             "cv_risk": fitted.cv_risk,
             "weights": fitted.weights.tolist(),
         }
+        if fitted.nested_cv_risk is not None:
+            output["nested_cv_risk"] = fitted.nested_cv_risk
+        return output
 
 
 __all__ = [
     "FittedSuperLearner",
+    "SuperLearnerConfig",
     "SuperLearnerNuisance",
     "SuperLearnerNuisanceModel",
+    "_cv_risk",
+    "_discrete_sl",
+    "_nnls_weights",
+    "_project_simplex",
+    "_screen_features",
 ]

@@ -30,6 +30,8 @@ from polisyos.core.contracts.scholar import FreshnessMetadata
 from polisyos.core.contracts.scientist import (
     DecisionMonitoringContractRef,
     DecisionPacketRef,
+    SourceVerificationReportRef,
+    VerifiedPolicyReportRef,
 )
 from polisyos.core.contracts.uncertainty import UncertaintyEnvelopeRef
 from polisyos.ir.analytics.abm_bridge import load_abm_alignment_report
@@ -57,6 +59,10 @@ from polisyos.scientist.feedback import (
     build_monitoring_contract_from_packet,
 )
 from polisyos.scientist.governance.report import GovernanceReport
+from polisyos.scientist.policy_verified import (
+    load_source_verification_report,
+    load_verified_policy_report,
+)
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_ABM_ALIGNMENT_REPORT_REF,
@@ -86,6 +92,8 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_STATE_SNAPSHOT_REF,
     ARTIFACT_STRESS_TEST_REPORT_REF,
     ARTIFACT_TRANSPORTABILITY_RESULT_REF,
+    ARTIFACT_SOURCE_VERIFICATION_REPORT_REF,
+    ARTIFACT_VERIFIED_POLICY_REPORT_REF,
     INPUT_DATA_SNAPSHOT_REF,
     INPUT_INPUT_BINDINGS_REF,
     INPUT_KNOWLEDGE_BUNDLE_REF,
@@ -125,6 +133,8 @@ _SPEC = NodeSpec(
         "reports_index",
         "artifacts_index",
         "artifacts_index.normative_arbitration_result_ref",
+        "artifacts_index.source_verification_report_ref",
+        "artifacts_index.verified_policy_report_ref",
     ],
     state_writes=[f"artifacts_index.{ARTIFACT_DECISION_PACKET_REF}"],
     produces=[ARTIFACT_DECISION_PACKET_REF],
@@ -195,6 +205,12 @@ class BuildDecisionPacketNode:
             },
             "simulation_results": None,
             "governance": None,
+            "legal_verification": None,
+            "source_coverage": None,
+            "policy_answer": None,
+            "verified_findings": [],
+            "hypotheses": [],
+            "intervention_legal_basis_map": {},
             "uncertainty": _build_uncertainty_section(ctx, state.inputs, state.artifacts_index),
             "uncertainty_bounds": None,
             "causal": _build_causal_section(ctx, state, state.artifacts_index),
@@ -261,6 +277,50 @@ class BuildDecisionPacketNode:
                     exc_info=True,
                 )
                 packet_payload["governance"] = None
+
+        source_verification_ref = state.artifacts_index.get(ARTIFACT_SOURCE_VERIFICATION_REPORT_REF)
+        if source_verification_ref is not None:
+            try:
+                report = load_source_verification_report(
+                    ctx.store,
+                    SourceVerificationReportRef.model_validate(source_verification_ref.model_dump()),
+                )
+                packet_payload["legal_verification"] = {
+                    "verified_claim_count": len(report.verified_claims),
+                    "citation_coverage_pct": report.verified_claim_citation_coverage_pct,
+                    "needs_expert_review": report.needs_expert_review,
+                    "verification_cycles_completed": report.verification_cycles_completed,
+                }
+                packet_payload["source_coverage"] = {
+                    "unresolved_critical_gaps": [
+                        gap.model_dump(mode="json") for gap in report.unresolved_critical_gaps
+                    ],
+                    "verifier_calls_total": report.verifier_calls_total,
+                    "adjudicator_calls_total": report.adjudicator_calls_total,
+                    "verifier_disagreement_rate": report.verifier_disagreement_rate,
+                }
+            except Exception:
+                logger.debug("Failed to load source verification report", exc_info=True)
+
+        verified_policy_ref = state.artifacts_index.get(ARTIFACT_VERIFIED_POLICY_REPORT_REF)
+        if verified_policy_ref is not None:
+            try:
+                verified_report = load_verified_policy_report(
+                    ctx.store,
+                    VerifiedPolicyReportRef.model_validate(verified_policy_ref.model_dump()),
+                )
+                packet_payload["policy_answer"] = {
+                    "executive_summary": verified_report.executive_summary,
+                    "missing_evidence": list(verified_report.missing_evidence),
+                    "needs_expert_review": verified_report.needs_expert_review,
+                }
+                packet_payload["verified_findings"] = list(verified_report.verified_findings)
+                packet_payload["hypotheses"] = list(verified_report.hypotheses)
+                packet_payload["intervention_legal_basis_map"] = dict(
+                    verified_report.intervention_legal_basis_map
+                )
+            except Exception:
+                logger.debug("Failed to load verified policy report", exc_info=True)
 
         uncertainty_bounds = _build_uncertainty_bounds(
             ctx,

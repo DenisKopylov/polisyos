@@ -1,12 +1,34 @@
 from __future__ import annotations
 
 import json
+from pathlib import Path
 
 from polisyos.datasets.batch.benchmark import READINESS_THRESHOLDS
 from polisyos.datasets.batch.config import DatasetBatchConfig
 from polisyos.datasets.batch.graph_builder import build_graph
 from polisyos.datasets.batch.publish import run_publish
 from polisyos.datasets.knowledge.types import DatasetRecord, DistributionRecord
+
+
+def _write_test_registry(path: Path) -> None:
+    path.write_text(
+        "\n".join(
+            [
+                "version: 1",
+                "sources:",
+                "  - name: worldbank",
+                "    family: worldbank",
+                "    wave: A",
+                "    endpoint: https://example.test/worldbank",
+                "    enabled: true",
+                "    execution_tier: transport_ready",
+                "    run_lane: empirical",
+                "    publish_blocking: true",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
 
 
 def _build_publish_fixture(config: DatasetBatchConfig) -> None:
@@ -38,7 +60,17 @@ def _build_publish_fixture(config: DatasetBatchConfig) -> None:
     )
 
 
-def _write_qc_and_benchmark(config: DatasetBatchConfig, *, search=100.0, retrieval=100.0, transport=100.0, foundry=100.0, qc_passed=True) -> None:
+def _write_qc_and_benchmark(
+    config: DatasetBatchConfig,
+    *,
+    search=100.0,
+    retrieval=100.0,
+    transport=100.0,
+    foundry=100.0,
+    source_preflight=100.0,
+    qc_passed=True,
+    source_status: str = "complete",
+) -> None:
     with open(config.qc_report_path, "w", encoding="utf-8") as fh:
         json.dump(
             {
@@ -55,6 +87,7 @@ def _write_qc_and_benchmark(config: DatasetBatchConfig, *, search=100.0, retriev
                     "benchmark_retrieval_ready_pct": retrieval,
                     "benchmark_transport_ready_pct": transport,
                     "benchmark_foundry_fitness_pct": foundry,
+                    "benchmark_source_preflight_ready_pct": source_preflight,
                 },
                 "checks": [],
             },
@@ -72,8 +105,18 @@ def _write_qc_and_benchmark(config: DatasetBatchConfig, *, search=100.0, retriev
                     "benchmark_retrieval_ready_pct": retrieval,
                     "benchmark_transport_ready_pct": transport,
                     "benchmark_foundry_fitness_pct": foundry,
+                    "benchmark_source_preflight_ready_pct": source_preflight,
                 },
                 "thresholds": READINESS_THRESHOLDS,
+                "source_preflight": {
+                    "sources": [
+                        {
+                            "source": "worldbank",
+                            "status": source_status,
+                            "ready": source_preflight >= READINESS_THRESHOLDS["benchmark_source_preflight_ready_pct"],
+                        }
+                    ]
+                },
             },
             fh,
             ensure_ascii=False,
@@ -82,7 +125,9 @@ def _write_qc_and_benchmark(config: DatasetBatchConfig, *, search=100.0, retriev
 
 
 def test_run_publish_writes_consumer_readiness_manifest(tmp_path) -> None:
-    config = DatasetBatchConfig(snapshot_root=tmp_path / "snap")
+    registry_path = tmp_path / "registry.yaml"
+    _write_test_registry(registry_path)
+    config = DatasetBatchConfig(snapshot_root=tmp_path / "snap", registry_path=registry_path)
     _build_publish_fixture(config)
     config.merged_records_path.write_text('{"title":"GDP per capita","description":"desc"}\n', encoding="utf-8")
     config.duplicates_report_path.write_text("dataset_id,duplicate_id\n", encoding="utf-8")
@@ -103,7 +148,9 @@ def test_run_publish_writes_consumer_readiness_manifest(tmp_path) -> None:
 
 
 def test_run_publish_blocks_when_consumer_readiness_fails(tmp_path) -> None:
-    config = DatasetBatchConfig(snapshot_root=tmp_path / "snap")
+    registry_path = tmp_path / "registry.yaml"
+    _write_test_registry(registry_path)
+    config = DatasetBatchConfig(snapshot_root=tmp_path / "snap", registry_path=registry_path)
     _build_publish_fixture(config)
     _write_qc_and_benchmark(config, search=50.0)
 
@@ -113,3 +160,37 @@ def test_run_publish_blocks_when_consumer_readiness_fails(tmp_path) -> None:
         assert "consumer readiness failed" in str(exc)
     else:
         raise AssertionError("Expected publish readiness gate to block")
+
+
+def test_run_publish_blocks_when_blocking_source_status_is_missing(tmp_path) -> None:
+    registry_path = tmp_path / "registry.yaml"
+    _write_test_registry(registry_path)
+    config = DatasetBatchConfig(snapshot_root=tmp_path / "snap", registry_path=registry_path)
+    _build_publish_fixture(config)
+    with open(config.qc_report_path, "w", encoding="utf-8") as fh:
+        json.dump({"scope": "datasets", "passed": True, "metrics": {}, "checks": []}, fh, ensure_ascii=False, indent=2)
+    with open(config.benchmark_report_path, "w", encoding="utf-8") as fh:
+        json.dump(
+            {
+                "kind": "datasets_benchmark",
+                "metrics": {
+                    "benchmark_search_top5_relevance_pct": 100.0,
+                    "benchmark_retrieval_ready_pct": 100.0,
+                    "benchmark_transport_ready_pct": 100.0,
+                    "benchmark_foundry_fitness_pct": 100.0,
+                    "benchmark_source_preflight_ready_pct": 100.0,
+                },
+                "thresholds": READINESS_THRESHOLDS,
+                "source_preflight": {"sources": []},
+            },
+            fh,
+            ensure_ascii=False,
+            indent=2,
+        )
+
+    try:
+        run_publish(config)
+    except RuntimeError as exc:
+        assert "missing blocking source statuses" in str(exc)
+    else:
+        raise AssertionError("Expected missing source status gate to block")

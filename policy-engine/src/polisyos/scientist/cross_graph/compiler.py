@@ -750,9 +750,14 @@ def _assess_academic_need(
         best = _best_parameter_candidate(candidates)
         distance = _candidate_distance(best, target_context)
         score = _parameter_candidate_score(best)
+        critical_quality_flags = {
+            flag
+            for flag in set(best.quality_flags) | set(best.transport_notes)
+            if flag in {"raw_parameter_fallback", "no_uncertainty", "context_mismatch", "canonical_gap_resolved"}
+        }
         status = (
             EvidenceStatus.SUPPORTED
-            if score >= 0.75
+            if score >= 0.75 and not critical_quality_flags
             else EvidenceStatus.MIXED
             if score >= 0.45
             else EvidenceStatus.INSUFFICIENT
@@ -766,13 +771,13 @@ def _assess_academic_need(
         if distance is not None and distance > 0.1:
             recommended_actions.append("Review context mismatch for selected literature parameter.")
         for note in best.transport_notes:
-            if note in {
-                "source_context_missing",
-                "target_context_profile_missing",
-                "transport_score_unavailable",
-                "raw_parameter_fallback",
-            }:
-                recommended_actions.append(f"Transport rationale: {note}.")
+            action = _parameter_reason_to_action(note)
+            if action:
+                recommended_actions.append(action)
+        for flag in best.quality_flags:
+            action = _parameter_reason_to_action(flag)
+            if action:
+                recommended_actions.append(action)
         return _AcademicResult(
             status=status,
             confidence=score,
@@ -810,6 +815,7 @@ def _assess_academic_need(
         best_trust = float(best_row.confidence or 0.0)
         credible_rows = [row for row in support_rows if float(row.confidence or 0.0) >= 0.25]
         has_conflict = any(bool(row.conflict_flag) for row in credible_rows)
+        has_moderated_conflict = any(str(row.resolution_status or "") == "moderated" for row in credible_rows)
         transport_records = []
         transport_reasons: list[str] = []
         best_transport_confidence: float | None = None
@@ -832,7 +838,7 @@ def _assess_academic_need(
             else:
                 transport_reasons.append("transport_score_unavailable")
         status = EvidenceStatus.MIXED
-        if best_trust >= 0.7 and int(best_row.n_unique_works or 0) >= 2 and not has_conflict:
+        if best_trust >= 0.7 and int(best_row.n_unique_works or 0) >= 2 and (not has_conflict or has_moderated_conflict):
             status = EvidenceStatus.SUPPORTED
         elif not credible_rows:
             status = EvidenceStatus.UNSUPPORTED
@@ -841,6 +847,8 @@ def _assess_academic_need(
         recommended_actions: list[str] = []
         if status is EvidenceStatus.MIXED and has_conflict:
             recommended_actions.append("Review mixed evidence directions for this causal edge.")
+        if has_moderated_conflict:
+            recommended_actions.append("Directional disagreement appears moderator-explained rather than purely contradictory.")
         for reason in transport_reasons:
             if reason == "transport_score_unavailable":
                 recommended_actions.append("Transport rationale: target_profile_missing_or_transport_score_unavailable.")
@@ -1395,11 +1403,33 @@ def _parameter_candidate_score(candidate: ParameterCandidate) -> float:
     if candidate.uncertainty_source == "heuristic":
         uncertainty_factor = 0.8
     elif candidate.parameter.confidence_interval is None and candidate.parameter.std_error is None:
-        uncertainty_factor = 0.9
+        uncertainty_factor = 0.6
+    if "context_mismatch" in candidate.transport_notes:
+        transport_factor *= 0.8
+    if "canonical_gap_resolved" in candidate.quality_flags or "canonical_gap_resolved" in candidate.transport_notes:
+        review_penalty *= 0.9
     return max(
         0.0,
         min(1.0, strength_weight * transport_factor * review_penalty * layer_factor * uncertainty_factor),
     )
+
+
+def _parameter_reason_to_action(reason: str) -> str:
+    if reason == "source_context_missing":
+        return "Transport rationale: source_context_missing."
+    if reason == "target_context_profile_missing":
+        return "Transport rationale: target_context_profile_missing."
+    if reason == "transport_score_unavailable":
+        return "Transport rationale: target_profile_missing_or_transport_score_unavailable."
+    if reason == "raw_parameter_fallback":
+        return "Prefer a simulation-ready literature estimate instead of raw parameter fallback."
+    if reason == "no_uncertainty":
+        return "Add uncertainty-bearing evidence (CI or SE) before relying on this parameter in simulation."
+    if reason == "context_mismatch":
+        return "Context mismatch detected between source evidence and target context."
+    if reason == "canonical_gap_resolved":
+        return "Verify the canonical mapping between the requested parameter and literature variable."
+    return ""
 
 
 def _canonical_variables_for_concepts(concepts: list[CanonicalConcept]) -> list[str]:

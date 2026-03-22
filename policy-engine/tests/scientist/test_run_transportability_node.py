@@ -293,7 +293,7 @@ def test_resolution_loop_data_gap_and_convergence(
     assert result.resolution_rounds <= 3
     assert result.status is TransportabilityStatus.BOUNDED_NON_IDENTIFIED
     assert result.partial_identification_result is not None
-    assert "Exact transport identification unavailable; emitted Manski bounds fallback." in result.warnings
+    assert "Exact transport identification unavailable; emitted transport-aware bounds fallback." in result.warnings
 
 
 def test_run_transportability_node_updates_causal_report(tmp_path) -> None:

@@ -54,6 +54,10 @@ def test_source_registry_filters_and_waves() -> None:
     assert "worldbank" in blocking
     assert "oecd" in blocking
     assert "data_gov_ua_exec" in blocking
+    assert "data_gov_ua_broad" in blocking
+    assert "data_gov_ro_broad" in blocking
+    assert "data_gov_md_broad" in blocking
+    assert "data_gov_pl_broad" in blocking
     assert "openaq_v2" not in blocking
 
     rest_backfill = {spec.name for spec in registry.enabled_sources(run_profile="rest_backfill")}

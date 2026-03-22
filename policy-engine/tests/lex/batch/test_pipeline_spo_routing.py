@@ -5,7 +5,10 @@ from pathlib import Path
 from polisyos.lex.batch.config import BatchConfig
 from polisyos.lex.batch.pipeline import (
     _build_spo_doc_routing_plan,
+    _extract_provisions_worker,
     _group_docs_by_spo_settings,
+    _should_route_llm_gap_fill,
+    _should_skip_audit_for_span,
     _should_extract_spo_from_span,
 )
 from polisyos.lex.batch.smoke import SMOKE_PROFILES
@@ -57,6 +60,13 @@ def test_acceptance_safe_profile_exists() -> None:
     assert profile.parallel_llm == 4
     assert profile.gonka_rate_limit_rps == 1.2
     assert profile.spo_request_batch_size == 2
+
+
+def test_production_gap_fill_wide_profile_exists() -> None:
+    profile = SMOKE_PROFILES["production_gap_fill_wide"]
+    assert profile.llm_gap_fill_mode == "wide"
+    assert profile.llm_gap_fill_max_share == 0.8
+    assert profile.parallel_llm == 10
 
 
 def test_build_spo_doc_routing_plan_caps_mega_catalog_and_disables_llm(tmp_path: Path) -> None:
@@ -181,6 +191,50 @@ def test_build_spo_doc_routing_plan_keeps_law_soft_cap_above_acceptance_default(
     assert plan.llm_allowed is True
 
 
+def test_extract_provisions_worker_passes_jurisdiction(monkeypatch) -> None:
+    captured: dict[str, str] = {}
+
+    def _fake_extract_provisions(text: str, **kwargs):  # noqa: ANN003
+        del text
+        captured["jurisdiction"] = str(kwargs.get("jurisdiction") or "")
+        return [
+            ProvisionSpan(
+                kind="article",
+                number="1",
+                anchor_path="article:1",
+                citation_label="Стаття 1",
+                offset_start=0,
+                offset_end=10,
+                text="Sample text",
+                token_est=2,
+                text_hash="hash-worker",
+                struct_kind="article",
+                section_role="normative_unit",
+                lineage_path="article:1",
+                fallback_allowed_for_reasoning=True,
+            )
+        ]
+
+    monkeypatch.setattr("polisyos.lex.batch.structurer.extract_provisions", _fake_extract_provisions)
+
+    rows = _extract_provisions_worker(
+        {
+            "text": "Article 1 sample",
+            "doc_type": "Regulation",
+            "doc_name": "Sample",
+            "publisher": ["Authority"],
+            "jurisdiction": "EU",
+            "enable_paragraphs": True,
+            "fallback_chunk_chars": 1800,
+            "fallback_chunk_overlap": 200,
+        }
+    )
+
+    assert captured["jurisdiction"] == "EU"
+    assert len(rows) == 1
+    assert rows[0]["anchor_path"] == "article:1"
+
+
 def test_should_extract_spo_from_small_fallback_approval_bundle() -> None:
     span = ProvisionSpan(
         kind="fallback_unit",
@@ -202,3 +256,65 @@ def test_should_extract_spo_from_small_fallback_approval_bundle() -> None:
     )
 
     assert _should_extract_spo_from_span(span) is True
+
+
+def test_should_skip_audit_for_low_signal_form_label() -> None:
+    span = ProvisionSpan(
+        kind="paragraph",
+        number=None,
+        anchor_path="appendix:2/para:0010",
+        citation_label="Додаток 2",
+        offset_start=0,
+        offset_end=40,
+        text="Назва об'єднання фінансових установ",
+        token_est=4,
+        text_hash="form-label",
+        struct_kind="paragraph",
+        section_role="procedure",
+        lineage_path="appendix:2/para:0010",
+        fallback_allowed_for_reasoning=True,
+        legal_unit_subtype="application_requirement",
+        route_class="deterministic_only",
+    )
+
+    assert _should_skip_audit_for_span(span) is True
+
+
+def test_should_route_llm_gap_fill_for_single_fact_tail(tmp_path: Path) -> None:
+    config = BatchConfig(
+        cards_path=tmp_path / "cards.xml",
+        texts_path=tmp_path / "texts.xml",
+        output_dir=tmp_path / "lex-gap",
+        stages=frozenset({"spo"}),
+        llm_gap_fill_enabled=True,
+        llm_gap_fill_mode="wide",
+        llm_gap_fill_max_share=0.8,
+    )
+    span = ProvisionSpan(
+        kind="article",
+        number="1",
+        anchor_path="art:1",
+        citation_label="Стаття 1",
+        offset_start=0,
+        offset_end=120,
+        text="Орган видає посвідчення. Порядок їх видачі встановлюється Кабінетом Міністрів України.",
+        token_est=18,
+        text_hash="gap-tail",
+        struct_kind="article",
+        section_role="normative_unit",
+        lineage_path="art:1",
+        fallback_allowed_for_reasoning=True,
+        legal_unit_subtype="core_normative_clause",
+        route_class="deterministic_then_llm_retry",
+    )
+
+    should_route, priority, reasons = _should_route_llm_gap_fill(
+        config=config,
+        span=span,
+        quality_family="law",
+        deterministic_candidates=[{"predicate": "requires"}],
+    )
+
+    assert should_route is True
+    assert priority == 2
+    assert "single_fact_tail" in reasons

@@ -22,6 +22,7 @@ from polisyos.scientist.cross_graph.compiler import (
     CrossGraphEvidenceConfig,
 )
 from polisyos.scientist.cross_graph.feedback import (
+    append_need_backlog,
     build_need_backlog,
     evaluate_benchmark_suite,
     load_benchmark_suite,
@@ -51,6 +52,7 @@ _SPEC = NodeSpec(
     state_reads=[
         f"inputs.{INPUT_TRINITY_BUNDLE_REF}",
         f"artifacts_index.{ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF}",
+        "policy_request_ref",
         "params.cross_graph_evidence_config",
         "params.target_context",
         "params.governance_profile",
@@ -98,15 +100,6 @@ class CompileCrossGraphEvidenceNode:
             return NodeOutcome(status="skip", state=new_state)
 
         trinity_ref = state.inputs.get(INPUT_TRINITY_BUNDLE_REF)
-        if trinity_ref is None:
-            return NodeOutcome(
-                status="skip",
-                state=new_state,
-                events=[NodeEvent(level="warn", message="Missing Trinity bundle; cross-graph evidence skipped.")],
-            )
-
-        payload = from_canonical_bytes(ctx.store.get_bytes(trinity_ref.artifact_id))
-        bundle = TrinityBundle.model_validate(payload)
         target_context = _resolve_target_context(state)
         causal_graph = _resolve_causal_graph(ctx, state)
 
@@ -124,17 +117,40 @@ class CompileCrossGraphEvidenceNode:
                 ],
             )
 
-        inputs = [InputRef(artifact_id=trinity_ref.artifact_id, role="trinity_bundle")]
+        inputs: list[InputRef] = []
+        if trinity_ref is not None:
+            inputs.append(InputRef(artifact_id=trinity_ref.artifact_id, role="trinity_bundle"))
         graph_ref = state.artifacts_index.get(ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF)
         if graph_ref is not None:
             inputs.append(InputRef(artifact_id=graph_ref.artifact_id, role="causal_graph"))
 
         try:
-            profile = CrossGraphEvidenceCompiler(config).compile(
-                bundle,
-                target_context=target_context,
-                causal_graph=causal_graph,
-            )
+            if trinity_ref is None:
+                profile = CrossGraphEvidenceProfile(
+                    summary=CrossGraphEvidenceSummary(status="ok", total_needs=0),
+                    diagnostics=[
+                        CrossGraphDiagnostic(
+                            code="cross_graph.policy_request_only",
+                            message="Cross-graph evidence compiled without Trinity bundle in policy-verified mode.",
+                        )
+                    ],
+                    source_refs=CrossGraphSourceRefs(
+                        academic_db_path=config.academic_db_path,
+                        academic_index_dir=config.academic_index_dir,
+                        datasets_db_path=config.datasets_db_path,
+                        legal_db_path=config.legal_db_path,
+                    ),
+                    target_context=target_context,
+                    notes=["policy_request_only_mode"],
+                )
+            else:
+                payload = from_canonical_bytes(ctx.store.get_bytes(trinity_ref.artifact_id))
+                bundle = TrinityBundle.model_validate(payload)
+                profile = CrossGraphEvidenceCompiler(config).compile(
+                    bundle,
+                    target_context=target_context,
+                    causal_graph=causal_graph,
+                )
         except Exception as exc:
             profile = CrossGraphEvidenceProfile(
                 summary=CrossGraphEvidenceSummary(status="warning", total_needs=0),
@@ -212,6 +228,17 @@ def _maybe_emit_feedback_outputs(
         backlog_path = Path(backlog_path_raw)
         backlog = build_need_backlog(profile)
         write_need_backlog(backlog_path, backlog)
+        # Also append to academic pipeline's shared demand backlog for cross-run feedback
+        academic_backlog_path_raw = str(config.academic_demand_backlog_path or "").strip() if hasattr(config, "academic_demand_backlog_path") else ""
+        if academic_backlog_path_raw:
+            appended = append_need_backlog(Path(academic_backlog_path_raw), backlog)
+            if appended > 0:
+                events.append(
+                    NodeEvent(
+                        level="info",
+                        message=f"Appended {appended} demand signals to academic pipeline backlog.",
+                    )
+                )
         events.append(
             NodeEvent(
                 level="info",

@@ -27,6 +27,7 @@ from .bounds import (
     OptimizationBasedBoundsEstimator,
 )
 from .bounds_engine import BoundsEngineMethod
+from .lp_bounds import auto_bounds
 from .cate import CausalForestEstimator
 from .constraint_discovery import FCIDiscovery, GESDiscovery, PCDiscovery
 from .dagma_discovery import DAGMADiscovery
@@ -45,6 +46,8 @@ from .twin_network_query import TwinNetworkQuery
 from .graph_reconciliation import ReconcileCausalGraph, compute_reconciliation_diagnostics
 from .literature_prior import BuildLiteraturePrior
 from .mediation import CausalMediationEstimator, ControlledDirectEffectEstimator
+from .causal_bcf import CausalBCF
+from .forest_dr import ForestDRLearnerEstimator
 from .meta_learners import MetaLearnerEstimator
 from .modern_did import (
     BorusyakJaravelSpiessEstimator,
@@ -79,6 +82,7 @@ from .synthetic_control import SyntheticControlMethod
 from .causal_engine import CausalEngine
 from .query_validator import CausalQueryValidator
 from .transport_check import CheckTransportability
+from .transport_bounds import transport_bounds
 from .treatment_effects import (
     AIPWEstimator,
     CBPSEstimator,
@@ -119,6 +123,17 @@ from .fairness import (
     PathSpecificFairnessEstimator,
     TVFairnessDecomposer,
 )
+from .causal_fairness import (
+    CausalFairnessEngine,
+    StandardFairnessModel,
+    fairness_bounds,
+    identify_fairness_effects,
+    tv_decomposition,
+)
+from .ctf_calculus import rewrite_ctf_estimand
+from .ctf_transport import ctf_transportability, ctf_transport_bounds
+from .cyclic_id import cyclic_id_algorithm
+from .sigma_calculus import sigma_identify, sigma_z_identify
 from .protocols import FairnessObservationalData
 
 
@@ -177,6 +192,8 @@ __all__ = [
     "CheckTransportability",
     "SymbolicIdentify",
     "CausalForestEstimator",
+    "CausalBCF",
+    "ForestDRLearnerEstimator",
     "DoubleMachineLearning",
     "MetaLearnerEstimator",
     "OptimalPolicyLearner",
@@ -196,6 +213,7 @@ __all__ = [
     "ImbensManskiBoundsEstimator",
     "OptimizationBasedBoundsEstimator",
     "BoundsEngineMethod",
+    "auto_bounds",
     "CausalMediationEstimator",
     "ControlledDirectEffectEstimator",
     "RegressionKinkDesignEstimator",
@@ -208,6 +226,7 @@ __all__ = [
     "ensure_causal_methods_registered",
     "CausalEngine",
     "CausalQueryValidator",
+    "transport_bounds",
     # Phase 4: Interference
     "NetworkCausalData",
     "PartialInterferenceEstimator",
@@ -236,4 +255,16 @@ __all__ = [
     "TVFairnessDecomposer",
     "PathSpecificFairnessEstimator",
     "CounterfactualFairnessEstimator",
+    "CausalFairnessEngine",
+    "StandardFairnessModel",
+    "identify_fairness_effects",
+    "fairness_bounds",
+    "tv_decomposition",
+    # Phase 2-5: Counterfactual calculus, transport, cyclic
+    "rewrite_ctf_estimand",
+    "ctf_transportability",
+    "ctf_transport_bounds",
+    "cyclic_id_algorithm",
+    "sigma_identify",
+    "sigma_z_identify",
 ]

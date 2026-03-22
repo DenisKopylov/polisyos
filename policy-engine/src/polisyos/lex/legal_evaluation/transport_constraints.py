@@ -267,6 +267,8 @@ class LegalConstraintBridge:
                         " AND COALESCE(f.trust_tier, '') "
                         "IN ('grounded_fact', 'normative_fact')"
                     )
+                if _column_exists(con, fact_table, "fused_confidence"):
+                    trust_clause += " AND COALESCE(f.fused_confidence, 0.0) >= 0.65"
 
                 sql = (
                     "SELECT f.fact_id, f.fact_text, f.doc_name, "
@@ -440,7 +442,7 @@ def _column_exists(
 
 
 def _best_fact_table(con: duckdb.DuckDBPyConnection) -> str:
-    for table_name in ("lex_normative_facts", "lex_fact_grounded", "lex_facts"):
+    for table_name in ("lex_high_confidence_norms", "lex_normative_facts", "lex_fact_grounded", "lex_facts"):
         if _table_exists(con, table_name):
             return table_name
     return ""

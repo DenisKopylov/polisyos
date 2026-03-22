@@ -223,11 +223,20 @@ class HPResult(BaseModel):
     cause_variable: str
     """The candidate cause variable X."""
 
+    cause_variables: list[str] | None = None
+    """Optional multi-variable cause set for conjunctive actual-cause checks."""
+
     cause_value: float
     """The factual value x of the cause (X = x was observed)."""
 
+    cause_values: dict[str, float] | None = None
+    """Factual values for each cause variable when a multi-variable cause set is used."""
+
     counterfactual_cause_value: float
     """The counterfactual value x' tested in AC2."""
+
+    counterfactual_cause_values: dict[str, float] | None = None
+    """Counterfactual values for each cause variable when a multi-variable cause set is used."""
 
     effect_variable: str
     """The effect variable Y."""
@@ -261,6 +270,9 @@ class HPResult(BaseModel):
 
     degree_of_blame: float | None = Field(default=None, ge=0.0, le=1.0)
     """Expected degree of responsibility over an epistemic state (Chockler & Halpern 2004)."""
+
+    blame_ci: tuple[float, float] | None = None
+    """Bootstrap confidence interval for degree of blame, when available."""
 
     explanation: str = ""
     """Human-readable explanation of the result."""

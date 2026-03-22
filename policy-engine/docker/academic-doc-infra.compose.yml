@@ -1,0 +1,20 @@
+services:
+  grobid:
+    image: lfoppiano/grobid:0.8.2
+    platform: linux/amd64
+    container_name: policyos-grobid
+    restart: unless-stopped
+    init: true
+    ulimits:
+      core: 0
+    ports:
+      - "8070:8070"
+
+  pub2tei:
+    image: grobid/pub2tei:0.2
+    platform: linux/amd64
+    container_name: policyos-pub2tei
+    restart: unless-stopped
+    init: true
+    ports:
+      - "8074:8060"

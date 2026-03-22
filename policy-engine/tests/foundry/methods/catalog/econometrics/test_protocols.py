@@ -20,6 +20,17 @@ def test_panel_data_rejects_shape_mismatch() -> None:
         )
 
 
+def test_panel_data_rejects_repeated_cross_section_metadata() -> None:
+    with pytest.raises(ValueError, match="repeated cross-section/survey data"):
+        PanelData(
+            dependent=np.ones(10),
+            exog=np.ones((10, 2)),
+            entity_ids=np.repeat(np.arange(5), 2),
+            time_ids=np.tile(np.arange(2), 5),
+            metadata={"data_shape": "survey_repeated_cross_section"},
+        )
+
+
 def test_time_series_data_rejects_short_series() -> None:
     with pytest.raises(ValueError, match="at least 8"):
         TimeSeriesData(endog=np.arange(4, dtype=float))

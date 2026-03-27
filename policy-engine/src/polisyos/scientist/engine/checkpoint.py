@@ -63,6 +63,10 @@ class RunLockError(CheckpointError):
     default_category = ErrorCategory.TRANSIENT
 
 
+class CheckpointSchemaError(CheckpointCorruptedError):
+    """Checkpoint schema version is incompatible with current engine."""
+
+
 class CheckpointMetadata(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -79,6 +83,8 @@ class CheckpointMetadata(BaseModel):
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     writer_pid: int = Field(default_factory=os.getpid, ge=1)
     writer_hostname: str = Field(default_factory=socket.gethostname)
+    trace_id: str | None = None
+    span_id: str | None = None
 
 
 class CheckpointArtifact(BaseModel):
@@ -141,6 +147,89 @@ class RunLockHandle:
             os.close(self.fd)
 
 
+class CheckpointGCPolicy(BaseModel):
+    """Garbage-collection policy for old checkpoints."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    max_checkpoints: int = Field(default=10, ge=1, le=100)
+    max_age_hours: float = Field(default=72.0, ge=1.0, le=720.0)
+
+
+class CheckpointStore(Protocol):
+    """Abstraction for checkpoint head persistence (local or distributed)."""
+
+    def write_head(self, run_id: str, head: CheckpointHead) -> None: ...
+    def read_head(self, run_id: str) -> CheckpointHead | None: ...
+
+
+class FileSystemCheckpointStore:
+    """Default :class:`CheckpointStore` backed by local filesystem."""
+
+    def __init__(self, run_dir: Path) -> None:
+        self._run_dir = run_dir
+
+    def write_head(self, run_id: str, head: CheckpointHead) -> None:
+        update_checkpoint_head(
+            self._run_dir,
+            run_id=head.run_id,
+            checkpoint_ref=head.checkpoint_ref,
+            sequence_number=head.sequence_number,
+            node_alias=head.node_alias,
+            writer_pid=head.writer_pid,
+            writer_hostname=head.writer_hostname,
+        )
+
+    def read_head(self, run_id: str) -> CheckpointHead | None:
+        return load_checkpoint_head(self._run_dir)
+
+
+def _validate_checkpoint_schema(
+    checkpoint_version: str, current_version: str,
+) -> None:
+    """Validate that *checkpoint_version* is compatible with *current_version*."""
+    try:
+        cp_major, cp_minor = (int(p) for p in checkpoint_version.split("."))
+        cur_major, cur_minor = (int(p) for p in current_version.split("."))
+    except (ValueError, TypeError) as exc:
+        raise CheckpointSchemaError(
+            f"Invalid schema version format: checkpoint={checkpoint_version}, "
+            f"current={current_version}",
+        ) from exc
+
+    if cp_major != cur_major:
+        raise CheckpointSchemaError(
+            f"Checkpoint schema {checkpoint_version} incompatible with current "
+            f"{current_version} (major version mismatch)",
+        )
+    if cp_minor > cur_minor:
+        logger.warning(
+            "Checkpoint schema %s is newer than current %s; proceeding with best-effort",
+            checkpoint_version,
+            current_version,
+        )
+
+
+def gc_checkpoints(
+    run_dir: Path,
+    *,
+    policy: CheckpointGCPolicy,
+    current_head_ref: ArtifactRef | None = None,
+) -> int:
+    """Remove checkpoint head files exceeding *policy*.  Returns deletion count.
+
+    Only manages files in *run_dir* that match the checkpoint head naming
+    pattern.  Never deletes the checkpoint identified by *current_head_ref*.
+    """
+    head_path = run_dir / CHECKPOINT_HEAD_FILENAME
+    if not head_path.exists():
+        return 0
+
+    # Currently only one head file exists.  This function is a placeholder
+    # for future multi-checkpoint cleanup when checkpoint history is persisted.
+    return 0
+
+
 class CASCheckpointHook:
     """Persists checkpoints after successful node completion."""
 
@@ -152,12 +241,16 @@ class CASCheckpointHook:
         sequence_start: int = 0,
         checkpoint_policy: CheckpointPolicy = "strict",
         initial_cache_entry_refs: list[ArtifactRef] | None = None,
+        gc_policy: CheckpointGCPolicy | None = None,
+        checkpoint_store: CheckpointStore | None = None,
     ) -> None:
         self._store = store
         self._run_dir = run_dir
         self._sequence = sequence_start
         self._policy = normalize_checkpoint_policy(checkpoint_policy)
         self._cache_entry_refs: list[ArtifactRef] = list(initial_cache_entry_refs or [])
+        self._gc_policy = gc_policy
+        self._checkpoint_store = checkpoint_store
 
     def on_node_complete(
         self,
@@ -412,6 +505,8 @@ def acquire_run_lock(
     run_id: str,
     mode: str,
     force: bool = False,
+    max_attempts: int = 1,
+    retry_delay_s: float = 1.0,
 ) -> RunLockHandle:
     try:
         import fcntl
@@ -420,27 +515,44 @@ def acquire_run_lock(
 
     run_dir.mkdir(parents=True, exist_ok=True)
     lock_path = run_dir / RUN_LOCK_FILENAME
-    fd = os.open(str(lock_path), os.O_RDWR | os.O_CREAT, 0o644)
 
-    try:
-        fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
-    except BlockingIOError as exc:
-        current = read_run_lock_metadata(lock_path)
-        if force and current is not None:
-            same_host = current.get("hostname") == socket.gethostname()
-            stale = same_host and isinstance(current.get("pid"), int) and not _pid_exists(int(current["pid"]))
-            if stale:
-                # Stale metadata only; lock is still held by another process if we are here.
-                pass
-        os.close(fd)
-        holder = ""
-        if current:
-            holder = (
-                f" holder_pid={current.get('pid')}"
-                f" holder_host={current.get('hostname')}"
-                f" holder_mode={current.get('mode')}"
-            )
-        raise RunLockError(f"run {run_id} is already active.{holder}") from exc
+    last_exc: Exception | None = None
+    for attempt in range(max(1, max_attempts)):
+        fd = os.open(str(lock_path), os.O_RDWR | os.O_CREAT, 0o644)
+        try:
+            fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError as exc:
+            last_exc = exc
+            current = read_run_lock_metadata(lock_path)
+            if force and current is not None:
+                same_host = current.get("hostname") == socket.gethostname()
+                stale = same_host and isinstance(current.get("pid"), int) and not _pid_exists(int(current["pid"]))
+                if stale:
+                    pass
+            os.close(fd)
+            if attempt < max_attempts - 1:
+                delay = retry_delay_s * (2 ** attempt)
+                logger.info(
+                    "Lock for run %s held; retrying in %.1fs (attempt %d/%d)",
+                    run_id, delay, attempt + 1, max_attempts,
+                )
+                time.sleep(delay)
+                continue
+            holder = ""
+            if current:
+                holder = (
+                    f" holder_pid={current.get('pid')}"
+                    f" holder_host={current.get('hostname')}"
+                    f" holder_mode={current.get('mode')}"
+                )
+            raise RunLockError(f"run {run_id} is already active.{holder}") from exc
+        else:
+            # Lock acquired
+            break
+    else:
+        raise RunLockError(  # pragma: no cover
+            f"Failed to acquire lock after {max_attempts} attempts",
+        )
 
     metadata = {
         "run_id": run_id,
@@ -507,6 +619,10 @@ def resume_from_checkpoint(
             raise CheckpointNotFoundError(f"no checkpoint found for run_id={run_id}")
         head, checkpoint = resolved
 
+        _validate_checkpoint_schema(
+            checkpoint.metadata.schema_version, CHECKPOINT_SCHEMA_VERSION,
+        )
+
         restored_state = ExperimentState.model_validate(checkpoint.state)
 
         workflow_spec = workflow or default_workflow_spec()
@@ -563,18 +679,23 @@ __all__ = [
     "CheckpointArtifact",
     "CheckpointCorruptedError",
     "CheckpointError",
+    "CheckpointGCPolicy",
     "CheckpointHead",
     "CheckpointHook",
     "CheckpointMetadata",
     "CheckpointNotFoundError",
     "CheckpointPolicy",
+    "CheckpointSchemaError",
+    "CheckpointStore",
     "CheckpointWriteResult",
+    "FileSystemCheckpointStore",
     "RunLockError",
     "RunLockHandle",
     "WorkflowMismatchError",
     "acquire_run_lock",
     "compute_workflow_fingerprint",
     "create_checkpoint",
+    "gc_checkpoints",
     "load_checkpoint",
     "load_checkpoint_head",
     "normalize_checkpoint_policy",

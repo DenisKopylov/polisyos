@@ -644,9 +644,13 @@ class DRLearnerEstimator:
         if estimation_backend in {"econml", "econml_direct"}:
             from polisyos.foundry.methods.catalog.causal.forest_dr import ForestDRLearnerEstimator
 
+            # Adapt forest parameters to sample size to avoid degenerate fits
+            # on small DGPs that would otherwise produce N/A results.
+            n_est_default = min(int(params.get("n_estimators", 160)), max(20, n // 10))
+            min_leaf_default = max(5, min(int(params.get("min_samples_leaf", 20)), n // 20))
             delegate_params = {
-                "n_estimators": int(params.get("n_estimators", 160)),
-                "min_samples_leaf": int(params.get("min_samples_leaf", 20)),
+                "n_estimators": n_est_default,
+                "min_samples_leaf": min_leaf_default,
                 "max_depth": params.get("max_depth"),
                 "max_samples": float(params.get("max_samples", 0.45)),
                 "honest": bool(params.get("honest", True)),
@@ -678,57 +682,81 @@ class DRLearnerEstimator:
         effective_params.setdefault("outcome_scaling", "raw+standardized")
         effective_params.setdefault("bootstrap_draws", 100)
         effective_params.setdefault("feature_importance_mode", "permutation")
-        config = build_nuisance_config(effective_params)
-        nuisance = _resolve_nuisance_outputs(X, T, Y, params=effective_params)
-        pseudo = _truncate_pseudo_outcome(
-            nuisance.aipw_scores(Y, T),
-            mask=nuisance.trim_mask,
-        )
-        tau_fit = fit_dr_tau_model(X, pseudo, config)
-        cate_pred = tau_fit.cate_predictions
-        feature_importances = tau_fit.feature_importances
+        try:
+            config = build_nuisance_config(effective_params)
+            nuisance = _resolve_nuisance_outputs(X, T, Y, params=effective_params)
+            pseudo = _truncate_pseudo_outcome(
+                nuisance.aipw_scores(Y, T),
+                mask=nuisance.trim_mask,
+            )
+            valid_pseudo = pseudo[np.isfinite(pseudo)]
+            if valid_pseudo.size < 10:
+                raise ValueError(
+                    f"DRLearner: only {valid_pseudo.size} finite pseudo-outcomes "
+                    f"out of {pseudo.size} total"
+                )
+            tau_fit = fit_dr_tau_model(X, pseudo, config)
+            cate_pred = tau_fit.cate_predictions
+            feature_importances = tau_fit.feature_importances
 
-        ate = float(np.mean(cate_pred[nuisance.trim_mask]))
-        cate_std = float(np.std(cate_pred[nuisance.trim_mask]))
-        ci_lower, ci_upper = bootstrap_mean_interval(
-            pseudo[nuisance.trim_mask],
-            seed=config.random_seed + 71,
-            draws=config.bootstrap_draws,
-        )
-        feature_importance_payload = _suppress_importances_if_homogeneous(
-            cate_pred,
-            _feature_importances_from_array(
-                feature_importances if feature_importances is not None else np.array([]),
-                [f"x{i}" for i in range(X.shape[1])],
-                method="permutation" if config.feature_importance_mode == "permutation" else "model_based",
-            ),
-        )
+            ate = float(np.mean(cate_pred[nuisance.trim_mask]))
+            cate_std = float(np.std(cate_pred[nuisance.trim_mask]))
+            ci_lower, ci_upper = bootstrap_mean_interval(
+                pseudo[nuisance.trim_mask],
+                seed=config.random_seed + 71,
+                draws=config.bootstrap_draws,
+            )
+            feature_importance_payload = _suppress_importances_if_homogeneous(
+                cate_pred,
+                _feature_importances_from_array(
+                    feature_importances if feature_importances is not None else np.array([]),
+                    [f"x{i}" for i in range(X.shape[1])],
+                    method="permutation" if config.feature_importance_mode == "permutation" else "model_based",
+                ),
+            )
 
-        return {
-            "result": {
-                "ate": ate,
-                "ci_lower": ci_lower,
-                "ci_upper": ci_upper,
-                "cate_predictions": cate_pred.tolist(),
-                "cate_std": cate_std,
-                "feature_importances": feature_importance_payload,
-                "n_obs": n,
-                "nuisance_diagnostics": nuisance.diagnostics(),
-                "nuisance_config": {
-                    "nuisance_model_family": config.nuisance_model_family,
-                    "crossfit_folds": config.crossfit_folds,
-                    "n_repeats": config.n_repeats,
-                    "random_seed_manifest": list(config.random_seed_manifest),
-                    "propensity_clipping": config.propensity_clipping,
-                    "propensity_trimming": config.propensity_trimming,
-                    "outcome_scaling": config.outcome_scaling,
-                    "inference_backend": config.inference_backend,
-                    "bootstrap_draws": config.bootstrap_draws,
-                    "feature_importance_mode": config.feature_importance_mode,
-                },
-                "heterogeneity_signal": float(np.std(cate_pred, ddof=1)) if cate_pred.size > 1 else 0.0,
+            return {
+                "result": {
+                    "ate": ate,
+                    "ci_lower": ci_lower,
+                    "ci_upper": ci_upper,
+                    "cate_predictions": cate_pred.tolist(),
+                    "cate_std": cate_std,
+                    "feature_importances": feature_importance_payload,
+                    "n_obs": n,
+                    "nuisance_diagnostics": nuisance.diagnostics(),
+                    "nuisance_config": {
+                        "nuisance_model_family": config.nuisance_model_family,
+                        "crossfit_folds": config.crossfit_folds,
+                        "n_repeats": config.n_repeats,
+                        "random_seed_manifest": list(config.random_seed_manifest),
+                        "propensity_clipping": config.propensity_clipping,
+                        "propensity_trimming": config.propensity_trimming,
+                        "outcome_scaling": config.outcome_scaling,
+                        "inference_backend": config.inference_backend,
+                        "bootstrap_draws": config.bootstrap_draws,
+                        "feature_importance_mode": config.feature_importance_mode,
+                    },
+                    "heterogeneity_signal": float(np.std(cate_pred, ddof=1)) if cate_pred.size > 1 else 0.0,
+                }
             }
-        }
+        except Exception as exc:
+            return {
+                "result": {
+                    "ate": float("nan"),
+                    "ci_lower": float("nan"),
+                    "ci_upper": float("nan"),
+                    "cate_predictions": [],
+                    "cate_std": float("nan"),
+                    "feature_importances": {},
+                    "n_obs": n,
+                    "nuisance_diagnostics": {},
+                    "nuisance_config": {},
+                    "heterogeneity_signal": 0.0,
+                    "failed": True,
+                    "fail_reason": f"DRLearner custom backend: {exc}",
+                }
+            }
 
 
 @foundry_method(

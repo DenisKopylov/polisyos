@@ -31,6 +31,13 @@ from polisyos.foundry.methods.testing.solver_suite import (
     SolverMethodTestSuite,
     SolverSuiteResult,
 )
+from polisyos.foundry.methods.testing.golden_yaml import (
+    GoldenCaseResult,
+    GoldenRegistry,
+    GoldenSuiteResult,
+    GoldenTestCase,
+    GoldenTestFile,
+)
 from polisyos.foundry.methods.testing.suite import (
     CheckCategory,
     MethodTestSuite,
@@ -59,4 +66,9 @@ __all__ = [
     "NumpySuiteResult",
     "SolverMethodTestSuite",
     "SolverSuiteResult",
+    "GoldenTestCase",
+    "GoldenTestFile",
+    "GoldenRegistry",
+    "GoldenCaseResult",
+    "GoldenSuiteResult",
 ]

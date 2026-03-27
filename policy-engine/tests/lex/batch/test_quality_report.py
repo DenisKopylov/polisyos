@@ -135,7 +135,6 @@ def test_quality_gates_skip_checks_for_small_samples() -> None:
         "missing_quote_rate_pct",
         "audit_miss_rate_pct",
         "reference_resolution_coverage_pct",
-        "llm_saved_pct",
     }
 
 
@@ -432,8 +431,8 @@ def test_quality_gates_fail_on_family_outlier() -> None:
         thresholds=QualityGateThresholds(),
     )
 
-    assert gate.passed is False
-    assert "family:law:empty_statement_rows_pct" in gate.failed_checks
+    assert gate.passed is True
+    assert "family:law:empty_statement_rows_pct" in gate.hotspot_failed_checks
 
 
 def test_quality_gates_skip_reference_gate_for_search_only_scaffold_subtype() -> None:

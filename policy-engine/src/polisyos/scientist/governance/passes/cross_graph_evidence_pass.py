@@ -7,6 +7,7 @@ from polisyos.core.governance.passes.base import PassContext, ValidatorPass
 from polisyos.core.governance.profiles import ProfileLevel
 from polisyos.ir.analytics.cross_graph import (
     CrossGraphEvidenceProfile,
+    EvidenceSourceState,
     EvidenceStatus,
     LegalStatus,
     ObservabilityStatus,
@@ -66,6 +67,8 @@ class CrossGraphEvidencePass(ValidatorPass):
                     suggestion="Add explicit ontology bridges for unresolved policy needs.",
                 )
             )
+
+        issues.extend(_source_unavailable_issues(profile, ctx.profile.level, severity))
 
         for assessment in profile.needs:
             path = ["cross_graph", assessment.need.need_id]
@@ -194,6 +197,52 @@ def _expected_profile(state: dict[str, Any]) -> bool:
     if isinstance(params, dict):
         return bool(params.get("cross_graph_evidence_expected"))
     return bool(state.get("cross_graph_evidence_expected"))
+
+
+def _source_unavailable_issues(
+    profile: CrossGraphEvidenceProfile,
+    profile_level: ProfileLevel,
+    default_severity: IssueSeverity,
+) -> list[ComplianceIssue]:
+    issues: list[ComplianceIssue] = []
+    for source_name, status in profile.source_statuses.items():
+        if status.status is EvidenceSourceState.AVAILABLE:
+            continue
+        severity = IssueSeverity.WARNING
+        if profile_level is ProfileLevel.STRICT and _source_is_binding(profile, source_name):
+            severity = default_severity
+        issues.append(
+            ComplianceIssue(
+                pass_id="cross_graph_evidence",
+                path=["cross_graph_sources", source_name],
+                message=(
+                    f"Cross-graph evidence source '{source_name}' is unavailable "
+                    f"({status.status.value})."
+                ),
+                severity=severity,
+                code="CROSS_GRAPH_SOURCE_UNAVAILABLE",
+                suggestion="Provide the missing evidence source or accept degraded evidence coverage.",
+            )
+        )
+    return issues
+
+
+def _source_is_binding(profile: CrossGraphEvidenceProfile, source_name: str) -> bool:
+    if not profile.needs:
+        return False
+    if source_name == "academic":
+        return any(
+            assessment.evidence_status in {EvidenceStatus.INSUFFICIENT, EvidenceStatus.UNSUPPORTED}
+            for assessment in profile.needs
+        )
+    if source_name == "datasets":
+        return any(
+            assessment.observability_status in {ObservabilityStatus.MISSING, ObservabilityStatus.UNKNOWN}
+            for assessment in profile.needs
+        )
+    if source_name == "legal":
+        return any(assessment.legal_status is LegalStatus.UNKNOWN for assessment in profile.needs)
+    return False
 
 
 __all__ = ["CrossGraphEvidencePass"]

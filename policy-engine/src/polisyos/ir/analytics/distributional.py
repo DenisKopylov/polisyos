@@ -8,7 +8,89 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.canon import CanonSpec
-from polisyos.ir.refs import DistributionalReportRef
+from polisyos.ir.refs import (
+    ArtifactRefModel,
+    DistributionalEffectBundleRef,
+    DistributionalReportRef,
+)
+
+_DISTRIBUTIONAL_REPORT_SCHEMA_NAME = "ir.distributional_report"
+_DISTRIBUTIONAL_REPORT_SCHEMA_VERSION = "1.0"
+_DISTRIBUTIONAL_EFFECT_BUNDLE_SCHEMA_NAME = "ir.distributional_effect_bundle"
+_DISTRIBUTIONAL_EFFECT_BUNDLE_SCHEMA_VERSION = "1.0"
+_DISCRETE_DISTRIBUTION_SUMMARY_SCHEMA_NAME = "ir.discrete_distribution_summary"
+_DISCRETE_DISTRIBUTION_SUMMARY_SCHEMA_VERSION = "1.0"
+_OT_COUPLING_SUMMARY_SCHEMA_NAME = "ir.ot_coupling_summary"
+_OT_COUPLING_SUMMARY_SCHEMA_VERSION = "1.0"
+_QUANTILE_SHIFT_SUMMARY_SCHEMA_NAME = "ir.quantile_shift_summary"
+_QUANTILE_SHIFT_SUMMARY_SCHEMA_VERSION = "1.0"
+_TAIL_RISK_DELTA_SUMMARY_SCHEMA_NAME = "ir.tail_risk_delta_summary"
+_TAIL_RISK_DELTA_SUMMARY_SCHEMA_VERSION = "1.0"
+_SUBGROUP_DISTRIBUTION_COMPARISON_SCHEMA_NAME = "ir.subgroup_distribution_comparison"
+_SUBGROUP_DISTRIBUTION_COMPARISON_SCHEMA_VERSION = "1.0"
+
+
+def _ensure_finite(value: float | None, *, field_name: str) -> float | None:
+    if value is None:
+        return None
+    casted = float(value)
+    if not math.isfinite(casted):
+        raise ValueError(f"{field_name} must be finite")
+    return casted
+
+
+def _ensure_non_empty(value: str | None, *, field_name: str) -> str | None:
+    if value is None:
+        return None
+    candidate = str(value).strip()
+    if not candidate:
+        raise ValueError(f"{field_name} must be non-empty")
+    return candidate
+
+
+def _validate_unique_artifact_refs(
+    refs: list[ArtifactRefModel],
+    *,
+    field_name: str,
+) -> None:
+    seen: set[str] = set()
+    for ref in refs:
+        artifact_id = str(ref.artifact_id)
+        if artifact_id in seen:
+            raise ValueError(f"{field_name} contains duplicate artifact_id {artifact_id}")
+        seen.add(artifact_id)
+
+
+def _persist_distributional_leaf(
+    store: ArtifactStore,
+    payload: BaseModel,
+    *,
+    kind: str,
+    schema_name: str,
+    schema_version: str,
+    inputs: list[InputRef] | None = None,
+) -> ArtifactRefModel:
+    ref = put_json_artifact(
+        store,
+        payload.model_dump(mode="json"),
+        kind=kind,
+        schema_name=schema_name,
+        schema_version=schema_version,
+        inputs=inputs,
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    return ArtifactRefModel.model_validate(ref)
+
+
+def _load_distributional_leaf(store: ArtifactStore, ref: ArtifactRefModel, model: type[BaseModel]) -> Any:
+    payload = get_json_artifact(store, ref.artifact_id)
+    return model.model_validate(payload)
+
+
+class DistributionalJustification(str, Enum):
+    IDENTIFIED = "identified"
+    BOUNDED = "bounded"
+    SCENARIO = "scenario"
 
 
 class CohortDimension(str, Enum):
@@ -34,6 +116,258 @@ class MetricUnit(str, Enum):
     PERCENT = "percent"
     RATIO = "ratio"
     ABSOLUTE = "absolute"
+
+
+class CouplingDiagnostics(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    mass_conservation_error: float = Field(ge=0.0)
+    source_marginal_l1_error: float = Field(default=0.0, ge=0.0)
+    target_marginal_l1_error: float = Field(default=0.0, ge=0.0)
+    support_mismatch_note: str | None = None
+    regularization_strength: float | None = Field(default=None, gt=0.0)
+    sinkhorn_iterations: int | None = Field(default=None, ge=0, le=200)
+    convergence_delta: float | None = Field(default=None, ge=0.0)
+    weighting_mode: str = Field(default="uniform", min_length=1)
+    identifiability_assumptions: list[str] = Field(default_factory=list)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def _validate_finite_numbers(self) -> "CouplingDiagnostics":
+        for field_name in (
+            "mass_conservation_error",
+            "source_marginal_l1_error",
+            "target_marginal_l1_error",
+            "regularization_strength",
+            "convergence_delta",
+        ):
+            _ensure_finite(getattr(self, field_name), field_name=field_name)
+        _ensure_non_empty(self.support_mismatch_note, field_name="support_mismatch_note")
+        _ensure_non_empty(self.weighting_mode, field_name="weighting_mode")
+        return self
+
+
+class DistributionBin(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    index: int = Field(ge=0)
+    lower_edge: float
+    upper_edge: float
+    midpoint: float
+    probability: float = Field(ge=0.0, le=1.0)
+    sample_count: int = Field(ge=0)
+
+    @model_validator(mode="after")
+    def _validate_bin(self) -> "DistributionBin":
+        lower = _ensure_finite(self.lower_edge, field_name="lower_edge")
+        upper = _ensure_finite(self.upper_edge, field_name="upper_edge")
+        midpoint = _ensure_finite(self.midpoint, field_name="midpoint")
+        _ensure_finite(self.probability, field_name="probability")
+        if upper < lower:
+            raise ValueError("upper_edge must be >= lower_edge")
+        if midpoint < lower or midpoint > upper:
+            raise ValueError("midpoint must fall within [lower_edge, upper_edge]")
+        return self
+
+
+class DiscreteDistributionSummary(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
+    outcome_name: str = Field(min_length=1)
+    sample_size: int = Field(ge=1)
+    total_weight: float = Field(gt=0.0)
+    weighting_mode: str = Field(min_length=1)
+    mean_value: float | None = None
+    min_value: float | None = None
+    max_value: float | None = None
+    bins: list[DistributionBin] = Field(min_length=1)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def _validate_distribution(self) -> "DiscreteDistributionSummary":
+        _ensure_non_empty(self.outcome_name, field_name="outcome_name")
+        _ensure_non_empty(self.weighting_mode, field_name="weighting_mode")
+        for field_name in ("total_weight", "mean_value", "min_value", "max_value"):
+            _ensure_finite(getattr(self, field_name), field_name=field_name)
+        total_probability = sum(bin_.probability for bin_ in self.bins)
+        if abs(total_probability - 1.0) > 1e-6:
+            raise ValueError(
+                f"distribution probabilities must sum to 1.0, got {total_probability:.8f}"
+            )
+        if self.min_value is not None and self.max_value is not None and self.min_value > self.max_value:
+            raise ValueError("min_value must be <= max_value")
+        return self
+
+
+class QuantileShiftEntry(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    quantile: float = Field(ge=0.0, le=1.0)
+    baseline_value: float
+    counterfactual_value: float
+    shift: float
+
+    @model_validator(mode="after")
+    def _validate_quantile_shift(self) -> "QuantileShiftEntry":
+        for field_name in ("quantile", "baseline_value", "counterfactual_value", "shift"):
+            _ensure_finite(getattr(self, field_name), field_name=field_name)
+        return self
+
+
+class QuantileShiftSummary(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
+    outcome_name: str = Field(min_length=1)
+    entries: list[QuantileShiftEntry] = Field(min_length=1)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def _validate_summary(self) -> "QuantileShiftSummary":
+        _ensure_non_empty(self.outcome_name, field_name="outcome_name")
+        quantiles = [entry.quantile for entry in self.entries]
+        if quantiles != sorted(quantiles):
+            raise ValueError("quantile entries must be sorted in ascending order")
+        return self
+
+
+class TailRiskDeltaEntry(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    baseline_quantile: float = Field(ge=0.0, le=1.0)
+    threshold_value: float
+    baseline_exceedance_probability: float = Field(ge=0.0, le=1.0)
+    counterfactual_exceedance_probability: float = Field(ge=0.0, le=1.0)
+    exceedance_probability_delta: float
+    baseline_expected_shortfall: float | None = None
+    counterfactual_expected_shortfall: float | None = None
+    expected_shortfall_delta: float | None = None
+
+    @model_validator(mode="after")
+    def _validate_tail_entry(self) -> "TailRiskDeltaEntry":
+        for field_name in (
+            "baseline_quantile",
+            "threshold_value",
+            "baseline_exceedance_probability",
+            "counterfactual_exceedance_probability",
+            "exceedance_probability_delta",
+            "baseline_expected_shortfall",
+            "counterfactual_expected_shortfall",
+            "expected_shortfall_delta",
+        ):
+            _ensure_finite(getattr(self, field_name), field_name=field_name)
+        return self
+
+
+class TailRiskDeltaSummary(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
+    outcome_name: str = Field(min_length=1)
+    entries: list[TailRiskDeltaEntry] = Field(min_length=1)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def _validate_summary(self) -> "TailRiskDeltaSummary":
+        _ensure_non_empty(self.outcome_name, field_name="outcome_name")
+        return self
+
+
+class OTCouplingSummary(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
+    source_support: tuple[float, ...]
+    target_support: tuple[float, ...]
+    transport_matrix: tuple[tuple[float, ...], ...]
+    regularization_strength: float = Field(gt=0.0)
+    sinkhorn_iterations: int = Field(ge=1, le=200)
+    convergence_delta: float = Field(ge=0.0)
+    weighting_mode: str = Field(min_length=1)
+    density_ratio_diagnostics: dict[str, Any] = Field(default_factory=dict)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def _validate_coupling(self) -> "OTCouplingSummary":
+        _ensure_finite(self.regularization_strength, field_name="regularization_strength")
+        _ensure_finite(self.convergence_delta, field_name="convergence_delta")
+        _ensure_non_empty(self.weighting_mode, field_name="weighting_mode")
+        if not self.source_support:
+            raise ValueError("source_support must be non-empty")
+        if not self.target_support:
+            raise ValueError("target_support must be non-empty")
+        if len(self.transport_matrix) != len(self.source_support):
+            raise ValueError("transport_matrix row count must match source_support")
+        total_mass = 0.0
+        for row in self.transport_matrix:
+            if len(row) != len(self.target_support):
+                raise ValueError("transport_matrix column count must match target_support")
+            for value in row:
+                finite_value = _ensure_finite(value, field_name="transport_matrix")
+                if finite_value is None or finite_value < 0.0:
+                    raise ValueError("transport_matrix entries must be finite and non-negative")
+                total_mass += finite_value
+        if abs(total_mass - 1.0) > 1e-4:
+            raise ValueError(f"transport_matrix must sum to 1.0, got {total_mass:.8f}")
+        return self
+
+
+class SubgroupDistributionComparison(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
+    subgroup_dimension: CohortDimension
+    subgroup_id: str = Field(min_length=1)
+    subgroup_label: str = Field(min_length=1)
+    baseline_distribution_ref: ArtifactRefModel
+    counterfactual_distribution_ref: ArtifactRefModel
+    coupling_ref: ArtifactRefModel | None = None
+    coupling_diagnostics: CouplingDiagnostics
+    quantile_shift_ref: ArtifactRefModel | None = None
+    tail_risk_delta_ref: ArtifactRefModel | None = None
+    wasserstein_distance: float | None = Field(default=None, ge=0.0)
+    baseline_sample_size: int = Field(ge=1)
+    counterfactual_sample_size: int = Field(ge=1)
+    causal_assumptions: list[str] = Field(default_factory=list)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def _validate_subgroup(self) -> "SubgroupDistributionComparison":
+        _ensure_non_empty(self.subgroup_id, field_name="subgroup_id")
+        _ensure_non_empty(self.subgroup_label, field_name="subgroup_label")
+        _ensure_finite(self.wasserstein_distance, field_name="wasserstein_distance")
+        return self
+
+
+class DistributionalEffectBundle(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
+    outcome_name: str = Field(min_length=1)
+    justification: DistributionalJustification
+    baseline_distribution_ref: ArtifactRefModel
+    counterfactual_distribution_ref: ArtifactRefModel
+    coupling_ref: ArtifactRefModel | None = None
+    coupling_diagnostics: CouplingDiagnostics
+    wasserstein_distance: float | None = Field(default=None, ge=0.0)
+    quantile_shift_ref: ArtifactRefModel | None = None
+    tail_risk_delta_ref: ArtifactRefModel | None = None
+    subgroup_distribution_refs: list[ArtifactRefModel] = Field(default_factory=list)
+    causal_assumptions: list[str] = Field(default_factory=list)
+    readiness_cap: str = Field(default="simulation_ready", min_length=1)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def _validate_bundle(self) -> "DistributionalEffectBundle":
+        _ensure_non_empty(self.outcome_name, field_name="outcome_name")
+        _ensure_non_empty(self.readiness_cap, field_name="readiness_cap")
+        _ensure_finite(self.wasserstein_distance, field_name="wasserstein_distance")
+        _validate_unique_artifact_refs(
+            self.subgroup_distribution_refs,
+            field_name="subgroup_distribution_refs",
+        )
+        return self
 
 
 class CohortImpact(BaseModel):
@@ -176,13 +510,21 @@ class DistributionalReport(BaseModel):
             and self.overall_gini_after is not None
             and self.overall_gini_delta is None
         ):
-            object.__setattr__(self, "overall_gini_delta", self.overall_gini_after - self.overall_gini_before)
+            object.__setattr__(
+                self,
+                "overall_gini_delta",
+                self.overall_gini_after - self.overall_gini_before,
+            )
         if (
             self.palma_ratio_before is not None
             and self.palma_ratio_after is not None
             and self.palma_ratio_delta is None
         ):
-            object.__setattr__(self, "palma_ratio_delta", self.palma_ratio_after - self.palma_ratio_before)
+            object.__setattr__(
+                self,
+                "palma_ratio_delta",
+                self.palma_ratio_after - self.palma_ratio_before,
+            )
         return self
 
     def get_breakdown(self, dimension: CohortDimension) -> DimensionBreakdown | None:
@@ -205,13 +547,154 @@ class DistributionalReport(BaseModel):
         return False
 
 
+def persist_discrete_distribution_summary(
+    store: ArtifactStore,
+    summary: DiscreteDistributionSummary,
+    *,
+    inputs: list[InputRef] | None = None,
+) -> ArtifactRefModel:
+    return _persist_distributional_leaf(
+        store,
+        summary,
+        kind="ir.discrete_distribution_summary",
+        schema_name=_DISCRETE_DISTRIBUTION_SUMMARY_SCHEMA_NAME,
+        schema_version=_DISCRETE_DISTRIBUTION_SUMMARY_SCHEMA_VERSION,
+        inputs=inputs,
+    )
+
+
+def load_discrete_distribution_summary(
+    store: ArtifactStore,
+    ref: ArtifactRefModel,
+) -> DiscreteDistributionSummary:
+    return _load_distributional_leaf(store, ref, DiscreteDistributionSummary)
+
+
+def persist_ot_coupling_summary(
+    store: ArtifactStore,
+    summary: OTCouplingSummary,
+    *,
+    inputs: list[InputRef] | None = None,
+) -> ArtifactRefModel:
+    return _persist_distributional_leaf(
+        store,
+        summary,
+        kind="ir.ot_coupling_summary",
+        schema_name=_OT_COUPLING_SUMMARY_SCHEMA_NAME,
+        schema_version=_OT_COUPLING_SUMMARY_SCHEMA_VERSION,
+        inputs=inputs,
+    )
+
+
+def load_ot_coupling_summary(
+    store: ArtifactStore,
+    ref: ArtifactRefModel,
+) -> OTCouplingSummary:
+    return _load_distributional_leaf(store, ref, OTCouplingSummary)
+
+
+def persist_quantile_shift_summary(
+    store: ArtifactStore,
+    summary: QuantileShiftSummary,
+    *,
+    inputs: list[InputRef] | None = None,
+) -> ArtifactRefModel:
+    return _persist_distributional_leaf(
+        store,
+        summary,
+        kind="ir.quantile_shift_summary",
+        schema_name=_QUANTILE_SHIFT_SUMMARY_SCHEMA_NAME,
+        schema_version=_QUANTILE_SHIFT_SUMMARY_SCHEMA_VERSION,
+        inputs=inputs,
+    )
+
+
+def load_quantile_shift_summary(
+    store: ArtifactStore,
+    ref: ArtifactRefModel,
+) -> QuantileShiftSummary:
+    return _load_distributional_leaf(store, ref, QuantileShiftSummary)
+
+
+def persist_tail_risk_delta_summary(
+    store: ArtifactStore,
+    summary: TailRiskDeltaSummary,
+    *,
+    inputs: list[InputRef] | None = None,
+) -> ArtifactRefModel:
+    return _persist_distributional_leaf(
+        store,
+        summary,
+        kind="ir.tail_risk_delta_summary",
+        schema_name=_TAIL_RISK_DELTA_SUMMARY_SCHEMA_NAME,
+        schema_version=_TAIL_RISK_DELTA_SUMMARY_SCHEMA_VERSION,
+        inputs=inputs,
+    )
+
+
+def load_tail_risk_delta_summary(
+    store: ArtifactStore,
+    ref: ArtifactRefModel,
+) -> TailRiskDeltaSummary:
+    return _load_distributional_leaf(store, ref, TailRiskDeltaSummary)
+
+
+def persist_subgroup_distribution_comparison(
+    store: ArtifactStore,
+    comparison: SubgroupDistributionComparison,
+    *,
+    inputs: list[InputRef] | None = None,
+) -> ArtifactRefModel:
+    return _persist_distributional_leaf(
+        store,
+        comparison,
+        kind="ir.subgroup_distribution_comparison",
+        schema_name=_SUBGROUP_DISTRIBUTION_COMPARISON_SCHEMA_NAME,
+        schema_version=_SUBGROUP_DISTRIBUTION_COMPARISON_SCHEMA_VERSION,
+        inputs=inputs,
+    )
+
+
+def load_subgroup_distribution_comparison(
+    store: ArtifactStore,
+    ref: ArtifactRefModel,
+) -> SubgroupDistributionComparison:
+    return _load_distributional_leaf(store, ref, SubgroupDistributionComparison)
+
+
+def persist_distributional_effect_bundle(
+    store: ArtifactStore,
+    bundle: DistributionalEffectBundle,
+    *,
+    inputs: list[InputRef] | None = None,
+) -> DistributionalEffectBundleRef:
+    ref = put_json_artifact(
+        store,
+        bundle.model_dump(mode="json"),
+        kind="ir.distributional_effect_bundle",
+        schema_name=_DISTRIBUTIONAL_EFFECT_BUNDLE_SCHEMA_NAME,
+        schema_version=_DISTRIBUTIONAL_EFFECT_BUNDLE_SCHEMA_VERSION,
+        inputs=inputs,
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    return DistributionalEffectBundleRef.model_validate(ref)
+
+
+def load_distributional_effect_bundle(
+    store: ArtifactStore,
+    ref: DistributionalEffectBundleRef,
+) -> DistributionalEffectBundle:
+    payload = get_json_artifact(store, ref.artifact_id)
+    return DistributionalEffectBundle.model_validate(payload)
+
+
 def persist_distributional_report(
     store: ArtifactStore,
     report: DistributionalReport,
     *,
     inputs: list[InputRef] | None = None,
-    schema_name: str = "ir.distributional_report",
-    schema_version: str = "1.0",
+    schema_name: str = _DISTRIBUTIONAL_REPORT_SCHEMA_NAME,
+    schema_version: str = _DISTRIBUTIONAL_REPORT_SCHEMA_VERSION,
 ) -> DistributionalReportRef:
     ref = put_json_artifact(
         store,
@@ -236,12 +719,35 @@ def load_distributional_report(
 __all__ = [
     "CohortDimension",
     "CohortImpact",
+    "CouplingDiagnostics",
     "DimensionBreakdown",
+    "DiscreteDistributionSummary",
+    "DistributionBin",
+    "DistributionalEffectBundle",
+    "DistributionalJustification",
     "DistributionalReport",
     "ImpactDirection",
     "MetricUnit",
+    "OTCouplingSummary",
+    "QuantileShiftEntry",
+    "QuantileShiftSummary",
+    "SubgroupDistributionComparison",
+    "TailRiskDeltaEntry",
+    "TailRiskDeltaSummary",
     "WinnersLosersEntry",
     "WinnersLosersTable",
+    "persist_discrete_distribution_summary",
+    "load_discrete_distribution_summary",
+    "persist_distributional_effect_bundle",
+    "load_distributional_effect_bundle",
     "persist_distributional_report",
     "load_distributional_report",
+    "persist_ot_coupling_summary",
+    "load_ot_coupling_summary",
+    "persist_quantile_shift_summary",
+    "load_quantile_shift_summary",
+    "persist_subgroup_distribution_comparison",
+    "load_subgroup_distribution_comparison",
+    "persist_tail_risk_delta_summary",
+    "load_tail_risk_delta_summary",
 ]

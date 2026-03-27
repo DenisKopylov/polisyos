@@ -16,6 +16,7 @@ class ToolDefinition(BaseModel):
     description: str
     parameters: dict[str, Any]  # JSON Schema object
     domain: str = ""  # "datasets" | "academic" | "legal"
+    timeout_s: float = Field(default=30.0, ge=1.0, le=600.0)
 
     def to_openai_tool(self) -> dict[str, Any]:
         """Convert to OpenAI function-calling format."""

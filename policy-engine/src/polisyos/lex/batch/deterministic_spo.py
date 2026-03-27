@@ -755,6 +755,7 @@ def extract_deterministic_spo(
                 doc_title=doc_title,
                 legal_unit_micro_subtype=legal_unit_micro_subtype,
                 context_prefix=context_prefix,
+                threshold_bearing=threshold_bearing,
             ),
         ),
     )

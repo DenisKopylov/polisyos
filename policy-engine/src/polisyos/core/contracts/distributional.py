@@ -1,3 +1,3 @@
-from polisyos.ir.refs import DistributionalReportRef
+from polisyos.ir.refs import DistributionalEffectBundleRef, DistributionalReportRef
 
-__all__ = ["DistributionalReportRef"]
+__all__ = ["DistributionalEffectBundleRef", "DistributionalReportRef"]

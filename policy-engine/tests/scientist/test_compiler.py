@@ -9,6 +9,7 @@ from polisyos.core.contracts.foundry import CompileRequest
 from polisyos.core.registry import build_default_registry_bundle, load_registry_bundle_content
 from polisyos.foundry.compile.api import compile as compile_foundry
 from polisyos.foundry.contracts.state import GlobalState
+from polisyos.foundry._executor_models import ExecutionStrictness
 from polisyos.foundry.executor import apply_state_delta_and_snapshot, execute_program_graph
 from polisyos.ir.model_spec import ModelSpec
 from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
@@ -98,6 +99,7 @@ def test_compile_trinity_policy_roundtrip_rate(tmp_path) -> None:
         selector_field_registry=registries.selector_field_registry,
         step=0,
         seed=0,
+        strictness=ExecutionStrictness.RESEARCH,
     )
 
     next_state, _ = apply_state_delta_and_snapshot(

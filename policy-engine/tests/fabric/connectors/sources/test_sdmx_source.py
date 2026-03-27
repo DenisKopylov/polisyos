@@ -276,6 +276,102 @@ class TestConfigParsing:
         assert result.valid
 
 
+class TestCapabilityDescribe:
+    def test_describe_dataset_extracts_dimensions_and_constraints(self, monkeypatch):
+        connector = SDMXSourceConnector()
+        fixture_body = {
+            "structure": {
+                "dataflows": [
+                    {"id": "CPI_DATA", "version": "1.2.3"},
+                ],
+                "dataStructures": [
+                    {
+                        "dataStructureComponents": {
+                            "dimensionList": {
+                                "dimensions": [
+                                    {"id": "FREQ"},
+                                    {"id": "REF_AREA"},
+                                    {"id": "MEASURE"},
+                                ]
+                            }
+                        }
+                    }
+                ],
+                "contentConstraints": [
+                    {
+                        "cubeRegions": [
+                            {
+                                "keyValues": {
+                                    "REF_AREA": {"values": [{"id": "UKR"}, {"id": "DEU"}]},
+                                    "FREQ": {"values": [{"id": "A"}]},
+                                }
+                            }
+                        ]
+                    }
+                ],
+            }
+        }
+
+        monkeypatch.setattr(
+            SDMXSourceConnector,
+            "_sdmx_request_json",
+            _make_fake_sdmx_request_json(fixture_body),
+        )
+
+        async def _exercise():
+            handle = await connector.connect(_oecd_config())
+            snapshot = await connector.describe_dataset(handle, "CPI_DATA")
+            await connector.disconnect(handle)
+            return snapshot
+
+        snapshot = _run_async(_exercise())
+        assert snapshot.resolved_dataset_id == "CPI_DATA"
+        assert snapshot.dimension_order == ("FREQ", "REF_AREA", "MEASURE")
+        assert list(snapshot.allowed_positions["REF_AREA"]) == ["DEU", "UKR"]
+        assert snapshot.version_hint == "1.2.3"
+        assert snapshot.estimated_cardinality == 2
+
+    def test_describe_dataset_missing_version_coerces_to_empty_string(self, monkeypatch):
+        connector = SDMXSourceConnector()
+        fixture_body = {
+            "structure": {
+                "dataflows": [
+                    {
+                        "id": "CPI_DATA",
+                    }
+                ],
+                "dataStructures": [
+                    {
+                        "id": "DSD_CPI_DATA",
+                        "dataStructureComponents": {
+                            "dimensionList": {
+                                "dimensions": [
+                                    {"id": "FREQ"},
+                                    {"id": "REF_AREA"},
+                                ]
+                            }
+                        },
+                    }
+                ],
+            }
+        }
+
+        monkeypatch.setattr(
+            SDMXSourceConnector,
+            "_sdmx_request_json",
+            _make_fake_sdmx_request_json(fixture_body),
+        )
+
+        async def _exercise():
+            handle = await connector.connect(_oecd_config())
+            snapshot = await connector.describe_dataset(handle, "CPI_DATA")
+            await connector.disconnect(handle)
+            return snapshot
+
+        snapshot = _run_async(_exercise())
+        assert snapshot.version_hint == ""
+
+
 # ---------------------------------------------------------------------------
 # Filter / time helpers
 # ---------------------------------------------------------------------------

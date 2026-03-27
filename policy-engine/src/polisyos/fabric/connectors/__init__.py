@@ -3,9 +3,11 @@
 # IR-level contracts
 # Protocol and core types
 from polisyos.fabric.connectors.base import (
+    AsyncFetchLease,
     BaseConnector,
     ConnectionConfig,
     ConnectionHandle,
+    DatasetCapabilitySnapshot,
     FetchRequest,
     FetchResult,
     HealthStatus,
@@ -161,6 +163,8 @@ __all__ = [
     "BaseConnector",
     "ConnectionConfig",
     "ConnectionHandle",
+    "DatasetCapabilitySnapshot",
+    "AsyncFetchLease",
     "FetchRequest",
     "FetchResult",
     "HealthStatus",

@@ -51,6 +51,11 @@ class BayesianConfig:
     invalid_penalty: float = 10.0
     seed: int = 42
     fallback_on_failure: bool = True
+    # Phase 6 WS6.6 additions
+    adaptive_acquisition: bool = False
+    exploration_switch_threshold: float = 0.3
+    refit_interval: int = 5
+    warm_start_noise_factor: float = 0.1
 
 
 class BayesianOptimizer(BaseSearchStrategy):
@@ -73,6 +78,9 @@ class BayesianOptimizer(BaseSearchStrategy):
         self._torch_rng = None
         self._botorch_ready = False
         self._device = "cpu"
+        self._warm_evals: list[Evaluation] = []
+        self._last_refit_iteration: int = -1
+        self._last_train_size: int = 0
 
         try:
             require_botorch()
@@ -84,6 +92,12 @@ class BayesianOptimizer(BaseSearchStrategy):
         except OptionalDependencyUnavailableError as exc:
             logger.warning("BayesianOptimizer dependencies unavailable: {}", exc)
             self._botorch_ready = False
+
+    def warm_start(self, evaluations: list[Evaluation]) -> None:
+        """Pre-seed GP with historical evaluations from similar runs."""
+        valid = [e for e in evaluations if e.is_valid]
+        self._warm_evals.extend(valid)
+        logger.info("Bayesian warm-start: added {} historical evaluations", len(valid))
 
     def suggest(
         self,
@@ -114,6 +128,7 @@ class BayesianOptimizer(BaseSearchStrategy):
                 candidate, acq_value = self._optimize_acquisition(
                     y_bo=y_bo,
                     soft_limit=soft,
+                    evaluations=evaluations,
                 )
                 result = self._tensor_to_candidate(
                     candidate.squeeze(0),
@@ -286,20 +301,70 @@ class BayesianOptimizer(BaseSearchStrategy):
         return X, y_bo
 
     def _fit_gp(self, X, y_bo) -> None:
-        self._model = SingleTaskGP(
-            train_X=X,
-            train_Y=y_bo,
-            input_transform=Normalize(d=X.shape[-1]),
-            outcome_transform=Standardize(m=1),
+        current_train_size = X.shape[0]
+        should_refit = (
+            self._model is None
+            or self._iteration - self._last_refit_iteration >= self._config.refit_interval
+            or current_train_size > self._last_train_size * 1.2
         )
-        mll = ExactMarginalLogLikelihood(self._model.likelihood, self._model)
-        fit_gpytorch_mll(mll)
 
-    def _optimize_acquisition(self, y_bo, soft_limit: bool):
+        if should_refit:
+            self._model = SingleTaskGP(
+                train_X=X,
+                train_Y=y_bo,
+                input_transform=Normalize(d=X.shape[-1]),
+                outcome_transform=Standardize(m=1),
+            )
+            mll = ExactMarginalLogLikelihood(self._model.likelihood, self._model)
+            fit_gpytorch_mll(mll)
+            self._last_refit_iteration = self._iteration
+            self._last_train_size = current_train_size
+        else:
+            # Update training data without full hyperparameter re-fit
+            self._model = SingleTaskGP(
+                train_X=X,
+                train_Y=y_bo,
+                input_transform=Normalize(d=X.shape[-1]),
+                outcome_transform=Standardize(m=1),
+            )
+
+    def _select_acquisition(
+        self, evaluations: list[Evaluation], y_bo,
+    ) -> AcquisitionType:
+        """Select acquisition function, optionally adapting based on progress."""
+        if not self._config.adaptive_acquisition:
+            return self._config.acquisition
+
+        n = len(evaluations)
+        if n < 5:
+            return AcquisitionType.EI
+
+        valid = [e for e in evaluations if e.is_valid]
+        if len(valid) < 3:
+            return AcquisitionType.EI
+
+        recent_scores = [e.scalar_score for e in valid[-5:]]
+        overall_best = min(e.scalar_score for e in valid)
+        recent_best = min(recent_scores)
+
+        # No improvement in recent window -> explore more
+        if abs(recent_best - overall_best) < 1e-8:
+            return AcquisitionType.UCB
+
+        # Good progress -> exploit
+        improvement_rate = (overall_best - recent_best) / max(abs(overall_best), 1e-8)
+        if improvement_rate > self._config.exploration_switch_threshold:
+            return AcquisitionType.PI
+
+        return AcquisitionType.EI
+
+    def _optimize_acquisition(self, y_bo, soft_limit: bool, evaluations: list[Evaluation] | None = None):
         best_f = y_bo.max()
-        if self._config.acquisition == AcquisitionType.UCB:
+        acq_type = self._select_acquisition(evaluations or [], y_bo)
+
+        if acq_type == AcquisitionType.UCB:
             acq = UpperConfidenceBound(model=self._model, beta=self._config.ucb_beta)
-        elif self._config.acquisition == AcquisitionType.PI:
+        elif acq_type == AcquisitionType.PI:
             acq = ProbabilityOfImprovement(model=self._model, best_f=best_f)
         else:
             acq = ExpectedImprovement(model=self._model, best_f=best_f)

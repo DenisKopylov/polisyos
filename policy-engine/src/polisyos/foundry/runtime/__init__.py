@@ -7,9 +7,12 @@ from dataclasses import dataclass
 from typing import Any, Iterator, Optional
 
 import jax
+import jax.numpy as jnp
 
 from polisyos.core.observability import get_metrics, get_tracer
 from polisyos.core.observability.config import is_hpc_observability_enabled
+from polisyos.foundry._executor_models import ExecutionStrictness, get_state_path
+from polisyos.foundry.runtime.nan_guard import NaNGuard
 
 
 @dataclass
@@ -20,6 +23,7 @@ class JITTimingContext:
     total_seconds: float = 0.0
     compile_seconds: Optional[float] = None
     execute_seconds: float = 0.0
+    override_total_seconds: Optional[float] = None
 
 
 class JITCompilationTracker:
@@ -80,7 +84,11 @@ def jit_aware_span(
         try:
             yield ctx
         finally:
-            ctx.total_seconds = time.perf_counter() - start
+            ctx.total_seconds = (
+                ctx.override_total_seconds
+                if ctx.override_total_seconds is not None
+                else time.perf_counter() - start
+            )
             ctx.execute_seconds = ctx.total_seconds
         return
 
@@ -111,11 +119,20 @@ def jit_aware_span(
         try:
             yield ctx
         finally:
-            ctx.total_seconds = time.perf_counter() - start
+            wall_total = time.perf_counter() - start
+            ctx.total_seconds = (
+                ctx.override_total_seconds
+                if ctx.override_total_seconds is not None
+                else wall_total
+            )
 
             if ctx.is_warmup:
-                ctx.compile_seconds = ctx.total_seconds * 0.95
-                ctx.execute_seconds = ctx.total_seconds * 0.05
+                measured_execute = min(
+                    max(ctx.execute_seconds, 0.0),
+                    ctx.total_seconds,
+                )
+                ctx.execute_seconds = measured_execute
+                ctx.compile_seconds = max(ctx.total_seconds - measured_execute, 0.0)
                 span.set_attribute("foundry.compile_seconds", ctx.compile_seconds)
 
                 if metrics.simulation_compile_seconds:
@@ -138,28 +155,102 @@ def jit_aware_span(
 # ============================================================================
 
 
-def step(state, controls, root_key, t: int, static_bundle=None):
-    """Placeholder pure JAX step; returns state unchanged and empty trace."""
-    return state, {"t": t, "controls": controls}
+class NaNDetectedError(RuntimeError):
+    """Raised when NaN is detected in FAIL_CLOSED strictness mode."""
+
+    def __init__(self, node_id: str, report):
+        self.node_id = node_id
+        self.report = report
+        super().__init__(f"NaN detected after node '{node_id}'")
 
 
-step_jit = jax.jit(step)
+def _extract_slot_dict(state, slot_id: str) -> dict[str, Any]:
+    """Extract slot value from state for NaN guard checking."""
+    try:
+        value = get_state_path(state, slot_id)
+        return {slot_id: value}
+    except (AttributeError, KeyError):
+        return {}
 
 
-def _run_scan_core(initial_state, controls_seq, root_key, static_bundle=None):
+def step(state, controls, root_key, t: int, static_bundle=None,
+         nan_guard: NaNGuard | None = None,
+         strictness: ExecutionStrictness | None = None):
+    """Pure JAX step: apply all mechanism nodes from static_bundle.
+
+    When *static_bundle* is ``None`` the function is an identity (useful for
+    tests and warmup probes).  Otherwise each node in the bundle is applied
+    sequentially, respecting schedule ranges, selectors and merge rules via
+    :func:`polisyos.foundry.calibration.pure_executor.apply_nodes`.
+
+    Parameters
+    ----------
+    nan_guard : NaNGuard | None
+        Optional NaN/Inf guard.  When enabled (and *strictness* is
+        ``FAIL_CLOSED``), a :class:`NaNDetectedError` is raised on the first
+        NaN occurrence.
+    """
+    if static_bundle is None:
+        return state, {"skipped": True}
+
+    from polisyos.foundry.calibration.pure_executor import apply_nodes
+
+    new_state, next_key = apply_nodes(state, root_key, bundle=static_bundle, t=t)
+
+    trace: dict[str, Any] = {"t": t}
+
+    # --- NaN guard (eager-mode only) ---
+    if nan_guard is not None and nan_guard.enabled:
+        slot_reg = static_bundle.slot_registry
+        for node in static_bundle.nodes:
+            for slot_id in node.outputs:
+                # Resolve the actual state path from the slot registry
+                slot_spec = slot_reg.slots.get(slot_id)
+                state_path = slot_spec.state_path if slot_spec and slot_spec.state_path else slot_id
+                slot_dict = _extract_slot_dict(new_state, state_path)
+                if not slot_dict:
+                    continue
+                valid = nan_guard.check_state(slot_dict, slot_id, node.node_id, t)
+                if not valid:
+                    trace.setdefault("nan_nodes", []).append(node.node_id)
+                    if strictness == ExecutionStrictness.FAIL_CLOSED:
+                        raise NaNDetectedError(node.node_id, nan_guard.get_report())
+
+    return new_state, trace
+
+
+step_jit = jax.jit(step, static_argnums=(4, 5, 6))
+
+
+def _run_scan_core(initial_state, controls_seq, root_key, static_bundle=None,
+                   nan_guard=None, strictness=None):
     """Pure JAX scan core, safe for vmap/jit usage."""
 
-    def _body(carry, control):
+    n_steps = int(controls_seq.shape[0]) if hasattr(controls_seq, "shape") else int(len(controls_seq))
+    step_indices = jnp.arange(n_steps, dtype=jnp.int32)
+
+    def _body(carry, xs):
+        step_idx, control = xs
         state, key = carry
         key, sub = jax.random.split(key)
-        next_state, trace = step(state, control, sub, t=0, static_bundle=static_bundle)
+        next_state, trace = step(
+            state, control, sub, t=step_idx,
+            static_bundle=static_bundle,
+            nan_guard=nan_guard,
+            strictness=strictness,
+        )
         return (next_state, key), trace
 
-    (final_state, _), traces = jax.lax.scan(_body, (initial_state, root_key), controls_seq)
+    (final_state, _), traces = jax.lax.scan(
+        _body,
+        (initial_state, root_key),
+        (step_indices, controls_seq),
+    )
     return final_state, traces
 
 
-def run_scan(initial_state, controls_seq, root_key, static_bundle=None):
+def run_scan(initial_state, controls_seq, root_key, static_bundle=None,
+             nan_guard=None, strictness=None):
     """
     Run a lax.scan over controls_seq using pure step function.
 
@@ -182,11 +273,27 @@ def run_scan(initial_state, controls_seq, root_key, static_bundle=None):
         span_attributes={"foundry.n_steps": n_steps},
         metric_attributes={"batch_size": "1"},
     ) as ctx:
+        run_start = time.perf_counter()
         final_state, traces = _run_scan_core(
-            initial_state, controls_seq, root_key, static_bundle=static_bundle
+            initial_state, controls_seq, root_key,
+            static_bundle=static_bundle,
+            nan_guard=nan_guard,
+            strictness=strictness,
         )
         if hpc_enabled:
             jax.block_until_ready(final_state)
+            primary_total = time.perf_counter() - run_start
+            if ctx.is_warmup:
+                execute_start = time.perf_counter()
+                probe_state, _ = _run_scan_core(
+                    initial_state, controls_seq, root_key,
+                    static_bundle=static_bundle,
+                    nan_guard=nan_guard,
+                    strictness=strictness,
+                )
+                jax.block_until_ready(probe_state)
+                ctx.override_total_seconds = primary_total
+                ctx.execute_seconds = time.perf_counter() - execute_start
 
     if hpc_enabled and ctx.execute_seconds > 0:
         metrics = get_metrics()
@@ -199,19 +306,26 @@ def run_scan(initial_state, controls_seq, root_key, static_bundle=None):
     return traces
 
 
-def _execute_program_batch_core(initial_states, controls_seq, root_key, static_bundle=None):
+def _execute_program_batch_core(initial_states, controls_seq, root_key,
+                                static_bundle=None, nan_guard=None, strictness=None):
     """Pure JAX batch execution core, safe for jit usage."""
     batch_size = int(initial_states.shape[0])
     keys = jax.random.split(root_key, batch_size)
 
     def _run_single(state, controls, key):
-        _, traces = _run_scan_core(state, controls, key, static_bundle=static_bundle)
+        _, traces = _run_scan_core(
+            state, controls, key,
+            static_bundle=static_bundle,
+            nan_guard=nan_guard,
+            strictness=strictness,
+        )
         return traces
 
     return jax.vmap(_run_single)(initial_states, controls_seq, keys)
 
 
-def execute_program_batch(initial_states, controls_seq, root_key, static_bundle=None):
+def execute_program_batch(initial_states, controls_seq, root_key, static_bundle=None,
+                          nan_guard=None, strictness=None):
     """
     Execute batched programs deterministically with full observability.
 
@@ -238,11 +352,27 @@ def execute_program_batch(initial_states, controls_seq, root_key, static_bundle=
         },
         metric_attributes={"batch_size": str(batch_size)},
     ) as ctx:
+        run_start = time.perf_counter()
         result = _execute_program_batch_core(
-            initial_states, controls_seq, root_key, static_bundle=static_bundle
+            initial_states, controls_seq, root_key,
+            static_bundle=static_bundle,
+            nan_guard=nan_guard,
+            strictness=strictness,
         )
         if hpc_enabled:
             jax.block_until_ready(result)
+            primary_total = time.perf_counter() - run_start
+            if ctx.is_warmup:
+                execute_start = time.perf_counter()
+                probe_result = _execute_program_batch_core(
+                    initial_states, controls_seq, root_key,
+                    static_bundle=static_bundle,
+                    nan_guard=nan_guard,
+                    strictness=strictness,
+                )
+                jax.block_until_ready(probe_result)
+                ctx.override_total_seconds = primary_total
+                ctx.execute_seconds = time.perf_counter() - execute_start
 
     if hpc_enabled and ctx.execute_seconds > 0:
         metrics = get_metrics()

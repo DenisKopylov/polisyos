@@ -47,6 +47,14 @@ ESTIMATION_SUITES = {
     "estimation_realcause",
 }
 
+TEMPORAL_GOLD_SUITES = {
+    "temporal_gold",
+}
+
+TEMPORAL_HIDDEN_SUITES = {
+    "temporal_hidden",
+}
+
 CAPABILITY_SUITES = {
     "capability_multi_source",
     "capability_fusion_missingness",
@@ -315,6 +323,35 @@ def _evaluate_suite_payload(spec: SuiteSpec, payload: dict[str, Any]) -> tuple[b
         acceptance_bar = aggregate.get("acceptance_bar", {})
         ok = bool(acceptance_bar.get("passes_all"))
         return ok, None if ok else "HTE acceptance bar is not fully green"
+
+    if suite_id in TEMPORAL_GOLD_SUITES:
+        scorecard = aggregate.get("temporal_scorecard", {})
+        ok = (
+            n_total > 0
+            and n_total == n_passed
+            and bool(scorecard.get("passes_all"))
+            and float(scorecard.get("engine_route_coverage_rate", 0.0)) == 1.0
+            and float(scorecard.get("bundle_presence_rate", 0.0)) == 1.0
+            and float(scorecard.get("artifact_loadability_rate", 0.0)) == 1.0
+            and float(scorecard.get("policy_lineage_rate", 0.0)) == 1.0
+            and float(scorecard.get("diagnostics_artifact_presence_rate", 0.0)) == 1.0
+            and float(scorecard.get("truthful_fallback_disclosure_rate", 0.0)) == 1.0
+            and payload.get("baseline_snapshot_ref") == "temporal_gold@synthetic-v1"
+            and bool(payload.get("regression_guard"))
+        )
+        return ok, None if ok else "temporal gold scorecard is not fully green"
+
+    if suite_id in TEMPORAL_HIDDEN_SUITES:
+        summary = aggregate.get("hidden_temporal_summary", {})
+        ok = (
+            n_total > 0
+            and n_total == n_passed
+            and float(summary.get("safe_rejection_rate", 0.0)) == 1.0
+            and float(summary.get("diagnostics_presence_rate", 0.0)) == 1.0
+            and float(summary.get("fallback_success_rate", 0.0)) == 1.0
+            and float(summary.get("artifact_reload_failure_rate", 1.0)) == 0.0
+        )
+        return ok, None if ok else "temporal hidden stress suite requires all hidden checks green"
 
     if suite_id in {"policy_natural_experiments", "policy_did_interference"}:
         scorecard = aggregate.get("flagship_scorecard", {})

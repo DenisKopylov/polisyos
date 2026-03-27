@@ -7,6 +7,7 @@ from polisyos.datasets.knowledge.variable_alignment import (
     align_meta_analytic,
     align_semantic,
     calibrate_alignment_confidence,
+    score_variable_pair,
     load_seed_alignments,
     VariableAlignment,
 )
@@ -35,7 +36,9 @@ def test_seed_alignments_use_exact_method_only_for_seed_table() -> None:
         / "seed_variable_alignments.yaml"
     )
     alignments = load_seed_alignments(path)
-    assert all(item.method == AlignmentMethod.EXACT for item in alignments)
+    methods = {item.method for item in alignments}
+    assert AlignmentMethod.EXACT in methods
+    assert AlignmentMethod.SEMANTIC in methods or AlignmentMethod.META_ANALYTIC in methods
 
 
 def test_semantic_alignment_returns_ranked_matches() -> None:
@@ -129,3 +132,32 @@ def test_calibrate_alignment_confidence_normalizes_methods() -> None:
     assert calibrate_alignment_confidence(exact) == 1.0
     assert calibrate_alignment_confidence(semantic) == 0.8
     assert calibrate_alignment_confidence(meta) == 0.62
+
+
+def test_score_variable_pair_detects_exact_name_and_unit_match() -> None:
+    score = score_variable_pair(
+        left_name="employment_rate",
+        right_name="employment_rate",
+        left_definition="Share of employed population",
+        right_definition="Share of employed population",
+        left_unit="percent",
+        right_unit="percent",
+    )
+
+    assert score.exact_name_match is True
+    assert score.definition_score > 0.9
+    assert score.unit_compatibility_score == 1.0
+    assert score.overall_score >= 0.8
+
+
+def test_score_variable_pair_uses_seed_support_for_proxy_like_codes() -> None:
+    score = score_variable_pair(
+        left_name="RL.EST",
+        right_name="GE.EST",
+        left_definition="Rule of law estimate",
+        right_definition="Government effectiveness estimate",
+    )
+
+    assert "institutional_quality" in score.shared_canonical_vars
+    assert score.seed_support_score == 1.0
+    assert any(item.startswith("seed_canonical=") for item in score.evidence)

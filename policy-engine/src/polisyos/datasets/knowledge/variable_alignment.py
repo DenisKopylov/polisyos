@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any, Iterable
 
 import yaml
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class AlignmentMethod(str, Enum):
@@ -28,6 +28,25 @@ class VariableAlignment(BaseModel):
     evidence: str
     is_proxy: bool = False
     proxy_penalty: float = 0.0
+
+
+class VariablePairAlignmentScore(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    left_variable: str
+    right_variable: str
+    exact_name_match: bool = False
+    semantic_score: float = Field(default=0.0, ge=0.0, le=1.0)
+    definition_score: float = Field(default=0.0, ge=0.0, le=1.0)
+    unit_compatibility_score: float = Field(default=0.0, ge=0.0, le=1.0)
+    seed_support_score: float = Field(default=0.0, ge=0.0, le=1.0)
+    shared_canonical_vars: list[str] = Field(default_factory=list)
+    overall_score: float = Field(default=0.0, ge=0.0, le=1.0)
+    evidence: list[str] = Field(default_factory=list)
+
+
+def default_seed_alignments_path() -> Path:
+    return Path(__file__).resolve().parents[4] / "data" / "dataset_catalog" / "seed_variable_alignments.yaml"
 
 
 def calibrate_alignment_confidence(alignment: VariableAlignment) -> float:
@@ -69,6 +88,68 @@ def load_seed_alignments(path: Path) -> list[VariableAlignment]:
             )
         )
     return out
+
+
+def score_variable_pair(
+    *,
+    left_name: str,
+    right_name: str,
+    left_definition: str = "",
+    right_definition: str = "",
+    left_unit: str | None = None,
+    right_unit: str | None = None,
+    seed_alignments: Iterable[VariableAlignment] | None = None,
+    seed_path: Path | None = None,
+) -> VariablePairAlignmentScore:
+    left_clean = str(left_name).strip()
+    right_clean = str(right_name).strip()
+    if not left_clean or not right_clean:
+        return VariablePairAlignmentScore(left_variable=left_clean, right_variable=right_clean)
+
+    exact_name_match = left_clean.lower() == right_clean.lower()
+    semantic_score = _semantic_similarity(
+        canonical_tokens=_expand_tokens(_tokenize(left_clean)),
+        candidate_tokens=_expand_tokens(_tokenize(right_clean)),
+        canonical_var=left_clean,
+        dataset_var=right_clean,
+    )
+    definition_score = _definition_similarity(left_definition, right_definition)
+    unit_compatibility_score = _unit_compatibility_score(left_unit, right_unit)
+    canonical_vars, seed_support_score, seed_evidence = _seed_alignment_support(
+        left_name=left_clean,
+        right_name=right_clean,
+        seed_alignments=seed_alignments,
+        seed_path=seed_path,
+    )
+    overall_score = _clamp01(
+        (0.5 * semantic_score)
+        + (0.2 * definition_score)
+        + (0.15 * unit_compatibility_score)
+        + (0.15 * seed_support_score)
+    )
+
+    evidence: list[str] = []
+    if exact_name_match:
+        evidence.append("exact_name_match")
+    if definition_score > 0.0:
+        evidence.append(f"definition_overlap={definition_score:.3f}")
+    if unit_compatibility_score > 0.0:
+        evidence.append(f"unit_compatibility={unit_compatibility_score:.3f}")
+    if seed_evidence:
+        evidence.extend(seed_evidence)
+
+    return VariablePairAlignmentScore(
+        left_variable=left_clean,
+        right_variable=right_clean,
+        exact_name_match=exact_name_match,
+        semantic_score=round(_clamp01(semantic_score), 6),
+        definition_score=round(_clamp01(definition_score), 6),
+        unit_compatibility_score=round(_clamp01(unit_compatibility_score), 6),
+        seed_support_score=round(_clamp01(seed_support_score), 6),
+        shared_canonical_vars=canonical_vars,
+        overall_score=round(_clamp01(overall_score), 6),
+        evidence=evidence,
+    )
 
 
 _TOKEN_RE = re.compile(r"[a-z0-9]+")
@@ -253,6 +334,86 @@ def _semantic_similarity(
     return _clamp01(0.7 * jaccard + 0.3 * char_overlap)
 
 
+def _definition_similarity(left_definition: str, right_definition: str) -> float:
+    left_tokens = _expand_tokens(_tokenize(str(left_definition).strip()))
+    right_tokens = _expand_tokens(_tokenize(str(right_definition).strip()))
+    if not left_tokens or not right_tokens:
+        return 0.0
+    return _semantic_similarity(
+        canonical_tokens=left_tokens,
+        candidate_tokens=right_tokens,
+        canonical_var=str(left_definition),
+        dataset_var=str(right_definition),
+    )
+
+
+def _normalize_unit(value: str | None) -> str:
+    text = str(value or "").strip().lower()
+    aliases = {
+        "%": "percent",
+        "pct": "percent",
+        "percentage": "percent",
+        "yrs": "years",
+        "yr": "years",
+    }
+    return aliases.get(text, text)
+
+
+def _unit_compatibility_score(left_unit: str | None, right_unit: str | None) -> float:
+    left = _normalize_unit(left_unit)
+    right = _normalize_unit(right_unit)
+    if not left or not right:
+        return 0.5 if (left or right) else 0.25
+    if left == right:
+        return 1.0
+    return 0.0
+
+
+def _seed_alignment_support(
+    *,
+    left_name: str,
+    right_name: str,
+    seed_alignments: Iterable[VariableAlignment] | None,
+    seed_path: Path | None,
+) -> tuple[list[str], float, list[str]]:
+    alignments = list(seed_alignments) if seed_alignments is not None else load_seed_alignments(
+        (seed_path or default_seed_alignments_path()).resolve()
+    )
+    alias_index = _seed_alias_index(alignments)
+    left_aliases = alias_index.get(_normalize_alias(left_name), [])
+    right_aliases = alias_index.get(_normalize_alias(right_name), [])
+    shared = sorted(set(left_aliases).intersection(right_aliases))
+    if not shared:
+        return [], 0.0, []
+
+    proxy_supported = any(
+        item.is_proxy
+        for item in alignments
+        if item.canonical_var in shared
+        and _normalize_alias(item.dataset_var) in {_normalize_alias(left_name), _normalize_alias(right_name)}
+    )
+    support_score = 0.85 if proxy_supported else 1.0
+    evidence = [f"seed_canonical={canonical}" for canonical in shared]
+    if proxy_supported:
+        evidence.append("seed_proxy_support")
+    return shared, support_score, evidence
+
+
+def _normalize_alias(value: str) -> str:
+    tokens = sorted(_tokenize(str(value)))
+    if not tokens:
+        return str(value).strip().lower()
+    return "_".join(tokens)
+
+
+def _seed_alias_index(alignments: Iterable[VariableAlignment]) -> dict[str, list[str]]:
+    index: dict[str, set[str]] = {}
+    for item in alignments:
+        index.setdefault(_normalize_alias(item.canonical_var), set()).add(item.canonical_var)
+        index.setdefault(_normalize_alias(item.dataset_var), set()).add(item.canonical_var)
+    return {key: sorted(values) for key, values in index.items()}
+
+
 def _char_overlap_ratio(left: str, right: str) -> float:
     left_clean = "".join(ch for ch in left.lower() if ch.isalnum())
     right_clean = "".join(ch for ch in right.lower() if ch.isalnum())
@@ -319,7 +480,10 @@ def _clamp01(value: float) -> float:
 __all__ = [
     "AlignmentMethod",
     "VariableAlignment",
+    "VariablePairAlignmentScore",
     "load_seed_alignments",
+    "default_seed_alignments_path",
     "align_semantic",
     "align_meta_analytic",
+    "score_variable_pair",
 ]

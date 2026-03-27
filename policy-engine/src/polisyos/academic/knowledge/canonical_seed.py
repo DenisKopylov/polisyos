@@ -70,6 +70,42 @@ _DOMAIN_SUBFIELDS: dict[str, tuple[str, ...]] = {
     "agricultural_productivity": ("yield", "input_efficiency", "irrigation", "technology_adoption", "climate_sensitivity"),
     "transport_infrastructure": ("road_quality", "rail_density", "port_efficiency", "logistics_performance", "maintenance"),
     "digital_infrastructure": ("broadband_penetration", "mobile_coverage", "speed", "affordability", "usage"),
+
+    # Migration & displacement
+    "migration_flows": ("net", "skilled", "refugee", "asylum", "internal_displacement"),
+    "remittances": ("inflows", "outflows", "share_of_gdp", "formal_channel", "cost"),
+    "diaspora": ("size", "investment", "knowledge_transfer", "political_engagement", "return_rate"),
+
+    # Security & conflict
+    "conflict_intensity": ("battle_deaths", "armed_groups", "duration", "geographic_spread", "civilian_casualties"),
+    "security_spending": ("military", "police", "intelligence", "private_security", "peacekeeping"),
+    "arms_trade": ("imports", "exports", "small_arms", "conventional", "dual_use"),
+    "violence_rate": ("homicide", "domestic", "gang", "political", "gender_based"),
+    "post_conflict": ("reconciliation", "disarmament", "reconstruction", "justice", "displaced_return"),
+
+    # Monetary policy & financial system
+    "monetary_policy": ("policy_rate", "inflation_target", "independence", "transparency", "transmission"),
+    "money_supply": ("m1", "m2", "velocity", "reserve_ratio", "multiplier"),
+    "financial_depth": ("credit_to_gdp", "deposits_to_gdp", "insurance_penetration", "bond_market", "equity_market"),
+    "banking_system": ("concentration", "npl_ratio", "capital_adequacy", "profitability", "systemic_risk"),
+    "capital_flows": ("fdi", "portfolio", "hot_money", "controls", "net_position"),
+
+    # Justice & rule of law
+    "access_to_justice": ("legal_aid", "court_fees", "geographic_access", "language_barriers", "case_duration"),
+    "prison_system": ("incarceration_rate", "overcrowding", "recidivism", "rehabilitation", "pretrial_detention"),
+    "legal_framework": ("commercial_law", "labor_law", "land_law", "environmental_law", "consumer_protection"),
+    "transitional_justice": ("truth_commission", "reparations", "lustration", "memorialization", "amnesty"),
+
+    # Biodiversity & ecosystems
+    "biodiversity": ("species_richness", "threatened_species", "habitat_loss", "protected_area_coverage", "invasive_species"),
+    "ecosystem_services": ("provisioning", "regulating", "cultural", "supporting", "valuation"),
+    "forest_cover": ("deforestation_rate", "reforestation", "degradation", "carbon_stock", "community_forestry"),
+    "marine_health": ("fish_stocks", "coral_cover", "marine_protected_areas", "ocean_acidification", "plastic_pollution"),
+
+    # Pollution & waste
+    "pollution_burden": ("air", "water", "soil", "noise", "light"),
+    "waste_management": ("generation_rate", "recycling_rate", "landfill", "hazardous", "e_waste"),
+    "chemical_exposure": ("pesticides", "heavy_metals", "industrial_chemicals", "endocrine_disruptors", "occupational"),
 }
 
 
@@ -106,7 +142,7 @@ def canonical_variable_count() -> int:
     return total
 
 
-if canonical_variable_count() < 200:
+if canonical_variable_count() < 350:
     raise RuntimeError("canonical seed must define at least 200 canonical variables")
 
 

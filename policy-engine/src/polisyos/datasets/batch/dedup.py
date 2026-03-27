@@ -15,11 +15,33 @@ class MergeStats(dict):
     """Simple dict-like stats container."""
 
 
+def _dedup_quality_score(record: DatasetRecord) -> float:
+    """Score a record for dedup winner selection (higher = better)."""
+    score = 0.0
+    # Has a meaningful description
+    score += 0.25 * (1.0 if record.description and len(record.description) > 10 else 0.0)
+    # Has metric bindings
+    score += 0.25 * min(len(record.polisyos_metrics) / 3, 1.0)
+    # Execution readiness
+    readiness = getattr(record.quality, "execution_readiness_score", 0.0) or 0.0
+    score += 0.20 * readiness
+    # Has freshness info
+    has_freshness = bool(record.coverage.time_end) if record.coverage else False
+    score += 0.15 * (1.0 if has_freshness else 0.0)
+    # Distribution richness
+    score += 0.10 * min(len(record.distributions) / 3, 1.0)
+    # Metrics methods richness
+    methods = getattr(record, "polisyos_metrics_methods", {}) or {}
+    score += 0.05 * min(len(methods) / 2, 1.0)
+    return score
+
+
 def merge_and_dedup(config: DatasetBatchConfig) -> MergeStats:
     started_at = datetime.now(UTC).isoformat()
     merged: list[DatasetRecord] = []
     seen: dict[str, DatasetRecord] = {}
     duplicates: list[tuple[str, str, str, str, str, str]] = []
+    quality_upgrades = 0
 
     normalized_files = sorted(config.normalized_dir.glob("*.jsonl"))
     for file_path in normalized_files:
@@ -31,15 +53,22 @@ def merge_and_dedup(config: DatasetBatchConfig) -> MergeStats:
                 rec = DatasetRecord.model_validate_json(line)
                 key = rec.dedup_key or f"{rec.source}|{rec.agency}|{rec.dataset_id}"
                 if key in seen:
-                    kept = seen[key]
-                    duplicates.append((
-                        key,
-                        kept.id,
-                        rec.id,
-                        rec.source,
-                        rec.agency,
-                        rec.dataset_id,
-                    ))
+                    existing = seen[key]
+                    # Quality-ranked: challenger wins if higher quality score
+                    if _dedup_quality_score(rec) > _dedup_quality_score(existing):
+                        # Replace existing with higher-quality challenger
+                        merged[merged.index(existing)] = rec
+                        seen[key] = rec
+                        duplicates.append((
+                            key, rec.id, existing.id,
+                            existing.source, existing.agency, existing.dataset_id,
+                        ))
+                        quality_upgrades += 1
+                    else:
+                        duplicates.append((
+                            key, existing.id, rec.id,
+                            rec.source, rec.agency, rec.dataset_id,
+                        ))
                     continue
                 seen[key] = rec
                 merged.append(rec)
@@ -57,6 +86,7 @@ def merge_and_dedup(config: DatasetBatchConfig) -> MergeStats:
         normalized_files=len(normalized_files),
         merged_records=len(merged),
         duplicates=len(duplicates),
+        quality_upgrades=quality_upgrades,
     )
 
     write_stage_manifest(

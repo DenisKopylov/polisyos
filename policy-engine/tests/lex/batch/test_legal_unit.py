@@ -73,7 +73,7 @@ def test_build_legal_unit_signals_marks_threshold_row() -> None:
     )
 
     assert signals.legal_unit_subtype == "tariff_threshold_row"
-    assert signals.route_class == "deterministic_only"
+    assert signals.route_class == "deterministic_then_llm_retry"
     assert signals.threshold_bearing is True
 
 
@@ -248,7 +248,7 @@ def test_build_legal_unit_signals_marks_fee_schedule_as_threshold_not_applicatio
     )
 
     assert signals.legal_unit_subtype == "tariff_threshold_row"
-    assert signals.route_class == "deterministic_only"
+    assert signals.route_class == "deterministic_then_llm_retry"
 
 
 def test_build_legal_unit_signals_does_not_treat_bare_dopovnennia_as_amendment() -> None:

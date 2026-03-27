@@ -550,8 +550,18 @@ def build_smoke_report(
             "reference_edges": stats.reference_edges,
             "exported_claims": stats.exported_claims,
             "exported_claim_sets": stats.exported_claim_sets,
+            "quality_gate_passed": stats.quality_gate_passed,
             "quality_passed": stats.quality_passed,
+            "qc_passed": stats.qc_passed,
+            "benchmark_passed": stats.benchmark_passed,
+            "release_passed": stats.release_passed,
+            "quality_gate_failed_checks": stats.quality_gate_failed_checks,
             "quality_failed_checks": stats.quality_failed_checks,
+            "quality_hotspot_failed_checks": stats.quality_hotspot_failed_checks,
+            "quality_warning_failed_checks": stats.quality_warning_failed_checks,
+            "qc_failed_checks": stats.qc_failed_checks,
+            "benchmark_failed_checks": stats.benchmark_failed_checks,
+            "release_failed_checks": stats.release_failed_checks,
             "stage_times": stats.stage_times,
             "elapsed_seconds": stats.elapsed_seconds,
             "llm_gate_metrics": stats.llm_gate_metrics,
@@ -600,9 +610,14 @@ def build_smoke_report(
         f"- Profile: `{profile.name}`",
         f"- Selected docs: `{report['sample_plan']['selected_total']}` from first `{report['sample_plan']['scan_total']}` matched docs",
         f"- Pipeline: docs `{stats.total_docs}`, provisions `{stats.total_provisions}`, SPO rows `{stats.total_spo}`, grounded facts `{stats.grounded_facts}`, normative facts `{stats.normative_facts}`, resolved refs `{stats.reference_edges}`",
-        f"- Quality passed: `{stats.quality_passed}`",
-        f"- Quality failed checks: `{', '.join(stats.quality_failed_checks) if stats.quality_failed_checks else '-'}`",
-        f"- Benchmark passed: `{benchmark_manifest.get('readiness', {}).get('passed') if benchmark_manifest else '-'}`",
+        f"- Quality gate passed: `{stats.quality_gate_passed}`",
+        f"- QC passed: `{stats.qc_passed}`",
+        f"- Benchmark passed: `{stats.benchmark_passed if stats.benchmark_passed is not None else (benchmark_manifest.get('readiness', {}).get('passed') if benchmark_manifest else '-')}`",
+        f"- Release passed: `{stats.release_passed}`",
+        f"- Quality gate failed checks: `{', '.join(stats.quality_gate_failed_checks) if stats.quality_gate_failed_checks else '-'}`",
+        f"- Quality hotspot failed checks: `{', '.join(stats.quality_hotspot_failed_checks) if stats.quality_hotspot_failed_checks else '-'}`",
+        f"- QC failed checks: `{', '.join(stats.qc_failed_checks) if stats.qc_failed_checks else '-'}`",
+        f"- Release failed checks: `{', '.join(stats.release_failed_checks) if stats.release_failed_checks else '-'}`",
         "",
         "## Sample mix",
         "",
@@ -659,7 +674,19 @@ def run_smoke(
     parallel_llm: int | None = None,
     gonka_rate_limit_rps: float | None = None,
     max_retries: int | None = None,
+    spo_rate_warmup_seconds: float | None = None,
+    spo_rate_warmup_start_scale: float | None = None,
+    spo_adaptive_rate_enabled: bool | None = None,
+    spo_adaptive_rate_recovery_factor: float | None = None,
+    spo_adaptive_rate_penalty_multiplier: float | None = None,
+    spo_adaptive_rate_max_scale: float | None = None,
+    spo_retryable_followup_worker_scale: float | None = None,
+    spo_retryable_followup_dispatch_rps_scale: float | None = None,
+    spo_retryable_followup_client_rate_scale: float | None = None,
+    spo_retryable_followup_client_concurrency_scale: float | None = None,
     spo_request_batch_chars: int | None = None,
+    spo_adaptive_batch_downshift_enabled: bool | None = None,
+    spo_adaptive_batch_soft_chars_share: float | None = None,
     spo_group_timeout_seconds: float | None = None,
     llm_gap_fill_mode: str | None = None,
     llm_gap_fill_max_share: float | None = None,
@@ -727,6 +754,34 @@ def run_smoke(
         max_concurrent_llm=profile.parallel_llm,
         rate_limit_rps=profile.gonka_rate_limit_rps,
         max_retries=profile.max_retries,
+        spo_rate_warmup_seconds=45.0 if spo_rate_warmup_seconds is None else float(spo_rate_warmup_seconds),
+        spo_rate_warmup_start_scale=3.0 if spo_rate_warmup_start_scale is None else float(spo_rate_warmup_start_scale),
+        spo_adaptive_rate_enabled=True if spo_adaptive_rate_enabled is None else bool(spo_adaptive_rate_enabled),
+        spo_adaptive_rate_recovery_factor=(
+            0.97 if spo_adaptive_rate_recovery_factor is None else float(spo_adaptive_rate_recovery_factor)
+        ),
+        spo_adaptive_rate_penalty_multiplier=(
+            1.35 if spo_adaptive_rate_penalty_multiplier is None else float(spo_adaptive_rate_penalty_multiplier)
+        ),
+        spo_adaptive_rate_max_scale=(
+            8.0 if spo_adaptive_rate_max_scale is None else float(spo_adaptive_rate_max_scale)
+        ),
+        spo_retryable_followup_worker_scale=(
+            0.5 if spo_retryable_followup_worker_scale is None else float(spo_retryable_followup_worker_scale)
+        ),
+        spo_retryable_followup_dispatch_rps_scale=(
+            0.5
+            if spo_retryable_followup_dispatch_rps_scale is None
+            else float(spo_retryable_followup_dispatch_rps_scale)
+        ),
+        spo_retryable_followup_client_rate_scale=(
+            0.5 if spo_retryable_followup_client_rate_scale is None else float(spo_retryable_followup_client_rate_scale)
+        ),
+        spo_retryable_followup_client_concurrency_scale=(
+            0.5
+            if spo_retryable_followup_client_concurrency_scale is None
+            else float(spo_retryable_followup_client_concurrency_scale)
+        ),
         status_filter=status_filter,
         type_filter=type_filter,
         doc_id_filter=doc_ids,
@@ -739,6 +794,12 @@ def run_smoke(
         spo_task_batch_size=profile.spo_task_batch_size,
         spo_request_batch_size=profile.spo_request_batch_size,
         spo_request_batch_chars=profile.spo_request_batch_chars,
+        spo_adaptive_batch_downshift_enabled=(
+            True if spo_adaptive_batch_downshift_enabled is None else bool(spo_adaptive_batch_downshift_enabled)
+        ),
+        spo_adaptive_batch_soft_chars_share=(
+            0.80 if spo_adaptive_batch_soft_chars_share is None else float(spo_adaptive_batch_soft_chars_share)
+        ),
         spo_group_timeout_seconds=profile.spo_group_timeout_seconds,
         spo_max_provisions_per_doc=profile.spo_max_provisions_per_doc,
         spo_extract_mode="light",

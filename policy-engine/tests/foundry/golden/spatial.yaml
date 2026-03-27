@@ -1,0 +1,42 @@
+domain: spatial
+version: "1.0"
+cases:
+  - id: moran_i_no_autocorrelation
+    method_fqn: "spatial.autocorrelation.moran_i@1.0.0"
+    description: "Random values on grid → Moran I near 0"
+    skip_reason: "Requires SpatialData model — deferred to Phase 10b"
+    input_data: {}
+    expected_output: {}
+    tags: [autocorrelation]
+
+  - id: gravity_model_simple
+    method_fqn: "spatial.flows.gravity_model@1.0.0"
+    description: "Gravity model with known masses and distances"
+    skip_reason: "Requires FlowData model — deferred to Phase 10b"
+    input_data: {}
+    expected_output: {}
+    tags: [flows]
+
+  - id: idw_interpolation_exact
+    method_fqn: "spatial.interpolation.idw@1.0.0"
+    description: "IDW at known point → exact value"
+    skip_reason: "Requires SpatialData model — deferred to Phase 10b"
+    input_data: {}
+    expected_output: {}
+    tags: [interpolation]
+
+  - id: gwr_constant_coefficients
+    method_fqn: "spatial.regression.gwr@1.0.0"
+    description: "GWR on spatially homogeneous data → coefficients match OLS"
+    skip_reason: "Requires SpatialData model — deferred to Phase 10b"
+    input_data: {}
+    expected_output: {}
+    tags: [regression]
+
+  - id: two_step_fca_accessibility
+    method_fqn: "spatial.accessibility.two_step_fca@1.0.0"
+    description: "Two-step floating catchment area"
+    skip_reason: "Requires AccessibilityData model — deferred to Phase 10b"
+    input_data: {}
+    expected_output: {}
+    tags: [accessibility]

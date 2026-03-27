@@ -4,6 +4,7 @@ import math
 from typing import Any, ClassVar, Mapping
 
 import numpy as np
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from polisyos.core.observability.determinism import DeterminismTier
 from polisyos.foundry.methods.base import (
@@ -25,11 +26,590 @@ from polisyos.foundry.methods.catalog.causal._common import (
     wrap_causal_output,
 )
 from polisyos.foundry.methods.catalog.causal.protocols import PanelObservationalData
+from polisyos.foundry.methods.catalog.causal.temporal_estimand_compiler import (
+    TemporalBackendTarget,
+    TemporalExecutionPlan,
+    compile_temporal_estimand,
+)
 from polisyos.ir.analytics.causal import CausalMethod, DiagnosticTest, EstimationStatus
+from polisyos.ir.analytics.dynamic_regime import (
+    ContinuousTimeQuery,
+    EffectTrajectoryBundle,
+    InterventionInterpolationPolicy,
+    TemporalInterventionTrajectory,
+    TemporalPathRepresentation,
+)
 
 
 def _normal_two_sided_pvalue(z_score: float) -> float:
     return float(math.erfc(abs(z_score) / math.sqrt(2.0)))
+
+
+class TemporalTrajectoryResult(BaseModel):
+    """Temporal effect trajectory plus diagnostics and optional persisted bundle."""
+
+    model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
+
+    plan: TemporalExecutionPlan
+    observed_path: tuple[float, ...]
+    counterfactual_path: tuple[float, ...]
+    effect_path: tuple[float, ...]
+    solver_mean_path: tuple[float, ...]
+    confidence_band_lower: tuple[float, ...]
+    confidence_band_upper: tuple[float, ...]
+    integral_effect: float
+    solver_family: str = Field(min_length=1)
+    path_representation: TemporalPathRepresentation
+    discretization_error: float | None = Field(default=None, ge=0.0)
+    discretization_note: str | None = None
+    continuous_time_degraded: bool = False
+    diagnostics: dict[str, Any] = Field(default_factory=dict)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+    effect_bundle: EffectTrajectoryBundle | None = None
+
+    @field_validator(
+        "observed_path",
+        "counterfactual_path",
+        "effect_path",
+        "solver_mean_path",
+        "confidence_band_lower",
+        "confidence_band_upper",
+        mode="before",
+    )
+    @classmethod
+    def _coerce_path_tuple(cls, value: Any) -> tuple[float, ...]:
+        array = np.asarray(value, dtype=float)
+        if array.ndim != 1:
+            raise ValueError("trajectory fields must be one-dimensional")
+        if not np.isfinite(array).all():
+            raise ValueError("trajectory fields must contain only finite values")
+        return tuple(float(item) for item in array.tolist())
+
+    @model_validator(mode="after")
+    def _validate_path_lengths(self) -> "TemporalTrajectoryResult":
+        expected = len(self.plan.time_grid)
+        for field_name in (
+            "observed_path",
+            "counterfactual_path",
+            "effect_path",
+            "solver_mean_path",
+            "confidence_band_lower",
+            "confidence_band_upper",
+        ):
+            if len(getattr(self, field_name)) != expected:
+                raise ValueError(f"{field_name} must align with plan.time_grid")
+        return self
+
+    def trajectory_payload(self) -> dict[str, Any]:
+        return {
+            "time_grid": list(self.plan.time_grid),
+            "observed_path": list(self.observed_path),
+            "counterfactual_path": list(self.counterfactual_path),
+            "effect_path": list(self.effect_path),
+            "solver_mean_path": list(self.solver_mean_path),
+            "integral_effect": float(self.integral_effect),
+            "backend_target": self.plan.backend_target.value,
+            "target_functional": self.plan.target_functional.value,
+            "comparator_semantics": self.plan.comparator_semantics.value,
+            "path_representation": self.path_representation.value,
+            "materialized_intervention_values": list(self.plan.materialized_intervention_values),
+            "continuous_time_degraded": bool(self.continuous_time_degraded),
+            "metadata": dict(self.metadata),
+        }
+
+    def confidence_band_payload(self) -> dict[str, Any]:
+        return {
+            "time_grid": list(self.plan.time_grid),
+            "lower": list(self.confidence_band_lower),
+            "upper": list(self.confidence_band_upper),
+            "confidence_level": 0.95,
+            "solver_family": self.solver_family,
+            "continuous_time_degraded": bool(self.continuous_time_degraded),
+        }
+
+    def solver_diagnostics_payload(self) -> dict[str, Any]:
+        return {
+            "time_grid": list(self.plan.time_grid),
+            "discretization_error": (
+                None if self.discretization_error is None else float(self.discretization_error)
+            ),
+            "discretization_note": self.discretization_note,
+            "solver_family": self.solver_family,
+            "path_representation": self.path_representation.value,
+            "continuous_time_degraded": bool(self.continuous_time_degraded),
+            "diagnostics": dict(self.diagnostics),
+        }
+
+
+def _coerce_1d_series(
+    value: Any,
+    *,
+    field_name: str,
+    expected_length: int,
+) -> np.ndarray:
+    series = np.asarray(value, dtype=float)
+    if series.ndim != 1:
+        raise ValueError(f"{field_name} must be a 1D array")
+    if series.shape[0] != expected_length:
+        raise ValueError(
+            f"{field_name} length {series.shape[0]} does not match expected length {expected_length}"
+        )
+    if not np.isfinite(series).all():
+        raise ValueError(f"{field_name} must contain only finite values")
+    return series
+
+
+def _coerce_2d_series(
+    value: Any,
+    *,
+    field_name: str,
+    expected_length: int,
+) -> np.ndarray:
+    series = np.asarray(value, dtype=float)
+    if series.ndim != 2:
+        raise ValueError(f"{field_name} must be a 2D array")
+    if series.shape[1] != expected_length:
+        raise ValueError(
+            f"{field_name} width {series.shape[1]} does not match expected length {expected_length}"
+        )
+    if not np.isfinite(series).all():
+        raise ValueError(f"{field_name} must contain only finite values")
+    return series
+
+
+def _estimate_linear_dynamics(
+    effect_path: np.ndarray,
+    time_grid: np.ndarray,
+    intervention_path: np.ndarray,
+    *,
+    force_zero_diffusion: bool = False,
+) -> tuple[float, float, float, float]:
+    if effect_path.shape[0] < 2:
+        return 0.0, 0.0, 0.0, 0.0
+
+    dt = np.diff(time_grid)
+    dx_dt = np.diff(effect_path) / dt
+    design = np.column_stack(
+        [effect_path[:-1], intervention_path[:-1], np.ones_like(effect_path[:-1])]
+    )
+    coefficients, *_ = np.linalg.lstsq(design, dx_dt, rcond=None)
+    drift = float(coefficients[0])
+    treatment_gain = float(coefficients[1])
+    intercept = float(coefficients[2])
+    residual = dx_dt - design @ coefficients
+    diffusion = 0.0 if force_zero_diffusion else float(max(np.std(residual), 0.0))
+    return drift, treatment_gain, intercept, diffusion
+
+
+def _simulate_mean_path(
+    initial_value: float,
+    time_grid: np.ndarray,
+    intervention_path: np.ndarray,
+    *,
+    drift: float,
+    treatment_gain: float,
+    intercept: float,
+) -> np.ndarray:
+    path = np.empty(time_grid.shape[0], dtype=float)
+    path[0] = float(initial_value)
+    for index, dt in enumerate(np.diff(time_grid), start=1):
+        prev = path[index - 1]
+        path[index] = prev + dt * (
+            drift * prev + treatment_gain * intervention_path[index - 1] + intercept
+        )
+    return path
+
+
+def _simulate_sde_paths(
+    initial_value: float,
+    time_grid: np.ndarray,
+    intervention_path: np.ndarray,
+    *,
+    drift: float,
+    treatment_gain: float,
+    intercept: float,
+    diffusion: float,
+    n_paths: int,
+    rng: np.random.Generator,
+) -> np.ndarray:
+    paths = np.empty((n_paths, time_grid.shape[0]), dtype=float)
+    paths[:, 0] = float(initial_value)
+    for index, dt in enumerate(np.diff(time_grid), start=1):
+        previous = paths[:, index - 1]
+        drift_term = drift * previous + treatment_gain * intervention_path[index - 1] + intercept
+        noise = 0.0
+        if diffusion > 0.0:
+            noise = math.sqrt(float(dt)) * diffusion * rng.normal(size=n_paths)
+        paths[:, index] = previous + dt * drift_term + noise
+    return paths
+
+
+def _refined_time_grid(time_grid: np.ndarray) -> np.ndarray:
+    refined: list[float] = [float(time_grid[0])]
+    for left, right in zip(time_grid[:-1], time_grid[1:]):
+        midpoint = float((left + right) / 2.0)
+        refined.extend([midpoint, float(right)])
+    return np.asarray(refined, dtype=float)
+
+
+def _materialize_intervention_path(
+    time_grid: np.ndarray,
+    *,
+    knot_times: np.ndarray,
+    knot_values: np.ndarray,
+    policy: InterventionInterpolationPolicy,
+) -> np.ndarray:
+    if policy is InterventionInterpolationPolicy.LINEAR:
+        return np.interp(time_grid, knot_times, knot_values)
+    indices = np.searchsorted(knot_times, time_grid, side="right") - 1
+    indices = np.clip(indices, 0, knot_values.shape[0] - 1)
+    return knot_values[indices]
+
+
+def estimate_discretization_error(
+    plan: TemporalExecutionPlan,
+    *,
+    initial_effect: float,
+    drift: float,
+    treatment_gain: float,
+    intercept: float,
+) -> float:
+    """Estimate temporal discretization error via refined-grid replay."""
+
+    time_grid = np.asarray(plan.time_grid, dtype=float)
+    intervention_path = np.asarray(plan.materialized_intervention_values, dtype=float)
+    coarse = _simulate_mean_path(
+        initial_effect,
+        time_grid,
+        intervention_path,
+        drift=drift,
+        treatment_gain=treatment_gain,
+        intercept=intercept,
+    )
+    refined_grid = _refined_time_grid(time_grid)
+    refined_intervention = _materialize_intervention_path(
+        refined_grid,
+        knot_times=np.asarray(plan.resolved_intervention.time_points, dtype=float),
+        knot_values=np.asarray(plan.resolved_intervention.values, dtype=float),
+        policy=plan.resolved_intervention.interpolation_policy,
+    )
+    refined = _simulate_mean_path(
+        initial_effect,
+        refined_grid,
+        refined_intervention,
+        drift=drift,
+        treatment_gain=treatment_gain,
+        intercept=intercept,
+    )[::2]
+    return float(np.max(np.abs(refined - coarse))) if refined.size else 0.0
+
+
+def build_solver_diagnostics(
+    plan: TemporalExecutionPlan,
+    *,
+    drift: float,
+    treatment_gain: float,
+    intercept: float,
+    diffusion: float,
+    discretization_error: float | None,
+    discretization_note: str | None,
+    control_count: int,
+    band_source: str,
+) -> dict[str, Any]:
+    dt = float(plan.step_size)
+    stability_margin = abs(1.0 + drift * dt)
+    return {
+        "backend_target": plan.backend_target.value,
+        "solver_family": str(plan.solver_config.get("solver_family", "euler_maruyama")),
+        "dt": dt,
+        "stability_flag": bool(np.isfinite(stability_margin) and stability_margin <= 1.5),
+        "stability_margin": float(stability_margin),
+        "drift": float(drift),
+        "treatment_gain": float(treatment_gain),
+        "intercept": float(intercept),
+        "diffusion_norm": float(abs(diffusion)),
+        "fallback_mode": plan.fallback_mode.value,
+        "discretization_error": (
+            None if discretization_error is None else float(discretization_error)
+        ),
+        "discretization_note": discretization_note,
+        "comparator_semantics": plan.comparator_semantics.value,
+        "target_functional": plan.target_functional.value,
+        "interpolation_policy": plan.interpolation_policy.value,
+        "materialized_intervention_values": list(plan.materialized_intervention_values),
+        "time_scale_validation": plan.time_scale_validation,
+        "intervention_contract_status": plan.intervention_contract_status,
+        "control_count": int(control_count),
+        "band_source": band_source,
+        "grid_source": plan.grid_source,
+        "plan_metadata": dict(plan.metadata),
+    }
+
+
+def _bootstrap_effect_samples(
+    observed_path: np.ndarray,
+    control_series: np.ndarray,
+    *,
+    n_draws: int,
+    rng: np.random.Generator,
+) -> np.ndarray:
+    n_controls = control_series.shape[0]
+    if n_controls == 0:
+        return np.repeat(observed_path[None, :], max(1, n_draws), axis=0)
+    if n_controls == 1:
+        baseline = np.repeat(control_series, max(1, n_draws), axis=0)
+        return observed_path[None, :] - baseline
+    draws = rng.integers(0, n_controls, size=(max(1, n_draws), n_controls))
+    sampled_controls = control_series[draws]
+    sampled_baseline = sampled_controls.mean(axis=1)
+    return observed_path[None, :] - sampled_baseline
+
+
+def solve_temporal_effect_path(
+    plan: TemporalExecutionPlan,
+    *,
+    observed_series: Any,
+    controls: Mapping[str, Any] | None = None,
+) -> TemporalTrajectoryResult:
+    """Solve a temporal effect path under a linear-SDE / ODE / fallback plan."""
+
+    controls_map = dict(controls or {})
+    expected_length = len(plan.time_grid)
+    observed_path = _coerce_1d_series(
+        observed_series,
+        field_name="observed_series",
+        expected_length=expected_length,
+    )
+    time_grid = np.asarray(plan.time_grid, dtype=float)
+    rng = np.random.default_rng(int(controls_map.get("seed", 0)))
+
+    control_count = 0
+    control_series: np.ndarray | None = None
+    if "control_series" in controls_map and controls_map["control_series"] is not None:
+        control_series = _coerce_2d_series(
+            controls_map["control_series"],
+            field_name="control_series",
+            expected_length=expected_length,
+        )
+        control_count = int(control_series.shape[0])
+
+    if "counterfactual_series" in controls_map and controls_map["counterfactual_series"] is not None:
+        counterfactual_path = _coerce_1d_series(
+            controls_map["counterfactual_series"],
+            field_name="counterfactual_series",
+            expected_length=expected_length,
+        )
+    elif control_series is not None:
+        counterfactual_path = np.mean(control_series, axis=0)
+    else:
+        counterfactual_path = np.zeros_like(observed_path)
+
+    effect_path = observed_path - counterfactual_path
+    intervention_path = np.asarray(plan.materialized_intervention_values, dtype=float)
+    force_zero_diffusion = plan.backend_target in {
+        TemporalBackendTarget.ODE,
+        TemporalBackendTarget.DISCRETE_FALLBACK,
+    }
+    drift, treatment_gain, intercept, diffusion = _estimate_linear_dynamics(
+        effect_path,
+        time_grid,
+        intervention_path,
+        force_zero_diffusion=force_zero_diffusion,
+    )
+
+    discretization_note: str | None = None
+    continuous_time_degraded = plan.backend_target is TemporalBackendTarget.DISCRETE_FALLBACK
+    if plan.backend_target is TemporalBackendTarget.DISCRETE_FALLBACK:
+        solver_mean_path = effect_path.copy()
+        discretization_error = None
+        discretization_note = "unavailable_under_discrete_fallback"
+    else:
+        solver_mean_path = _simulate_mean_path(
+            float(effect_path[0]),
+            time_grid,
+            intervention_path,
+            drift=drift,
+            treatment_gain=treatment_gain,
+            intercept=intercept,
+        )
+        discretization_error = estimate_discretization_error(
+            plan,
+            initial_effect=float(effect_path[0]),
+            drift=drift,
+            treatment_gain=treatment_gain,
+            intercept=intercept,
+        )
+
+    band_source = "degenerate"
+    effect_samples: np.ndarray | None = None
+    if "effect_samples" in controls_map and controls_map["effect_samples"] is not None:
+        effect_samples = _coerce_2d_series(
+            controls_map["effect_samples"],
+            field_name="effect_samples",
+            expected_length=expected_length,
+        )
+        band_source = "provided_effect_samples"
+    elif control_series is not None:
+        effect_samples = _bootstrap_effect_samples(
+            observed_path,
+            control_series,
+            n_draws=int(plan.solver_config.get("bootstrap_draws", 200)),
+            rng=rng,
+        )
+        band_source = "bootstrap_controls" if control_count > 1 else "degenerate_controls"
+    elif diffusion > 0.0 and plan.backend_target is not TemporalBackendTarget.DISCRETE_FALLBACK:
+        effect_samples = _simulate_sde_paths(
+            float(effect_path[0]),
+            time_grid,
+            intervention_path,
+            drift=drift,
+            treatment_gain=treatment_gain,
+            intercept=intercept,
+            diffusion=diffusion,
+            n_paths=int(plan.solver_config.get("monte_carlo_paths", 256)),
+            rng=rng,
+        )
+        band_source = "solver_monte_carlo"
+
+    if effect_samples is None:
+        effect_samples = np.repeat(
+            effect_path[None, :],
+            max(1, int(plan.solver_config.get("monte_carlo_paths", 256))),
+            axis=0,
+        )
+
+    confidence_band_lower = np.quantile(effect_samples, 0.025, axis=0)
+    confidence_band_upper = np.quantile(effect_samples, 0.975, axis=0)
+    integral_effect = float(np.trapezoid(effect_path, time_grid))
+    path_representation = (
+        TemporalPathRepresentation.DISCRETE_REPLAY
+        if plan.backend_target is TemporalBackendTarget.DISCRETE_FALLBACK
+        else (
+            TemporalPathRepresentation.ODE
+            if plan.backend_target is TemporalBackendTarget.ODE
+            else TemporalPathRepresentation.LINEAR_SDE
+        )
+    )
+    diagnostics = build_solver_diagnostics(
+        plan,
+        drift=drift,
+        treatment_gain=treatment_gain,
+        intercept=intercept,
+        diffusion=diffusion,
+        discretization_error=discretization_error,
+        discretization_note=discretization_note,
+        control_count=control_count,
+        band_source=band_source,
+    )
+    return TemporalTrajectoryResult(
+        plan=plan,
+        observed_path=tuple(float(value) for value in observed_path.tolist()),
+        counterfactual_path=tuple(float(value) for value in counterfactual_path.tolist()),
+        effect_path=tuple(float(value) for value in effect_path.tolist()),
+        solver_mean_path=tuple(float(value) for value in solver_mean_path.tolist()),
+        confidence_band_lower=tuple(float(value) for value in confidence_band_lower.tolist()),
+        confidence_band_upper=tuple(float(value) for value in confidence_band_upper.tolist()),
+        integral_effect=integral_effect,
+        solver_family=str(plan.solver_config.get("solver_family", "euler_maruyama")),
+        path_representation=path_representation,
+        discretization_error=(
+            None if discretization_error is None else float(discretization_error)
+        ),
+        discretization_note=discretization_note,
+        continuous_time_degraded=continuous_time_degraded,
+        diagnostics=diagnostics,
+        metadata={
+            "control_count": control_count,
+            "band_source": band_source,
+            "intervention_contract_status": plan.intervention_contract_status,
+        },
+    )
+
+
+def estimate_structural_time_series_trajectory(
+    data: PanelObservationalData | dict[str, Any],
+    query: ContinuousTimeQuery,
+    *,
+    resolved_intervention: TemporalInterventionTrajectory | dict[str, Any] | None = None,
+    allow_discrete_fallback: bool = True,
+    max_donors: int = 10,
+) -> TemporalTrajectoryResult:
+    """Construct a panel temporal effect trajectory against untreated donors."""
+
+    panel = data if isinstance(data, PanelObservationalData) else PanelObservationalData.model_validate(data)
+    full_time_grid = (
+        np.arange(panel.n_periods, dtype=float)
+        if panel.time_index is None
+        else np.asarray(panel.time_index, dtype=float)
+    )
+    intervention = (
+        None
+        if resolved_intervention is None
+        else (
+            resolved_intervention
+            if isinstance(resolved_intervention, TemporalInterventionTrajectory)
+            else TemporalInterventionTrajectory.model_validate(resolved_intervention)
+        )
+    )
+    contract_status = "resolved_artifact" if intervention is not None else "compatibility_synthesized"
+    if intervention is None:
+        intervention = TemporalInterventionTrajectory(
+            time_points=tuple(float(value) for value in full_time_grid.tolist()),
+            values=tuple(
+                1.0 if index >= int(panel.time_treatment) else 0.0
+                for index in range(panel.n_periods)
+            ),
+            time_scale=query.time_scale,
+            interpolation_policy=query.interpolation_policy,
+            metadata={"contract_status": contract_status, "derived_from_time_treatment": True},
+        )
+    plan = compile_temporal_estimand(
+        query,
+        data=panel,
+        resolved_intervention=intervention,
+        intervention_contract_status=contract_status,
+        allow_discrete_fallback=allow_discrete_fallback,
+    )
+    treated_idx = np.where(panel.treatment == 1)[0]
+    donor_idx = np.where(panel.treatment == 0)[0]
+    if treated_idx.shape[0] != 1:
+        raise ValueError("Temporal structural time-series path requires exactly one treated unit")
+    if donor_idx.shape[0] < 1:
+        raise ValueError("Temporal structural time-series path requires at least one control unit")
+
+    treated = int(treated_idx[0])
+    donor_series = panel.outcome[donor_idx, :]
+    if donor_series.shape[0] > max_donors:
+        t0 = panel.time_treatment
+        corr_scores = np.array(
+            [
+                abs(np.corrcoef(panel.outcome[treated, :t0], donor_series[index, :t0])[0, 1])
+                if np.std(donor_series[index, :t0]) > 0.0
+                else 0.0
+                for index in range(donor_series.shape[0])
+            ],
+            dtype=float,
+        )
+        top_idx = np.argsort(corr_scores)[::-1][: max(1, min(max_donors, donor_series.shape[0]))]
+    else:
+        top_idx = np.arange(donor_series.shape[0], dtype=int)
+
+    donor_subset = donor_series[top_idx]
+    grid_positions = np.asarray(plan.time_index_positions, dtype=int)
+    result = solve_temporal_effect_path(
+        plan,
+        observed_series=panel.outcome[treated, grid_positions],
+        controls={
+            "control_series": donor_subset[:, grid_positions],
+            "selected_donors": donor_idx[top_idx].astype(int).tolist(),
+            "time_treatment": int(panel.time_treatment),
+        },
+    )
+    result.diagnostics["selected_donors"] = donor_idx[top_idx].astype(int).tolist()
+    result.diagnostics["treated_unit_index"] = treated
+    result.metadata["selected_donor_count"] = int(donor_subset.shape[0])
+    result.metadata["intervention_contract_status"] = contract_status
+    return result
 
 
 @foundry_method(
@@ -326,4 +906,11 @@ class StructuralTimeSeries:
         )
 
 
-__all__ = ["StructuralTimeSeries"]
+__all__ = [
+    "StructuralTimeSeries",
+    "TemporalTrajectoryResult",
+    "build_solver_diagnostics",
+    "estimate_discretization_error",
+    "estimate_structural_time_series_trajectory",
+    "solve_temporal_effect_path",
+]

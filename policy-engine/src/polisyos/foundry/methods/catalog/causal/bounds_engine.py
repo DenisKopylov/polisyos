@@ -41,6 +41,7 @@ from polisyos.foundry.methods.base import (
 from polisyos.ir.analytics.partial_identification import (
     BoundMethod,
     BoundsReport,
+    bounds_bundle_from_bounds_report,
     PartialIdentificationResult,
 )
 
@@ -477,9 +478,22 @@ class BoundsEngineMethod:
             assumptions_used=all_assumptions,
             warnings=warnings,
         )
+        bundle = bounds_bundle_from_bounds_report(
+            report,
+            rescue_actions=[
+                "Collect stronger design information or additional instruments to tighten bounds."
+            ],
+            metadata={
+                "run_id": report.run_id,
+                "legacy_tightest_method": (
+                    report.tightest_method.value if report.tightest_method is not None else None
+                ),
+                "n_methods": len(report.results),
+            },
+        )
 
         return {
-            "bounds_report": report.model_dump(mode="json"),
+            "bounds_report": bundle.model_dump(mode="json"),
         }
 
 

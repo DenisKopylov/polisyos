@@ -1,0 +1,171 @@
+{
+  "benchmark": "lex_llm_steady_state",
+  "started_at": "2026-03-27T13:42:04.157402+00:00",
+  "ended_at": "2026-03-27T13:44:24.162017+00:00",
+  "provisions_dir": "/Users/deniskopylov/polisyos/data/lex_smoke_500docs_llm_20260326/provisions",
+  "model": "qwen/qwen3-235b-a22b-instruct-2507-fp8",
+  "base_url": "https://api.gonkagate.com/v1",
+  "keys": 5,
+  "parallel": 12,
+  "parallel_global": 12,
+  "batch_size": 4,
+  "rate_limit_rps_per_key": 0.6,
+  "max_retries": 6,
+  "warmup_seconds": 90.0,
+  "warmup_start_scale": 4.0,
+  "adaptive_rate_recovery_factor": 0.97,
+  "adaptive_rate_penalty_multiplier": 1.35,
+  "adaptive_rate_max_scale": 8.0,
+  "worker_ramp_seconds": 30.0,
+  "worker_ramp_jitter_seconds": 1.0,
+  "active_window_seconds": 120.0,
+  "drain_grace_seconds": 20.0,
+  "active_end_epoch_ms": 1774619044157,
+  "cancelled_workers": 11,
+  "sample_items": 320,
+  "sample_subtypes_top10": [
+    [
+      "core_normative_clause",
+      146
+    ],
+    [
+      "amendment_bundle",
+      73
+    ],
+    [
+      "registry_catalog_row",
+      36
+    ],
+    [
+      "tariff_threshold_row",
+      31
+    ],
+    [
+      "sanction_clause",
+      17
+    ],
+    [
+      "approval_bundle",
+      11
+    ],
+    [
+      "form_scaffold",
+      3
+    ],
+    [
+      "exception_clause",
+      2
+    ],
+    [
+      "temporal_clause",
+      1
+    ]
+  ],
+  "sample_text_len_avg": 288.1,
+  "overall": {
+    "requests_total": 1,
+    "success_requests": 1,
+    "failed_requests": 0,
+    "success_items": 4,
+    "status_counts": {
+      "200": 1
+    },
+    "duration_seconds": 121.134,
+    "requests_per_hour": 29.7,
+    "items_per_hour": 118.9,
+    "tokens_total": 734,
+    "tokens_per_hour": 21813.9,
+    "avg_retry_count": 1.0,
+    "retried_request_pct": 100.0,
+    "avg_wall_ms_success": 31576.6,
+    "avg_provider_rate_scale": 5.872,
+    "avg_shared_rate_scale": 7.76,
+    "five_minute_windows": [
+      {
+        "window_index": 0,
+        "window_start_minute": 0,
+        "requests_total": 1,
+        "success_requests": 1,
+        "failed_requests": 0,
+        "success_items": 4,
+        "tokens_total": 734,
+        "requests_per_hour": 12.0,
+        "items_per_hour": 48.0,
+        "avg_retry_count": 1.0,
+        "avg_provider_rate_scale": 5.872,
+        "avg_shared_rate_scale": 7.76
+      }
+    ]
+  },
+  "active_window": {
+    "requests_total": 1,
+    "success_requests": 1,
+    "failed_requests": 0,
+    "success_items": 4,
+    "status_counts": {
+      "200": 1
+    },
+    "duration_seconds": 120.0,
+    "requests_per_hour": 30.0,
+    "items_per_hour": 120.0,
+    "tokens_total": 734,
+    "tokens_per_hour": 22020.0,
+    "avg_retry_count": 1.0,
+    "retried_request_pct": 100.0,
+    "avg_wall_ms_success": 31576.6,
+    "avg_provider_rate_scale": 5.872,
+    "avg_shared_rate_scale": 7.76,
+    "five_minute_windows": [
+      {
+        "window_index": 0,
+        "window_start_minute": 0,
+        "requests_total": 1,
+        "success_requests": 1,
+        "failed_requests": 0,
+        "success_items": 4,
+        "tokens_total": 734,
+        "requests_per_hour": 12.0,
+        "items_per_hour": 48.0,
+        "avg_retry_count": 1.0,
+        "avg_provider_rate_scale": 5.872,
+        "avg_shared_rate_scale": 7.76
+      }
+    ]
+  },
+  "drain_window": {
+    "requests_total": 1,
+    "success_requests": 1,
+    "failed_requests": 0,
+    "success_items": 4,
+    "status_counts": {
+      "200": 1
+    },
+    "duration_seconds": 1.134,
+    "requests_per_hour": 3174.6,
+    "items_per_hour": 12698.4,
+    "tokens_total": 734,
+    "tokens_per_hour": 2330158.7,
+    "avg_retry_count": 1.0,
+    "retried_request_pct": 100.0,
+    "avg_wall_ms_success": 31576.6,
+    "avg_provider_rate_scale": 5.872,
+    "avg_shared_rate_scale": 7.76,
+    "five_minute_windows": [
+      {
+        "window_index": 0,
+        "window_start_minute": 0,
+        "requests_total": 1,
+        "success_requests": 1,
+        "failed_requests": 0,
+        "success_items": 4,
+        "tokens_total": 734,
+        "requests_per_hour": 12.0,
+        "items_per_hour": 48.0,
+        "avg_retry_count": 1.0,
+        "avg_provider_rate_scale": 5.872,
+        "avg_shared_rate_scale": 7.76
+      }
+    ]
+  },
+  "log_path": "/Users/deniskopylov/polisyos/policy-engine/tmp/steady_state_probe/lex_llm_steady_state_20260327_134204.jsonl"
+}

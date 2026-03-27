@@ -21,11 +21,28 @@ from polisyos.foundry.methods.base import (
     Unit,
     foundry_method,
 )
+from polisyos.foundry.methods.catalog.causal.composition_failure_cards import (
+    build_composition_failure_cards,
+)
 from polisyos.foundry.methods.catalog.causal.protocols import (
+    FragmentCompositionData,
     GraphReconciliationData,
     LLMStructuralHint,
 )
-from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeSource, GraphType
+from polisyos.ir.analytics.alignment_certification import (
+    AlignmentOverallStatus,
+    AlignmentReviewStatus,
+    AlignmentReviewerState,
+    AlignmentType,
+)
+from polisyos.ir.analytics.causal_graph import (
+    CausalEdge,
+    CausalGraphModel,
+    EdgeMark,
+    EdgeSource,
+    GraphType,
+)
+from polisyos.ir.analytics.cross_graph import CompositionCertificate
 from polisyos.ir.analytics.literature import (
     LiteratureCausalPrior,
     LiteratureEdgePrior,
@@ -773,6 +790,401 @@ class ReconcileCausalGraph:
         }
 
 
+def _composition_edge_key(edge: CausalEdge) -> tuple[str, str, str, str, int]:
+    return (
+        edge.src,
+        edge.dst,
+        edge.mark_src.value,
+        edge.mark_dst.value,
+        int(edge.lag or 0),
+    )
+
+
+def _merge_composed_edge(existing: CausalEdge | None, incoming: CausalEdge) -> CausalEdge:
+    if existing is None:
+        combined = incoming.compute_combined_confidence() if incoming.sources else incoming.combined_confidence
+        return incoming.model_copy(update={"combined_confidence": combined})
+
+    merged = CausalEdge(
+        src=existing.src,
+        dst=existing.dst,
+        mark_src=existing.mark_src,
+        mark_dst=existing.mark_dst,
+        lag=existing.lag,
+        sources=sorted(set(existing.sources) | set(incoming.sources), key=lambda item: item.value),
+        data_confidence=max(
+            value for value in (existing.data_confidence, incoming.data_confidence) if value is not None
+        )
+        if any(value is not None for value in (existing.data_confidence, incoming.data_confidence))
+        else None,
+        literature_confidence=max(
+            value
+            for value in (existing.literature_confidence, incoming.literature_confidence)
+            if value is not None
+        )
+        if any(
+            value is not None
+            for value in (existing.literature_confidence, incoming.literature_confidence)
+        )
+        else None,
+        llm_confidence=max(
+            value for value in (existing.llm_confidence, incoming.llm_confidence) if value is not None
+        )
+        if any(value is not None for value in (existing.llm_confidence, incoming.llm_confidence))
+        else None,
+        expert_confidence=max(
+            value for value in (existing.expert_confidence, incoming.expert_confidence) if value is not None
+        )
+        if any(value is not None for value in (existing.expert_confidence, incoming.expert_confidence))
+        else None,
+        simulation_confidence=max(
+            value
+            for value in (existing.simulation_confidence, incoming.simulation_confidence)
+            if value is not None
+        )
+        if any(
+            value is not None
+            for value in (existing.simulation_confidence, incoming.simulation_confidence)
+        )
+        else None,
+        unsupported_by_evidence=existing.unsupported_by_evidence and incoming.unsupported_by_evidence,
+        evidence_refs=sorted(set(existing.evidence_refs) | set(incoming.evidence_refs)),
+        metadata={**existing.metadata, **incoming.metadata},
+    )
+    combined_confidence = (
+        merged.compute_combined_confidence()
+        if merged.sources
+        else max(
+            value
+            for value in (existing.combined_confidence, incoming.combined_confidence)
+            if value is not None
+        )
+        if any(value is not None for value in (existing.combined_confidence, incoming.combined_confidence))
+        else None
+    )
+    return merged.model_copy(update={"combined_confidence": combined_confidence})
+
+
+def _directed_cycle_present(edges: list[CausalEdge]) -> bool:
+    adjacency: dict[str, set[str]] = defaultdict(set)
+    nodes: set[str] = set()
+    for edge in edges:
+        if edge.mark_src is not EdgeMark.TAIL or edge.mark_dst is not EdgeMark.ARROW:
+            continue
+        if edge.lag not in (None, 0):
+            continue
+        adjacency[edge.src].add(edge.dst)
+        nodes.add(edge.src)
+        nodes.add(edge.dst)
+
+    visited: set[str] = set()
+    active: set[str] = set()
+
+    def visit(node: str) -> bool:
+        if node in active:
+            return True
+        if node in visited:
+            return False
+        visited.add(node)
+        active.add(node)
+        for nxt in sorted(adjacency.get(node, set())):
+            if visit(nxt):
+                return True
+        active.remove(node)
+        return False
+
+    for node in sorted(nodes):
+        if visit(node):
+            return True
+    return False
+
+
+def _allowed_graph_types(graphs: dict[str, CausalGraphModel]) -> GraphType:
+    return GraphType.ADMG if any(graph.graph_type is GraphType.ADMG for graph in graphs.values()) else GraphType.DAG
+
+
+def _structural_assumptions_for_composition(graph_type: GraphType) -> list[str]:
+    assumptions = [
+        "observed_interface_stitching_only",
+        "namespace_non_interface_nodes_by_fragment",
+        "stable_fragment_id_fold_order",
+    ]
+    if graph_type is GraphType.ADMG:
+        assumptions.append("admg_directed_component_acyclic")
+    return assumptions
+
+
+def _dedupe_preserve(values: list[str]) -> list[str]:
+    seen: set[str] = set()
+    output: list[str] = []
+    for value in values:
+        token = str(value).strip()
+        if not token or token in seen:
+            continue
+        seen.add(token)
+        output.append(token)
+    return output
+
+
+@foundry_method(
+    namespace="causal.composition",
+    version="1.0.0",
+    tags={"causal", "composition", "scm"},
+)
+class ComposeSCMFragments:
+    """Strictly compose verified SCM fragments into a single DAG/ADMG."""
+
+    determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STRICT_CPU
+
+    signature: ClassVar[MethodSignature] = MethodSignature(
+        name="compose_scm_fragments",
+        namespace="placeholder",
+        version="0.0.0",
+        input_slots=frozenset(
+            {
+                SlotSpec(
+                    name="fragment_composition_data",
+                    slot_type=SlotType.SCALAR,
+                    unit=Unit("request", "json"),
+                )
+            }
+        ),
+        output_slots=frozenset(
+            {
+                SlotSpec(
+                    name="composed_graph",
+                    slot_type=SlotType.SCALAR,
+                    unit=Unit("artifact", "json"),
+                )
+            }
+        ),
+        parameters=(),
+        fidelity=FidelityLevel.HIGH,
+        complexity=ComplexityClass.O_N2,
+        backend=ComputeBackend.NUMPY,
+        supports_jit=False,
+        supports_vmap=False,
+        supports_grad=False,
+    )
+
+    metadata: ClassVar[MethodMetadata] = MethodMetadata(
+        description="Strictly compose verified SCM fragments into a single DAG/ADMG.",
+        tags=frozenset({"causal", "composition", "scm"}),
+        assumptions={
+            "alignment": "Only verified interface mappings are used to stitch fragments.",
+            "structure": "Composition rejects directed cycles and invalid ADMG/DAG structures.",
+            "repair": "No lagging, removal, or latent synthesis fallback is attempted.",
+        },
+        when_to_use="Compose SCM fragments after semantic alignment has already been verified.",
+        when_not_to_use="Use legacy prior reconciliation for data/literature/LLM edge fusion or any graph repair workflow.",
+        output_interpretation="Returns composed_graph when structure is preserved and a CompositionCertificate describing preserved, deferred, or broken status.",
+    )
+
+    @staticmethod
+    def pure_step(
+        state: FragmentCompositionData | Mapping[str, Any],
+        params: Mapping[str, Any],
+    ) -> dict[str, Any]:
+        payload = (
+            state
+            if isinstance(state, FragmentCompositionData)
+            else FragmentCompositionData.model_validate(state)
+        )
+        graph_type = _allowed_graph_types(payload.fragment_graphs)
+        structural_assumptions = _structural_assumptions_for_composition(graph_type)
+        warnings = list(payload.alignment_report.ontology_mismatch_warnings)
+        blocking_reasons: list[str] = []
+        needs_expert_review = False
+        selected_stitch_pairs = [
+            tuple(pair)
+            for pair in payload.alignment_report.metadata.get("selected_stitch_pairs", [])
+            if isinstance(pair, (list, tuple)) and len(pair) == 2
+        ]
+        disconnected_fragment_ids = [
+            str(fragment_id)
+            for fragment_id in payload.alignment_report.metadata.get("disconnected_fragment_ids", [])
+            if str(fragment_id).strip()
+        ]
+        boundary_interface_variables = dict(
+            payload.alignment_report.metadata.get("boundary_interface_variables", {})
+        )
+        if payload.direct_stitch_pairs:
+            expected_pairs = sorted(
+                tuple(sorted((str(left), str(right))))
+                for left, right in payload.direct_stitch_pairs
+            )
+            observed_pairs = sorted(
+                tuple(sorted((str(left), str(right))))
+                for left, right in selected_stitch_pairs
+            )
+            if observed_pairs and observed_pairs != expected_pairs:
+                blocking_reasons.append(
+                    "Alignment topology does not match requested direct stitch pairs."
+                )
+
+        if payload.alignment_report.overall_status is AlignmentOverallStatus.INCOMPATIBLE:
+            if payload.alignment_report.incompatible_pairs:
+                for left, right in payload.alignment_report.incompatible_pairs:
+                    blocking_reasons.append(
+                        f"Incompatible interface pair blocks composition: {left} <-> {right}."
+                    )
+            elif disconnected_fragment_ids:
+                blocking_reasons.append(
+                    "Fragment stitch topology is disconnected and cannot produce one composed bundle."
+                )
+            else:
+                blocking_reasons.append("Alignment report contains incompatible interface pairs.")
+        if disconnected_fragment_ids:
+            for fragment_id in disconnected_fragment_ids:
+                blocking_reasons.append(
+                    f"Fragment {fragment_id} has no admissible stitch partner in the selected topology."
+                )
+        if len(payload.fragments) > 1 and not payload.interface_mapping.entries and not blocking_reasons:
+            blocking_reasons.append("Missing alignment coverage for fragment composition.")
+
+        binding_to_node: dict[tuple[str, str], str] = {}
+        for entry in payload.interface_mapping.entries:
+            if not entry.observed:
+                blocking_reasons.append(
+                    f"Interface {entry.interface_id} contains unobserved bindings and cannot be composed."
+                )
+            if entry.alignment_type == AlignmentType.INCOMPATIBLE.value:
+                blocking_reasons.append(
+                    f"Interface {entry.interface_id} is marked incompatible and cannot be composed."
+                )
+            if entry.reviewer == AlignmentReviewerState.PENDING_REVIEW.value:
+                needs_expert_review = True
+            for binding in entry.bindings:
+                binding_to_node[(binding.fragment_id, binding.variable_name)] = entry.canonical_node_id
+
+        for certificate in payload.alignment_report.per_variable_certificates:
+            if certificate.reviewer is AlignmentReviewerState.PENDING_REVIEW:
+                needs_expert_review = True
+
+        structure_status = "valid"
+        composed_graph: CausalGraphModel | None = None
+        if not blocking_reasons:
+            merged_edges: dict[tuple[str, str, str, str, int], CausalEdge] = {}
+            node_set: set[str] = set()
+            for fragment in sorted(payload.fragments, key=lambda item: item.fragment_id):
+                graph = payload.fragment_graphs[fragment.fragment_id]
+                node_map: dict[str, str] = {}
+                for node in graph.nodes:
+                    mapped_node = binding_to_node.get((fragment.fragment_id, node))
+                    node_map[node] = mapped_node or f"{fragment.fragment_id}::{node}"
+                    node_set.add(node_map[node])
+
+                for edge in graph.edges:
+                    remapped = edge.model_copy(
+                        update={
+                            "src": node_map[edge.src],
+                            "dst": node_map[edge.dst],
+                        }
+                    )
+                    if remapped.src == remapped.dst:
+                        blocking_reasons.append(
+                            f"Composition collapsed {fragment.fragment_id}:{edge.src}->{edge.dst} into a self-loop."
+                        )
+                        continue
+                    edge_key = _composition_edge_key(remapped)
+                    merged_edges[edge_key] = _merge_composed_edge(merged_edges.get(edge_key), remapped)
+
+            merged_edge_list = [merged_edges[key] for key in sorted(merged_edges)]
+            if graph_type is GraphType.DAG and any(
+                edge.mark_src is not EdgeMark.TAIL or edge.mark_dst is not EdgeMark.ARROW
+                for edge in merged_edge_list
+            ):
+                blocking_reasons.append("DAG composition produced non-directed edges.")
+            if graph_type is GraphType.ADMG and any(
+                (edge.mark_src, edge.mark_dst) not in {
+                    (EdgeMark.TAIL, EdgeMark.ARROW),
+                    (EdgeMark.ARROW, EdgeMark.ARROW),
+                }
+                for edge in merged_edge_list
+            ):
+                blocking_reasons.append("ADMG composition produced unsupported edge endpoint marks.")
+            if _directed_cycle_present(merged_edge_list):
+                blocking_reasons.append("Fragment composition introduces a directed cycle.")
+
+            if not blocking_reasons:
+                composed_graph = CausalGraphModel(
+                    graph_type=graph_type,
+                    nodes=sorted(node_set),
+                    edges=merged_edge_list,
+                    discovery_method="scm_fragment_composition",
+                    metadata={
+                        "source_fragment_ids": sorted(fragment.fragment_id for fragment in payload.fragments),
+                        "interface_mapping_entry_ids": [
+                            entry.interface_id for entry in payload.interface_mapping.entries
+                        ],
+                    },
+                )
+
+        if blocking_reasons:
+            structure_status = "invalid"
+
+        review_status = (
+            "pending_review"
+            if (
+                needs_expert_review
+                or payload.alignment_report.review_status is AlignmentReviewStatus.PENDING_REVIEW
+            )
+            else "clear"
+        )
+        certificate_status = (
+            "broken"
+            if structure_status == "invalid"
+            else "deferred"
+            if review_status == "pending_review"
+            else "preserved"
+        )
+
+        certificate = CompositionCertificate(
+            structure_status=structure_status,
+            review_status=review_status,
+            status=certificate_status,
+            composed_graph_ref=None,
+            interface_mapping_ref=str(
+                payload.metadata.get("interface_mapping_ref", "pending://interface_mapping")
+            ),
+            alignment_report_ref=str(
+                payload.metadata.get("alignment_report_ref", "pending://alignment_report")
+            ),
+            checked_queries={},
+            newly_required_assumptions=_dedupe_preserve(
+                [*structural_assumptions, *payload.alignment_report.alignment_assumptions]
+            ),
+            structural_assumptions=structural_assumptions,
+            alignment_assumptions=list(payload.alignment_report.alignment_assumptions),
+            source_fragment_refs=dict(sorted(payload.source_fragment_refs.items())),
+            source_fragment_graph_refs=dict(sorted(payload.source_fragment_graph_refs.items())),
+            failure_card_bundle_ref=None,
+            blocking_reasons=_dedupe_preserve(blocking_reasons),
+            metadata={
+                "graph_type": graph_type.value,
+                "source_fragment_ids": sorted(fragment.fragment_id for fragment in payload.fragments),
+                "incompatible_pairs": [list(pair) for pair in payload.alignment_report.incompatible_pairs],
+                "selected_stitch_pairs": [list(pair) for pair in selected_stitch_pairs],
+                "boundary_interface_variables": boundary_interface_variables,
+                "disconnected_fragment_ids": disconnected_fragment_ids,
+            },
+        )
+        failure_cards = build_composition_failure_cards(
+            alignment_report=payload.alignment_report,
+            interface_mapping=payload.interface_mapping,
+            composition_certificate=certificate,
+        )
+
+        return {
+            "composed_graph": composed_graph,
+            "composition_certificate": certificate,
+            "needs_expert_review": needs_expert_review,
+            "blocking_reasons": _dedupe_preserve(blocking_reasons),
+            "warnings": _dedupe_preserve(warnings),
+            "failure_cards": failure_cards,
+        }
+
+
 __all__ = [
     "LLM_PRIOR_CEILING",
     "LLM_OVERLAP_DISCOUNT",
@@ -784,6 +1196,7 @@ __all__ = [
     "MAX_RECON_EDGES",
     "MAX_TRIANGLES",
     "TRIANGLE_BUDGET_MS",
+    "ComposeSCMFragments",
     "compute_reconciliation_diagnostics",
     "ReconcileCausalGraph",
 ]

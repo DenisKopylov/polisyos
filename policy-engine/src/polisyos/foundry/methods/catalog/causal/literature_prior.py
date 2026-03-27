@@ -21,16 +21,64 @@ from polisyos.foundry.methods.catalog.causal.protocols import LiteraturePriorBui
 from polisyos.ir.analytics.literature import LiteratureCausalPrior, LiteratureEdgePrior
 
 
+def _build_prior_metadata(
+    *,
+    variables: list[str],
+    build_status: str,
+    domain: str | None,
+    min_confidence: float,
+    limit: int,
+    edges: list[LiteratureEdgePrior],
+    metadata: Mapping[str, Any] | None = None,
+    extra: Mapping[str, Any] | None = None,
+) -> dict[str, Any]:
+    matched_variables = sorted(
+        {
+            node
+            for edge in edges
+            for node in (edge.src, edge.dst)
+            if node in set(variables)
+        }
+    )
+    return {
+        **dict(metadata or {}),
+        **dict(extra or {}),
+        "build_status": build_status,
+        "variables": list(variables),
+        "requested_variable_count": len(variables),
+        "matched_variable_count": len(matched_variables),
+        "matched_edge_count": len(edges),
+        "query_domain": domain,
+        "confidence_threshold": float(min_confidence),
+        "query_limit": int(limit),
+        "domain": domain,
+        "min_confidence": float(min_confidence),
+        "limit": int(limit),
+    }
+
+
 def _build_empty_prior(
     *,
     variables: list[str],
+    domain: str | None = None,
+    min_confidence: float = 0.2,
+    limit: int = 256,
+    build_status: str = "missing_skg_db_path",
     metadata: Mapping[str, Any] | None = None,
 ) -> tuple[LiteratureCausalPrior, list[str]]:
     prior = LiteratureCausalPrior(
         edges=[],
         skg_version_id=None,
         skg_snapshot_ref=None,
-        metadata={**dict(metadata or {}), "variables": list(variables)},
+        metadata=_build_prior_metadata(
+            variables=variables,
+            build_status=build_status,
+            domain=domain,
+            min_confidence=min_confidence,
+            limit=limit,
+            edges=[],
+            extra=metadata,
+        ),
     )
     return prior, []
 
@@ -122,7 +170,10 @@ class BuildLiteraturePrior:
         if db_path_raw is None:
             prior, _ = _build_empty_prior(
                 variables=payload.variables,
-                metadata={"build_status": "missing_skg_db_path"},
+                domain=domain,
+                min_confidence=min_confidence,
+                limit=limit,
+                build_status="missing_skg_db_path",
             )
             warnings.append("SKG path is not configured; returning empty literature prior.")
             return {
@@ -154,8 +205,11 @@ class BuildLiteraturePrior:
         except Exception as exc:
             prior, _ = _build_empty_prior(
                 variables=payload.variables,
+                domain=domain,
+                min_confidence=min_confidence,
+                limit=limit,
+                build_status="skg_query_failed",
                 metadata={
-                    "build_status": "skg_query_failed",
                     "skg_db_path": str(db_path),
                     "error": str(exc),
                 },
@@ -191,14 +245,15 @@ class BuildLiteraturePrior:
             edges=edges,
             skg_version_id=version_id,
             skg_snapshot_ref=snapshot_ref,
-            metadata={
-                "build_status": "ok",
-                "variables": list(payload.variables),
-                "domain": domain,
-                "min_confidence": min_confidence,
-                "limit": limit,
-                **payload.metadata,
-            },
+            metadata=_build_prior_metadata(
+                variables=payload.variables,
+                build_status="ok",
+                domain=domain,
+                min_confidence=min_confidence,
+                limit=limit,
+                edges=edges,
+                metadata=payload.metadata,
+            ),
         )
         graph = prior.to_causal_graph_model(nodes=payload.variables, min_confidence=min_confidence)
         return {

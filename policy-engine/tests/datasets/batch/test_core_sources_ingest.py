@@ -2,10 +2,12 @@ from __future__ import annotations
 
 import json
 import tempfile
+from datetime import datetime, timezone
 from pathlib import Path
 
 import duckdb
 import pandas as pd
+import pytest
 
 from polisyos.datasets.batch import core_sources_ingest as core_ingest
 from polisyos.datasets.batch.config import DatasetBatchConfig
@@ -22,12 +24,35 @@ from polisyos.datasets.batch.core_sources_ingest import (
 from polisyos.datasets.knowledge.variable_alignment import AlignmentMethod, VariableAlignment
 from polisyos.datasets.batch.graph_builder import build_graph
 from polisyos.datasets.knowledge.types import DatasetRecord, DistributionRecord
+from polisyos.fabric.connectors.base import DatasetCapabilitySnapshot
 from polisyos.fabric.connectors.sources.eurostat import EurostatConnector
 from polisyos.fabric.connectors.sources.sdmx_source import SDMXSourceConnector
 from polisyos.fabric.connectors.sources.unesco_uis import UNESCOUISConnector
 from polisyos.fabric.connectors.sources.unpd import UNPDConnector
 from polisyos.fabric.connectors.sources.who import WHOConnector
 from polisyos.fabric.connectors.sources.world_bank import WorldBankConnector
+
+
+@pytest.fixture(autouse=True)
+def _stub_dataset_capability_describe(monkeypatch):
+    async def _fake_describe(self, _handle, dataset_id):  # noqa: ARG001
+        return DatasetCapabilitySnapshot(
+            source=str(getattr(self, "namespace", "test")),
+            dataset_id=str(dataset_id),
+            resolved_dataset_id=str(dataset_id),
+            preferred_transport="test",
+            last_checked_at=datetime.now(timezone.utc),
+        )
+
+    for connector_cls in (
+        WorldBankConnector,
+        EurostatConnector,
+        SDMXSourceConnector,
+        WHOConnector,
+        UNPDConnector,
+        UNESCOUISConnector,
+    ):
+        monkeypatch.setattr(connector_cls, "describe_dataset", _fake_describe)
 
 
 def test_core_sources_ingest_populates_registry_tables(monkeypatch) -> None:
@@ -681,6 +706,119 @@ def test_insert_generic_observations_tracks_inserted_and_replaced_rows() -> None
         assert second.replaced == 1
 
 
+def test_ensure_registry_tables_drops_legacy_unique_observation_index() -> None:
+    with tempfile.TemporaryDirectory() as tmpdir:
+        db_path = Path(tmpdir) / "legacy.duckdb"
+        con = duckdb.connect(str(db_path))
+        try:
+            con.execute(
+                """
+                CREATE TABLE ds_observations (
+                    observation_id VARCHAR PRIMARY KEY,
+                    dataset_id     VARCHAR NOT NULL,
+                    raw_variable   VARCHAR NOT NULL,
+                    canonical_var  VARCHAR NOT NULL,
+                    country_code   VARCHAR NOT NULL,
+                    year           INTEGER,
+                    survey_year    INTEGER,
+                    wave           INTEGER,
+                    value          DOUBLE,
+                    condition_json VARCHAR DEFAULT '{}'
+                );
+                """
+            )
+            con.execute(
+                "CREATE UNIQUE INDEX idx_obs_dedup "
+                "ON ds_observations(dataset_id, raw_variable, country_code, year)"
+            )
+
+            _ensure_registry_tables(con)
+
+            indexes = con.execute(
+                "SELECT index_name, is_unique FROM duckdb_indexes() "
+                "WHERE table_name='ds_observations' AND index_name='idx_obs_dedup'"
+            ).fetchall()
+        finally:
+            con.close()
+
+        assert indexes == [("idx_obs_dedup", False)]
+
+
+def test_insert_generic_observations_preserves_multislice_rows_after_legacy_index_migration() -> None:
+    with tempfile.TemporaryDirectory() as tmpdir:
+        db_path = Path(tmpdir) / "legacy_multislice.duckdb"
+        con = duckdb.connect(str(db_path))
+        try:
+            con.execute(
+                """
+                CREATE TABLE ds_observations (
+                    observation_id VARCHAR PRIMARY KEY,
+                    dataset_id     VARCHAR NOT NULL,
+                    raw_variable   VARCHAR NOT NULL,
+                    canonical_var  VARCHAR NOT NULL,
+                    country_code   VARCHAR NOT NULL,
+                    year           INTEGER,
+                    survey_year    INTEGER,
+                    wave           INTEGER,
+                    value          DOUBLE,
+                    condition_json VARCHAR DEFAULT '{}'
+                );
+                """
+            )
+            con.execute(
+                "CREATE UNIQUE INDEX idx_obs_dedup "
+                "ON ds_observations(dataset_id, raw_variable, country_code, year)"
+            )
+            plan = ObservationPlan(
+                dataset_id="eurostat-ILC_MDHO06B",
+                source="eurostat",
+                raw_variable="ILC_MDHO06B",
+                canonical_var="poverty_rate",
+                connector_id="eurostat.data",
+                profile_id="eurostat_public",
+                request_dataset_id="ILC_MDHO06B",
+                default_filters={},
+                update_frequency="annual",
+            )
+            inserted = _insert_generic_observations(
+                con=con,
+                plan=plan,
+                rows=[
+                    {
+                        "geo": "DE",
+                        "time_period": "2005",
+                        "value": 2.3,
+                        "hhtyp": "Single person",
+                    },
+                    {
+                        "geo": "DE",
+                        "time_period": "2005",
+                        "value": 2.8,
+                        "hhtyp": "Households with dependent children",
+                    },
+                ],
+            )
+            observed = con.execute(
+                "SELECT value, condition_json FROM ds_observations "
+                "WHERE dataset_id = ? AND raw_variable = ? AND canonical_var = ? "
+                "AND country_code = ? AND year = ? ORDER BY value",
+                [plan.dataset_id, plan.raw_variable, plan.canonical_var, "DE", 2005],
+            ).fetchall()
+            indexes = con.execute(
+                "SELECT index_name, is_unique FROM duckdb_indexes() "
+                "WHERE table_name='ds_observations' AND index_name='idx_obs_dedup'"
+            ).fetchall()
+        finally:
+            con.close()
+
+        assert inserted.written == 2
+        assert observed == [
+            (2.3, '{"hhtyp":"Single person"}'),
+            (2.8, '{"hhtyp":"Households with dependent children"}'),
+        ]
+        assert indexes == [("idx_obs_dedup", False)]
+
+
 def test_insert_generic_observations_batches_large_upserts(monkeypatch) -> None:
     class _FakeConnection:
         def __init__(self) -> None:
@@ -850,6 +988,30 @@ def test_eurostat_chunked_observation_requests_preserve_default_filters() -> Non
     assert all(dict(request.filters)["sex"] == ("T",) for request in requests)
 
 
+def test_resolve_catalog_update_frequency_reclassifies_annual_eurostat_social_tables() -> None:
+    resolved = core_ingest._resolve_catalog_update_frequency(
+        source="eurostat",
+        request_dataset_id="ILC_MDHO06B",
+        title="Severe housing deprivation rate by household type",
+        update_frequency="monthly",
+        coverage_json='{"granularity":"annual"}',
+    )
+
+    assert resolved == "annual"
+
+
+def test_resolve_catalog_update_frequency_preserves_explicit_subannual_eurostat_series() -> None:
+    resolved = core_ingest._resolve_catalog_update_frequency(
+        source="eurostat",
+        request_dataset_id="NRG_TE_OILM",
+        title="Monthly oil trade series",
+        update_frequency="monthly",
+        coverage_json='{"granularity":"annual"}',
+    )
+
+    assert resolved == "monthly"
+
+
 def test_eurostat_monthly_observation_requests_split_to_single_year_windows() -> None:
     plan = ObservationPlan(
         dataset_id="eurostat-NRG_TE_OILM",
@@ -879,6 +1041,31 @@ def test_eurostat_monthly_observation_requests_split_to_single_year_windows() ->
     ]
     assert all(dict(request.filters)["geo"] == ("UA",) for request in requests)
     assert all(dict(request.filters)["unit"] == ("TJ",) for request in requests)
+
+
+def test_build_observation_shards_batches_worldbank_countries_into_one_request() -> None:
+    with tempfile.TemporaryDirectory() as tmpdir:
+        config = DatasetBatchConfig(
+            snapshot_root=Path(tmpdir) / "snap",
+            active_countries=("UA", "DE", "PL"),
+        )
+        plan = ObservationPlan(
+            dataset_id="worldbank-NY.GDP.PCAP.PP.CD",
+            source="worldbank",
+            raw_variable="NY.GDP.PCAP.PP.CD",
+            canonical_var="gdp_per_capita",
+            connector_id="worldbank.wdi",
+            profile_id="worldbank_wdi",
+            request_dataset_id="NY.GDP.PCAP.PP.CD",
+            default_filters={},
+            update_frequency="annual",
+        )
+
+        shards = core_ingest._build_observation_shards([plan], config=config)
+
+        assert len(shards) == 1
+        assert shards[0].country_code is None
+        assert core_ingest._shard_countries(shards[0], config=config) == ("DE", "PL", "UA")
 
 
 def test_observation_plan_order_prioritizes_annual_before_monthly() -> None:
@@ -1047,6 +1234,225 @@ def test_ingest_catalog_observations_keeps_large_payloads_in_full_run(monkeypatc
             con.close()
 
         assert observed == 6
+
+
+def test_parallel_observation_ingest_dedupes_shared_upstream_fetches(monkeypatch) -> None:
+    fetch_calls: list[tuple[str, str, str]] = []
+
+    async def _fake_fetch_rows(shard, _cache, *, config):  # noqa: ARG001
+        fetch_calls.append((shard.plan.request_dataset_id, shard.country_code or "", shard.plan.canonical_var))
+        return [{"geo": "UA", "time_period": "2022", "value": 1.0}]
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        config = DatasetBatchConfig(
+            snapshot_root=Path(tmpdir) / "snap",
+            max_datasets_per_source=5,
+            active_countries=("UA",),
+        )
+        con = duckdb.connect(str(config.db_path))
+        try:
+            _ensure_registry_tables(con)
+        finally:
+            con.close()
+
+        plans = [
+            ObservationPlan(
+                dataset_id="eurostat-une_rt_a",
+                source="eurostat",
+                raw_variable="une_rt_a",
+                canonical_var="unemployment_rate",
+                connector_id="eurostat.data",
+                profile_id="eurostat_public",
+                request_dataset_id="une_rt_a",
+                default_filters={"unit": ["PC_ACT"]},
+                update_frequency="annual",
+            ),
+            ObservationPlan(
+                dataset_id="eurostat-une_rt_a",
+                source="eurostat",
+                raw_variable="une_rt_a",
+                canonical_var="labor_force_participation",
+                connector_id="eurostat.data",
+                profile_id="eurostat_public",
+                request_dataset_id="une_rt_a",
+                default_filters={"unit": ["PC_ACT"]},
+                update_frequency="annual",
+            ),
+        ]
+        monkeypatch.setattr(core_ingest, "_fetch_observation_rows", _fake_fetch_rows)
+
+        stats = core_ingest.run_coro_sync(
+            core_ingest._ingest_catalog_observations(config.db_path, plans, config=config)
+        )
+
+        assert len(fetch_calls) == 1
+        assert stats.observations == 2
+
+
+def test_parallel_observation_ingest_negative_support_cache_skips_sibling_shards(monkeypatch) -> None:
+    fetch_calls: list[tuple[str | None, int, int]] = []
+
+    async def _fake_fetch_rows(shard, _cache, *, config):  # noqa: ARG001
+        fetch_calls.append((shard.country_code, shard.start_year, shard.end_year))
+        raise RuntimeError("HTTP 400")
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        config = DatasetBatchConfig(
+            snapshot_root=Path(tmpdir) / "snap",
+            active_countries=("UA",),
+        )
+        con = duckdb.connect(str(config.db_path))
+        try:
+            _ensure_registry_tables(con)
+        finally:
+            con.close()
+
+        plan = ObservationPlan(
+            dataset_id="eurostat-NRG_TE_OILM",
+            source="eurostat",
+            raw_variable="NRG_TE_OILM",
+            canonical_var="energy_use",
+            connector_id="eurostat.data",
+            profile_id="eurostat_public",
+            request_dataset_id="NRG_TE_OILM",
+            default_filters={},
+            update_frequency="monthly",
+        )
+        monkeypatch.setattr(core_ingest, "_fetch_observation_rows", _fake_fetch_rows)
+
+        stats = core_ingest.run_coro_sync(
+            core_ingest._ingest_catalog_observations(config.db_path, [plan], config=config)
+        )
+
+        assert len(fetch_calls) == 1
+        assert stats.failures == 1
+        assert stats.empty_shards == 4
+
+
+def test_parallel_observation_ingest_persists_capability_snapshots_and_writer_metrics(monkeypatch) -> None:
+    async def _fake_fetch_rows(_shard, _cache, *, config):  # noqa: ARG001
+        return [{"geo": "UA", "time_period": "2022", "value": 1.0}]
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        config = DatasetBatchConfig(
+            snapshot_root=Path(tmpdir) / "snap",
+            active_countries=("UA",),
+        )
+        con = duckdb.connect(str(config.db_path))
+        try:
+            _ensure_registry_tables(con)
+        finally:
+            con.close()
+
+        plan = ObservationPlan(
+            dataset_id="eurostat-une_rt_a",
+            source="eurostat",
+            raw_variable="une_rt_a",
+            canonical_var="unemployment_rate",
+            connector_id="eurostat.data",
+            profile_id="eurostat_public",
+            request_dataset_id="une_rt_a",
+            default_filters={},
+            update_frequency="annual",
+        )
+        monkeypatch.setattr(core_ingest, "_fetch_observation_rows", _fake_fetch_rows)
+
+        stats = core_ingest.run_coro_sync(
+            core_ingest._ingest_catalog_observations(config.db_path, [plan], config=config)
+        )
+
+        assert stats.completed_shards == 3
+        with open(config.observation_ingest_checkpoint_path, "r", encoding="utf-8") as fh:
+            checkpoint = json.load(fh)
+        assert "capability_snapshots" in checkpoint
+        assert checkpoint["capability_snapshots"]
+
+        with open(config.stage_state_path, "r", encoding="utf-8") as fh:
+            stage_state = json.load(fh)
+        metadata = stage_state["core_sources_ingest"]["metadata"]
+        assert "writer_flush_count" in metadata
+        assert metadata["writer_flush_count"] >= 1
+        assert "request_count_by_source" in metadata
+        assert metadata["request_count_by_source"].get("eurostat", 0) >= 0
+
+
+def test_parallel_observation_ingest_uses_eurostat_async_path(monkeypatch) -> None:
+    async def _fake_describe(self, _handle, dataset_id):  # noqa: ARG001
+        return DatasetCapabilitySnapshot(
+            source="eurostat",
+            dataset_id=str(dataset_id),
+            resolved_dataset_id=str(dataset_id),
+            preferred_transport="dual",
+            dimension_order=("geo", "time", "partner"),
+            allowed_positions={
+                "geo": ("UA",),
+                "partner": tuple(f"P{index}" for index in range(30_000)),
+            },
+            estimated_cardinality=60_000,
+            version_hint="latest",
+            last_checked_at=datetime.now(timezone.utc),
+        )
+
+    async def _fail_sync_fetch(self, _handle, _request):  # noqa: ARG001
+        raise AssertionError("sync Eurostat fetch should not be used for async-eligible shard")
+
+    async def _fake_fetch_async(self, _handle, request):  # noqa: ARG001
+        return core_ingest.AsyncFetchLease(
+            lease_id=f"lease-{request.dataset_id}",
+            connector_id=self.connector_id,
+            dataset_id=request.dataset_id,
+            request_key=request.dataset_id,
+            status="submitted",
+            poll_after_seconds=0.0,
+            status_url="https://example.test/status",
+            download_url="https://example.test/data",
+        )
+
+    async def _fake_poll_async_fetch(self, _handle, lease):  # noqa: ARG001
+        return type(
+            "EurostatAsyncResult",
+            (),
+            {
+                "data": pd.DataFrame([{"geo": "UA", "time_period": "2022", "value": 1.0}]),
+                "bytes_transferred": 123,
+            },
+        )()
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        config = DatasetBatchConfig(
+            snapshot_root=Path(tmpdir) / "snap",
+            active_countries=("UA",),
+        )
+        con = duckdb.connect(str(config.db_path))
+        try:
+            _ensure_registry_tables(con)
+        finally:
+            con.close()
+
+        plan = ObservationPlan(
+            dataset_id="eurostat-async-ds",
+            source="eurostat",
+            raw_variable="ASYNC_DS",
+            canonical_var="energy_use",
+            connector_id="eurostat.data",
+            profile_id="eurostat_public",
+            request_dataset_id="ASYNC_DS",
+            default_filters={},
+            update_frequency="annual",
+        )
+        monkeypatch.setattr(EurostatConnector, "describe_dataset", _fake_describe)
+        monkeypatch.setattr(EurostatConnector, "fetch", _fail_sync_fetch)
+        monkeypatch.setattr(EurostatConnector, "fetch_async", _fake_fetch_async)
+        monkeypatch.setattr(EurostatConnector, "poll_async_fetch", _fake_poll_async_fetch)
+
+        stats = core_ingest.run_coro_sync(
+            core_ingest._ingest_catalog_observations(config.db_path, [plan], config=config)
+        )
+
+        assert stats.completed_shards == 3
+        with open(config.observation_ingest_checkpoint_path, "r", encoding="utf-8") as fh:
+            checkpoint = json.load(fh)
+        assert checkpoint["async_fetch_leases"] == {}
 
 
 def test_append_shard_result_tracks_complete_empty_and_complete_with_rows() -> None:

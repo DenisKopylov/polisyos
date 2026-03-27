@@ -160,6 +160,8 @@ class AcademicBatchConfig:
     fulltext_soft_usable_requires_section_cues: bool = True
     fulltext_shared_cache_dir: Path | None = None
     fulltext_cache_ttl_days: int = 30
+    fulltext_max_pdf_pages: int = 50
+    fulltext_extract_html_tables: bool = True
     doc_infra_enable_pub2tei: bool = True
     doc_infra_enable_grobid: bool = True
     doc_pub2tei_base_url: str = "http://localhost:8074"

@@ -1,0 +1,50 @@
+# Scientist engine alerting rules for Prometheus.
+groups:
+  - name: scientist_slo
+    rules:
+      - alert: ScientistNodeP95LatencyHigh
+        expr: histogram_quantile(0.95, rate(polisyos_scientist_node_duration_seconds_bucket[5m])) > 300
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Scientist node P95 latency exceeds 300s"
+          description: "Node {{ $labels.node_id }} P95 latency is {{ $value }}s."
+
+      - alert: ScientistWorkflowFailRate
+        expr: >
+          rate(polisyos_slo_dag_runs_total{status="fail"}[10m])
+          / rate(polisyos_slo_dag_runs_total[10m]) > 0.1
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Scientist workflow failure rate exceeds 10%"
+          description: "Workflow {{ $labels.workflow_id }} fail rate is {{ $value | humanizePercentage }}."
+
+      - alert: ScientistBudgetNearExhaustion
+        expr: polisyos_scientist_llm_budget_utilization > 0.9
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "LLM budget utilization above 90%"
+          description: "Run {{ $labels.run_id }} budget utilization is {{ $value | humanizePercentage }}."
+
+      - alert: ScientistTierQueueDepthHigh
+        expr: polisyos_scientist_tier_queue_depth > 50
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Scientist tier queue depth exceeds 50"
+          description: "Tier {{ $labels.tier_index }} queue depth is {{ $value }}."
+
+      - alert: ScientistSemaphoreWaitHigh
+        expr: histogram_quantile(0.95, rate(polisyos_scientist_semaphore_wait_seconds_bucket[5m])) > 30
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Scientist semaphore P95 wait exceeds 30s"
+          description: "Tier {{ $labels.tier_index }} P95 semaphore wait is {{ $value }}s."

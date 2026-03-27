@@ -1,0 +1,127 @@
+domain: validation
+version: "1.0"
+cases:
+  - id: prob_scoring_perfect
+    method_fqn: "validation.probabilistic.normal_scores@1.0.0"
+    description: "Perfect mean predictions, small std → low CRPS ≈ σ/√π ≈ 0.056 for σ=0.1"
+    input_data:
+      observations: [1.0, 2.0, 3.0, 4.0, 5.0]
+      predictive_mean: [1.0, 2.0, 3.0, 4.0, 5.0]
+      predictive_std: [0.1, 0.1, 0.1, 0.1, 0.1]
+    expected_output:
+      result:
+        mean_crps: 0.023
+    tolerances: {rtol: 0.3, atol: 0.02}
+    tags: [scoring, deterministic]
+
+  - id: prob_scoring_offset
+    method_fqn: "validation.probabilistic.normal_scores@1.0.0"
+    description: "Predictions offset by 1 → worse CRPS"
+    input_data:
+      observations: [1.0, 2.0, 3.0, 4.0, 5.0]
+      predictive_mean: [2.0, 3.0, 4.0, 5.0, 6.0]
+      predictive_std: [1.0, 1.0, 1.0, 1.0, 1.0]
+    expected_output:
+      result:
+        mean_crps: 0.8
+    tolerances: {rtol: 0.5, atol: 0.5}
+    tags: [scoring, deterministic]
+
+  - id: cross_validation_uniform_folds
+    method_fqn: "validation.model.cross_validation@1.0.0"
+    description: "5 equal fold scores → mean = score, std = 0"
+    input_data:
+      fold_scores: [0.85, 0.85, 0.85, 0.85, 0.85]
+    expected_output:
+      result:
+        mean_score: 0.85
+        std_score: 0.0
+        n_folds: 5
+    tolerances: {rtol: 0.001, atol: 0.001}
+    tags: [validation, deterministic]
+
+  - id: cross_validation_variable_folds
+    method_fqn: "validation.model.cross_validation@1.0.0"
+    description: "Variable fold scores → correct mean and std"
+    input_data:
+      fold_scores: [0.80, 0.85, 0.90, 0.75, 0.70]
+    expected_output:
+      result:
+        mean_score: 0.80
+        n_folds: 5
+        min_score: 0.70
+        max_score: 0.90
+    tolerances: {rtol: 0.01, atol: 0.01}
+    tags: [validation, deterministic]
+
+  - id: walk_forward_perfect
+    method_fqn: "validation.model.walk_forward@1.0.0"
+    description: "Perfect forecasts → MAE=0, RMSE=0"
+    input_data:
+      actuals: [1.0, 2.0, 3.0, 4.0, 5.0]
+      forecasts: [1.0, 2.0, 3.0, 4.0, 5.0]
+    expected_output:
+      result:
+        mae: 0.0
+        rmse: 0.0
+        n_steps: 5
+    tolerances: {rtol: 0.001, atol: 0.001}
+    tags: [validation, deterministic]
+
+  - id: walk_forward_constant_error
+    method_fqn: "validation.model.walk_forward@1.0.0"
+    description: "Forecasts off by 1 → MAE=1, RMSE=1"
+    input_data:
+      actuals: [1.0, 2.0, 3.0, 4.0, 5.0]
+      forecasts: [2.0, 3.0, 4.0, 5.0, 6.0]
+    expected_output:
+      result:
+        mae: 1.0
+        rmse: 1.0
+        mean_error: -1.0
+        n_steps: 5
+    tolerances: {rtol: 0.01, atol: 0.01}
+    tags: [validation, deterministic]
+
+  - id: calibration_diagnostic_perfect
+    method_fqn: "validation.calibration.calibration_diagnostic@1.0.0"
+    description: "Perfectly calibrated probabilities → Brier score = 0, ECE near 0"
+    input_data:
+      predicted_probs: [0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+      observed_outcomes: [0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+    input_params: {n_bins: 5}
+    expected_output:
+      result:
+        brier_score: 0.0
+        n_obs: 10
+    tolerances: {rtol: 0.01, atol: 0.01}
+    tags: [calibration, deterministic]
+
+  - id: calibration_diagnostic_random
+    method_fqn: "validation.calibration.calibration_diagnostic@1.0.0"
+    description: "All probs=0.5, all outcomes=1 → Brier=0.25"
+    input_data:
+      predicted_probs: [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
+      observed_outcomes: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+    input_params: {n_bins: 3}
+    expected_output:
+      result:
+        brier_score: 0.25
+        n_obs: 8
+    tolerances: {rtol: 0.01, atol: 0.01}
+    tags: [calibration, deterministic]
+
+  - id: walk_forward_scaled_error
+    method_fqn: "validation.model.walk_forward@1.0.0"
+    description: "Forecasts off by 2 → MAE=2, RMSE=2"
+    input_data:
+      actuals: [1.0, 2.0, 3.0, 4.0]
+      forecasts: [3.0, 4.0, 5.0, 6.0]
+    expected_output:
+      result:
+        mae: 2.0
+        rmse: 2.0
+        mean_error: -2.0
+        n_steps: 4
+    tolerances: {rtol: 0.01, atol: 0.01}
+    tags: [validation, deterministic]

@@ -31,6 +31,7 @@
 | `causal_discovery.py` | `CausalDiscoveryReport` и CAS helpers |
 | `causal_queries.py` | `CausalQuery`, `CausalQueryResult`, soft/atomic interventions |
 | `causal_ensemble.py` | ансамбль causal моделей (`CausalModelEnsemble`) |
+| `dynamic_regime.py` | dynamic treatment regimes, longitudinal results, `ContinuousTimeQuery`, `EffectTrajectoryBundle`, CAS helpers |
 | `structural_causal_model.py` | `StructuralCausalModelSpec`, `NodeMechanism` |
 | `transportability.py` | `TransportabilityResult`, selection diagram, data gaps |
 | `partial_identification.py` | Manski bounds (`PartialIdentificationResult`) |
@@ -43,7 +44,8 @@
 | `context.py` | `ContextProfile`, context distance/enrichment helpers |
 | `parameters.py` | context-adaptive parameter bundle и applicability оценка |
 | `abm_bridge.py` | `ABMAlignmentReport` (SCM ↔ ABM consistency) |
-| `alignment_certification.py` | policy/certificate/outer-search helpers для alignment протокола |
+| `alignment_certification.py` | B.1-B.2 `VariableAlignmentCertificate`, `AlignmentReport`, `AlignmentVerificationConfig`, verification entrypoints, persist/load helpers, plus policy/outer-search helpers |
+| `cross_graph.py` | `CrossGraphEvidenceProfile`, `SCMFragment`, derived interface schemas, `InterfaceMapping`, `CompositionCertificate`, CAS helpers |
 
 ### Governance-adjacent и runtime API
 
@@ -67,6 +69,21 @@
   - большинство аналитических артефактов: `schema_version="1.0"`;
   - `CalibrationConfig`: `schema_version="0.1"`;
   - `ArticleExtractionResult` из `literature.py`: `schema_version="1.1"` (с backward compatibility для legacy payload).
+  - `CrossGraphEvidenceProfile`: `schema_version="2.1"`.
+- Phase B surface:
+  - `verify_fragment_alignment()` / `verify_fragment_bundle_alignment()` возвращают детерминированные `AlignmentReport` + `InterfaceMapping`; bundle-верификация поддерживает optional topology override через `stitch_pairs`;
+  - `AlignmentReport.metadata` фиксирует topology-aware diagnostics, включая `selected_stitch_pairs`, `boundary_interface_variables`, `disconnected_fragment_ids`;
+  - `ComposeSCMFragments` строит `CompositionCertificate` поверх verified alignment и возвращает first-class `failure_cards` в result payload;
+  - `check_query_preservation*()` и `evaluate_query_preservation*()` в Phase B гарантируют статусы только для query classes, редуцируемых к known graphical obligations; unsupported query classes возвращают явный `unknown` с reason-coded trace;
+  - `FragmentInterfaceSchema` остаётся derived-only и в B.1/B.2 не хранится как отдельный CAS artifact.
+- Phase C surface:
+  - `ContinuousTimeQuery` фиксирует horizon, time scale, interpolation policy, `query_mode` (`fixed_intervention` vs `optimal_policy_discovery`), backend gating и runtime blockers как first-class temporal contract;
+  - `TemporalInterventionTrajectory` является executable intervention artifact для engine-level temporal execution и materialization на compiled grid;
+  - `DynamicTreatmentRegime` теперь также может жить как CAS-backed policy artifact для adaptive DTR temporal route; canonical adaptive execution публикует learned policy artifact плюс derived schedule artifact;
+  - `EffectTrajectoryBundle` требует trajectory/band/solver diagnostics refs, truthfully различает continuous solve и `discrete_replay` fallback, и публикует `discretization_error` либо `discretization_note`;
+  - publication-grade Phase C claims должны идти через `CausalEngine.temporal_causal_effect()` с CAS-backed query/intervention-or-derived-schedule/policy/trajectory/band/diagnostics lineage;
+  - temporal benchmark acceptance для publication-grade claims требует reloadable CAS artifacts, а не только in-memory refs;
+  - C.4 (`irregular_grid`, rough-path, `neural_*`) остаётся research-gated и в production/runtime surface завершается only safe rejection.
 
 ## Где используется
 

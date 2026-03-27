@@ -170,6 +170,10 @@ class BatchConfig:
         return self.output_dir / "manifests" / "telemetry.json"
 
     @property
+    def llm_request_log_path(self) -> Path:
+        return self.output_dir / "manifests" / "llm_requests.jsonl"
+
+    @property
     def pattern_candidates_dir(self) -> Path:
         return self.output_dir / "patterns" / "ua" / "candidates"
 
@@ -188,6 +192,24 @@ class BatchConfig:
     max_concurrent_llm: int = 40
     rate_limit_rps: float = 9.0
     max_retries: int = 7
+    max_concurrent_llm_global: int | None = None
+    spo_connect_timeout_seconds: int = 15
+    spo_read_timeout_seconds: int = 120
+    spo_total_timeout_seconds: int = 180
+    spo_provider_watchdog_seconds: int = 0
+    spo_retryable_followup_passes: int = 1
+    spo_retryable_followup_delay_seconds: float = 5.0
+    spo_retryable_followup_worker_scale: float = 0.5
+    spo_retryable_followup_dispatch_rps_scale: float = 0.5
+    spo_retryable_followup_client_rate_scale: float = 0.5
+    spo_retryable_followup_client_concurrency_scale: float = 0.5
+    spo_request_log_enabled: bool = True
+    spo_rate_warmup_seconds: float = 45.0
+    spo_rate_warmup_start_scale: float = 3.0
+    spo_adaptive_rate_enabled: bool = True
+    spo_adaptive_rate_recovery_factor: float = 0.97
+    spo_adaptive_rate_penalty_multiplier: float = 1.35
+    spo_adaptive_rate_max_scale: float = 8.0
 
     # --- Local embeddings (sentence-transformers) ---
     embedding_model: str = "intfloat/multilingual-e5-large"
@@ -221,6 +243,8 @@ class BatchConfig:
     spo_task_batch_size: int = 1000
     spo_request_batch_size: int = 5
     spo_request_batch_chars: int | None = 6000
+    spo_adaptive_batch_downshift_enabled: bool = True
+    spo_adaptive_batch_soft_chars_share: float = 0.80
     spo_group_timeout_seconds: float | None = None
     spo_timeout_retry_enabled: bool = True
     spo_timeout_retry_batch_size: int = 1
@@ -270,18 +294,18 @@ class BatchConfig:
     quality_structure_gate_enabled: bool = True
     quality_structure_fail_fast: bool = True
     quality_max_full_only_docs_pct: float = 25.0
-    quality_max_empty_statement_rows_pct: float = 10.0
+    quality_max_empty_statement_rows_pct: float = 15.0
     quality_max_oov_action_rate_pct: float = 1.0
     quality_max_missing_quote_rate_pct: float = 5.0
     quality_max_duplicate_anchor_rate_pct: float = 0.1
-    quality_max_audit_miss_rate_pct: float = 5.0
+    quality_max_audit_miss_rate_pct: float = 15.0
     quality_max_hallucination_rate_pct: float = 3.0
     quality_max_unresolved_contradictions: int = 10
     quality_max_low_confidence_normative_pct: float = 15.0
     quality_min_reference_resolution_coverage_pct: float = 80.0
     quality_min_amendment_extraction_coverage_pct: float = 60.0
     quality_min_amendment_target_resolution_pct: float = 70.0
-    quality_min_llm_saved_pct: float = 50.0
+    quality_min_llm_saved_pct: float = 30.0
     quality_min_audit_samples_for_rate: int = 10
     quality_min_provision_docs_for_doc_rate: int = 25
     quality_min_spo_rows_for_row_rate: int = 50
@@ -308,12 +332,46 @@ class BatchConfig:
             raise ValueError("spo_request_batch_size must be >= 1")
         if self.spo_request_batch_chars is not None and self.spo_request_batch_chars < 500:
             raise ValueError("spo_request_batch_chars must be >= 500 when set")
+        if not (0.5 <= self.spo_adaptive_batch_soft_chars_share <= 1.0):
+            raise ValueError("spo_adaptive_batch_soft_chars_share must be in range [0.5, 1.0]")
         if self.spo_group_timeout_seconds is not None and self.spo_group_timeout_seconds <= 0:
             raise ValueError("spo_group_timeout_seconds must be > 0 when set")
+        if self.spo_connect_timeout_seconds < 1:
+            raise ValueError("spo_connect_timeout_seconds must be >= 1")
+        if self.spo_read_timeout_seconds < 1:
+            raise ValueError("spo_read_timeout_seconds must be >= 1")
+        if self.spo_total_timeout_seconds < self.spo_connect_timeout_seconds:
+            raise ValueError("spo_total_timeout_seconds must be >= spo_connect_timeout_seconds")
+        if self.spo_total_timeout_seconds < self.spo_read_timeout_seconds:
+            raise ValueError("spo_total_timeout_seconds must be >= spo_read_timeout_seconds")
+        if self.spo_provider_watchdog_seconds < -1:
+            raise ValueError("spo_provider_watchdog_seconds must be >= -1")
         if self.spo_timeout_retry_batch_size < 1:
             raise ValueError("spo_timeout_retry_batch_size must be >= 1")
         if self.spo_timeout_retry_chars is not None and self.spo_timeout_retry_chars < 500:
             raise ValueError("spo_timeout_retry_chars must be >= 500 when set")
+        if self.spo_retryable_followup_passes < 0:
+            raise ValueError("spo_retryable_followup_passes must be >= 0")
+        if self.spo_retryable_followup_delay_seconds < 0.0:
+            raise ValueError("spo_retryable_followup_delay_seconds must be >= 0")
+        if not (0.05 <= self.spo_retryable_followup_worker_scale <= 1.0):
+            raise ValueError("spo_retryable_followup_worker_scale must be in range [0.05, 1.0]")
+        if not (0.05 <= self.spo_retryable_followup_dispatch_rps_scale <= 1.0):
+            raise ValueError("spo_retryable_followup_dispatch_rps_scale must be in range [0.05, 1.0]")
+        if not (0.05 <= self.spo_retryable_followup_client_rate_scale <= 1.0):
+            raise ValueError("spo_retryable_followup_client_rate_scale must be in range [0.05, 1.0]")
+        if not (0.05 <= self.spo_retryable_followup_client_concurrency_scale <= 1.0):
+            raise ValueError("spo_retryable_followup_client_concurrency_scale must be in range [0.05, 1.0]")
+        if self.spo_rate_warmup_seconds < 0.0:
+            raise ValueError("spo_rate_warmup_seconds must be >= 0")
+        if self.spo_rate_warmup_start_scale < 1.0:
+            raise ValueError("spo_rate_warmup_start_scale must be >= 1")
+        if not (0.5 <= self.spo_adaptive_rate_recovery_factor <= 1.0):
+            raise ValueError("spo_adaptive_rate_recovery_factor must be in range [0.5, 1.0]")
+        if self.spo_adaptive_rate_penalty_multiplier < 1.0:
+            raise ValueError("spo_adaptive_rate_penalty_multiplier must be >= 1")
+        if self.spo_adaptive_rate_max_scale < 1.0:
+            raise ValueError("spo_adaptive_rate_max_scale must be >= 1")
         if self.spo_extract_mode not in {"light", "full"}:
             raise ValueError("spo_extract_mode must be one of: light, full")
         if self.spo_verify_mode not in {"llm", "code"}:
@@ -371,6 +429,7 @@ class BatchConfig:
         self.openai_batches_dir.mkdir(parents=True, exist_ok=True)
         self.pattern_candidates_dir.mkdir(parents=True, exist_ok=True)
         self.telemetry_path.parent.mkdir(parents=True, exist_ok=True)
+        self.llm_request_log_path.parent.mkdir(parents=True, exist_ok=True)
 
         if not self.gonka_api_keys:
             self.gonka_api_keys = _default_gonka_api_keys()

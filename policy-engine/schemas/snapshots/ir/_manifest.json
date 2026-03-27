@@ -1,30 +1,18 @@
 {
-  "content_hash": "2027c762af4766ccbf28b15a67d4ff7bc4c2ab823b5905a383cbeb7dfebf52ff",
-  "generated_at": "2026-03-08T17:43:55+00:00",
+  "content_hash": "a3c0604c956c24c6acf16aebe929c275fde3b3109edc9446997b50962ed48f76",
+  "generated_at": "2026-03-27T14:30:42+00:00",
   "generator_version": "1.0.0",
   "models": {
-    "gate_context": {
+    "literature_causal_prior": {
       "aliases": [],
       "compat_mode": "strict",
-      "fqn": "polisyos.ir.governance.gate.GateContext",
+      "fqn": "polisyos.ir.analytics.literature.LiteratureCausalPrior",
       "lifecycle": "active",
-      "priority": "p1",
-      "schema_file": "gate_context.schema.json",
-      "schema_version": null,
-      "sha256_full": "cd33963a257a95684f31fde303b89d91158559e3fc1ee6e50e114d3713731f9c",
-      "sha256_semantic": "97588eefde207d8395729e42f0a37fb68fe36a91e789adbaac4f9f3b02619f54",
-      "version_field": "schema_version"
-    },
-    "gate_request": {
-      "aliases": [],
-      "compat_mode": "strict",
-      "fqn": "polisyos.ir.governance.gate.GateRequest",
-      "lifecycle": "active",
-      "priority": "p1",
-      "schema_file": "gate_request.schema.json",
-      "schema_version": "1.1",
-      "sha256_full": "658aeba0becbf0d30f26ca3502e8e27a2cdbfcc63e7c182f71ddec1974f22409",
-      "sha256_semantic": "28f671dc2af0cadedd01e624c986af7b43267a561ecb8c539b5506f9731a6805",
+      "priority": "p2",
+      "schema_file": "literature_causal_prior.schema.json",
+      "schema_version": "1.0",
+      "sha256_full": "9e291d258c9bf5b82c454edd28bd9880bf29058df82a005de13a1dcb495ed6e5",
+      "sha256_semantic": "ddef92906f1cd6aa4cde798cac42017d620944b0d56d880d5ce23017a5858912",
       "version_field": "schema_version"
     }
   },

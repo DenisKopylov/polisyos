@@ -32,6 +32,17 @@ class FcntlLockHandle:
         finally:
             os.close(self.fd)
 
+    def is_alive(self) -> bool:
+        """Check if the lock is still actively held (fd is valid and PID exists)."""
+        try:
+            os.fstat(self.fd)
+        except OSError:
+            return False
+        pid = self.metadata.get("pid")
+        if pid is not None:
+            return _pid_exists(int(pid))
+        return True
+
 
 def _pid_exists(pid: int) -> bool:
     if pid <= 0:
@@ -127,3 +138,15 @@ class FcntlRunLock:
         return FcntlLockHandle(
             run_id=run_id, path=lock_path, fd=fd, metadata=metadata
         )
+
+    def detect_stale(self, run_id: str) -> bool:
+        """Check if a lock file for *run_id* is stale (owner PID dead)."""
+        lock_path = self._run_dir / RUN_LOCK_FILENAME
+        meta = _read_lock_metadata(lock_path)
+        if meta is None:
+            return False
+        same_host = meta.get("hostname") == socket.gethostname()
+        pid = meta.get("pid")
+        if same_host and isinstance(pid, int):
+            return not _pid_exists(pid)
+        return False

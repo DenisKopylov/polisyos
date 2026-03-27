@@ -67,17 +67,111 @@ _FORMAT_MEDIA_TYPES = {
 _TIME_COLUMN_HINTS = ("time", "year", "date", "period")
 _GEO_COLUMN_HINTS = ("country", "geo", "region", "territory", "area", "geography")
 _HEURISTIC_METRIC_PATTERNS: tuple[tuple[str, tuple[str, ...]], ...] = (
+    # ── Macroeconomics ──
     ("gdp_per_capita", ("gdp per capita", "gross domestic product per capita", "ввп на душу")),
+    ("gdp_growth", ("gdp growth", "economic growth", "зростання ввп", "wzrost pkb")),
     ("gdp", ("gross domestic product", " gdp ", "ввп")),
     ("unemployment_rate", ("unemployment", "jobless", "безробіт", "somaj", "șomaj", "bezroboc", "rynek pracy")),
+    ("youth_unemployment", ("youth unemployment", "young unemploy", "молодіжне безробіт", "bezroboc młodz")),
     ("inflation", ("inflation", "consumer price", "cpi", "інфляц", "inflatie", "inflație", "inflacja")),
-    ("poverty_rate", ("poverty", "deprivation", "бідн", "saracie", "sărăcie")),
+    ("interest_rate", ("interest rate", "central bank rate", "відсоткова ставка", "stopa procentowa")),
+    ("public_debt", ("public debt", "government debt", "державний борг", "dług publiczny")),
+    ("gov_balance", ("fiscal balance", "budget deficit", "budget surplus", "дефіцит бюджет")),
+    ("trade_balance", ("trade balance", "export import", "торговий баланс", "bilans handlowy")),
+    ("trade_openness", ("trade openness", "trade to gdp", "відкритість торгівлі")),
+    ("fdi_inflows", ("foreign direct investment", " fdi ", "прямі іноземні інвестиц", "bezpośrednie inwestycje")),
+    ("savings_rate", ("savings rate", "gross savings", "заощаджен")),
+    ("investment_rate", ("gross capital formation", "investment rate", "інвестиц")),
+    # ── Poverty & Inequality ──
+    ("poverty_rate", ("poverty", "deprivation", "бідн", "saracie", "sărăcie", "ubóstw")),
+    ("gini_coefficient", ("gini", "income inequality", "gini coefficient", "współczynnik gini")),
+    ("inequality", ("inequality", "income distribution", "нерівн", "nierówn")),
+    # ── Labour ──
     ("labor_force_participation", ("labor force participation", "labour force participation", "робочій силі")),
-    ("migration", ("migration", "migrant", "refugee", "міграц", "migratie", "migrație", "demograf", "demografie", "migrac", "demografi")),
+    ("female_labor_participation", ("female labor", "female labour", "women employment", "жіноча зайнят")),
+    ("employment_rate", ("employment rate", "рівень зайнятост", "stopa zatrudnien")),
+    ("informality_rate", ("informal economy", "informal employment", "тіньова економік")),
+    ("wage_growth", ("wage growth", "wage increase", "зростання зарплат", "wzrost płac")),
+    ("gender_wage_gap", ("gender pay gap", "gender wage gap", "гендерний розрив в оплат")),
+    ("labor_productivity", ("labor productivity", "labour productivity", "продуктивність праці")),
+    ("minimum_wage", ("minimum wage", "мінімальна заробітна", "płaca minimalna")),
+    ("long_term_unemployment", ("long-term unemployment", "довгострокове безробіт")),
+    ("working_poverty", ("working poverty", "in-work poverty", "працююча бідн")),
+    # ── Migration ──
+    ("migration", ("migration", "migrant", "refugee", "міграц", "migratie", "migrație", "migrac")),
+    ("refugee_population", ("refugee", "asylum seeker", "біженц", "uchodźc")),
+    ("remittance_inflows", ("remittance", "грошові перекази", "przekazy pieniężne")),
+    ("displacement", ("internally displaced", "displacement", "переміщен")),
+    # ── Demographics ──
+    ("population_growth", ("population growth", "приріст населення", "przyrost naturalny")),
+    ("fertility_rate", ("fertility rate", "birth rate", "народжуван", "dzietnoś")),
+    ("urbanization_rate", ("urbanization", "urban population", "урбанізац", "urbanizacj")),
+    ("dependency_ratio", ("dependency ratio", "age dependency", "коефіцієнт залежност")),
+    # ── Health ──
     ("health_outcomes", ("life expectancy", "healthy life expectancy", "mortality", "тривалість життя", "здоров", "sanat", "sănătate", "spital", "zdrow", "szpital")),
-    ("education_outcomes", ("education", "enrollment", "enrolment", "school", "literacy", "освіт", "зарахув", "educat", "școal", "scoala", "elev", "edukac", "szkol", "uczni")),
+    ("infant_mortality", ("infant mortality", "child mortality", "neonatal mortality", "дитяча смертн", "śmiertelność niemowl")),
+    ("maternal_mortality", ("maternal mortality", "материнська смертн", "śmiertelność matek")),
+    ("vaccination_coverage", ("vaccination", "immunization", "immunisation", "вакцинац", "щепленн", "szczepien")),
+    ("obesity_prevalence", ("obesity", "overweight", "ожирінн", "otyłoś")),
+    ("child_stunting", ("stunting", "malnutrition", "wasting", "затримка росту")),
+    ("physician_density", ("physician density", "doctors per capita", "лікарі на душу")),
+    ("hospital_beds", ("hospital beds", "лікарняні ліжк", "łóżka szpitaln")),
+    ("clean_water_access", ("clean water", "safe water", "drinking water", "чиста вода", "czysta woda")),
+    ("sanitation_coverage", ("sanitation", "sewerage", "каналізац", "kanalizacj")),
+    ("universal_health_coverage", ("universal health coverage", " uhc ", "загальне медичне")),
+    ("hiv_prevalence", ("hiv", "aids", "віл", "снід")),
+    ("tuberculosis_incidence", ("tuberculosis", " tb ", "туберкульоз", "gruźlic")),
+    ("noncommunicable_disease_mortality", ("noncommunicable disease", " ncd ", "неінфекційні захворюванн")),
+    ("health_spending", ("health spending", "health expenditure", "витрати на здоров", "wydatki na zdrow")),
+    ("out_of_pocket_spending", ("out-of-pocket", "out of pocket health", "витрати з власної кишен")),
+    ("suicide_rate", ("suicide", "самогубств", "samobójstw")),
+    # ── Education ──
+    ("education_outcomes", ("education", "enrollment", "enrolment", "school", "literacy", "освіт", "зарахув", "educat", "școal", "scoala", "edukac", "szkol")),
+    ("education_spending", ("education spending", "education expenditure", "витрати на освіт", "wydatki na edukacj")),
+    ("tertiary_enrollment", ("tertiary enrollment", "university enrollment", "вища освіт", "szkolnictwo wyższ")),
+    ("years_of_schooling", ("years of schooling", "expected years", "роки навчанн")),
+    ("school_quality", ("learning outcomes", "learning poverty", "якість освіт", "jakość edukacj")),
+    ("research_output", ("scientific publications", "research output", "наукові публікаці")),
+    # ── Governance ──
     ("social_trust", ("social trust", "trust survey", "довір")),
     ("institutional_quality", ("rule of law", "government effectiveness", "regulatory quality", "institutional quality", "guvern", "administratie", "administrație", "administrac", "rząd")),
+    ("corruption_level", ("corruption", "корупц", "korupcj", "anti-corruption")),
+    ("democracy_quality", ("democracy", "democratic", "демократ", "demokracj")),
+    ("public_trust", ("public trust", "trust in government", "trust in institution", "довіра до уряд")),
+    ("political_stability", ("political stability", "political violence", "політична стабільн")),
+    ("judicial_quality", ("judicial quality", "court system", "судова систем", "wymiar sprawiedliwoś")),
+    ("property_rights", ("property rights", "права власност", "prawa własnośc")),
+    # ── Environment & Climate ──
+    ("co2_emissions", ("co2", "carbon emission", "greenhouse gas", "викид", "emisje co2")),
+    ("renewable_energy_share", ("renewable energy", "clean energy", "відновлювана енерг", "energia odnawialn")),
+    ("forest_cover", ("forest cover", "forest area", "deforestation", "ліс", "площа лісів")),
+    ("air_quality_index", ("air quality", "pm2.5", "air pollution", "якість повітря", "jakość powietrz")),
+    ("water_stress", ("water stress", "water scarcity", "водний стрес", "stres wodny")),
+    ("energy_intensity", ("energy intensity", "energy efficiency", "енергоінтенсивн")),
+    ("electricity_access", ("electricity access", "electrification", "доступ до електрик")),
+    ("waste_management", ("waste management", "recycling", "відход", "gospodarka odpadami")),
+    # ── Finance ──
+    ("financial_inclusion", ("financial inclusion", "bank account", "фінансова інклюз", "inkluzja finansow")),
+    ("credit_access", ("domestic credit", "credit access", "доступ до кредит")),
+    # ── Infrastructure & Digital ──
+    ("internet_penetration", ("internet users", "internet access", "інтернет", "dostęp do internet")),
+    ("broadband_penetration", ("broadband", "fixed broadband", "широкосмуговий")),
+    ("mobile_coverage", ("mobile phone", "cellular subscription", "мобільний зв'язок")),
+    ("logistics_performance", ("logistics performance", " lpi ", "логістик")),
+    # ── Security & Conflict ──
+    ("homicide_rate", ("homicide", "murder rate", "вбивств", "zabójstw")),
+    ("military_spending", ("military spending", "defense spending", "військові витрат", "wydatki wojskow")),
+    ("conflict_intensity", ("armed conflict", "conflict intensity", "збройний конфлікт")),
+    # ── Social ──
+    ("social_capital", ("social capital", "civic participation", "соціальний капітал", "kapitał społeczn")),
+    ("cultural_cluster", ("cultural values", "cultural cluster", "культурні ціннос")),
+    ("gender_equality", ("gender equality", "women rights", "гендерна рівн", "równość płci")),
+    ("social_protection_coverage", ("social protection", "social safety net", "соціальний захист")),
+    ("child_labor", ("child labor", "child labour", "дитяча прац", "praca dziec")),
+    ("human_capital", ("human capital index", " hci ", "людський капітал")),
+    ("tax_revenue", ("tax revenue", "податкові надходженн", "wpływy podatkow")),
+    ("government_spending", ("government spending", "public expenditure", "державні витрат")),
+    ("r_and_d_spending", ("research and development", "r&d spending", "нддкр", "wydatki na b+r")),
 )
 
 
@@ -483,12 +577,14 @@ def _map_metrics_both(
 # Metric inference methods in descending quality order.
 METRIC_INFERENCE_CODE_MATCH = "code_match"
 METRIC_INFERENCE_KEYWORD_MATCH = "keyword_match"
+METRIC_INFERENCE_EMBEDDING_SIMILARITY = "embedding_similarity"
 METRIC_INFERENCE_HEURISTIC = "heuristic"
 
 # Confidence score associated with each inference method.
 METRIC_INFERENCE_CONFIDENCE: dict[str, float] = {
     METRIC_INFERENCE_CODE_MATCH: 0.95,
     METRIC_INFERENCE_KEYWORD_MATCH: 0.75,
+    METRIC_INFERENCE_EMBEDDING_SIMILARITY: 0.65,
     METRIC_INFERENCE_HEURISTIC: 0.55,
 }
 
@@ -528,9 +624,14 @@ def _map_metrics_with_method(
         if metric_id in seen:
             continue
         keywords = [str(v).lower() for v in spec.get("keywords", [])]
-        if any(k in text for k in keywords):
-            matched.append((metric_id, METRIC_INFERENCE_KEYWORD_MATCH))
-            seen.add(metric_id)
+        if keywords:
+            hits = sum(1 for k in keywords if k in text)
+            if hits > 0:
+                ratio = hits / len(keywords)
+                # Proportional confidence: 1/5 kw → keyword_weak, 3/5+ → keyword_match
+                method = METRIC_INFERENCE_KEYWORD_MATCH if ratio >= 0.3 else METRIC_INFERENCE_HEURISTIC
+                matched.append((metric_id, method))
+                seen.add(metric_id)
 
     for metric_id, patterns in _HEURISTIC_METRIC_PATTERNS:
         if metric_id in seen:

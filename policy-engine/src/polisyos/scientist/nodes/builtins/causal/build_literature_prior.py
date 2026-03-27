@@ -5,10 +5,16 @@ from typing import Any
 
 from polisyos.core.artifacts.manifest import InputRef
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+from polisyos.foundry.methods.catalog.causal.invariance_tests import (
+    build_environment_audit_report,
+)
 from polisyos.foundry.methods.catalog.causal.literature_prior import BuildLiteraturePrior
 from polisyos.foundry.methods.catalog.causal.protocols import LiteraturePriorBuildData
 from polisyos.ir.analytics.causal_graph import persist_causal_graph_model
-from polisyos.ir.analytics.literature import persist_literature_causal_prior
+from polisyos.ir.analytics.literature import (
+    EnvironmentAuditReport,
+    persist_literature_causal_prior,
+)
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
@@ -38,12 +44,22 @@ _SPEC = NodeSpec(
         "params.literature_prior_min_confidence",
         "params.literature_prior_limit",
         "params.literature_prior_domain",
+        "params.discovery_data",
+        "params.discovery_variable_names",
+        "params.discovery_environment_labels",
+        "params.discovery_target_col",
+        "params.discovery_domain",
+        "params.environment_audit_enabled",
+        "params.environment_audit_alpha",
+        "params.environment_audit_correction",
         f"inputs.{INPUT_KNOWLEDGE_BUNDLE_REF}",
     ],
     state_writes=[
         f"artifacts_index.{ARTIFACT_LITERATURE_PRIOR_REF}",
         f"artifacts_index.{ARTIFACT_LITERATURE_PRIOR_GRAPH_REF}",
         "params.literature_prior_warnings",
+        "params.environment_audit_summary",
+        "params.environment_audit_status",
     ],
     produces=[ARTIFACT_LITERATURE_PRIOR_REF, ARTIFACT_LITERATURE_PRIOR_GRAPH_REF],
 )
@@ -71,6 +87,47 @@ def _optional_float(value: Any, *, default: float) -> float:
         return float(value)
     except Exception:
         return float(default)
+
+
+def _build_environment_audit(state: ExperimentState) -> EnvironmentAuditReport:
+    if not bool(state.params.get("environment_audit_enabled", True)):
+        return EnvironmentAuditReport(
+            status="skipped",
+            warnings=["environment_audit_disabled"],
+            metadata={"reason": "disabled"},
+        )
+
+    return build_environment_audit_report(
+        data=state.params.get("discovery_data"),
+        variable_names=[
+            str(item).strip()
+            for item in state.params.get("discovery_variable_names", [])
+            if str(item).strip()
+        ]
+        if isinstance(state.params.get("discovery_variable_names"), list)
+        else [],
+        domain_labels=state.params.get("discovery_environment_labels"),
+        target_col=state.params.get("discovery_target_col"),
+        alpha=_optional_float(state.params.get("environment_audit_alpha"), default=0.05),
+        correction=str(state.params.get("environment_audit_correction", "bh") or "bh"),
+        metadata={
+            "source": "scientist.node_build_literature_prior",
+            "discovery_domain": str(state.params.get("discovery_domain") or "").strip() or None,
+        },
+    )
+
+
+def _environment_audit_summary(report: EnvironmentAuditReport) -> dict[str, Any]:
+    return {
+        "status": report.status,
+        "n_environments": report.n_environments,
+        "ks_passed": report.ks_passed,
+        "ks_rejected_variables": list(report.ks_rejected_variables),
+        "icp_run": report.icp_run,
+        "icp_passed": report.icp_passed,
+        "variant_features": list(report.variant_features),
+        "warnings": list(report.warnings),
+    }
 
 
 @dataclass(frozen=True)
@@ -134,6 +191,19 @@ class BuildLiteraturePriorNode:
                 ),
             )
 
+        environment_audit = _build_environment_audit(state)
+        prior = prior.model_copy(update={"environment_audit": environment_audit})
+        graph = prior.to_causal_graph_model(
+            nodes=list(graph.nodes),
+            min_confidence=_optional_float(
+                prior.metadata.get("confidence_threshold"),
+                default=_optional_float(
+                    state.params.get("literature_prior_min_confidence"),
+                    default=0.2,
+                ),
+            ),
+        )
+
         input_refs: list[InputRef] = []
         if INPUT_KNOWLEDGE_BUNDLE_REF in state.inputs:
             input_refs.append(
@@ -156,6 +226,10 @@ class BuildLiteraturePriorNode:
         new_state.params["literature_prior_warnings"] = [
             str(item) for item in result.get("warnings", [])
         ]
+        new_state.params["environment_audit_summary"] = _environment_audit_summary(
+            environment_audit
+        )
+        new_state.params["environment_audit_status"] = environment_audit.status
 
         return NodeOutcome(
             status="ok",
@@ -166,7 +240,8 @@ class BuildLiteraturePriorNode:
                     level="info",
                     message=(
                         f"Literature prior built ({len(prior.edges)} edges, "
-                        f"{len(result.get('warnings', []))} warning(s))."
+                        f"{len(result.get('warnings', []))} warning(s), "
+                        f"environment audit: {environment_audit.status})."
                     ),
                 )
             ],

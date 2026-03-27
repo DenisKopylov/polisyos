@@ -11,6 +11,8 @@ from polisyos.core.contracts.uncertainty import UncertaintyEnvelopeRef
 from polisyos.ir.analytics.calibration import CalibrationConfig
 from polisyos.ir.analytics.uncertainty import UncertaintyEnvelope
 
+from polisyos.foundry.calibration.identifiability import IdentifiabilityReport
+
 
 class CalibrationSeriesComparison(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -68,6 +70,10 @@ class CalibrationReport(BaseModel):
     series_comparison: Mapping[str, CalibrationSeriesComparison] = Field(default_factory=dict)
     fit_quality: CalibrationFitQuality | None = None
     uncertainties: CalibrationUncertainty | None = None
+    identifiability: IdentifiabilityReport | None = Field(
+        default=None,
+        description="Per-parameter identifiability diagnostics from Hessian eigenstructure.",
+    )
     uncertainty_envelopes: Mapping[str, UncertaintyEnvelope] | None = Field(
         default=None,
         description="Per-parameter uncertainty envelopes derived from calibration Hessian output.",

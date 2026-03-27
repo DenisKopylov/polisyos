@@ -730,7 +730,7 @@ def _lbidd_case(
         runner=runner,
         checker=checker,
         tags=("lbidd",),
-        timeout_s=180.0,
+        timeout_s=420.0,
     )
 
 

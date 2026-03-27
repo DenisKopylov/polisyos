@@ -107,20 +107,34 @@ class TestShouldRetry:
 
 class TestBackoffDelay:
     def test_first_attempt(self):
-        p = RetryPolicy(backoff_base_s=1.0, backoff_factor=2.0)
+        p = RetryPolicy(backoff_base_s=1.0, backoff_factor=2.0, jitter="none")
         assert _backoff_delay(0, p) == 1.0
 
     def test_second_attempt(self):
-        p = RetryPolicy(backoff_base_s=1.0, backoff_factor=2.0)
+        p = RetryPolicy(backoff_base_s=1.0, backoff_factor=2.0, jitter="none")
         assert _backoff_delay(1, p) == 2.0
 
     def test_third_attempt(self):
-        p = RetryPolicy(backoff_base_s=1.0, backoff_factor=2.0)
+        p = RetryPolicy(backoff_base_s=1.0, backoff_factor=2.0, jitter="none")
         assert _backoff_delay(2, p) == 4.0
 
     def test_custom_base(self):
-        p = RetryPolicy(backoff_base_s=0.5, backoff_factor=3.0)
+        p = RetryPolicy(backoff_base_s=0.5, backoff_factor=3.0, jitter="none")
         assert _backoff_delay(1, p) == 1.5
+
+    def test_jitter_full(self):
+        p = RetryPolicy(backoff_base_s=1.0, backoff_factor=2.0, jitter="full")
+        delays = [_backoff_delay(0, p) for _ in range(100)]
+        assert all(0 <= d <= 1.0 for d in delays)
+
+    def test_jitter_equal(self):
+        p = RetryPolicy(backoff_base_s=1.0, backoff_factor=2.0, jitter="equal")
+        delays = [_backoff_delay(0, p) for _ in range(100)]
+        assert all(0.5 <= d <= 1.0 for d in delays)
+
+    def test_jitter_default_is_full(self):
+        p = RetryPolicy()
+        assert p.jitter == "full"
 
 
 # ---------------------------------------------------------------------------
@@ -210,7 +224,7 @@ class TestExecuteWithRetrySync:
             _ok_outcome(state),
         ]
         policy = RetryPolicy(
-            max_retries=3, backoff_base_s=1.0, backoff_factor=2.0,
+            max_retries=3, backoff_base_s=1.0, backoff_factor=2.0, jitter="none",
         )
         with patch("polisyos.scientist.engine.retry.time.sleep") as mock_sleep:
             execute_with_retry_sync(

@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Any, Mapping
 
 from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.evidence_sources import normalize_evidence_sources_config
 from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_KNOWLEDGE_BUNDLE_REF,
     INPUT_RESEARCH_INTENT_REF,
@@ -22,8 +23,16 @@ _SERIOUS_EXECUTION_PROFILES: frozenset[str] = frozenset({"research", "governed",
 
 def resolve_workflow_id(initial_state: ExperimentState) -> str:
     explicit = str(initial_state.params.get("workflow_id", "") or "").strip().lower()
+    if explicit == "scientist_discovery":
+        return "scientist_discovery"
+    if explicit == "scientist_policy_design":
+        return "scientist_policy_design"
     if explicit == "scientist_policy_verified":
         return "scientist_policy_verified"
+    if _should_use_discovery(initial_state):
+        return "scientist_discovery"
+    if _should_use_policy_design(initial_state):
+        return "scientist_policy_design"
     if _should_use_policy_verified(initial_state):
         return "scientist_policy_verified"
     if _execution_profile_requires_serious_workflow(initial_state):
@@ -54,6 +63,29 @@ def _should_use_policy_verified(state: ExperimentState) -> bool:
     return (not has_trinity) and has_policy_request
 
 
+def _should_use_policy_design(state: ExperimentState) -> bool:
+    params = state.params
+    execution_profile = str(state.execution_profile or params.get("execution_profile") or "").strip().lower()
+    if execution_profile == "policy_design":
+        return True
+    raw = params.get("policy_mode")
+    if isinstance(raw, bool):
+        return raw
+    if isinstance(raw, str):
+        return raw.strip().lower() in {"1", "true", "yes", "on"}
+    return False
+
+
+def _should_use_discovery(state: ExperimentState) -> bool:
+    params = state.params
+    execution_profile = str(state.execution_profile or params.get("execution_profile") or "").strip().lower()
+    if execution_profile == "discovery":
+        return True
+    if bool(params.get("discovery_mode")):
+        return True
+    return bool(params.get("discovery_data")) and bool(params.get("discovery_variable_names"))
+
+
 def _should_auto_escalate_to_causal_full(state: ExperimentState) -> bool:
     params = state.params
     if _as_bool(params.get("transport_required")):
@@ -66,6 +98,18 @@ def _should_auto_escalate_to_causal_full(state: ExperimentState) -> bool:
         return True
     config = params.get("cross_graph_evidence_config")
     if isinstance(config, Mapping) and bool(config.get("enabled", True)):
+        return True
+    evidence_sources = normalize_evidence_sources_config(params)
+    if any(
+        str(value or "").strip()
+        for value in (
+            evidence_sources.academic_db_path,
+            evidence_sources.datasets_db_path,
+            evidence_sources.legal_db_path,
+            evidence_sources.benchmark_suite_path,
+            evidence_sources.benchmark_report_path,
+        )
+    ):
         return True
     if _as_bool(params.get("cross_graph_evidence_expected")):
         return True

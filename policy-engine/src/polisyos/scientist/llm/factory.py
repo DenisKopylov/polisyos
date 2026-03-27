@@ -28,6 +28,11 @@ class GatewayLLMConfig:
     default_provider: str | None = None
     capture_prompt: bool = False
     max_prompt_length: int = 200
+    # Fallback routing
+    fallback_urls: tuple[str, ...] = ()
+    # Prompt caching
+    cache_ttl_s: float = 300.0
+    cache_maxsize: int = 128
 
     @classmethod
     def from_env(cls) -> GatewayLLMConfig | None:
@@ -49,6 +54,18 @@ class GatewayLLMConfig:
             )
         except ValueError:
             max_prompt_length = 200
+        try:
+            cache_ttl_s = float(os.getenv("POLISYOS_LLM_CACHE_TTL_S", "300").strip())
+        except ValueError:
+            cache_ttl_s = 300.0
+        try:
+            cache_maxsize = int(os.getenv("POLISYOS_LLM_CACHE_MAXSIZE", "128").strip())
+        except ValueError:
+            cache_maxsize = 128
+        raw_fallback = os.getenv("POLISYOS_LLM_FALLBACK_URLS", "").strip()
+        fallback_urls = tuple(
+            u.strip() for u in raw_fallback.split(",") if u.strip()
+        ) if raw_fallback else ()
         return cls(
             base_url=base_url,
             api_key=api_key,
@@ -60,6 +77,9 @@ class GatewayLLMConfig:
                 default=False,
             ),
             max_prompt_length=max(max_prompt_length, 50),
+            fallback_urls=fallback_urls,
+            cache_ttl_s=max(cache_ttl_s, 0.0),
+            cache_maxsize=max(cache_maxsize, 0),
         )
 
 

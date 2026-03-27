@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 import re
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Callable, TypeVar
 
 from polisyos.common.logger import get_logger
 from polisyos.lex.batch.canonicalizers import (
@@ -18,6 +18,7 @@ from polisyos.lex.batch.xml_parser import NPADocument
 from polisyos.lex.knowledge.types import SPOCandidate
 
 logger = get_logger(__name__)
+_GroupedItemT = TypeVar("_GroupedItemT")
 
 
 def _parse_json_object(raw_content: str) -> dict[str, Any] | None:
@@ -512,36 +513,107 @@ def _estimate_request_item_chars(doc: NPADocument, provision: ProvisionSpan) -> 
     )
 
 
+def _resolve_adaptive_soft_batch_chars(
+    *,
+    request_batch_chars: int | None,
+    adaptive_batch_downshift_enabled: bool,
+    adaptive_batch_soft_chars_share: float,
+) -> int:
+    if not adaptive_batch_downshift_enabled:
+        return 0
+    if request_batch_chars is None or int(request_batch_chars) <= 0:
+        return 0
+    share = float(adaptive_batch_soft_chars_share)
+    if share >= 0.999:
+        return int(request_batch_chars)
+    return max(500, min(int(request_batch_chars), int(int(request_batch_chars) * share)))
+
+
+def _adaptive_batch_item_cap(
+    *,
+    item_chars: int,
+    request_batch_size: int,
+    soft_batch_chars: int,
+) -> int:
+    base_size = max(1, int(request_batch_size))
+    if base_size <= 1 or soft_batch_chars <= 0:
+        return base_size
+    per_item_budget = max(1.0, float(soft_batch_chars) / float(base_size))
+    ratio = float(max(1, int(item_chars))) / per_item_budget
+    if ratio >= 2.15:
+        return 1
+    if ratio >= 1.75:
+        return min(base_size, 2)
+    if ratio >= 1.35:
+        return min(base_size, 3)
+    if ratio >= 1.10:
+        return min(base_size, 4)
+    return base_size
+
+
+def _group_items_by_request_budget(
+    items: list[_GroupedItemT],
+    *,
+    request_batch_size: int,
+    request_batch_chars: int | None,
+    estimate_chars: Callable[[_GroupedItemT], int],
+    adaptive_batch_downshift_enabled: bool = False,
+    adaptive_batch_soft_chars_share: float = 0.80,
+) -> list[list[_GroupedItemT]]:
+    groups: list[list[_GroupedItemT]] = []
+    current: list[_GroupedItemT] = []
+    current_chars = 0
+    max_items = max(1, int(request_batch_size))
+    max_chars = int(request_batch_chars) if request_batch_chars is not None else 0
+    soft_chars = _resolve_adaptive_soft_batch_chars(
+        request_batch_chars=request_batch_chars,
+        adaptive_batch_downshift_enabled=adaptive_batch_downshift_enabled,
+        adaptive_batch_soft_chars_share=adaptive_batch_soft_chars_share,
+    )
+    current_item_cap = max_items
+
+    for item in items:
+        item_chars = max(1, int(estimate_chars(item)))
+        item_cap = _adaptive_batch_item_cap(
+            item_chars=item_chars,
+            request_batch_size=max_items,
+            soft_batch_chars=soft_chars,
+        )
+        effective_group_cap = min(current_item_cap, item_cap) if current else item_cap
+        would_overflow_items = bool(current and len(current) >= effective_group_cap)
+        would_overflow_soft_chars = bool(current and soft_chars > 0 and current_chars + item_chars > soft_chars)
+        would_overflow_hard_chars = bool(current and max_chars > 0 and current_chars + item_chars > max_chars)
+        if would_overflow_items or would_overflow_soft_chars or would_overflow_hard_chars:
+            groups.append(current)
+            current = []
+            current_chars = 0
+            current_item_cap = max_items
+
+        current.append(item)
+        current_chars += item_chars
+        current_item_cap = min(current_item_cap, item_cap)
+
+    if current:
+        groups.append(current)
+    return groups
+
+
 def _group_request_items(
     items: list[tuple[NPADocument, ProvisionSpan]],
     *,
     request_batch_size: int,
     request_batch_chars: int | None,
+    adaptive_batch_downshift_enabled: bool = False,
+    adaptive_batch_soft_chars_share: float = 0.80,
 ) -> list[list[tuple[NPADocument, ProvisionSpan]]]:
-    groups: list[list[tuple[NPADocument, ProvisionSpan]]] = []
-    current: list[tuple[NPADocument, ProvisionSpan]] = []
-    current_chars = 0
-    max_items = max(1, request_batch_size)
-    max_chars = int(request_batch_chars) if request_batch_chars is not None else 0
-
-    for item in items:
-        item_chars = _estimate_request_item_chars(item[0], item[1])
-        would_overflow_items = len(current) >= max_items
-        would_overflow_chars = bool(
-            current
-            and max_chars > 0
-            and current_chars + item_chars > max_chars
-        )
-        if would_overflow_items or would_overflow_chars:
-            groups.append(current)
-            current = []
-            current_chars = 0
-        current.append(item)
-        current_chars += item_chars
-
-    if current:
-        groups.append(current)
-    return groups
+    return _group_items_by_request_budget(
+        items,
+        request_batch_size=request_batch_size,
+        request_batch_chars=request_batch_chars,
+        estimate_chars=lambda item: _estimate_request_item_chars(item[0], item[1]),
+        adaptive_batch_downshift_enabled=adaptive_batch_downshift_enabled,
+        adaptive_batch_soft_chars_share=adaptive_batch_soft_chars_share,
+    )
 
 
 def _materialize_fallback_row(

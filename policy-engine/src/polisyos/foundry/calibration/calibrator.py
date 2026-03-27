@@ -21,6 +21,8 @@ from polisyos.foundry.calibration.bijectors import (
     make_bijector,
     to_unconstrained,
 )
+from polisyos.foundry.calibration.hessian import HessianResult, compute_hessian
+from polisyos.foundry.calibration.identifiability import diagnose_identifiability
 from polisyos.foundry.calibration.loss import compute_base_loss
 from polisyos.foundry.calibration.preflight import fetch_targets, prepare_targets, resolve_steps
 from polisyos.foundry.calibration.pure_executor import (
@@ -498,7 +500,6 @@ class Calibrator:
                 optax.clip_by_global_norm(cfg.clip_grad_norm),
                 optax.adam(cfg.learning_rate),
             )
-        opt_state = opt.init(u)
         optimizer_name = "adam"
         hpc_enabled = is_hpc_observability_enabled()
         collector = CalibrationMetricsCollector(
@@ -692,81 +693,237 @@ class Calibrator:
             )
             return new_weights, norms
 
-        loss_history: list[float] = []
-        grad_norm_history: list[float] = []
-        u_state = u
-        weights_state = weights
-        best_loss = float("inf")
-        patience = 0
-        init_base_vec = None
-        early_stop_triggered = False
-        grad_failure = False
-
-        with span_cm as span:
-            for step in range(cfg.max_steps):
-                step_idx = jnp.array(step, dtype=jnp.int32)
-                step_start = time.perf_counter() if hpc_enabled else None
-                (
-                    u_state,
-                    weights_state,
-                    opt_state,
-                    loss_val,
-                    aux,
-                    grad_norm,
-                    grads_finite,
-                ) = step_fn(u_state, weights_state, opt_state, step_idx)
-                if hpc_enabled:
-                    jax.block_until_ready(loss_val)
-                    duration = time.perf_counter() - (step_start or 0.0)
-
-                loss_float = float(loss_val)
-                grad_norm_float = float(grad_norm)
-                loss_history.append(loss_float)
-                grad_norm_history.append(grad_norm_float)
-
-                if hpc_enabled:
-                    collector.record_step(
-                        step=step,
-                        duration_seconds=duration,
-                        loss=loss_float,
-                        grad_norm=grad_norm_float,
-                        is_warmup=step == 0,
+        def _param_names_for_groups(theta_groups: Sequence[jnp.ndarray]) -> list[str]:
+            flat_theta, _ = ravel_pytree(theta_groups)
+            n_params = int(flat_theta.size)
+            if n_params == 0:
+                return []
+            param_names: list[str] = []
+            for group, value in zip(groups, theta_groups):
+                arr = np.asarray(value)
+                if arr.size == 1:
+                    param_names.append(group.group_id)
+                else:
+                    param_names.extend(
+                        f"{group.group_id}[{idx}]" for idx in range(int(arr.size))
                     )
+            if len(param_names) != n_params:
+                return [f"param_{idx}" for idx in range(n_params)]
+            return param_names
 
-                if not bool(grads_finite):
-                    diagnostics.append(f"Non-finite gradients at step {step}")
-                    grad_failure = True
-                    break
-                base_vec, _, _ = aux
-                if cfg.grad_norm.enabled and step % cfg.grad_norm.update_every == 0:
-                    if init_base_vec is None:
-                        init_base_vec = base_vec
-                    weights_state, _ = gradnorm_update(
-                        u_state, weights_state, base_vec, init_base_vec, step_idx
-                    )
-                if step >= cfg.early_stop_min_steps and cfg.early_stop_patience > 0:
-                    if loss_float + cfg.early_stop_min_delta < best_loss:
-                        best_loss = loss_float
-                        patience = 0
-                    else:
-                        patience += 1
-                    if patience >= cfg.early_stop_patience:
-                        diagnostics.append(f"Early stopping at step {step}")
-                        early_stop_triggered = True
+        def _compute_run_hessian_summary(
+            theta_groups: Sequence[jnp.ndarray],
+            weights_vec: jnp.ndarray,
+        ) -> tuple[HessianResult | None, Any | None, list[str]]:
+            if not cfg.hessian.enabled:
+                return None, None, []
+            flat_theta, unravel_theta = ravel_pytree(theta_groups)
+            n_params = int(flat_theta.size)
+            if n_params == 0:
+                return None, None, ["Hessian skipped: no parameters"]
+            if cfg.hessian.max_params is not None and n_params > cfg.hessian.max_params:
+                return (
+                    None,
+                    None,
+                    [f"Hessian skipped: parameter count {n_params} exceeds {cfg.hessian.max_params}"],
+                )
+
+            param_names = _param_names_for_groups(theta_groups)
+
+            def _loss_from_flat(flat_params: jnp.ndarray) -> jnp.ndarray:
+                theta_groups_local = unravel_theta(flat_params)
+                theta = _expand_group_values(theta_groups_local)
+                sim_bundle = apply_trainable_values(bundle, theta)
+                _, traces_local = run_pure_scan(
+                    self.inputs.base_state,
+                    steps=steps,
+                    root_key=_root_key(jnp.array(0, dtype=jnp.int32)),
+                    bundle=sim_bundle,
+                    metric_paths=metric_paths,
+                    controls_seq=self.inputs.controls_seq,
+                )
+                base_vec = _base_vec_from_traces(traces_local)
+                total = (
+                    jnp.sum(base_vec * weights_vec)
+                    if base_vec.size
+                    else jnp.array(0.0)
+                )
+                total = total + _constraint_penalty(traces_local) + _prior_penalty(theta_groups_local)
+                return total
+
+            local_diagnostics: list[str] = []
+            try:
+                hessian_result = compute_hessian(
+                    _loss_from_flat,
+                    jnp.asarray(flat_theta),
+                    param_names,
+                    damping=cfg.hessian.damping,
+                    jitter_floor=cfg.hessian.rank_tol,
+                )
+            except Exception as exc:
+                return None, None, [f"Hessian computation failed: {exc}"]
+
+            identifiability_report = None
+            try:
+                identifiability_report = diagnose_identifiability(hessian_result)
+            except Exception as exc:  # pragma: no cover - defensive
+                local_diagnostics.append(f"Identifiability diagnostics failed: {exc}")
+            return hessian_result, identifiability_report, local_diagnostics
+
+        # ------------------------------------------------------------------
+        # Multi-start: build list of (u_init, seed_offset) pairs
+        # ------------------------------------------------------------------
+        start_points: list[tuple[list[jnp.ndarray], int]] = [(u, 0)]
+        if cfg.multi_start is not None:
+            ms = cfg.multi_start
+            key = jax.random.PRNGKey(cfg.seed)
+            for i in range(1, ms.n_starts):
+                k = jax.random.fold_in(key, i)
+                u_perturbed = [
+                    v + jax.random.normal(jax.random.fold_in(k, j), shape=v.shape) * ms.perturbation_scale
+                    for j, v in enumerate(u)
+                ]
+                start_points.append((u_perturbed, i))
+
+        multi_start_runs: list[dict[str, Any]] = []
+
+        for u_init, _start_idx in start_points:
+            _ms_diagnostics: list[str] = []
+            opt_state = opt.init(u_init)
+            loss_history: list[float] = []
+            grad_norm_history: list[float] = []
+            u_state = u_init
+            weights_state = weights
+            best_loss = float("inf")
+            patience = 0
+            init_base_vec = None
+            early_stop_triggered = False
+            grad_failure = False
+
+            with span_cm as span:
+                for step in range(cfg.max_steps):
+                    step_idx = jnp.array(step, dtype=jnp.int32)
+                    step_start = time.perf_counter() if hpc_enabled else None
+                    (
+                        u_state,
+                        weights_state,
+                        opt_state,
+                        loss_val,
+                        aux,
+                        grad_norm,
+                        grads_finite,
+                    ) = step_fn(u_state, weights_state, opt_state, step_idx)
+                    if hpc_enabled:
+                        jax.block_until_ready(loss_val)
+                        duration = time.perf_counter() - (step_start or 0.0)
+
+                    loss_float = float(loss_val)
+                    grad_norm_float = float(grad_norm)
+                    loss_history.append(loss_float)
+                    grad_norm_history.append(grad_norm_float)
+
+                    if hpc_enabled:
+                        collector.record_step(
+                            step=step,
+                            duration_seconds=duration,
+                            loss=loss_float,
+                            grad_norm=grad_norm_float,
+                            is_warmup=step == 0,
+                        )
+
+                    if not bool(grads_finite):
+                        _ms_diagnostics.append(f"Non-finite gradients at step {step}")
+                        grad_failure = True
                         break
+                    base_vec, _, _ = aux
+                    if cfg.grad_norm.enabled and step % cfg.grad_norm.update_every == 0:
+                        if init_base_vec is None:
+                            init_base_vec = base_vec
+                        weights_state, _ = gradnorm_update(
+                            u_state, weights_state, base_vec, init_base_vec, step_idx
+                        )
+                    if step >= cfg.early_stop_min_steps and cfg.early_stop_patience > 0:
+                        if loss_float + cfg.early_stop_min_delta < best_loss:
+                            best_loss = loss_float
+                            patience = 0
+                        else:
+                            patience += 1
+                        if patience >= cfg.early_stop_patience:
+                            _ms_diagnostics.append(f"Early stopping at step {step}")
+                            early_stop_triggered = True
+                            break
 
-            convergence_reason = "max_steps"
-            if grad_failure:
-                convergence_reason = "grad_vanish"
-            elif early_stop_triggered:
-                convergence_reason = "early_stop"
+                convergence_reason = "max_steps"
+                if grad_failure:
+                    convergence_reason = "grad_vanish"
+                elif early_stop_triggered:
+                    convergence_reason = "early_stop"
 
-            if hpc_enabled:
-                total_steps = len(loss_history)
-                collector.finalize(convergence_reason, total_steps)
-                if span is not None:
-                    span.set_attribute("calibration.convergence_reason", convergence_reason)
-                    span.set_attribute("calibration.total_steps", total_steps)
+                if hpc_enabled:
+                    total_steps = len(loss_history)
+                    collector.finalize(convergence_reason, total_steps)
+                    if span is not None:
+                        span.set_attribute("calibration.convergence_reason", convergence_reason)
+                        span.set_attribute("calibration.total_steps", total_steps)
+
+            final_loss = float(loss_history[-1]) if loss_history else float("inf")
+            run_hessian_result = None
+            run_identifiability = None
+            if len(start_points) > 1 and cfg.hessian.enabled:
+                theta_groups_run = from_unconstrained(u_state, group_bijectors)
+                run_hessian_result, run_identifiability, hessian_diags = _compute_run_hessian_summary(
+                    theta_groups_run,
+                    weights_state,
+                )
+                _ms_diagnostics.extend(hessian_diags)
+            multi_start_runs.append(
+                {
+                    "u_state": u_state,
+                    "weights_state": weights_state,
+                    "loss_history": loss_history,
+                    "grad_norm_history": grad_norm_history,
+                    "final_loss": final_loss,
+                    "diagnostics": _ms_diagnostics,
+                    "hessian_result": run_hessian_result,
+                    "identifiability": run_identifiability,
+                }
+            )
+
+        # ------------------------------------------------------------------
+        # Multi-start: select best run
+        # ------------------------------------------------------------------
+        if len(multi_start_runs) > 1:
+            from polisyos.foundry.calibration.multi_start import (
+                SingleRunResult as _SR,
+                select_best as _select_best,
+            )
+            _single_results = [
+                _SR(
+                    loss=r["final_loss"],
+                    params=r["u_state"],
+                    hessian_result=r["hessian_result"],
+                    identifiability=r["identifiability"],
+                    loss_history=r["loss_history"],
+                    grad_norm_history=r["grad_norm_history"],
+                    diagnostics=r["diagnostics"],
+                )
+                for r in multi_start_runs
+            ]
+            best_idx, selection_reason = _select_best(_single_results, cfg.multi_start)
+            diagnostics.append(f"Multi-start: selected run {best_idx}/{len(multi_start_runs)} ({selection_reason})")
+            selected_run = multi_start_runs[best_idx]
+            u_state = selected_run["u_state"]
+            weights_state = selected_run["weights_state"]
+            loss_history = selected_run["loss_history"]
+            grad_norm_history = selected_run["grad_norm_history"]
+            diagnostics.extend(selected_run["diagnostics"])
+        else:
+            selected_run = multi_start_runs[0]
+            u_state = selected_run["u_state"]
+            weights_state = selected_run["weights_state"]
+            loss_history = selected_run["loss_history"]
+            grad_norm_history = selected_run["grad_norm_history"]
+            diagnostics.extend(selected_run["diagnostics"])
 
         final_theta_groups = from_unconstrained(u_state, group_bijectors)
         final_theta = _expand_group_values(final_theta_groups)
@@ -835,6 +992,7 @@ class Calibrator:
         )
 
         uncertainties: CalibrationUncertainty | None = None
+        hessian_result: HessianResult | None = None
         if cfg.hessian.enabled:
             flat_theta, unravel_theta = ravel_pytree(final_theta_groups)
             n_params = int(flat_theta.size)
@@ -880,54 +1038,64 @@ class Calibrator:
                     return total
 
                 try:
-                    hessian = jax.hessian(_loss_from_flat)(jnp.asarray(flat_theta))
-                    if not bool(jnp.all(jnp.isfinite(hessian))):
-                        diagnostics.append("Hessian contains non-finite values")
-                    else:
-                        eye = jnp.eye(n_params, dtype=hessian.dtype)
-                        hessian_damped = hessian + cfg.hessian.damping * eye
-                        cov = jnp.linalg.pinv(hessian_damped)
-                        diag = jnp.diag(cov)
-                        std = jnp.sqrt(jnp.maximum(diag, 0.0))
-                        denom = (std[:, None] * std[None, :]) + cfg.hessian.rank_tol
-                        corr = cov / denom
-                        if n_params > 0:
-                            corr = corr.at[jnp.diag_indices(n_params)].set(1.0)
-                        singular_values = jnp.linalg.svd(hessian_damped, compute_uv=False)
-                        s_max = float(jnp.max(singular_values)) if singular_values.size else 0.0
-                        s_min = float(jnp.min(singular_values)) if singular_values.size else 0.0
-                        rank = int(jnp.sum(singular_values > cfg.hessian.rank_tol))
-                        condition = float(s_max / s_min) if s_min > 0 else float("inf")
+                    hessian_result = compute_hessian(
+                        _loss_from_flat,
+                        jnp.asarray(flat_theta),
+                        param_names,
+                        damping=cfg.hessian.damping,
+                        jitter_floor=cfg.hessian.rank_tol,
+                    )
+                    hr = hessian_result
+                    n_p = len(hr.param_names)
 
-                        non_identifiable: list[str] = []
-                        std_np = np.asarray(std, dtype=float)
-                        for idx, value in enumerate(std_np):
-                            if not np.isfinite(value) or value > cfg.hessian.std_warn:
-                                non_identifiable.append(param_names[idx])
+                    # Build correlation from covariance
+                    cov_jnp = jnp.asarray(hr.covariance)
+                    std_jnp = jnp.asarray(hr.std)
+                    denom = (std_jnp[:, None] * std_jnp[None, :]) + cfg.hessian.rank_tol
+                    corr = cov_jnp / denom
+                    if n_p > 0:
+                        corr = corr.at[jnp.diag_indices(n_p)].set(1.0)
 
-                        if rank < n_params:
-                            diagnostics.append(f"Hessian rank deficient: {rank}/{n_params}")
-                        if condition > cfg.hessian.condition_warn:
-                            diagnostics.append(f"Hessian ill-conditioned: {condition:.3g}")
-                        if non_identifiable:
-                            diagnostics.append(
-                                "Non-identifiable params: " + ", ".join(non_identifiable)
-                            )
+                    # Rank via SVD on repaired hessian
+                    sv = jnp.linalg.svd(jnp.asarray(hr.hessian), compute_uv=False)
+                    rank = int(jnp.sum(sv > cfg.hessian.rank_tol))
 
-                        uncertainties = CalibrationUncertainty(
-                            params=param_names,
-                            covariance=_as_float_matrix(cov),
-                            correlation=_as_float_matrix(corr),
-                            std=_as_float_list(std),
-                            damping=float(cfg.hessian.damping),
-                            hessian_rank=rank,
-                            hessian_condition=None
-                            if not np.isfinite(condition)
-                            else float(condition),
-                            non_identifiable=non_identifiable,
+                    non_identifiable: list[str] = []
+                    for idx, value in enumerate(hr.std):
+                        if not np.isfinite(value) or value > cfg.hessian.std_warn:
+                            non_identifiable.append(hr.param_names[idx])
+
+                    condition = hr.condition_number
+                    if rank < n_p:
+                        diagnostics.append(f"Hessian rank deficient: {rank}/{n_p}")
+                    if np.isfinite(condition) and condition > cfg.hessian.condition_warn:
+                        diagnostics.append(f"Hessian ill-conditioned: {condition:.3g}")
+                    if non_identifiable:
+                        diagnostics.append(
+                            "Non-identifiable params: " + ", ".join(non_identifiable)
                         )
+
+                    uncertainties = CalibrationUncertainty(
+                        params=list(hr.param_names),
+                        covariance=_as_float_matrix(cov_jnp),
+                        correlation=_as_float_matrix(corr),
+                        std=_as_float_list(std_jnp),
+                        damping=float(cfg.hessian.damping),
+                        hessian_rank=rank,
+                        hessian_condition=None
+                        if not np.isfinite(condition)
+                        else float(condition),
+                        non_identifiable=non_identifiable,
+                    )
                 except Exception as exc:  # pragma: no cover - defensive
                     diagnostics.append(f"Hessian computation failed: {exc}")
+
+        identifiability_report = None
+        if hessian_result is not None:
+            try:
+                identifiability_report = diagnose_identifiability(hessian_result)
+            except Exception as exc:  # pragma: no cover - defensive
+                diagnostics.append(f"Identifiability diagnostics failed: {exc}")
 
         fidelity_stats = _inspect_bundle_fidelity(bundle)
         report = CalibrationReport(
@@ -940,6 +1108,7 @@ class Calibrator:
             series_comparison=series_comparison,
             fit_quality=fit_quality,
             uncertainties=uncertainties,
+            identifiability=identifiability_report,
             diagnostics=diagnostics,
             execution_context={
                 "requested_mode": cfg.fidelity.mode,

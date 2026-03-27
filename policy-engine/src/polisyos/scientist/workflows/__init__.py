@@ -8,12 +8,16 @@ if TYPE_CHECKING:
         build_execution_context,
         build_registry_with_builtin_nodes,
         resolve_workflow_id,
+        run_discovery_workflow,
         run_causal_full_workflow,
         run_default_workflow,
+        run_policy_design_workflow,
         run_selected_workflow,
     )
     from polisyos.scientist.workflows.causal_full import causal_full_workflow_spec
+    from polisyos.scientist.workflows.discovery import discovery_workflow_spec
     from polisyos.scientist.workflows.default import default_workflow_spec
+    from polisyos.scientist.workflows.policy_design import policy_design_workflow_spec
     from polisyos.scientist.workflows.engine_base import WorkflowEngine, WorkflowEngineFactory
     from polisyos.scientist.workflows.engine_langgraph import (
         LangGraphEngine,
@@ -31,11 +35,15 @@ __all__ = [
     "build_execution_context",
     "build_registry_with_builtin_nodes",
     "resolve_workflow_id",
+    "run_discovery_workflow",
     "run_default_workflow",
     "run_causal_full_workflow",
+    "run_policy_design_workflow",
     "run_selected_workflow",
     "default_workflow_spec",
     "causal_full_workflow_spec",
+    "discovery_workflow_spec",
+    "policy_design_workflow_spec",
 ]
 
 
@@ -45,8 +53,10 @@ def __getattr__(name: str):
         "build_execution_context",
         "build_registry_with_builtin_nodes",
         "resolve_workflow_id",
+        "run_discovery_workflow",
         "run_causal_full_workflow",
         "run_default_workflow",
+        "run_policy_design_workflow",
         "run_selected_workflow",
     }:
         from polisyos.scientist.workflows.builder import (
@@ -54,8 +64,10 @@ def __getattr__(name: str):
             build_execution_context,
             build_registry_with_builtin_nodes,
             resolve_workflow_id,
+            run_discovery_workflow,
             run_causal_full_workflow,
             run_default_workflow,
+            run_policy_design_workflow,
             run_selected_workflow,
         )
 
@@ -64,17 +76,28 @@ def __getattr__(name: str):
             "build_execution_context": build_execution_context,
             "build_registry_with_builtin_nodes": build_registry_with_builtin_nodes,
             "resolve_workflow_id": resolve_workflow_id,
+            "run_discovery_workflow": run_discovery_workflow,
             "run_causal_full_workflow": run_causal_full_workflow,
             "run_default_workflow": run_default_workflow,
+            "run_policy_design_workflow": run_policy_design_workflow,
             "run_selected_workflow": run_selected_workflow,
         }[name]
-    if name in {"default_workflow_spec", "causal_full_workflow_spec"}:
+    if name in {
+        "default_workflow_spec",
+        "causal_full_workflow_spec",
+        "discovery_workflow_spec",
+        "policy_design_workflow_spec",
+    }:
         from polisyos.scientist.workflows.causal_full import causal_full_workflow_spec
+        from polisyos.scientist.workflows.discovery import discovery_workflow_spec
         from polisyos.scientist.workflows.default import default_workflow_spec
+        from polisyos.scientist.workflows.policy_design import policy_design_workflow_spec
 
         return {
             "default_workflow_spec": default_workflow_spec,
             "causal_full_workflow_spec": causal_full_workflow_spec,
+            "discovery_workflow_spec": discovery_workflow_spec,
+            "policy_design_workflow_spec": policy_design_workflow_spec,
         }[name]
     if name in {"WorkflowEngine", "WorkflowEngineFactory"}:
         from polisyos.scientist.workflows.engine_base import WorkflowEngine, WorkflowEngineFactory

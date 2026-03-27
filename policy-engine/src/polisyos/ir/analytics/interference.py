@@ -10,7 +10,205 @@ import math
 from enum import Enum
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+
+from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
+from polisyos.ir.canon import CanonSpec
+from polisyos.ir.refs import (
+    ArtifactRefModel,
+    InteractionComplexRef,
+    InterferenceCertificateRef,
+)
+
+_INTERACTION_COMPLEX_SCHEMA_NAME = "ir.interaction_complex"
+_INTERACTION_COMPLEX_SCHEMA_VERSION = "1.0"
+_INTERFERENCE_CERTIFICATE_SCHEMA_NAME = "ir.interference_certificate"
+_INTERFERENCE_CERTIFICATE_SCHEMA_VERSION = "1.0"
+
+
+def _ensure_non_empty_string(value: Any, *, field_name: str) -> str:
+    candidate = str(value).strip()
+    if not candidate:
+        raise ValueError(f"{field_name} must be non-empty")
+    return candidate
+
+
+def _validate_artifact_ref(ref: ArtifactRefModel, *, field_name: str) -> ArtifactRefModel:
+    if not str(ref.kind).strip():
+        raise ValueError(f"{field_name}.kind must be non-empty")
+    if not str(ref.media_type).strip():
+        raise ValueError(f"{field_name}.media_type must be non-empty")
+    return ref
+
+
+def _coerce_string_tuple(value: Any, *, field_name: str) -> tuple[str, ...]:
+    if not isinstance(value, (list, tuple)):
+        raise ValueError(f"{field_name} must be a list/tuple of non-empty strings")
+    return tuple(_ensure_non_empty_string(item, field_name=field_name) for item in value)
+
+
+def _coerce_nested_string_tuples(value: Any, *, field_name: str) -> tuple[tuple[str, ...], ...]:
+    if value in (None, ()):
+        return ()
+    if not isinstance(value, (list, tuple)):
+        raise ValueError(f"{field_name} must be a list/tuple of node groups")
+    groups: list[tuple[str, ...]] = []
+    for index, group in enumerate(value):
+        groups.append(
+            _coerce_string_tuple(group, field_name=f"{field_name}[{index}]")
+        )
+    return tuple(groups)
+
+
+class InteractionComplex(BaseModel):
+    """Topology contract reserved for future hypergraph interference reasoning."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
+    nodes: tuple[str, ...]
+    hyperedges: tuple[tuple[str, ...], ...] = ()
+    simplices: tuple[tuple[str, ...], ...] = ()
+    exposure_operator_ref: ArtifactRefModel
+    reduction_policy: Literal["pairwise_projection", "cluster_projection", "full_complex"]
+
+    @field_validator("nodes", mode="before")
+    @classmethod
+    def _validate_nodes(cls, value: Any) -> tuple[str, ...]:
+        nodes = _coerce_string_tuple(value, field_name="nodes")
+        if not nodes:
+            raise ValueError("nodes must be non-empty")
+        if len(set(nodes)) != len(nodes):
+            raise ValueError("nodes must be unique")
+        return nodes
+
+    @field_validator("hyperedges", "simplices", mode="before")
+    @classmethod
+    def _validate_node_groups(cls, value: Any, info: Any) -> tuple[tuple[str, ...], ...]:
+        groups = _coerce_nested_string_tuples(value, field_name=str(info.field_name))
+        normalized: list[tuple[str, ...]] = []
+        seen: set[tuple[str, ...]] = set()
+        for index, group in enumerate(groups):
+            if len(set(group)) != len(group):
+                raise ValueError(f"{info.field_name}[{index}] must not contain duplicate nodes")
+            canonical = tuple(group)
+            if canonical in seen:
+                raise ValueError(f"{info.field_name} must not contain duplicate groups")
+            seen.add(canonical)
+            normalized.append(canonical)
+        return tuple(normalized)
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "InteractionComplex":
+        _validate_artifact_ref(self.exposure_operator_ref, field_name="exposure_operator_ref")
+        declared_nodes = set(self.nodes)
+        for field_name in ("hyperedges", "simplices"):
+            for index, group in enumerate(getattr(self, field_name)):
+                missing = [node for node in group if node not in declared_nodes]
+                if missing:
+                    raise ValueError(
+                        f"{field_name}[{index}] references undeclared nodes: {missing}"
+                    )
+        return self
+
+
+class InterferenceCertificate(BaseModel):
+    """Disclosure contract for topology-to-pairwise/cluster reduction behavior."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
+    supported_query_family: str = Field(min_length=1)
+    exposure_assumptions: tuple[str, ...] = ()
+    reduction_error_bound: float | None = Field(default=None, ge=0.0)
+    fallback_mode: Literal["pairwise", "clustered", "unsupported"]
+
+    @field_validator("supported_query_family", mode="before")
+    @classmethod
+    def _validate_supported_query_family(cls, value: Any) -> str:
+        return _ensure_non_empty_string(value, field_name="supported_query_family")
+
+    @field_validator("exposure_assumptions", mode="before")
+    @classmethod
+    def _validate_exposure_assumptions(cls, value: Any) -> tuple[str, ...]:
+        assumptions = _coerce_string_tuple(
+            () if value is None else value,
+            field_name="exposure_assumptions",
+        )
+        deduped: list[str] = []
+        seen: set[str] = set()
+        for assumption in assumptions:
+            if assumption in seen:
+                continue
+            seen.add(assumption)
+            deduped.append(assumption)
+        return tuple(deduped)
+
+    @field_validator("reduction_error_bound", mode="before")
+    @classmethod
+    def _validate_reduction_error_bound(cls, value: Any) -> float | None:
+        if value is None:
+            return None
+        casted = float(value)
+        if not math.isfinite(casted):
+            raise ValueError("reduction_error_bound must be finite when provided")
+        return casted
+
+
+def persist_interaction_complex(
+    store: ArtifactStore,
+    contract: InteractionComplex,
+    *,
+    inputs: list[InputRef] | None = None,
+    schema_name: str = _INTERACTION_COMPLEX_SCHEMA_NAME,
+    schema_version: str = _INTERACTION_COMPLEX_SCHEMA_VERSION,
+) -> InteractionComplexRef:
+    ref = put_json_artifact(
+        store,
+        contract.model_dump(mode="json"),
+        kind="ir.interaction_complex",
+        schema_name=schema_name,
+        schema_version=schema_version,
+        inputs=inputs,
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    return InteractionComplexRef.model_validate(ref)
+
+
+def load_interaction_complex(
+    store: ArtifactStore,
+    ref: InteractionComplexRef,
+) -> InteractionComplex:
+    payload = get_json_artifact(store, ref.artifact_id)
+    return InteractionComplex.model_validate(payload)
+
+
+def persist_interference_certificate(
+    store: ArtifactStore,
+    certificate: InterferenceCertificate,
+    *,
+    inputs: list[InputRef] | None = None,
+    schema_name: str = _INTERFERENCE_CERTIFICATE_SCHEMA_NAME,
+    schema_version: str = _INTERFERENCE_CERTIFICATE_SCHEMA_VERSION,
+) -> InterferenceCertificateRef:
+    ref = put_json_artifact(
+        store,
+        certificate.model_dump(mode="json"),
+        kind="ir.interference_certificate",
+        schema_name=schema_name,
+        schema_version=schema_version,
+        inputs=inputs,
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    return InterferenceCertificateRef.model_validate(ref)
+
+
+def load_interference_certificate(
+    store: ArtifactStore,
+    ref: InterferenceCertificateRef,
+) -> InterferenceCertificate:
+    payload = get_json_artifact(store, ref.artifact_id)
+    return InterferenceCertificate.model_validate(payload)
 
 
 class InterferenceMethod(str, Enum):
@@ -168,7 +366,13 @@ class NetworkInterferenceReport(BaseModel):
 
 __all__ = [
     "ExposureMappingType",
+    "InteractionComplex",
     "InterferenceEffectDecomposition",
+    "InterferenceCertificate",
     "InterferenceMethod",
     "NetworkInterferenceReport",
+    "load_interaction_complex",
+    "load_interference_certificate",
+    "persist_interaction_complex",
+    "persist_interference_certificate",
 ]

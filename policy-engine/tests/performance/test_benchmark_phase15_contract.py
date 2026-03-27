@@ -142,11 +142,16 @@ def test_suite_registry_resolves_capability_and_legacy_aliases():
     publication_ids = {spec.suite_id for spec in alias_targets("publication_core")}
     assert "symbolic" in publication_ids
     assert "estimation_acic" in publication_ids
+    assert "temporal_gold" in publication_ids
     assert "capability_multi_source" in publication_ids
     stress_ids = {spec.suite_id for spec in alias_targets("stress")}
-    assert stress_ids == {"adversarial_symbolic_stress"}
+    assert stress_ids == {"adversarial_symbolic_stress", "temporal_hidden"}
+    temporal_ids = {spec.suite_id for spec in alias_targets("temporal")}
+    assert temporal_ids == {"temporal_gold", "temporal_hidden"}
     frontier_ids = {spec.suite_id for spec in suites_for_claim_profile("frontier_frontier_claim", profile="air-m2")}
     assert "symbolic" in frontier_ids
+    assert "temporal_gold" in frontier_ids
+    assert "temporal_hidden" in frontier_ids
     assert "capability_symbolic_nonid" in frontier_ids
 
 
@@ -411,6 +416,41 @@ def test_validate_publication_payload_requires_literature_anchor_for_public_clai
     assert "public_claim_eligible suites require literature_anchor" in errors
 
 
+def test_validate_publication_payload_requires_temporal_suite_fields() -> None:
+    gold_errors = validate_publication_payload(
+        {
+            "suite_id": "temporal_gold",
+            "aggregate_metrics": {"temporal_scorecard": {}},
+            "proof_class": "publication_benchmark",
+        }
+    )
+    assert "temporal_gold requires baseline_snapshot_ref=temporal_gold@synthetic-v1" in gold_errors
+    assert (
+        "temporal_gold requires aggregate_metrics.temporal_scorecard.engine_route_coverage_rate"
+        in gold_errors
+    )
+    assert (
+        "temporal_gold requires aggregate_metrics.temporal_scorecard.artifact_loadability_rate"
+        in gold_errors
+    )
+
+    hidden_errors = validate_publication_payload(
+        {
+            "suite_id": "temporal_hidden",
+            "aggregate_metrics": {"hidden_temporal_summary": {}, "accuracy": {}},
+            "proof_class": "stress_evidence",
+            "benchmark_family": "temporal_causal_dynamics",
+            "public_claim_eligible": True,
+        }
+    )
+    assert "temporal_hidden requires baseline_snapshot_ref=temporal_hidden@synthetic-v1" in hidden_errors
+    assert "temporal_hidden requires public_claim_eligible=false" in hidden_errors
+    assert (
+        "temporal_hidden requires aggregate_metrics.hidden_temporal_summary.artifact_reload_failure_rate"
+        in hidden_errors
+    )
+
+
 def test_claim_gate_marks_complete_air_m2_bundle_as_ready(tmp_path: Path):
     for spec in suites_for_profile("air-m2"):
         payload = {
@@ -461,6 +501,36 @@ def test_claim_gate_marks_complete_air_m2_bundle_as_ready(tmp_path: Path):
             payload["dataset_regime"] = "synthetic_policy_regime"
             payload["baseline_snapshot_ref"] = f"{spec.suite_id}-v1"
             payload["regression_guard"] = {"rule": "no_regression"}
+        elif spec.suite_id == "temporal_gold":
+            payload["aggregate_metrics"]["temporal_scorecard"] = {
+                "passes_all": True,
+                "engine_route_coverage_rate": 1.0,
+                "bundle_presence_rate": 1.0,
+                "artifact_loadability_rate": 1.0,
+                "policy_lineage_rate": 1.0,
+                "diagnostics_artifact_presence_rate": 1.0,
+                "truthful_fallback_disclosure_rate": 1.0,
+            }
+            payload["benchmark_family"] = "temporal_causal_dynamics"
+            payload["baseline_snapshot_ref"] = "temporal_gold@synthetic-v1"
+            payload["regression_guard"] = {"rule": "no_regression"}
+            payload["public_claim_eligible"] = True
+            payload["literature_anchor"] = "synthetic temporal anchor"
+        elif spec.suite_id == "temporal_hidden":
+            payload["aggregate_metrics"]["hidden_temporal_summary"] = {
+                "n_total": 1,
+                "n_passed": 1,
+                "safe_rejection_rate": 1.0,
+                "diagnostics_presence_rate": 1.0,
+                "fallback_success_rate": 1.0,
+                "artifact_reload_failure_rate": 0.0,
+                "passes_all": True,
+            }
+            payload["aggregate_metrics"]["accuracy"] = {"n_total": 1, "n_passed": 1, "pass_rate": 1.0}
+            payload["benchmark_family"] = "temporal_causal_dynamics"
+            payload["baseline_snapshot_ref"] = "temporal_hidden@synthetic-v1"
+            payload["regression_guard"] = {"rule": "no_regression"}
+            payload["public_claim_eligible"] = False
         elif spec.suite_id == "adversarial_symbolic_stress":
             payload["aggregate_metrics"]["accuracy"] = {"false_positive_rate": 0.0}
             payload["benchmark_family"] = "adversarial_symbolic"

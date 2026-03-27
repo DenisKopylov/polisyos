@@ -6,11 +6,13 @@ import asyncio
 import csv
 import hashlib
 import json
+import math
 import os
 import re
-from collections import deque
-from dataclasses import dataclass
-from datetime import UTC, datetime
+import time
+from collections import OrderedDict, defaultdict, deque
+from dataclasses import dataclass, field
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -37,9 +39,18 @@ from polisyos.datasets.knowledge.variable_alignment import (
     calibrate_alignment_confidence,
     load_seed_alignments,
 )
-from polisyos.fabric.connectors.base import ConnectionConfig, FetchRequest
+from polisyos.fabric.connectors.base import (
+    AsyncFetchLease,
+    ConnectionConfig,
+    DatasetCapabilitySnapshot,
+    FetchRequest,
+)
 from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
-from polisyos.fabric.connectors.profiles.resolver import resolve_connection_config
+from polisyos.fabric.connectors.profiles.resolver import (
+    resolve_connection_config,
+    resolve_execution_policy,
+)
+from polisyos.fabric.connectors.profiles.models import SourceExecutionPolicy
 from polisyos.fabric.connectors.sources.eurostat import EurostatConnector
 from polisyos.fabric.connectors.sources.sdmx_source import SDMXSourceConnector
 from polisyos.fabric.connectors.sources.unesco_uis import UNESCOUISConnector
@@ -69,16 +80,54 @@ _LEGACY_WGI_INDICATORS: dict[str, str] = {
 _LEGACY_WDI_INDICATORS: dict[str, str] = {
     "NY.GDP.PCAP.PP.CD": "gdp_per_capita",
 }
-_LEGACY_WVS_INDICATORS: dict[str, str] = {
+_LEGACY_WVS_INDICATORS_STATIC: dict[str, str] = {
     "A165": "social_trust",
     "A173": "cultural_cluster",
 }
 _CANONICAL_ROOTS = tuple(sorted(CANONICAL_VARIABLES.keys()))
 _TOKEN_RE = re.compile(r"[a-z0-9]+")
-_WVS_SPECIAL_AGGREGATIONS: dict[str, str] = {"A165": "weighted_share_response_1"}
+_WVS_SPECIAL_AGGREGATIONS_STATIC: dict[str, str] = {"A165": "weighted_share_response_1"}
 _WVS_WEIGHT_FIELDS: tuple[str, ...] = ("S017", "S018")
 _OBSERVATION_INSERT_BATCH_SIZE = 5_000
 _DEFAULT_OBSERVATION_YEAR_WINDOW: tuple[int, int] = (2018, 2022)
+_EUROSTAT_SUBANNUAL_TITLE_TOKENS: tuple[str, ...] = (
+    "month",
+    "monthly",
+    "quarter",
+    "quarterly",
+    "mensuel",
+    "mensuelle",
+    "monat",
+    "monatlich",
+    "quartal",
+    "viertelj",
+    "trimestr",
+)
+_DEFAULT_SOURCE_CONCURRENCY: dict[str, int] = {
+    "eurostat": 3,
+    "worldbank": 4,
+    "who": 2,
+    "unesco_uis": 2,
+    "unpd": 1,
+    "oecd": 1,
+    "ilo": 1,
+    "wvs": 1,
+}
+_SERIAL_HARVEST_FAMILIES: frozenset[str] = frozenset({"ckan"})
+_SERIAL_HARVEST_SOURCES: frozenset[str] = frozenset({
+    "data_gov_ua_broad",
+    "data_gov_ro_broad",
+    "data_gov_md_broad",
+    "data_gov_pl_broad",
+})
+_OBSERVATION_PROGRESS_INTERVAL_SECONDS = 60.0
+_FETCH_RESULT_CACHE_SIZE = 256
+_OBSERVATION_UNSUPPORTED_EMPTY_THRESHOLD = 2
+_OBSERVATION_WRITER_FLUSH_ROWS = 50_000
+_OBSERVATION_WRITER_FLUSH_BYTES = 32 * 1024 * 1024
+_OBSERVATION_WRITER_FLUSH_SECONDS = 5.0
+_OBSERVATION_WRITER_IDLE_FLUSH_SECONDS = 0.25
+_OBSERVATION_WRITER_CHECKPOINT_EVERY = 10
 
 
 @dataclass
@@ -93,6 +142,17 @@ class CoreSourcesIngestStats:
     completed_shards: int = 0
     deferred_shards: int = 0
     failed_shards: int = 0
+    empty_shards: int = 0
+    observations_by_source: dict[str, int] | None = None
+
+    def __post_init__(self) -> None:
+        if self.observations_by_source is None:
+            self.observations_by_source = {}
+
+    def record_source_observations(self, source: str, count: int) -> None:
+        if self.observations_by_source is None:
+            self.observations_by_source = {}
+        self.observations_by_source[source] = self.observations_by_source.get(source, 0) + count
 
 
 @dataclass(frozen=True)
@@ -196,6 +256,188 @@ class DeferredObservationPlan:
     split_depth: int = 0
 
 
+@dataclass(frozen=True)
+class ObservationFetchKey:
+    source: str
+    request_dataset_id: str
+    filters_json: str
+    start_year: int
+    end_year: int
+
+
+@dataclass(frozen=True)
+class ObservationFetchPayload:
+    rows: list[dict[str, Any]]
+    request_count: int = 0
+    bytes_downloaded: int = 0
+
+
+@dataclass(frozen=True)
+class ObservationWriteItem:
+    shard: ObservationShard
+    payload: ObservationFetchPayload
+    ack: asyncio.Future[ObservationInsertStats]
+
+    @property
+    def row_count(self) -> int:
+        return len(self.payload.rows)
+
+    @property
+    def estimated_bytes(self) -> int:
+        if self.payload.bytes_downloaded > 0:
+            return int(self.payload.bytes_downloaded)
+        return len(json.dumps(self.payload.rows, ensure_ascii=False, separators=(",", ":")).encode("utf-8"))
+
+
+@dataclass(frozen=True)
+class ObservationResultItem:
+    result: ObservationShardResult
+    support_key: str = ""
+    mark_unsupported: bool = False
+
+
+@dataclass
+class _SourceBudgetWindow:
+    window_started_at: datetime
+    requests_used: int = 0
+
+
+@dataclass
+class _ObservationRuntimeMetrics:
+    inflight_by_source: dict[str, int] = field(default_factory=dict)
+    completed_by_source: dict[str, int] = field(default_factory=dict)
+    empty_by_source: dict[str, int] = field(default_factory=dict)
+    rows_by_source: dict[str, int] = field(default_factory=dict)
+    deferred_by_reason: dict[str, int] = field(default_factory=dict)
+    queue_backlog_by_source: dict[str, int] = field(default_factory=dict)
+    writer_backlog_rows: int = 0
+    writer_flush_count: int = 0
+    writer_flush_latency_ms: float = 0.0
+    planner_pruned_shards: int = 0
+    async_jobs_open: int = 0
+    bytes_downloaded_by_source: dict[str, int] = field(default_factory=dict)
+    request_count_by_source: dict[str, int] = field(default_factory=dict)
+
+
+@dataclass
+class WriterFlushState:
+    buffered_rows: int = 0
+    buffered_bytes: int = 0
+    flush_count: int = 0
+    last_flush_at: float = 0.0
+    last_flush_latency_ms: float = 0.0
+
+
+class _ObservationFetchDeduper:
+    def __init__(self) -> None:
+        self._lock = asyncio.Lock()
+        self._inflight: dict[ObservationFetchKey, asyncio.Future[list[dict[str, Any]]]] = {}
+        self._cache: OrderedDict[ObservationFetchKey, list[dict[str, Any]]] = OrderedDict()
+
+    @staticmethod
+    def _consume_future_exception(future: asyncio.Future[list[dict[str, Any]]]) -> None:
+        try:
+            future.exception()
+        except (asyncio.CancelledError, Exception):
+            return
+
+    async def run(
+        self,
+        key: ObservationFetchKey,
+        *,
+        producer: Any,
+    ) -> list[dict[str, Any]]:
+        async with self._lock:
+            cached = self._cache.get(key)
+            if cached is not None:
+                self._cache.move_to_end(key)
+                return [dict(row) for row in cached]
+            existing = self._inflight.get(key)
+            if existing is None:
+                loop = asyncio.get_running_loop()
+                existing = loop.create_future()
+                existing.add_done_callback(self._consume_future_exception)
+                self._inflight[key] = existing
+                owner = True
+            else:
+                owner = False
+        if owner:
+            try:
+                rows = list(await producer())
+            except Exception as exc:
+                existing.set_exception(exc)
+                raise
+            else:
+                existing.set_result(rows)
+                async with self._lock:
+                    self._cache[key] = [dict(row) for row in rows]
+                    self._cache.move_to_end(key)
+                    while len(self._cache) > _FETCH_RESULT_CACHE_SIZE:
+                        self._cache.popitem(last=False)
+            finally:
+                async with self._lock:
+                    self._inflight.pop(key, None)
+        rows = await existing
+        return [dict(row) for row in rows]
+
+
+class _ObservationCapabilityCache:
+    def __init__(self, persisted: dict[str, DatasetCapabilitySnapshot] | None = None) -> None:
+        self._lock = asyncio.Lock()
+        self._cache: dict[str, DatasetCapabilitySnapshot] = dict(persisted or {})
+        self._inflight: dict[str, asyncio.Future[DatasetCapabilitySnapshot | None]] = {}
+
+    @staticmethod
+    def _consume_future_exception(future: asyncio.Future[DatasetCapabilitySnapshot | None]) -> None:
+        try:
+            future.exception()
+        except (asyncio.CancelledError, Exception):
+            return
+
+    async def get(
+        self,
+        key: str,
+        *,
+        producer: Any,
+    ) -> DatasetCapabilitySnapshot | None:
+        async with self._lock:
+            cached = self._cache.get(key)
+            if cached is not None:
+                return cached
+            future = self._inflight.get(key)
+            if future is None:
+                loop = asyncio.get_running_loop()
+                future = loop.create_future()
+                future.add_done_callback(self._consume_future_exception)
+                self._inflight[key] = future
+                owner = True
+            else:
+                owner = False
+        if owner:
+            try:
+                snapshot = await producer()
+            except Exception as exc:
+                future.set_exception(exc)
+                raise
+            else:
+                future.set_result(snapshot)
+                if snapshot is not None:
+                    async with self._lock:
+                        self._cache[key] = snapshot
+            finally:
+                async with self._lock:
+                    self._inflight.pop(key, None)
+        return await future
+
+    async def put(self, key: str, snapshot: DatasetCapabilitySnapshot) -> None:
+        async with self._lock:
+            self._cache[key] = snapshot
+
+    async def snapshot(self) -> dict[str, DatasetCapabilitySnapshot]:
+        async with self._lock:
+            return dict(self._cache)
+
+
 @dataclass
 class _WVSObservationAccumulator:
     weighted_total: float = 0.0
@@ -273,7 +515,12 @@ class _ConnectorSessionCache:
         normalized = str(raw_variable or "").strip().upper()
         key = f"{normalized}|{country_scope}"
         if key not in cache:
-            cache[key] = _load_wvs_bulk_rows(normalized, country_scope=country_scope)
+            try:
+                cache[key] = _load_wvs_bulk_rows(normalized, country_scope=country_scope)
+            except TypeError as exc:
+                if "country_scope" not in str(exc):
+                    raise
+                cache[key] = _load_wvs_bulk_rows(normalized)
         return list(cache[key])
 
     async def close(self) -> None:
@@ -294,6 +541,74 @@ class _ConnectorSessionCache:
             await connector.disconnect(handle)
         for connector, handle in self.sdmx_by_profile.values():
             await connector.disconnect(handle)
+
+
+def _capability_snapshot_cache_key(plan: ObservationPlan) -> str:
+    return "|".join(
+        [
+            str(plan.source or ""),
+            str(plan.profile_id or ""),
+            str(plan.request_dataset_id or ""),
+        ]
+    )
+
+
+def _serialize_capability_snapshot(snapshot: DatasetCapabilitySnapshot) -> dict[str, Any]:
+    return snapshot.model_dump(mode="json")
+
+
+def _deserialize_capability_snapshot(payload: Any) -> DatasetCapabilitySnapshot | None:
+    if not isinstance(payload, dict):
+        return None
+    try:
+        return DatasetCapabilitySnapshot.model_validate(payload)
+    except Exception:
+        return None
+
+
+def _load_capability_snapshot_state(state: dict[str, Any]) -> dict[str, DatasetCapabilitySnapshot]:
+    snapshots: dict[str, DatasetCapabilitySnapshot] = {}
+    for key, payload in state.items():
+        snapshot = _deserialize_capability_snapshot(payload)
+        if snapshot is not None:
+            snapshots[str(key)] = snapshot
+    return snapshots
+
+
+def _serialize_capability_snapshot_state(
+    snapshots: dict[str, DatasetCapabilitySnapshot],
+) -> dict[str, dict[str, Any]]:
+    return {
+        key: _serialize_capability_snapshot(snapshot)
+        for key, snapshot in snapshots.items()
+    }
+
+
+def _serialize_async_fetch_lease(lease: AsyncFetchLease) -> dict[str, Any]:
+    return lease.model_dump(mode="json")
+
+
+def _deserialize_async_fetch_lease(payload: Any) -> AsyncFetchLease | None:
+    if not isinstance(payload, dict):
+        return None
+    try:
+        return AsyncFetchLease.model_validate(payload)
+    except Exception:
+        return None
+
+
+def _capability_snapshot_fresh(
+    snapshot: DatasetCapabilitySnapshot,
+    *,
+    policy: SourceExecutionPolicy,
+) -> bool:
+    ttl_hours = max(1, int(policy.capability_cache_ttl_hours or 24))
+    checked_at = snapshot.last_checked_at
+    if checked_at.tzinfo is None:
+        checked_at = checked_at.replace(tzinfo=UTC)
+    else:
+        checked_at = checked_at.astimezone(UTC)
+    return checked_at + timedelta(hours=ttl_hours) >= datetime.now(UTC)
 
 
 def run_core_sources_ingest(config: DatasetBatchConfig) -> CoreSourcesIngestStats:
@@ -320,6 +635,8 @@ async def run_core_sources_ingest_async(config: DatasetBatchConfig) -> CoreSourc
             "completed_shards": stats.completed_shards,
             "deferred_shards": stats.deferred_shards,
             "failed_shards": stats.failed_shards,
+            "empty_shards": stats.empty_shards,
+            "observations_by_source": stats.observations_by_source or {},
         },
         artifacts=[config.db_path],
         started_at=started_at,
@@ -399,6 +716,403 @@ def _resolve_profile_config(profile_id: str) -> ConnectionConfig:
     )
 
 
+def _legacy_serial_mode_enabled() -> bool:
+    value = str(os.getenv("POLISYOS_DATASET_LEGACY_SERIAL") or "").strip().lower()
+    return value in {"1", "true", "yes", "on"}
+
+
+def _resolve_source_execution_policy(
+    *,
+    source: str,
+    profile_id: str,
+) -> SourceExecutionPolicy:
+    registry = SourceProfileRegistry.get_instance()
+    profile = registry.get(profile_id) if profile_id else None
+    if profile is not None:
+        policy = resolve_execution_policy(profile)
+        if policy.max_concurrency >= 1:
+            return policy
+    return SourceExecutionPolicy(
+        profile_id=profile_id or source,
+        max_concurrency=max(1, _DEFAULT_SOURCE_CONCURRENCY.get(source, 1)),
+        negative_cache_ttl_hours=24,
+    )
+
+
+def _load_observation_checkpoint_state(config: DatasetBatchConfig) -> dict[str, Any]:
+    payload = load_json(config.observation_ingest_checkpoint_path, default={})
+    if not isinstance(payload, dict):
+        payload = {}
+    completed = payload.get("completed", {})
+    failed = payload.get("failed", {})
+    deferred = payload.get("deferred", {})
+    support_cache = payload.get("support_cache", {})
+    inflight_leases = payload.get("inflight_leases", {})
+    async_fetch_leases = payload.get("async_fetch_leases", {})
+    capability_snapshots = payload.get("capability_snapshots", {})
+    source_budgets = payload.get("source_budgets", {})
+    return {
+        "completed": completed if isinstance(completed, dict) else {},
+        "failed": failed if isinstance(failed, dict) else {},
+        "deferred": deferred if isinstance(deferred, dict) else {},
+        "support_cache": support_cache if isinstance(support_cache, dict) else {},
+        "inflight_leases": inflight_leases if isinstance(inflight_leases, dict) else {},
+        "async_fetch_leases": async_fetch_leases if isinstance(async_fetch_leases, dict) else {},
+        "capability_snapshots": capability_snapshots if isinstance(capability_snapshots, dict) else {},
+        "source_budgets": source_budgets if isinstance(source_budgets, dict) else {},
+    }
+
+
+def _write_observation_checkpoint_state(
+    config: DatasetBatchConfig,
+    *,
+    completed: dict[str, Any],
+    failed: dict[str, Any],
+    deferred: dict[str, Any],
+    support_cache: dict[str, Any],
+    inflight_leases: dict[str, Any],
+    async_fetch_leases: dict[str, Any],
+    capability_snapshots: dict[str, Any],
+    source_budgets: dict[str, Any],
+) -> None:
+    write_json(
+        config.observation_ingest_checkpoint_path,
+        {
+            "completed": completed,
+            "failed": failed,
+            "deferred": deferred,
+            "support_cache": support_cache,
+            "inflight_leases": inflight_leases,
+            "async_fetch_leases": async_fetch_leases,
+            "capability_snapshots": capability_snapshots,
+            "source_budgets": source_budgets,
+        },
+    )
+
+
+def _support_cache_key(
+    shard: ObservationShard,
+    *,
+    capability: DatasetCapabilitySnapshot | None = None,
+) -> str:
+    filters_json = json.dumps(shard.filters, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+    return "|".join(
+        [
+            str(shard.plan.source or ""),
+            str(
+                capability.resolved_dataset_id
+                if capability is not None and capability.resolved_dataset_id
+                else shard.plan.request_dataset_id or ""
+            ),
+            str(shard.country_code or ""),
+            filters_json,
+            str(capability.constraint_hash if capability is not None else ""),
+        ]
+    )
+
+
+def _support_cache_entry_active(entry: dict[str, Any], *, now: datetime) -> bool:
+    expires_at = str(entry.get("expires_at") or "").strip()
+    if not expires_at:
+        return True
+    try:
+        expiry = datetime.fromisoformat(expires_at)
+    except ValueError:
+        return True
+    return expiry >= now
+
+
+def _support_cache_proves_unsupported(entry: dict[str, Any], *, now: datetime) -> bool:
+    if not _support_cache_entry_active(entry, now=now):
+        return False
+    return bool(entry.get("unsupported"))
+
+
+def _update_support_cache(
+    support_cache: dict[str, Any],
+    *,
+    key: str,
+    policy: SourceExecutionPolicy,
+    unsupported: bool = False,
+    empty_result: bool = False,
+    promote_empty_to_unsupported: bool = True,
+) -> dict[str, Any]:
+    now = datetime.now(UTC)
+    ttl = timedelta(hours=max(1, int(policy.negative_cache_ttl_hours)))
+    current = support_cache.get(key, {}) if isinstance(support_cache.get(key), dict) else {}
+    empty_hits = int(current.get("empty_hits", 0))
+    if empty_result:
+        empty_hits += 1
+    payload = {
+        "unsupported": bool(
+            unsupported
+            or current.get("unsupported")
+            or (
+                promote_empty_to_unsupported
+                and empty_hits >= _OBSERVATION_UNSUPPORTED_EMPTY_THRESHOLD
+            )
+        ),
+        "empty_hits": empty_hits,
+        "updated_at": now.isoformat(),
+        "expires_at": (now + ttl).isoformat(),
+    }
+    support_cache[key] = payload
+    return payload
+
+
+def _prune_expired_support_cache(support_cache: dict[str, Any]) -> dict[str, Any]:
+    now = datetime.now(UTC)
+    return {
+        key: value
+        for key, value in support_cache.items()
+        if isinstance(value, dict) and _support_cache_entry_active(value, now=now)
+    }
+
+
+def _capability_dimension_values(
+    snapshot: DatasetCapabilitySnapshot | None,
+    *names: str,
+) -> tuple[str, ...]:
+    if snapshot is None:
+        return ()
+    allowed = snapshot.allowed_positions or {}
+    for name in names:
+        values = allowed.get(name)
+        if values:
+            return tuple(str(value) for value in values if str(value).strip())
+    lowered = {str(key).lower(): value for key, value in allowed.items()}
+    for name in names:
+        values = lowered.get(name.lower())
+        if values:
+            return tuple(str(value) for value in values if str(value).strip())
+    return ()
+
+
+def _shard_supported_by_capability(
+    shard: ObservationShard,
+    *,
+    snapshot: DatasetCapabilitySnapshot | None,
+) -> bool:
+    if snapshot is None:
+        return True
+    if shard.country_code:
+        allowed_geo = _capability_dimension_values(snapshot, "geo", "country", "ref_area")
+        if allowed_geo and shard.country_code not in allowed_geo:
+            return False
+    return True
+
+
+def _split_shard_by_filter_values(
+    shard: ObservationShard,
+    *,
+    split_key: str,
+    values: list[str],
+) -> list[ObservationShard]:
+    if len(values) <= 1:
+        return []
+    midpoint = max(len(values) // 2, 1)
+    left_filters = {key: list(current) for key, current in shard.filters.items()}
+    right_filters = {key: list(current) for key, current in shard.filters.items()}
+    left_filters[split_key] = values[:midpoint]
+    right_filters[split_key] = values[midpoint:]
+    return [
+        ObservationShard(
+            shard_id=_observation_shard_id(
+                plan=shard.plan,
+                country_code=shard.country_code,
+                start_year=shard.start_year,
+                end_year=shard.end_year,
+                filters=current_filters,
+                split_depth=shard.split_depth + 1,
+            ),
+            plan=shard.plan,
+            country_code=shard.country_code,
+            start_year=shard.start_year,
+            end_year=shard.end_year,
+            filters=current_filters,
+            split_depth=shard.split_depth + 1,
+        )
+        for current_filters in (left_filters, right_filters)
+        if current_filters.get(split_key)
+    ]
+
+
+def _time_dimension_cardinality(shard: ObservationShard) -> int:
+    span_years = max(int(shard.end_year) - int(shard.start_year) + 1, 1)
+    frequency_rank = _observation_frequency_rank(shard.plan.update_frequency)
+    if frequency_rank >= 2:
+        return span_years * 12
+    if frequency_rank >= 1:
+        return span_years * 4
+    return span_years
+
+
+def _estimate_shard_cardinality(
+    shard: ObservationShard,
+    *,
+    snapshot: DatasetCapabilitySnapshot | None,
+) -> int:
+    if snapshot is None:
+        return 0
+    filter_map = {
+        str(key): [str(value) for value in values if str(value).strip()]
+        for key, values in shard.filters.items()
+    }
+    dimensions = tuple(snapshot.dimension_order or tuple(filter_map.keys()))
+    estimate = 1
+    has_signal = False
+    for dimension in dimensions:
+        normalized = str(dimension).strip()
+        lowered = normalized.lower()
+        count = 0
+        if lowered in {"geo", "country", "ref_area"}:
+            if shard.country_code:
+                count = 1
+            else:
+                allowed = _capability_dimension_values(snapshot, normalized, "geo", "country", "ref_area")
+                count = len(allowed)
+        elif lowered in {"time", "time_period"}:
+            filter_values = filter_map.get(normalized) or filter_map.get(lowered) or []
+            count = len(filter_values) if filter_values else _time_dimension_cardinality(shard)
+        else:
+            filter_values = (
+                filter_map.get(normalized)
+                or filter_map.get(lowered)
+                or filter_map.get(normalized.upper())
+                or []
+            )
+            if filter_values:
+                count = len(filter_values)
+            else:
+                allowed = _capability_dimension_values(snapshot, normalized)
+                count = len(allowed)
+        if count <= 0:
+            continue
+        has_signal = True
+        estimate *= count
+    if has_signal:
+        return estimate
+    return int(snapshot.estimated_cardinality or 0)
+
+
+def _shard_prefers_async_fetch(
+    shard: ObservationShard,
+    *,
+    snapshot: DatasetCapabilitySnapshot | None,
+    policy: SourceExecutionPolicy,
+    config: DatasetBatchConfig,
+) -> bool:
+    if shard.plan.source != "eurostat":
+        return False
+    if not policy.supports_async_fetch:
+        return False
+    if config.is_sampled_run or config.preflight_only or config.run_profile == "preflight_core":
+        return False
+    estimated = _estimate_shard_cardinality(shard, snapshot=snapshot)
+    max_sync = int(policy.max_sync_cells or 0)
+    max_async = int(policy.max_async_cells or 0)
+    if estimated <= 0 or max_sync <= 0 or max_async <= 0:
+        return False
+    return max_sync < estimated <= max_async
+
+
+def _planner_split_shard_from_capability(
+    shard: ObservationShard,
+    *,
+    snapshot: DatasetCapabilitySnapshot | None,
+    policy: SourceExecutionPolicy,
+) -> list[ObservationShard]:
+    max_cells = int(policy.max_sync_cells or 0)
+    if snapshot is None or max_cells <= 0:
+        return [shard]
+    estimated = _estimate_shard_cardinality(shard, snapshot=snapshot)
+    if estimated <= 0 or estimated <= max_cells:
+        return [shard]
+    max_async = int(policy.max_async_cells or 0)
+    if policy.supports_async_fetch and max_async > 0 and estimated <= max_async:
+        return [shard]
+    if shard.start_year < shard.end_year:
+        synthetic_413 = RuntimeError(f"payload cardinality split {estimated}>{max_cells}")
+        return _split_shard_for_retry(shard, synthetic_413) or [shard]
+    preferred_dims = tuple(snapshot.dimension_order or ())
+    for key in preferred_dims:
+        normalized_key = str(key).strip()
+        if not normalized_key or normalized_key.lower() in {"geo", "country", "ref_area", "time", "time_period"}:
+            continue
+        allowed = _capability_dimension_values(snapshot, normalized_key)
+        if len(allowed) > 1:
+            split_values = list(shard.filters.get(normalized_key) or allowed)
+            split_values = [str(value) for value in split_values if str(value).strip()]
+            if len(split_values) > 1:
+                split = _split_shard_by_filter_values(shard, split_key=normalized_key, values=split_values)
+                if split:
+                    return split
+    return [shard]
+
+
+def _empty_result_proves_unsupported(
+    *,
+    shard: ObservationShard,
+    snapshot: DatasetCapabilitySnapshot | None,
+) -> bool:
+    if snapshot is None:
+        return False
+    if not _shard_supported_by_capability(shard, snapshot=snapshot):
+        return True
+    supported_dims = (
+        _capability_dimension_values(snapshot, "geo", "country", "ref_area"),
+        _capability_dimension_values(snapshot, "time", "time_period"),
+    )
+    return any(bool(values) for values in supported_dims)
+
+
+def _load_source_budget_windows(state: dict[str, Any]) -> dict[str, _SourceBudgetWindow]:
+    out: dict[str, _SourceBudgetWindow] = {}
+    for source, payload in state.items():
+        if not isinstance(payload, dict):
+            continue
+        started_at = str(payload.get("window_started_at") or "").strip()
+        try:
+            window_started_at = datetime.fromisoformat(started_at) if started_at else datetime.now(UTC)
+        except ValueError:
+            window_started_at = datetime.now(UTC)
+        out[str(source)] = _SourceBudgetWindow(
+            window_started_at=window_started_at,
+            requests_used=max(0, int(payload.get("requests_used", 0))),
+        )
+    return out
+
+
+def _serialize_source_budget_windows(state: dict[str, _SourceBudgetWindow]) -> dict[str, dict[str, Any]]:
+    return {
+        source: {
+            "window_started_at": bucket.window_started_at.isoformat(),
+            "requests_used": int(bucket.requests_used),
+        }
+        for source, bucket in state.items()
+    }
+
+
+def _write_core_ingest_stage_progress(
+    config: DatasetBatchConfig,
+    *,
+    metadata: dict[str, Any],
+) -> None:
+    state = load_json(config.stage_state_path, default={})
+    if not isinstance(state, dict):
+        state = {}
+    current = state.get("core_sources_ingest", {})
+    if not isinstance(current, dict):
+        current = {}
+    state["core_sources_ingest"] = {
+        "status": "running",
+        "input_fingerprint": str(current.get("input_fingerprint", "")),
+        "outputs": [str(config.db_path)],
+        "metadata": metadata,
+    }
+    write_json(config.stage_state_path, state)
+
+
 def _seed_alignments_path() -> Path:
     return (
         Path(__file__).resolve().parents[4]
@@ -414,6 +1128,252 @@ def _wvs_raw_dir() -> Path:
 
 def _wvs_bulk_csv_path() -> Path:
     return _wvs_raw_dir() / "WVS_Time_Series_1981-2022_csv_v5_0.csv"
+
+
+def _wvs_registry_path() -> Path:
+    return Path(__file__).resolve().parents[4] / "data" / "dataset_catalog" / "wvs_indicator_registry.yaml"
+
+
+_wvs_registry_cache: dict[str, dict] | None = None
+
+
+def _load_wvs_registry() -> dict[str, dict]:
+    """Load WVS indicator registry YAML. Returns ``{code: spec}``."""
+    global _wvs_registry_cache
+    if _wvs_registry_cache is not None:
+        return _wvs_registry_cache
+    path = _wvs_registry_path()
+    if not path.exists():
+        _wvs_registry_cache = {}
+        return _wvs_registry_cache
+    try:
+        import yaml
+
+        data = yaml.safe_load(path.read_text(encoding="utf-8"))
+        indicators = data.get("indicators", {}) if isinstance(data, dict) else {}
+        _wvs_registry_cache = {str(k).strip().upper(): v for k, v in indicators.items() if isinstance(v, dict)}
+    except Exception:
+        logger.warning("Failed to load WVS indicator registry")
+        _wvs_registry_cache = {}
+    return _wvs_registry_cache
+
+
+def _wvs_legacy_indicators() -> dict[str, str]:
+    """Return ``{indicator_code: primary_canonical_var}`` from registry, fallback to static."""
+    registry = _load_wvs_registry()
+    if not registry:
+        return dict(_LEGACY_WVS_INDICATORS_STATIC)
+    result: dict[str, str] = {}
+    for code, spec in registry.items():
+        candidates = spec.get("canonical_candidates", [])
+        if isinstance(candidates, str):
+            candidates = [candidates]
+        if candidates:
+            result[code] = str(candidates[0])
+    return result if result else dict(_LEGACY_WVS_INDICATORS_STATIC)
+
+
+def _wvs_aggregation_method(indicator: str) -> str:
+    """Return aggregation method for a WVS indicator from registry."""
+    registry = _load_wvs_registry()
+    spec = registry.get(indicator.upper(), {})
+    if spec:
+        return str(spec.get("aggregation", "weighted_mean"))
+    return _WVS_SPECIAL_AGGREGATIONS_STATIC.get(indicator, "weighted_mean")
+
+
+def _wvs_response_type(indicator: str) -> str:
+    """Return response_type for a WVS indicator from registry."""
+    registry = _load_wvs_registry()
+    spec = registry.get(indicator.upper(), {})
+    return str(spec.get("response_type", "continuous"))
+
+
+def _load_wvs_bulk_duckdb(
+    indicators: list[str],
+    *,
+    country_scope: str = "core_blocking",
+    year_window: tuple[int, int] = (1981, 2023),
+) -> dict[str, list[dict[str, Any]]]:
+    """Load multiple WVS indicators in a single DuckDB pass over the CSV.
+
+    Returns ``{indicator_code: [aggregated_rows]}`` for all requested indicators.
+    Uses DuckDB's columnar CSV reader for 10x speedup vs Python csv.DictReader.
+    """
+    csv_path = _wvs_bulk_csv_path()
+    if not csv_path.exists():
+        raise RuntimeError(f"WVS bulk CSV is required: {csv_path}")
+    if not indicators:
+        return {}
+
+    # Normalize indicator names
+    indicators = [i.strip().upper() for i in indicators if i.strip()]
+    if not indicators:
+        return {}
+
+    # Resolve target countries (ISO-3)
+    target_countries = {
+        iso2_to_iso3(c) for c in country_scope_members(country_scope) if iso2_to_iso3(c)
+    }
+
+    # Build DuckDB query selecting only needed columns
+    # Columns: COUNTRY_ALPHA, S020 (survey_year), S002VS (wave), S017 (weight), + indicators
+    select_cols = ["COUNTRY_ALPHA", "S020", "S002VS", "S017", "S018"] + indicators
+    # Quote columns that might clash with reserved words
+    quoted_cols = [f'"{c}"' for c in select_cols]
+
+    con = duckdb.connect(":memory:")
+    try:
+        query = f"SELECT {', '.join(quoted_cols)} FROM read_csv_auto(?, header=true, all_varchar=false)"
+        rows = con.execute(query, [str(csv_path)]).fetchall()
+    except Exception as exc:
+        logger.warning("DuckDB CSV read failed, falling back to per-indicator reader: {}", exc)
+        con.close()
+        # Fallback to single-indicator reader
+        result = {}
+        for ind in indicators:
+            try:
+                result[ind] = _load_wvs_bulk_rows(ind, country_scope=country_scope)
+            except Exception:
+                result[ind] = []
+        return result
+
+    con.close()
+
+    # Column index mapping
+    col_idx = {name: i for i, name in enumerate(select_cols)}
+
+    # Aggregate per indicator
+    aggregates: dict[str, dict[tuple, _WVSObservationAccumulator]] = {ind: {} for ind in indicators}
+
+    for row in rows:
+        country_iso3 = str(row[col_idx["COUNTRY_ALPHA"]] or "").strip().upper()
+        if country_iso3 not in target_countries:
+            continue
+        country_code = _normalize_country_code(country_iso3)
+        if not country_code:
+            continue
+
+        survey_year = row[col_idx["S020"]]
+        if survey_year is None:
+            continue
+        try:
+            survey_year = int(survey_year)
+        except (ValueError, TypeError):
+            continue
+        if survey_year < year_window[0] or survey_year > year_window[1]:
+            continue
+
+        wave_raw = row[col_idx["S002VS"]]
+        wave = int(wave_raw) if wave_raw is not None else None
+
+        # Get weight
+        w017 = row[col_idx["S017"]]
+        w018 = row[col_idx["S018"]]
+        weight_value = None
+        weight_field = ""
+        if w017 is not None:
+            try:
+                wv = float(w017)
+                if wv > 0:
+                    weight_value = wv
+                    weight_field = "S017"
+            except (ValueError, TypeError):
+                pass
+        if weight_value is None and w018 is not None:
+            try:
+                wv = float(w018)
+                if wv > 0:
+                    weight_value = wv
+                    weight_field = "S018"
+            except (ValueError, TypeError):
+                pass
+        if weight_value is None:
+            weight_value = 1.0
+
+        key = (country_code, survey_year, wave)
+
+        for ind in indicators:
+            raw_val = row[col_idx[ind]]
+            value = _normalize_wvs_response_value_typed(ind, raw_val)
+            if value is None:
+                continue
+            bucket = aggregates[ind].setdefault(key, _WVSObservationAccumulator())
+            bucket.sample_size += 1
+            bucket.weighted_total += weight_value
+            bucket.weighted_value += weight_value * value
+            if not bucket.weight_field:
+                bucket.weight_field = weight_field
+
+    # Build result rows
+    result: dict[str, list[dict[str, Any]]] = {}
+    for ind in indicators:
+        agg_method = _wvs_aggregation_method(ind)
+        ind_rows: list[dict[str, Any]] = []
+        for (country_code, survey_year, wave), bucket in sorted(aggregates[ind].items()):
+            if bucket.sample_size <= 0 or bucket.weighted_total <= 0:
+                continue
+            ind_rows.append({
+                "country_code": country_code,
+                "survey_year": survey_year,
+                "wave": wave,
+                "value": bucket.weighted_value / bucket.weighted_total,
+                "sample_size": bucket.sample_size,
+                "weighted_sample_size": round(bucket.weighted_total, 6),
+                "sample_weight_field": bucket.weight_field,
+                "aggregation_method": agg_method,
+                "data_shape": "survey_repeated_cross_section",
+                "observation_grain": "country_survey_year_wave",
+            })
+        result[ind] = ind_rows
+    return result
+
+
+def _normalize_wvs_response_value_typed(indicator: str, raw_value: Any) -> float | None:
+    """Normalize a WVS response value using response_type from registry."""
+    if raw_value is None:
+        return None
+    try:
+        value = float(raw_value)
+    except (ValueError, TypeError):
+        return None
+    # Universal: skip WVS missing codes (negative values)
+    if value < 0:
+        return None
+
+    response_type = _wvs_response_type(indicator)
+
+    if response_type == "binary_12":
+        iv = int(value)
+        if iv not in (1, 2):
+            return None
+        # For share aggregation: 1 → 1.0 (positive), 2 → 0.0
+        return 1.0 if iv == 1 else 0.0
+
+    if response_type == "binary_mentioned":
+        if value not in (0.0, 1.0):
+            return None
+        return value
+
+    if response_type == "likert_4":
+        if value < 1 or value > 4:
+            return None
+        return value
+
+    if response_type == "likert_5":
+        if value < 1 or value > 5:
+            return None
+        return value
+
+    if response_type == "likert_10":
+        if value < 1 or value > 10:
+            return None
+        return value
+
+    # continuous / unknown: any non-negative value
+    if value == 0:
+        return None
+    return value
 
 
 def _ensure_registry_tables(con: duckdb.DuckDBPyConnection) -> None:
@@ -502,6 +1462,32 @@ def _ensure_registry_tables(con: duckdb.DuckDBPyConnection) -> None:
         "CREATE INDEX IF NOT EXISTS idx_obs_dataset_raw "
         "ON ds_observations(dataset_id, raw_variable)"
     )
+    con.execute(
+        "CREATE INDEX IF NOT EXISTS idx_obs_dedup "
+        "ON ds_observations(dataset_id, raw_variable, country_code, year)"
+    )
+    _ensure_observation_index_compatibility(con)
+
+
+def _ensure_observation_index_compatibility(con: duckdb.DuckDBPyConnection) -> None:
+    try:
+        indexes = con.execute(
+            "SELECT index_name, is_unique FROM duckdb_indexes() WHERE table_name='ds_observations'"
+        ).fetchall()
+    except Exception:
+        return
+    for index_name, is_unique in indexes:
+        if str(index_name or "") != "idx_obs_dedup" or not bool(is_unique):
+            continue
+        con.execute("DROP INDEX IF EXISTS idx_obs_dedup")
+        con.execute(
+            "CREATE INDEX IF NOT EXISTS idx_obs_dedup "
+            "ON ds_observations(dataset_id, raw_variable, country_code, year)"
+        )
+        logger.warning(
+            "Dropped legacy UNIQUE idx_obs_dedup to preserve condition-aware and multi-canonical observations"
+        )
+        break
 
 
 def _load_catalog_transport_datasets(
@@ -576,6 +1562,8 @@ def _load_catalog_transport_datasets(
         source = str(row[1] or "")
         if execution_tier == "catalog" and source not in {"who", "unpd", "unesco_uis"}:
             continue
+        coverage_json = str(row[7] or "{}")
+        request_dataset_id = str(row[16] or "")
         out.append(
             CatalogTransportDataset(
                 catalog_dataset_id=str(row[0]),
@@ -583,9 +1571,15 @@ def _load_catalog_transport_datasets(
                 title=str(row[2] or ""),
                 description=str(row[3] or ""),
                 source_dataset_id=str(row[4] or ""),
-                update_frequency=str(row[5] or ""),
+                update_frequency=_resolve_catalog_update_frequency(
+                    source=source,
+                    request_dataset_id=request_dataset_id,
+                    title=str(row[2] or ""),
+                    update_frequency=str(row[5] or ""),
+                    coverage_json=coverage_json,
+                ),
                 last_updated=str(row[6] or ""),
-                coverage_json=str(row[7] or "{}"),
+                coverage_json=coverage_json,
                 access_json=str(row[8] or "{}"),
                 execution_tier=execution_tier,
                 variables=tuple(str(value) for value in list(row[10] or [])),
@@ -594,11 +1588,48 @@ def _load_catalog_transport_datasets(
                 polisyos_metrics=tuple(str(value) for value in list(row[13] or [])),
                 connector_id=str(row[14] or ""),
                 profile_id=str(row[15] or ""),
-                request_dataset_id=str(row[16] or ""),
+                request_dataset_id=request_dataset_id,
                 default_filters=_load_json_dict(row[17]),
             )
         )
     return out
+
+
+def _resolve_catalog_update_frequency(
+    *,
+    source: str,
+    request_dataset_id: str,
+    title: str,
+    update_frequency: str,
+    coverage_json: str,
+) -> str:
+    normalized_source = str(source or "").strip().lower()
+    normalized_frequency = str(update_frequency or "").strip().lower()
+    coverage = _load_json_dict(coverage_json)
+    coverage_granularity = str(coverage.get("granularity") or "").strip().lower()
+    if not normalized_frequency:
+        if coverage_granularity in {"annual", "quarterly", "monthly", "weekly", "daily", "wave", "irregular"}:
+            return coverage_granularity
+        return ""
+    if normalized_source != "eurostat" or normalized_frequency not in {"monthly", "quarterly"}:
+        return normalized_frequency
+    if _eurostat_request_id_suggests_subannual(request_dataset_id):
+        return normalized_frequency
+    lowered_title = str(title or "").strip().lower()
+    if any(token in lowered_title for token in _EUROSTAT_SUBANNUAL_TITLE_TOKENS):
+        return normalized_frequency
+    if coverage_granularity in {"annual", "country-year", "yearly"}:
+        return "annual"
+    return normalized_frequency
+
+
+def _eurostat_request_id_suggests_subannual(request_dataset_id: str) -> bool:
+    normalized = str(request_dataset_id or "").strip().upper()
+    if not normalized:
+        return False
+    if re.search(r"(^|[_$-])[MQ](\d+)?($|[_$-])", normalized):
+        return True
+    return len(normalized) >= 4 and normalized.endswith(("M", "Q"))
 
 
 def _upsert_catalog_registry_datasets(
@@ -1064,6 +2095,667 @@ async def _ingest_catalog_observations(
     *,
     config: DatasetBatchConfig,
 ) -> CoreSourcesIngestStats:
+    if _legacy_serial_mode_enabled():
+        logger.warning("Using legacy serial observation ingest because POLISYOS_DATASET_LEGACY_SERIAL is enabled")
+        return await _ingest_catalog_observations_legacy(db_path, plans, config=config)
+    return await _ingest_catalog_observations_parallel(db_path, plans, config=config)
+
+
+async def _ingest_catalog_observations_parallel(
+    db_path: Path,
+    plans: list[ObservationPlan],
+    *,
+    config: DatasetBatchConfig,
+) -> CoreSourcesIngestStats:
+    stats = CoreSourcesIngestStats()
+    if not plans:
+        return stats
+
+    cache = _ConnectorSessionCache()
+    fetch_deduper = _ObservationFetchDeduper()
+    checkpoint_state = _load_observation_checkpoint_state(config)
+    completed = checkpoint_state["completed"]
+    failed = checkpoint_state["failed"]
+    deferred = checkpoint_state["deferred"]
+    support_cache = _prune_expired_support_cache(checkpoint_state["support_cache"])
+    inflight_leases = checkpoint_state["inflight_leases"]
+    async_fetch_leases = checkpoint_state["async_fetch_leases"]
+    capability_cache = _ObservationCapabilityCache(
+        _load_capability_snapshot_state(checkpoint_state["capability_snapshots"])
+    )
+    budget_windows = _load_source_budget_windows(checkpoint_state["source_budgets"])
+
+    completed_results: list[dict[str, Any]] = []
+    failed_results: list[dict[str, Any]] = []
+    deferred_results: list[dict[str, Any]] = []
+    source_summary: dict[str, dict[str, int]] = {}
+    runtime_metrics = _ObservationRuntimeMetrics()
+    runtime_lock = asyncio.Lock()
+    done_event = asyncio.Event()
+    writer_queue: asyncio.Queue[ObservationWriteItem | None] = asyncio.Queue()
+    writer_state = WriterFlushState(last_flush_at=time.monotonic())
+
+    source_queues: dict[str, asyncio.Queue[ObservationShard]] = {}
+    source_policies: dict[str, SourceExecutionPolicy] = {
+        plan.source: _resolve_source_execution_policy(source=plan.source, profile_id=plan.profile_id)
+        for plan in plans
+    }
+    plan_capabilities: dict[str, DatasetCapabilitySnapshot | None] = {}
+    pending = {"count": 0}
+
+    async def _record_fetch_metrics(
+        *,
+        source: str,
+        bytes_transferred: int = 0,
+        request_count: int = 0,
+    ) -> None:
+        async with runtime_lock:
+            runtime_metrics.request_count_by_source[source] = (
+                runtime_metrics.request_count_by_source.get(source, 0) + int(request_count)
+            )
+            runtime_metrics.bytes_downloaded_by_source[source] = (
+                runtime_metrics.bytes_downloaded_by_source.get(source, 0) + int(bytes_transferred)
+            )
+
+    def _record_initial_result(result: ObservationShardResult, *, source: str) -> None:
+        _store_shard_result(
+            result=result,
+            completed=completed,
+            failed=failed,
+            deferred=deferred,
+        )
+        _append_shard_result(
+            result=result,
+            completed_results=completed_results,
+            failed_results=failed_results,
+            deferred_results=deferred_results,
+            source_summary=source_summary,
+        )
+        if result.status.startswith("complete"):
+            stats.completed_shards += 1
+            runtime_metrics.completed_by_source[source] = runtime_metrics.completed_by_source.get(source, 0) + 1
+            runtime_metrics.rows_by_source[source] = runtime_metrics.rows_by_source.get(source, 0) + int(result.row_count)
+            if result.status == "complete_empty":
+                stats.empty_shards += 1
+                runtime_metrics.empty_by_source[source] = runtime_metrics.empty_by_source.get(source, 0) + 1
+        else:
+            stats.failures += 1
+            if result.status == "failed":
+                stats.failed_shards += 1
+            else:
+                stats.deferred_shards += 1
+            reason_key = (result.error or result.status).split("\n", 1)[0][:120]
+            runtime_metrics.deferred_by_reason[reason_key] = runtime_metrics.deferred_by_reason.get(reason_key, 0) + 1
+
+    async def _persist_runtime_state() -> None:
+        capability_state = _serialize_capability_snapshot_state(await capability_cache.snapshot())
+        async with runtime_lock:
+            budget_state = _serialize_source_budget_windows(budget_windows)
+            leases = dict(inflight_leases)
+            async_leases = dict(async_fetch_leases)
+            cache_state = dict(support_cache)
+            metadata = {
+                "inflight_by_source": dict(runtime_metrics.inflight_by_source),
+                "completed_by_source": dict(runtime_metrics.completed_by_source),
+                "empty_ratio_by_source": {
+                    source: round(
+                        float(runtime_metrics.empty_by_source.get(source, 0))
+                        / max(float(runtime_metrics.completed_by_source.get(source, 0)), 1.0),
+                        4,
+                    )
+                    for source in sorted(runtime_metrics.completed_by_source)
+                },
+                "deferred_by_reason": dict(runtime_metrics.deferred_by_reason),
+                "avg_rows_per_shard": round(
+                    float(sum(runtime_metrics.rows_by_source.values()))
+                    / max(float(sum(runtime_metrics.completed_by_source.values())), 1.0),
+                    2,
+                ),
+                "queue_backlog_by_source": dict(runtime_metrics.queue_backlog_by_source),
+                "writer_backlog_rows": int(runtime_metrics.writer_backlog_rows),
+                "writer_flush_count": int(runtime_metrics.writer_flush_count),
+                "writer_flush_latency_ms": round(float(runtime_metrics.writer_flush_latency_ms), 2),
+                "planner_pruned_shards": int(runtime_metrics.planner_pruned_shards),
+                "async_jobs_open": len(async_leases),
+                "bytes_downloaded_by_source": dict(runtime_metrics.bytes_downloaded_by_source),
+                "request_count_by_source": dict(runtime_metrics.request_count_by_source),
+            }
+        _write_core_ingest_stage_progress(config, metadata=metadata)
+        _write_observation_checkpoint_state(
+            config,
+            completed=completed,
+            failed=failed,
+            deferred=deferred,
+            support_cache=cache_state,
+            inflight_leases=leases,
+            async_fetch_leases=async_leases,
+            capability_snapshots=capability_state,
+            source_budgets=budget_state,
+        )
+
+    async def _finalize_result(
+        result: ObservationShardResult,
+        *,
+        support_key: str,
+        source: str,
+        mark_unsupported: bool = False,
+        empty_result: bool = False,
+        promote_empty_to_unsupported: bool = True,
+    ) -> None:
+        async with runtime_lock:
+            if support_key:
+                if result.status == "complete_with_rows":
+                    support_cache.pop(support_key, None)
+                elif mark_unsupported or empty_result:
+                    _update_support_cache(
+                        support_cache,
+                        key=support_key,
+                        policy=source_policies[source],
+                        unsupported=mark_unsupported,
+                        empty_result=empty_result,
+                        promote_empty_to_unsupported=promote_empty_to_unsupported,
+                    )
+            _store_shard_result(
+                result=result,
+                completed=completed,
+                failed=failed,
+                deferred=deferred,
+            )
+            _append_shard_result(
+                result=result,
+                completed_results=completed_results,
+                failed_results=failed_results,
+                deferred_results=deferred_results,
+                source_summary=source_summary,
+            )
+            if result.status.startswith("complete"):
+                stats.completed_shards += 1
+                runtime_metrics.completed_by_source[source] = runtime_metrics.completed_by_source.get(source, 0) + 1
+                runtime_metrics.rows_by_source[source] = runtime_metrics.rows_by_source.get(source, 0) + int(result.row_count)
+                if result.status == "complete_empty":
+                    stats.empty_shards += 1
+                    runtime_metrics.empty_by_source[source] = runtime_metrics.empty_by_source.get(source, 0) + 1
+            else:
+                stats.failures += 1
+                if result.status == "failed":
+                    stats.failed_shards += 1
+                else:
+                    stats.deferred_shards += 1
+                reason_key = (result.error or result.status).split("\n", 1)[0][:120]
+                runtime_metrics.deferred_by_reason[reason_key] = runtime_metrics.deferred_by_reason.get(reason_key, 0) + 1
+            pending["count"] -= 1
+            if pending["count"] <= 0:
+                done_event.set()
+        await _persist_runtime_state()
+
+    async def _progress_loop() -> None:
+        while not done_event.is_set():
+            await asyncio.sleep(_OBSERVATION_PROGRESS_INTERVAL_SECONDS)
+            if done_event.is_set():
+                break
+            await _persist_runtime_state()
+
+    async def _flush_writer_buffer(
+        con: duckdb.DuckDBPyConnection,
+        buffer: list[ObservationWriteItem],
+    ) -> None:
+        if not buffer:
+            return
+        flush_started = time.monotonic()
+        total_rows = sum(item.row_count for item in buffer)
+        ack_pairs: list[tuple[ObservationWriteItem, ObservationInsertStats]] = []
+        try:
+            con.execute("BEGIN TRANSACTION")
+            for item in buffer:
+                insert_stats = _insert_generic_observations(
+                    con=con,
+                    plan=item.shard.plan,
+                    rows=item.payload.rows,
+                )
+                ack_pairs.append((item, insert_stats))
+            con.execute("COMMIT")
+        except Exception as exc:
+            try:
+                con.execute("ROLLBACK")
+            except Exception:
+                logger.debug("DuckDB rollback failed during observation writer flush", exc_info=True)
+            for item in buffer:
+                if not item.ack.done():
+                    item.ack.set_exception(exc)
+            raise
+
+        writer_state.buffered_rows = max(writer_state.buffered_rows - total_rows, 0)
+        writer_state.buffered_bytes = max(
+            writer_state.buffered_bytes - sum(item.estimated_bytes for item in buffer),
+            0,
+        )
+        writer_state.flush_count += 1
+        writer_state.last_flush_at = time.monotonic()
+        writer_state.last_flush_latency_ms = (writer_state.last_flush_at - flush_started) * 1000.0
+        if writer_state.flush_count % _OBSERVATION_WRITER_CHECKPOINT_EVERY == 0:
+            con.execute("CHECKPOINT")
+
+        async with runtime_lock:
+            runtime_metrics.writer_backlog_rows = max(runtime_metrics.writer_backlog_rows - total_rows, 0)
+            runtime_metrics.writer_flush_count = writer_state.flush_count
+            runtime_metrics.writer_flush_latency_ms = writer_state.last_flush_latency_ms
+            for item, insert_stats in ack_pairs:
+                _merge_observation_stats(stats, insert_stats, source=item.shard.plan.source)
+
+        for item, insert_stats in ack_pairs:
+            if not item.ack.done():
+                item.ack.set_result(insert_stats)
+
+    async def _writer() -> None:
+        buffer: list[ObservationWriteItem] = []
+        with duckdb.connect(str(db_path)) as con:
+            while True:
+                timeout = 0.5
+                if buffer:
+                    elapsed = max(time.monotonic() - writer_state.last_flush_at, 0.0)
+                    timeout = min(
+                        max(_OBSERVATION_WRITER_FLUSH_SECONDS - elapsed, 0.1),
+                        _OBSERVATION_WRITER_IDLE_FLUSH_SECONDS,
+                    )
+                try:
+                    item = await asyncio.wait_for(writer_queue.get(), timeout=timeout)
+                except TimeoutError:
+                    item = None
+
+                if item is None:
+                    if buffer:
+                        await _flush_writer_buffer(con, buffer)
+                        buffer.clear()
+                    if done_event.is_set() and writer_queue.empty():
+                        break
+                    continue
+
+                buffer.append(item)
+                writer_state.buffered_rows += item.row_count
+                writer_state.buffered_bytes += item.estimated_bytes
+                async with runtime_lock:
+                    runtime_metrics.writer_backlog_rows += item.row_count
+
+                should_flush = (
+                    writer_state.buffered_rows >= _OBSERVATION_WRITER_FLUSH_ROWS
+                    or writer_state.buffered_bytes >= _OBSERVATION_WRITER_FLUSH_BYTES
+                    or (time.monotonic() - writer_state.last_flush_at) >= _OBSERVATION_WRITER_FLUSH_SECONDS
+                )
+                if should_flush:
+                    await _flush_writer_buffer(con, buffer)
+                    buffer.clear()
+
+            if buffer:
+                await _flush_writer_buffer(con, buffer)
+            con.execute("CHECKPOINT")
+
+    async def _prewarm_capabilities() -> None:
+        unique_plans: dict[str, ObservationPlan] = {}
+        for plan in plans:
+            unique_plans.setdefault(_capability_snapshot_cache_key(plan), plan)
+
+        async def _load(plan: ObservationPlan) -> None:
+            key = _capability_snapshot_cache_key(plan)
+            try:
+                snapshot = await _describe_observation_plan(
+                    plan,
+                    cache,
+                    policy=source_policies[plan.source],
+                    capability_cache=capability_cache,
+                    budget_windows=budget_windows,
+                    state_lock=runtime_lock,
+                )
+            except Exception as exc:
+                logger.warning(
+                    "Capability preflight failed for {}/{}: {}",
+                    plan.source,
+                    plan.request_dataset_id,
+                    exc,
+                )
+                snapshot = None
+            plan_capabilities[key] = snapshot
+
+        if unique_plans:
+            await asyncio.gather(*[asyncio.create_task(_load(plan)) for plan in unique_plans.values()])
+
+    await _prewarm_capabilities()
+
+    for shard in _build_observation_shards(plans, config=config):
+        if _shard_completed(config, shard, completed=completed, failed=failed, deferred=deferred):
+            continue
+        source = shard.plan.source
+        policy = source_policies[source]
+        capability = plan_capabilities.get(_capability_snapshot_cache_key(shard.plan))
+        if capability is not None and not _capability_snapshot_fresh(capability, policy=policy):
+            capability = None
+        if not _shard_supported_by_capability(shard, snapshot=capability):
+            support_key = _support_cache_key(shard, capability=capability)
+            _update_support_cache(
+                support_cache,
+                key=support_key,
+                policy=policy,
+                unsupported=True,
+            )
+            _record_initial_result(
+                ObservationShardResult(
+                    shard_id=shard.shard_id,
+                    status="complete_empty",
+                    source=source,
+                    dataset_id=shard.plan.dataset_id,
+                    raw_variable=shard.plan.raw_variable,
+                    canonical_var=shard.plan.canonical_var,
+                    country_code=shard.country_code,
+                    start_year=shard.start_year,
+                    end_year=shard.end_year,
+                    error="capability_snapshot:unsupported",
+                ),
+                source=source,
+            )
+            runtime_metrics.planner_pruned_shards += 1
+            continue
+
+        planned_shards = _planner_split_shard_from_capability(
+            shard,
+            snapshot=capability,
+            policy=policy,
+        )
+        for planned in planned_shards:
+            source_queues.setdefault(source, asyncio.Queue()).put_nowait(planned)
+            pending["count"] += 1
+
+    for source, queue in source_queues.items():
+        runtime_metrics.queue_backlog_by_source[source] = queue.qsize()
+
+    if pending["count"] <= 0:
+        _write_observation_checkpoint_state(
+            config,
+            completed=completed,
+            failed=failed,
+            deferred=deferred,
+            support_cache=support_cache,
+            inflight_leases=inflight_leases,
+            async_fetch_leases=async_fetch_leases,
+            capability_snapshots=_serialize_capability_snapshot_state(await capability_cache.snapshot()),
+            source_budgets=_serialize_source_budget_windows(budget_windows),
+        )
+        await cache.close()
+        _write_observation_ingest_manifests(
+            config=config,
+            completed_results=completed_results,
+            failed_results=failed_results,
+            deferred_results=deferred_results,
+            source_summary=source_summary,
+        )
+        return stats
+
+    writer_task = asyncio.create_task(_writer())
+
+    async def _worker(source: str) -> None:
+        queue = source_queues[source]
+        policy = source_policies[source]
+        while True:
+            if done_event.is_set() and queue.empty():
+                return
+            try:
+                shard = await asyncio.wait_for(queue.get(), timeout=0.5)
+            except TimeoutError:
+                continue
+
+            capability_key = _capability_snapshot_cache_key(shard.plan)
+            capability = plan_capabilities.get(capability_key)
+            if capability is None:
+                try:
+                    capability = await _describe_observation_plan(
+                        shard.plan,
+                        cache,
+                        policy=policy,
+                        capability_cache=capability_cache,
+                        budget_windows=budget_windows,
+                        state_lock=runtime_lock,
+                    )
+                except Exception as exc:
+                    logger.warning(
+                        "Capability refresh failed for {}/{}: {}",
+                        shard.plan.source,
+                        shard.plan.request_dataset_id,
+                        exc,
+                    )
+                    capability = None
+                plan_capabilities[capability_key] = capability
+
+            support_key = _support_cache_key(shard, capability=capability)
+            skip_result: ObservationShardResult | None = None
+            async with runtime_lock:
+                runtime_metrics.queue_backlog_by_source[source] = queue.qsize()
+                cached_support = support_cache.get(support_key, {})
+                if isinstance(cached_support, dict) and _support_cache_proves_unsupported(cached_support, now=datetime.now(UTC)):
+                    skip_result = ObservationShardResult(
+                        shard_id=shard.shard_id,
+                        status="complete_empty",
+                        source=source,
+                        dataset_id=shard.plan.dataset_id,
+                        raw_variable=shard.plan.raw_variable,
+                        canonical_var=shard.plan.canonical_var,
+                        country_code=shard.country_code,
+                        start_year=shard.start_year,
+                        end_year=shard.end_year,
+                        error="support_cache:unsupported",
+                    )
+                else:
+                    inflight_leases[shard.shard_id] = {
+                        "source": source,
+                        "started_at": datetime.now(UTC).isoformat(),
+                    }
+                    runtime_metrics.inflight_by_source[source] = runtime_metrics.inflight_by_source.get(source, 0) + 1
+                    runtime_metrics.async_jobs_open = len(async_fetch_leases)
+
+            if skip_result is not None:
+                await _finalize_result(
+                    skip_result,
+                    support_key=support_key,
+                    source=source,
+                    empty_result=True,
+                    promote_empty_to_unsupported=_empty_result_proves_unsupported(
+                        shard=shard,
+                        snapshot=capability,
+                    ),
+                )
+                continue
+
+            try:
+                try:
+                    logger.info(
+                        "Fetching observation shard {}: source={}, request_dataset_id={}, country={}",
+                        shard.shard_id,
+                        shard.plan.source,
+                        shard.plan.request_dataset_id,
+                        shard.country_code,
+                    )
+                    rows = await _fetch_observation_rows_with_retries(
+                        shard,
+                        cache,
+                        config=config,
+                        policy=policy,
+                        fetch_deduper=fetch_deduper,
+                        budget_windows=budget_windows,
+                        state_lock=runtime_lock,
+                        capability_snapshot=capability,
+                        async_fetch_leases=async_fetch_leases,
+                        record_result=_record_fetch_metrics,
+                    )
+                    row_limit = _observation_payload_row_limit(shard.plan) if config.is_sampled_run else None
+                    if row_limit is not None and len(rows) > row_limit:
+                        split_shards = []
+                        if not (config.is_sampled_run or config.preflight_only or config.run_profile == "preflight_core"):
+                            split_shards = await _split_shard_for_retry_async(
+                                shard,
+                                RuntimeError(f"HTTP 413 simulated for payload rows={len(rows)}"),
+                                cache=cache,
+                                config=config,
+                                policy=policy,
+                                budget_windows=budget_windows,
+                                state_lock=runtime_lock,
+                            )
+                        if split_shards:
+                            async with runtime_lock:
+                                pending["count"] += len(split_shards) - 1
+                                for split in split_shards:
+                                    queue.put_nowait(split)
+                                runtime_metrics.queue_backlog_by_source[source] = queue.qsize()
+                            continue
+                        await _finalize_result(
+                            ObservationShardResult(
+                                shard_id=shard.shard_id,
+                                status="deferred",
+                                source=source,
+                                dataset_id=shard.plan.dataset_id,
+                                raw_variable=shard.plan.raw_variable,
+                                canonical_var=shard.plan.canonical_var,
+                                country_code=shard.country_code,
+                                start_year=shard.start_year,
+                                end_year=shard.end_year,
+                                row_count=len(rows),
+                                error=f"oversized_payload:{len(rows)}>{row_limit}",
+                            ),
+                            support_key=support_key,
+                            source=source,
+                        )
+                        continue
+                except Exception as exc:
+                    split_shards = await _split_shard_for_retry_async(
+                        shard,
+                        exc,
+                        cache=cache,
+                        config=config,
+                        policy=policy,
+                        budget_windows=budget_windows,
+                        state_lock=runtime_lock,
+                    )
+                    if split_shards:
+                        logger.warning(
+                            "Splitting observation shard for {}/{} after error: {}",
+                            shard.plan.source,
+                            shard.plan.request_dataset_id,
+                            exc,
+                        )
+                        async with runtime_lock:
+                            pending["count"] += len(split_shards) - 1
+                            for split in split_shards:
+                                queue.put_nowait(split)
+                            runtime_metrics.queue_backlog_by_source[source] = queue.qsize()
+                        continue
+                    status = "deferred" if config.defer_unsupported_observation_plans else "failed"
+                    if _is_auth_or_env_error(exc):
+                        status = "failed"
+                    await _finalize_result(
+                        ObservationShardResult(
+                            shard_id=shard.shard_id,
+                            status=status,
+                            source=source,
+                            dataset_id=shard.plan.dataset_id,
+                            raw_variable=shard.plan.raw_variable,
+                            canonical_var=shard.plan.canonical_var,
+                            country_code=shard.country_code,
+                            start_year=shard.start_year,
+                            end_year=shard.end_year,
+                            error=str(exc),
+                        ),
+                        support_key=support_key,
+                        source=source,
+                        mark_unsupported=_is_explicit_unsupported_error(exc),
+                    )
+                    continue
+
+                ack = asyncio.get_running_loop().create_future()
+                await writer_queue.put(
+                    ObservationWriteItem(
+                        shard=shard,
+                        payload=ObservationFetchPayload(rows=rows),
+                        ack=ack,
+                    )
+                )
+                insert_stats = await ack
+
+                shard_status = "complete_with_rows" if insert_stats.written > 0 else "complete_empty"
+                if shard_status == "complete_empty":
+                    logger.warning(
+                        "Observation shard {} returned 0 rows: source={}, request_dataset_id={}, country={}",
+                        shard.shard_id,
+                        shard.plan.source,
+                        shard.plan.request_dataset_id,
+                        shard.country_code,
+                    )
+                await _finalize_result(
+                    ObservationShardResult(
+                        shard_id=shard.shard_id,
+                        status=shard_status,
+                        source=source,
+                        dataset_id=shard.plan.dataset_id,
+                        raw_variable=shard.plan.raw_variable,
+                        canonical_var=shard.plan.canonical_var,
+                        country_code=shard.country_code,
+                        start_year=shard.start_year,
+                        end_year=shard.end_year,
+                        row_count=insert_stats.written,
+                    ),
+                    support_key=support_key,
+                    source=source,
+                    empty_result=(shard_status == "complete_empty"),
+                    promote_empty_to_unsupported=_empty_result_proves_unsupported(
+                        shard=shard,
+                        snapshot=capability,
+                    ),
+                )
+            finally:
+                async with runtime_lock:
+                    inflight_leases.pop(shard.shard_id, None)
+                    async_fetch_leases.pop(shard.shard_id, None)
+                    runtime_metrics.inflight_by_source[source] = max(runtime_metrics.inflight_by_source.get(source, 1) - 1, 0)
+                    runtime_metrics.queue_backlog_by_source[source] = queue.qsize()
+                    runtime_metrics.async_jobs_open = len(async_fetch_leases)
+
+    progress_task = asyncio.create_task(_progress_loop())
+    worker_tasks = [
+        asyncio.create_task(_worker(source))
+        for source, queue in source_queues.items()
+        for _ in range(max(1, int(source_policies[source].max_concurrency)))
+        if not queue.empty()
+    ]
+    try:
+        await asyncio.gather(*worker_tasks)
+    finally:
+        done_event.set()
+        await writer_queue.put(None)
+        progress_task.cancel()
+        try:
+            await progress_task
+        except asyncio.CancelledError:
+            pass
+        try:
+            await writer_task
+        finally:
+            async with runtime_lock:
+                inflight_leases.clear()
+                runtime_metrics.async_jobs_open = len(async_fetch_leases)
+            await _persist_runtime_state()
+            await cache.close()
+
+    _write_observation_ingest_manifests(
+        config=config,
+        completed_results=completed_results,
+        failed_results=failed_results,
+        deferred_results=deferred_results,
+        source_summary=source_summary,
+    )
+    return stats
+
+
+async def _ingest_catalog_observations_legacy(
+    db_path: Path,
+    plans: list[ObservationPlan],
+    *,
+    config: DatasetBatchConfig,
+) -> CoreSourcesIngestStats:
     stats = CoreSourcesIngestStats()
     cache = _ConnectorSessionCache()
     checkpoint_payload = load_json(config.observation_ingest_checkpoint_path, default={})
@@ -1081,6 +2773,9 @@ async def _ingest_catalog_observations(
     deferred_results: list[dict[str, Any]] = []
     source_summary: dict[str, dict[str, int]] = {}
     shard_queue = deque(_build_observation_shards(plans, config=config))
+    fetch_deduper = _ObservationFetchDeduper()
+    budget_windows = _load_source_budget_windows({})
+    state_lock = asyncio.Lock()
     try:
         with duckdb.connect(str(db_path)) as con:
             while shard_queue:
@@ -1088,11 +2783,20 @@ async def _ingest_catalog_observations(
                 if _shard_completed(config, shard, completed=completed, failed=failed, deferred=deferred):
                     continue
                 try:
+                    policy = _resolve_source_execution_policy(source=shard.plan.source, profile_id=shard.plan.profile_id)
                     logger.info(
                         "Fetching observation shard {}: source={}, request_dataset_id={}, country={}",
                         shard.shard_id, shard.plan.source, shard.plan.request_dataset_id, shard.country_code,
                     )
-                    rows = await _fetch_observation_rows_with_retries(shard, cache, config=config)
+                    rows = await _fetch_observation_rows_with_retries(
+                        shard,
+                        cache,
+                        config=config,
+                        policy=policy,
+                        fetch_deduper=fetch_deduper,
+                        budget_windows=budget_windows,
+                        state_lock=state_lock,
+                    )
                 except Exception as exc:
                     split_shards = _split_shard_for_retry(shard, exc)
                     if split_shards:
@@ -1176,9 +2880,10 @@ async def _ingest_catalog_observations(
                     stats.failures += 1
                     continue
                 insert_stats = _insert_generic_observations(con=con, plan=shard.plan, rows=rows)
-                _merge_observation_stats(stats, insert_stats)
+                _merge_observation_stats(stats, insert_stats, source=shard.plan.source)
                 shard_status = "complete_with_rows" if insert_stats.written > 0 else "complete_empty"
                 if shard_status == "complete_empty":
+                    stats.empty_shards += 1
                     logger.warning(
                         "Observation shard {} returned 0 rows: source={}, request_dataset_id={}, country={}",
                         shard.shard_id, shard.plan.source, shard.plan.request_dataset_id, shard.country_code,
@@ -1222,12 +2927,41 @@ async def _fetch_observation_rows_with_retries(
     cache: _ConnectorSessionCache,
     *,
     config: DatasetBatchConfig,
+    policy: SourceExecutionPolicy,
+    fetch_deduper: _ObservationFetchDeduper,
+    budget_windows: dict[str, _SourceBudgetWindow],
+    state_lock: asyncio.Lock,
+    capability_snapshot: DatasetCapabilitySnapshot | None = None,
+    async_fetch_leases: dict[str, Any] | None = None,
+    record_result: Any | None = None,
 ) -> list[dict[str, Any]]:
     attempts = 0
+    fetch_key = ObservationFetchKey(
+        source=shard.plan.source,
+        request_dataset_id=shard.plan.request_dataset_id,
+        filters_json=json.dumps(shard.filters, ensure_ascii=False, sort_keys=True, separators=(",", ":")),
+        start_year=shard.start_year,
+        end_year=shard.end_year,
+    )
     while True:
         try:
-            return await _fetch_observation_rows(shard, cache, config=config)
+            return await fetch_deduper.run(
+                fetch_key,
+                producer=lambda: _invoke_fetch_observation_rows(
+                    shard,
+                    cache,
+                    config=config,
+                    policy=policy,
+                    budget_windows=budget_windows,
+                    state_lock=state_lock,
+                    capability_snapshot=capability_snapshot,
+                    async_fetch_leases=async_fetch_leases,
+                    record_result=record_result,
+                ),
+            )
         except Exception as exc:
+            if _is_planner_signal(exc):
+                raise
             delay = _observation_retry_delay_seconds(exc, attempt=attempts)
             if delay is None:
                 raise
@@ -1240,6 +2974,45 @@ async def _fetch_observation_rows_with_retries(
                 exc,
             )
             await asyncio.sleep(delay)
+
+
+async def _invoke_fetch_observation_rows(
+    shard: ObservationShard,
+    cache: _ConnectorSessionCache,
+    *,
+    config: DatasetBatchConfig,
+    policy: SourceExecutionPolicy,
+    budget_windows: dict[str, _SourceBudgetWindow],
+    state_lock: asyncio.Lock,
+    capability_snapshot: DatasetCapabilitySnapshot | None = None,
+    async_fetch_leases: dict[str, Any] | None = None,
+    record_result: Any | None = None,
+) -> list[dict[str, Any]]:
+    try:
+        return await _fetch_observation_rows(
+            shard,
+            cache,
+            config=config,
+            policy=policy,
+            budget_windows=budget_windows,
+            state_lock=state_lock,
+            capability_snapshot=capability_snapshot,
+            async_fetch_leases=async_fetch_leases,
+            record_result=record_result,
+        )
+    except TypeError as exc:
+        message = str(exc or "")
+        unexpected_policy_args = (
+            "unexpected keyword argument 'policy'" in message
+            or "unexpected keyword argument 'budget_windows'" in message
+            or "unexpected keyword argument 'state_lock'" in message
+            or "unexpected keyword argument 'capability_snapshot'" in message
+            or "unexpected keyword argument 'async_fetch_leases'" in message
+            or "unexpected keyword argument 'record_result'" in message
+        )
+        if not unexpected_policy_args:
+            raise
+        return await _fetch_observation_rows(shard, cache, config=config)  # type: ignore[call-arg]
 
 
 def _counts_toward_observation_failure_budget(exc: Exception) -> bool:
@@ -1266,6 +3039,106 @@ def _observation_retry_delay_seconds(exc: Exception, *, attempt: int) -> float |
     return None
 
 
+def _planner_error_status_code(exc: Exception) -> int | None:
+    status_code = getattr(exc, "status", None) or getattr(exc, "status_code", None)
+    if status_code is not None:
+        try:
+            return int(status_code)
+        except (TypeError, ValueError):
+            return None
+    match = re.search(r"http\s+([0-9]{3})", str(exc or ""), re.IGNORECASE)
+    return int(match.group(1)) if match else None
+
+
+def _is_planner_signal(exc: Exception) -> bool:
+    return _planner_error_status_code(exc) in {400, 413}
+
+
+def _is_explicit_unsupported_error(exc: Exception) -> bool:
+    return _planner_error_status_code(exc) == 400
+
+
+async def _acquire_source_budget_slot(
+    *,
+    source: str,
+    policy: SourceExecutionPolicy,
+    budget_windows: dict[str, _SourceBudgetWindow],
+    state_lock: asyncio.Lock,
+) -> None:
+    if policy.requests_per_hour is None:
+        return
+    limit = max(1, int(policy.requests_per_hour))
+    while True:
+        async with state_lock:
+            now = datetime.now(UTC)
+            bucket = budget_windows.get(source)
+            if bucket is None:
+                bucket = _SourceBudgetWindow(window_started_at=now)
+                budget_windows[source] = bucket
+            if now - bucket.window_started_at >= timedelta(hours=1):
+                bucket.window_started_at = now
+                bucket.requests_used = 0
+            if bucket.requests_used < limit:
+                bucket.requests_used += 1
+                return
+            sleep_seconds = max(
+                (bucket.window_started_at + timedelta(hours=1) - now).total_seconds(),
+                1.0,
+            )
+        await asyncio.sleep(min(sleep_seconds, 60.0))
+
+
+async def _execute_source_fetch(
+    connector: Any,
+    handle: Any,
+    request: FetchRequest,
+    *,
+    source: str,
+    policy: SourceExecutionPolicy,
+    budget_windows: dict[str, _SourceBudgetWindow],
+    state_lock: asyncio.Lock,
+    record_result: Any | None = None,
+) -> Any:
+    await _acquire_source_budget_slot(
+        source=source,
+        policy=policy,
+        budget_windows=budget_windows,
+        state_lock=state_lock,
+    )
+    result = await connector.fetch(handle, request)
+    if record_result is not None:
+        await record_result(
+            source=source,
+            bytes_transferred=int(getattr(result, "bytes_transferred", 0) or 0),
+            request_count=1,
+        )
+    return result
+
+
+async def _execute_source_describe(
+    connector: Any,
+    handle: Any,
+    *,
+    dataset_id: str,
+    source: str,
+    policy: SourceExecutionPolicy,
+    budget_windows: dict[str, _SourceBudgetWindow],
+    state_lock: asyncio.Lock,
+) -> DatasetCapabilitySnapshot | None:
+    await _acquire_source_budget_slot(
+        source=source,
+        policy=policy,
+        budget_windows=budget_windows,
+        state_lock=state_lock,
+    )
+    snapshot = await connector.describe_dataset(handle, dataset_id)
+    if snapshot is None:
+        return None
+    if not snapshot.resolved_dataset_id:
+        snapshot = snapshot.model_copy(update={"resolved_dataset_id": dataset_id})
+    return snapshot
+
+
 def _is_auth_or_env_error(exc: Exception) -> bool:
     text = str(exc or "").strip().lower()
     if not text:
@@ -1283,30 +3156,91 @@ def _is_auth_or_env_error(exc: Exception) -> bool:
     )
 
 
+async def _describe_observation_plan(
+    plan: ObservationPlan,
+    cache: _ConnectorSessionCache,
+    *,
+    policy: SourceExecutionPolicy,
+    capability_cache: _ObservationCapabilityCache,
+    budget_windows: dict[str, _SourceBudgetWindow],
+    state_lock: asyncio.Lock,
+) -> DatasetCapabilitySnapshot | None:
+    key = _capability_snapshot_cache_key(plan)
+
+    async def _producer() -> DatasetCapabilitySnapshot | None:
+        if plan.source == "worldbank":
+            connector, handle = await cache.get_worldbank()
+        elif plan.source == "eurostat":
+            connector, handle = await cache.get_eurostat()
+        elif plan.source in {"oecd", "ilo"}:
+            profile_id = plan.profile_id or ("oecd_sdmx" if plan.source == "oecd" else "ilo_sdmx")
+            connector, handle = await cache.get_sdmx(profile_id)
+        elif plan.source == "who":
+            connector, handle = await cache.get_who()
+        elif plan.source == "unpd":
+            connector, handle = await cache.get_unpd()
+        elif plan.source == "unesco_uis":
+            connector, handle = await cache.get_unesco_uis()
+        else:
+            return DatasetCapabilitySnapshot(
+                source=plan.source,
+                dataset_id=plan.request_dataset_id,
+                resolved_dataset_id=plan.request_dataset_id,
+                preferred_transport=policy.preferred_transport,
+                last_checked_at=datetime.now(UTC),
+            )
+        return await _execute_source_describe(
+            connector,
+            handle,
+            dataset_id=plan.request_dataset_id,
+            source=plan.source,
+            policy=policy,
+            budget_windows=budget_windows,
+            state_lock=state_lock,
+        )
+
+    snapshot = await capability_cache.get(key, producer=_producer)
+    if snapshot is not None and not _capability_snapshot_fresh(snapshot, policy=policy):
+        refreshed = await _producer()
+        if refreshed is not None:
+            await capability_cache.put(key, refreshed)
+            return refreshed
+    return snapshot
+
+
 async def _fetch_observation_rows(
     shard: ObservationShard,
     cache: _ConnectorSessionCache,
     *,
     config: DatasetBatchConfig,
+    policy: SourceExecutionPolicy,
+    budget_windows: dict[str, _SourceBudgetWindow],
+    state_lock: asyncio.Lock,
+    capability_snapshot: DatasetCapabilitySnapshot | None = None,
+    async_fetch_leases: dict[str, Any] | None = None,
+    record_result: Any | None = None,
 ) -> list[dict[str, Any]]:
     plan = shard.plan
     start_year = shard.start_year
     end_year = shard.end_year
     if plan.source == "worldbank":
         connector, handle = await cache.get_worldbank()
-        rows: list[dict[str, Any]] = []
-        for country in _shard_countries(shard, config=config):
-            result = await connector.fetch(
-                handle,
-                FetchRequest(
-                    dataset_id=plan.request_dataset_id,
-                    filters=(("country", (country,)),),
-                    date_start=datetime(start_year, 1, 1, tzinfo=UTC),
-                    date_end=datetime(end_year, 12, 31, tzinfo=UTC),
-                ),
-            )
-            rows.extend(_records_from_payload(result.data))
-        return rows
+        result = await _execute_source_fetch(
+            connector,
+            handle,
+            FetchRequest(
+                dataset_id=plan.request_dataset_id,
+                filters=(("country", tuple(_shard_countries(shard, config=config))),),
+                date_start=datetime(start_year, 1, 1, tzinfo=UTC),
+                date_end=datetime(end_year, 12, 31, tzinfo=UTC),
+            ),
+            source=plan.source,
+            policy=policy,
+            budget_windows=budget_windows,
+            state_lock=state_lock,
+            record_result=record_result,
+        )
+        return _records_from_payload(result.data)
 
     if plan.source == "wvs":
         target_countries = tuple(_shard_countries(shard, config=config))
@@ -1324,29 +3258,56 @@ async def _fetch_observation_rows(
         requests: list[FetchRequest] = []
         for country in _shard_countries(shard, config=config):
             filters = _eurostat_filters_for_country(country, base_filters=shard.filters)
-            requests.append(
-                FetchRequest(
-                    dataset_id=plan.request_dataset_id,
+            requests.extend(
+                _chunked_observation_requests(
+                    plan=plan,
                     filters=_filters_to_tuple(filters),
-                    date_start=datetime(start_year, 1, 1, tzinfo=UTC),
-                    date_end=datetime(end_year, 12, 31, tzinfo=UTC),
-                    page_size=200,
+                    source=plan.source,
+                    start_year=start_year,
+                    end_year=end_year,
                 )
             )
         if config.is_sampled_run or config.preflight_only or config.run_profile == "preflight_core":
-            requests.append(
-                FetchRequest(
-                    dataset_id=plan.request_dataset_id,
+            requests.extend(
+                _chunked_observation_requests(
+                    plan=plan,
                     filters=_filters_to_tuple(_strip_geo_filters(shard.filters)),
-                    date_start=datetime(start_year, 1, 1, tzinfo=UTC),
-                    date_end=datetime(end_year, 12, 31, tzinfo=UTC),
-                    page_size=200,
+                    source=plan.source,
+                    start_year=start_year,
+                    end_year=end_year,
                 )
+            )
+        if (
+            len(requests) == 1
+            and async_fetch_leases is not None
+            and _shard_prefers_async_fetch(
+                shard,
+                snapshot=capability_snapshot,
+                policy=policy,
+                config=config,
+            )
+        ):
+            return await _fetch_request_variants_async(
+                connector,
+                handle,
+                requests,
+                source=plan.source,
+                policy=policy,
+                budget_windows=budget_windows,
+                state_lock=state_lock,
+                async_fetch_leases=async_fetch_leases,
+                lease_key=shard.shard_id,
+                record_result=record_result,
             )
         return await _fetch_request_variants(
             connector,
             handle,
             requests,
+            source=plan.source,
+            policy=policy,
+            budget_windows=budget_windows,
+            state_lock=state_lock,
+            record_result=record_result,
             stop_after_first_success=bool(config.is_sampled_run or config.preflight_only or config.run_profile == "preflight_core"),
         )
 
@@ -1356,29 +3317,34 @@ async def _fetch_observation_rows(
         requests: list[FetchRequest] = []
         for country in _shard_countries(shard, config=config):
             filters = _sdmx_filters_for_country(country, base_filters=shard.filters)
-            requests.append(
-                FetchRequest(
-                    dataset_id=plan.request_dataset_id,
+            requests.extend(
+                _chunked_observation_requests(
+                    plan=plan,
                     filters=_filters_to_tuple(filters),
-                    date_start=datetime(start_year, 1, 1, tzinfo=UTC),
-                    date_end=datetime(end_year, 12, 31, tzinfo=UTC),
-                    page_size=200,
+                    source=plan.source,
+                    start_year=start_year,
+                    end_year=end_year,
                 )
             )
         if config.is_sampled_run or config.preflight_only or config.run_profile == "preflight_core":
-            requests.append(
-                FetchRequest(
-                    dataset_id=plan.request_dataset_id,
+            requests.extend(
+                _chunked_observation_requests(
+                    plan=plan,
                     filters=_filters_to_tuple(_strip_geo_filters(shard.filters)),
-                    date_start=datetime(start_year, 1, 1, tzinfo=UTC),
-                    date_end=datetime(end_year, 12, 31, tzinfo=UTC),
-                    page_size=200,
+                    source=plan.source,
+                    start_year=start_year,
+                    end_year=end_year,
                 )
             )
         return await _fetch_request_variants(
             connector,
             handle,
             requests,
+            source=plan.source,
+            policy=policy,
+            budget_windows=budget_windows,
+            state_lock=state_lock,
+            record_result=record_result,
             stop_after_first_success=bool(config.is_sampled_run or config.preflight_only or config.run_profile == "preflight_core"),
         )
 
@@ -1386,14 +3352,20 @@ async def _fetch_observation_rows(
         connector, handle = await cache.get_who()
         rows: list[dict[str, Any]] = []
         for country in _shard_countries(shard, config=config):
-            result = await connector.fetch(
+            result = await _execute_source_fetch(
+                connector,
                 handle,
                 FetchRequest(
                     dataset_id=plan.request_dataset_id,
                     filters=(("country", (country,)),),
                     date_start=datetime(start_year, 1, 1, tzinfo=UTC),
                     date_end=datetime(end_year, 12, 31, tzinfo=UTC),
-                )
+                ),
+                source=plan.source,
+                policy=policy,
+                budget_windows=budget_windows,
+                state_lock=state_lock,
+                record_result=record_result,
             )
             rows.extend(_records_from_payload(result.data))
         return rows
@@ -1402,14 +3374,20 @@ async def _fetch_observation_rows(
         connector, handle = await cache.get_unpd()
         rows: list[dict[str, Any]] = []
         for country in _shard_countries(shard, config=config):
-            result = await connector.fetch(
+            result = await _execute_source_fetch(
+                connector,
                 handle,
                 FetchRequest(
                     dataset_id=plan.request_dataset_id,
                     filters=(("country", (country,)),),
                     date_start=datetime(start_year, 1, 1, tzinfo=UTC),
                     date_end=datetime(end_year, 12, 31, tzinfo=UTC),
-                )
+                ),
+                source=plan.source,
+                policy=policy,
+                budget_windows=budget_windows,
+                state_lock=state_lock,
+                record_result=record_result,
             )
             rows.extend(_records_from_payload(result.data))
         return rows
@@ -1418,14 +3396,20 @@ async def _fetch_observation_rows(
         connector, handle = await cache.get_unesco_uis()
         rows: list[dict[str, Any]] = []
         for country in _shard_countries(shard, config=config):
-            result = await connector.fetch(
+            result = await _execute_source_fetch(
+                connector,
                 handle,
                 FetchRequest(
                     dataset_id=plan.request_dataset_id,
                     filters=(("country", (country,)),),
                     date_start=datetime(start_year, 1, 1, tzinfo=UTC),
                     date_end=datetime(end_year, 12, 31, tzinfo=UTC),
-                )
+                ),
+                source=plan.source,
+                policy=policy,
+                budget_windows=budget_windows,
+                state_lock=state_lock,
+                record_result=record_result,
             )
             rows.extend(_records_from_payload(result.data))
         return rows
@@ -1438,13 +3422,27 @@ async def _fetch_request_variants(
     handle: Any,
     requests: list[FetchRequest],
     *,
+    source: str,
+    policy: SourceExecutionPolicy,
+    budget_windows: dict[str, _SourceBudgetWindow],
+    state_lock: asyncio.Lock,
+    record_result: Any | None = None,
     stop_after_first_success: bool = False,
 ) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     last_exc: Exception | None = None
     for request in requests:
         try:
-            result = await connector.fetch(handle, request)
+            result = await _execute_source_fetch(
+                connector,
+                handle,
+                request,
+                source=source,
+                policy=policy,
+                budget_windows=budget_windows,
+                state_lock=state_lock,
+                record_result=record_result,
+            )
         except Exception as exc:
             last_exc = exc
             continue
@@ -1463,16 +3461,99 @@ async def _fetch_request_variants(
     return []
 
 
+async def _fetch_request_variants_async(
+    connector: Any,
+    handle: Any,
+    requests: list[FetchRequest],
+    *,
+    source: str,
+    policy: SourceExecutionPolicy,
+    budget_windows: dict[str, _SourceBudgetWindow],
+    state_lock: asyncio.Lock,
+    async_fetch_leases: dict[str, Any],
+    lease_key: str,
+    record_result: Any | None = None,
+) -> list[dict[str, Any]]:
+    if not requests:
+        return []
+    if len(requests) != 1:
+        return await _fetch_request_variants(
+            connector,
+            handle,
+            requests,
+            source=source,
+            policy=policy,
+            budget_windows=budget_windows,
+            state_lock=state_lock,
+            record_result=record_result,
+        )
+
+    request = requests[0]
+    persisted = _deserialize_async_fetch_lease(async_fetch_leases.get(lease_key))
+    if persisted is None:
+        await _acquire_source_budget_slot(
+            source=source,
+            policy=policy,
+            budget_windows=budget_windows,
+            state_lock=state_lock,
+        )
+        try:
+            persisted = await connector.fetch_async(handle, request)
+        except Exception as exc:
+            if "Expected asynchronous Eurostat extraction response" not in str(exc):
+                raise
+            return await _fetch_request_variants(
+                connector,
+                handle,
+                requests,
+                source=source,
+                policy=policy,
+                budget_windows=budget_windows,
+                state_lock=state_lock,
+                record_result=record_result,
+            )
+        async_fetch_leases[lease_key] = _serialize_async_fetch_lease(persisted)
+        if record_result is not None:
+            await record_result(source=source, request_count=1)
+
+    while True:
+        await asyncio.sleep(max(float(persisted.poll_after_seconds or 0.0), 0.0))
+        await _acquire_source_budget_slot(
+            source=source,
+            policy=policy,
+            budget_windows=budget_windows,
+            state_lock=state_lock,
+        )
+        polled = await connector.poll_async_fetch(handle, persisted)
+        if isinstance(polled, AsyncFetchLease):
+            persisted = polled
+            async_fetch_leases[lease_key] = _serialize_async_fetch_lease(persisted)
+            if record_result is not None:
+                await record_result(source=source, request_count=1)
+            continue
+        async_fetch_leases.pop(lease_key, None)
+        if record_result is not None:
+            await record_result(
+                source=source,
+                request_count=2,
+                bytes_transferred=int(getattr(polled, "bytes_transferred", 0) or 0),
+            )
+        return _records_from_payload(polled.data)
+
+
 def _chunked_observation_requests(
     *,
     plan: ObservationPlan,
     filters: tuple[tuple[str, tuple[str, ...]], ...],
     source: str,
+    start_year: int | None = None,
+    end_year: int | None = None,
 ) -> list[FetchRequest]:
-    start_year, end_year = _DEFAULT_OBSERVATION_YEAR_WINDOW
+    window_start = start_year if start_year is not None else _DEFAULT_OBSERVATION_YEAR_WINDOW[0]
+    window_end = end_year if end_year is not None else _DEFAULT_OBSERVATION_YEAR_WINDOW[1]
     window_years = _observation_time_window_years(source=source, update_frequency=plan.update_frequency)
     requests: list[FetchRequest] = []
-    for window_start, window_end in _year_windows(start_year, end_year, window_years):
+    for window_start, window_end in _year_windows(window_start, window_end, window_years):
         requests.append(
             FetchRequest(
                 dataset_id=plan.request_dataset_id,
@@ -1517,8 +3598,15 @@ def _build_observation_shards(
     shards: list[ObservationShard] = []
     start_year, end_year = config.resolved_year_window
     for plan in plans:
-        countries = _observation_countries(plan.source, config=config)
-        if config.preflight_only or config.run_profile == "preflight_core" or config.is_sampled_run:
+        countries: tuple[str | None, ...]
+        if plan.source == "worldbank":
+            countries = (None,)
+        else:
+            countries = _observation_countries(plan.source, config=config)
+        # WVS: use full time series window (1981-2023) for longitudinal value
+        if plan.source == "wvs":
+            windows = [(1981, 2023)]
+        elif config.preflight_only or config.run_profile == "preflight_core" or config.is_sampled_run:
             windows = [(start_year, end_year)]
         elif plan.source in {"eurostat", "oecd", "ilo"}:
             windows = _year_windows(
@@ -1640,6 +3728,165 @@ def _split_shard_for_retry(shard: ObservationShard, exc: Exception) -> list[Obse
     ]
 
 
+async def _split_shard_for_retry_async(
+    shard: ObservationShard,
+    exc: Exception,
+    *,
+    cache: _ConnectorSessionCache,
+    config: DatasetBatchConfig,
+    policy: SourceExecutionPolicy,
+    budget_windows: dict[str, _SourceBudgetWindow],
+    state_lock: asyncio.Lock,
+) -> list[ObservationShard]:
+    split_shards = _split_shard_for_retry(shard, exc)
+    if split_shards:
+        return split_shards
+    if _planner_error_status_code(exc) != 413 or not policy.schema_preflight:
+        return []
+    return await _probe_shard_split_dimensions(
+        shard,
+        cache=cache,
+        config=config,
+        policy=policy,
+        budget_windows=budget_windows,
+        state_lock=state_lock,
+    )
+
+
+async def _probe_shard_split_dimensions(
+    shard: ObservationShard,
+    *,
+    cache: _ConnectorSessionCache,
+    config: DatasetBatchConfig,
+    policy: SourceExecutionPolicy,
+    budget_windows: dict[str, _SourceBudgetWindow],
+    state_lock: asyncio.Lock,
+) -> list[ObservationShard]:
+    request = _build_probe_request(shard)
+    if request is None:
+        return []
+    try:
+        if shard.plan.source == "eurostat":
+            connector, handle = await cache.get_eurostat()
+        elif shard.plan.source in {"oecd", "ilo"}:
+            profile_id = shard.plan.profile_id or ("oecd_sdmx" if shard.plan.source == "oecd" else "ilo_sdmx")
+            connector, handle = await cache.get_sdmx(profile_id)
+        else:
+            return []
+        result = await _execute_source_fetch(
+            connector,
+            handle,
+            request,
+            source=shard.plan.source,
+            policy=policy,
+            budget_windows=budget_windows,
+            state_lock=state_lock,
+        )
+    except Exception:
+        return []
+    rows = _records_from_payload(result.data)
+    split_key, values = _probe_dimension_split_key(rows, shard=shard)
+    if not split_key or len(values) <= 1:
+        return []
+    midpoint = max(len(values) // 2, 1)
+    left_filters = {key: list(current) for key, current in shard.filters.items()}
+    right_filters = {key: list(current) for key, current in shard.filters.items()}
+    left_filters[split_key] = values[:midpoint]
+    right_filters[split_key] = values[midpoint:]
+    return [
+        ObservationShard(
+            shard_id=_observation_shard_id(
+                plan=shard.plan,
+                country_code=shard.country_code,
+                start_year=shard.start_year,
+                end_year=shard.end_year,
+                filters=current_filters,
+                split_depth=shard.split_depth + 1,
+            ),
+            plan=shard.plan,
+            country_code=shard.country_code,
+            start_year=shard.start_year,
+            end_year=shard.end_year,
+            filters=current_filters,
+            split_depth=shard.split_depth + 1,
+        )
+        for current_filters in (left_filters, right_filters)
+        if current_filters.get(split_key)
+    ]
+
+
+def _build_probe_request(shard: ObservationShard) -> FetchRequest | None:
+    filters = {key: list(values) for key, values in shard.filters.items()}
+    if shard.plan.source == "eurostat":
+        probe_time = _eurostat_probe_time_value(shard)
+        if not probe_time:
+            return None
+        filters["time"] = [probe_time]
+        return FetchRequest(
+            dataset_id=shard.plan.request_dataset_id,
+            filters=_filters_to_tuple(filters),
+            page_size=50,
+        )
+    probe_start = datetime(shard.start_year, 1, 1, tzinfo=UTC)
+    probe_end = probe_start
+    return FetchRequest(
+        dataset_id=shard.plan.request_dataset_id,
+        filters=_filters_to_tuple(filters),
+        date_start=probe_start,
+        date_end=probe_end,
+        page_size=50,
+    )
+
+
+def _eurostat_probe_time_value(shard: ObservationShard) -> str:
+    rank = _observation_frequency_rank(shard.plan.update_frequency)
+    if rank == 0:
+        return str(shard.start_year)
+    if rank == 1:
+        return f"{shard.start_year}-Q1"
+    return f"{shard.start_year}-01"
+
+
+def _probe_dimension_split_key(
+    rows: list[dict[str, Any]],
+    *,
+    shard: ObservationShard,
+) -> tuple[str, list[str]]:
+    candidates: dict[str, set[str]] = defaultdict(set)
+    for row in rows:
+        if shard.plan.source == "eurostat":
+            dimensions = _load_json_dict(row.get("dimensions_json"))
+            for key, value in dimensions.items():
+                normalized_key = str(key or "").strip()
+                normalized_value = str(value or "").strip()
+                if not normalized_key or not normalized_value:
+                    continue
+                if normalized_key.lower() in {"time", "geo", "country", "ref_area"}:
+                    continue
+                candidates[normalized_key].add(normalized_value)
+            continue
+        for key, value in row.items():
+            normalized_key = str(key or "").strip()
+            if normalized_key.lower() in {"value", "time", "time_period", "geo", "country", "ref_area"}:
+                continue
+            normalized_value = str(value or "").strip()
+            if not normalized_value:
+                continue
+            candidates[normalized_key].add(normalized_value)
+    ranked = sorted(
+        (
+            (len(values), key, sorted(values))
+            for key, values in candidates.items()
+            if len(values) > 1 and len(shard.filters.get(key, [])) <= 1
+        ),
+        reverse=True,
+    )
+    if not ranked:
+        return "", []
+    _, key, values = ranked[0]
+    return key, values
+
+
 def _largest_filter_key(filters: dict[str, list[str]]) -> str:
     ranked = sorted(
         (
@@ -1677,6 +3924,33 @@ def _record_shard_result(
     failed: dict[str, Any],
     deferred: dict[str, Any],
 ) -> None:
+    _store_shard_result(
+        result=result,
+        completed=completed,
+        failed=failed,
+        deferred=deferred,
+    )
+    checkpoint_state = _load_observation_checkpoint_state(config)
+    _write_observation_checkpoint_state(
+        config,
+        completed=completed,
+        failed=failed,
+        deferred=deferred,
+        support_cache=checkpoint_state["support_cache"],
+        inflight_leases=checkpoint_state["inflight_leases"],
+        async_fetch_leases=checkpoint_state["async_fetch_leases"],
+        capability_snapshots=checkpoint_state["capability_snapshots"],
+        source_budgets=checkpoint_state["source_budgets"],
+    )
+
+
+def _store_shard_result(
+    *,
+    result: ObservationShardResult,
+    completed: dict[str, Any],
+    failed: dict[str, Any],
+    deferred: dict[str, Any],
+) -> None:
     target = completed
     if result.status == "failed":
         target = failed
@@ -1695,10 +3969,6 @@ def _record_shard_result(
         "error": result.error,
         "updated_at": datetime.now(UTC).isoformat(),
     }
-    write_json(
-        config.observation_ingest_checkpoint_path,
-        {"completed": completed, "failed": failed, "deferred": deferred},
-    )
 
 
 def _append_shard_result(
@@ -1828,29 +4098,46 @@ async def _legacy_ingest_observations(db_path: Path) -> CoreSourcesIngestStats:
                         stats.failures += 1
                         logger.warning("Legacy WDI ingest failed for {}/{}: {}", country, indicator, exc)
 
-            for indicator, canonical_var in _LEGACY_WVS_INDICATORS.items():
+            wvs_indicators = _wvs_legacy_indicators()
+            if wvs_indicators:
                 try:
-                    _merge_observation_stats(
-                        stats,
-                        _insert_generic_observations(
-                            con=con,
-                            plan=ObservationPlan(
-                                dataset_id="WVS_W7",
-                                source="wvs",
-                                raw_variable=indicator,
-                                canonical_var=canonical_var,
-                                connector_id="wvs.wave7",
-                                profile_id="wvs_wave7",
-                                request_dataset_id=indicator,
-                                default_filters={},
-                                update_frequency="wave",
-                            ),
-                            rows=_load_wvs_bulk_rows(indicator),
-                        ),
+                    wvs_bulk = _load_wvs_bulk_duckdb(
+                        list(wvs_indicators.keys()),
+                        country_scope=config.country_scope if hasattr(config, "country_scope") else "core_blocking",
+                        year_window=(1981, 2023),
                     )
+                    logger.info("WVS DuckDB bulk load: {} indicators, {} total rows",
+                                len(wvs_bulk), sum(len(v) for v in wvs_bulk.values()))
                 except Exception as exc:
-                    stats.failures += 1
-                    logger.warning("Legacy WVS bulk ingest failed for {}: {}", indicator, exc)
+                    logger.warning("WVS DuckDB bulk load failed: {}", exc)
+                    wvs_bulk = {}
+
+                for indicator, canonical_var in wvs_indicators.items():
+                    try:
+                        rows = wvs_bulk.get(indicator, [])
+                        if not rows:
+                            continue
+                        _merge_observation_stats(
+                            stats,
+                            _insert_generic_observations(
+                                con=con,
+                                plan=ObservationPlan(
+                                    dataset_id="WVS_W7",
+                                    source="wvs",
+                                    raw_variable=indicator,
+                                    canonical_var=canonical_var,
+                                    connector_id="wvs.wave7",
+                                    profile_id="wvs_wave7",
+                                    request_dataset_id=indicator,
+                                    default_filters={},
+                                    update_frequency="wave",
+                                ),
+                                rows=rows,
+                            ),
+                        )
+                    except Exception as exc:
+                        stats.failures += 1
+                        logger.warning("Legacy WVS bulk ingest failed for {}: {}", indicator, exc)
             con.execute("CHECKPOINT")
     finally:
         if wb_handle is not None:
@@ -1920,8 +4207,11 @@ def _insert_generic_observations(
 ) -> ObservationInsertStats:
     if not rows:
         return ObservationInsertStats()
+    if hasattr(con, "execute"):
+        _ensure_observation_index_compatibility(con)
     attempted = 0
     unique_rows: dict[str, tuple] = {}
+    multi_slice_groups: dict[tuple[str, int | None], set[str]] = {}
     for row in rows:
         normalized = _normalize_observation_row(row)
         if normalized is None:
@@ -1950,17 +4240,28 @@ def _insert_generic_observations(
             value,
             condition_json,
         )
+        multi_slice_groups.setdefault((country_code, year), set()).add(obs_id)
     if not unique_rows:
         return ObservationInsertStats()
+    multi_slice_keys = sum(1 for ids in multi_slice_groups.values() if len(ids) > 1)
+    if multi_slice_keys > 0:
+        logger.warning(
+            "Observation plan {} {} {} produced {} multi-slice country/year keys; preserving condition-aware rows",
+            plan.dataset_id,
+            plan.raw_variable,
+            plan.canonical_var,
+            multi_slice_keys,
+        )
     existing_ids = _existing_observation_ids(con, tuple(unique_rows))
     inserted = len(unique_rows) - len(existing_ids)
     replaced = len(existing_ids)
     values = list(unique_rows.values())
     insert_sql = (
-        "INSERT OR REPLACE INTO ds_observations "
+        "INSERT INTO ds_observations "
         "(observation_id, dataset_id, raw_variable, canonical_var, country_code, "
         "year, survey_year, wave, value, condition_json) "
-        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) "
+        "ON CONFLICT(observation_id) DO UPDATE SET value=EXCLUDED.value, condition_json=EXCLUDED.condition_json"
     )
     for start in range(0, len(values), _OBSERVATION_INSERT_BATCH_SIZE):
         con.executemany(
@@ -1977,11 +4278,15 @@ def _insert_generic_observations(
 def _merge_observation_stats(
     stats: CoreSourcesIngestStats,
     inserted: ObservationInsertStats,
+    *,
+    source: str = "",
 ) -> None:
     stats.observations += inserted.inserted
     stats.observations_attempted += inserted.attempted
     stats.observations_inserted += inserted.inserted
     stats.observations_replaced += inserted.replaced
+    if source and inserted.written > 0:
+        stats.record_source_observations(source, inserted.written)
 
 
 def _existing_observation_ids(
@@ -2070,15 +4375,12 @@ def _load_wvs_bulk_rows(
             bucket = aggregates.setdefault(key, _WVSObservationAccumulator())
             bucket.sample_size += 1
             bucket.weighted_total += weight_value
-            if indicator in _WVS_SPECIAL_AGGREGATIONS:
-                bucket.weighted_value += weight_value * value
-            else:
-                bucket.weighted_value += weight_value * value
+            bucket.weighted_value += weight_value * value
             if not bucket.weight_field:
                 bucket.weight_field = weight_field
 
     rows: list[dict[str, Any]] = []
-    aggregation_method = _WVS_SPECIAL_AGGREGATIONS.get(indicator, "weighted_mean")
+    aggregation_method = _wvs_aggregation_method(indicator)
     for (country_code, survey_year, wave), bucket in sorted(aggregates.items()):
         if bucket.sample_size <= 0 or bucket.weighted_total <= 0:
             continue
@@ -2192,6 +4494,13 @@ def _normalize_observation_row(
                 break
     value = _as_float(raw_value)
     if value is None:
+        return None
+    # Reject NaN/Inf and obviously invalid years
+    if math.isnan(value) or math.isinf(value):
+        return None
+    if year is not None and (year < 1900 or year > 2030):
+        return None
+    if survey_year is not None and (survey_year < 1900 or survey_year > 2030):
         return None
 
     for ignored in ("dataset_id", "observation_index", "unit", "__country_code"):

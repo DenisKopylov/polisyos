@@ -178,6 +178,23 @@ class TrainableParamRef(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
 
+class MultiStartConfig(BaseModel):
+    """Configuration for multi-start optimization."""
+
+    n_starts: int = Field(5, ge=1, description="Number of optimization starts.")
+    perturbation_scale: float = Field(0.1, gt=0.0, description="Scale for initial parameter perturbation.")
+    selection: str = Field(
+        "best_loss",
+        pattern=r"^(best_loss|best_identifiability)$",
+        description="Selection criterion: best_loss or best_identifiability.",
+    )
+    condition_threshold: float = Field(
+        1e8, gt=0.0, description="Max acceptable Hessian condition number for best_loss selection."
+    )
+
+    model_config = ConfigDict(extra="forbid")
+
+
 class CalibrationConfig(BaseModel):
     """Корневой контракт калибрации."""
 
@@ -208,6 +225,9 @@ class CalibrationConfig(BaseModel):
     )
     grad_norm: GradNormConfig = Field(default_factory=GradNormConfig)
     hessian: HessianConfig = Field(default_factory=HessianConfig)
+    multi_start: Optional[MultiStartConfig] = Field(
+        None, description="Multi-start optimization config; None = single run."
+    )
     constraint_loss: ConstraintLossConfig = Field(default_factory=ConstraintLossConfig)
     prior_loss: PriorLossConfig = Field(default_factory=PriorLossConfig)
     fidelity: FidelityConfig = Field(default_factory=FidelityConfig)

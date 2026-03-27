@@ -27,24 +27,7 @@ STANDARD_BANNED_IMPORT_ROOTS = {
     "y0",
 }
 
-MIXED_BACKEND_DIRS = {
-    "methods/backends",
-    "methods/catalog",
-}
-
-NO_JAX_DIRS = {
-    "methods/catalog/causal",
-    "methods/catalog/causal/transport",
-    "methods/catalog/causal/discovery",
-    "methods/catalog/econometrics",
-    "methods/catalog/optimization",
-}
-
-NO_JAX_FILE_ALLOWLIST = {
-    "methods/catalog/causal/ci_backends.py",
-}
-
-MIXED_BACKEND_ALLOWED_IMPORTS = {
+MIXED_ALLOWED_IMPORTS = {
     "numpy",
     "scipy",
     "statsmodels",
@@ -66,32 +49,52 @@ NO_JAX_BANNED_IMPORTS = {"jax", "jaxlib", "equinox", "optax"}
 
 BANNED_BUILTINS = {"print", "open"}
 
-# Infrastructure directories exempt from data-plane purity checks.
-# These contain orchestration, CLI, simulation dashboards, and test utilities
-# that legitimately require I/O and system access.
-INFRA_DIRS = {
-    "plugins",
-    "agent_sim",
-    "runtime",
-    "methods/testing",
-    "methods/cli",        # CLI tooling — needs I/O and pathlib
+# ---------------------------------------------------------------------------
+# Zone map: declarative path-prefix → zone assignment.
+# Evaluated longest-prefix-first so specific paths override broader directories.
+# Zones: "infra" (no restrictions), "mixed" (scientific Python allowed),
+#         "no_jax" (mixed minus JAX family), "standard" (strict purity).
+# ---------------------------------------------------------------------------
+ZONE_MAP: dict[str, str] = {
+    # infra — orchestration, CLI, simulation, test utilities (no restrictions)
+    "plugins/":                          "infra",
+    "agent_sim/":                        "infra",
+    "runtime/":                          "infra",
+    "methods/testing/":                  "infra",
+    "methods/cli/":                      "infra",
+    "agents.py":                         "infra",
+    "methods/base.py":                   "infra",
+    "methods/discovery.py":              "infra",
+    "methods/_artifacts_fingerprint.py": "infra",
+    "methods/cache.py":                  "infra",   # disk-backed result cache
+    "methods/hot_reload.py":             "infra",   # file-watcher for dev
+    "methods/observability.py":          "infra",   # metrics / tracing
+    "methods/compat_matrix.py":          "infra",   # compat report generator
+    "methods/composer.py":               "infra",   # chain orchestration
+    "methods/deprecation.py":            "infra",   # deprecation warnings
+    "methods/backends/checkpointing.py": "infra",   # checkpoint I/O
+    "methods/backends/ray_runner.py":    "infra",   # Ray distributed runner
+    # no_jax — causal/econometrics/optimization (mixed minus JAX family)
+    "methods/catalog/causal/ci_backends.py": "mixed",  # allowlist override
+    "methods/catalog/causal/":           "no_jax",
+    "methods/catalog/causal/transport/": "no_jax",
+    "methods/catalog/causal/discovery/": "no_jax",
+    "methods/catalog/econometrics/":     "no_jax",
+    "methods/catalog/optimization/":     "no_jax",
+    # mixed — scientific Python allowed
+    "methods/backends/":                 "mixed",
+    "methods/catalog/":                  "mixed",
 }
+DEFAULT_ZONE = "standard"
 
-INFRA_FILES = {
-    "agents.py",
-    "methods/base.py",
-    "methods/discovery.py",
-    "methods/_artifacts_fingerprint.py",
-    # Infrastructure modules that legitimately require I/O / system access:
-    "methods/cache.py",          # disk-backed result cache (sqlite3, pathlib)
-    "methods/hot_reload.py",     # file-watcher for dev (os, pathlib)
-    "methods/observability.py",  # metrics / tracing integration (os)
-    "methods/compat_matrix.py",  # compat report generator (pandas)
-    "methods/composer.py",       # chain orchestration (os for env vars)
-    "methods/deprecation.py",    # CLI-facing deprecation warnings (print to stderr)
-    "methods/backends/checkpointing.py",  # checkpoint I/O (pathlib)
-    "methods/backends/ray_runner.py",     # Ray distributed runner (os)
-}
+_SORTED_ZONE_ENTRIES: list[tuple[str, str]] | None = None
+
+
+def _sorted_zone_entries() -> list[tuple[str, str]]:
+    global _SORTED_ZONE_ENTRIES
+    if _SORTED_ZONE_ENTRIES is None:
+        _SORTED_ZONE_ENTRIES = sorted(ZONE_MAP.items(), key=lambda kv: -len(kv[0]))
+    return _SORTED_ZONE_ENTRIES
 
 
 @dataclass(frozen=True)
@@ -105,33 +108,26 @@ def _policy_for_file(py_file: Path, foundry_root: Path) -> str:
     try:
         rel = py_file.relative_to(foundry_root)
     except ValueError:
-        return "standard"
+        return DEFAULT_ZONE
     rel_str = str(rel).replace("\\", "/")
 
-    for infra_dir in INFRA_DIRS:
-        if rel_str.startswith(infra_dir + "/") or rel_str == infra_dir:
-            return "infra"
-    if rel_str in INFRA_FILES:
-        return "infra"
-    if rel_str in NO_JAX_FILE_ALLOWLIST:
-        return "mixed"
-
-    for no_jax_dir in NO_JAX_DIRS:
-        if rel_str.startswith(no_jax_dir):
-            return "no_jax"
-    for mixed_dir in MIXED_BACKEND_DIRS:
-        if rel_str.startswith(mixed_dir):
-            return "mixed"
-    return "standard"
+    for prefix, zone in _sorted_zone_entries():
+        if prefix.endswith("/"):
+            if rel_str.startswith(prefix) or rel_str + "/" == prefix:
+                return zone
+        else:
+            if rel_str == prefix:
+                return zone
+    return DEFAULT_ZONE
 
 
 def _banned_import_roots(policy: str) -> set[str]:
     if policy == "infra":
         return set()
     if policy == "mixed":
-        return STANDARD_BANNED_IMPORT_ROOTS - MIXED_BACKEND_ALLOWED_IMPORTS
+        return STANDARD_BANNED_IMPORT_ROOTS - MIXED_ALLOWED_IMPORTS
     if policy == "no_jax":
-        return (STANDARD_BANNED_IMPORT_ROOTS - MIXED_BACKEND_ALLOWED_IMPORTS) | NO_JAX_BANNED_IMPORTS
+        return (STANDARD_BANNED_IMPORT_ROOTS - MIXED_ALLOWED_IMPORTS) | NO_JAX_BANNED_IMPORTS
     return set(STANDARD_BANNED_IMPORT_ROOTS)
 
 

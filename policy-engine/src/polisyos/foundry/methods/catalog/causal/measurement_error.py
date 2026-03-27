@@ -804,8 +804,53 @@ class MeasurementErrorEstimator:
             )
 
 
+def latent_proxy_boundary_notes(
+    *,
+    proxy_map: Mapping[str, str],
+    measurement_model: Literal["known", "estimated", "unknown"] = "unknown",
+    proxy_explanation_ruled_out: bool = False,
+) -> dict[str, Any]:
+    """Build governance notes for the latent-vs-proxy boundary without proposing latents."""
+
+    boundary_notes: list[str] = []
+    no_promotion_reasons: list[str] = []
+
+    if not proxy_map:
+        boundary_notes.append("proxy_boundary:missing_proxy_map")
+        no_promotion_reasons.append("proxy_boundary_unresolved")
+    else:
+        latent_labels = ", ".join(sorted(str(key) for key in proxy_map))
+        proxy_labels = ", ".join(sorted(str(value) for value in proxy_map.values()))
+        boundary_notes.append(
+            f"proxy_boundary:observed_proxies={proxy_labels}; latent_targets={latent_labels}"
+        )
+
+    if measurement_model == "unknown":
+        boundary_notes.append("proxy_boundary:measurement_model_unknown")
+        no_promotion_reasons.append("measurement_model_unknown")
+    elif measurement_model == "estimated":
+        boundary_notes.append("proxy_boundary:measurement_model_estimated")
+    else:
+        boundary_notes.append("proxy_boundary:measurement_model_known")
+
+    if proxy_explanation_ruled_out:
+        boundary_notes.append("proxy_boundary:proxy_explanation_ruled_out")
+    else:
+        boundary_notes.append("proxy_boundary:proxy_explanation_not_ruled_out")
+        no_promotion_reasons.append("proxy_explanation_not_ruled_out")
+
+    return {
+        "boundary_notes": boundary_notes,
+        "measurement_model": measurement_model,
+        "proxy_explanation_ruled_out": bool(proxy_explanation_ruled_out),
+        "proxy_map": {str(key): str(value) for key, value in proxy_map.items()},
+        "no_promotion_reasons": sorted(set(no_promotion_reasons)),
+    }
+
+
 __all__ = [
     "identify_with_proxy",
+    "latent_proxy_boundary_notes",
     "regression_calibration",
     "simex",
     "bounds_with_measurement_error",

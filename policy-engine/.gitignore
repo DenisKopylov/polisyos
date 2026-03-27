@@ -35,6 +35,7 @@ runs/
 
 # Benchmark outputs
 benchmarks/_reports/
+benchmark-results/
 
 # Temporary directories
 .tmp/

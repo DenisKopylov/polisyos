@@ -66,6 +66,15 @@ class _CustomCollector:
     def record_workflow_completed(self, *, workflow_id, status, duration_ms, node_count):
         self.calls.append("workflow_completed")
 
+    def record_backpressure(self, *, tier_index, queued_tasks, active_tasks, workflow_id):
+        self.calls.append("backpressure")
+
+    def record_semaphore_wait(self, *, tier_index, wait_seconds, workflow_id):
+        self.calls.append("semaphore_wait")
+
+    def record_workflow_state(self, *, run_id, workflow_id, state):
+        self.calls.append("workflow_state")
+
 
 class TestProtocolStructuralCheck:
     def test_custom_collector_is_protocol_instance(self):

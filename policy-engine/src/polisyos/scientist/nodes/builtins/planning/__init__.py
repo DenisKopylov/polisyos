@@ -21,6 +21,9 @@ from polisyos.scientist.nodes.builtins.planning.run_source_gap_review import (
 from polisyos.scientist.nodes.builtins.planning.run_source_verification import (
     RunSourceVerificationNode,
 )
+from polisyos.scientist.nodes.builtins.planning.run_discovery_blueprint_runtime import (
+    RunDiscoveryBlueprintRuntimeNode,
+)
 from polisyos.scientist.nodes.builtins.planning.run_evaluator import RunEvaluatorNode
 from polisyos.scientist.nodes.builtins.planning.run_preflight import RunPreflightNode
 
@@ -32,6 +35,7 @@ __all__ = [
     "ExpandLegalSourcePackNode",
     "RunSourceVerificationNode",
     "RunSourceGapReviewNode",
+    "RunDiscoveryBlueprintRuntimeNode",
     "DraftPolicyOptionsNode",
     "RunPreflightNode",
     "ReadyToRunNode",

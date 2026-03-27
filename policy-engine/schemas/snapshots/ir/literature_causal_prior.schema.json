@@ -12,12 +12,123 @@
       "title": "CausalDirection",
       "type": "string"
     },
+    "EnvironmentAuditReport": {
+      "additionalProperties": false,
+      "properties": {
+        "icp_p_values": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "title": "Icp P Values",
+          "type": "object"
+        },
+        "icp_passed": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Icp Passed"
+        },
+        "icp_run": {
+          "default": false,
+          "title": "Icp Run",
+          "type": "boolean"
+        },
+        "invariant_features": {
+          "items": {
+            "type": "integer"
+          },
+          "title": "Invariant Features",
+          "type": "array"
+        },
+        "ks_p_values": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "title": "Ks P Values",
+          "type": "object"
+        },
+        "ks_passed": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ks Passed"
+        },
+        "ks_rejected_variables": {
+          "items": {
+            "type": "integer"
+          },
+          "title": "Ks Rejected Variables",
+          "type": "array"
+        },
+        "metadata": {
+          "additionalProperties": true,
+          "title": "Metadata",
+          "type": "object"
+        },
+        "n_environments": {
+          "default": 0,
+          "minimum": 0,
+          "title": "N Environments",
+          "type": "integer"
+        },
+        "provenance_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Provenance Refs",
+          "type": "array"
+        },
+        "status": {
+          "default": "skipped",
+          "enum": [
+            "ok",
+            "warning",
+            "skipped",
+            "degraded"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "variant_features": {
+          "items": {
+            "type": "integer"
+          },
+          "title": "Variant Features",
+          "type": "array"
+        },
+        "warnings": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Warnings",
+          "type": "array"
+        }
+      },
+      "title": "EnvironmentAuditReport",
+      "type": "object"
+    },
     "EvidenceStrength": {
       "enum": [
         "rct",
         "quasi_natural",
+        "quasi_natural_event",
         "meta_analysis",
+        "panel_fe",
+        "structural",
         "observational",
+        "cross_sectional",
         "theoretical",
         "unknown"
       ],
@@ -104,6 +215,17 @@
       },
       "title": "Edges",
       "type": "array"
+    },
+    "environment_audit": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/EnvironmentAuditReport"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
     },
     "metadata": {
       "additionalProperties": true,

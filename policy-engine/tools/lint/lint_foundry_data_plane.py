@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import ast
+import re
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -137,6 +138,127 @@ def _check_fabric_adapter_exists(repo_root: Path) -> list[Violation]:
     ]
 
 
+# ---------------------------------------------------------------------------
+# Phase 9.2 — Cross-reference lint checks
+# ---------------------------------------------------------------------------
+
+
+def _camel_to_snake(name: str) -> str:
+    s1 = re.sub(r"(.)([A-Z][a-z]+)", r"\1_\2", name)
+    return re.sub(r"([a-z0-9])([A-Z])", r"\1_\2", s1).lower()
+
+
+def _extract_base_name(node: ast.expr) -> str | None:
+    if isinstance(node, ast.Name):
+        return node.id
+    if isinstance(node, ast.Attribute):
+        return node.attr
+    return None
+
+
+def _check_constraint_slots_have_state_path(repo_root: Path) -> list[Violation]:
+    """Verify every constraint with a slot_id references a valid slot with state_path."""
+    try:
+        from polisyos.ir.kernel import DEFAULT_CONSTRAINT_REGISTRY, DEFAULT_SLOT_REGISTRY
+    except ImportError:
+        return []
+
+    violations: list[Violation] = []
+    constraints_file = repo_root / "src" / "polisyos" / "ir" / "kernel" / "constraints.py"
+
+    for cid, cspec in DEFAULT_CONSTRAINT_REGISTRY.constraints.items():
+        if cspec.slot_id is None:
+            continue
+        slot = DEFAULT_SLOT_REGISTRY.slots.get(cspec.slot_id)
+        if slot is None:
+            violations.append(Violation(
+                path=constraints_file,
+                lineno=1,
+                message=f"constraint '{cid}' references unknown slot '{cspec.slot_id}'",
+            ))
+        elif not slot.state_path:
+            violations.append(Violation(
+                path=constraints_file,
+                lineno=1,
+                message=f"constraint '{cid}' slot '{cspec.slot_id}' has no state_path",
+            ))
+    return violations
+
+
+def _check_mechanisms_registered(repo_root: Path) -> list[Violation]:
+    """Verify mechanism classes in foundry/mechanisms/ have kernel registry entries."""
+    try:
+        from polisyos.ir.kernel import DEFAULT_MECHANISM_REGISTRY
+    except ImportError:
+        return []
+
+    mechanisms_dir = repo_root / "src" / "polisyos" / "foundry" / "mechanisms"
+    if not mechanisms_dir.exists():
+        return []
+
+    registered_ids = set(DEFAULT_MECHANISM_REGISTRY.mechanisms.keys())
+    violations: list[Violation] = []
+
+    for py_file in sorted(mechanisms_dir.glob("*.py")):
+        if py_file.name.startswith("_") or py_file.name == "__init__.py":
+            continue
+        tree = ast.parse(py_file.read_text(encoding="utf-8"), filename=str(py_file))
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.ClassDef):
+                continue
+            for base in node.bases:
+                base_name = _extract_base_name(base)
+                if not base_name or "Mechanism" not in base_name:
+                    continue
+                # Strip "Mechanism" suffix before converting to snake_case
+                class_name = node.name
+                if class_name.endswith("Mechanism") and class_name != "Mechanism":
+                    class_name = class_name[: -len("Mechanism")]
+                inferred_id = _camel_to_snake(class_name)
+                if inferred_id not in registered_ids:
+                    violations.append(Violation(
+                        path=py_file,
+                        lineno=node.lineno,
+                        message=(
+                            f"mechanism class '{node.name}' (inferred id '{inferred_id}') "
+                            f"not found in DEFAULT_MECHANISM_REGISTRY"
+                        ),
+                    ))
+                break  # only check first matching base
+    return violations
+
+
+def _check_input_binding_slot_refs(repo_root: Path) -> list[Violation]:
+    """Verify hardcoded target_slot_id values in bindings reference existing slots."""
+    try:
+        from polisyos.ir.kernel import DEFAULT_SLOT_REGISTRY
+    except ImportError:
+        return []
+
+    bindings_path = repo_root / "src" / "polisyos" / "foundry" / "data_plane" / "bindings.py"
+    if not bindings_path.exists():
+        return []
+
+    valid_slots = set(DEFAULT_SLOT_REGISTRY.slots.keys())
+    tree = ast.parse(bindings_path.read_text(encoding="utf-8"), filename=str(bindings_path))
+    violations: list[Violation] = []
+
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.keyword):
+            continue
+        if node.arg != "target_slot_id":
+            continue
+        if isinstance(node.value, ast.Constant) and isinstance(node.value.value, str):
+            slot_id = node.value.value
+            if slot_id not in valid_slots:
+                violations.append(Violation(
+                    path=bindings_path,
+                    lineno=node.value.lineno,
+                    message=f"input binding references non-existent slot '{slot_id}'",
+                ))
+    return violations
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Enforce P8 Foundry data-plane invariants.")
     parser.add_argument(
@@ -152,6 +274,9 @@ def main() -> int:
     violations.extend(_scan_state_snapshot_assumptions(repo_root))
     violations.extend(_check_workflow_has_p8_nodes(repo_root))
     violations.extend(_check_fabric_adapter_exists(repo_root))
+    violations.extend(_check_constraint_slots_have_state_path(repo_root))
+    violations.extend(_check_mechanisms_registered(repo_root))
+    violations.extend(_check_input_binding_slot_refs(repo_root))
 
     if violations:
         print("lint_foundry_data_plane: violations found:")

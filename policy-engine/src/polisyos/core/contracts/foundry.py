@@ -210,6 +210,24 @@ class LoweredConstraint(BaseModel):
     expected: Any
     unit_id: str | None = None
     penalty: Decimal | None = None
+    aggregation: str = "scalar"
+    quantile_param: float | None = None
+    weights_slot_id: str | None = None
+    notes: list[str] = Field(default_factory=list)
+
+
+class CompositeConstraint(BaseModel):
+    """Constraint involving multiple slots combined via arithmetic expression."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    constraint_id: str
+    expression: str
+    slot_refs: list[str]
+    operator: Literal["<", "<=", ">", ">=", "==", "!="]
+    expected: str
+    severity: Literal["hard", "soft"] = "hard"
+    penalty: Decimal | None = None
     notes: list[str] = Field(default_factory=list)
 
 
@@ -220,6 +238,7 @@ class LoweredIR(BaseModel):
     ir_ref: ArtifactRef
     mechanisms: list[LoweredMechanism] = Field(default_factory=list)
     constraints: list[LoweredConstraint] = Field(default_factory=list)
+    composite_constraints: list[CompositeConstraint] = Field(default_factory=list)
     parameter_specs: list[dict[str, Any]] = Field(default_factory=list)
     time_semantics: dict[str, Any] | None = None
     environment_config: dict[str, Any] | None = None

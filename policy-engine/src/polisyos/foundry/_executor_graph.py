@@ -43,9 +43,22 @@ from polisyos.ir.kernel import (
     SlotScope,
 )
 
-from ._executor_models import ExecuteArtifacts, artifact_id, load_model, load_payload
+from ._executor_models import (
+    ExecuteArtifacts,
+    ExecutionStrictness,
+    FailureCard,
+    FailureSeverity,
+    artifact_id,
+    load_model,
+    load_payload,
+)
 from ._executor_ops import apply_ops_to_state, coerce_number, evaluate_selector
 from .constraints_engine import check_constraints as evaluate_lowered_constraints
+from .methods.exceptions import (
+    ContractViolationError,
+    MethodExecutionAbortError,
+    ShapeMismatchError,
+)
 
 __all__ = [
     "execute_program_graph",
@@ -77,6 +90,7 @@ def execute_program_graph(
     capture_env: bool = False,
     parameter_overrides: dict[str, dict[str, Any]] | None = None,
     parameter_override_bundle_ref: ArtifactRef | None = None,
+    strictness: ExecutionStrictness = ExecutionStrictness.FAIL_CLOSED,
 ) -> ExecuteArtifacts:
     env_manifest_ref: EnvironmentManifestRef | None = None
     env_fingerprint: str | None = None
@@ -123,6 +137,8 @@ def execute_program_graph(
     ops: list[PatchOp] = []
     applied_nodes = 0
     skipped_nodes = 0
+    failure_cards: list[FailureCard] = []
+    provenance: dict[str, list[str]] = {}
     op_nodes = 0
     checked_constraints = 0
     masks: dict[str, tuple[jnp.ndarray, SlotScope]] = {}
@@ -335,12 +351,30 @@ def execute_program_graph(
                                 for patch in patches:
                                     if isinstance(patch, dict):
                                         patch_records.setdefault(str(slot_id), []).append(patch)
+                                        provenance.setdefault(str(slot_id), []).append(method_fqn)
                 applied_nodes += 1
             except Exception as exc:
-                logger.debug(
-                    "Failed to execute method node '%s' (method=%s): %s",
-                    node_id, method_fqn, exc,
+                severity = _classify_failure(exc)
+                card = FailureCard(
+                    node_id=node_id,
+                    method_fqn=method_fqn,
+                    severity=severity,
+                    error_type=type(exc).__name__,
+                    error_message=str(exc),
+                    traceback_hash=_hash_traceback(exc),
+                    timestamp=time.time(),
+                    retry_eligible=severity == FailureSeverity.RECOVERABLE,
                 )
+                failure_cards.append(card)
+                logger.warning(
+                    "Method node '%s' failed: %s [%s]",
+                    node_id, exc, severity.value,
+                )
+                if severity == FailureSeverity.FATAL and strictness in (
+                    ExecutionStrictness.FAIL_CLOSED,
+                    ExecutionStrictness.DEGRADED,
+                ):
+                    raise MethodExecutionAbortError(card) from exc
                 skipped_nodes += 1
             continue
         skipped_nodes += 1
@@ -420,6 +454,7 @@ def execute_program_graph(
         )
         constraint_report_ref = ConstraintReportRef.model_validate(cref.model_dump())
 
+    frozen_provenance = {k: tuple(v) for k, v in provenance.items()}
     return ExecuteArtifacts(
         state_delta_ref=state_delta_ref,
         metrics_ref=metrics_ref,
@@ -427,7 +462,35 @@ def execute_program_graph(
         constraint_hard_fail=constraint_report.hard_fail,
         environment_ref=env_manifest_ref,
         environment_fingerprint=env_fingerprint,
+        failure_cards=tuple(failure_cards),
+        is_degraded=len(failure_cards) > 0,
+        provenance=frozen_provenance,
     )
+
+
+# ---------------------------------------------------------------------------
+# Failure classification
+# ---------------------------------------------------------------------------
+
+
+def _classify_failure(exc: Exception) -> FailureSeverity:
+    """Classify an exception into a failure severity level."""
+    if isinstance(exc, (TypeError, ValueError, ShapeMismatchError, ContractViolationError)):
+        return FailureSeverity.FATAL
+    if isinstance(exc, (ModuleNotFoundError, ImportError, TimeoutError)):
+        return FailureSeverity.RECOVERABLE
+    if isinstance(exc, (FloatingPointError, RuntimeWarning)):
+        return FailureSeverity.DEGRADED
+    return FailureSeverity.FATAL
+
+
+def _hash_traceback(exc: Exception) -> str:
+    """Produce a short hash of the traceback for deduplication."""
+    import hashlib
+    import traceback as tb_mod
+
+    tb_str = "".join(tb_mod.format_exception(type(exc), exc, exc.__traceback__))
+    return hashlib.sha256(tb_str.encode()).hexdigest()[:16]
 
 
 # ---------------------------------------------------------------------------

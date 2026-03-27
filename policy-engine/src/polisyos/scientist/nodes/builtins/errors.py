@@ -9,3 +9,8 @@ ERROR_FOUNDRY_COMPILE_FAILED = "foundry.compile_failed"
 ERROR_FOUNDRY_EXECUTE_FAILED = "foundry.execute_failed"
 ERROR_DATA_PLANE_BIND_FAILED = "foundry.input_bindings_failed"
 ERROR_DATA_PLANE_GATE_BLOCKED = "governance.data_plane_blocked"
+
+# Phase 11 — Node hardening codes
+ERROR_VALIDATION = "node.validation_error"
+ERROR_STATE_GUARD_VIOLATION = "node.state_guard_violation"
+ERROR_OPTIONAL_DEP_MISSING = "node.optional_dep_missing"

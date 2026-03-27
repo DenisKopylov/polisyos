@@ -21,12 +21,13 @@ Verbitsky-Savitz, N. & Raudenbush, S.W. (2012). Causal inference under
 """
 from __future__ import annotations
 
+import hashlib
 import re
 import math
 from typing import Any, ClassVar, Literal, Mapping
 
 import numpy as np
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from polisyos.core.observability.determinism import DeterminismTier
 from polisyos.foundry.methods.base import (
@@ -46,10 +47,13 @@ from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, Edg
 from polisyos.ir.analytics.evidence_bundle import ProofStep as IRProofStep
 from polisyos.ir.analytics.interference import (
     ExposureMappingType,
+    InteractionComplex,
     InterferenceEffectDecomposition,
+    InterferenceCertificate,
     InterferenceMethod,
     NetworkInterferenceReport,
 )
+from polisyos.ir.refs import ArtifactRefModel
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Shared output slots
@@ -234,6 +238,203 @@ class InterferenceIdentificationResult(BaseModel):
     required_distributions: tuple[dict[str, Any], ...] = ()
     negative_certificate: dict[str, Any] | None = None
     warnings: tuple[str, ...] = ()
+
+
+def _coerce_topology_contract_source(
+    payload: InterferenceAugmentedGraph | InterferenceIdentificationResult | Mapping[str, Any],
+) -> tuple[InterferenceAugmentedGraph, InterferenceIdentificationResult | None]:
+    if isinstance(payload, InterferenceIdentificationResult):
+        return payload.augmented_graph, payload
+    if isinstance(payload, InterferenceAugmentedGraph):
+        return payload, None
+    if isinstance(payload, Mapping):
+        try:
+            result = InterferenceIdentificationResult.model_validate(payload)
+            return result.augmented_graph, result
+        except ValidationError:
+            graph = InterferenceAugmentedGraph.model_validate(payload)
+            return graph, None
+    raise TypeError(
+        "Expected InterferenceAugmentedGraph, InterferenceIdentificationResult, or mapping payload"
+    )
+
+
+def _resolved_topology_reduction_policy(
+    augmented_graph: InterferenceAugmentedGraph,
+    reduction_policy: Literal[
+        "pairwise_projection",
+        "cluster_projection",
+        "full_complex",
+    ] | None,
+) -> Literal["pairwise_projection", "cluster_projection", "full_complex"]:
+    if reduction_policy is not None:
+        return reduction_policy
+
+    metadata = augmented_graph.original_graph.metadata or {}
+    topology_metadata = metadata.get("topology")
+    if isinstance(topology_metadata, Mapping):
+        candidate = str(topology_metadata.get("reduction_policy", "")).strip()
+        if candidate in {"pairwise_projection", "cluster_projection", "full_complex"}:
+            return candidate  # type: ignore[return-value]
+    candidate = str(metadata.get("topology_reduction_policy", "")).strip()
+    if candidate in {"pairwise_projection", "cluster_projection", "full_complex"}:
+        return candidate  # type: ignore[return-value]
+    if augmented_graph.cluster_partition:
+        return "cluster_projection"
+    return "pairwise_projection"
+
+
+def _topology_fallback_mode(
+    reduction_policy: Literal["pairwise_projection", "cluster_projection", "full_complex"],
+) -> Literal["pairwise", "clustered", "unsupported"]:
+    if reduction_policy == "pairwise_projection":
+        return "pairwise"
+    if reduction_policy == "cluster_projection":
+        return "clustered"
+    return "unsupported"
+
+
+def _supported_query_family(
+    augmented_graph: InterferenceAugmentedGraph,
+    *,
+    reduction_policy: Literal["pairwise_projection", "cluster_projection", "full_complex"],
+    fallback_mode: Literal["pairwise", "clustered", "unsupported"],
+) -> str:
+    if reduction_policy == "pairwise_projection" or fallback_mode == "pairwise":
+        return "pairwise_projection_queries"
+    if reduction_policy == "cluster_projection" or fallback_mode == "clustered":
+        return "cluster_projection_queries"
+    if augmented_graph.cluster_partition:
+        return "cluster_projection_queries"
+    return "pairwise_projection_queries"
+
+
+def _exposure_operator_ref(augmented_graph: InterferenceAugmentedGraph) -> ArtifactRefModel:
+    digest_payload = "|".join(
+        [
+            augmented_graph.interference_type,
+            augmented_graph.exposure_mapping.value,
+            augmented_graph.cluster_var or "",
+            ",".join(augmented_graph.exposure_nodes),
+            ";".join(f"{src}->{dst}" for src, dst in augmented_graph.cross_unit_edges),
+        ]
+    )
+    digest = hashlib.sha256(digest_payload.encode("utf-8")).hexdigest()
+    return ArtifactRefModel(
+        artifact_id=f"sha256:{digest}",
+        kind="ir.interference_exposure_operator",
+        media_type="application/json",
+    )
+
+
+def _metadata_topology_groups(
+    augmented_graph: InterferenceAugmentedGraph,
+    *,
+    key: str,
+) -> tuple[tuple[str, ...], ...]:
+    metadata = augmented_graph.original_graph.metadata or {}
+    topology_metadata = metadata.get("topology")
+    payload = None
+    if isinstance(topology_metadata, Mapping):
+        payload = topology_metadata.get(key)
+    if payload is None:
+        payload = metadata.get(key)
+    if payload is None:
+        return ()
+    if not isinstance(payload, (list, tuple)):
+        raise ValueError(f"{key} metadata must be a list/tuple of node groups")
+    groups: list[tuple[str, ...]] = []
+    for index, group in enumerate(payload):
+        if not isinstance(group, (list, tuple, set, frozenset)):
+            raise ValueError(f"{key}[{index}] must be a list/tuple/set of nodes")
+        groups.append(tuple(str(node) for node in group))
+    return tuple(groups)
+
+
+def _interaction_complex_from_augmented_graph(
+    augmented_graph: InterferenceAugmentedGraph,
+    *,
+    reduction_policy: Literal["pairwise_projection", "cluster_projection", "full_complex"],
+) -> InteractionComplex | None:
+    hyperedges = _metadata_topology_groups(augmented_graph, key="hyperedges")
+    simplices = _metadata_topology_groups(augmented_graph, key="simplices")
+    if not hyperedges and augmented_graph.cluster_partition:
+        hyperedges = tuple(tuple(group) for group in augmented_graph.cluster_partition)
+    if not hyperedges and not simplices:
+        return None
+    return InteractionComplex(
+        nodes=tuple(augmented_graph.original_graph.nodes),
+        hyperedges=hyperedges,
+        simplices=simplices,
+        exposure_operator_ref=_exposure_operator_ref(augmented_graph),
+        reduction_policy=reduction_policy,
+    )
+
+
+def _topology_exposure_assumptions(
+    augmented_graph: InterferenceAugmentedGraph,
+    *,
+    reduction_policy: Literal["pairwise_projection", "cluster_projection", "full_complex"],
+    result: InterferenceIdentificationResult | None,
+) -> tuple[str, ...]:
+    assumptions: list[str] = [
+        f"exposure_mapping:{augmented_graph.exposure_mapping.value}",
+        "hypergraph_identification_not_claimed",
+        "support_limited_to_pairwise_or_cluster_reduction",
+        f"reduction_policy:{reduction_policy}",
+    ]
+    if augmented_graph.cluster_partition:
+        assumptions.append("cluster_partition_used_as_topology_proxy")
+    if augmented_graph.cross_unit_edges:
+        assumptions.append("cross_unit_edges_detected")
+    if augmented_graph.exposure_nodes:
+        assumptions.append("exposure_nodes_materialized")
+    if result is not None and result.sutva_violated:
+        assumptions.append("sutva_violation_detected")
+    if result is not None and result.base_identification_status:
+        assumptions.append(f"base_identification_status:{result.base_identification_status}")
+    deduped: list[str] = []
+    seen: set[str] = set()
+    for assumption in assumptions:
+        if assumption in seen:
+            continue
+        seen.add(assumption)
+        deduped.append(assumption)
+    return tuple(deduped)
+
+
+def build_interference_topology_contracts(
+    payload: InterferenceAugmentedGraph | InterferenceIdentificationResult | Mapping[str, Any],
+    *,
+    reduction_policy: Literal[
+        "pairwise_projection",
+        "cluster_projection",
+        "full_complex",
+    ] | None = None,
+) -> tuple[InteractionComplex | None, InterferenceCertificate]:
+    """Adapt current interference artifacts into the Phase F.1 topology surface."""
+    augmented_graph, result = _coerce_topology_contract_source(payload)
+    resolved_policy = _resolved_topology_reduction_policy(augmented_graph, reduction_policy)
+    fallback_mode = _topology_fallback_mode(resolved_policy)
+    interaction_complex = _interaction_complex_from_augmented_graph(
+        augmented_graph,
+        reduction_policy=resolved_policy,
+    )
+    certificate = InterferenceCertificate(
+        supported_query_family=_supported_query_family(
+            augmented_graph,
+            reduction_policy=resolved_policy,
+            fallback_mode=fallback_mode,
+        ),
+        exposure_assumptions=_topology_exposure_assumptions(
+            augmented_graph,
+            reduction_policy=resolved_policy,
+            result=result,
+        ),
+        reduction_error_bound=None,
+        fallback_mode=fallback_mode,
+    )
+    return interaction_complex, certificate
 
 
 def _build_interference_augmented_graph(
@@ -1976,6 +2177,7 @@ class BipartiteInterferenceEstimator:
 __all__ = [
     "InterferenceAugmentedGraph",
     "InterferenceIdentificationResult",
+    "build_interference_topology_contracts",
     "identify_interference_effect",
     "BipartiteInterferenceEstimator",
     "NetworkAIPWEstimator",

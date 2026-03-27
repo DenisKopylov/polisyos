@@ -6,6 +6,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 BENCH_REPORT_DIR = REPO_ROOT / "benchmarks" / "_reports"
@@ -309,7 +311,10 @@ def test_suite_registry_cli_supports_alias_and_claim_profile_filters():
     )
     assert alias_result.returncode == 0, alias_result.stdout + alias_result.stderr
     alias_payload = json.loads(alias_result.stdout)
-    assert [item["suite_id"] for item in alias_payload] == ["adversarial_symbolic_stress"]
+    assert {item["suite_id"] for item in alias_payload} == {
+        "adversarial_symbolic_stress",
+        "temporal_hidden",
+    }
 
     claim_result = _run(
         [
@@ -328,4 +333,82 @@ def test_suite_registry_cli_supports_alias_and_claim_profile_filters():
     suite_ids = {item["suite_id"] for item in claim_payload}
     assert "symbolic" in suite_ids
     assert "adversarial_symbolic_stress" in suite_ids
+    assert "temporal_gold" in suite_ids
+    assert "temporal_hidden" in suite_ids
     assert "estimation_acic" not in suite_ids
+
+
+def test_temporal_gold_cli_smoke_emits_publication_payload(tmp_path: Path):
+    out = tmp_path / "temporal_gold.json"
+    result = _run(
+        [
+            "python3",
+            "benchmarks/temporal/temporal_gold_benchmark.py",
+            "--mode",
+            "smoke",
+            "--quiet",
+            "--json",
+            str(out),
+        ]
+    )
+    assert out.exists(), result.stdout + result.stderr
+    payload = json.loads(out.read_text(encoding="utf-8"))
+    assert payload["suite_id"] == "temporal_gold"
+    assert payload["benchmark_family"] == "temporal_causal_dynamics"
+    assert payload["baseline_snapshot_ref"] == "temporal_gold@synthetic-v1"
+    assert payload["public_claim_eligible"] is True
+    assert payload["literature_anchor"]
+    scorecard = payload["aggregate_metrics"]["temporal_scorecard"]
+    assert scorecard["engine_route_coverage_rate"] == 1.0
+    assert scorecard["bundle_presence_rate"] == 1.0
+    assert scorecard["artifact_loadability_rate"] == 1.0
+    assert scorecard["policy_lineage_rate"] == 1.0
+    assert scorecard["diagnostics_artifact_presence_rate"] == 1.0
+    assert scorecard["truthful_fallback_disclosure_rate"] == 1.0
+    assert payload["regression_guard"]
+
+
+def test_temporal_hidden_cli_smoke_emits_hidden_summary(tmp_path: Path):
+    out = tmp_path / "temporal_hidden.json"
+    result = _run(
+        [
+            "python3",
+            "benchmarks/temporal/temporal_hidden_benchmark.py",
+            "--mode",
+            "smoke",
+            "--quiet",
+            "--json",
+            str(out),
+        ]
+    )
+    assert out.exists(), result.stdout + result.stderr
+    payload = json.loads(out.read_text(encoding="utf-8"))
+    assert payload["suite_id"] == "temporal_hidden"
+    assert payload["benchmark_family"] == "temporal_causal_dynamics"
+    assert payload["baseline_snapshot_ref"] == "temporal_hidden@synthetic-v1"
+    assert payload["public_claim_eligible"] is False
+    assert "hidden_temporal_summary" in payload["aggregate_metrics"]
+    assert payload["aggregate_metrics"]["hidden_temporal_summary"]["artifact_reload_failure_rate"] == 0.0
+    assert all(case["case_id"].startswith("temporal_hidden::case_") for case in payload["cases"])
+
+
+@pytest.mark.parametrize("suite_id", ["temporal_gold", "temporal_hidden"])
+def test_run_all_temporal_filters_execute_single_suite(tmp_path: Path, suite_id: str):
+    json_dir = tmp_path / suite_id
+    result = _run(
+        [
+            "bash",
+            "benchmarks/run_all_benchmarks.sh",
+            "--mode",
+            "smoke",
+            "--circuit",
+            suite_id,
+            "--json-dir",
+            str(json_dir),
+            "--quiet",
+        ]
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+    summary = json.loads((json_dir / "run_summary.json").read_text(encoding="utf-8"))
+    assert summary["matched"] == 1
+    assert summary["suite_results"][0]["suite_id"] == suite_id

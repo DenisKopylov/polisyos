@@ -1,11 +1,36 @@
 from __future__ import annotations
 
 import importlib
+import math
 from dataclasses import dataclass
 from functools import lru_cache
 from typing import Any
 
 import numpy as np
+
+
+def _norm_cdf(x: float) -> float:
+    """Standard normal CDF using the error function (no scipy dependency)."""
+    return 0.5 * (1.0 + math.erf(x / math.sqrt(2.0)))
+
+
+def _norm_ppf(p: float) -> float:
+    """Inverse standard normal CDF (rational approximation, Abramowitz & Stegun).
+
+    Accurate to ~4.5e-4 absolute error across (0, 1).
+    """
+    if p <= 0.0:
+        return -6.0
+    if p >= 1.0:
+        return 6.0
+    if p == 0.5:
+        return 0.0
+    if p > 0.5:
+        return -_norm_ppf(1.0 - p)
+    t = math.sqrt(-2.0 * math.log(p))
+    c0, c1, c2 = 2.515517, 0.802853, 0.010328
+    d1, d2, d3 = 1.432788, 0.189269, 0.001308
+    return -(t - (c0 + c1 * t + c2 * t * t) / (1.0 + d1 * t + d2 * t * t + d3 * t * t * t))
 
 _VALID_DISCOVERY_CI_BACKENDS: frozenset[str] = frozenset({"auto", "numpy", "jax"})
 
@@ -248,13 +273,53 @@ def robust_standard_error(values: np.ndarray) -> float:
 
 
 def _bootstrap_interval(values: np.ndarray, *, seed: int, draws: int) -> tuple[float, float]:
+    """BCa (bias-corrected and accelerated) bootstrap interval.
+
+    Falls back to percentile bootstrap when jackknife acceleration
+    cannot be computed (e.g. constant data).
+    """
     arr = np.asarray(values, dtype=float).reshape(-1)
+    n = arr.size
     rng = np.random.default_rng(seed)
+    theta_hat = float(np.mean(arr))
+
+    # Bootstrap replicates
     means = np.empty(draws, dtype=float)
     for idx in range(draws):
-        sample = rng.choice(arr, size=arr.size, replace=True)
+        sample = rng.choice(arr, size=n, replace=True)
         means[idx] = float(np.mean(sample))
-    return float(np.percentile(means, 2.5)), float(np.percentile(means, 97.5))
+
+    # --- Bias correction factor (z0) ---
+    prop_below = float(np.mean(means < theta_hat))
+    prop_below = max(1e-8, min(1.0 - 1e-8, prop_below))
+    z0 = _norm_ppf(prop_below)
+
+    # --- Acceleration factor (a) via jackknife ---
+    total = float(np.sum(arr))
+    jackknife_means = (total - arr) / max(n - 1, 1)
+    jk_mean = float(np.mean(jackknife_means))
+    diffs = jk_mean - jackknife_means
+    denom = float(np.sum(diffs**2))
+    if denom < 1e-15:
+        # Constant data — fall back to simple percentile
+        return float(np.percentile(means, 2.5)), float(np.percentile(means, 97.5))
+    a = float(np.sum(diffs**3)) / (6.0 * denom**1.5)
+
+    # --- BCa adjusted percentiles ---
+    z_lo = _norm_ppf(0.025)
+    z_hi = _norm_ppf(0.975)
+
+    def _adj(z_alpha: float) -> float:
+        numer = z0 + z_alpha
+        denom_a = 1.0 - a * numer
+        if abs(denom_a) < 1e-12:
+            return 0.5
+        return max(0.0, min(1.0, _norm_cdf(z0 + numer / denom_a)))
+
+    adj_lo = _adj(z_lo)
+    adj_hi = _adj(z_hi)
+
+    return float(np.percentile(means, 100.0 * adj_lo)), float(np.percentile(means, 100.0 * adj_hi))
 
 
 def _bootstrap_eif_interval(
@@ -264,6 +329,7 @@ def _bootstrap_eif_interval(
     seed: int,
     draws: int,
 ) -> tuple[float, float]:
+    """BCa bootstrap on EIF pseudo-values for improved coverage."""
     arr = np.asarray(values, dtype=float).reshape(-1)
     infl = np.asarray(influence_values, dtype=float).reshape(-1)
     if infl.size != arr.size:
@@ -273,12 +339,8 @@ def _bootstrap_eif_interval(
     eif_scores = center + infl
     if eif_scores.size == 0:
         return float("nan"), float("nan")
-    rng = np.random.default_rng(seed)
-    means = np.empty(draws, dtype=float)
-    for idx in range(draws):
-        sample = rng.choice(eif_scores, size=eif_scores.size, replace=True)
-        means[idx] = float(np.mean(sample))
-    return float(np.percentile(means, 2.5)), float(np.percentile(means, 97.5))
+    # Delegate to BCa-aware _bootstrap_interval on the pseudo-values
+    return _bootstrap_interval(eif_scores, seed=seed, draws=draws)
 
 
 __all__ = [

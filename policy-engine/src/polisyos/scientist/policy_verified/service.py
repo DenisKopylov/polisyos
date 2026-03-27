@@ -19,7 +19,12 @@ from polisyos.core.contracts.scientist import (
 )
 from polisyos.core.contracts.scholar import ResearchIntent, ResearchIntentRef
 from polisyos.core.contracts.trinity import TrinityBundleRef
-from polisyos.ir.analytics.cross_graph import CrossGraphEvidenceProfile
+from polisyos.ir.analytics.cross_graph import (
+    CrossGraphEvidenceProfile,
+    EvidenceSourceKind,
+    EvidenceSourceState,
+    EvidenceSourceStatus,
+)
 from polisyos.lex.knowledge.search import LegalKnowledgeGraph
 from polisyos.lex.knowledge.types import LegalFactResult, LegalSourceBundle
 from polisyos.scientist.agent.formalizer import MockFormalizerAgent
@@ -28,6 +33,11 @@ from polisyos.scientist.agent.protocols import DraftResult
 from polisyos.scientist.agent.knowledge_tools import KnowledgeToolkit
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.evidence_sources import (
+    build_path_source_status,
+    normalize_evidence_sources_config,
+    update_source_status,
+)
 from polisyos.scientist.llm.factory import create_traced_gateway_client
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF,
@@ -109,11 +119,13 @@ def assemble_legal_candidate_pack(
     frame: PolicyRequestFrame,
 ) -> LegalCandidatePack:
     toolkit = _build_legal_toolkit(ctx, state)
+    legal_status = _resolve_legal_source_status(ctx, state, toolkit=toolkit)
     if toolkit is None:
         return LegalCandidatePack(
             request_id=frame.request_id,
             queries=[frame.policy_question],
-            notes=["legal_graph_unavailable"],
+            source_statuses={"legal": legal_status},
+            notes=[f"legal_graph_unavailable:{legal_status.status.value}"],
         )
     queries = _plan_recall_queries(frame, state)
     max_queries = _int_param(state, "max_candidate_queries", 40)
@@ -146,6 +158,7 @@ def assemble_legal_candidate_pack(
                 merged.anchor_coverage_hints.setdefault(provision.provision_id, [provision.anchor_path])
     merged.fact_hits = list(fact_map.values())
     merged.provision_hits = list(provision_map.values())
+    merged.source_statuses["legal"] = legal_status
     return merged
 
 
@@ -155,11 +168,13 @@ def expand_legal_source_pack(
     candidate_pack: LegalCandidatePack,
 ) -> LegalSourcePack:
     toolkit = _build_legal_toolkit(ctx, state)
+    legal_status = _resolve_legal_source_status(ctx, state, toolkit=toolkit)
     if toolkit is None:
         return LegalSourcePack(
             request_id=candidate_pack.request_id,
             unresolved_anchor_hints=["legal_graph_unavailable"],
-            notes=["legal_graph_unavailable"],
+            source_statuses={"legal": legal_status},
+            notes=[f"legal_graph_unavailable:{legal_status.status.value}"],
         )
     pack = toolkit.expand_legal_source_pack(
         candidate_pack,
@@ -173,7 +188,14 @@ def expand_legal_source_pack(
             for hint in values
             if hint
         )
-    return pack
+    return pack.model_copy(
+        update={
+            "source_statuses": {
+                **dict(candidate_pack.source_statuses),
+                "legal": legal_status,
+            }
+        }
+    )
 
 
 def verify_source_pack(
@@ -192,6 +214,10 @@ def verify_source_pack(
         verified_claim_citation_coverage_pct=_claim_citation_coverage_pct(baseline_claims),
         verification_cycles_completed=max(1, _int_param(state, "verification_cycles_completed", 0) + 1),
         needs_expert_review=any(gap.severity == "critical" for gap in gaps),
+        source_statuses={
+            **dict(candidate_pack.source_statuses),
+            **dict(source_pack.source_statuses),
+        },
         notes=["baseline_source_verification"],
     )
     llm_claims, llm_gaps, verifier_calls, adjudicator_calls, disagreement_rate = _maybe_verify_with_llm(
@@ -506,6 +532,12 @@ def build_verified_policy_report(
     if ARTIFACT_CAUSAL_REPORT_REF in state.artifacts_index:
         simulation_notes.append("Causal evaluation artifacts are available for this policy package.")
     missing_evidence = [gap.description for gap in report.unresolved_critical_gaps]
+    for source_name, source_status in sorted(report.source_statuses.items()):
+        if source_status.status is EvidenceSourceState.AVAILABLE:
+            continue
+        missing_evidence.append(
+            f"Evidence source '{source_name}' is unavailable ({source_status.status.value})."
+        )
     citation_appendix = sorted(
         {
             f"{claim.citation_label} [{claim.doc_id}:{claim.anchor}]"
@@ -532,6 +564,12 @@ def build_verified_policy_report(
         citation_appendix=citation_appendix,
         intervention_legal_basis_map=intervention_legal_basis_map,
         needs_expert_review=report.needs_expert_review,
+        source_statuses=dict(report.source_statuses),
+        notes=[
+            f"evidence_source_unavailable:{name}:{status.status.value}"
+            for name, status in sorted(report.source_statuses.items())
+            if status.status is not EvidenceSourceState.AVAILABLE
+        ],
     )
 
 
@@ -554,24 +592,85 @@ def _load_research_intent(store: FileSystemCAS, raw_ref: Any) -> ResearchIntent 
 
 def _build_legal_toolkit(ctx: ExecutionContext, state: ExperimentState) -> KnowledgeToolkit | None:
     profile = _load_cross_graph_profile(ctx.store, state)
-    legal_db_path = ""
-    if profile is not None:
-        legal_db_path = str(profile.source_refs.legal_db_path or "").strip()
-    if not legal_db_path:
-        config = state.params.get("cross_graph_evidence_config")
-        if isinstance(config, dict):
-            legal_db_path = str(config.get("legal_db_path") or "").strip()
+    evidence_sources = _resolve_evidence_sources(state, profile)
+    legal_db_path = str(evidence_sources.legal_db_path or "").strip()
     if not legal_db_path:
         return None
     db_path = Path(legal_db_path)
     if not db_path.exists():
         return None
-    legal_graph = LegalKnowledgeGraph(
-        db_path=db_path,
-        index_dir=db_path.parent,
-        openai_api_key=os.getenv("OPENAI_API_KEY") or os.getenv("OPENAI_API_KEY_1"),
-    )
+    try:
+        legal_graph = LegalKnowledgeGraph(
+            db_path=db_path,
+            index_dir=db_path.parent,
+            openai_api_key=os.getenv("OPENAI_API_KEY") or os.getenv("OPENAI_API_KEY_1"),
+        )
+    except Exception:
+        return None
     return KnowledgeToolkit(legal_graph=legal_graph)
+
+
+def _resolve_evidence_sources(
+    state: ExperimentState,
+    profile: CrossGraphEvidenceProfile | None,
+):
+    params = dict(state.params)
+    if profile is not None:
+        for field, value in profile.source_refs.model_dump(mode="json").items():
+            if value is not None and not params.get(field):
+                params[field] = value
+    return normalize_evidence_sources_config(params)
+
+
+def _resolve_legal_source_status(
+    ctx: ExecutionContext,
+    state: ExperimentState,
+    *,
+    toolkit: KnowledgeToolkit | None,
+) -> EvidenceSourceStatus:
+    profile = _load_cross_graph_profile(ctx.store, state)
+    profile_status = None
+    if profile is not None:
+        profile_status = profile.source_statuses.get(EvidenceSourceKind.LEGAL.value)
+    if profile_status is not None and toolkit is not None:
+        return update_source_status(
+            profile_status,
+            state=EvidenceSourceState.AVAILABLE,
+            detail=profile_status.detail or "policy_verified_legal_toolkit_ready",
+        )
+    if profile_status is not None and toolkit is None:
+        if profile_status.status in {
+            EvidenceSourceState.MISSING_CONFIG,
+            EvidenceSourceState.MISSING_PATH,
+            EvidenceSourceState.DISABLED,
+            EvidenceSourceState.QUERY_FAILED,
+        }:
+            return profile_status
+        return update_source_status(
+            profile_status,
+            state=EvidenceSourceState.INIT_FAILED,
+            detail=profile_status.detail or "policy_verified_legal_toolkit_unavailable",
+        )
+
+    evidence_sources = _resolve_evidence_sources(state, profile)
+    inferred = build_path_source_status(
+        EvidenceSourceKind.LEGAL,
+        evidence_sources.legal_db_path,
+        detail="policy_verified_legal_toolkit",
+    )
+    if toolkit is not None:
+        return update_source_status(
+            inferred,
+            state=EvidenceSourceState.AVAILABLE,
+            detail="policy_verified_legal_toolkit_ready",
+        )
+    if inferred.status in {EvidenceSourceState.MISSING_CONFIG, EvidenceSourceState.MISSING_PATH}:
+        return inferred
+    return update_source_status(
+        inferred,
+        state=EvidenceSourceState.INIT_FAILED,
+        detail="policy_verified_legal_toolkit_unavailable",
+    )
 
 
 def _load_cross_graph_profile(

@@ -5,6 +5,9 @@ import pytest
 
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.causal import ensure_causal_methods_registered
+from polisyos.foundry.methods.catalog.causal.invariance_tests import (
+    build_environment_audit_report,
+)
 from polisyos.foundry.methods.registry import MethodRegistry
 
 
@@ -197,3 +200,81 @@ def test_icp_invariance_stable_feature_is_invariant() -> None:
     # (This is a statistical test, so we check the structure rather than exact values)
     assert 0 in out["invariant_features"] or 0 in out["variant_features"]
     assert set(out["invariant_features"]) | set(out["variant_features"]) == {0, 1}
+
+
+def test_environment_audit_helper_returns_ok_for_stable_domains() -> None:
+    rng = np.random.default_rng(123)
+    n = 80
+    data = rng.normal(size=(2 * n, 3))
+    labels = np.array(["env_a"] * n + ["env_b"] * n)
+
+    report = build_environment_audit_report(
+        data=data,
+        variable_names=["X0", "X1", "Y"],
+        domain_labels=labels,
+        target_col=2,
+    )
+
+    assert report.status == "ok"
+    assert report.n_environments == 2
+    assert report.ks_passed is True
+    assert report.icp_run is True
+
+
+def test_environment_audit_helper_detects_shift_and_feature_heterogeneity() -> None:
+    rng = np.random.default_rng(321)
+    n = 120
+    x0_a = rng.normal(size=n)
+    x1_a = rng.normal(size=n)
+    y_a = 2.0 * x0_a + 0.1 * rng.normal(size=n)
+    x0_b = rng.normal(loc=2.5, size=n)
+    x1_b = rng.normal(size=n)
+    y_b = 2.0 * x0_b + 4.0 * x1_b + 0.1 * rng.normal(size=n)
+    data = np.column_stack(
+        [
+            np.concatenate([x0_a, x0_b]),
+            np.concatenate([x1_a, x1_b]),
+            np.concatenate([y_a, y_b]),
+        ]
+    )
+    labels = np.array(["env_a"] * n + ["env_b"] * n)
+
+    report = build_environment_audit_report(
+        data=data,
+        variable_names=["X0", "X1", "Y"],
+        domain_labels=labels,
+        target_col="Y",
+    )
+
+    assert report.status == "warning"
+    assert report.ks_passed is False
+    assert report.icp_run is True
+    assert report.icp_passed is False
+    assert report.variant_features
+
+
+def test_environment_audit_helper_skips_or_degrades_invalid_inputs() -> None:
+    skipped = build_environment_audit_report(
+        data=[[1.0, 2.0], [2.0, 3.0]],
+        variable_names=["X0", "X1"],
+        domain_labels=None,
+    )
+    assert skipped.status == "skipped"
+
+    degraded = build_environment_audit_report(
+        data=[[1.0, 2.0], [2.0, 3.0]],
+        variable_names=["X0", "X1"],
+        domain_labels=["a"],
+        target_col=99,
+    )
+    assert degraded.status == "degraded"
+    assert "environment_audit_domain_label_length_mismatch" in degraded.warnings
+
+    invalid_target = build_environment_audit_report(
+        data=[[1.0, 2.0], [1.1, 2.1], [3.0, 4.0], [3.1, 4.1]],
+        variable_names=["X0", "Y"],
+        domain_labels=["a", "a", "b", "b"],
+        target_col=99,
+    )
+    assert invalid_target.status == "warning"
+    assert "icp_invalid_target_col" in invalid_target.warnings

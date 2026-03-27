@@ -4,6 +4,7 @@ import numpy as np
 import pytest
 
 from polisyos.foundry.methods.catalog.causal.protocols import (
+    FragmentCompositionData,
     GraphCausalData,
     GraphCausalDataV1,
     GraphReconciliationData,
@@ -17,6 +18,10 @@ from polisyos.foundry.methods.catalog.causal.protocols import (
     TabularCausalDiscoveryData,
     TimeSeriesCausalData,
 )
+from polisyos.ir.analytics.alignment_certification import (
+    AlignmentOverallStatus,
+    MeasurementComparabilityGrade,
+)
 from polisyos.ir.analytics.causal import (
     CausalEffectReport,
     CausalMethod,
@@ -25,6 +30,7 @@ from polisyos.ir.analytics.causal import (
     RefutationTestType,
 )
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, GraphType
+from polisyos.ir.analytics.cross_graph import InterfaceMapping, SCMFragment
 
 
 def test_panel_observational_data_rejects_shape_mismatch():
@@ -475,3 +481,54 @@ def test_graph_reconciliation_data_coerces_graph_and_hints():
 
     assert isinstance(payload.data_graph, CausalGraphModel)
     assert isinstance(payload.llm_hints[0], LLMStructuralHint)
+
+
+def test_fragment_composition_data_coerces_fragments_graphs_and_alignment() -> None:
+    payload = FragmentCompositionData(
+        fragments=[
+            {
+                "fragment_id": "labor_a",
+                "graph_ref": "artifact:graph:labor_a",
+                "semantic_namespace": "policy.labor",
+                "interface_variables": ["employment_rate"],
+                "exposed_outputs": ["employment_rate"],
+            },
+            {
+                "fragment_id": "labor_b",
+                "graph_ref": "artifact:graph:labor_b",
+                "semantic_namespace": "policy.labor",
+                "interface_variables": ["employment_rate"],
+                "exposed_inputs": ["employment_rate"],
+            },
+        ],
+        fragment_graphs={
+            "labor_a": {
+                "graph_type": "dag",
+                "nodes": ["employment_rate", "tax"],
+                "edges": [{"src": "tax", "dst": "employment_rate"}],
+            },
+            "labor_b": {
+                "graph_type": "dag",
+                "nodes": ["employment_rate", "wages"],
+                "edges": [{"src": "employment_rate", "dst": "wages"}],
+            },
+        },
+        alignment_report={
+            "schema_version": "1.0",
+            "fragment_ids": ["labor_a", "labor_b"],
+            "per_variable_certificates": [],
+            "overall_status": "partially_aligned",
+            "measurement_comparability_grade": "insufficient",
+        },
+        interface_mapping=InterfaceMapping(fragment_ids=["labor_a", "labor_b"]).model_dump(mode="json"),
+        direct_stitch_pairs=[["labor_a", "labor_b"]],
+    )
+
+    assert isinstance(payload.fragments[0], SCMFragment)
+    assert isinstance(payload.fragment_graphs["labor_a"], CausalGraphModel)
+    assert payload.alignment_report.overall_status is AlignmentOverallStatus.PARTIALLY_ALIGNED
+    assert (
+        payload.alignment_report.measurement_comparability_grade
+        is MeasurementComparabilityGrade.INSUFFICIENT
+    )
+    assert payload.direct_stitch_pairs == [("labor_a", "labor_b")]

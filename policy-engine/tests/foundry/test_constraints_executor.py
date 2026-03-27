@@ -11,6 +11,7 @@ from polisyos.core.contracts.foundry import CompileRequest
 from polisyos.core.registry import build_registry_bundle, load_registry_bundle_content
 from polisyos.foundry.compile.api import compile as compile_foundry
 from polisyos.foundry.contracts.state import GlobalState
+from polisyos.foundry._executor_models import ExecutionStrictness
 from polisyos.foundry.executor import execute_program_graph
 from polisyos.ir.kernel import (
     DEFAULT_MECHANISM_REGISTRY,
@@ -133,6 +134,7 @@ def test_constraint_operators(
         selector_field_registry=registries.selector_field_registry,
         constraint_registry=registries.constraint_registry,
         step=0,
+        strictness=ExecutionStrictness.RESEARCH,
     )
 
     if should_pass:
@@ -219,6 +221,7 @@ def test_soft_constraint_violation_persists_penalty_without_failing_execute(tmp_
         selector_field_registry=registries.selector_field_registry,
         constraint_registry=registries.constraint_registry,
         step=0,
+        strictness=ExecutionStrictness.RESEARCH,
     )
 
     assert exec_result.constraint_report_ref is not None

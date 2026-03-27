@@ -2,10 +2,33 @@
 
 from __future__ import annotations
 
+from polisyos.scientist.engine.runner import (
+    RemoteNodeExecutor,
+    WorkflowRunnerBackend,
+    WorkflowRunnerConfig,
+    build_workflow_runner,
+)
+from polisyos.scientist.engine.trace_attributes import (
+    ATTR_CACHE_HIT,
+    ATTR_CELL_ID,
+    ATTR_DURATION_MS,
+    ATTR_ERROR_POLICY,
+    ATTR_NODE_ALIAS,
+    ATTR_NODE_ID,
+    ATTR_NODE_STATUS,
+    ATTR_RETRY_COUNT,
+    ATTR_RUN_ID,
+    ATTR_TENANT_ID,
+    ATTR_TIER_INDEX,
+    ATTR_WORKFLOW_ID,
+    build_node_span_attributes,
+    enrich_node_span_result,
+)
 from polisyos.scientist.engine.fan_out import (
     FanOutConfig,
     FanOutNode,
     FanOutResult,
+    MergeConflictPolicy,
 )
 from polisyos.scientist.engine.sub_workflow import (
     StateMapping,
@@ -45,6 +68,7 @@ from polisyos.scientist.engine.checkpoint import (
     resume_from_checkpoint,
 )
 from polisyos.scientist.engine.errors import (
+    CircuitBreakerOpenError,
     CycleDetectedError,
     DuplicateAliasError,
     EngineError,
@@ -54,6 +78,7 @@ from polisyos.scientist.engine.errors import (
     RetryExhaustedError,
     UnknownNodeError,
     WorkflowSpecError,
+    WorkflowTimeoutError,
 )
 from polisyos.scientist.engine.async_executor import AsyncWorkflowExecutor
 from polisyos.scientist.engine.executor import WorkflowExecutor
@@ -62,6 +87,8 @@ from polisyos.scientist.engine.budget import (
     BudgetLimit,
     BudgetState,
 )
+from polisyos.scientist.engine.budget_middleware import BudgetMiddleware
+from polisyos.scientist.engine.circuit_breaker import CircuitBreaker, CircuitBreakerConfig
 from polisyos.scientist.engine.metrics_protocol import (
     EngineMetricsCollector,
     NoopEngineMetrics,
@@ -109,6 +136,8 @@ __all__ = [
     "NodeExecutionError",
     "NodeTimeoutError",
     "RetryExhaustedError",
+    "CircuitBreakerOpenError",
+    "WorkflowTimeoutError",
     "CheckpointError",
     "CheckpointNotFoundError",
     "CheckpointCorruptedError",
@@ -139,6 +168,9 @@ __all__ = [
     "BudgetState",
     "BudgetLimit",
     "BudgetExhaustedError",
+    "BudgetMiddleware",
+    "CircuitBreaker",
+    "CircuitBreakerConfig",
     "NodeCondition",
     "ConditionSyntaxError",
     "evaluate_condition",
@@ -149,7 +181,28 @@ __all__ = [
     "FanOutConfig",
     "FanOutNode",
     "FanOutResult",
+    "MergeConflictPolicy",
     "StateMapping",
     "SubWorkflowConfig",
     "SubWorkflowNode",
+    # Runner backends
+    "WorkflowRunnerBackend",
+    "RemoteNodeExecutor",
+    "WorkflowRunnerConfig",
+    "build_workflow_runner",
+    # Trace attributes
+    "ATTR_NODE_ID",
+    "ATTR_NODE_ALIAS",
+    "ATTR_TIER_INDEX",
+    "ATTR_RETRY_COUNT",
+    "ATTR_CACHE_HIT",
+    "ATTR_WORKFLOW_ID",
+    "ATTR_RUN_ID",
+    "ATTR_ERROR_POLICY",
+    "ATTR_TENANT_ID",
+    "ATTR_CELL_ID",
+    "ATTR_NODE_STATUS",
+    "ATTR_DURATION_MS",
+    "build_node_span_attributes",
+    "enrich_node_span_result",
 ]

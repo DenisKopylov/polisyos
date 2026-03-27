@@ -1,6 +1,13 @@
 """Tests for NegativeCertificate IR model."""
 import pytest
-from polisyos.ir.analytics.negative_certificate import BlockingType, NegativeCertificate, SuggestedExperiment
+from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.ir.analytics.negative_certificate import (
+    BlockingType,
+    load_negative_certificate,
+    NegativeCertificate,
+    persist_negative_certificate,
+    SuggestedExperiment,
+)
 from polisyos.ir.analytics.partial_identification import BoundMethod, PartialIdentificationResult
 
 
@@ -58,6 +65,8 @@ class TestNegativeCertificate:
         )
         assert cert.has_partial_bounds()
         assert cert.partial_bounds.lower_bound == -0.3
+        assert cert.bounds_bundle is not None
+        assert cert.recovery_plan is not None
 
     def test_has_partial_bounds_true(self):
         cert = NegativeCertificate(
@@ -116,6 +125,7 @@ class TestNegativeCertificate:
         assert cert.suggested_experiments == ()
         assert cert.partial_bounds is None
         assert cert.constructive_message == ""
+        assert cert.recovery_plan is not None
 
 
 class TestSuggestedExperiment:
@@ -186,6 +196,7 @@ class TestTrack6Additions:
         assert isinstance(cert.partial_bounds, PartialIdentificationResult)
         assert cert.partial_bounds.lower_bound == -0.2
         assert cert.partial_bounds.upper_bound == 0.5
+        assert cert.bounds_bundle is not None
 
     def test_partial_bounds_to_ui_dict(self):
         bounds = PartialIdentificationResult(
@@ -270,7 +281,42 @@ class TestTrack6Additions:
         assert restored.partial_bounds is not None
         assert restored.partial_bounds.lower_bound == -0.5
         assert restored.partial_bounds.method == BoundMethod.MANSKI
+        assert restored.bounds_bundle is not None
+        assert restored.recovery_plan is not None
+
+    def test_recovery_plan_is_always_populated(self):
+        cert = NegativeCertificate(
+            blocking_type=BlockingType.HEDGE_STRUCTURE,
+            blocking_description="hedge",
+            constructive_message="Run an experiment on X.",
+        )
+        assert cert.recovery_plan is not None
+        assert cert.recovery_plan.blocking_reason == "hedge"
+
+    def test_bounds_bundle_is_derived_from_partial_bounds(self):
+        cert = NegativeCertificate(
+            blocking_type=BlockingType.HEDGE_STRUCTURE,
+            blocking_description="hedge",
+            partial_bounds=_make_bounds(-0.25, 0.35),
+        )
+        assert cert.bounds_bundle is not None
+        assert cert.bounds_bundle.lower_bound == -0.25
+        assert cert.bounds_bundle.upper_bound == 0.35
 
     def test_bound_method_new_values(self):
         assert BoundMethod.LP_BALKE_PEARL.value == "lp_balke_pearl"
         assert BoundMethod.IMBENS_MANSKI_CI.value == "imbens_manski_ci"
+
+    def test_negative_certificate_round_trip_via_store(self, tmp_path) -> None:
+        store = FileSystemCAS(tmp_path / "cas")
+        cert = NegativeCertificate(
+            blocking_type=BlockingType.HEDGE_STRUCTURE,
+            blocking_description="hedge",
+            partial_bounds=_make_bounds(-0.25, 0.35),
+            constructive_message="Collect an experiment on X.",
+        )
+
+        ref = persist_negative_certificate(store, cert)
+        restored = load_negative_certificate(store, ref)
+
+        assert restored == cert

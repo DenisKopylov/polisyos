@@ -5,7 +5,7 @@ from __future__ import annotations
 import asyncio
 import json
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, AsyncIterator
 
 import aiohttp
 
@@ -37,8 +37,25 @@ class GatewayLLMResponse:
     tool_calls: list[GatewayToolCall] | None = None
 
 
+class _HTTPError(RuntimeError):
+    """Gateway HTTP error with status code for intelligent retry."""
+
+    def __init__(self, message: str, status: int) -> None:
+        super().__init__(message)
+        self.status = status
+
+
+def _is_retryable_status(status: int) -> bool:
+    """Return True for HTTP status codes that warrant a retry."""
+    return status == 429 or status >= 500
+
+
 class GatewayLLMClient:
-    """Small async client for OpenAI-compatible /chat/completions gateways."""
+    """Small async client for OpenAI-compatible /chat/completions gateways.
+
+    Supports connection pooling (shared ``aiohttp.ClientSession``),
+    intelligent retry (429/5xx retryable, 4xx fatal), and SSE streaming.
+    """
 
     def __init__(
         self,
@@ -63,6 +80,21 @@ class GatewayLLMClient:
         self.max_retries = max(int(max_retries), 0)
         self.provider_hint = provider_hint
         self.extra_headers = dict(extra_headers or {})
+        self._session: aiohttp.ClientSession | None = None
+
+    async def _ensure_session(self, timeout_s: float) -> aiohttp.ClientSession:
+        """Return the shared session, creating it lazily if needed."""
+        if self._session is None or self._session.closed:
+            self._session = aiohttp.ClientSession(
+                timeout=aiohttp.ClientTimeout(total=max(timeout_s, 1.0)),
+            )
+        return self._session
+
+    async def aclose(self) -> None:
+        """Close the underlying HTTP session."""
+        if self._session is not None and not self._session.closed:
+            await self._session.close()
+            self._session = None
 
     async def generate(
         self,
@@ -112,6 +144,73 @@ class GatewayLLMClient:
         )
         return self._parse_completion_payload(raw)
 
+    async def generate_stream(
+        self,
+        *,
+        system: str | None = None,
+        user: str | None = None,
+        response_format: dict[str, Any] | None = None,
+        tools: list[dict[str, Any]] | None = None,
+        tool_choice: str | dict[str, Any] | None = None,
+        temperature: float | None = None,
+        max_tokens: int | None = None,
+        seed: int | None = None,
+        metadata: dict[str, Any] | None = None,
+        timeout: float | None = None,
+        **kwargs: Any,
+    ) -> AsyncIterator["StreamChunk"]:
+        """Stream a chat completion, yielding ``StreamChunk`` objects.
+
+        Requires ``polisyos.scientist.llm.streaming`` (imported lazily).
+        """
+        from .streaming import StreamChunk, parse_sse_stream  # noqa: F811
+
+        payload: dict[str, Any] = {
+            "model": self.model,
+            "messages": self._build_messages(system=system, user=user),
+            "stream": True,
+        }
+        if response_format is not None:
+            payload["response_format"] = response_format
+        if tools is not None:
+            payload["tools"] = tools
+        if tool_choice is not None:
+            payload["tool_choice"] = tool_choice
+        if temperature is not None:
+            payload["temperature"] = float(temperature)
+        if max_tokens is not None:
+            payload["max_tokens"] = int(max_tokens)
+        if seed is not None:
+            payload["seed"] = int(seed)
+        if metadata is not None:
+            payload["metadata"] = metadata
+        for key, value in kwargs.items():
+            if value is not None:
+                payload[key] = value
+
+        effective_timeout = float(timeout) if timeout is not None else self.timeout_s
+        url = f"{self.base_url}/chat/completions"
+        headers = {
+            "Content-Type": "application/json",
+            **self.extra_headers,
+        }
+        if self.api_key:
+            headers["Authorization"] = f"Bearer {self.api_key}"
+
+        session = await self._ensure_session(effective_timeout)
+        resp = await session.post(url, json=payload, headers=headers)
+        try:
+            if resp.status >= 400:
+                text = await resp.text()
+                raise _HTTPError(
+                    f"Gateway stream request failed ({resp.status}): {text[:400]}",
+                    status=resp.status,
+                )
+            async for chunk in parse_sse_stream(resp):
+                yield chunk
+        finally:
+            resp.release()
+
     def _build_messages(
         self,
         *,
@@ -145,18 +244,32 @@ class GatewayLLMClient:
         last_error: Exception | None = None
         for attempt in range(self.max_retries + 1):
             try:
-                client_timeout = aiohttp.ClientTimeout(total=max(timeout_s, 1.0))
-                async with aiohttp.ClientSession(timeout=client_timeout) as session:
-                    async with session.post(url, json=payload, headers=headers) as response:
-                        raw_text = await response.text()
-                        if response.status >= 400:
-                            raise RuntimeError(
-                                f"Gateway request failed ({response.status}): {raw_text[:400]}"
-                            )
-                        if not raw_text:
-                            return {}
-                        decoded = json.loads(raw_text)
-                        return decoded if isinstance(decoded, dict) else {}
+                session = await self._ensure_session(timeout_s)
+                async with session.post(url, json=payload, headers=headers) as response:
+                    raw_text = await response.text()
+                    if response.status >= 400:
+                        err = _HTTPError(
+                            f"Gateway request failed ({response.status}): {raw_text[:400]}",
+                            status=response.status,
+                        )
+                        # Intelligent retry: only retry 429 and 5xx
+                        if not _is_retryable_status(response.status):
+                            raise err
+                        raise err
+                    if not raw_text:
+                        return {}
+                    decoded = json.loads(raw_text)
+                    return decoded if isinstance(decoded, dict) else {}
+            except _HTTPError as exc:
+                last_error = exc
+                if not _is_retryable_status(exc.status):
+                    # 4xx (except 429): fail immediately, do not retry
+                    raise RuntimeError(str(exc)) from exc
+                if attempt >= self.max_retries:
+                    break
+                # Respect Retry-After header for 429
+                retry_delay = min(0.5 * (attempt + 1), 2.0)
+                await asyncio.sleep(retry_delay)
             except Exception as exc:  # pragma: no cover - network errors depend on env
                 last_error = exc
                 if attempt >= self.max_retries:
@@ -268,4 +381,5 @@ __all__ = [
     "GatewayLLMClient",
     "GatewayLLMResponse",
     "GatewayUsage",
+    "GatewayToolCall",
 ]

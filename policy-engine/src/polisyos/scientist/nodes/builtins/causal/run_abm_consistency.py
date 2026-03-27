@@ -8,6 +8,13 @@ from typing import Any
 
 from polisyos.core.artifacts.manifest import InputRef
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+from polisyos.ir.analytics.abstraction import (
+    FiniteStateAbstractionMap,
+    load_finite_state_abstraction_map,
+    persist_abstraction_certificate,
+    persist_finite_state_abstraction_map,
+    verify_finite_state_exact_abstraction,
+)
 from polisyos.ir.analytics.abm_bridge import (
     ABMAlignmentReport,
     AlignmentResult,
@@ -17,14 +24,23 @@ from polisyos.ir.analytics.abm_bridge import (
     ToleranceMethod,
     persist_abm_alignment_report,
 )
+from polisyos.ir.analytics.causal_graph import persist_causal_graph_model
 from polisyos.ir.analytics.causal import load_causal_effect_report
+from polisyos.ir.analytics.structural_causal_model import (
+    StructuralCausalModelSpec,
+    load_structural_causal_model_spec,
+)
+from polisyos.ir.refs import FiniteStateAbstractionMapRef, StructuralCausalModelSpecRef
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (
+    ARTIFACT_ABSTRACTION_CERTIFICATE_REF,
     ARTIFACT_ABM_ALIGNMENT_REPORT_REF,
     ARTIFACT_CAUSAL_REPORT_REF,
+    ARTIFACT_FINITE_STATE_ABSTRACTION_MAP_REF,
+    ARTIFACT_STRUCTURAL_CAUSAL_MODEL_SPEC_REF,
 )
 
 _METADATA = ComponentMetadata(
@@ -47,14 +63,29 @@ _SPEC = NodeSpec(
         "params.abm_run_stats",
         "params.scm_effects",
         "params.abm_bridge_config",
+        "params.finite_state_micro_scm",
+        "params.finite_state_micro_scm_ref",
+        "params.finite_state_macro_scm",
+        "params.finite_state_macro_scm_ref",
+        "params.finite_state_abstraction_map",
+        "params.finite_state_abstraction_map_ref",
+        "params.abstraction_preserved_queries",
         f"artifacts_index.{ARTIFACT_CAUSAL_REPORT_REF}",
+        f"artifacts_index.{ARTIFACT_STRUCTURAL_CAUSAL_MODEL_SPEC_REF}",
     ],
     state_writes=[
         f"artifacts_index.{ARTIFACT_ABM_ALIGNMENT_REPORT_REF}",
+        f"artifacts_index.{ARTIFACT_FINITE_STATE_ABSTRACTION_MAP_REF}",
+        f"artifacts_index.{ARTIFACT_ABSTRACTION_CERTIFICATE_REF}",
         "params.abm_alignment_overall_consistent",
         "params.abm_alignment_warnings",
+        "params.abstraction_preservation_type",
     ],
-    produces=[ARTIFACT_ABM_ALIGNMENT_REPORT_REF],
+    produces=[
+        ARTIFACT_ABM_ALIGNMENT_REPORT_REF,
+        ARTIFACT_FINITE_STATE_ABSTRACTION_MAP_REF,
+        ARTIFACT_ABSTRACTION_CERTIFICATE_REF,
+    ],
 )
 
 
@@ -118,6 +149,14 @@ class _BridgeConfig:
                 0.0,
             ),
         )
+
+
+@dataclass(frozen=True)
+class _ExactAbstractionInputs:
+    micro_scm: StructuralCausalModelSpec
+    macro_scm: StructuralCausalModelSpec
+    abstraction_map: FiniteStateAbstractionMap
+    abstraction_map_ref: FiniteStateAbstractionMapRef | None
 
 
 def _parse_mappings(raw: Any) -> list[MacroMicroMapping]:
@@ -260,6 +299,118 @@ def _append_warning(warnings: list[str], message: str) -> None:
         warnings.append(message)
 
 
+def _coerce_structural_scm_ref(value: Any) -> StructuralCausalModelSpecRef | None:
+    if value is None:
+        return None
+    if isinstance(value, StructuralCausalModelSpecRef):
+        return value
+    if isinstance(value, str):
+        return StructuralCausalModelSpecRef.model_validate({"artifact_id": value})
+    return StructuralCausalModelSpecRef.model_validate(value)
+
+
+def _coerce_abstraction_map_ref(value: Any) -> FiniteStateAbstractionMapRef | None:
+    if value is None:
+        return None
+    if isinstance(value, FiniteStateAbstractionMapRef):
+        return value
+    if isinstance(value, str):
+        return FiniteStateAbstractionMapRef.model_validate({"artifact_id": value})
+    return FiniteStateAbstractionMapRef.model_validate(value)
+
+
+def _load_structural_scm_value(
+    ctx: ExecutionContext,
+    state: ExperimentState,
+    *,
+    payload_key: str,
+    ref_key: str,
+    artifact_fallback_key: str | None = None,
+) -> StructuralCausalModelSpec | None:
+    payload = state.params.get(payload_key)
+    if payload is not None:
+        if isinstance(payload, StructuralCausalModelSpec):
+            return payload
+        return StructuralCausalModelSpec.model_validate(payload)
+
+    raw_ref = state.params.get(ref_key)
+    if raw_ref is not None:
+        ref = _coerce_structural_scm_ref(raw_ref)
+        if ref is None:
+            return None
+        return load_structural_causal_model_spec(ctx.store, ref)
+
+    if artifact_fallback_key is not None:
+        artifact_ref = state.artifacts_index.get(artifact_fallback_key)
+        if artifact_ref is not None:
+            ref = StructuralCausalModelSpecRef.model_validate(artifact_ref.model_dump(mode="json"))
+            return load_structural_causal_model_spec(ctx.store, ref)
+    return None
+
+
+def _load_exact_abstraction_inputs(
+    ctx: ExecutionContext,
+    state: ExperimentState,
+) -> _ExactAbstractionInputs | None:
+    any_requested = any(
+        state.params.get(key) is not None
+        for key in (
+            "finite_state_micro_scm",
+            "finite_state_micro_scm_ref",
+            "finite_state_macro_scm",
+            "finite_state_macro_scm_ref",
+            "finite_state_abstraction_map",
+            "finite_state_abstraction_map_ref",
+        )
+    )
+    if not any_requested:
+        return None
+
+    micro_scm = _load_structural_scm_value(
+        ctx,
+        state,
+        payload_key="finite_state_micro_scm",
+        ref_key="finite_state_micro_scm_ref",
+    )
+    macro_scm = _load_structural_scm_value(
+        ctx,
+        state,
+        payload_key="finite_state_macro_scm",
+        ref_key="finite_state_macro_scm_ref",
+        artifact_fallback_key=ARTIFACT_STRUCTURAL_CAUSAL_MODEL_SPEC_REF,
+    )
+    if micro_scm is None or macro_scm is None:
+        raise ValueError(
+            "Exact abstraction verification requires both finite_state_micro_scm and finite_state_macro_scm"
+        )
+
+    map_payload = state.params.get("finite_state_abstraction_map")
+    map_ref = _coerce_abstraction_map_ref(state.params.get("finite_state_abstraction_map_ref"))
+    if map_payload is not None:
+        abstraction_map = (
+            map_payload
+            if isinstance(map_payload, FiniteStateAbstractionMap)
+            else FiniteStateAbstractionMap.model_validate(map_payload)
+        )
+        return _ExactAbstractionInputs(
+            micro_scm=micro_scm,
+            macro_scm=macro_scm,
+            abstraction_map=abstraction_map,
+            abstraction_map_ref=map_ref,
+        )
+    if map_ref is None:
+        raise ValueError(
+            "Exact abstraction verification requires finite_state_abstraction_map or finite_state_abstraction_map_ref"
+        )
+    abstraction_map = load_finite_state_abstraction_map(ctx.store, map_ref)
+    return _ExactAbstractionInputs(
+        micro_scm=micro_scm,
+        macro_scm=macro_scm,
+        abstraction_map=abstraction_map,
+        abstraction_map_ref=map_ref,
+    )
+
+
 @dataclass(frozen=True)
 class RunABMConsistencyCheckNode:
     @property
@@ -307,6 +458,101 @@ class RunABMConsistencyCheckNode:
         phase_transitions: list[PhaseTransition] = []
         warnings: list[str] = []
         events: list[NodeEvent] = []
+        abstraction_map_ref: FiniteStateAbstractionMapRef | None = None
+        abstraction_certificate_ref = None
+        abstraction_preservation_type: str | None = None
+
+        exact_inputs: _ExactAbstractionInputs | None = None
+        try:
+            exact_inputs = _load_exact_abstraction_inputs(ctx, state)
+        except Exception as exc:
+            return NodeOutcome(
+                status="fail",
+                state=state,
+                error=NodeError(
+                    code=node_errors.ERROR_INVALID_STATE,
+                    message=f"Invalid finite-state abstraction payload: {exc}",
+                ),
+            )
+
+        if exact_inputs is None:
+            _append_warning(warnings, "heuristic_aggregation_without_abstraction_certificate")
+        else:
+            graph_inputs: list[InputRef] = []
+            if state.artifacts_index.get(ARTIFACT_STRUCTURAL_CAUSAL_MODEL_SPEC_REF) is not None:
+                graph_inputs.append(
+                    InputRef(
+                        artifact_id=state.artifacts_index[
+                            ARTIFACT_STRUCTURAL_CAUSAL_MODEL_SPEC_REF
+                        ].artifact_id,
+                        role="macro_structural_causal_model_spec",
+                    )
+                )
+            micro_graph_ref = persist_causal_graph_model(
+                ctx.store,
+                exact_inputs.micro_scm.graph,
+                inputs=graph_inputs or None,
+            )
+            macro_graph_ref = persist_causal_graph_model(
+                ctx.store,
+                exact_inputs.macro_scm.graph,
+                inputs=graph_inputs or None,
+            )
+            abstraction_map_ref = exact_inputs.abstraction_map_ref
+            if abstraction_map_ref is None:
+                abstraction_map_ref = persist_finite_state_abstraction_map(
+                    ctx.store,
+                    exact_inputs.abstraction_map,
+                    inputs=[
+                        InputRef(artifact_id=str(micro_graph_ref.artifact_id), role="micro_graph"),
+                        InputRef(artifact_id=str(macro_graph_ref.artifact_id), role="macro_graph"),
+                    ],
+                )
+            preserved_queries = state.params.get("abstraction_preserved_queries")
+            certificate = verify_finite_state_exact_abstraction(
+                exact_inputs.micro_scm,
+                exact_inputs.macro_scm,
+                exact_inputs.abstraction_map,
+                micro_graph_ref=micro_graph_ref,
+                macro_graph_ref=macro_graph_ref,
+                abstraction_map_ref=abstraction_map_ref,
+                preserved_queries=(
+                    tuple(str(item) for item in preserved_queries)
+                    if isinstance(preserved_queries, (tuple, list))
+                    else None
+                ),
+            )
+            abstraction_certificate_ref = persist_abstraction_certificate(
+                ctx.store,
+                certificate,
+                inputs=[
+                    InputRef(artifact_id=str(micro_graph_ref.artifact_id), role="micro_graph"),
+                    InputRef(artifact_id=str(macro_graph_ref.artifact_id), role="macro_graph"),
+                    InputRef(
+                        artifact_id=str(abstraction_map_ref.artifact_id),
+                        role="abstraction_map",
+                    ),
+                ],
+            )
+            abstraction_preservation_type = certificate.preservation_type.value
+            if abstraction_preservation_type == "exact":
+                events.append(
+                    NodeEvent(
+                        level="info",
+                        message="Exact finite-state abstraction certificate verified.",
+                    )
+                )
+            else:
+                _append_warning(warnings, "invalid_abstraction_certificate")
+                events.append(
+                    NodeEvent(
+                        level="warn",
+                        message=(
+                            "Exact finite-state abstraction inputs were provided but did not verify; "
+                            "continuing with heuristic aggregation."
+                        ),
+                    )
+                )
 
         for mapping in mappings:
             variable = mapping.macro_variable
@@ -426,8 +672,16 @@ class RunABMConsistencyCheckNode:
 
         new_state = state.model_copy(deep=True)
         new_state.artifacts_index[ARTIFACT_ABM_ALIGNMENT_REPORT_REF] = report_ref
+        if abstraction_map_ref is not None:
+            new_state.artifacts_index[ARTIFACT_FINITE_STATE_ABSTRACTION_MAP_REF] = abstraction_map_ref
+        if abstraction_certificate_ref is not None:
+            new_state.artifacts_index[ARTIFACT_ABSTRACTION_CERTIFICATE_REF] = (
+                abstraction_certificate_ref
+            )
         new_state.params["abm_alignment_overall_consistent"] = overall_consistent
         new_state.params["abm_alignment_warnings"] = list(warnings)
+        if abstraction_preservation_type is not None:
+            new_state.params["abstraction_preservation_type"] = abstraction_preservation_type
 
         events.append(
             NodeEvent(

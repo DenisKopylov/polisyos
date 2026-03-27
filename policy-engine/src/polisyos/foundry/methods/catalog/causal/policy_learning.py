@@ -28,6 +28,7 @@ from polisyos.foundry.methods.catalog.causal._econml_adapter import (
     require_econml,
 )
 from polisyos.foundry.methods.catalog.causal.protocols import HTEObservationalData
+from polisyos.foundry.methods.catalog.causal.strategic import evaluate_strategic_hook
 from polisyos.ir.analytics.causal import CausalMethod, EstimationStatus
 from polisyos.ir.analytics.hte import PolicyRecommendation, TargetingRule
 
@@ -348,14 +349,29 @@ class OptimalPolicyLearner:
                 "targeted_units": int(np.sum(treated_mask)),
             },
         )
+        extras: dict[str, Any] = {
+            "policy_recommendation": recommendation,
+            "cate_estimates": cate_estimates.tolist(),
+            "treatment_decisions": treatment_decisions.tolist(),
+        }
+        strategic_summary, strategic_warnings, strategic_bundle = evaluate_strategic_hook(
+            params=params,
+            baseline_policy_value=total_effect,
+        )
+        if strategic_summary is not None:
+            warnings.extend(
+                warning for warning in strategic_warnings if warning not in warnings
+            )
+            recommendation.metadata["strategic_response"] = strategic_summary
+            report.metadata["strategic_response"] = strategic_summary
+            report.metadata["strategic_response_present"] = True
+            extras["strategic_response_summary"] = strategic_summary
+            if strategic_bundle is not None:
+                extras["strategic_response_bundle"] = strategic_bundle
         return wrap_causal_output(
             report,
             warnings=warnings,
-            extras={
-                "policy_recommendation": recommendation,
-                "cate_estimates": cate_estimates.tolist(),
-                "treatment_decisions": treatment_decisions.tolist(),
-            },
+            extras=extras,
         )
 
 

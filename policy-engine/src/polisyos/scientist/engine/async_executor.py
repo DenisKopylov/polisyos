@@ -23,7 +23,11 @@ from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.scientist.engine.checkpoint import compute_workflow_fingerprint
 from polisyos.scientist.engine.context import ExecutionContext
-from polisyos.scientist.engine.errors import NodeTimeoutError, RetryExhaustedError
+from polisyos.scientist.engine.errors import (
+    NodeTimeoutError,
+    RetryExhaustedError,
+    WorkflowTimeoutError,
+)
 from polisyos.scientist.engine.condition import ConditionSyntaxError, evaluate_condition
 from polisyos.scientist.engine.executor import (
     NodeRunRecord,
@@ -38,7 +42,7 @@ from polisyos.scientist.engine.executor import (
     _validate_required_binds,
 )
 from polisyos.scientist.engine.idempotency import NodeResultCache, compute_idempotency_key
-from polisyos.scientist.engine.protocol import NodeError, NodeOutcome, NodeStatus
+from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeStatus
 from polisyos.scientist.engine.registry import NodeRegistry
 from polisyos.scientist.engine.retry import RetryPolicy, execute_with_retry_async
 from polisyos.scientist.engine.state import ExperimentState
@@ -49,10 +53,15 @@ from polisyos.scientist.engine.telemetry import (
     start_node_span,
 )
 from polisyos.scientist.engine.topo import topo_sort_tiers
+from polisyos.scientist.engine.trace_attributes import (
+    build_node_span_attributes,
+    enrich_node_span_result,
+)
 from polisyos.scientist.engine.workflow_spec import ErrorPolicy, NodeInvocation, WorkflowSpec
 
 if TYPE_CHECKING:
     from polisyos.scientist.engine.checkpoint import CheckpointHook
+    from polisyos.scientist.provenance.run_dag import RunProvenanceDAG
 
 _module_logger = get_logger(__name__)
 
@@ -68,6 +77,10 @@ class AsyncWorkflowExecutor:
         checkpoint_hook: "CheckpointHook | None" = None,
         checkpoint_cache_seed_refs: list[ArtifactRef] | None = None,
         max_parallelism: int = 4,
+        provenance_dag: "RunProvenanceDAG | None" = None,
+        semaphore_timeout_s: float | None = None,
+        workflow_timeout_s: float | None = None,
+        budget_middleware: Any | None = None,
     ) -> None:
         self._ctx = ctx
         self._registry = registry
@@ -75,6 +88,12 @@ class AsyncWorkflowExecutor:
         self._checkpoint_hook = checkpoint_hook
         self._checkpoint_cache_seed_refs = list(checkpoint_cache_seed_refs or [])
         self._max_parallelism = max(1, max_parallelism)
+        self._provenance_dag = provenance_dag
+        self._semaphore_timeout_s = semaphore_timeout_s
+        self._workflow_timeout_s = workflow_timeout_s
+        self._budget_middleware = budget_middleware
+        self._node_outputs: dict[str, list[ArtifactRef]] = {}
+        self._pre_node_state_keys: dict[str, set[str]] = {}
 
     async def execute(
         self, workflow: WorkflowSpec, state: ExperimentState,
@@ -89,6 +108,11 @@ class AsyncWorkflowExecutor:
 
         tiers = topo_sort_tiers(invocations)
         workflow_started = time.perf_counter()
+
+        if self._ctx.metrics is not None:
+            self._ctx.metrics.record_workflow_state(
+                run_id=state.run_id, workflow_id=workflow.workflow_id, state="running",
+            )
 
         initial_state = state.model_copy(deep=True)
         workflow_ref = self._persist_workflow_spec(workflow)
@@ -112,120 +136,145 @@ class AsyncWorkflowExecutor:
         workflow_fingerprint = compute_workflow_fingerprint(workflow)
         abort = False
 
-        for tier_index, tier in enumerate(tiers):
-            if abort:
-                # Block remaining tiers
-                for alias in tier:
-                    records.append(NodeRunRecord(
-                        alias=alias, node_id=str(invocations[alias].node_id),
-                        status="skip", duration_ms=0, skip_reason="upstream_failed",
-                    ))
-                    blocked.add(alias)
-                continue
-
-            # Check for blocked / condition-skipped nodes in this tier
-            runnable: list[str] = []
-            for alias in tier:
-                inv = invocations[alias]
-                if any(dep in failed or dep in blocked for dep in inv.depends_on):
-                    records.append(NodeRunRecord(
-                        alias=alias, node_id=str(inv.node_id),
-                        status="skip", duration_ms=0, skip_reason="upstream_failed",
-                    ))
-                    blocked.add(alias)
-                    self._ctx.run.emit(
-                        f"scientist.node.{alias}", "NODE_SKIP",
-                        metrics={"duration_ms": 0, "status_ok": 0},
-                    )
+        async def _execute_tiers() -> None:
+            nonlocal state, abort
+            for tier_index, tier in enumerate(tiers):
+                if abort:
+                    for alias in tier:
+                        records.append(NodeRunRecord(
+                            alias=alias, node_id=str(invocations[alias].node_id),
+                            status="skip", duration_ms=0, skip_reason="upstream_failed",
+                        ))
+                        blocked.add(alias)
                     continue
 
-                # Evaluate condition (if present)
-                if inv.condition is not None:
-                    try:
-                        cond_result = evaluate_condition(inv.condition.expr, state)
-                    except ConditionSyntaxError as exc:
-                        self._ctx.logger.error(
-                            "Condition syntax error for node %s: %s", alias, exc,
+                runnable: list[str] = []
+                for alias in tier:
+                    inv = invocations[alias]
+                    if any(dep in failed or dep in blocked for dep in inv.depends_on):
+                        records.append(NodeRunRecord(
+                            alias=alias, node_id=str(inv.node_id),
+                            status="skip", duration_ms=0, skip_reason="upstream_failed",
+                        ))
+                        blocked.add(alias)
+                        self._ctx.run.emit(
+                            f"scientist.node.{alias}", "NODE_SKIP",
+                            metrics={"duration_ms": 0, "status_ok": 0},
                         )
-                        cond_result = False
-
-                    if not cond_result:
-                        if inv.condition.on_false == "fail":
-                            records.append(NodeRunRecord(
-                                alias=alias, node_id=str(inv.node_id),
-                                status="fail", duration_ms=0,
-                                error=NodeError(
-                                    code="node.condition_false",
-                                    message=f"Condition not met: {inv.condition.expr}",
-                                    details={"expr": inv.condition.expr, "on_false": "fail"},
-                                ),
-                            ))
-                            failed.add(alias)
-                            self._ctx.run.emit(
-                                f"scientist.node.{alias}", "NODE_FAIL",
-                                metrics={"duration_ms": 0, "status_ok": 0},
-                            )
-                        else:
-                            records.append(NodeRunRecord(
-                                alias=alias, node_id=str(inv.node_id),
-                                status="skip", duration_ms=0,
-                                skip_reason="condition_false",
-                            ))
-                            condition_skipped.add(alias)
-                            self._ctx.run.emit(
-                                f"scientist.node.{alias}", "NODE_SKIP",
-                                metrics={"duration_ms": 0, "status_ok": 0},
-                            )
                         continue
 
-                runnable.append(alias)
+                    if inv.condition is not None:
+                        try:
+                            cond_result = evaluate_condition(inv.condition.expr, state)
+                        except ConditionSyntaxError as exc:
+                            self._ctx.logger.error(
+                                "Condition syntax error for node %s: %s", alias, exc,
+                            )
+                            cond_result = False
 
-            # Condition-failures with on_false="fail" may trigger abort
-            if failed and workflow.error_policy == "fail_fast":
-                abort = True
+                        if not cond_result:
+                            if inv.condition.on_false == "fail":
+                                records.append(NodeRunRecord(
+                                    alias=alias, node_id=str(inv.node_id),
+                                    status="fail", duration_ms=0,
+                                    error=NodeError(
+                                        code="node.condition_false",
+                                        message=f"Condition not met: {inv.condition.expr}",
+                                        details={"expr": inv.condition.expr, "on_false": "fail"},
+                                    ),
+                                ))
+                                failed.add(alias)
+                                self._ctx.run.emit(
+                                    f"scientist.node.{alias}", "NODE_FAIL",
+                                    metrics={"duration_ms": 0, "status_ok": 0},
+                                )
+                            else:
+                                records.append(NodeRunRecord(
+                                    alias=alias, node_id=str(inv.node_id),
+                                    status="skip", duration_ms=0,
+                                    skip_reason="condition_false",
+                                ))
+                                condition_skipped.add(alias)
+                                self._ctx.run.emit(
+                                    f"scientist.node.{alias}", "NODE_SKIP",
+                                    metrics={"duration_ms": 0, "status_ok": 0},
+                                )
+                            continue
 
-            if not runnable or abort:
-                continue
+                    runnable.append(alias)
 
-            tier_started = time.perf_counter()
-
-            if len(runnable) == 1:
-                # Sequential — single node tier
-                alias = runnable[0]
-                record, state, node_failed = await self._run_single_node(
-                    alias, invocations[alias], state, workflow,
-                    workflow_fingerprint, completed_nodes,
-                )
-                records.append(record)
-                if node_failed:
-                    failed.add(alias)
-                    if workflow.error_policy == "fail_fast":
-                        abort = True
-                else:
-                    completed_nodes.append(alias)
-            else:
-                # Parallel tier
-                tier_records, state, tier_failed = await self._run_parallel_tier(
-                    runnable, invocations, state, workflow,
-                    workflow_fingerprint, completed_nodes,
-                )
-                records.extend(tier_records)
-                for alias in tier_failed:
-                    failed.add(alias)
-                for rec in tier_records:
-                    if rec.status == "ok":
-                        completed_nodes.append(rec.alias)
-                if tier_failed and workflow.error_policy == "fail_fast":
+                if failed and workflow.error_policy == "fail_fast":
                     abort = True
 
-            tier_duration_ms = int((time.perf_counter() - tier_started) * 1000)
-            if self._ctx.metrics is not None:
-                self._ctx.metrics.record_tier_completed(
-                    tier_index=tier_index,
-                    tier_size=len(runnable),
-                    duration_ms=tier_duration_ms,
-                    workflow_id=workflow.workflow_id,
+                if not runnable or abort:
+                    continue
+
+                # Tier savepoint for rollback on failure
+                tier_savepoint = state.model_copy(deep=True)
+                tier_started = time.perf_counter()
+
+                if len(runnable) == 1:
+                    alias = runnable[0]
+                    record, state, node_failed = await self._run_single_node(
+                        alias, invocations[alias], state, workflow,
+                        workflow_fingerprint, completed_nodes,
+                        tier_index=tier_index,
+                    )
+                    records.append(record)
+                    if node_failed:
+                        failed.add(alias)
+                        if workflow.error_policy == "fail_fast":
+                            state = tier_savepoint
+                            abort = True
+                    else:
+                        completed_nodes.append(alias)
+                else:
+                    # Backpressure metrics
+                    if self._ctx.metrics is not None:
+                        self._ctx.metrics.record_backpressure(
+                            tier_index=tier_index,
+                            queued_tasks=len(runnable),
+                            active_tasks=0,
+                            workflow_id=workflow.workflow_id,
+                        )
+
+                    tier_records, state, tier_failed = await self._run_parallel_tier(
+                        runnable, invocations, state, workflow,
+                        workflow_fingerprint, completed_nodes,
+                        tier_index=tier_index,
+                    )
+                    records.extend(tier_records)
+                    for alias in tier_failed:
+                        failed.add(alias)
+                    for rec in tier_records:
+                        if rec.status == "ok":
+                            completed_nodes.append(rec.alias)
+                    if tier_failed and workflow.error_policy == "fail_fast":
+                        state = tier_savepoint
+                        abort = True
+
+                tier_duration_ms = int((time.perf_counter() - tier_started) * 1000)
+                if self._ctx.metrics is not None:
+                    self._ctx.metrics.record_tier_completed(
+                        tier_index=tier_index,
+                        tier_size=len(runnable),
+                        duration_ms=tier_duration_ms,
+                        workflow_id=workflow.workflow_id,
+                    )
+
+        # Execute tiers with optional workflow-level timeout
+        if self._workflow_timeout_s is not None:
+            try:
+                await asyncio.wait_for(
+                    _execute_tiers(), timeout=self._workflow_timeout_s,
                 )
+            except asyncio.TimeoutError:
+                raise WorkflowTimeoutError(
+                    f"Workflow {workflow.workflow_id} exceeded "
+                    f"timeout of {self._workflow_timeout_s}s",
+                )
+        else:
+            await _execute_tiers()
 
         overall_status = "fail" if failed else "ok"
         if self._ctx.metrics is not None:
@@ -234,6 +283,9 @@ class AsyncWorkflowExecutor:
                 status=overall_status,
                 duration_ms=int((time.perf_counter() - workflow_started) * 1000),
                 node_count=len(records),
+            )
+            self._ctx.metrics.record_workflow_state(
+                run_id=state.run_id, workflow_id=workflow.workflow_id, state=overall_status,
             )
 
         report = WorkflowReport(
@@ -250,6 +302,22 @@ class AsyncWorkflowExecutor:
 
         self._ctx.run.add_output(final_state_ref)
         self._ctx.run.add_output(report_ref)
+
+        # Finalize and persist provenance DAG
+        if self._provenance_dag is not None:
+            try:
+                prov_graph = self._provenance_dag.finalize()
+                prov_json = self._provenance_dag.to_prov_json()
+                prov_ref = self._ctx.store.put_json(
+                    prov_json,
+                    PutOptions(
+                        kind="scientist.provenance.run_dag",
+                        media_type="application/json",
+                    ),
+                )
+                self._ctx.run.add_output(prov_ref)
+            except Exception:  # noqa: BLE001 — provenance must never crash pipeline
+                _module_logger.debug("Provenance DAG finalization failed")
 
         errors_payload = [
             {"node": r.alias, "code": r.error.code, "message": r.error.message}
@@ -269,10 +337,11 @@ class AsyncWorkflowExecutor:
         workflow: WorkflowSpec,
         workflow_fingerprint: str,
         completed_nodes: list[str],
+        tier_index: int = 0,
     ) -> tuple[NodeRunRecord, ExperimentState, bool]:
         """Execute a single node (same semantics as sync executor)."""
         outcome, duration_ms, cache_hit = await self._execute_node(
-            alias, inv, state, workflow,
+            alias, inv, state, workflow, tier_index=tier_index,
         )
         state = outcome.state
         node_failed = outcome.status == "fail"
@@ -300,17 +369,70 @@ class AsyncWorkflowExecutor:
         workflow: WorkflowSpec,
         workflow_fingerprint: str,
         completed_nodes: list[str],
+        tier_index: int = 0,
     ) -> tuple[list[NodeRunRecord], ExperimentState, set[str]]:
         """Execute a parallel tier using asyncio.TaskGroup."""
         semaphore = asyncio.Semaphore(self._max_parallelism)
         results: dict[str, tuple[NodeOutcome, int, bool]] = {}
+        cancel_event = asyncio.Event()
 
         async def _run_with_sem(alias: str) -> None:
-            async with semaphore:
+            # Check cancellation before acquiring semaphore
+            if cancel_event.is_set():
+                task_state = state.model_copy(deep=True)
+                results[alias] = (
+                    NodeOutcome(
+                        status="skip", state=task_state,
+                        events=[NodeEvent(
+                            level="info", message="Cancelled by fail_fast",
+                            code="node.cancelled", attrs={},
+                        )],
+                    ), 0, False,
+                )
+                return
+
+            # Per-task state snapshot to prevent cross-contamination
+            task_state = state.model_copy(deep=True)
+
+            # Semaphore with optional timeout
+            sem_wait_start = time.perf_counter()
+            if self._semaphore_timeout_s is not None:
+                try:
+                    await asyncio.wait_for(
+                        semaphore.acquire(), timeout=self._semaphore_timeout_s,
+                    )
+                except asyncio.TimeoutError:
+                    results[alias] = (
+                        NodeOutcome(
+                            status="fail", state=task_state,
+                            error=NodeError(
+                                code="node.semaphore_timeout",
+                                message=f"Node {alias} timed out waiting for execution slot",
+                                details={"timeout_s": self._semaphore_timeout_s},
+                            ),
+                        ), 0, False,
+                    )
+                    return
+            else:
+                await semaphore.acquire()
+            sem_wait_s = time.perf_counter() - sem_wait_start
+            if self._ctx.metrics is not None and sem_wait_s > 0.001:
+                self._ctx.metrics.record_semaphore_wait(
+                    tier_index=tier_index, wait_seconds=sem_wait_s,
+                    workflow_id=workflow.workflow_id,
+                )
+
+            try:
                 outcome, duration_ms, cache_hit = await self._execute_node(
-                    alias, invocations[alias], state, workflow,
+                    alias, invocations[alias], task_state, workflow,
+                    tier_index=tier_index,
                 )
                 results[alias] = (outcome, duration_ms, cache_hit)
+                # Signal cancellation on fail_fast
+                if outcome.status == "fail" and workflow.error_policy == "fail_fast":
+                    cancel_event.set()
+            finally:
+                semaphore.release()
 
         async with asyncio.TaskGroup() as tg:
             for alias in aliases:
@@ -352,10 +474,24 @@ class AsyncWorkflowExecutor:
         inv: NodeInvocation,
         state: ExperimentState,
         workflow: WorkflowSpec,
+        tier_index: int = 0,
     ) -> tuple[NodeOutcome, int, bool]:
         """Execute a single node with cache, retry, timeout, metrics."""
         node = _bind_node_params(self._registry.get(inv.node_id), inv.params)
         node_id = str(inv.node_id)
+
+        # Build structured span attributes for OTel
+        span_attrs = build_node_span_attributes(
+            alias=alias,
+            node_id=node_id,
+            workflow_id=workflow.workflow_id,
+            tier_index=tier_index,
+            run_id=state.run_id,
+        )
+
+        # Capture pre-node state keys for provenance mutation tracking
+        if self._provenance_dag is not None:
+            self._pre_node_state_keys[alias] = set(state.artifacts_index.keys())
 
         self._ctx.run.emit(f"scientist.node.{alias}", "NODE_STARTED")
         if self._ctx.audit is not None:
@@ -382,6 +518,30 @@ class AsyncWorkflowExecutor:
             except Exception:  # noqa: BLE001
                 pass
 
+        # Budget pre-check
+        if self._budget_middleware is not None:
+            try:
+                self._budget_middleware.pre_check(alias)
+                new_alerts = self._budget_middleware.check_thresholds()
+                for level in new_alerts:
+                    self._ctx.run.emit(
+                        "scientist.budget", "BUDGET_ALERT",
+                        metrics={"threshold_pct": level},
+                    )
+            except Exception as budget_exc:
+                from polisyos.scientist.engine.budget import BudgetExhaustedError
+                if isinstance(budget_exc, BudgetExhaustedError):
+                    duration_ms = int((time.perf_counter() - started) * 1000)
+                    return NodeOutcome(
+                        status="fail", state=state,
+                        error=NodeError(
+                            code="node.budget_exhausted",
+                            message=str(budget_exc),
+                            details={},
+                        ),
+                    ), duration_ms, False
+                raise
+
         cached_outcome: NodeOutcome | None = None
         if cache_key and self._cache:
             cached_outcome = self._cache.get(cache_key)
@@ -392,12 +552,14 @@ class AsyncWorkflowExecutor:
             outcome = cached_outcome
         else:
             retry_policy = inv.retry or RetryPolicy()
+            retry_stats: dict[str, int] = {}
             try:
                 raw_outcome = await execute_with_retry_async(
                     node, self._ctx, state,
                     retry_policy=retry_policy,
                     timeout_s=inv.timeout_s,
                     alias=alias,
+                    retry_stats=retry_stats,
                 )
                 outcome = NodeOutcome.model_validate(raw_outcome)
             except NodeTimeoutError as exc:
@@ -438,6 +600,61 @@ class AsyncWorkflowExecutor:
 
         duration_ms = int((time.perf_counter() - started) * 1000)
 
+        # Enrich span with post-execution attributes
+        enrich_node_span_result(
+            span_attrs, status=outcome.status,
+            duration_ms=duration_ms, cache_hit=cache_hit,
+        )
+        for key, value in span_attrs.items():
+            set_span_attribute(None, key, value)  # best-effort; span from tracer
+
+        # Record provenance
+        if self._provenance_dag is not None:
+            try:
+                from datetime import datetime, timezone
+                ended_at = datetime.now(timezone.utc)
+                started_at = datetime.fromtimestamp(
+                    ended_at.timestamp() - duration_ms / 1000, tz=timezone.utc,
+                )
+                if outcome.status == "ok":
+                    # Collect input refs from upstream dependencies
+                    input_refs: list[Any] = []
+                    for dep in (inv.depends_on or []):
+                        input_refs.extend(self._node_outputs.get(dep, []))
+                    self._provenance_dag.record_node_execution(
+                        alias=alias, node_id=node_id,
+                        started_at=started_at, ended_at=ended_at,
+                        input_refs=input_refs,
+                        output_refs=list(outcome.artifacts),
+                        params=dict(inv.params) if inv.params else {},
+                    )
+                    # Track outputs for downstream input_refs
+                    self._node_outputs[alias] = list(outcome.artifacts)
+                    # Record state mutations
+                    pre_keys = self._pre_node_state_keys.get(alias, set())
+                    post_keys = set(outcome.state.artifacts_index.keys())
+                    keys_added = sorted(post_keys - pre_keys)
+                    keys_modified = sorted(
+                        k for k in pre_keys & post_keys
+                        if outcome.state.artifacts_index.get(k)
+                        != state.artifacts_index.get(k)
+                    )
+                    if keys_added or keys_modified:
+                        self._provenance_dag.record_state_mutation(
+                            alias=alias,
+                            keys_added=keys_added or None,
+                            keys_modified=keys_modified or None,
+                        )
+                elif outcome.status == "fail":
+                    self._provenance_dag.record_node_failure(
+                        alias=alias, node_id=node_id,
+                        error=str(outcome.error.message) if outcome.error else "Unknown",
+                        traceback=outcome.error.details.get("type", "") if outcome.error and outcome.error.details else None,
+                        started_at=started_at, ended_at=ended_at,
+                    )
+            except Exception:  # noqa: BLE001 — provenance must never crash pipeline
+                _module_logger.debug("Provenance recording failed for node %s", alias)
+
         _log_node_events(self._ctx.logger, alias, outcome.events)
         status_event = {"ok": "NODE_OK", "skip": "NODE_SKIP", "fail": "NODE_FAIL"}[outcome.status]
         self._ctx.run.emit(
@@ -462,11 +679,12 @@ class AsyncWorkflowExecutor:
             )
 
         if self._ctx.metrics is not None:
+            actual_retry_count = max(0, retry_stats.get("attempts", 1) - 1)
             self._ctx.metrics.record_node_completed(
                 alias=alias, node_id=node_id,
                 workflow_id=workflow.workflow_id,
                 status=outcome.status, duration_ms=duration_ms,
-                cache_hit=cache_hit, retry_count=0,
+                cache_hit=cache_hit, retry_count=actual_retry_count,
             )
 
         return outcome, duration_ms, cache_hit
@@ -504,6 +722,15 @@ class AsyncWorkflowExecutor:
                         "alias": alias,
                     },
                 )
+            if self._provenance_dag is not None:
+                try:
+                    self._provenance_dag.record_checkpoint(
+                        alias=alias,
+                        checkpoint_ref=result.checkpoint_ref,
+                        sequence_number=result.sequence_number,
+                    )
+                except Exception:  # noqa: BLE001
+                    _module_logger.debug("Checkpoint provenance recording failed for %s", alias)
         return state
 
     def _persist_workflow_spec(self, workflow: WorkflowSpec) -> ArtifactRef:

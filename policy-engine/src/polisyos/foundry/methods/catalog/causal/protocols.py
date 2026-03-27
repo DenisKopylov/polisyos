@@ -16,6 +16,8 @@ from polisyos.foundry.methods.base import MethodMetadata, MethodSignature
 from polisyos.ir.analytics.causal import CausalEffectReport
 from polisyos.ir.analytics.causal_graph import CausalGraphModel
 from polisyos.ir.analytics.causal_queries import CausalQuery
+from polisyos.ir.analytics.alignment_certification import AlignmentReport
+from polisyos.ir.analytics.cross_graph import InterfaceMapping, SCMFragment
 from polisyos.ir.analytics.literature import LiteratureCausalPrior
 from polisyos.ir.analytics.parameters import ContextAdaptiveParameterBundle
 from polisyos.ir.analytics.structural_causal_model import StructuralCausalModelSpec
@@ -857,6 +859,117 @@ class GraphReconciliationData(BaseModel):
         if isinstance(value, dict):
             return LiteratureCausalPrior.model_validate(value)
         raise ValueError("literature_prior must be LiteratureCausalPrior, dict, or None")
+
+
+class FragmentCompositionData(BaseModel):
+    """Input contract for strict SCM fragment composition."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    fragments: list[SCMFragment | dict[str, Any]]
+    fragment_graphs: dict[str, CausalGraphModel | dict[str, Any]]
+    alignment_report: AlignmentReport | dict[str, Any]
+    interface_mapping: InterfaceMapping | dict[str, Any]
+    direct_stitch_pairs: list[tuple[str, str]] = Field(default_factory=list)
+    source_fragment_refs: dict[str, str] = Field(default_factory=dict)
+    source_fragment_graph_refs: dict[str, str] = Field(default_factory=dict)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @field_validator("fragments", mode="before")
+    @classmethod
+    def _coerce_fragments(cls, value: Any) -> list[SCMFragment]:
+        if not isinstance(value, list):
+            raise ValueError("fragments must be a list")
+        output: list[SCMFragment] = []
+        for item in value:
+            if isinstance(item, SCMFragment):
+                output.append(item)
+            elif isinstance(item, dict):
+                output.append(SCMFragment.model_validate(item))
+            else:
+                raise ValueError("fragments must contain SCMFragment or dict payloads")
+        return output
+
+    @field_validator("fragment_graphs", mode="before")
+    @classmethod
+    def _coerce_fragment_graphs(cls, value: Any) -> dict[str, CausalGraphModel]:
+        if not isinstance(value, dict):
+            raise ValueError("fragment_graphs must be a mapping")
+        output: dict[str, CausalGraphModel] = {}
+        for key, item in value.items():
+            if isinstance(item, CausalGraphModel):
+                output[str(key)] = item
+            elif isinstance(item, dict):
+                output[str(key)] = CausalGraphModel.model_validate(item)
+            else:
+                raise ValueError("fragment_graphs values must be CausalGraphModel or dict payloads")
+        return output
+
+    @field_validator("alignment_report", mode="before")
+    @classmethod
+    def _coerce_alignment_report(cls, value: Any) -> AlignmentReport:
+        if isinstance(value, AlignmentReport):
+            return value
+        if isinstance(value, dict):
+            return AlignmentReport.model_validate(value)
+        raise ValueError("alignment_report must be AlignmentReport or dict payload")
+
+    @field_validator("interface_mapping", mode="before")
+    @classmethod
+    def _coerce_interface_mapping(cls, value: Any) -> InterfaceMapping:
+        if isinstance(value, InterfaceMapping):
+            return value
+        if isinstance(value, dict):
+            return InterfaceMapping.model_validate(value)
+        raise ValueError("interface_mapping must be InterfaceMapping or dict payload")
+
+    @field_validator("direct_stitch_pairs", mode="before")
+    @classmethod
+    def _coerce_direct_stitch_pairs(cls, value: Any) -> list[tuple[str, str]]:
+        if value is None:
+            return []
+        if not isinstance(value, list):
+            raise ValueError("direct_stitch_pairs must be a list")
+        output: list[tuple[str, str]] = []
+        for item in value:
+            if not isinstance(item, (list, tuple)) or len(item) != 2:
+                raise ValueError("direct_stitch_pairs items must be two-item pairs")
+            left = str(item[0]).strip()
+            right = str(item[1]).strip()
+            if not left or not right or left == right:
+                raise ValueError("direct_stitch_pairs items must contain distinct non-empty ids")
+            output.append((left, right))
+        return output
+
+    @model_validator(mode="after")
+    def _validate_fragment_composition(self) -> "FragmentCompositionData":
+        if len({fragment.fragment_id for fragment in self.fragments}) != len(self.fragments):
+            raise ValueError("fragments must have unique fragment_id values")
+        fragment_ids = {fragment.fragment_id for fragment in self.fragments}
+        if set(self.fragment_graphs) != fragment_ids:
+            raise ValueError("fragment_graphs keys must exactly match fragments.fragment_id values")
+        if any(
+            graph.graph_type.value not in {"dag", "admg"} for graph in self.fragment_graphs.values()
+        ):
+            raise ValueError("fragment_graphs only support DAG and ADMG inputs")
+        if self.interface_mapping.fragment_ids:
+            missing = set(self.interface_mapping.fragment_ids) - fragment_ids
+            if missing:
+                raise ValueError(f"interface_mapping references unknown fragments: {sorted(missing)}")
+        if self.alignment_report.fragment_ids:
+            missing = set(self.alignment_report.fragment_ids) - fragment_ids
+            if missing:
+                raise ValueError(f"alignment_report references unknown fragments: {sorted(missing)}")
+        if self.source_fragment_refs and set(self.source_fragment_refs) != fragment_ids:
+            raise ValueError("source_fragment_refs keys must exactly match fragments.fragment_id values")
+        if self.source_fragment_graph_refs and set(self.source_fragment_graph_refs) != fragment_ids:
+            raise ValueError(
+                "source_fragment_graph_refs keys must exactly match fragments.fragment_id values"
+            )
+        for left, right in self.direct_stitch_pairs:
+            if left not in fragment_ids or right not in fragment_ids:
+                raise ValueError("direct_stitch_pairs reference unknown fragments")
+        return self
 
 
 class RDDObservationalData(BaseModel):
@@ -1951,6 +2064,7 @@ __all__ = [
     "LLMStructuralHint",
     "LiteraturePriorBuildData",
     "GraphReconciliationData",
+    "FragmentCompositionData",
     "RDDObservationalData",
     "CausalEstimator",
     "CausalEffectReport",

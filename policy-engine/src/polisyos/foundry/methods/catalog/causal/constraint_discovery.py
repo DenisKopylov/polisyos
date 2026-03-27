@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import math
 import multiprocessing as mp
 import time
 from dataclasses import dataclass, field
+from itertools import combinations
 from typing import Any, ClassVar, Mapping
 
 import numpy as np
@@ -28,7 +30,14 @@ from polisyos.foundry.methods.catalog.causal.ci_backends import (
     resolve_discovery_ci_backend,
 )
 from polisyos.foundry.methods.catalog.causal.protocols import TabularCausalDiscoveryData
-from polisyos.ir.analytics.causal_discovery import CausalDiscoveryReport
+from polisyos.ir.analytics.causal_discovery import (
+    AlgebraicBlockSpec,
+    AlgebraicConstraintFamily,
+    AlgebraicConstraintReport,
+    CausalDiscoveryReport,
+    ConstraintEvaluationResult,
+    ImpliedConstraintSpec,
+)
 from polisyos.ir.analytics.causal_graph import (
     CausalEdge,
     CausalGraphModel,
@@ -55,6 +64,10 @@ _ENDPOINT_TO_MARK = {
     1: EdgeMark.ARROW,
     2: EdgeMark.CIRCLE,
 }
+_ALGEBRAIC_MAX_CONDITIONING_SET_SIZE = 2
+_ALGEBRAIC_BOOTSTRAP_DRAWS = 200
+_ALGEBRAIC_SEVERITY_ORDER = {"info": 0, "warning": 1, "blocker": 2}
+_CATEGORICAL_UNIQUE_THRESHOLD = 12
 
 
 @dataclass(frozen=True)
@@ -70,6 +83,966 @@ class _ScaleBackendSelection:
     requested: str
     used: str
     fallback_reason: str | None = None
+
+
+def _dedupe_preserve_order(items: list[str]) -> list[str]:
+    seen: set[str] = set()
+    ordered: list[str] = []
+    for item in items:
+        if item in seen:
+            continue
+        seen.add(item)
+        ordered.append(item)
+    return ordered
+
+
+def _max_severity(values: list[str]) -> str:
+    if not values:
+        return "info"
+    return max(values, key=lambda value: _ALGEBRAIC_SEVERITY_ORDER.get(value, 0))
+
+
+def _bh_adjust(p_values: list[float]) -> list[float]:
+    if not p_values:
+        return []
+    n = len(p_values)
+    order = np.argsort(np.asarray(p_values, dtype=float))
+    adjusted = np.empty(n, dtype=float)
+    running = 1.0
+    for rank in range(n - 1, -1, -1):
+        idx = int(order[rank])
+        raw = float(p_values[idx])
+        candidate = min(1.0, raw * n / float(rank + 1))
+        running = min(running, candidate)
+        adjusted[idx] = running
+    return [float(value) for value in adjusted]
+
+
+def _validate_algebraic_blocks(raw: Any) -> list[AlgebraicBlockSpec]:
+    if raw is None:
+        return []
+    if isinstance(raw, AlgebraicBlockSpec):
+        return [raw]
+    if not isinstance(raw, (list, tuple)):
+        raise ValueError("algebraic_blocks must be a list of algebraic block specs")
+    return [AlgebraicBlockSpec.model_validate(item) for item in raw]
+
+
+def _inject_algebraic_blocks_metadata(
+    graph: CausalGraphModel,
+    *,
+    algebraic_blocks: list[AlgebraicBlockSpec],
+) -> CausalGraphModel:
+    if not algebraic_blocks:
+        return graph
+    metadata = dict(graph.metadata)
+    metadata["algebraic_blocks"] = [
+        block.model_dump(mode="json") for block in algebraic_blocks
+    ]
+    return graph.model_copy(update={"metadata": metadata})
+
+
+def _classify_numeric_series(values: np.ndarray) -> str:
+    arr = np.asarray(values, dtype=float).reshape(-1)
+    finite = arr[np.isfinite(arr)]
+    if finite.size == 0:
+        return "categorical"
+    unique = np.unique(finite)
+    if unique.size <= _CATEGORICAL_UNIQUE_THRESHOLD and np.allclose(
+        unique,
+        np.round(unique),
+    ):
+        return "categorical"
+    return "continuous"
+
+
+def _encode_for_kernel(values: np.ndarray) -> np.ndarray:
+    arr = np.asarray(values).reshape(-1)
+    if _classify_numeric_series(arr.astype(float)) == "categorical":
+        labels = arr.astype(str)
+        _, inverse = np.unique(labels, return_inverse=True)
+        return np.eye(int(np.max(inverse)) + 1, dtype=float)[inverse]
+    return np.asarray(arr, dtype=float).reshape(-1, 1)
+
+
+def _complete_case_mask(columns: list[np.ndarray]) -> np.ndarray:
+    if not columns:
+        raise ValueError("at least one column is required")
+    mask = np.ones(len(columns[0]), dtype=bool)
+    for column in columns:
+        arr = np.asarray(column, dtype=float).reshape(-1)
+        if len(arr) != len(mask):
+            raise ValueError("all columns must have the same length")
+        mask &= np.isfinite(arr)
+    return mask
+
+
+def _build_contingency_table(x: np.ndarray, y: np.ndarray) -> tuple[np.ndarray, int, int]:
+    x_labels, x_codes = np.unique(x.astype(str), return_inverse=True)
+    y_labels, y_codes = np.unique(y.astype(str), return_inverse=True)
+    table = np.zeros((len(x_labels), len(y_labels)), dtype=int)
+    np.add.at(table, (x_codes, y_codes), 1)
+    return table, len(x_labels), len(y_labels)
+
+
+def _g_test_from_table(table: np.ndarray) -> tuple[float, float, dict[str, Any]]:
+    from scipy.stats import chi2, chi2_contingency
+
+    if table.ndim != 2:
+        raise ValueError("contingency table must be 2D")
+    if table.shape[0] < 2 or table.shape[1] < 2 or int(table.sum()) == 0:
+        return 0.0, 1.0, {"degrees_of_freedom": 0, "degenerate": True}
+
+    try:
+        statistic, _, dof, _ = chi2_contingency(
+            table,
+            correction=False,
+            lambda_="log-likelihood",
+        )
+    except ValueError:
+        return 0.0, 1.0, {"degrees_of_freedom": 0, "degenerate": True}
+
+    if dof <= 0:
+        return 0.0, 1.0, {"degrees_of_freedom": int(dof), "degenerate": True}
+    return float(statistic), float(chi2.sf(float(statistic), int(dof))), {
+        "degrees_of_freedom": int(dof),
+        "degenerate": False,
+    }
+
+
+def _conditional_g_test(
+    x: np.ndarray,
+    y: np.ndarray,
+    z: np.ndarray,
+) -> tuple[float, float, dict[str, Any]]:
+    if z.ndim == 1:
+        z = z[:, None]
+
+    strata: dict[tuple[str, ...], list[int]] = {}
+    for idx, row in enumerate(z):
+        strata.setdefault(tuple(row.astype(str).tolist()), []).append(idx)
+
+    total_statistic = 0.0
+    total_dof = 0
+    valid_strata = 0
+    skipped_strata = 0
+    for indices in strata.values():
+        x_slice = x[indices]
+        y_slice = y[indices]
+        table, _, _ = _build_contingency_table(x_slice, y_slice)
+        statistic, _, meta = _g_test_from_table(table)
+        if meta.get("degenerate"):
+            skipped_strata += 1
+            continue
+        total_statistic += statistic
+        total_dof += int(meta["degrees_of_freedom"])
+        valid_strata += 1
+
+    if total_dof <= 0 or valid_strata == 0:
+        return 0.0, 1.0, {
+            "degrees_of_freedom": 0,
+            "valid_strata": valid_strata,
+            "skipped_strata": skipped_strata,
+            "degenerate": True,
+        }
+
+    from scipy.stats import chi2
+
+    return float(total_statistic), float(chi2.sf(float(total_statistic), total_dof)), {
+        "degrees_of_freedom": int(total_dof),
+        "valid_strata": valid_strata,
+        "skipped_strata": skipped_strata,
+        "degenerate": False,
+    }
+
+
+def _mixed_kernel_test(
+    *,
+    x: np.ndarray,
+    y: np.ndarray,
+    z: np.ndarray | None,
+    alpha: float,
+) -> dict[str, Any]:
+    from polisyos.foundry.methods.catalog.causal.independence_tests import (
+        HSICIndependenceTest,
+        KCIConditionalTest,
+    )
+
+    x_enc = _encode_for_kernel(x)
+    y_enc = _encode_for_kernel(y)
+    if z is None or z.size == 0:
+        raw = HSICIndependenceTest.pure_step(
+            {"X": x_enc, "Y": y_enc},
+            {"alpha": alpha, "n_bootstrap": 99},
+        )["result"]
+        return {
+            "test_name": "hsic_mixed",
+            "statistic": float(raw["statistic"]),
+            "p_value": float(raw["p_value"]),
+            "metadata": {
+                **dict(raw.get("metadata", {})),
+                "route": "hsic_mixed",
+                "approximation": "kernel_mixed_marginal",
+            },
+        }
+
+    z_enc = np.column_stack([_encode_for_kernel(z[:, idx]) for idx in range(z.shape[1])])
+    raw = KCIConditionalTest.pure_step(
+        {"X": x_enc, "Y": y_enc, "Z": z_enc},
+        {"alpha": alpha, "n_bootstrap": 99, "ridge": 1e-2},
+    )["result"]
+    return {
+        "test_name": "kci_mixed",
+        "statistic": float(raw["statistic"]),
+        "p_value": float(raw["p_value"]),
+        "metadata": {
+            **dict(raw.get("metadata", {})),
+            "route": "kci_mixed",
+            "approximation": "kernel_conditional_independence",
+        },
+    }
+
+
+def _run_ci_test(
+    *,
+    x: np.ndarray,
+    y: np.ndarray,
+    z: np.ndarray | None,
+    alpha: float,
+) -> dict[str, Any]:
+    from polisyos.foundry.methods.catalog.causal.independence_tests import (
+        PartialCorrelationTest,
+    )
+
+    columns = [np.asarray(x, dtype=float).reshape(-1), np.asarray(y, dtype=float).reshape(-1)]
+    if z is not None and z.size > 0:
+        z_arr = np.asarray(z, dtype=float)
+        if z_arr.ndim == 1:
+            z_arr = z_arr[:, None]
+        columns.extend(z_arr[:, idx] for idx in range(z_arr.shape[1]))
+    else:
+        z_arr = None
+
+    mask = _complete_case_mask(columns)
+    n_complete = int(mask.sum())
+    if n_complete < 8:
+        return {
+            "status": "skipped",
+            "warnings": [f"insufficient_complete_cases:{n_complete}"],
+            "metadata": {"n_complete_cases": n_complete},
+        }
+
+    x_obs = columns[0][mask]
+    y_obs = columns[1][mask]
+    z_obs = None if z_arr is None else z_arr[mask]
+
+    x_kind = _classify_numeric_series(x_obs)
+    y_kind = _classify_numeric_series(y_obs)
+    conditioning_kinds = (
+        ()
+        if z_obs is None
+        else tuple(_classify_numeric_series(z_obs[:, idx]) for idx in range(z_obs.shape[1]))
+    )
+    all_kinds = (x_kind, y_kind, *conditioning_kinds)
+    all_categorical = all(kind == "categorical" for kind in all_kinds)
+    all_continuous = all(kind == "continuous" for kind in all_kinds)
+
+    try:
+        if z_obs is None or z_obs.size == 0:
+            if all_categorical:
+                table, _, _ = _build_contingency_table(x_obs, y_obs)
+                statistic, p_value, meta = _g_test_from_table(table)
+                return {
+                    "status": "tested",
+                    "test_name": "g_test",
+                    "statistic": float(statistic),
+                    "p_value": float(p_value),
+                    "metadata": {
+                        **meta,
+                        "route": "g_test",
+                        "x_kind": x_kind,
+                        "y_kind": y_kind,
+                        "conditioning_kinds": (),
+                        "n_complete_cases": n_complete,
+                    },
+                }
+            if all_continuous:
+                raw = PartialCorrelationTest.pure_step(
+                    {"X": x_obs, "Y": y_obs},
+                    {"alpha": alpha},
+                )["result"]
+                return {
+                    "status": "tested",
+                    "test_name": str(raw["test_name"]),
+                    "statistic": float(raw["statistic"]),
+                    "p_value": float(raw["p_value"]),
+                    "metadata": {
+                        **dict(raw.get("metadata", {})),
+                        "route": "partial_correlation",
+                        "x_kind": x_kind,
+                        "y_kind": y_kind,
+                        "conditioning_kinds": (),
+                        "n_complete_cases": n_complete,
+                    },
+                }
+            raw = _mixed_kernel_test(x=x_obs, y=y_obs, z=None, alpha=alpha)
+            return {
+                "status": "tested",
+                "test_name": str(raw["test_name"]),
+                "statistic": float(raw["statistic"]),
+                "p_value": float(raw["p_value"]),
+                "warnings": [
+                    "approximate_ci_route: mixed data used kernel independence approximation"
+                ],
+                "metadata": {
+                    **dict(raw.get("metadata", {})),
+                    "x_kind": x_kind,
+                    "y_kind": y_kind,
+                    "conditioning_kinds": (),
+                    "n_complete_cases": n_complete,
+                },
+            }
+
+        if all_categorical:
+            statistic, p_value, meta = _conditional_g_test(x_obs, y_obs, z_obs)
+            return {
+                "status": "tested",
+                "test_name": "conditional_g_test",
+                "statistic": float(statistic),
+                "p_value": float(p_value),
+                "metadata": {
+                    **meta,
+                    "route": "conditional_g_test",
+                    "x_kind": x_kind,
+                    "y_kind": y_kind,
+                    "conditioning_kinds": conditioning_kinds,
+                    "n_complete_cases": n_complete,
+                },
+            }
+        if all_continuous:
+            raw = PartialCorrelationTest.pure_step(
+                {"X": x_obs, "Y": y_obs, "Z": z_obs},
+                {"alpha": alpha},
+            )["result"]
+            return {
+                "status": "tested",
+                "test_name": str(raw["test_name"]),
+                "statistic": float(raw["statistic"]),
+                "p_value": float(raw["p_value"]),
+                "metadata": {
+                    **dict(raw.get("metadata", {})),
+                    "route": "partial_correlation",
+                    "x_kind": x_kind,
+                    "y_kind": y_kind,
+                    "conditioning_kinds": conditioning_kinds,
+                    "n_complete_cases": n_complete,
+                },
+            }
+        raw = _mixed_kernel_test(x=x_obs, y=y_obs, z=z_obs, alpha=alpha)
+        return {
+            "status": "tested",
+            "test_name": str(raw["test_name"]),
+            "statistic": float(raw["statistic"]),
+            "p_value": float(raw["p_value"]),
+            "warnings": [
+                "approximate_ci_route: mixed data used kernel conditional-independence approximation"
+            ],
+            "metadata": {
+                **dict(raw.get("metadata", {})),
+                "x_kind": x_kind,
+                "y_kind": y_kind,
+                "conditioning_kinds": conditioning_kinds,
+                "n_complete_cases": n_complete,
+            },
+        }
+    except Exception as exc:
+        return {
+            "status": "error",
+            "warnings": [f"ci_test_failed:{type(exc).__name__}:{exc}"],
+            "metadata": {"n_complete_cases": n_complete},
+        }
+
+
+def _pair_key(src: str, dst: str) -> tuple[str, str]:
+    return (src, dst) if src < dst else (dst, src)
+
+
+def _format_conditioning_set(conditioning: tuple[str, ...]) -> str:
+    if not conditioning:
+        return "∅"
+    return "{" + ", ".join(conditioning) + "}"
+
+
+def _format_ci_statement(
+    left: str,
+    right: str,
+    conditioning: tuple[str, ...],
+) -> str:
+    if conditioning:
+        return f"{left} ⟂ {right} | {_format_conditioning_set(conditioning)}"
+    return f"{left} ⟂ {right}"
+
+
+def _ci_constraint_id(left: str, right: str, conditioning: tuple[str, ...]) -> str:
+    cond_token = ",".join(conditioning) if conditioning else "_"
+    lo, hi = _pair_key(left, right)
+    return f"ci:{lo}|{hi}|{cond_token}"
+
+
+def _implied_ci_constraints(
+    graph: CausalGraphModel,
+    *,
+    max_conditioning_set_size: int = _ALGEBRAIC_MAX_CONDITIONING_SET_SIZE,
+) -> list[ImpliedConstraintSpec]:
+    from polisyos.foundry.methods.catalog.causal.admg_ops import (
+        d_separation,
+        m_separation,
+    )
+    from polisyos.foundry.methods.catalog.causal.pag_completion import cpdag_to_pag
+
+    if graph.graph_type is GraphType.DAG:
+        query_graph = graph
+        separation = d_separation
+    elif graph.graph_type is GraphType.CPDAG:
+        query_graph = cpdag_to_pag(graph)
+        separation = m_separation
+    elif graph.graph_type is GraphType.PAG:
+        query_graph = graph
+        separation = m_separation
+    else:
+        return []
+
+    adjacent_pairs = {
+        _pair_key(edge.src, edge.dst)
+        for edge in graph.edges
+        if edge.lag in (None, 0)
+    }
+    constraints: list[ImpliedConstraintSpec] = []
+    for left_idx, left in enumerate(query_graph.nodes):
+        for right in query_graph.nodes[left_idx + 1 :]:
+            if _pair_key(left, right) in adjacent_pairs:
+                continue
+            candidates = [
+                node for node in query_graph.nodes if node not in {left, right}
+            ]
+            minimal_sets: list[tuple[str, ...]] = []
+            for size in range(
+                0,
+                min(max_conditioning_set_size, len(candidates)) + 1,
+            ):
+                separated_sets: list[tuple[str, ...]] = []
+                for conditioning in combinations(candidates, size):
+                    conditioning_set = tuple(sorted(conditioning))
+                    if separation(
+                        query_graph,
+                        frozenset({left}),
+                        frozenset({right}),
+                        frozenset(conditioning_set),
+                    ):
+                        separated_sets.append(conditioning_set)
+                if separated_sets:
+                    minimal_sets = sorted(set(separated_sets))
+                    break
+            for conditioning_set in minimal_sets:
+                constraints.append(
+                    ImpliedConstraintSpec(
+                        constraint_id=_ci_constraint_id(left, right, conditioning_set),
+                        family=AlgebraicConstraintFamily.CI,
+                        statement=_format_ci_statement(left, right, conditioning_set),
+                        variables=(left, right),
+                        conditioning_set=conditioning_set,
+                    )
+                )
+    return constraints
+
+
+def _covariance(matrix: np.ndarray) -> np.ndarray:
+    centered = np.asarray(matrix, dtype=float) - np.mean(matrix, axis=0, keepdims=True)
+    return np.cov(centered, rowvar=False, ddof=1)
+
+
+def _tetrad_value(
+    matrix: np.ndarray,
+    *,
+    left_pairs: tuple[tuple[int, int], tuple[int, int]],
+    right_pairs: tuple[tuple[int, int], tuple[int, int]],
+) -> float:
+    cov = _covariance(matrix)
+    return float(
+        cov[left_pairs[0]] * cov[left_pairs[1]]
+        - cov[right_pairs[0]] * cov[right_pairs[1]]
+    )
+
+
+def _tetrad_pairings() -> tuple[tuple[str, tuple[tuple[int, int], tuple[int, int]], tuple[tuple[int, int], tuple[int, int]]], ...]:
+    return (
+        ("ab_cd_vs_ac_bd", ((0, 1), (2, 3)), ((0, 2), (1, 3))),
+        ("ab_cd_vs_ad_bc", ((0, 1), (2, 3)), ((0, 3), (1, 2))),
+        ("ac_bd_vs_ad_bc", ((0, 2), (1, 3)), ((0, 3), (1, 2))),
+    )
+
+
+def _tetrad_statement(variables: tuple[str, str, str, str], label: str) -> str:
+    a, b, c, d = variables
+    if label == "ab_cd_vs_ac_bd":
+        return f"cov({a},{b})cov({c},{d}) - cov({a},{c})cov({b},{d}) = 0"
+    if label == "ab_cd_vs_ad_bc":
+        return f"cov({a},{b})cov({c},{d}) - cov({a},{d})cov({b},{c}) = 0"
+    return f"cov({a},{c})cov({b},{d}) - cov({a},{d})cov({b},{c}) = 0"
+
+
+def _overcomplete_residual_energy(matrix: np.ndarray, expected_rank: int) -> float:
+    cov = _covariance(matrix)
+    if cov.ndim != 2:
+        raise ValueError("overcomplete covariance matrix must be 2D")
+    eigenvalues = np.linalg.eigvalsh(cov)
+    eigenvalues = np.clip(np.sort(eigenvalues)[::-1], 0.0, None)
+    total = float(np.sum(eigenvalues ** 2))
+    if total <= 1e-12:
+        return 0.0
+    tail = float(np.sum(eigenvalues[expected_rank:] ** 2))
+    return float(math.sqrt(max(tail, 0.0) / total))
+
+
+def _evaluate_ci_family(
+    *,
+    graph: CausalGraphModel,
+    data: np.ndarray,
+    variable_names: list[str],
+    alpha: float,
+) -> dict[str, Any]:
+    implied_constraints = _implied_ci_constraints(graph)
+    index_by_name = {name: idx for idx, name in enumerate(variable_names)}
+    raw_results: list[dict[str, Any]] = []
+    warnings: list[str] = []
+
+    for constraint in implied_constraints:
+        missing = [
+            name
+            for name in (*constraint.variables, *constraint.conditioning_set)
+            if name not in index_by_name
+        ]
+        if missing:
+            warnings.append(
+                f"ci_constraint_skipped:{constraint.constraint_id}:missing_variables={sorted(missing)}"
+            )
+            continue
+        left = data[:, index_by_name[constraint.variables[0]]]
+        right = data[:, index_by_name[constraint.variables[1]]]
+        conditioning = (
+            np.column_stack([data[:, index_by_name[name]] for name in constraint.conditioning_set])
+            if constraint.conditioning_set
+            else None
+        )
+        raw = _run_ci_test(x=left, y=right, z=conditioning, alpha=alpha)
+        raw_results.append({"constraint": constraint, **raw})
+        warnings.extend(raw.get("warnings", []))
+
+    p_values = [
+        float(entry["p_value"])
+        for entry in raw_results
+        if entry.get("status") == "tested" and entry.get("p_value") is not None
+    ]
+    adjusted = iter(_bh_adjust(p_values))
+
+    violations: list[ConstraintEvaluationResult] = []
+    tested_count = 0
+    for entry in raw_results:
+        if entry.get("status") != "tested" or entry.get("p_value") is None:
+            if entry.get("status") in {"error", "unsupported", "skipped"}:
+                warnings.append(
+                    f"ci_constraint_{entry.get('status')}:{entry['constraint'].constraint_id}"
+                )
+            continue
+        tested_count += 1
+        adjusted_p = float(next(adjusted))
+        route = str(entry.get("metadata", {}).get("route", ""))
+        severity = (
+            "blocker"
+            if route in {"partial_correlation", "g_test", "conditional_g_test"}
+            else "warning"
+        )
+        if adjusted_p < alpha:
+            violations.append(
+                ConstraintEvaluationResult(
+                    constraint_id=entry["constraint"].constraint_id,
+                    family=AlgebraicConstraintFamily.CI,
+                    status="violated",
+                    statistic=float(entry["statistic"]),
+                    p_value=float(entry["p_value"]),
+                    adjusted_p_value=adjusted_p,
+                    severity=severity,
+                    warnings=list(entry.get("warnings", [])),
+                    metadata=dict(entry.get("metadata", {})),
+                )
+            )
+
+    return {
+        "family": AlgebraicConstraintFamily.CI,
+        "implied_constraints": implied_constraints,
+        "violations": violations,
+        "tested_count": tested_count,
+        "warnings": warnings,
+    }
+
+
+def _evaluate_tetrad_family(
+    *,
+    blocks: list[AlgebraicBlockSpec],
+    data: np.ndarray,
+    variable_names: list[str],
+    alpha: float,
+    seed: int,
+) -> dict[str, Any]:
+    index_by_name = {name: idx for idx, name in enumerate(variable_names)}
+    implied_constraints: list[ImpliedConstraintSpec] = []
+    raw_results: list[dict[str, Any]] = []
+    warnings: list[str] = []
+    tested_count = 0
+
+    rng = np.random.default_rng(seed + 17)
+    for block in blocks:
+        missing = [name for name in block.variables if name not in index_by_name]
+        if missing:
+            warnings.append(
+                f"tetrad_block_skipped:{block.block_id}:missing_variables={sorted(missing)}"
+            )
+            continue
+        block_matrix = np.column_stack([data[:, index_by_name[name]] for name in block.variables])
+        if any(
+            _classify_numeric_series(block_matrix[:, idx]) != "continuous"
+            for idx in range(block_matrix.shape[1])
+        ):
+            warnings.append(
+                f"tetrad_block_skipped:{block.block_id}:noncontinuous_variables"
+            )
+            continue
+
+        quadruples = (
+            list(block.quadruples)
+            if block.quadruples
+            else list(combinations(block.variables, 4))
+        )
+        for quadruple in quadruples:
+            quad_indices = tuple(index_by_name[name] for name in quadruple)
+            quad_matrix = np.column_stack([data[:, idx] for idx in quad_indices])
+            mask = _complete_case_mask([quad_matrix[:, idx] for idx in range(quad_matrix.shape[1])])
+            quad_complete = quad_matrix[mask]
+            if quad_complete.shape[0] < 8:
+                warnings.append(
+                    f"tetrad_constraint_skipped:{block.block_id}:{','.join(quadruple)}:insufficient_complete_cases"
+                )
+                continue
+            for label, left_pairs, right_pairs in _tetrad_pairings():
+                spec = ImpliedConstraintSpec(
+                    constraint_id=(
+                        f"tetrad:{block.block_id}:{','.join(quadruple)}:{label}"
+                    ),
+                    family=AlgebraicConstraintFamily.TETRAD,
+                    statement=_tetrad_statement(tuple(quadruple), label),
+                    variables=tuple(quadruple),
+                    source_block_id=block.block_id,
+                    metadata={"pairing": label},
+                )
+                implied_constraints.append(spec)
+                observed = _tetrad_value(
+                    quad_complete,
+                    left_pairs=left_pairs,
+                    right_pairs=right_pairs,
+                )
+                bootstrap_values = np.zeros(_ALGEBRAIC_BOOTSTRAP_DRAWS, dtype=float)
+                for draw in range(_ALGEBRAIC_BOOTSTRAP_DRAWS):
+                    sampled = _bootstrap_resample(data=quad_complete, rng=rng)
+                    bootstrap_values[draw] = _tetrad_value(
+                        sampled,
+                        left_pairs=left_pairs,
+                        right_pairs=right_pairs,
+                    )
+                ci_lower, ci_upper = np.quantile(
+                    bootstrap_values,
+                    [alpha / 2.0, 1.0 - alpha / 2.0],
+                )
+                std = float(np.std(bootstrap_values, ddof=1))
+                if std <= 1e-12:
+                    p_value = 1.0 if abs(observed) <= 1e-12 else 0.0
+                else:
+                    z_score = abs(float(observed)) / std
+                    p_value = float(math.erfc(z_score / math.sqrt(2.0)))
+                raw_results.append(
+                    {
+                        "constraint": spec,
+                        "statistic": float(observed),
+                        "p_value": max(0.0, min(1.0, float(p_value))),
+                        "raw_reject": bool(ci_lower > 0.0 or ci_upper < 0.0),
+                        "metadata": {
+                            "route": "bootstrap_tetrad",
+                            "bootstrap_draws": _ALGEBRAIC_BOOTSTRAP_DRAWS,
+                            "ci_lower": float(ci_lower),
+                            "ci_upper": float(ci_upper),
+                            "bootstrap_std": std,
+                        },
+                    }
+                )
+                tested_count += 1
+
+    adjusted_values = _bh_adjust([float(entry["p_value"]) for entry in raw_results])
+    violations: list[ConstraintEvaluationResult] = []
+    for entry, adjusted_p in zip(raw_results, adjusted_values, strict=False):
+        if entry["raw_reject"] and adjusted_p < alpha:
+            violations.append(
+                ConstraintEvaluationResult(
+                    constraint_id=entry["constraint"].constraint_id,
+                    family=AlgebraicConstraintFamily.TETRAD,
+                    status="violated",
+                    statistic=float(entry["statistic"]),
+                    p_value=float(entry["p_value"]),
+                    adjusted_p_value=float(adjusted_p),
+                    severity="warning",
+                    metadata=dict(entry["metadata"]),
+                )
+            )
+
+    return {
+        "family": AlgebraicConstraintFamily.TETRAD,
+        "implied_constraints": implied_constraints,
+        "violations": violations,
+        "tested_count": tested_count,
+        "warnings": warnings,
+    }
+
+
+def _evaluate_overcomplete_family(
+    *,
+    blocks: list[AlgebraicBlockSpec],
+    data: np.ndarray,
+    variable_names: list[str],
+    alpha: float,
+    seed: int,
+) -> dict[str, Any]:
+    index_by_name = {name: idx for idx, name in enumerate(variable_names)}
+    implied_constraints: list[ImpliedConstraintSpec] = []
+    raw_results: list[dict[str, Any]] = []
+    warnings: list[str] = []
+    tested_count = 0
+
+    rng = np.random.default_rng(seed + 29)
+    for block in blocks:
+        missing = [name for name in block.variables if name not in index_by_name]
+        if missing:
+            warnings.append(
+                f"overcomplete_block_skipped:{block.block_id}:missing_variables={sorted(missing)}"
+            )
+            continue
+        block_matrix = np.column_stack([data[:, index_by_name[name]] for name in block.variables])
+        if any(
+            _classify_numeric_series(block_matrix[:, idx]) != "continuous"
+            for idx in range(block_matrix.shape[1])
+        ):
+            warnings.append(
+                f"overcomplete_block_skipped:{block.block_id}:noncontinuous_variables"
+            )
+            continue
+        mask = _complete_case_mask([block_matrix[:, idx] for idx in range(block_matrix.shape[1])])
+        complete = block_matrix[mask]
+        if complete.shape[0] <= max(8, int(block.expected_rank or 0) + 2):
+            warnings.append(
+                f"overcomplete_block_skipped:{block.block_id}:insufficient_complete_cases"
+            )
+            continue
+
+        threshold = (
+            float(block.max_residual_energy)
+            if block.max_residual_energy is not None
+            else 0.05
+        )
+        spec = ImpliedConstraintSpec(
+            constraint_id=f"overcomplete:{block.block_id}:rank<={block.expected_rank}",
+            family=AlgebraicConstraintFamily.OVERCOMPLETE,
+            statement=(
+                f"residual_energy(cov({', '.join(block.variables)}), "
+                f"rank<={block.expected_rank}) <= {threshold:.4f}"
+            ),
+            variables=tuple(block.variables),
+            source_block_id=block.block_id,
+            metadata={"expected_rank": block.expected_rank, "max_residual_energy": threshold},
+        )
+        implied_constraints.append(spec)
+        observed = _overcomplete_residual_energy(complete, int(block.expected_rank or 1))
+        bootstrap_values = np.zeros(_ALGEBRAIC_BOOTSTRAP_DRAWS, dtype=float)
+        for draw in range(_ALGEBRAIC_BOOTSTRAP_DRAWS):
+            sampled = _bootstrap_resample(data=complete, rng=rng)
+            bootstrap_values[draw] = _overcomplete_residual_energy(
+                sampled,
+                int(block.expected_rank or 1),
+            )
+        lower_bound, upper_bound = np.quantile(
+            bootstrap_values,
+            [alpha / 2.0, 1.0 - alpha / 2.0],
+        )
+        raw_results.append(
+            {
+                "constraint": spec,
+                "statistic": float(observed),
+                "p_value": float(np.mean(bootstrap_values <= threshold)),
+                "raw_reject": bool(lower_bound > threshold),
+                "metadata": {
+                    "route": "bootstrap_overcomplete_rank",
+                    "bootstrap_draws": _ALGEBRAIC_BOOTSTRAP_DRAWS,
+                    "expected_rank": int(block.expected_rank or 1),
+                    "max_residual_energy": threshold,
+                    "bootstrap_lower_bound": float(lower_bound),
+                    "bootstrap_upper_bound": float(upper_bound),
+                },
+            }
+        )
+        tested_count += 1
+
+    adjusted_values = _bh_adjust([float(entry["p_value"]) for entry in raw_results])
+    violations: list[ConstraintEvaluationResult] = []
+    for entry, adjusted_p in zip(raw_results, adjusted_values, strict=False):
+        if entry["raw_reject"] and adjusted_p < alpha:
+            violations.append(
+                ConstraintEvaluationResult(
+                    constraint_id=entry["constraint"].constraint_id,
+                    family=AlgebraicConstraintFamily.OVERCOMPLETE,
+                    status="violated",
+                    statistic=float(entry["statistic"]),
+                    p_value=float(entry["p_value"]),
+                    adjusted_p_value=float(adjusted_p),
+                    severity="warning",
+                    metadata=dict(entry["metadata"]),
+                )
+            )
+
+    return {
+        "family": AlgebraicConstraintFamily.OVERCOMPLETE,
+        "implied_constraints": implied_constraints,
+        "violations": violations,
+        "tested_count": tested_count,
+        "warnings": warnings,
+    }
+
+
+def _suggested_repairs(
+    violations: list[ConstraintEvaluationResult],
+) -> list[str]:
+    families = {violation.family for violation in violations}
+    suggestions: list[str] = []
+    if AlgebraicConstraintFamily.CI in families:
+        suggestions.append(
+            "Revisit missing edges/orientations or rerun discovery with a latent-aware method."
+        )
+    if AlgebraicConstraintFamily.TETRAD in families:
+        suggestions.append(
+            "Revisit the declared measurement block behind the violated tetrad constraints."
+        )
+    if AlgebraicConstraintFamily.OVERCOMPLETE in families:
+        suggestions.append(
+            "Revisit the declared expected rank or overcomplete block definition."
+        )
+    return suggestions
+
+
+def _build_algebraic_metadata_summary(
+    report: AlgebraicConstraintReport,
+) -> dict[str, Any]:
+    return {
+        "n_implied_constraints": report.n_implied_constraints,
+        "n_violated_constraints": report.n_violated_constraints,
+        "tested_by_family": dict(report.tested_by_family),
+        "violated_by_family": dict(report.violated_by_family),
+        "warnings": list(report.warnings),
+    }
+
+
+def _run_algebraic_constraint_audit(
+    *,
+    graph: CausalGraphModel,
+    data: np.ndarray,
+    variable_names: list[str],
+    significance_level: float,
+    seed: int,
+) -> AlgebraicConstraintReport:
+    implied_constraints: list[ImpliedConstraintSpec] = []
+    violations: list[ConstraintEvaluationResult] = []
+    warnings: list[str] = []
+    families_run: list[AlgebraicConstraintFamily] = []
+    tested_by_family: dict[str, int] = {}
+    violated_by_family: dict[str, int] = {}
+
+    ci_result = _evaluate_ci_family(
+        graph=graph,
+        data=data,
+        variable_names=variable_names,
+        alpha=significance_level,
+    )
+    families_run.append(AlgebraicConstraintFamily.CI)
+    implied_constraints.extend(ci_result["implied_constraints"])
+    violations.extend(ci_result["violations"])
+    warnings.extend(ci_result["warnings"])
+    tested_by_family[AlgebraicConstraintFamily.CI.value] = int(ci_result["tested_count"])
+    violated_by_family[AlgebraicConstraintFamily.CI.value] = len(ci_result["violations"])
+
+    raw_blocks = graph.metadata.get("algebraic_blocks")
+    algebraic_blocks = _validate_algebraic_blocks(raw_blocks)
+    tetrad_blocks = [
+        block for block in algebraic_blocks if block.family is AlgebraicConstraintFamily.TETRAD
+    ]
+    if tetrad_blocks:
+        tetrad_result = _evaluate_tetrad_family(
+            blocks=tetrad_blocks,
+            data=data,
+            variable_names=variable_names,
+            alpha=significance_level,
+            seed=seed,
+        )
+        families_run.append(AlgebraicConstraintFamily.TETRAD)
+        implied_constraints.extend(tetrad_result["implied_constraints"])
+        violations.extend(tetrad_result["violations"])
+        warnings.extend(tetrad_result["warnings"])
+        tested_by_family[AlgebraicConstraintFamily.TETRAD.value] = int(
+            tetrad_result["tested_count"]
+        )
+        violated_by_family[AlgebraicConstraintFamily.TETRAD.value] = len(
+            tetrad_result["violations"]
+        )
+
+    overcomplete_blocks = [
+        block
+        for block in algebraic_blocks
+        if block.family is AlgebraicConstraintFamily.OVERCOMPLETE
+    ]
+    if overcomplete_blocks:
+        overcomplete_result = _evaluate_overcomplete_family(
+            blocks=overcomplete_blocks,
+            data=data,
+            variable_names=variable_names,
+            alpha=significance_level,
+            seed=seed,
+        )
+        families_run.append(AlgebraicConstraintFamily.OVERCOMPLETE)
+        implied_constraints.extend(overcomplete_result["implied_constraints"])
+        violations.extend(overcomplete_result["violations"])
+        warnings.extend(overcomplete_result["warnings"])
+        tested_by_family[AlgebraicConstraintFamily.OVERCOMPLETE.value] = int(
+            overcomplete_result["tested_count"]
+        )
+        violated_by_family[AlgebraicConstraintFamily.OVERCOMPLETE.value] = len(
+            overcomplete_result["violations"]
+        )
+
+    return AlgebraicConstraintReport(
+        severity=_max_severity([violation.severity for violation in violations]),
+        suggested_repairs=_suggested_repairs(violations),
+        families_run=families_run,
+        n_implied_constraints=len(implied_constraints),
+        n_violated_constraints=len(violations),
+        tested_by_family=tested_by_family,
+        violated_by_family=violated_by_family,
+        warnings=_dedupe_preserve_order(warnings),
+        implied_constraints_preview=implied_constraints,
+        violated_constraints_preview=violations,
+    )
 
 
 def _clamp_probability(value: float) -> float:
@@ -621,6 +1594,7 @@ def _run_constraint_discovery(
     n_bootstrap_requested = max(0, int(params.get("n_bootstrap", 0)))
     timeout_seconds = max(1.0, float(params.get("timeout_seconds", 600.0)))
     seed = int(params.get("__seed__", 0) or 0)
+    algebraic_blocks = _validate_algebraic_blocks(params.get("algebraic_blocks"))
     ci_backend = _resolve_constraint_ci_backend(params.get("discovery_ci_backend"))
     scale_backend = _resolve_scale_backend(
         params.get("discovery_scale_backend"),
@@ -720,6 +1694,10 @@ def _run_constraint_discovery(
             variable_names=tab_data.variable_names,
             extra_metadata=base_result.metadata,
         )
+        graph = _inject_algebraic_blocks_metadata(
+            graph,
+            algebraic_blocks=algebraic_blocks,
+        )
     except Exception as exc:
         warnings.append(
             f"{_method_name_for_algorithm(algorithm).upper()} graph conversion failed: {exc}"
@@ -804,6 +1782,23 @@ def _run_constraint_discovery(
         else:
             bootstrap_stability = {key: 0.0 for key in base_edge_keys}
 
+    algebraic_report: AlgebraicConstraintReport | None = None
+    try:
+        algebraic_report = _run_algebraic_constraint_audit(
+            graph=graph,
+            data=tab_data.data,
+            variable_names=tab_data.variable_names,
+            significance_level=significance_level,
+            seed=seed,
+        )
+    except Exception as exc:
+        warning = f"algebraic_audit_failed:{type(exc).__name__}:{exc}"
+        warnings.append(warning)
+        algebraic_report = AlgebraicConstraintReport(
+            severity="info",
+            warnings=[warning],
+        )
+
     report = CausalDiscoveryReport(
         method=_method_name_for_algorithm(algorithm),
         graph=graph,
@@ -813,6 +1808,7 @@ def _run_constraint_discovery(
         significance_level=significance_level,
         computation_time_seconds=float(time.perf_counter() - started),
         warnings=warnings,
+        algebraic_constraints=algebraic_report,
         metadata={
             **dict(base_result.metadata),
             "requested_n_bootstrap": n_bootstrap_requested,
@@ -824,6 +1820,19 @@ def _run_constraint_discovery(
             "scale_backend_requested": scale_backend.requested,
             "scale_backend_used": scale_backend.used,
             "scale_backend_fallback_reason": scale_backend.fallback_reason,
+            "algebraic_constraints_summary": (
+                _build_algebraic_metadata_summary(algebraic_report)
+                if algebraic_report is not None
+                else {}
+            ),
+            "algebraic_constraint_severity": (
+                algebraic_report.severity if algebraic_report is not None else "info"
+            ),
+            "algebraic_constraint_families_run": (
+                [family.value for family in algebraic_report.families_run]
+                if algebraic_report is not None
+                else []
+            ),
         },
     )
     return {"report": report, "__determinism_tier__": DeterminismTier.STATISTICAL}
@@ -866,6 +1875,7 @@ class PCDiscovery:
             ParameterSpec(name="stable", default=True),
             ParameterSpec(name="uc_rule", default=0),
             ParameterSpec(name="uc_priority", default=2),
+            ParameterSpec(name="algebraic_blocks", default=[]),
             ParameterSpec(name="discovery_scale_backend", default="auto"),
             ParameterSpec(name="discovery_ci_backend", default="auto"),
             ParameterSpec(name="n_bootstrap", default=0),
@@ -933,6 +1943,7 @@ class FCIDiscovery:
             ParameterSpec(name="indep_test", default="fisherz"),
             ParameterSpec(name="depth", default=-1),
             ParameterSpec(name="max_path_length", default=-1),
+            ParameterSpec(name="algebraic_blocks", default=[]),
             ParameterSpec(name="discovery_scale_backend", default="auto"),
             ParameterSpec(name="discovery_ci_backend", default="auto"),
             ParameterSpec(name="n_bootstrap", default=0),
@@ -999,6 +2010,7 @@ class GESDiscovery:
             ParameterSpec(name="significance_level", default=0.05),
             ParameterSpec(name="score_func", default="local_score_BIC"),
             ParameterSpec(name="max_parents", default=None),
+            ParameterSpec(name="algebraic_blocks", default=[]),
             ParameterSpec(name="discovery_scale_backend", default="auto"),
             ParameterSpec(name="discovery_ci_backend", default="auto"),
             ParameterSpec(name="n_bootstrap", default=0),

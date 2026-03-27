@@ -6,13 +6,16 @@ import asyncio
 import inspect
 import time
 from collections.abc import Callable
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, ConfigDict
 
 from polisyos.common.logger import get_logger
 
 from .schema import ToolDefinition
+
+if TYPE_CHECKING:
+    from .tool_circuit_breaker import ToolCircuitBreakerRegistry
 
 logger = get_logger(__name__)
 
@@ -35,8 +38,12 @@ class ToolRegistry:
     Thread-safe for reads; registration should happen at startup.
     """
 
-    def __init__(self) -> None:
+    def __init__(
+        self,
+        circuit_breakers: ToolCircuitBreakerRegistry | None = None,
+    ) -> None:
         self._tools: dict[str, tuple[ToolDefinition, Callable[..., Any]]] = {}
+        self._circuit_breakers = circuit_breakers
 
     def register(
         self, definition: ToolDefinition, handler: Callable[..., Any]
@@ -68,9 +75,20 @@ class ToolRegistry:
                 error=f"unknown tool: {name}",
             )
 
+        # Circuit breaker check
+        if self._circuit_breakers is not None:
+            if not self._circuit_breakers.allow_request(name):
+                return ToolCallResult(
+                    tool_name=name,
+                    arguments=arguments,
+                    error=f"circuit_breaker_open: {name}",
+                )
+
         try:
             result = handler(**arguments)
             duration_ms = int((time.perf_counter() - t0) * 1000)
+            if self._circuit_breakers is not None:
+                self._circuit_breakers.record_success(name)
             return ToolCallResult(
                 tool_name=name,
                 arguments=arguments,
@@ -80,6 +98,8 @@ class ToolRegistry:
         except Exception as exc:
             duration_ms = int((time.perf_counter() - t0) * 1000)
             logger.debug("Tool %s execution failed: %s", name, exc)
+            if self._circuit_breakers is not None:
+                self._circuit_breakers.record_failure(name)
             return ToolCallResult(
                 tool_name=name,
                 arguments=arguments,
@@ -88,7 +108,10 @@ class ToolRegistry:
             )
 
     async def aexecute(self, name: str, arguments: dict[str, Any]) -> ToolCallResult:
-        """Execute a tool, awaiting if the handler is async."""
+        """Execute a tool, awaiting if the handler is async.
+
+        Respects per-tool ``timeout_s`` and optional circuit breaker.
+        """
         t0 = time.perf_counter()
         try:
             defn, handler = self._tools[name]
@@ -99,23 +122,49 @@ class ToolRegistry:
                 error=f"unknown tool: {name}",
             )
 
+        # Circuit breaker check
+        if self._circuit_breakers is not None:
+            if not self._circuit_breakers.allow_request(name):
+                return ToolCallResult(
+                    tool_name=name,
+                    arguments=arguments,
+                    error=f"circuit_breaker_open: {name}",
+                )
+
+        timeout = defn.timeout_s
         try:
             if inspect.iscoroutinefunction(handler):
-                result = await handler(**arguments)
+                coro = handler(**arguments)
             else:
-                result = await asyncio.get_event_loop().run_in_executor(
+                coro = asyncio.get_event_loop().run_in_executor(
                     None, lambda: handler(**arguments)
                 )
+            result = await asyncio.wait_for(coro, timeout=timeout)
             duration_ms = int((time.perf_counter() - t0) * 1000)
+            if self._circuit_breakers is not None:
+                self._circuit_breakers.record_success(name)
             return ToolCallResult(
                 tool_name=name,
                 arguments=arguments,
                 result=_serialize_result(result),
                 duration_ms=duration_ms,
             )
+        except asyncio.TimeoutError:
+            duration_ms = int((time.perf_counter() - t0) * 1000)
+            logger.debug("Tool %s timed out after %.1fs", name, timeout)
+            if self._circuit_breakers is not None:
+                self._circuit_breakers.record_failure(name)
+            return ToolCallResult(
+                tool_name=name,
+                arguments=arguments,
+                error=f"timeout after {timeout}s",
+                duration_ms=duration_ms,
+            )
         except Exception as exc:
             duration_ms = int((time.perf_counter() - t0) * 1000)
             logger.debug("Tool %s async execution failed: %s", name, exc)
+            if self._circuit_breakers is not None:
+                self._circuit_breakers.record_failure(name)
             return ToolCallResult(
                 tool_name=name,
                 arguments=arguments,

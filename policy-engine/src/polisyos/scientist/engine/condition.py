@@ -78,7 +78,10 @@ def _resolve_path(state: ExperimentState, path: str) -> Any:
 # Tokeniser
 # ---------------------------------------------------------------------------
 
-_BINARY_OPS = frozenset({"==", "!=", ">", "<", ">=", "<=", "in", "not_in"})
+_BINARY_OPS = frozenset({
+    "==", "!=", ">", "<", ">=", "<=", "in", "not_in",
+    "has_length", "has_min_length", "has_max_length",
+})
 _UNARY_OPS = frozenset({"is_set", "is_empty"})
 _ALL_OPS = _BINARY_OPS | _UNARY_OPS
 
@@ -181,6 +184,14 @@ def _compare(left: Any, op: str, right: Any) -> bool:
             return str(left) not in right
         return True
 
+    # Aggregate length operators
+    if op == "has_length":
+        return hasattr(left, "__len__") and len(left) == int(right)
+    if op == "has_min_length":
+        return hasattr(left, "__len__") and len(left) >= int(right)
+    if op == "has_max_length":
+        return hasattr(left, "__len__") and len(left) <= int(right)
+
     raise ConditionSyntaxError(f"Unknown operator: {op}")
 
 
@@ -191,6 +202,8 @@ def _compare(left: Any, op: str, right: Any) -> bool:
 def evaluate_condition(expr: str, state: ExperimentState) -> bool:
     """Evaluate a condition expression against *state*.
 
+    Supports compound expressions with ``AND`` / ``OR`` (but not mixed).
+
     Returns ``True`` if the condition is satisfied, ``False`` otherwise.
     Raises :class:`ConditionSyntaxError` for malformed expressions.
     """
@@ -198,6 +211,25 @@ def evaluate_condition(expr: str, state: ExperimentState) -> bool:
     if not expr:
         raise ConditionSyntaxError("Empty condition expression")
 
+    # Compound expressions
+    has_and = " AND " in expr
+    has_or = " OR " in expr
+    if has_and and has_or:
+        raise ConditionSyntaxError(
+            "Mixed AND/OR not supported; use separate conditions"
+        )
+    if has_and:
+        parts = [p.strip() for p in expr.split(" AND ")]
+        return all(_evaluate_single(p, state) for p in parts)
+    if has_or:
+        parts = [p.strip() for p in expr.split(" OR ")]
+        return any(_evaluate_single(p, state) for p in parts)
+
+    return _evaluate_single(expr, state)
+
+
+def _evaluate_single(expr: str, state: ExperimentState) -> bool:
+    """Evaluate a single (non-compound) condition expression."""
     match = _TOKEN_RE.match(expr)
     if match is None:
         raise ConditionSyntaxError(f"Cannot parse condition: {expr!r}")

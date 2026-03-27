@@ -4,7 +4,11 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from polisyos.ir.analytics.partial_identification import BoundMethod, BoundsReport, PartialIdentificationResult
+from polisyos.ir.analytics.partial_identification import (
+    BoundMethod,
+    BoundsBundle,
+    PartialIdentificationResult,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -56,29 +60,30 @@ class TestBoundsEngineMethodDefault:
         state = _make_state()
         result = BoundsEngineMethod.pure_step(state, {})
         report_dict = result["bounds_report"]
-        assert len(report_dict["results"]) >= 2
+        assert len(report_dict["method_summaries"]) >= 2
 
     def test_tightest_method_is_narrowest(self):
         from polisyos.foundry.methods.catalog.causal.bounds_engine import BoundsEngineMethod
 
         state = _make_state()
         result = BoundsEngineMethod.pure_step(state, {})
-        report = BoundsReport.model_validate(result["bounds_report"])
-        assert report.tightest_method is not None
-        if len(report.results) > 1:
-            widths = [r.bound_width for r in report.results]
+        report = BoundsBundle.model_validate(result["bounds_report"])
+        assert report.lower_bound is not None
+        assert report.upper_bound is not None
+        if len(report.method_summaries) > 1:
+            widths = [r.bound_width for r in report.method_summaries]
             tightest_width = min(widths)
-            assert abs((report.tightest_upper - report.tightest_lower) - tightest_width) < 1e-9
+            assert abs((report.upper_bound - report.lower_bound) - tightest_width) < 1e-9
 
     def test_consensus_is_intersection(self):
         from polisyos.foundry.methods.catalog.causal.bounds_engine import BoundsEngineMethod
 
         state = _make_state()
         result = BoundsEngineMethod.pure_step(state, {})
-        report = BoundsReport.model_validate(result["bounds_report"])
-        if len(report.results) > 1:
-            expected_lo = max(r.lower_bound for r in report.results)
-            expected_hi = min(r.upper_bound for r in report.results)
+        report = BoundsBundle.model_validate(result["bounds_report"])
+        if len(report.method_summaries) > 1:
+            expected_lo = max(r.lower_bound for r in report.method_summaries)
+            expected_hi = min(r.upper_bound for r in report.method_summaries)
             assert abs(report.consensus_lower - expected_lo) < 1e-9
             assert abs(report.consensus_upper - expected_hi) < 1e-9
 
@@ -87,8 +92,8 @@ class TestBoundsEngineMethodDefault:
 
         state = _make_state()
         result = BoundsEngineMethod.pure_step(state, {})
-        report = BoundsReport.model_validate(result["bounds_report"])
-        methods = {r.method for r in report.results}
+        report = BoundsBundle.model_validate(result["bounds_report"])
+        methods = {r.method for r in report.method_summaries}
         assert BoundMethod.MANSKI in methods
 
     def test_bounds_report_round_trip(self):
@@ -96,11 +101,11 @@ class TestBoundsEngineMethodDefault:
 
         state = _make_state()
         result = BoundsEngineMethod.pure_step(state, {})
-        report = BoundsReport.model_validate(result["bounds_report"])
+        report = BoundsBundle.model_validate(result["bounds_report"])
         dumped = report.model_dump(mode="json")
-        reloaded = BoundsReport.model_validate(dumped)
-        assert reloaded.tightest_method == report.tightest_method
-        assert len(reloaded.results) == len(report.results)
+        reloaded = BoundsBundle.model_validate(dumped)
+        assert reloaded.lower_bound == report.lower_bound
+        assert len(reloaded.method_summaries) == len(report.method_summaries)
 
 
 class TestBoundsEngineMethodWithIV:
@@ -109,8 +114,8 @@ class TestBoundsEngineMethodWithIV:
 
         state = _make_iv_state()
         result = BoundsEngineMethod.pure_step(state, {"has_iv": True})
-        report = BoundsReport.model_validate(result["bounds_report"])
-        methods = {r.method for r in report.results}
+        report = BoundsBundle.model_validate(result["bounds_report"])
+        methods = {r.method for r in report.method_summaries}
         assert BoundMethod.LP_BALKE_PEARL in methods
 
     def test_with_iv_reports_tighter_than_manski(self):
@@ -124,11 +129,11 @@ class TestBoundsEngineMethodWithIV:
         manski_width = manski_out["result"]["bound_width"]
 
         result = BoundsEngineMethod.pure_step(state, {"has_iv": True})
-        report = BoundsReport.model_validate(result["bounds_report"])
+        report = BoundsBundle.model_validate(result["bounds_report"])
         # Tightest method should have width <= Manski width + epsilon
-        assert report.tightest_lower is not None
-        assert report.tightest_upper is not None
-        tightest_width = report.tightest_upper - report.tightest_lower
+        assert report.lower_bound is not None
+        assert report.upper_bound is not None
+        tightest_width = report.upper_bound - report.lower_bound
         assert tightest_width <= manski_width + 0.01  # allow tiny numerical slack
 
 
@@ -138,8 +143,8 @@ class TestBoundsEngineMethodWithSelection:
 
         state = _make_selection_state()
         result = BoundsEngineMethod.pure_step(state, {"has_selection": True})
-        report = BoundsReport.model_validate(result["bounds_report"])
-        methods = {r.method for r in report.results}
+        report = BoundsBundle.model_validate(result["bounds_report"])
+        methods = {r.method for r in report.method_summaries}
         # Lee bounds use IV_BOUNDS method tag
         assert BoundMethod.IV_BOUNDS in methods
 

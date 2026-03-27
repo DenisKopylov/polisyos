@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import asdict, dataclass, field
-from datetime import datetime
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
 from uuid import uuid4
@@ -78,7 +78,7 @@ class Evaluation:
     stage_a_passed: bool
     stage_b_result: dict[str, Any] | None = None
     status: EvaluationStatus = EvaluationStatus.SUCCESS
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
     wall_time_seconds: float = 0.0
     provenance_ref: str | None = None
     metadata: dict[str, Any] = field(default_factory=dict)
@@ -141,4 +141,3 @@ class StrategyState:
         model_state = payload.get("model_state")
         payload["model_state"] = bytes.fromhex(model_state) if model_state else None
         return cls(**payload)
-

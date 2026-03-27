@@ -20,6 +20,9 @@ from polisyos.ir.analytics.cross_graph import (
     CrossGraphEvidenceProfile,
     CrossGraphEvidenceSummary,
     CrossGraphSourceRefs,
+    EvidenceSourceKind,
+    EvidenceSourceState,
+    EvidenceSourceStatus,
     EvidenceNeed,
     EvidenceNeedAssessment,
     EvidenceNeedType,
@@ -41,6 +44,7 @@ from polisyos.ir.governance.problem_frame import (
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.lex.api import evaluate_transport_constraints
 from polisyos.lex.legal_evaluation.transport_constraints import LegalConstraintSet
+from polisyos.scientist.evidence_sources import build_path_source_status, update_source_status
 
 
 class CrossGraphEvidenceConfig(BaseModel):
@@ -58,6 +62,7 @@ class CrossGraphEvidenceConfig(BaseModel):
     backlog_output_path: str | None = None
     benchmark_suite_path: str | None = None
     benchmark_report_path: str | None = None
+    academic_demand_backlog_path: str | None = None
     ontology: list[CanonicalConcept] = Field(default_factory=list)
 
 
@@ -140,8 +145,9 @@ class CrossGraphEvidenceCompiler:
         used_concepts: dict[str, CanonicalConcept] = {}
         assessments: list[EvidenceNeedAssessment] = []
 
-        academic_query = _build_academic_query(self.config)
-        dataset_registry = _build_dataset_registry(self.config)
+        academic_query, academic_status = _build_academic_query(self.config)
+        dataset_registry, dataset_status = _build_dataset_registry(self.config)
+        legal_status = _build_legal_source_status(self.config)
         legal_adapter = _LegalGraphAdapter(
             config=self.config,
             bundle=bundle,
@@ -259,6 +265,11 @@ class CrossGraphEvidenceCompiler:
 
         assessments.sort(key=lambda item: item.need.need_id)
         summary = _build_summary(assessments)
+        source_statuses = {
+            EvidenceSourceKind.ACADEMIC.value: academic_status,
+            EvidenceSourceKind.DATASETS.value: dataset_status,
+            EvidenceSourceKind.LEGAL.value: legal_adapter.source_status(legal_status),
+        }
         return CrossGraphEvidenceProfile(
             summary=summary,
             needs=assessments,
@@ -271,6 +282,8 @@ class CrossGraphEvidenceCompiler:
                 datasets_db_path=self.config.datasets_db_path,
                 legal_db_path=self.config.legal_db_path,
             ),
+            source_statuses=source_statuses,
+            benchmark_summary={},
             target_context=target_context,
             notes=_profile_notes(self.config),
         )
@@ -459,6 +472,13 @@ class _LegalGraphAdapter:
         self._policy_domain = policy_domain
         self._constraint_set: LegalConstraintSet | None = None
         self._diagnostics: list[CrossGraphDiagnostic] | None = None
+        self._source_status_override: EvidenceSourceStatus | None = None
+
+    def source_status(
+        self,
+        default: EvidenceSourceStatus,
+    ) -> EvidenceSourceStatus:
+        return self._source_status_override or default
 
     def assess_need(self, need: EvidenceNeed) -> _LegalResult:
         constraint_set, diagnostics = self._resolve_constraint_set(need)
@@ -579,6 +599,12 @@ class _LegalGraphAdapter:
                 )
             )
             self._constraint_set = None
+            self._source_status_override = update_source_status(
+                _build_legal_source_status(self._config),
+                state=EvidenceSourceState.QUERY_FAILED,
+                detail=f"{type(exc).__name__}:{exc}",
+                warnings=[f"legal_query_failed:{type(exc).__name__}:{exc}"],
+            )
 
         self._diagnostics = diagnostics
         return self._constraint_set, list(diagnostics)
@@ -1345,25 +1371,59 @@ def _parameter_name(parameter: ParameterSpec) -> str:
     return tail or parameter.param_id
 
 
-def _build_academic_query(config: CrossGraphEvidenceConfig) -> SKGQuery | None:
-    if not config.academic_db_path:
-        return None
+def _build_academic_query(
+    config: CrossGraphEvidenceConfig,
+) -> tuple[SKGQuery | None, EvidenceSourceStatus]:
+    status = build_path_source_status(
+        EvidenceSourceKind.ACADEMIC,
+        config.academic_db_path,
+        detail="cross_graph_compiler",
+    )
+    if status.status is not EvidenceSourceState.AVAILABLE:
+        return None, status
     db_path = Path(config.academic_db_path)
-    if not db_path.exists():
-        return None
     index_dir = Path(config.academic_index_dir) if config.academic_index_dir else db_path.parent
     if not index_dir.exists():
         index_dir = db_path.parent
-    return SKGQuery(db_path=db_path, index_dir=index_dir)
+    try:
+        return SKGQuery(db_path=db_path, index_dir=index_dir), status
+    except Exception as exc:
+        return None, update_source_status(
+            status,
+            state=EvidenceSourceState.INIT_FAILED,
+            detail=f"{type(exc).__name__}:{exc}",
+            warnings=[f"academic_init_failed:{type(exc).__name__}:{exc}"],
+        )
 
 
-def _build_dataset_registry(config: CrossGraphEvidenceConfig) -> DatasetRegistry | None:
-    if not config.datasets_db_path:
-        return None
+def _build_dataset_registry(
+    config: CrossGraphEvidenceConfig,
+) -> tuple[DatasetRegistry | None, EvidenceSourceStatus]:
+    status = build_path_source_status(
+        EvidenceSourceKind.DATASETS,
+        config.datasets_db_path,
+        detail="cross_graph_compiler",
+    )
+    if status.status is not EvidenceSourceState.AVAILABLE:
+        return None, status
     db_path = Path(config.datasets_db_path)
-    if not db_path.exists():
-        return None
-    return DatasetRegistry(db_path)
+    try:
+        return DatasetRegistry(db_path), status
+    except Exception as exc:
+        return None, update_source_status(
+            status,
+            state=EvidenceSourceState.INIT_FAILED,
+            detail=f"{type(exc).__name__}:{exc}",
+            warnings=[f"dataset_registry_init_failed:{type(exc).__name__}:{exc}"],
+        )
+
+
+def _build_legal_source_status(config: CrossGraphEvidenceConfig) -> EvidenceSourceStatus:
+    return build_path_source_status(
+        EvidenceSourceKind.LEGAL,
+        config.legal_db_path,
+        detail="cross_graph_compiler",
+    )
 
 
 def _best_parameter_candidate(candidates: list[ParameterCandidate]) -> ParameterCandidate:
@@ -1645,8 +1705,124 @@ def _dedupe_preserve(values: list[str] | tuple[str, ...]) -> list[str]:
     return output
 
 
+def build_fragment_alignment_ontology_warnings(
+    *,
+    fragment_a: Any,
+    fragment_b: Any,
+    certificates: list[Any] | tuple[Any, ...],
+    ontology: list[CanonicalConcept],
+) -> list[str]:
+    normalized_ontology: list[CanonicalConcept] = []
+    for concept in ontology:
+        if isinstance(concept, CanonicalConcept):
+            normalized_ontology.append(concept)
+        elif isinstance(concept, dict):
+            try:
+                normalized_ontology.append(CanonicalConcept.model_validate(concept))
+            except Exception:
+                continue
+    if not normalized_ontology:
+        return []
+
+    warnings: list[str] = []
+    for certificate in certificates:
+        if getattr(certificate, "alignment_type", None) == "incompatible":
+            continue
+        if getattr(certificate, "alignment_type", None) is not None and getattr(
+            getattr(certificate, "alignment_type", None),
+            "value",
+            None,
+        ) == "incompatible":
+            continue
+
+        concept_a = _resolve_alignment_concept(
+            ontology=normalized_ontology,
+            semantic_namespace=str(getattr(fragment_a, "semantic_namespace", "") or ""),
+            variable_name=str(getattr(certificate, "variable_a", "") or ""),
+            definition=str(
+                getattr(getattr(fragment_a, "variable_definitions", {}), "get", lambda *_: "")(
+                    getattr(certificate, "variable_a", "")
+                )
+                or ""
+            ),
+        )
+        concept_b = _resolve_alignment_concept(
+            ontology=normalized_ontology,
+            semantic_namespace=str(getattr(fragment_b, "semantic_namespace", "") or ""),
+            variable_name=str(getattr(certificate, "variable_b", "") or ""),
+            definition=str(
+                getattr(getattr(fragment_b, "variable_definitions", {}), "get", lambda *_: "")(
+                    getattr(certificate, "variable_b", "")
+                )
+                or ""
+            ),
+        )
+
+        pair_label = (
+            f"{getattr(certificate, 'fragment_a_id', '?')}:{getattr(certificate, 'variable_a', '?')}"
+            f" <-> {getattr(certificate, 'fragment_b_id', '?')}:{getattr(certificate, 'variable_b', '?')}"
+        )
+        if concept_a is None or concept_b is None:
+            warnings.append(f"Ontology unresolved for alignment pair {pair_label}.")
+            continue
+        if concept_a.concept_id != concept_b.concept_id:
+            warnings.append(
+                "Ontology mismatch for alignment pair "
+                f"{pair_label}: {concept_a.concept_id} vs {concept_b.concept_id}."
+            )
+
+    return _dedupe_preserve(sorted(warnings))
+
+
+def _resolve_alignment_concept(
+    *,
+    ontology: list[CanonicalConcept],
+    semantic_namespace: str,
+    variable_name: str,
+    definition: str,
+) -> CanonicalConcept | None:
+    query_tokens = _alignment_tokens([semantic_namespace, variable_name, definition])
+    if not query_tokens:
+        return None
+
+    best: tuple[int, str, CanonicalConcept] | None = None
+    for concept in ontology:
+        concept_tokens = _concept_tokens(concept)
+        if not concept_tokens:
+            continue
+        overlap = len(query_tokens.intersection(concept_tokens))
+        if overlap <= 0:
+            continue
+        candidate = (overlap, concept.concept_id, concept)
+        if best is None or candidate > best:
+            best = candidate
+    return best[2] if best is not None else None
+
+
+def _concept_tokens(concept: CanonicalConcept) -> set[str]:
+    values: list[str] = [concept.concept_id, concept.label]
+    for items in concept.join_keys.values():
+        values.extend(str(item) for item in items)
+    return _alignment_tokens(values)
+
+
+def _alignment_tokens(values: list[str]) -> set[str]:
+    tokens: set[str] = set()
+    for value in values:
+        raw = str(value or "").strip().lower()
+        if not raw:
+            continue
+        for token in raw.replace(".", " ").replace("-", " ").replace("/", " ").replace(":", " ").split():
+            token = token.strip("_")
+            if len(token) <= 1:
+                continue
+            tokens.add(token)
+    return tokens
+
+
 __all__ = [
     "CrossGraphEvidenceCompiler",
     "CrossGraphEvidenceConfig",
+    "build_fragment_alignment_ontology_warnings",
     "extract_evidence_needs",
 ]

@@ -242,6 +242,7 @@ def _run_single_algorithm(
                     "significance_level": significance_level,
                     "discovery_ci_backend": ci_backend,
                     "discovery_scale_backend": "classic",
+                    "algebraic_blocks": params.get("algebraic_blocks", []),
                     "n_bootstrap": n_bootstrap,
                     "timeout_seconds": timeout_seconds,
                 },
@@ -779,6 +780,82 @@ def _maybe_reconcile(
         return pag
 
 
+def _pipeline_dispute_summary(
+    reports: list[CausalDiscoveryReport],
+) -> dict[str, Any]:
+    support: dict[tuple[str, str], dict[str, set[str]]] = {}
+    for report in reports:
+        for edge in report.graph.edges:
+            skeleton = tuple(sorted((edge.src, edge.dst)))
+            bucket = support.setdefault(
+                skeleton,
+                {"directions": set(), "orientations": set()},
+            )
+            bucket["directions"].add(f"{edge.src}->{edge.dst}")
+            bucket["orientations"].add(
+                f"{edge.src}|{edge.mark_src.value}>{edge.mark_dst.value}|{edge.dst}"
+            )
+
+    disputed_edges = sorted(
+        f"{src}--{dst}"
+        for (src, dst), bucket in support.items()
+        if len(bucket["directions"]) > 1 or len(bucket["orientations"]) > 1
+    )
+    total_skeletons = len(support)
+    disputed_edge_fraction = (
+        float(len(disputed_edges) / total_skeletons)
+        if total_skeletons > 0
+        else 0.0
+    )
+    return {
+        "disputed_edges": disputed_edges,
+        "disputed_edge_count": len(disputed_edges),
+        "disputed_edge_fraction": round(disputed_edge_fraction, 4),
+    }
+
+
+def _pipeline_algebraic_summary(
+    reports: list[CausalDiscoveryReport],
+) -> dict[str, Any]:
+    violated_by_family: dict[str, int] = defaultdict(int)
+    severity_by_method: dict[str, str] = {}
+    families_with_blockers: set[str] = set()
+    reports_with_constraints = 0
+    blocker_reports = 0
+
+    for report in reports:
+        algebraic = report.algebraic_constraints
+        if algebraic is None:
+            continue
+        reports_with_constraints += 1
+        severity_by_method[report.method] = algebraic.severity
+        for family, count in algebraic.violated_by_family.items():
+            violated_by_family[str(family)] += int(count)
+        if algebraic.severity == "blocker":
+            blocker_reports += 1
+            if algebraic.violated_by_family:
+                families_with_blockers.update(
+                    family
+                    for family, count in algebraic.violated_by_family.items()
+                    if int(count) > 0
+                )
+            else:
+                families_with_blockers.update(
+                    family.value if hasattr(family, "value") else str(family)
+                    for family in algebraic.families_run
+                )
+
+    return {
+        "algebraic_violation_summary": {
+            "reports_with_constraints": reports_with_constraints,
+            "blocker_reports": blocker_reports,
+            "violated_by_family": dict(sorted(violated_by_family.items())),
+            "severity_by_method": severity_by_method,
+        },
+        "families_with_blockers": sorted(families_with_blockers),
+    }
+
+
 # ---------------------------------------------------------------------------
 # Orchestrator
 # ---------------------------------------------------------------------------
@@ -831,6 +908,18 @@ def _run_unified_discovery(
             n_algorithms_run=0,
             warnings=warnings + ["all_algorithms_failed"],
             computation_time_seconds=time.perf_counter() - t0,
+            metadata={
+                "disputed_edges": [],
+                "disputed_edge_count": 0,
+                "disputed_edge_fraction": 0.0,
+                "algebraic_violation_summary": {
+                    "reports_with_constraints": 0,
+                    "blocker_reports": 0,
+                    "violated_by_family": {},
+                    "severity_by_method": {},
+                },
+                "families_with_blockers": [],
+            },
         )
         return {"report": report, "__determinism_tier__": DeterminismTier.STATISTICAL}
 
@@ -879,6 +968,11 @@ def _run_unified_discovery(
             f"post_reconcile_violation: {v}" for v in post_reconcile_violations
         )
 
+    pipeline_metadata = {
+        **_pipeline_dispute_summary(individual_results),
+        **_pipeline_algebraic_summary(individual_results),
+    }
+
     report = DiscoveryPipelineReport(
         unified_pag=unified_pag,
         individual_results=individual_results,
@@ -891,6 +985,7 @@ def _run_unified_discovery(
         n_algorithms_run=len(individual_results),
         warnings=warnings,
         computation_time_seconds=time.perf_counter() - t0,
+        metadata=pipeline_metadata,
     )
     return {"report": report, "__determinism_tier__": DeterminismTier.STATISTICAL}
 

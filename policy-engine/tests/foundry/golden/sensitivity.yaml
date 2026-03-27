@@ -1,0 +1,91 @@
+domain: sensitivity
+version: "1.0"
+cases:
+  - id: sobol_two_factors_bounded
+    method_fqn: "sensitivity.global.sobol_first_order@1.0.0"
+    description: "Sobol indices are clipped to [0,1] and variance > 0"
+    input_data:
+      outputs_a: [0.5, 0.8, 0.2, 0.9, 0.1, 0.7, 0.3, 0.6, 0.4, 0.95]
+      outputs_b: [0.55, 0.75, 0.25, 0.85, 0.15, 0.65, 0.35, 0.55, 0.45, 0.9]
+      mixed_outputs:
+        - [0.5, 0.8, 0.2, 0.9, 0.1, 0.7, 0.3, 0.6, 0.4, 0.95]
+        - [0.55, 0.75, 0.25, 0.85, 0.15, 0.65, 0.35, 0.55, 0.45, 0.9]
+    expected_output:
+      result:
+        first_order_indices: [1.0, 1.0]
+    tolerances: {rtol: 0.5, atol: 0.5}
+    tags: [global, deterministic]
+
+  - id: sobol_variance_positive
+    method_fqn: "sensitivity.global.sobol_first_order@1.0.0"
+    description: "Sobol variance should be positive for non-constant outputs"
+    input_data:
+      outputs_a: [3.5, 2.1, 4.0, 1.8, 3.2, 2.9, 3.7, 2.5, 4.1, 1.9]
+      outputs_b: [3.1, 2.5, 3.8, 2.2, 3.6, 2.4, 3.3, 2.9, 3.7, 2.0]
+      mixed_outputs:
+        - [3.3, 2.3, 3.9, 2.0, 3.4, 2.7, 3.5, 2.7, 3.9, 1.95]
+        - [3.3, 2.3, 3.9, 2.0, 3.4, 2.7, 3.5, 2.7, 3.9, 1.95]
+    expected_output:
+      result:
+        variance: 0.5
+    tolerances: {rtol: 1.0, atol: 0.5}
+    tags: [global, deterministic]
+
+  - id: specification_curve_all_positive
+    method_fqn: "sensitivity.specification.specification_curve@1.0.0"
+    description: "All positive estimates → sign consistency = 1"
+    input_data:
+      estimates: [0.5, 0.6, 0.7, 0.8, 0.55]
+      standard_errors: [0.1, 0.1, 0.1, 0.1, 0.1]
+    input_params: {significance_level: 0.05}
+    expected_output:
+      result:
+        median_estimate: 0.6
+        mean_estimate: 0.63
+        share_positive: 1.0
+        sign_consistency: 1.0
+        n_specifications: 5
+    tolerances: {rtol: 0.05, atol: 0.02}
+    tags: [specification, deterministic]
+
+  - id: pawn_no_sensitivity
+    method_fqn: "sensitivity.global.pawn@1.0.0"
+    description: "Output independent of all inputs → PAWN ≈ 0"
+    input_data:
+      inputs_matrix: [[0.1, 0.5], [0.2, 0.6], [0.3, 0.7], [0.4, 0.8],
+                       [0.5, 0.9], [0.6, 0.1], [0.7, 0.2], [0.8, 0.3],
+                       [0.9, 0.4], [1.0, 0.5]]
+      outputs: [5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0]
+    input_params: {n_bins: 3}
+    expected_output:
+      result:
+        pawn_indices: [0.0, 0.0]
+        n_factors: 2
+    tolerances: {rtol: 0.1, atol: 0.05}
+    tags: [global, deterministic]
+
+  - id: fast_three_factors
+    method_fqn: "sensitivity.global.fast@1.0.0"
+    description: "FAST analysis on 3-factor model outputs"
+    input_data:
+      model_outputs: [1.0, 2.0, 1.5, 2.5, 1.2, 2.3, 1.8, 2.1, 1.4, 2.6,
+                       1.1, 2.4, 1.7, 2.0, 1.3, 2.7, 1.6, 2.2, 1.9, 2.8]
+    input_params: {n_factors: 3, harmonic_max: 4}
+    expected_output:
+      result:
+        n_factors: 3
+    tolerances: {rtol: 0.5, atol: 0.5}
+    tags: [global, deterministic]
+
+  - id: specification_mixed_signs
+    method_fqn: "sensitivity.specification.specification_curve@1.0.0"
+    description: "Mixed positive and negative estimates"
+    input_data:
+      estimates: [0.3, -0.2, 0.5, -0.1, 0.4, -0.3, 0.6]
+      standard_errors: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
+    input_params: {significance_level: 0.05}
+    expected_output:
+      result:
+        n_specifications: 7
+    tolerances: {rtol: 0.05, atol: 0.05}
+    tags: [specification, deterministic]

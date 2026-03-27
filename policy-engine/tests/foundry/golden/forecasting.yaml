@@ -1,0 +1,123 @@
+domain: forecasting
+version: "1.0"
+cases:
+  - id: exp_smoothing_constant
+    method_fqn: "forecasting.univariate.exponential_smoothing@1.0.0"
+    description: "Constant series → forecast = constant"
+    input_data:
+      series: [5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0]
+    input_params: {horizon: 3, alpha: 0.3, beta: 0.1}
+    expected_output:
+      result:
+        forecast: [5.0, 5.0, 5.0]
+        level: 5.0
+        horizon: 3
+    tolerances: {rtol: 0.02, atol: 0.1}
+    tags: [univariate, deterministic]
+
+  - id: exp_smoothing_trend
+    method_fqn: "forecasting.univariate.exponential_smoothing@1.0.0"
+    description: "Linear trend → forecast continues upward"
+    input_data:
+      series: [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
+    input_params: {horizon: 2, alpha: 0.5, beta: 0.3}
+    expected_output:
+      result:
+        horizon: 2
+    tolerances: {rtol: 0.2, atol: 2.0}
+    tags: [univariate, deterministic]
+
+  - id: theta_constant
+    method_fqn: "forecasting.univariate.theta@1.0.0"
+    description: "Theta on constant series"
+    input_data:
+      series: [3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0]
+    input_params: {horizon: 2, alpha: 0.2}
+    expected_output:
+      result:
+        forecast: [3.0, 3.0]
+    tolerances: {rtol: 0.05, atol: 0.2}
+    tags: [univariate, deterministic]
+
+  - id: ensemble_equal_weights
+    method_fqn: "forecasting.ensemble.simple_average@1.0.0"
+    description: "Average of two identical forecasts = same forecast"
+    input_data:
+      forecast_matrix: [[1.0, 2.0, 3.0], [1.0, 2.0, 3.0]]
+    expected_output:
+      result:
+        forecast: [1.0, 2.0, 3.0]
+        weights: [0.5, 0.5]
+    tolerances: {rtol: 0.001, atol: 0.001}
+    tags: [ensemble, deterministic]
+
+  - id: bottom_up_reconciliation
+    method_fqn: "forecasting.reconciliation.bottom_up@1.0.0"
+    description: "Bottom-up: 2 series, aggregation = sum"
+    input_data:
+      bottom_forecasts: [[1.0, 2.0], [3.0, 4.0]]
+      aggregation_matrix: [[1.0, 1.0]]
+    expected_output:
+      result:
+        bottom_forecasts: [[1.0, 2.0], [3.0, 4.0]]
+    tolerances: {rtol: 0.001, atol: 0.001}
+    tags: [reconciliation, deterministic]
+
+  - id: stl_constant_no_seasonality
+    method_fqn: "forecasting.decomposition.stl@1.0.0"
+    description: "Constant series → remainder ≈ 0"
+    input_data:
+      series: [7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0,
+               7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0]
+    input_params: {period: 4, n_iterations: 2}
+    expected_output:
+      result:
+        period: 4
+    tolerances: {rtol: 0.1, atol: 0.5}
+    tags: [decomposition, deterministic]
+
+  - id: vec_two_series
+    method_fqn: "forecasting.multivariate.vec_forecast@1.0.0"
+    description: "VEC forecast on 2 cointegrated series (10 obs × 2 vars)"
+    input_data:
+      series_matrix:
+        - [1.0, 2.0]
+        - [2.0, 4.0]
+        - [3.0, 6.0]
+        - [4.0, 8.0]
+        - [5.0, 10.0]
+        - [6.0, 12.0]
+        - [7.0, 14.0]
+        - [8.0, 16.0]
+        - [9.0, 18.0]
+        - [10.0, 20.0]
+    input_params: {horizon: 3, n_lags: 1}
+    expected_output:
+      result:
+        n_obs: 10
+    tolerances: {rtol: 0.1, atol: 2.0}
+    tags: [multivariate, deterministic]
+
+  - id: exp_smoothing_short_horizon
+    method_fqn: "forecasting.univariate.exponential_smoothing@1.0.0"
+    description: "Single step forecast on stable series"
+    input_data:
+      series: [10.0, 10.5, 9.5, 10.0, 10.2, 9.8, 10.1, 10.0]
+    input_params: {horizon: 1, alpha: 0.4, beta: 0.1}
+    expected_output:
+      result:
+        horizon: 1
+    tolerances: {rtol: 0.1, atol: 1.0}
+    tags: [univariate, deterministic]
+
+  - id: theta_trend
+    method_fqn: "forecasting.univariate.theta@1.0.0"
+    description: "Theta on linear trend series"
+    input_data:
+      series: [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
+    input_params: {horizon: 2, alpha: 0.3}
+    expected_output:
+      result:
+        forecast: [11.0, 12.0]
+    tolerances: {rtol: 0.2, atol: 2.0}
+    tags: [univariate, deterministic]

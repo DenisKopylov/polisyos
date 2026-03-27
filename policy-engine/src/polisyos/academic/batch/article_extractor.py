@@ -553,7 +553,25 @@ def _select_numeric_result_blocks(text: str, *, limit: int) -> list[dict[str, An
     return snippets
 
 
+_PRE_EXTRACTION_CONTAMINATION_RE = re.compile(
+    r"(?i)"
+    r"(cookie policy|cookie settings|cookie preferences|cookie consent|accept cookies|manage cookies|we use cookies|"
+    r"all rights reserved|copyright \d{4}|download pdf|view pdf|view abstract|"
+    r"sign in to access|institutional login|explore all metrics|accesses|citations|altmetric|"
+    r"doi:\s*\S+|doi\.org/\S+|https?://\S{20,}|"
+    r"export citation|download citation|cite this article|"
+    r"@article\{[^}]+\}|@inproceedings\{[^}]+\}|"
+    r"prev\s+next|skip to main content|toggle navigation|"
+    r"published by \w[\w\s]{2,30}press|elsevier|springer|wiley|taylor & francis|sage publications|"
+    r"supplementary (?:materials?|data|information|files?)|"
+    r"orcid\.org/\S+|"
+    r"funding[:\s]+this (?:work|research|study) was (?:supported|funded)[\s\S]{0,200}?\.)"
+)
+
+
 def _build_evidence_bundle(*, title: str, abstract: str, text: str, source_kind: str) -> dict[str, Any]:
+    text = _PRE_EXTRACTION_CONTAMINATION_RE.sub(" ", text)
+    text = re.sub(r"\s+", " ", text).strip()
     sentences = _split_sentences(text)
     abstract_sentences = _split_sentences(abstract)
     method_sentences = _select_top_sentences(sentences or abstract_sentences, _METHOD_SENTENCE_RE, limit=6)
@@ -1200,6 +1218,7 @@ class GonkaChatClient:
             payload["response_format"] = {"type": "json_object"}
 
         last_error: Exception | None = None
+        not_found_retries = 0
         for attempt in range(1, self._max_retries + 1):
             async with self._sem:
                 await self._limiter.acquire()
@@ -1222,6 +1241,14 @@ class GonkaChatClient:
                             usage = data.get("usage") if isinstance(data.get("usage"), dict) else {}
                             return parsed, usage
 
+                        if resp.status == 404:
+                            not_found_retries += 1
+                            if not_found_retries > 2:
+                                raise RuntimeError(
+                                    f"Gonka HTTP 404 (model not found) after {not_found_retries} attempts: {body[:300]}"
+                                )
+                            await asyncio.sleep(1.0)
+                            continue
                         if resp.status in {429, 500, 502, 503, 504}:
                             await asyncio.sleep(min(0.5 * (2 ** (attempt - 1)), 20.0))
                             continue

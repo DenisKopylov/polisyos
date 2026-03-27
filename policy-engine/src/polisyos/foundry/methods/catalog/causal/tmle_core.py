@@ -14,6 +14,10 @@ from polisyos.foundry.methods.catalog.causal._sklearn_compat import (
     LogisticRegression as CompatLogisticRegression,
     SKLEARN_AVAILABLE,
 )
+from polisyos.foundry.methods.catalog.causal.conformal_ci import (
+    conformal_calibrate_interval,
+    conformal_residuals_from_crossfit,
+)
 from polisyos.foundry.methods.catalog.causal.nuisance_layer import (
     bootstrap_mean_interval,
     build_nuisance_config,
@@ -890,7 +894,19 @@ def _interval_from_eif(
         return estimate, 0.0, estimate, estimate, "degenerate"
 
     pseudo_values = estimate + eif_values
-    se = robust_standard_error(eif_values)
+    n_eff = eif_values.size
+
+    # Sandwich variance estimator: Var(θ̂) = (1/n²) Σ EIF² — correct
+    # semiparametric variance that accounts for influence function structure.
+    sandwich_var = float(np.mean(eif_values**2)) / n_eff
+    se = float(np.sqrt(max(sandwich_var, 0.0)))
+
+    # Cross-fit variance correction: inflate SE by sqrt(K/(K-1)) to account
+    # for finite-fold cross-fitting bias in variance estimation.
+    k_folds = max(contract.crossfit_folds, 2)
+    crossfit_factor = float(np.sqrt(k_folds / (k_folds - 1)))
+    se *= crossfit_factor
+
     use_bootstrap = contract.inference_backend == "bootstrap_eif" and contract.bootstrap_draws >= 2
     if contract.ci_mode.strip().lower() == "wald":
         use_bootstrap = False
@@ -918,18 +934,34 @@ def _interval_from_eif(
         and coverage_guard != "off"
         and _coverage_guard_triggered(diagnostics=diagnostics, contract=contract)
     ):
+        # Data-driven coverage guard: when ESS is low or overlap is poor,
+        # widen to ~99% CI (z=2.576) instead of heuristic inflation.
         ess = float(diagnostics.get("effective_sample_size", 1.0))
-        inflation = min(
-            2.0,
-            max(1.15, np.sqrt(float(contract.min_effective_sample_size) / max(ess, 1.0))),
-        )
         overlap_ntv = float(diagnostics.get("overlap_ntv", 0.0))
-        if overlap_ntv > _coverage_guard_ntv_threshold(contract):
-            inflation = min(2.0, max(inflation, 1.0 + overlap_ntv))
-        half_width = max(abs(ci_upper - estimate), abs(estimate - ci_lower), 1.96 * se)
-        ci_lower = estimate - inflation * half_width
-        ci_upper = estimate + inflation * half_width
+
+        # Scale z-multiplier from 1.96 (95%) up to 2.576 (99%) based on
+        # severity of overlap/ESS issues.
+        severity = 0.0
+        if ess < float(contract.min_effective_sample_size):
+            severity = max(severity, 1.0 - ess / float(contract.min_effective_sample_size))
+        ntv_thresh = _coverage_guard_ntv_threshold(contract)
+        if overlap_ntv > ntv_thresh:
+            severity = max(severity, min(1.0, (overlap_ntv - ntv_thresh) / ntv_thresh))
+        z_guard = 1.96 + severity * (2.576 - 1.96)  # interpolate 95% → 99%
+
+        half_width = max(abs(ci_upper - estimate), abs(estimate - ci_lower), z_guard * se)
+        ci_lower = estimate - half_width
+        ci_upper = estimate + half_width
         interval_method = f"{interval_method}+coverage_guard"
+
+    # Optional conformal recalibration using cross-fit pseudo-outcomes
+    if contract.ci_mode.strip().lower() == "conformal" and pseudo_values.size >= 10:
+        cal_residuals = conformal_residuals_from_crossfit(pseudo_values, estimate)
+        ci_lower, ci_upper, _label = conformal_calibrate_interval(
+            estimate, ci_lower, ci_upper, cal_residuals, alpha=0.05,
+        )
+        interval_method = f"{interval_method}+conformal"
+
     return estimate, se, ci_lower, ci_upper, interval_method
 
 

@@ -170,6 +170,165 @@ class StressTestReportRef(ScientistArtifactRef):
     media_type: Literal["application/json"] = "application/json"
 
 
+class PlatformMetaEvaluationReportRef(ScientistArtifactRef):
+    """Reference to a stored platform meta-evaluation report artifact."""
+
+    kind: Literal["scientist.platform_meta_evaluation_report"] = (
+        "scientist.platform_meta_evaluation_report"
+    )
+    media_type: Literal["application/json"] = "application/json"
+
+
+class GraphHypothesisRef(ScientistArtifactRef):
+    kind: Literal["scientist.graph_hypothesis"] = "scientist.graph_hypothesis"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class BootstrapStabilityReportRef(ScientistArtifactRef):
+    kind: Literal["scientist.bootstrap_stability_report"] = (
+        "scientist.bootstrap_stability_report"
+    )
+    media_type: Literal["application/json"] = "application/json"
+
+
+class DownstreamUtilityReportRef(ScientistArtifactRef):
+    kind: Literal["scientist.downstream_utility_report"] = (
+        "scientist.downstream_utility_report"
+    )
+    media_type: Literal["application/json"] = "application/json"
+
+
+class EdgeConfidenceMatrixRef(ScientistArtifactRef):
+    kind: Literal["scientist.edge_confidence_matrix"] = "scientist.edge_confidence_matrix"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class GraphPriorBundleRef(ScientistArtifactRef):
+    kind: Literal["scientist.graph_prior_bundle"] = "scientist.graph_prior_bundle"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class PriorKnowledgeBundleRef(ScientistArtifactRef):
+    kind: Literal["scientist.prior_knowledge_bundle"] = "scientist.prior_knowledge_bundle"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class DiscoveryTaskProfileRef(ScientistArtifactRef):
+    kind: Literal["scientist.discovery_task_profile"] = "scientist.discovery_task_profile"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class GraphHypothesisSetRef(ScientistArtifactRef):
+    kind: Literal["scientist.graph_hypothesis_set"] = "scientist.graph_hypothesis_set"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class RefutationReportRef(ScientistArtifactRef):
+    kind: Literal["scientist.discovery_refutation_report"] = (
+        "scientist.discovery_refutation_report"
+    )
+    media_type: Literal["application/json"] = "application/json"
+
+
+class ReproducibilityReportRef(ScientistArtifactRef):
+    kind: Literal["scientist.discovery_reproducibility_report"] = (
+        "scientist.discovery_reproducibility_report"
+    )
+    media_type: Literal["application/json"] = "application/json"
+
+
+class ActiveDisambiguationPlanRef(ScientistArtifactRef):
+    kind: Literal["scientist.active_disambiguation_plan"] = (
+        "scientist.active_disambiguation_plan"
+    )
+    media_type: Literal["application/json"] = "application/json"
+
+
+class DiscoveryAuditBundleRef(ScientistArtifactRef):
+    kind: Literal["scientist.discovery_audit_bundle"] = "scientist.discovery_audit_bundle"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class DiscoveryArtifactBundleRef(ScientistArtifactRef):
+    kind: Literal["scientist.discovery_artifact_bundle"] = (
+        "scientist.discovery_artifact_bundle"
+    )
+    media_type: Literal["application/json"] = "application/json"
+
+
+class DecisionReadinessContractRef(ScientistArtifactRef):
+    kind: Literal["scientist.decision_readiness_contract"] = (
+        "scientist.decision_readiness_contract"
+    )
+    media_type: Literal["application/json"] = "application/json"
+
+
+class PolicyFrontierReportRef(ScientistArtifactRef):
+    kind: Literal["scientist.policy_frontier_report"] = "scientist.policy_frontier_report"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class ChampionPolicyDossierRef(ScientistArtifactRef):
+    kind: Literal["scientist.champion_policy_dossier"] = (
+        "scientist.champion_policy_dossier"
+    )
+    media_type: Literal["application/json"] = "application/json"
+
+
+class PolicyBriefRef(ScientistArtifactRef):
+    kind: Literal["scientist.policy_brief"] = "scientist.policy_brief"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class ConstraintSatisfactionReportRef(ScientistArtifactRef):
+    kind: Literal["scientist.constraint_satisfaction_report"] = (
+        "scientist.constraint_satisfaction_report"
+    )
+    media_type: Literal["application/json"] = "application/json"
+
+
+class SubgroupImpactReportRef(ScientistArtifactRef):
+    kind: Literal["scientist.subgroup_impact_report"] = "scientist.subgroup_impact_report"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class UncertaintyReportRef(ScientistArtifactRef):
+    kind: Literal["scientist.uncertainty_report"] = "scientist.uncertainty_report"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class TransportabilityReportRef(ScientistArtifactRef):
+    kind: Literal["scientist.transportability_report"] = "scientist.transportability_report"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class GovernanceGatePacketRef(ScientistArtifactRef):
+    kind: Literal["scientist.governance_gate_packet"] = "scientist.governance_gate_packet"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class ImplementationPlanRef(ScientistArtifactRef):
+    kind: Literal["scientist.implementation_plan"] = "scientist.implementation_plan"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class RejectedAlternativesSummaryRef(ScientistArtifactRef):
+    kind: Literal["scientist.rejected_alternatives_summary"] = (
+        "scientist.rejected_alternatives_summary"
+    )
+    media_type: Literal["application/json"] = "application/json"
+
+
+class ReplayableAuditBundleRef(ScientistArtifactRef):
+    kind: Literal["scientist.replayable_audit_bundle"] = "scientist.replayable_audit_bundle"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class PolicyArtifactBundleRef(ScientistArtifactRef):
+    kind: Literal["scientist.policy_artifact_bundle"] = "scientist.policy_artifact_bundle"
+    media_type: Literal["application/json"] = "application/json"
+
+
 class DecisionMonitoringContractRef(ScientistArtifactRef):
     kind: Literal["scientist.decision_monitoring_contract"] = (
         "scientist.decision_monitoring_contract"
@@ -240,6 +399,33 @@ __all__ = [
     "CheckpointRef",
     "SensitivityResultRef",
     "StressTestReportRef",
+    "PlatformMetaEvaluationReportRef",
+    "GraphHypothesisRef",
+    "BootstrapStabilityReportRef",
+    "DownstreamUtilityReportRef",
+    "EdgeConfidenceMatrixRef",
+    "GraphPriorBundleRef",
+    "PriorKnowledgeBundleRef",
+    "DiscoveryTaskProfileRef",
+    "GraphHypothesisSetRef",
+    "RefutationReportRef",
+    "ReproducibilityReportRef",
+    "ActiveDisambiguationPlanRef",
+    "DiscoveryAuditBundleRef",
+    "DiscoveryArtifactBundleRef",
+    "DecisionReadinessContractRef",
+    "PolicyFrontierReportRef",
+    "ChampionPolicyDossierRef",
+    "PolicyBriefRef",
+    "ConstraintSatisfactionReportRef",
+    "SubgroupImpactReportRef",
+    "UncertaintyReportRef",
+    "TransportabilityReportRef",
+    "GovernanceGatePacketRef",
+    "ImplementationPlanRef",
+    "RejectedAlternativesSummaryRef",
+    "ReplayableAuditBundleRef",
+    "PolicyArtifactBundleRef",
     "DecisionMonitoringContractRef",
     "DecisionMonitoringReportRef",
     "DecisionCompareReportRef",

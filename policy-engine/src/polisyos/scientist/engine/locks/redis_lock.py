@@ -53,6 +53,14 @@ class RedisLockHandle:
             self._heartbeat_thread.join(timeout=5)
         self._redis.eval(_RELEASE_LUA, 1, self._key, self._token)
 
+    def is_alive(self) -> bool:
+        """Check if the Redis key still exists and our token matches."""
+        try:
+            current = self._redis.get(self._key)
+            return current == self._token
+        except Exception:  # noqa: BLE001
+            return False
+
     def _start_heartbeat(self, ttl_ms: int) -> None:
         interval = max(ttl_ms // 3, 1000) / 1000.0
 
@@ -145,3 +153,14 @@ class RedisRunLock:
         if self._heartbeat:
             handle._start_heartbeat(ttl_ms)
         return handle
+
+    def detect_stale(self, run_id: str) -> bool:
+        """Check if the lock for *run_id* has expired (key missing = stale)."""
+        r = self._redis()
+        key = f"{self._key_prefix}{run_id}"
+        try:
+            ttl = r.pttl(key)
+            # pttl returns -2 if key doesn't exist, -1 if no expiry set
+            return ttl == -2
+        except Exception:  # noqa: BLE001
+            return False

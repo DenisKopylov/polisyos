@@ -154,6 +154,8 @@ class RegistryAuditLog:
     def export_jsonl(self, path: "Path") -> None:
         """Write all events to *path* as newline-delimited JSON."""
         import json as _json
+        from pathlib import Path as _Path
+
         with self._lock:
             lines = [
                 _json.dumps({
@@ -165,7 +167,7 @@ class RegistryAuditLog:
                 })
                 for e in self._events
             ]
-        Path(path).write_text("\n".join(lines) + ("\n" if lines else ""))
+        _Path(path).write_text("\n".join(lines) + ("\n" if lines else ""))
 
     def __len__(self) -> int:
         with self._lock:

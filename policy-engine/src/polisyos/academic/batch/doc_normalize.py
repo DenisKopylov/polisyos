@@ -22,11 +22,21 @@ from polisyos.academic.batch.article_extractor import (
 from polisyos.academic.batch.config import AcademicBatchConfig
 from polisyos.academic.batch.fulltext_resolver import (
     FullTextFetchResult,
+    _extract_html_tables,
     fetch_full_text_result_for_work,
     load_resolved_fulltext_cache,
     reconstruct_abstract,
 )
 from polisyos.batch_common.manifest import write_stage_manifest
+
+try:
+    from polisyos.academic.batch.table_extractor import extract_tables_from_pdf
+    _HAS_TABLE_EXTRACTOR = True
+except ImportError:
+    _HAS_TABLE_EXTRACTOR = False
+
+_JATS_ROOT_RE = re.compile(r"<article\b", re.IGNORECASE)
+_JATS_NS = "{http://jats.nlm.nih.gov/ns/archiving/1.0/}"
 
 _SECTION_HEADING_RE = re.compile(
     r"^\s*(abstract|introduction|background|methods?|materials?(?:\s+and\s+methods?)?|"
@@ -495,7 +505,7 @@ def _parse_tei_artifacts(tei_text: str) -> dict[str, Any]:
                     {
                         "figure_id": f"fig_{len(figures) + 1:03d}",
                         "label": (label or f"figure_{len(figures) + 1}").lower(),
-                        "text": text[:1600],
+                        "text": text[:3200],
                     }
                 )
         elif tag in {"biblStruct", "bibl"}:
@@ -537,6 +547,184 @@ def _safe_parse_tei_artifacts(tei_text: str) -> dict[str, Any] | None:
         return None
 
 
+def _parse_jats_xml(xml_text: str) -> dict[str, Any] | None:
+    """Parse JATS/NLM XML directly into structured artifacts."""
+    try:
+        root = ET.fromstring(xml_text)
+    except ET.ParseError:
+        return None
+
+    # Detect JATS root (with or without namespace)
+    root_tag = root.tag.split("}")[-1] if "}" in root.tag else root.tag
+    if root_tag != "article":
+        return None
+
+    ns = ""
+    if "}" in root.tag:
+        ns = root.tag.split("}")[0] + "}"
+
+    def _find(parent: ET.Element, tag: str) -> ET.Element | None:
+        return parent.find(f"{ns}{tag}") or parent.find(tag)
+
+    def _findall(parent: ET.Element, tag: str) -> list[ET.Element]:
+        return list(parent.findall(f".//{ns}{tag}") or parent.findall(f".//{tag}"))
+
+    def _text_of(elem: ET.Element | None) -> str:
+        if elem is None:
+            return ""
+        return _normalized_text(" ".join(chunk for chunk in elem.itertext()))
+
+    title = ""
+    title_group = _find(root, ".//article-meta/title-group/article-title")
+    if title_group is None:
+        for path in [".//front/article-meta/title-group/article-title", ".//article-title"]:
+            candidate = root.find(f".//{ns}{path.lstrip('./')}") or root.find(path)
+            if candidate is not None:
+                title_group = candidate
+                break
+    title = _text_of(title_group)
+
+    sections: list[dict[str, Any]] = []
+    tables: list[dict[str, Any]] = []
+    figures: list[dict[str, Any]] = []
+    references: list[dict[str, Any]] = []
+
+    # Extract sections from <body><sec>
+    sec_idx = 0
+    for sec in _findall(root, "sec"):
+        heading_elem = _find(sec, "title")
+        heading = _text_of(heading_elem).lower() if heading_elem is not None else ""
+        body = _text_of(sec)
+        if heading and body.lower().startswith(heading):
+            body = _normalized_text(body[len(heading):])
+        if not body:
+            continue
+        sec_idx += 1
+        sections.append({
+            "section_id": f"sec_{sec_idx:03d}",
+            "section_name": heading or f"section_{sec_idx}",
+            "text": body,
+            "char_count": len(body),
+        })
+
+    # Extract tables from <table-wrap>
+    for tw in _findall(root, "table-wrap"):
+        label_elem = _find(tw, "label")
+        caption_elem = _find(tw, "caption")
+        table_elem = _find(tw, "table")
+        label = _text_of(label_elem) or f"table_{len(tables) + 1}"
+        caption = _text_of(caption_elem)
+
+        # Try to extract structured table
+        rows_data: list[list[str]] = []
+        if table_elem is not None:
+            for tr in _findall(table_elem, "tr"):
+                cells = []
+                for cell_tag in ("th", "td"):
+                    for cell in (tr.findall(f"{ns}{cell_tag}") or tr.findall(cell_tag)):
+                        cells.append(_text_of(cell))
+                if cells:
+                    rows_data.append(cells)
+
+        if rows_data and len(rows_data) >= 2:
+            headers = rows_data[0]
+            md_lines = ["| " + " | ".join(headers) + " |"]
+            md_lines.append("| " + " | ".join("---" for _ in headers) + " |")
+            for row in rows_data[1:]:
+                padded = row + [""] * max(0, len(headers) - len(row))
+                md_lines.append("| " + " | ".join(padded[:len(headers)]) + " |")
+            text = "\n".join(md_lines)
+            if caption:
+                text = f"{label}: {caption}\n{text}"
+        else:
+            text = _text_of(tw)
+
+        if text:
+            tables.append({
+                "table_id": f"tbl_{len(tables) + 1:03d}",
+                "label": label,
+                "text": text,
+                "score": 1.0,
+                "structure_source": "jats_table",
+            })
+
+    # Extract figures from <fig>
+    for fig in _findall(root, "fig"):
+        label_elem = _find(fig, "label")
+        caption_elem = _find(fig, "caption")
+        label = (_text_of(label_elem) or f"figure_{len(figures) + 1}").lower()
+        caption = _text_of(caption_elem)
+        if caption:
+            figures.append({
+                "figure_id": f"fig_{len(figures) + 1:03d}",
+                "label": label,
+                "text": f"{label}: {caption}"[:3200],
+            })
+
+    # Extract references from <ref-list><ref>
+    for ref in _findall(root, "ref"):
+        text = _text_of(ref)
+        if text:
+            references.append({
+                "reference_id": f"ref_{len(references) + 1:03d}",
+                "reference_text": text[:1000],
+                "kind": "jats_reference",
+            })
+
+    if not sections and not tables:
+        return None
+
+    return {
+        "title": title,
+        "sections": sections,
+        "tables": tables,
+        "figures": figures,
+        "references": references[:64],
+        "appendix_blocks": [],
+    }
+
+
+def _extract_tables_from_pdf_bytes(pdf_bytes: bytes, work_id: str) -> list[dict[str, Any]]:
+    """Use table_extractor (marker-pdf) to get structured tables from PDF bytes."""
+    if not _HAS_TABLE_EXTRACTOR:
+        return []
+    import tempfile
+    from pathlib import Path as _Path
+    try:
+        with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as tmp:
+            tmp.write(pdf_bytes)
+            tmp_path = _Path(tmp.name)
+        raw_tables = extract_tables_from_pdf(tmp_path)
+        tmp_path.unlink(missing_ok=True)
+    except Exception:
+        from polisyos.common.logger import get_logger as _gl
+        _gl(__name__).debug("table_extractor failed for {}", work_id, exc_info=True)
+        return []
+
+    structured: list[dict[str, Any]] = []
+    for tbl in raw_tables:
+        headers = tbl.get("headers", [])
+        rows = tbl.get("rows", [])
+        if not headers or not rows:
+            continue
+        md_lines = ["| " + " | ".join(str(h) for h in headers) + " |"]
+        md_lines.append("| " + " | ".join("---" for _ in headers) + " |")
+        for row in rows[:50]:
+            padded = [str(c) for c in row] + [""] * max(0, len(headers) - len(row))
+            md_lines.append("| " + " | ".join(padded[:len(headers)]) + " |")
+        structured.append({
+            "table_id": f"tbl_marker_{tbl.get('table_index', len(structured)) + 1:03d}",
+            "label": f"table_{tbl.get('table_index', len(structured)) + 1}",
+            "text": "\n".join(md_lines),
+            "headers": headers,
+            "rows": rows[:50],
+            "numeric_cells": tbl.get("numeric_cells", []),
+            "score": 0.9,
+            "structure_source": "marker_pdf",
+        })
+    return structured
+
+
 async def _build_document_substrate(
     *,
     session: aiohttp.ClientSession,
@@ -560,24 +748,9 @@ async def _build_document_substrate(
     fallback_references = _extract_references(text, work)
     fallback_tei = _pseudo_tei_xml(title=title, sections=fallback_sections)
 
-    if fetch_result.source_kind == "abstract_fallback":
-        return {
-            "text": text,
-            "bundle": bundle,
-            "sections": fallback_sections,
-            "tables": fallback_tables,
-            "figures": fallback_figures,
-            "appendix_blocks": fallback_appendix,
-            "references": fallback_references,
-            "tei_text": fallback_tei,
-            "tei_source": "heuristic",
-            "tei_status": "fallback",
-            "infra_error_class": "",
-            "source_content_type": "",
-            "source_fetch_status": 0,
-        }
+    work_id = str(work.get("id") or work.get("work_id") or "")
 
-    if not config.doc_infra_enable_pub2tei and not config.doc_infra_enable_grobid:
+    if fetch_result.source_kind == "abstract_fallback":
         return {
             "text": text,
             "bundle": bundle,
@@ -603,6 +776,74 @@ async def _build_document_substrate(
     source_text = str(source_doc.get("text") or "")
     content_type = str(source_doc.get("content_type") or "")
     source_hint = _infer_source_hint(fetch_result.source_kind, str(fetch_result.source_url or ""), content_type, payload)
+
+    # --- Try native JATS XML parsing (before Pub2TEI) ---
+    if source_doc.get("ok") and source_hint == "publisher_xml":
+        xml_payload = source_text if source_text.strip() else payload.decode("utf-8", errors="ignore")
+        if _JATS_ROOT_RE.search(xml_payload[:2000]):
+            jats_parsed = _parse_jats_xml(xml_payload)
+            if jats_parsed is not None and (jats_parsed.get("sections") or jats_parsed.get("tables")):
+                return {
+                    "text": text,
+                    "bundle": bundle,
+                    "sections": jats_parsed["sections"] or fallback_sections,
+                    "tables": jats_parsed["tables"] or fallback_tables,
+                    "figures": jats_parsed["figures"] or fallback_figures,
+                    "appendix_blocks": jats_parsed.get("appendix_blocks") or fallback_appendix,
+                    "references": jats_parsed["references"] or fallback_references,
+                    "tei_text": fallback_tei,
+                    "tei_source": "jats_native",
+                    "tei_status": "ok",
+                    "infra_error_class": "",
+                    "source_content_type": content_type,
+                    "source_fetch_status": int(source_doc.get("status") or 0),
+                }
+
+    # --- Try HTML table extraction ---
+    if source_doc.get("ok") and source_hint not in ("pdf", "publisher_xml") and config.fulltext_extract_html_tables:
+        html_content = source_text if source_text.strip() else payload.decode("utf-8", errors="ignore")
+        html_tables = _extract_html_tables(html_content)
+        if html_tables:
+            merged_tables = html_tables + fallback_tables
+            return {
+                "text": text,
+                "bundle": bundle,
+                "sections": fallback_sections,
+                "tables": merged_tables,
+                "figures": fallback_figures,
+                "appendix_blocks": fallback_appendix,
+                "references": fallback_references,
+                "tei_text": fallback_tei,
+                "tei_source": "html_tables",
+                "tei_status": "fallback",
+                "infra_error_class": "",
+                "source_content_type": content_type,
+                "source_fetch_status": int(source_doc.get("status") or 0),
+            }
+
+    # --- Try marker-pdf structured table extraction for PDFs ---
+    if source_doc.get("ok") and source_hint == "pdf" and payload.startswith(_PDF_MAGIC) and _HAS_TABLE_EXTRACTOR:
+        marker_tables = _extract_tables_from_pdf_bytes(payload, work_id)
+        if marker_tables:
+            merged_tables = marker_tables + fallback_tables
+            fallback_tables = merged_tables
+
+    if not config.doc_infra_enable_pub2tei and not config.doc_infra_enable_grobid:
+        return {
+            "text": text,
+            "bundle": bundle,
+            "sections": fallback_sections,
+            "tables": fallback_tables,
+            "figures": fallback_figures,
+            "appendix_blocks": fallback_appendix,
+            "references": fallback_references,
+            "tei_text": fallback_tei,
+            "tei_source": "heuristic",
+            "tei_status": "fallback",
+            "infra_error_class": "",
+            "source_content_type": content_type if source_doc.get("ok") else "",
+            "source_fetch_status": int(source_doc.get("status") or 0) if source_doc.get("ok") else 0,
+        }
 
     if source_doc.get("ok"):
         precedence = tuple(str(item).strip().lower() for item in config.doc_infra_precedence if str(item).strip())

@@ -13,12 +13,13 @@ from __future__ import annotations
 
 import graphlib
 from dataclasses import dataclass, field
+from enum import Enum
 from types import MappingProxyType
 from typing import Any, Iterator, Mapping, Sequence, TYPE_CHECKING
 from uuid import UUID, uuid4
 
 from polisyos.foundry.methods.base import MethodSignature, _stable_digest
-from polisyos.foundry.methods.exceptions import CyclicDependencyError
+from polisyos.foundry.methods.exceptions import CyclicDependencyError, MissingRequirementError
 from polisyos.foundry.methods.linker import LinkResult, SlotBinding, SlotLinker
 from polisyos.foundry.methods.registry import MethodRegistry
 
@@ -31,7 +32,16 @@ __all__ = [
     "CompositionDAG",
     "MethodComposer",
     "CompiledMethodChain",
+    "SemanticValidationLevel",
 ]
+
+
+class SemanticValidationLevel(Enum):
+    """Controls how strictly the composer validates semantic constraints."""
+
+    OFF = "off"
+    WARN = "warn"
+    STRICT = "strict"
 
 
 # =============================================================================
@@ -460,7 +470,10 @@ class MethodComposer:
 
         return link_result
 
-    def _requirement_edges(self) -> tuple[dict[UUID, set[UUID]], list[str]]:
+    def _requirement_edges(
+        self,
+        level: SemanticValidationLevel = SemanticValidationLevel.WARN,
+    ) -> tuple[dict[UUID, set[UUID]], list[str]]:
         warnings: list[str] = []
         predecessors: dict[UUID, set[UUID]] = {}
         fqn_to_ids: dict[str, list[UUID]] = {}
@@ -473,10 +486,14 @@ class MethodComposer:
             for required_fqn in sig.requires:
                 ids = fqn_to_ids.get(required_fqn)
                 if not ids:
-                    warnings.append(
-                        f"MISSING REQUIREMENT: {sig.fqn} requires {required_fqn}, "
-                        "which is not in composition"
-                    )
+                    if level == SemanticValidationLevel.STRICT:
+                        raise MissingRequirementError(sig.fqn, required_fqn)
+                    elif level == SemanticValidationLevel.WARN:
+                        warnings.append(
+                            f"MISSING REQUIREMENT: {sig.fqn} requires {required_fqn}, "
+                            "which is not in composition"
+                        )
+                    # OFF → silent continue
                     continue
                 required_ids.update(ids)
 
@@ -485,11 +502,14 @@ class MethodComposer:
 
         return predecessors, warnings
 
-    def validate(self) -> list[str]:
+    def validate(
+        self,
+        level: SemanticValidationLevel = SemanticValidationLevel.WARN,
+    ) -> list[str]:
         """Validate the composition; returns warnings without raising."""
         warnings: list[str] = []
 
-        req_predecessors, req_warnings = self._requirement_edges()
+        req_predecessors, req_warnings = self._requirement_edges(level=level)
         warnings.extend(req_warnings)
 
         try:
@@ -520,19 +540,33 @@ class MethodComposer:
 
         return warnings
 
-    def build(self, *, validate_semantics: bool = False) -> CompiledMethodChain:
+    def build(
+        self,
+        *,
+        validate_semantics: SemanticValidationLevel | bool = SemanticValidationLevel.WARN,
+    ) -> CompiledMethodChain:
         """Build the compiled chain; raises on cyclic dependencies.
 
         Parameters
         ----------
         validate_semantics:
-            When True, runs the cross-method semantic validator after building
-            the chain. Semantic errors are appended to the chain's ``warnings``
-            tuple. Fatal semantic errors (conflicts) are raised immediately.
-            Set ``POLISYOS_STRICT=1`` to make ordering violations fatal.
+            Controls semantic validation level:
+            - ``SemanticValidationLevel.OFF`` — no semantic checks
+            - ``SemanticValidationLevel.WARN`` (default) — append warnings
+            - ``SemanticValidationLevel.STRICT`` — raise on errors
+
+            For backward compatibility, ``bool`` values are accepted:
+            ``True`` maps to ``STRICT``, ``False`` maps to ``OFF``.
         """
-        warnings = self.validate()
-        req_predecessors, _req_warnings = self._requirement_edges()
+        # Backward compat: accept bool
+        if isinstance(validate_semantics, bool):
+            validate_semantics = (
+                SemanticValidationLevel.STRICT if validate_semantics
+                else SemanticValidationLevel.OFF
+            )
+
+        warnings = self.validate(level=validate_semantics)
+        req_predecessors, _req_warnings = self._requirement_edges(level=validate_semantics)
         order = self._dag.topological_order(extra_predecessors=req_predecessors)
 
         all_bindings: list[SlotBinding] = []
@@ -547,35 +581,72 @@ class MethodComposer:
             )
         )
 
+        # Compute composition-aware cache keys (includes upstream context)
+        frozen_dag = self._dag.freeze()
+        cache_keys = self._compute_composition_cache_keys(
+            frozen_dag, req_predecessors,
+        )
+
         chain = CompiledMethodChain(
-            dag=self._dag.freeze(),
+            dag=frozen_dag,
             signatures=MappingProxyType(dict(self._signatures)),
             execution_order=tuple(order),
             bindings=tuple(all_bindings),
             warnings=tuple(w for w in warnings if not w.startswith("CRITICAL:")),
+            cache_keys=cache_keys,
         )
 
-        if validate_semantics:
-            import os
+        if validate_semantics != SemanticValidationLevel.OFF:
             from polisyos.foundry.methods.semantic_validator import CrossMethodValidator
-            strict = bool(os.environ.get("POLISYOS_STRICT"))
+            strict = validate_semantics == SemanticValidationLevel.STRICT
             validator = CrossMethodValidator(strict=strict)
             report = validator.validate_chain(chain)
 
-            if report.errors:
+            if report.errors and strict:
                 raise ValueError(
                     f"Chain failed semantic validation:\n{report.summary()}"
                 )
 
-            if report.warnings:
-                semantic_warnings = tuple(
-                    f"[semantic] {issue.message}" for issue in report.warnings
+            if report.warnings or (report.errors and not strict):
+                all_issues = list(report.warnings) + (
+                    list(report.errors) if not strict else []
                 )
-                # Rebuild chain with extended warnings (frozen dataclass — use replace).
+                semantic_warnings = tuple(
+                    f"[semantic] {issue.message}" for issue in all_issues
+                )
                 from dataclasses import replace as _replace
                 chain = _replace(chain, warnings=chain.warnings + semantic_warnings)
 
         return chain
+
+    def _compute_composition_cache_keys(
+        self,
+        frozen_dag: FrozenCompositionDAG,
+        req_predecessors: dict[UUID, set[UUID]],
+    ) -> MappingProxyType[UUID, str]:
+        """Compute cache keys that incorporate upstream context and backend."""
+        cache_keys: dict[UUID, str] = {}
+        for node_id in frozen_dag.nodes:
+            node = frozen_dag.nodes[node_id]
+            sig = self._signatures[node_id]
+            # Gather all predecessors: both data-flow and requirement edges
+            upstream_ids: set[UUID] = set(frozen_dag.predecessors.get(node_id, frozenset()))
+            if node_id in req_predecessors:
+                upstream_ids |= {
+                    uid for uid in req_predecessors[node_id] if uid in frozen_dag.nodes
+                }
+            upstream_digests = sorted(
+                frozen_dag.nodes[uid].node_key.static_params_digest
+                for uid in upstream_ids
+                if frozen_dag.nodes[uid].node_key is not None
+            )
+            combined = {
+                "static_params": dict(node.static_params),
+                "upstream_digests": upstream_digests,
+                "backend": sig.backend.value if sig.backend else None,
+            }
+            cache_keys[node_id] = _stable_digest(combined)
+        return MappingProxyType(cache_keys)
 
     def __len__(self) -> int:
         return len(self._dag)
@@ -604,6 +675,7 @@ class CompiledMethodChain:
     execution_order: tuple[UUID, ...]
     bindings: tuple[SlotBinding, ...]
     warnings: tuple[str, ...]
+    cache_keys: Mapping[UUID, str] = field(default_factory=lambda: MappingProxyType({}))
 
     def __len__(self) -> int:
         return len(self.execution_order)

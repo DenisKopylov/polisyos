@@ -5,7 +5,7 @@ import json
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
-from polisyos.fabric.connectors.base import ConnectionConfig, FetchRequest
+from polisyos.fabric.connectors.base import AsyncFetchLease, ConnectionConfig, FetchRequest
 from polisyos.fabric.connectors.sources.eurostat import EurostatConnector
 from polisyos.fabric.connectors.sources.unesco_uis import UNESCOUISConnector
 from polisyos.fabric.connectors.sources.unpd import UNPDConnector
@@ -90,6 +90,71 @@ def test_world_bank_retry_after_falls_back_to_x_ratelimit_reset() -> None:
     delay = _retry_after_seconds({"X-RateLimit-Reset": str(reset_in_60s.timestamp())})
     assert delay is not None
     assert 0.0 <= delay <= 61.0
+
+
+def test_world_bank_fetch_batches_multiple_indicators_and_incremental_params(monkeypatch) -> None:
+    connector = WorldBankConnector()
+    captured: list[dict[str, Any]] = []
+    response = [
+        {"pages": 1},
+        [
+            {
+                "countryiso3code": "UKR",
+                "country": {"id": "UA", "value": "Ukraine"},
+                "indicator": {"id": "NY.GDP.MKTP.CD", "value": "GDP"},
+                "date": "2024",
+                "value": "100",
+                "unit": "",
+                "decimal": "0",
+            },
+            {
+                "countryiso3code": "UKR",
+                "country": {"id": "UA", "value": "Ukraine"},
+                "indicator": {"id": "SP.POP.TOTL", "value": "Population"},
+                "date": "2024",
+                "value": "200",
+                "unit": "",
+                "decimal": "0",
+            },
+        ],
+    ]
+
+    async def _fake_request_json(_session, url, *, params, connector_id):
+        captured.append({"url": url, "params": dict(params), "connector_id": connector_id})
+        headers = {"ETag": '"wdi-etag-2"'}
+        return response, headers, json.dumps(response).encode("utf-8")
+
+    async def _fake_get_session(self, _handle):  # noqa: ARG001
+        return object()
+
+    monkeypatch.setattr(WorldBankConnector, "_request_json", staticmethod(_fake_request_json))
+    monkeypatch.setattr(WorldBankConnector, "_get_session", _fake_get_session)
+
+    async def _exercise():
+        handle = await connector.connect(ConnectionConfig(url="https://example.test"))
+        result = await connector.fetch(
+            handle,
+            FetchRequest(
+                dataset_id="NY.GDP.MKTP.CD;SP.POP.TOTL",
+                filters=(
+                    ("country", ("UKR", "DEU")),
+                    ("mrv", ("2",)),
+                    ("frequency", ("Y",)),
+                ),
+                page_size=500,
+            ),
+        )
+        await connector.disconnect(handle)
+        return result
+
+    result = _run_async(_exercise())
+    assert result.row_count == 2
+    assert len(captured) == 1
+    assert captured[0]["url"].endswith("/country/DEU;UKR/indicator/NY.GDP.MKTP.CD;SP.POP.TOTL")
+    assert captured[0]["params"]["per_page"] == "500"
+    assert captured[0]["params"]["mrv"] == "2"
+    assert captured[0]["params"]["frequency"] == "Y"
+    assert sorted(result.data["indicator_id"].tolist()) == ["NY.GDP.MKTP.CD", "SP.POP.TOTL"]
 
 
 def test_eurostat_fetch_with_mock_http(monkeypatch) -> None:
@@ -188,6 +253,177 @@ def test_eurostat_uses_since_and_until_time_period_params(monkeypatch) -> None:
     result = _run_async(_exercise())
     assert result.row_count == 1
     assert result.data.iloc[0]["time_period"] == "2023"
+
+
+def test_eurostat_describe_dataset_extracts_structure_constraints(monkeypatch) -> None:
+    connector = EurostatConnector()
+    payload = {
+        "structure": {
+            "dataflows": [{"id": "ilc_test", "version": "2026-01"}],
+            "dataStructures": [
+                {
+                    "dataStructureComponents": {
+                        "dimensionList": {
+                            "dimensions": [
+                                {"id": "geo"},
+                                {"id": "time"},
+                                {"id": "hhtyp"},
+                            ]
+                        }
+                    }
+                }
+            ],
+            "contentConstraints": [
+                {
+                    "cubeRegions": [
+                        {
+                            "keyValues": {
+                                "geo": {"values": [{"id": "DE"}, {"id": "UA"}]},
+                                "hhtyp": {"values": [{"id": "A1"}, {"id": "A2"}]},
+                            }
+                        }
+                    ]
+                }
+            ],
+        }
+    }
+
+    async def _fake_request_json(_session, _url, *, params, connector_id, headers=None):  # noqa: ARG001
+        return payload, {}, json.dumps(payload).encode("utf-8")
+
+    async def _fake_get_session(self, _handle):  # noqa: ARG001
+        return object()
+
+    monkeypatch.setattr(EurostatConnector, "_request_json", staticmethod(_fake_request_json))
+    monkeypatch.setattr(EurostatConnector, "_get_session", _fake_get_session)
+
+    async def _exercise():
+        handle = await connector.connect(ConnectionConfig(url="https://example.test"))
+        snapshot = await connector.describe_dataset(handle, "ilc_test")
+        await connector.disconnect(handle)
+        return snapshot
+
+    snapshot = _run_async(_exercise())
+    assert snapshot.dimension_order == ("geo", "time", "hhtyp")
+    assert list(snapshot.allowed_positions["geo"]) == ["DE", "UA"]
+    assert snapshot.version_hint == "2026-01"
+    assert snapshot.estimated_cardinality == 4
+
+
+def test_eurostat_async_lease_lifecycle(monkeypatch) -> None:
+    connector = EurostatConnector()
+    submit_xml = b"""
+    <env:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/">
+      <env:Body>
+        <syncResponse>
+          <queued>
+            <id>lease-123</id>
+            <status>SUBMITTED</status>
+          </queued>
+        </syncResponse>
+      </env:Body>
+    </env:Envelope>
+    """
+    processing_xml = b"""
+    <env:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/">
+      <env:Body>
+        <asyncResponse>
+          <status>
+            <key>lease-123</key>
+            <status>PROCESSING</status>
+          </status>
+        </asyncResponse>
+      </env:Body>
+    </env:Envelope>
+    """
+    available_xml = b"""
+    <env:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/">
+      <env:Body>
+        <asyncResponse>
+          <status>
+            <key>lease-123</key>
+            <status>AVAILABLE</status>
+          </status>
+        </asyncResponse>
+      </env:Body>
+    </env:Envelope>
+    """
+    payload = {
+        "id": ["geo", "time"],
+        "size": [1, 1],
+        "dimension": {
+            "geo": {"category": {"index": {"UA": 0}, "label": {"UA": "UA"}}},
+            "time": {"category": {"index": {"2022": 0}, "label": {"2022": "2022"}}},
+        },
+        "value": {"0": 42.0},
+    }
+    describe_payload = {
+        "structure": {
+            "dataflows": [{"id": "ilc_test", "version": "2026-01"}],
+            "dataStructures": [
+                {
+                    "dataStructureComponents": {
+                        "dimensionList": {
+                            "dimensions": [{"id": "geo"}, {"id": "time"}, {"id": "hhtyp"}]
+                        }
+                    }
+                }
+            ],
+            "contentConstraints": [
+                {
+                    "cubeRegions": [
+                        {"keyValues": {"geo": {"values": [{"id": "UA"}]}, "hhtyp": {"values": [{"id": "A1"}, {"id": "A2"}]}}}
+                    ]
+                }
+            ],
+        }
+    }
+    poll_state = {"count": 0}
+
+    async def _fake_request_json(_session, _url, *, params, connector_id, headers=None):  # noqa: ARG001
+        return describe_payload, {}, json.dumps(describe_payload).encode("utf-8")
+
+    async def _fake_request_raw(self, _session, url, *, params, connector_id, headers=None):  # noqa: ARG001
+        if "/data/ilc_test" in url:
+            return submit_xml, {}
+        if url.endswith("/status/lease-123"):
+            poll_state["count"] += 1
+            return (processing_xml if poll_state["count"] == 1 else available_xml), {}
+        if url.endswith("/data/lease-123"):
+            return json.dumps(payload).encode("utf-8"), {}
+        raise AssertionError(url)
+
+    async def _fake_get_session(self, _handle):  # noqa: ARG001
+        return object()
+
+    monkeypatch.setattr(EurostatConnector, "_request_json", staticmethod(_fake_request_json))
+    monkeypatch.setattr(EurostatConnector, "_request_raw", _fake_request_raw)
+    monkeypatch.setattr(EurostatConnector, "_get_session", _fake_get_session)
+
+    async def _exercise():
+        handle = await connector.connect(ConnectionConfig(url="https://example.test"))
+        request = FetchRequest(
+            dataset_id="ilc_test",
+            filters=(("geo", ("UA",)),),
+            date_start=datetime(2022, 1, 1, tzinfo=timezone.utc),
+            date_end=datetime(2022, 12, 31, tzinfo=timezone.utc),
+        )
+        lease = await connector.fetch_async(handle, request)
+        first = await connector.poll_async_fetch(handle, lease)
+        second = await connector.poll_async_fetch(
+            handle,
+            first if isinstance(first, AsyncFetchLease) else lease,
+        )
+        await connector.disconnect(handle)
+        return lease, first, second
+
+    lease, first, second = _run_async(_exercise())
+    assert lease.lease_id == "lease-123"
+    assert lease.status == "submitted"
+    assert isinstance(first, AsyncFetchLease)
+    assert first.status == "processing"
+    assert second.row_count == 1
+    assert second.data.iloc[0]["time_period"] == "2022"
 
 
 def test_ukons_fetch_with_mock_http(monkeypatch) -> None:

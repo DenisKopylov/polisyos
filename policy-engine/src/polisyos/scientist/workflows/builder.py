@@ -28,20 +28,119 @@ from polisyos.scientist.engine.checkpoint import (
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.executor import WorkflowExecutionResult, WorkflowExecutor
 from polisyos.scientist.engine.registry import NodeRegistry, discover_nodes
+from polisyos.scientist.engine.runner.config import WorkflowRunnerConfig, build_workflow_runner
 from polisyos.scientist.engine.state import ExperimentState
 from polisyos.scientist.nodes.builtins import builtin_nodes as scientist_builtin_nodes
 from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_DATA_SNAPSHOT_REF,
     INPUT_DATA_VIEW_REQUEST_REF,
+    INPUT_GRAPH_PRIOR_BUNDLE_REF,
     INPUT_INPUT_BINDINGS_REF,
     INPUT_REGISTRY_BUNDLE_REF,
 )
 from polisyos.scientist.workflows.causal_full import causal_full_workflow_spec
+from polisyos.scientist.workflows.discovery import discovery_workflow_spec
 from polisyos.scientist.workflows.default import default_workflow_spec
+from polisyos.scientist.workflows.policy_design import policy_design_workflow_spec
 from polisyos.scientist.workflows.policy_verified import policy_verified_workflow_spec
 from polisyos.scientist.workflows.selection import resolve_workflow_id as _resolve_workflow_id
 
 DEFAULT_CAS_ROOT = Path(".polisyos")
+
+# Global quota registry — shared across workflow invocations
+_global_quota_registry: object | None = None
+
+
+def _get_global_quota_registry() -> object | None:
+    """Lazy-init global TenantQuotaRegistry."""
+    global _global_quota_registry
+    if _global_quota_registry is not None:
+        return _global_quota_registry
+    try:
+        from polisyos.core.security.quota_registry import TenantQuotaRegistry
+        _global_quota_registry = TenantQuotaRegistry()
+        return _global_quota_registry
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def _maybe_enforce_quota() -> object | None:
+    """Check and record quota for the current tenant if active.
+
+    Returns the QuotaEnforcer (for calling record_run_end in finally),
+    or None if no tenant context.
+    """
+    tenant_id = get_current_tenant_id_or_none()
+    if tenant_id is None:
+        return None
+    registry = _get_global_quota_registry()
+    if registry is None:
+        return None
+    try:
+        enforcer = registry.get_enforcer(tenant_id)  # type: ignore[union-attr]
+        enforcer.check_run_start()
+        enforcer.record_run_start()
+        return enforcer
+    except Exception:
+        raise
+
+
+def _maybe_namespace_store(store: ArtifactStore) -> ArtifactStore:
+    """Wrap store with namespace isolation if tenant context is active."""
+    tenant_id = get_current_tenant_id_or_none()
+    if tenant_id is None:
+        return store
+    try:
+        from polisyos.core.security.namespace import NamespacedArtifactStore
+        cell_id = get_current_cell_id()
+        return NamespacedArtifactStore(inner=store, tenant_id=tenant_id, cell_id=cell_id)
+    except Exception:  # noqa: BLE001
+        return store
+
+
+def _maybe_create_provenance_dag(run_id: str) -> object | None:
+    """Try to create a RunProvenanceDAG; return None if unavailable."""
+    try:
+        from polisyos.scientist.provenance.run_dag import RunProvenanceDAG
+        tenant_id = get_current_tenant_id_or_none()
+        return RunProvenanceDAG(run_id=run_id, tenant_id=tenant_id)
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def _artifact_ref_or_none(value: object) -> ArtifactRef | None:
+    if isinstance(value, ArtifactRef):
+        return value
+    if isinstance(value, dict):
+        try:
+            return ArtifactRef.model_validate(value)
+        except Exception:  # noqa: BLE001
+            return None
+    return None
+
+
+def _pin_cross_layer_input_ref(
+    state: ExperimentState,
+    *,
+    input_key: str,
+    provided_ref: ArtifactRef | None = None,
+) -> ArtifactRef | None:
+    input_ref = _artifact_ref_or_none(state.inputs.get(input_key))
+    param_ref = _artifact_ref_or_none(state.params.get(input_key))
+    resolved = next((ref for ref in (provided_ref, input_ref, param_ref) if ref is not None), None)
+
+    if resolved is None:
+        return None
+
+    for candidate in (provided_ref, input_ref, param_ref):
+        if candidate is not None and candidate != resolved:
+            raise ValueError(
+                f"{input_key} must be CAS-pinned before workflow start; received mismatched refs."
+            )
+
+    state.inputs[input_key] = resolved
+    state.params[input_key] = resolved.model_dump(mode="json")
+    return resolved
 
 
 def build_default_registry(store: ArtifactStore) -> ArtifactRef:
@@ -159,6 +258,34 @@ def run_selected_workflow(
     tracer: object | None = None,
 ) -> WorkflowExecutionResult:
     workflow_id = resolve_workflow_id(initial_state)
+    if workflow_id == "scientist_policy_design":
+        return run_policy_design_workflow(
+            initial_state,
+            store=store,
+            registry_bundle_ref=registry_bundle_ref,
+            checkpoint_policy=checkpoint_policy,
+            force_lock=force_lock,
+            foundry=foundry,
+            fabric=fabric,
+            scholar=scholar,
+            lex=lex,
+            logger=logger,
+            tracer=tracer,
+        )
+    if workflow_id == "scientist_discovery":
+        return run_discovery_workflow(
+            initial_state,
+            store=store,
+            registry_bundle_ref=registry_bundle_ref,
+            checkpoint_policy=checkpoint_policy,
+            force_lock=force_lock,
+            foundry=foundry,
+            fabric=fabric,
+            scholar=scholar,
+            lex=lex,
+            logger=logger,
+            tracer=tracer,
+        )
     if workflow_id == "scientist_policy_verified":
         return run_policy_verified_workflow(
             initial_state,
@@ -201,11 +328,13 @@ def run_selected_workflow(
         tracer=tracer,
     )
 
-def run_default_workflow(
+
+def run_policy_design_workflow(
     initial_state: ExperimentState,
     *,
     store: ArtifactStore | None = None,
     registry_bundle_ref: ArtifactRef | None = None,
+    graph_prior_bundle_ref: ArtifactRef | None = None,
     checkpoint_policy: CheckpointPolicy = "strict",
     force_lock: bool = False,
     foundry: object | None = None,
@@ -216,18 +345,34 @@ def run_default_workflow(
     tracer: object | None = None,
 ) -> WorkflowExecutionResult:
     store = store or FileSystemCAS(DEFAULT_CAS_ROOT)
+    store = _maybe_namespace_store(store)
     policy = normalize_checkpoint_policy(checkpoint_policy)
 
     state = initial_state.model_copy(deep=True)
     if not state.run_id:
         state = state.model_copy(update={"run_id": new_run_id()})
-    state.params["workflow_id"] = "scientist_default"
+    state.params["workflow_id"] = "scientist_policy_design"
+    state.params.setdefault("policy_mode", True)
+    state.execution_profile = state.execution_profile or "policy_design"
 
     if registry_bundle_ref is None:
         registry_bundle_ref = state.inputs.get(INPUT_REGISTRY_BUNDLE_REF)
     if registry_bundle_ref is None:
         registry_bundle_ref = build_default_registry(store)
-    state.inputs[INPUT_REGISTRY_BUNDLE_REF] = registry_bundle_ref
+    registry_bundle_ref = _pin_cross_layer_input_ref(
+        state,
+        input_key=INPUT_REGISTRY_BUNDLE_REF,
+        provided_ref=registry_bundle_ref,
+    ) or registry_bundle_ref
+    if graph_prior_bundle_ref is None:
+        graph_prior_bundle_ref = _artifact_ref_or_none(
+            state.inputs.get(INPUT_GRAPH_PRIOR_BUNDLE_REF)
+        )
+    _pin_cross_layer_input_ref(
+        state,
+        input_key=INPUT_GRAPH_PRIOR_BUNDLE_REF,
+        provided_ref=graph_prior_bundle_ref,
+    )
 
     _ensure_snapshot_bind(state)
 
@@ -260,10 +405,158 @@ def run_default_workflow(
             checkpoint_policy=policy,
         )
         executor = WorkflowExecutor(ctx, registry, checkpoint_hook=checkpoint_hook)
-        workflow = default_workflow_spec()
+        workflow = policy_design_workflow_spec()
         return executor.execute(workflow, state)
     finally:
         lock.release()
+
+
+def run_discovery_workflow(
+    initial_state: ExperimentState,
+    *,
+    store: ArtifactStore | None = None,
+    registry_bundle_ref: ArtifactRef | None = None,
+    checkpoint_policy: CheckpointPolicy = "strict",
+    force_lock: bool = False,
+    foundry: object | None = None,
+    fabric: object | None = None,
+    scholar: object | None = None,
+    lex: object | None = None,
+    logger: logging.Logger | None = None,
+    tracer: object | None = None,
+) -> WorkflowExecutionResult:
+    store = store or FileSystemCAS(DEFAULT_CAS_ROOT)
+    store = _maybe_namespace_store(store)
+    policy = normalize_checkpoint_policy(checkpoint_policy)
+
+    state = initial_state.model_copy(deep=True)
+    if not state.run_id:
+        state = state.model_copy(update={"run_id": new_run_id()})
+    state.params["workflow_id"] = "scientist_discovery"
+    state.execution_profile = state.execution_profile or "discovery"
+
+    if registry_bundle_ref is None:
+        registry_bundle_ref = state.inputs.get(INPUT_REGISTRY_BUNDLE_REF)
+    if registry_bundle_ref is None:
+        registry_bundle_ref = build_default_registry(store)
+    _pin_cross_layer_input_ref(
+        state,
+        input_key=INPUT_REGISTRY_BUNDLE_REF,
+        provided_ref=registry_bundle_ref,
+    )
+
+    run_dir = getattr(store, "root", Path(".")) / "runs" / state.run_id
+    lock = acquire_run_lock(run_dir, run_id=state.run_id, mode="run", force=force_lock)
+    try:
+        ctx = build_execution_context(
+            store,
+            registry_bundle_ref,
+            run_id=state.run_id,
+            logger=logger,
+            tracer=tracer,
+            foundry=foundry,
+            fabric=fabric,
+            scholar=scholar,
+            lex=lex,
+        )
+        _propagate_runtime_run_metadata(ctx, state)
+
+        registry = build_registry_with_builtin_nodes()
+        checkpoint_hook = CASCheckpointHook(
+            store=store,
+            run_dir=run_dir,
+            sequence_start=0,
+            checkpoint_policy=policy,
+        )
+        executor = WorkflowExecutor(ctx, registry, checkpoint_hook=checkpoint_hook)
+        workflow = discovery_workflow_spec()
+        return executor.execute(workflow, state)
+    finally:
+        lock.release()
+
+def run_default_workflow(
+    initial_state: ExperimentState,
+    *,
+    store: ArtifactStore | None = None,
+    registry_bundle_ref: ArtifactRef | None = None,
+    checkpoint_policy: CheckpointPolicy = "strict",
+    force_lock: bool = False,
+    foundry: object | None = None,
+    fabric: object | None = None,
+    scholar: object | None = None,
+    lex: object | None = None,
+    logger: logging.Logger | None = None,
+    tracer: object | None = None,
+) -> WorkflowExecutionResult:
+    store = store or FileSystemCAS(DEFAULT_CAS_ROOT)
+    store = _maybe_namespace_store(store)
+    policy = normalize_checkpoint_policy(checkpoint_policy)
+
+    state = initial_state.model_copy(deep=True)
+    if not state.run_id:
+        state = state.model_copy(update={"run_id": new_run_id()})
+    state.params["workflow_id"] = "scientist_default"
+
+    if registry_bundle_ref is None:
+        registry_bundle_ref = state.inputs.get(INPUT_REGISTRY_BUNDLE_REF)
+    if registry_bundle_ref is None:
+        registry_bundle_ref = build_default_registry(store)
+    _pin_cross_layer_input_ref(
+        state,
+        input_key=INPUT_REGISTRY_BUNDLE_REF,
+        provided_ref=registry_bundle_ref,
+    )
+
+    _ensure_snapshot_bind(state)
+
+    if foundry is None:
+        foundry = DefaultFoundryPort()
+    if fabric is None and INPUT_DATA_VIEW_REQUEST_REF in state.inputs:
+        fabric = DefaultFabricPort()
+
+    enforcer = _maybe_enforce_quota()
+    run_dir = getattr(store, "root", Path(".")) / "runs" / state.run_id
+    lock = acquire_run_lock(run_dir, run_id=state.run_id, mode="run", force=force_lock)
+    try:
+        ctx = build_execution_context(
+            store,
+            registry_bundle_ref,
+            run_id=state.run_id,
+            logger=logger,
+            tracer=tracer,
+            foundry=foundry,
+            fabric=fabric,
+            scholar=scholar,
+            lex=lex,
+        )
+        _propagate_runtime_run_metadata(ctx, state)
+
+        registry = build_registry_with_builtin_nodes()
+        checkpoint_hook = CASCheckpointHook(
+            store=store,
+            run_dir=run_dir,
+            sequence_start=0,
+            checkpoint_policy=policy,
+        )
+        provenance_dag = _maybe_create_provenance_dag(state.run_id)
+
+        runner_config = WorkflowRunnerConfig.from_env()
+        workflow = default_workflow_spec()
+        if runner_config.backend != "local":
+            import asyncio
+            runner = build_workflow_runner(runner_config)
+            return asyncio.run(runner.execute_workflow(
+                workflow, state, ctx, registry,
+                checkpoint_hook=checkpoint_hook,
+                max_parallelism=runner_config.max_parallelism,
+            ))
+
+        executor = WorkflowExecutor(ctx, registry, checkpoint_hook=checkpoint_hook)
+        return executor.execute(workflow, state)
+    finally:
+        lock.release()
+        if enforcer is not None:
+            enforcer.record_run_end()
 
 
 def run_policy_verified_workflow(
@@ -281,6 +574,7 @@ def run_policy_verified_workflow(
     tracer: object | None = None,
 ) -> WorkflowExecutionResult:
     store = store or FileSystemCAS(DEFAULT_CAS_ROOT)
+    store = _maybe_namespace_store(store)
     policy = normalize_checkpoint_policy(checkpoint_policy)
 
     state = initial_state.model_copy(deep=True)
@@ -303,7 +597,11 @@ def run_policy_verified_workflow(
         registry_bundle_ref = state.inputs.get(INPUT_REGISTRY_BUNDLE_REF)
     if registry_bundle_ref is None:
         registry_bundle_ref = build_default_registry(store)
-    state.inputs[INPUT_REGISTRY_BUNDLE_REF] = registry_bundle_ref
+    _pin_cross_layer_input_ref(
+        state,
+        input_key=INPUT_REGISTRY_BUNDLE_REF,
+        provided_ref=registry_bundle_ref,
+    )
 
     _ensure_snapshot_bind(state)
 
@@ -357,6 +655,7 @@ def run_causal_full_workflow(
     tracer: object | None = None,
 ) -> WorkflowExecutionResult:
     store = store or FileSystemCAS(DEFAULT_CAS_ROOT)
+    store = _maybe_namespace_store(store)
     policy = normalize_checkpoint_policy(checkpoint_policy)
 
     state = initial_state.model_copy(deep=True)
@@ -369,7 +668,11 @@ def run_causal_full_workflow(
         registry_bundle_ref = state.inputs.get(INPUT_REGISTRY_BUNDLE_REF)
     if registry_bundle_ref is None:
         registry_bundle_ref = build_default_registry(store)
-    state.inputs[INPUT_REGISTRY_BUNDLE_REF] = registry_bundle_ref
+    _pin_cross_layer_input_ref(
+        state,
+        input_key=INPUT_REGISTRY_BUNDLE_REF,
+        provided_ref=registry_bundle_ref,
+    )
 
     _ensure_snapshot_bind(state)
 
@@ -415,6 +718,7 @@ __all__ = [
     "resolve_workflow_id",
     "run_default_workflow",
     "run_causal_full_workflow",
+    "run_policy_design_workflow",
     "run_policy_verified_workflow",
     "run_selected_workflow",
 ]

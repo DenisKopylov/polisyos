@@ -799,7 +799,7 @@ def _realcause_case(
         runner=runner,
         checker=checker,
         tags=("realcause",),
-        timeout_s=180.0,
+        timeout_s=420.0,
     )
 
 

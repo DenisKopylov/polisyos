@@ -34,6 +34,7 @@ from polisyos.core.contracts.scientist import (
     VerifiedPolicyReportRef,
 )
 from polisyos.core.contracts.uncertainty import UncertaintyEnvelopeRef
+from polisyos.ir.analytics.abstraction import load_abstraction_certificate
 from polisyos.ir.analytics.abm_bridge import load_abm_alignment_report
 from polisyos.ir.analytics.backtest import load_backtest_report
 from polisyos.ir.analytics.causal import CausalEffectReport
@@ -44,11 +45,19 @@ from polisyos.ir.analytics.normative_arbitration import (
     NormativeArbitrationResult,
     load_normative_arbitration_result,
 )
+from polisyos.ir.analytics.strategic import (
+    load_post_adaptation_policy_value_summary,
+    load_strategic_response_bundle,
+    load_strategic_scm,
+)
 from polisyos.ir.analytics.uncertainty import load_uncertainty_envelope
 from polisyos.ir.refs import (
     ABMAlignmentReportRef,
+    AbstractionCertificateRef,
     CausalModelEnsembleRef,
     NormativeArbitrationResultRef,
+    StrategicResponseBundleRef,
+    StrategicSCMRef,
 )
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
@@ -63,8 +72,10 @@ from polisyos.scientist.policy_verified import (
     load_source_verification_report,
     load_verified_policy_report,
 )
+from polisyos.scientist.policy_design.output import load_policy_artifact_bundle
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (
+    ARTIFACT_ABSTRACTION_CERTIFICATE_REF,
     ARTIFACT_ABM_ALIGNMENT_REPORT_REF,
     ARTIFACT_BACKTEST_REPORT_REF,
     ARTIFACT_CAUSAL_ENSEMBLE_REF,
@@ -79,6 +90,7 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_ECONOMETRIC_RESULT_REF,
     ARTIFACT_ENVIRONMENT_MANIFEST_REF,
     ARTIFACT_EXEC_PLAN_REF,
+    ARTIFACT_FINITE_STATE_ABSTRACTION_MAP_REF,
     ARTIFACT_HTE_RESULT_REF,
     ARTIFACT_INPUT_BINDING_REPORT_REF,
     ARTIFACT_LOWERED_IR_REF,
@@ -86,9 +98,12 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_NORM_IMPACT_REPORT_REF,
     ARTIFACT_NORMATIVE_ARBITRATION_RESULT_REF,
     ARTIFACT_POLICY_RECOMMENDATION_REF,
+    ARTIFACT_POLICY_OUTPUT_BUNDLE_REF,
     ARTIFACT_PROGRAM_GRAPH_REF,
     ARTIFACT_SENSITIVITY_RESULT_REF,
     ARTIFACT_SIMULATION_RESULT_REF,
+    ARTIFACT_STRATEGIC_RESPONSE_BUNDLE_REF,
+    ARTIFACT_STRATEGIC_SCM_REF,
     ARTIFACT_STATE_SNAPSHOT_REF,
     ARTIFACT_STRESS_TEST_REPORT_REF,
     ARTIFACT_TRANSPORTABILITY_RESULT_REF,
@@ -133,6 +148,7 @@ _SPEC = NodeSpec(
         "reports_index",
         "artifacts_index",
         "artifacts_index.normative_arbitration_result_ref",
+        "artifacts_index.policy_output_bundle_ref",
         "artifacts_index.source_verification_report_ref",
         "artifacts_index.verified_policy_report_ref",
     ],
@@ -215,6 +231,8 @@ class BuildDecisionPacketNode:
             "uncertainty_bounds": None,
             "causal": _build_causal_section(ctx, state, state.artifacts_index),
             "abm_alignment": _build_abm_alignment_section(ctx, state.artifacts_index),
+            "abstraction_certificate": _build_abstraction_section(ctx, state.artifacts_index),
+            "strategic": _build_strategic_section(ctx, state),
             "hte": _build_hte_section(ctx, state.artifacts_index),
             "targeting": _build_targeting_section(ctx, state.artifacts_index),
             "backtest": backtest_section,
@@ -321,6 +339,25 @@ class BuildDecisionPacketNode:
                 )
             except Exception:
                 logger.debug("Failed to load verified policy report", exc_info=True)
+
+        policy_bundle_ref = state.artifacts_index.get(ARTIFACT_POLICY_OUTPUT_BUNDLE_REF)
+        if policy_bundle_ref is not None:
+            try:
+                policy_bundle = load_policy_artifact_bundle(ctx.store, policy_bundle_ref)
+                packet_payload["policy_output_bundle"] = {
+                    "bundle_ref": policy_bundle_ref.artifact_id,
+                    "policy_brief_ref": policy_bundle.policy_brief_ref.artifact_id,
+                    "champion_policy_dossier_ref": (
+                        policy_bundle.champion_policy_dossier_ref.artifact_id
+                    ),
+                    "decision_readiness_contract_ref": (
+                        policy_bundle.decision_readiness_contract_ref.artifact_id
+                        if policy_bundle.decision_readiness_contract_ref is not None
+                        else None
+                    ),
+                }
+            except Exception:
+                logger.debug("Failed to load policy artifact bundle", exc_info=True)
 
         uncertainty_bounds = _build_uncertainty_bounds(
             ctx,
@@ -457,6 +494,16 @@ def _build_artifacts_section(
         ARTIFACT_CAUSAL_ENSEMBLE_REF: _ref_from_dict(artifacts_index, ARTIFACT_CAUSAL_ENSEMBLE_REF),
         ARTIFACT_ABM_ALIGNMENT_REPORT_REF: _ref_from_dict(
             artifacts_index, ARTIFACT_ABM_ALIGNMENT_REPORT_REF
+        ),
+        ARTIFACT_FINITE_STATE_ABSTRACTION_MAP_REF: _ref_from_dict(
+            artifacts_index, ARTIFACT_FINITE_STATE_ABSTRACTION_MAP_REF
+        ),
+        ARTIFACT_ABSTRACTION_CERTIFICATE_REF: _ref_from_dict(
+            artifacts_index, ARTIFACT_ABSTRACTION_CERTIFICATE_REF
+        ),
+        ARTIFACT_STRATEGIC_SCM_REF: _ref_from_dict(artifacts_index, ARTIFACT_STRATEGIC_SCM_REF),
+        ARTIFACT_STRATEGIC_RESPONSE_BUNDLE_REF: _ref_from_dict(
+            artifacts_index, ARTIFACT_STRATEGIC_RESPONSE_BUNDLE_REF
         ),
         ARTIFACT_HTE_RESULT_REF: _ref_from_dict(artifacts_index, ARTIFACT_HTE_RESULT_REF),
         ARTIFACT_POLICY_RECOMMENDATION_REF: _ref_from_dict(
@@ -641,6 +688,106 @@ def _build_causal_section(
     return payload
 
 
+def _build_strategic_section(
+    ctx: ExecutionContext,
+    state: ExperimentState,
+) -> dict[str, object] | None:
+    artifacts_index = state.artifacts_index
+    strategic_scm_ref = artifacts_index.get(ARTIFACT_STRATEGIC_SCM_REF)
+    bundle_ref = artifacts_index.get(ARTIFACT_STRATEGIC_RESPONSE_BUNDLE_REF)
+    strategic_summary = state.params.get("strategic_response")
+    if strategic_scm_ref is None and bundle_ref is None and not isinstance(strategic_summary, dict):
+        return None
+
+    payload: dict[str, object] = {
+        "strategic_scm_ref": (
+            None if strategic_scm_ref is None else str(strategic_scm_ref.artifact_id)
+        ),
+        "strategic_response_bundle_ref": (
+            None if bundle_ref is None else str(bundle_ref.artifact_id)
+        ),
+    }
+
+    if strategic_scm_ref is not None:
+        try:
+            strategic_scm = load_strategic_scm(
+                ctx.store,
+                StrategicSCMRef(artifact_id=strategic_scm_ref.artifact_id),
+            )
+            payload["equilibrium_concept"] = strategic_scm.equilibrium_concept.value
+            payload["strategic_agents"] = list(strategic_scm.strategic_agents)
+        except Exception:
+            payload["strategic_scm_parse_warning"] = "strategic_scm_parse_failed"
+
+    if bundle_ref is not None:
+        try:
+            bundle = load_strategic_response_bundle(
+                ctx.store,
+                StrategicResponseBundleRef(artifact_id=bundle_ref.artifact_id),
+            )
+            payload.update(
+                {
+                    "fallback_mode": bundle.fallback_mode.value,
+                    "equilibrium_selection_dependence": bundle.equilibrium_selection_dependence,
+                    "multiplicity_note": bundle.multiplicity_note,
+                    "blocked_reason": bundle.blocked_reason,
+                    "selected_equilibrium_ref": (
+                        None
+                        if bundle.selected_equilibrium_ref is None
+                        else str(bundle.selected_equilibrium_ref.artifact_id)
+                    ),
+                    "post_adaptation_policy_value_ref": str(
+                        bundle.post_adaptation_policy_value_ref.artifact_id
+                    ),
+                    "causal_component_ref": str(bundle.causal_component_ref.artifact_id),
+                    "strategic_closure_ref": str(bundle.strategic_closure_ref.artifact_id),
+                    "equilibrium_set_ref": str(bundle.equilibrium_set_ref.artifact_id),
+                }
+            )
+            try:
+                value_summary = load_post_adaptation_policy_value_summary(
+                    ctx.store,
+                    bundle.post_adaptation_policy_value_ref,
+                )
+                payload["post_adaptation_policy_value"] = value_summary.point_value
+                if (
+                    value_summary.lower_bound is not None
+                    and value_summary.upper_bound is not None
+                ):
+                    payload["post_adaptation_policy_value_bounds"] = [
+                        value_summary.lower_bound,
+                        value_summary.upper_bound,
+                    ]
+            except Exception:
+                payload["post_adaptation_value_parse_warning"] = (
+                    "post_adaptation_policy_value_parse_failed"
+                )
+        except Exception:
+            payload["strategic_bundle_parse_warning"] = "strategic_response_bundle_parse_failed"
+    elif isinstance(strategic_summary, dict):
+        for key in (
+            "fallback_mode",
+            "equilibrium_selection_dependence",
+            "multiplicity_note",
+            "blocked_reason",
+            "selected_equilibrium",
+            "post_adaptation_policy_value",
+            "warnings",
+            "causal_component_ref",
+            "strategic_closure_ref",
+            "equilibrium_set_ref",
+            "post_adaptation_policy_value_ref",
+            "selected_equilibrium_ref",
+            "performative_shift_ref",
+        ):
+            if strategic_summary.get(key) is not None:
+                payload[key] = strategic_summary[key]
+        if strategic_summary.get("bounds") is not None:
+            payload["post_adaptation_policy_value_bounds"] = strategic_summary["bounds"]
+
+    return payload
+
+
 def _build_transportability_summary(
     report: CausalEffectReport,
     state: ExperimentState,
@@ -714,6 +861,39 @@ def _build_abm_alignment_section(
     except Exception:
         payload["parse_warning"] = "abm_alignment_report_parse_failed"
 
+    return payload
+
+
+def _build_abstraction_section(
+    ctx: ExecutionContext,
+    artifacts_index: dict[str, ArtifactRef],
+) -> dict[str, object] | None:
+    certificate_ref = artifacts_index.get(ARTIFACT_ABSTRACTION_CERTIFICATE_REF)
+    if certificate_ref is None:
+        return None
+
+    payload: dict[str, object] = {
+        "certificate_ref": str(certificate_ref.artifact_id),
+        "abstraction_map_ref": None,
+    }
+    map_ref = artifacts_index.get(ARTIFACT_FINITE_STATE_ABSTRACTION_MAP_REF)
+    if map_ref is not None:
+        payload["abstraction_map_ref"] = str(map_ref.artifact_id)
+    try:
+        certificate = load_abstraction_certificate(
+            ctx.store,
+            AbstractionCertificateRef(artifact_id=certificate_ref.artifact_id),
+        )
+        payload.update(
+            {
+                "preservation_type": certificate.preservation_type.value,
+                "preserved_queries": list(certificate.preserved_queries),
+                "error_bound": certificate.error_bound,
+                "validation_notes": list(certificate.validation_notes),
+            }
+        )
+    except Exception:
+        payload["parse_warning"] = "abstraction_certificate_parse_failed"
     return payload
 
 
@@ -1210,6 +1390,7 @@ def _build_diagnostics_summary(
     has_legal_report = legal_ref is not None
     has_distributional_report = bool(packet_payload.get("distributional"))
     has_causal_report = bool(causal_dict)
+    has_abstraction_certificate = bool(packet_payload.get("abstraction_certificate"))
     uncertainty_available = bool(uncertainty_dict.get("envelope_count")) or isinstance(
         uncertainty_bounds, dict
     )
@@ -1254,6 +1435,7 @@ def _build_diagnostics_summary(
         "legal_executed": has_legal_report,
         "has_distributional_report": has_distributional_report,
         "has_causal_report": has_causal_report,
+        "has_abstraction_certificate": has_abstraction_certificate,
         "uncertainty_available": uncertainty_available,
         "human_review_needed": human_review_needed,
         "has_normative_arbitration": normative_result is not None,
@@ -2053,6 +2235,7 @@ def _build_manifest_inputs(packet_payload: dict[str, object]) -> list[InputRef]:
         ("hte", "hte"),
         ("targeting", "targeting"),
         ("abm_alignment", "abm_alignment"),
+        ("abstraction_certificate", "abstraction_certificate"),
         ("backtest", "backtest"),
         ("distributional", "distributional"),
         ("econometrics", "econometrics"),

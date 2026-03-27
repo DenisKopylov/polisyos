@@ -12,12 +12,45 @@ del _name
 
 from polisyos.lex.batch.deterministic_spo_subtypes import _extract_threshold_row_candidates_inner
 
+_CORE_NORMATIVE_FAST_CUE_RE = re.compile(
+    r"("
+    r"повинен|повинна|повинні|зобов|"
+    r"має\s+право|мають\s+право|може|можуть|"
+    r"необхідно|слід|"
+    r"не\s+має\s+права|не\s+мають\s+права|"
+    r"забороняється|забороняються|заборонено|не\s+допускається|не\s+допускаються|"
+    r"підляга(?:є|ють)|поширюється|поширюються|встановлює\s+порядок|"
+    r"проводиться|проводяться|здійснюється|здійснюються|"
+    r"розраховується|розраховуються|відноситься|відносяться|"
+    r"покривається|покриваються|вважається|вважаються|"
+    r"визна(?:ється|ються)|визнача(?:ється|ються)|"
+    r"карається|штрафується|тягне\s+за\s+собою|"
+    r"[-–—]|"
+    r"\d+(?:[.,]\d+)?\s*(?:%|грн|коп|кг|км|га|тонн(?:и)?)\b|"
+    r"ставк|тариф|оклад|поріг|не\s+менш|не\s+більш|не\s+нижче|не\s+вище"
+    r")",
+    re.IGNORECASE,
+)
+
+
+def _search_with_optional_context(
+    pattern: re.Pattern[str],
+    text: str,
+    *,
+    analysis_text: str | None,
+) -> re.Match[str] | None:
+    match = pattern.search(text)
+    if match is not None or not analysis_text or analysis_text == text:
+        return match
+    return pattern.search(analysis_text)
+
 def _extract_core_normative_fallback_candidates(
     *,
     text: str,
     doc_title: str,
     legal_unit_micro_subtype: str = "",
     context_prefix: str = "",
+    threshold_bearing: bool = False,
 ) -> tuple[list[SPOCandidate], list[str]]:
     """Broad normative patterns for core_normative_clause without article context.
 
@@ -27,15 +60,28 @@ def _extract_core_normative_fallback_candidates(
     """
     candidates: list[SPOCandidate] = []
     reason_codes: list[str] = []
-    analysis_full_text = _combine_with_context(text, context_prefix)
+    normalized_context = " ".join(str(context_prefix or "").split()).strip()
+    analysis_full_text = _combine_with_context(text, normalized_context) if normalized_context else text
     treaty_like_title = bool(_TREATY_TITLE_RE.search(doc_title or ""))
+    if not (
+        threshold_bearing
+        or legal_unit_micro_subtype in {"threshold_tail", "reference_tail"}
+        or _CORE_NORMATIVE_FAST_CUE_RE.search(analysis_full_text)
+    ):
+        return [], []
 
     for sentence in _iter_sentences(text):
         sentence = sentence.strip()
         if len(sentence) < 16:
             continue
+        if not (
+            threshold_bearing
+            or legal_unit_micro_subtype == "threshold_tail"
+            or _CORE_NORMATIVE_FAST_CUE_RE.search(sentence)
+        ):
+            continue
         quote = _clip_text(sentence, size=320)
-        analysis_sentence = _combine_with_context(sentence, context_prefix)
+        analysis_sentence = _combine_with_context(sentence, normalized_context) if normalized_context else sentence
         strong_threshold_text = (
             bool(re.search(r"\d+(?:[.,]\d+)?\s*(?:%|грн|коп|кг|км|га|тонн(?:и)?)\b", sentence, re.IGNORECASE))
             or any(
@@ -60,7 +106,12 @@ def _extract_core_normative_fallback_candidates(
                 and not strong_threshold_text
             )
             and (
-                extract_thresholds_from_text(analysis_sentence, applies_to=doc_title or "регульований показник")
+                (
+                    threshold_bearing
+                    or strong_threshold_text
+                    or legal_unit_micro_subtype == "threshold_tail"
+                )
+                and extract_thresholds_from_text(analysis_sentence, applies_to=doc_title or "регульований показник")
                 or _UNITLESS_THRESHOLD_ROW_RE.search(sentence)
                 or _CONDITION_THRESHOLD_RE.search(sentence)
                 or legal_unit_micro_subtype == "threshold_tail"
@@ -79,7 +130,11 @@ def _extract_core_normative_fallback_candidates(
                 reason_codes.extend(["cnc_fallback_threshold_pattern", *threshold_reason_codes])
 
         # Subject-verb-object with deontic markers: obligation
-        require_match = _SUBJECT_REQUIRE_RE.search(sentence) or _SUBJECT_REQUIRE_RE.search(analysis_sentence)
+        require_match = _search_with_optional_context(
+            _SUBJECT_REQUIRE_RE,
+            sentence,
+            analysis_text=analysis_sentence,
+        )
         if require_match:
             raw_subject = require_match.group("subject").strip(" ,;:")
             raw_object = require_match.group("object").strip(" .;:")
@@ -100,7 +155,11 @@ def _extract_core_normative_fallback_candidates(
                 reason_codes.append("cnc_fallback_requirement_pattern")
 
         # Prohibition patterns
-        prohibit_match = _SUBJECT_PROHIBIT_RE.search(sentence) or _SUBJECT_PROHIBIT_RE.search(analysis_sentence)
+        prohibit_match = _search_with_optional_context(
+            _SUBJECT_PROHIBIT_RE,
+            sentence,
+            analysis_text=analysis_sentence,
+        )
         if prohibit_match:
             raw_subject = prohibit_match.group("subject").strip(" ,;:")
             raw_object = prohibit_match.group("object").strip(" .;:")
@@ -121,7 +180,11 @@ def _extract_core_normative_fallback_candidates(
                 reason_codes.append("cnc_fallback_prohibition_pattern")
 
         # Permission patterns
-        permission_match = _SUBJECT_PERMISSION_RE.search(sentence) or _SUBJECT_PERMISSION_RE.search(analysis_sentence)
+        permission_match = _search_with_optional_context(
+            _SUBJECT_PERMISSION_RE,
+            sentence,
+            analysis_text=analysis_sentence,
+        )
         if permission_match:
             raw_subject = permission_match.group("subject").strip(" ,;:")
             raw_object = permission_match.group("object").strip(" .;:")
@@ -142,7 +205,11 @@ def _extract_core_normative_fallback_candidates(
                 )
                 reason_codes.append("cnc_fallback_permission_pattern")
 
-        impersonal_require_match = _APPLICATION_IMPERSONAL_REQUIRE_RE.search(sentence) or _APPLICATION_IMPERSONAL_REQUIRE_RE.search(analysis_sentence)
+        impersonal_require_match = _search_with_optional_context(
+            _APPLICATION_IMPERSONAL_REQUIRE_RE,
+            sentence,
+            analysis_text=analysis_sentence,
+        )
         if impersonal_require_match:
             object_uk = _clip_text(impersonal_require_match.group("object").strip(" .;:"), 220)
             if object_uk:
@@ -159,7 +226,11 @@ def _extract_core_normative_fallback_candidates(
                 )
                 reason_codes.append("cnc_fallback_impersonal_requirement_pattern")
 
-        impersonal_permission_match = _APPLICATION_IMPERSONAL_PERMISSION_RE.search(sentence) or _APPLICATION_IMPERSONAL_PERMISSION_RE.search(analysis_sentence)
+        impersonal_permission_match = _search_with_optional_context(
+            _APPLICATION_IMPERSONAL_PERMISSION_RE,
+            sentence,
+            analysis_text=analysis_sentence,
+        )
         if impersonal_permission_match:
             object_uk = _clip_text(impersonal_permission_match.group("object").strip(" .;:"), 220)
             if object_uk:
@@ -177,7 +248,11 @@ def _extract_core_normative_fallback_candidates(
                 reason_codes.append("cnc_fallback_impersonal_permission_pattern")
 
         # Passive procedure: "X проводиться/здійснюється Y"
-        passive_match = _PASSIVE_PROCEDURE_RE.search(sentence) or _PASSIVE_PROCEDURE_RE.search(analysis_sentence)
+        passive_match = _search_with_optional_context(
+            _PASSIVE_PROCEDURE_RE,
+            sentence,
+            analysis_text=analysis_sentence,
+        )
         if passive_match:
             raw_subject = passive_match.group("subject").strip(" ,;:")
             raw_object = passive_match.group("object").strip(" .;:")
@@ -198,7 +273,11 @@ def _extract_core_normative_fallback_candidates(
                 reason_codes.append("cnc_fallback_passive_procedure_pattern")
 
         # "X підлягає Y"
-        subject_to_match = _SUBJECT_TO_RE.search(sentence) or _SUBJECT_TO_RE.search(analysis_sentence)
+        subject_to_match = _search_with_optional_context(
+            _SUBJECT_TO_RE,
+            sentence,
+            analysis_text=analysis_sentence,
+        )
         if subject_to_match:
             raw_subject = subject_to_match.group("subject").strip(" ,;:")
             raw_object = subject_to_match.group("object").strip(" .;:")
@@ -219,7 +298,11 @@ def _extract_core_normative_fallback_candidates(
                 reason_codes.append("cnc_fallback_subject_to_pattern")
 
         # Scope: "X поширюється на Y"
-        scope_match = _APPLIES_SCOPE_RE.search(sentence) or _APPLIES_SCOPE_RE.search(analysis_sentence)
+        scope_match = _search_with_optional_context(
+            _APPLIES_SCOPE_RE,
+            sentence,
+            analysis_text=analysis_sentence,
+        )
         if scope_match:
             raw_subject = scope_match.group("subject").strip(" ,;:")
             raw_object = scope_match.group("object").strip(" .;:")
@@ -240,7 +323,11 @@ def _extract_core_normative_fallback_candidates(
                 reason_codes.append("cnc_fallback_scope_pattern")
 
         # "X встановлює порядок Y"
-        order_match = _ESTABLISHES_ORDER_RE.search(sentence) or _ESTABLISHES_ORDER_RE.search(analysis_sentence)
+        order_match = _search_with_optional_context(
+            _ESTABLISHES_ORDER_RE,
+            sentence,
+            analysis_text=analysis_sentence,
+        )
         if order_match:
             raw_subject = order_match.group("subject").strip(" ,;:")
             raw_object = order_match.group("object").strip(" .;:")
@@ -439,6 +526,24 @@ def _extract_semantic_tail_candidates(
                     "semantic_tail_prohibition",
                 )
 
+        sanction_match = _SANCTION_RE.search(clause)
+        if sanction_match:
+            subject_uk = _clip_text(sanction_match.group("subject").strip(" ,;:"), 180)
+            object_uk = _clip_text(sanction_match.group("object").strip(" .;:"), 240)
+            if subject_uk and object_uk:
+                _append(
+                    _build_candidate(
+                        subject_uk=subject_uk,
+                        predicate="sanctions",
+                        object_uk=object_uk,
+                        norm_type="sanction",
+                        fact_text=f"{subject_uk} {sanction_match.group('lemma').strip()} {object_uk}",
+                        quote=quote,
+                        confidence=0.79,
+                    ),
+                    "semantic_tail_sanction",
+                )
+
         threshold_policy_match = _TAIL_THRESHOLD_POLICY_RE.search(clause)
         if threshold_policy_match:
             object_uk = _clip_text(threshold_policy_match.group("object").strip(" .;:"), 240)
@@ -491,4 +596,3 @@ def _extract_semantic_tail_candidates(
             )
 
     return candidates, reason_codes
-

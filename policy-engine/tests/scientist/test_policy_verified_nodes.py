@@ -44,6 +44,10 @@ from polisyos.scientist.policy_verified import (
     persist_source_verification_report,
     persist_verified_policy_report,
 )
+from polisyos.scientist.policy_verified.service import (
+    _build_legal_toolkit,
+    assemble_legal_candidate_pack,
+)
 
 
 def _make_ctx(tmp_path, run_id: str) -> tuple[FileSystemCAS, ExecutionContext, object]:
@@ -277,3 +281,54 @@ def test_build_decision_packet_includes_verified_policy_sections(tmp_path) -> No
     assert payload["verified_findings"] == ["Ліцензія є обов'язковою. [стаття 1]"]
     assert payload["hypotheses"] == ["Можливе пом'якшення вимог для пілотного режиму."]
     assert payload["intervention_legal_basis_map"]["verified_option_1"] == ["стаття 1"]
+
+
+def test_build_legal_toolkit_uses_nested_evidence_sources(monkeypatch, tmp_path) -> None:
+    _, ctx, registry_bundle = _make_ctx(tmp_path, "R_policy_verified_sources")
+    legal_db_path = tmp_path / "legal.duckdb"
+    legal_db_path.write_text("", encoding="utf-8")
+    captured: dict[str, object] = {}
+
+    class FakeLegalKnowledgeGraph:
+        def __init__(self, *, db_path, index_dir, openai_api_key=None) -> None:
+            captured["db_path"] = db_path
+            captured["index_dir"] = index_dir
+            captured["openai_api_key"] = openai_api_key
+
+    monkeypatch.setattr(
+        "polisyos.scientist.policy_verified.service.LegalKnowledgeGraph",
+        FakeLegalKnowledgeGraph,
+    )
+
+    state = ExperimentState(
+        run_id="R_policy_verified_sources",
+        inputs={INPUT_REGISTRY_BUNDLE_REF: registry_bundle},
+        params={"evidence_sources": {"legal_db_path": str(legal_db_path)}},
+    )
+
+    toolkit = _build_legal_toolkit(ctx, state)
+
+    assert toolkit is not None
+    assert captured["db_path"] == legal_db_path
+    assert captured["index_dir"] == legal_db_path.parent
+
+
+def test_assemble_legal_candidate_pack_surfaces_typed_degraded_legal_status(tmp_path) -> None:
+    _, ctx, registry_bundle = _make_ctx(tmp_path, "R_policy_verified_degraded")
+    frame = PolicyRequestFrame(
+        request_id="req-degraded",
+        policy_question="Як змінити ліцензування перевізників?",
+        jurisdiction="UA",
+        policy_domain="transport",
+    )
+    state = ExperimentState(
+        run_id="R_policy_verified_degraded",
+        inputs={INPUT_REGISTRY_BUNDLE_REF: registry_bundle},
+        params={},
+    )
+
+    pack = assemble_legal_candidate_pack(ctx, state, frame)
+
+    assert pack.fact_hits == []
+    assert pack.source_statuses["legal"].status.value == "missing_config"
+    assert "legal_graph_unavailable:missing_config" in pack.notes

@@ -173,6 +173,7 @@ def test_qc_reports_quality_hardening_metrics_when_new_tables_exist(tmp_path) ->
     assert metrics["hallucination_rate_pct"] == 0.0
 
     checks = {check.name: check for check in report.checks}
+    assert checks["hallucination_blocking_rate_pct"].passed is True
     assert checks["hallucination_rate_pct"].passed is True
     assert checks["low_confidence_normative_facts_pct"].passed is True
     assert checks["unresolved_contradictions"].passed is True

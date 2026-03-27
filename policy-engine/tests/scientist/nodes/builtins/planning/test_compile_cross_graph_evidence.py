@@ -1,0 +1,212 @@
+from __future__ import annotations
+
+from polisyos.scientist.nodes.builtins.planning.compile_cross_graph_evidence import (
+    CompileCrossGraphEvidenceNode,
+)
+from polisyos.scientist.nodes.builtins.state_keys import (
+    ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF,
+    INPUT_GRAPH_PRIOR_BUNDLE_REF,
+)
+from polisyos.scientist.discovery.priors import (
+    GraphPriorBundle,
+    PriorEdge,
+    persist_graph_prior_bundle,
+)
+from polisyos.ir.analytics.cross_graph import load_cross_graph_evidence_profile
+
+
+def test_compilation_without_trinity(execution_context, minimal_state):
+    """With enabled config but no Trinity bundle, produces a policy_request_only profile."""
+    state = minimal_state.model_copy(
+        update={
+            "params": {
+                "cross_graph_evidence_config": {"enabled": True},
+            }
+        }
+    )
+    outcome = CompileCrossGraphEvidenceNode().execute(execution_context, state)
+    assert outcome.status == "ok"
+    assert ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF in outcome.state.artifacts_index
+    summary = outcome.state.params.get("cross_graph_evidence_summary")
+    assert summary is not None
+    assert outcome.state.params.get("cross_graph_benchmark_summary") is not None
+
+
+def test_compilation_skips_when_not_expected(execution_context, minimal_state):
+    """When config is disabled, compilation is skipped."""
+    state = minimal_state.model_copy(
+        update={
+            "params": {
+                "cross_graph_evidence_config": {"enabled": False},
+            }
+        }
+    )
+    outcome = CompileCrossGraphEvidenceNode().execute(execution_context, state)
+    assert outcome.status == "skip"
+    assert outcome.state.params.get("cross_graph_evidence_expected") is False
+
+
+def test_compilation_skips_fast_governance(execution_context, minimal_state):
+    """FAST governance profile skips cross-graph evidence."""
+    state = minimal_state.model_copy(
+        update={
+            "params": {
+                "cross_graph_evidence_config": {"enabled": True},
+                "governance_profile": "fast",
+            }
+        }
+    )
+    outcome = CompileCrossGraphEvidenceNode().execute(execution_context, state)
+    assert outcome.status == "skip"
+    assert outcome.state.params.get("cross_graph_evidence_expected") is False
+
+
+def test_compilation_enriches_profile_from_graph_prior_bundle(execution_context, minimal_state, cas_store):
+    graph_prior_bundle = GraphPriorBundle(
+        high_confidence_edges=[
+            PriorEdge(
+                edge_key="X->Y",
+                src="X",
+                dst="Y",
+                presence_confidence=0.8,
+                orientation_confidence=0.7,
+                provenance_refs=["paper:1"],
+            )
+        ],
+        required_edges=[
+            PriorEdge(
+                edge_key="A->B",
+                src="A",
+                dst="B",
+                presence_confidence=0.9,
+                orientation_confidence=0.85,
+                provenance_refs=["paper:2"],
+            )
+        ],
+    )
+    bundle_ref = persist_graph_prior_bundle(cas_store, graph_prior_bundle)
+    state = minimal_state.model_copy(
+        update={
+            "inputs": {
+                **minimal_state.inputs,
+                INPUT_GRAPH_PRIOR_BUNDLE_REF: bundle_ref,
+            },
+            "params": {
+                "cross_graph_evidence_config": {"enabled": True},
+            },
+        }
+    )
+
+    outcome = CompileCrossGraphEvidenceNode().execute(execution_context, state)
+
+    assert outcome.status == "ok"
+    profile_ref = outcome.state.artifacts_index[ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF]
+    profile = load_cross_graph_evidence_profile(cas_store, profile_ref)
+    assert any(need.need.cause == "A" and need.need.effect == "B" for need in profile.needs)
+    assert any(need.need.cause == "X" and need.need.effect == "Y" for need in profile.needs)
+    assert "graph_prior_bundle_enriched" in profile.notes
+
+
+def test_compilation_records_degraded_source_statuses_when_sources_missing(
+    execution_context,
+    minimal_state,
+    cas_store,
+):
+    state = minimal_state.model_copy(
+        update={
+            "params": {
+                "cross_graph_evidence_config": {
+                    "enabled": True,
+                    "academic_db_path": "/tmp/missing-academic.duckdb",
+                    "datasets_db_path": "/tmp/missing-datasets.duckdb",
+                    "legal_db_path": "/tmp/missing-legal.duckdb",
+                },
+            }
+        }
+    )
+
+    outcome = CompileCrossGraphEvidenceNode().execute(execution_context, state)
+
+    assert outcome.status == "ok"
+    profile_ref = outcome.state.artifacts_index[ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF]
+    profile = load_cross_graph_evidence_profile(cas_store, profile_ref)
+    assert profile.source_statuses["academic"].status.value == "missing_path"
+    assert profile.source_statuses["datasets"].status.value == "missing_path"
+    assert profile.source_statuses["legal"].status.value == "missing_path"
+    assert profile.source_statuses["benchmark"].status.value == "missing_config"
+    assert profile.benchmark_summary["status"] == "degraded"
+
+
+def test_compilation_writes_backlog_for_unresolved_needs(
+    execution_context,
+    minimal_state,
+    tmp_path,
+):
+    backlog_path = tmp_path / "cross-graph-backlog.json"
+    state = minimal_state.model_copy(
+        update={
+            "params": {
+                "cross_graph_evidence_config": {
+                    "enabled": True,
+                    "backlog_output_path": str(backlog_path),
+                },
+            }
+        }
+    )
+
+    outcome = CompileCrossGraphEvidenceNode().execute(execution_context, state)
+
+    assert outcome.status == "ok"
+    assert backlog_path.exists()
+
+
+def test_compilation_appends_academic_demand_backlog_when_configured(
+    execution_context,
+    minimal_state,
+    tmp_path,
+):
+    backlog_path = tmp_path / "cross-graph-backlog.json"
+    academic_backlog_path = tmp_path / "academic-demand-backlog.jsonl"
+    state = minimal_state.model_copy(
+        update={
+            "params": {
+                "cross_graph_evidence_config": {
+                    "enabled": True,
+                    "backlog_output_path": str(backlog_path),
+                    "academic_demand_backlog_path": str(academic_backlog_path),
+                },
+            }
+        }
+    )
+
+    outcome = CompileCrossGraphEvidenceNode().execute(execution_context, state)
+
+    assert outcome.status == "ok"
+    assert backlog_path.exists()
+    assert academic_backlog_path.exists()
+
+
+def test_compilation_persists_degraded_profile_for_invalid_config(
+    execution_context,
+    minimal_state,
+    cas_store,
+):
+    state = minimal_state.model_copy(
+        update={
+            "params": {
+                "cross_graph_evidence_config": {
+                    "enabled": True,
+                    "unknown_field": "boom",
+                },
+            }
+        }
+    )
+
+    outcome = CompileCrossGraphEvidenceNode().execute(execution_context, state)
+
+    assert outcome.status == "ok"
+    profile_ref = outcome.state.artifacts_index[ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF]
+    profile = load_cross_graph_evidence_profile(cas_store, profile_ref)
+    assert profile.summary.status == "degraded"
+    assert profile.diagnostics[0].code == "cross_graph.invalid_config"
+    assert profile.benchmark_summary["reason"] == "invalid_config"

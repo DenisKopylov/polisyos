@@ -11,7 +11,12 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from polisyos.ir.analytics.negative_certificate import FallbackResult
+from polisyos.ir.refs import (
+    BoundsBundleRef,
+    DataReadinessReportRef,
+    NegativeCertificateRef,
+    ProofBundleRef,
+)
 
 
 def _fingerprint(data: Any) -> str:
@@ -208,8 +213,17 @@ class EvidenceBundle(BaseModel):
     """Serialised CausalQualityReport.  Reconstruct with
     CausalQualityReport.model_validate(bundle.quality_report)."""
 
-    fallback_result: FallbackResult | None = None
-    """Typed fallback chain artifact for negative-identification runs."""
+    proof_bundle_ref: ProofBundleRef | None = None
+    """CAS-backed reference to the canonical proof artifact for this run."""
+
+    bounds_bundle_ref: BoundsBundleRef | None = None
+    """CAS-backed reference to the canonical bounds artifact, when available."""
+
+    negative_certificate_ref: NegativeCertificateRef | None = None
+    """CAS-backed reference to the impossibility artifact, when available."""
+
+    data_readiness_report_ref: DataReadinessReportRef | None = None
+    """CAS-backed reference to the canonical readiness gate, when available."""
 
     def to_summary(self) -> str:
         """Return a concise human-readable summary of this bundle."""

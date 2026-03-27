@@ -248,6 +248,28 @@ class CyclicDependencyError(FoundryMethodError):
         super().__init__(f"Cyclic dependency detected: {cycle_str}")
 
 
+class MissingRequirementError(FoundryMethodError):
+    """
+    A required method is missing from the composition.
+
+    Raised in STRICT validation mode when a method declares a requirement
+    (via ``MethodSignature.requires``) that is not present in the DAG.
+
+    Attributes:
+        method_fqn: FQN of the method that has the requirement
+        required_fqn: FQN of the missing required method
+    """
+
+    default_category = ErrorCategory.VALIDATION
+
+    def __init__(self, method_fqn: str, required_fqn: str) -> None:
+        self.method_fqn = method_fqn
+        self.required_fqn = required_fqn
+        super().__init__(
+            f"{method_fqn} requires {required_fqn}, which is not in composition"
+        )
+
+
 class CompilationError(FoundryMethodError):
     """
     Failed to compile method or chain.
@@ -354,3 +376,26 @@ class LawViolationError(FoundryMethodError):
         self.law = law
         self.reason = reason
         super().__init__(f"Law {law} violation: {reason}")
+
+
+class MethodExecutionAbortError(FoundryMethodError):
+    """Execution aborted due to a fatal FailureCard.
+
+    Raised when a method node fails with FATAL severity under
+    FAIL_CLOSED or DEGRADED strictness modes.
+
+    Attributes:
+        card: The FailureCard that triggered the abort.
+    """
+
+    default_category = ErrorCategory.FATAL
+
+    def __init__(self, card: "object") -> None:
+        self.card = card
+        severity = getattr(card, "severity", "?")
+        severity_str = getattr(severity, "value", str(severity))
+        super().__init__(
+            f"Execution aborted: {getattr(card, 'method_fqn', '?')} "
+            f"[{severity_str}]: "
+            f"{getattr(card, 'error_message', '?')}"
+        )

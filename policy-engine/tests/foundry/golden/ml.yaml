@@ -1,0 +1,42 @@
+domain: ml
+version: "1.0"
+cases:
+  - id: elastic_net_simple
+    method_fqn: "ml.regression.elastic_net@1.0.0"
+    description: "ElasticNet on y = 2*x1 + 3*x2 + noise"
+    skip_reason: "Requires TabularData model — deferred to Phase 10b"
+    input_data: {}
+    expected_output: {}
+    tags: [regression]
+
+  - id: random_forest_deterministic
+    method_fqn: "ml.regression.random_forest@1.0.0"
+    description: "Random forest on simple linear data"
+    skip_reason: "Requires TabularData model — deferred to Phase 10b"
+    input_data: {}
+    expected_output: {}
+    tags: [regression]
+
+  - id: kmeans_two_clusters
+    method_fqn: "ml.clustering.kmeans@1.0.0"
+    description: "KMeans on two well-separated clusters"
+    skip_reason: "Requires TabularData model — deferred to Phase 10b"
+    input_data: {}
+    expected_output: {}
+    tags: [clustering]
+
+  - id: pca_two_components
+    method_fqn: "ml.decomposition.pca@1.0.0"
+    description: "PCA on 2D data with known principal direction"
+    skip_reason: "Requires TabularData model — deferred to Phase 10b"
+    input_data: {}
+    expected_output: {}
+    tags: [decomposition]
+
+  - id: gradient_boosting_simple
+    method_fqn: "ml.regression.gradient_boosting@1.0.0"
+    description: "GBM on simple regression task"
+    skip_reason: "Requires TabularData model — deferred to Phase 10b"
+    input_data: {}
+    expected_output: {}
+    tags: [regression]

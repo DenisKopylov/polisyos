@@ -74,6 +74,12 @@ class _MetricsRegistryBase:
     scientist_node_duration_seconds: Optional[metrics.Histogram] = None
     scientist_node_executions_total: Optional[metrics.Counter] = None
     scientist_tier_duration_seconds: Optional[metrics.Histogram] = None
+    scientist_node_retry_count: Optional[metrics.Histogram] = None
+    scientist_workflow_state: Optional[metrics.Counter] = None
+    scientist_tier_queue_depth: Optional[GaugeProxy] = None
+    scientist_semaphore_wait_seconds: Optional[metrics.Histogram] = None
+    scientist_llm_budget_utilization: Optional[GaugeProxy] = None
+    scientist_llm_cost_anomalies_total: Optional[metrics.Counter] = None
 
     # -- Artifact / connector metric instruments ----------------------------
     artifact_operations_total: Optional[metrics.Counter] = None
@@ -596,6 +602,42 @@ class _MetricsRegistryBase:
             name="polisyos_scientist_tier_duration_seconds",
             description="Per-tier execution duration for parallel DAG tiers",
             unit="s",
+        )
+
+        # Scientist engine SLO / backpressure metrics
+        self.scientist_node_retry_count = self._meter.create_histogram(
+            name="polisyos_scientist_node_retry_count",
+            description="Retry attempts per node execution",
+            unit="1",
+        )
+        self.scientist_workflow_state = self._meter.create_counter(
+            name="polisyos_scientist_workflow_state",
+            description="Workflow state transitions by run_id and state",
+            unit="1",
+        )
+        self.scientist_tier_queue_depth = GaugeProxy(
+            self._meter,
+            name="polisyos_scientist_tier_queue_depth",
+            description="Queued tasks per tier (backpressure indicator)",
+            unit="1",
+        )
+        self.scientist_semaphore_wait_seconds = self._meter.create_histogram(
+            name="polisyos_scientist_semaphore_wait_seconds",
+            description="Time spent waiting for execution semaphore",
+            unit="s",
+        )
+
+        # LLM budget utilization gauge
+        self.scientist_llm_budget_utilization = GaugeProxy(
+            self._meter,
+            name="polisyos_scientist_llm_budget_utilization",
+            description="LLM budget utilization ratio (spent / max)",
+            unit="1",
+        )
+        self.scientist_llm_cost_anomalies_total = self._meter.create_counter(
+            name="polisyos_scientist_llm_cost_anomalies_total",
+            description="Anomalous LLM call costs detected (> 3σ from rolling mean)",
+            unit="1",
         )
 
         # Scholar freshness metrics

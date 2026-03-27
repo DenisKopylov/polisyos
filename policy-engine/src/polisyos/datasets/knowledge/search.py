@@ -20,35 +20,165 @@ from polisyos.datasets.knowledge.types import (
 
 logger = get_logger(__name__)
 _TEXT_QUERY_EXPANSIONS: tuple[tuple[str, str], ...] = (
+    # ── Macroeconomics ──
     ("ввп", "gdp gross domestic product"),
     ("душу населення", "per capita"),
-    ("безробіт", "unemployment jobless labour market"),
     ("інфляц", "inflation consumer prices cpi"),
     ("споживчі ціни", "consumer prices cpi"),
+    ("interest rate", "interest rate central bank monetary policy"),
+    ("public debt", "public debt government debt fiscal"),
+    ("fiscal", "fiscal balance budget deficit surplus government"),
+    ("buget", "budget municipal revenue expenditure"),
+    ("budzet", "budget municipal revenue expenditure"),
+    ("trade balance", "trade balance export import"),
+    ("trade openn", "trade openness trade to gdp"),
+    ("fdi", "foreign direct investment fdi inflows"),
+    ("remittanc", "remittances money transfers diaspora"),
+    # ── Labour ──
+    ("безробіт", "unemployment jobless labour market"),
+    ("somaj", "unemployment jobless labour market"),
+    ("bezroboc", "unemployment jobless labour market"),
+    ("youth unemploy", "youth unemployment young jobless"),
+    ("молодіж", "youth unemployment young"),
+    ("зарплат", "wage salary earnings"),
+    ("wage", "wage salary earnings growth"),
+    ("informal", "informal economy shadow economy"),
+    ("тіньов", "informal economy shadow economy"),
+    ("робоч", "labor force labour force participation"),
+    ("участь", "participation"),
+    ("productiv", "productivity labor output efficiency"),
+    ("minimum wage", "minimum wage floor"),
+    # ── Migration ──
     ("міграц", "migration migrant refugee"),
     ("migrat", "migration migrant demography population"),
     ("migrac", "migration migrant demography population"),
+    ("refugee", "refugee asylum displaced"),
+    ("біженц", "refugee asylum displaced"),
+    ("displace", "displaced displacement idp"),
+    # ── Poverty & Inequality ──
+    ("бідн", "poverty deprivation"),
+    ("poverty", "poverty headcount deprivation poor"),
+    ("gini", "gini inequality income distribution"),
+    ("нерівн", "inequality income distribution gini"),
+    ("нрівн", "inequality income distribution gini"),
+    # ── Demographics ──
+    ("demograf", "demography population births deaths"),
+    ("fertility", "fertility birth rate reproduction"),
+    ("народжуван", "fertility birth rate"),
+    ("urbaniz", "urbanization urban population city"),
+    # ── Health ──
     ("тривалість життя", "life expectancy"),
     ("здоров", "health mortality healthy life expectancy"),
     ("sanat", "health hospital medical mortality"),
     ("zdrow", "health hospital medical mortality"),
+    ("infant mortality", "infant mortality child death neonatal"),
+    ("дитяча смертн", "infant mortality child death"),
+    ("maternal mortality", "maternal mortality childbirth"),
+    ("vaccinat", "vaccination immunization coverage"),
+    ("вакцинац", "vaccination immunization coverage"),
+    ("obesity", "obesity overweight bmi"),
+    ("diabetes", "diabetes prevalence noncommunicable"),
+    ("stunting", "stunting malnutrition child wasting"),
+    ("hiv", "hiv aids prevalence"),
+    ("tuberculosis", "tuberculosis tb incidence"),
+    ("clean water", "clean water drinking water sanitation"),
+    ("sanitation", "sanitation sewerage water supply"),
+    ("uhc", "universal health coverage uhc"),
+    ("suicide", "suicide rate mental health"),
+    ("smoking", "smoking tobacco prevalence"),
+    ("physician", "physician doctor density"),
+    ("hospital bed", "hospital beds health capacity"),
+    ("health spend", "health spending expenditure"),
+    # ── Education ──
     ("освіт", "education school enrollment literacy"),
     ("школ", "school enrollment education"),
     ("educat", "education school enrollment literacy"),
     ("edukac", "education school enrollment literacy"),
     ("szkol", "school enrollment education"),
-    ("somaj", "unemployment jobless labour market"),
-    ("bezroboc", "unemployment jobless labour market"),
-    ("buget", "budget municipal revenue expenditure"),
-    ("budzet", "budget municipal revenue expenditure"),
-    ("demograf", "demography population births deaths"),
+    ("tertiary", "tertiary enrollment university higher education"),
+    ("вища освіт", "tertiary enrollment university"),
+    ("dropout", "dropout rate school leaving"),
+    ("years of schooling", "years of schooling education duration"),
+    ("research output", "scientific publications research output"),
+    ("stem", "stem graduates science technology engineering"),
+    # ── Governance ──
     ("довір", "social trust values survey"),
-    ("бідн", "poverty deprivation"),
-    ("доход", "income earnings wage"),
-    ("робоч", "labor force labour force participation"),
-    ("участь", "participation"),
     ("врядуван", "institutional quality rule of law government effectiveness"),
+    ("корупц", "corruption anticorruption bribery"),
+    ("corrupt", "corruption anticorruption bribery transparency"),
+    ("демократ", "democracy democratic political freedom"),
+    ("democra", "democracy democratic political freedom civil liberties"),
+    ("rule of law", "rule of law judicial courts legal"),
+    ("судов", "judicial quality courts rule of law"),
+    ("trust in govern", "public trust confidence government institution"),
+    ("довіра до уряд", "public trust confidence government"),
+    # ── Environment ──
+    ("co2", "co2 carbon emissions greenhouse gas"),
+    ("викид", "emissions co2 carbon greenhouse"),
+    ("renewable energy", "renewable energy clean solar wind"),
+    ("відновлюван", "renewable energy clean solar wind"),
+    ("forest", "forest cover deforestation area"),
+    ("ліс", "forest cover deforestation"),
+    ("air quality", "air quality pm2.5 pollution"),
+    ("water stress", "water stress scarcity freshwater"),
+    ("waste", "waste management recycling"),
+    # ── Finance ──
+    ("financial inclus", "financial inclusion banking unbanked account"),
+    ("credit", "credit access domestic lending"),
+    ("доход", "income earnings wage"),
+    # ── Infrastructure & Digital ──
+    ("internet", "internet users access broadband"),
+    ("broadband", "broadband internet fixed connectivity"),
+    ("mobile", "mobile phone cellular coverage"),
+    ("logistic", "logistics performance infrastructure transport"),
+    # ── Security ──
+    ("homicide", "homicide murder rate violence"),
+    ("military", "military spending defense armed forces"),
+    ("conflict", "conflict armed conflict violence war"),
+    # ── Social ──
+    ("gender equal", "gender equality women rights parity"),
+    ("гендерн", "gender equality women rights"),
+    ("social capital", "social capital civic participation community"),
+    ("social protect", "social protection safety net welfare"),
+    ("child labor", "child labor child labour work"),
+    ("human capital", "human capital index hci"),
+    ("tax revenue", "tax revenue fiscal taxation"),
 )
+# Authoritative source-metric pairs: (source, canonical_metric) → boost
+_SOURCE_METRIC_AFFINITY: dict[tuple[str, str], float] = {
+    ("who", "life_expectancy"): 0.20,
+    ("who", "health_outcomes"): 0.15,
+    ("who", "infant_mortality"): 0.20,
+    ("who", "maternal_mortality"): 0.20,
+    ("who", "vaccination_coverage"): 0.20,
+    ("who", "obesity_prevalence"): 0.15,
+    ("who", "tuberculosis_incidence"): 0.20,
+    ("who", "universal_health_coverage"): 0.20,
+    ("who", "physician_density"): 0.15,
+    ("who", "homicide_rate"): 0.15,
+    ("worldbank", "gdp_per_capita"): 0.20,
+    ("worldbank", "gdp"): 0.20,
+    ("worldbank", "inequality"): 0.15,
+    ("worldbank", "gini_coefficient"): 0.20,
+    ("worldbank", "poverty_rate"): 0.20,
+    ("worldbank", "unemployment_rate"): 0.15,
+    ("worldbank", "institutional_quality"): 0.15,
+    ("worldbank", "corruption_level"): 0.15,
+    ("worldbank", "financial_inclusion"): 0.15,
+    ("eurostat", "unemployment_rate"): 0.15,
+    ("eurostat", "employment_rate"): 0.15,
+    ("eurostat", "gender_wage_gap"): 0.15,
+    ("eurostat", "inflation"): 0.10,
+    ("wvs", "social_trust"): 0.25,
+    ("wvs", "public_trust"): 0.20,
+    ("wvs", "democracy_quality"): 0.20,
+    ("wvs", "gender_equality"): 0.15,
+    ("wvs", "social_capital"): 0.20,
+    ("wvs", "cultural_cluster"): 0.25,
+    ("unesco_uis", "education_outcomes"): 0.15,
+    ("unesco_uis", "tertiary_enrollment"): 0.15,
+}
+
 _SOURCE_QUERY_HINTS: dict[str, tuple[str, ...]] = {
     "data_gov_ro_broad": ("romania", "românia"),
     "data_gov_ro_exec": ("romania", "românia"),
@@ -235,9 +365,12 @@ class DatasetCatalogGraph:
     def _metric_boost(item: DatasetSearchResult, query: str) -> float:
         normalized_query = _normalize_text(query)
         metric_tokens = {_normalize_text(metric) for metric in item.polisyos_metrics if metric}
-        if any(metric and metric in normalized_query for metric in metric_tokens):
-            return 0.25
-        return 0.0
+        base = 0.25 if any(metric and metric in normalized_query for metric in metric_tokens) else 0.0
+        # Source-metric affinity: authoritative source for this metric gets extra boost
+        affinity = _SOURCE_METRIC_AFFINITY.get(
+            (item.source or "", next(iter(metric_tokens), "")), 0.0
+        )
+        return base + affinity
 
     @staticmethod
     def _source_boost(item: DatasetSearchResult, query: str) -> float:

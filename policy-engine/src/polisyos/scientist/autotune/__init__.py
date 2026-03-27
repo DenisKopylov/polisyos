@@ -26,18 +26,6 @@ from .models import (
     resolve_item_split,
 )
 from .registry import ChampionRegistry
-from .runtime import (
-    ChampionBackedRuntimeLoader,
-    PydanticMutationCodec,
-    SequenceCandidateGenerator,
-    SearchLoopRunner,
-    seed_loop_baseline,
-)
-from .execution_plan import (
-    CapabilityAwareExecutionPlanCandidateGenerator,
-    build_execution_plan_generation_context,
-    suggest_execution_plan_topology_mutations,
-)
 
 __all__ = [
     "BenchmarkEvaluation",
@@ -45,21 +33,14 @@ __all__ = [
     "BenchmarkSplitManifest",
     "BenchmarkSuite",
     "BenchmarkedEvaluator",
-    "CapabilityAwareExecutionPlanCandidateGenerator",
-    "build_execution_plan_generation_context",
-    "ChampionBackedRuntimeLoader",
     "ChampionPointer",
     "ChampionRegistry",
     "MetricDirection",
     "MutationArtifact",
-    "PydanticMutationCodec",
     "PromotionDecision",
     "PromotionPolicy",
     "RuntimeLoader",
-    "SequenceCandidateGenerator",
-    "SearchLoopRunner",
     "SearchLoopSpec",
-    "suggest_execution_plan_topology_mutations",
     "default_cas_root",
     "default_search_registry_root",
     "default_store",
@@ -71,5 +52,42 @@ __all__ = [
     "persist_split_manifest",
     "read_split_manifest",
     "resolve_item_split",
-    "seed_loop_baseline",
 ]
+
+try:
+    from .runtime import (
+        ChampionBackedRuntimeLoader,
+        PydanticMutationCodec,
+        SequenceCandidateGenerator,
+        SearchLoopRunner,
+        seed_loop_baseline,
+    )
+
+    __all__.extend(
+        [
+            "ChampionBackedRuntimeLoader",
+            "PydanticMutationCodec",
+            "SequenceCandidateGenerator",
+            "SearchLoopRunner",
+            "seed_loop_baseline",
+        ]
+    )
+except Exception:  # pragma: no cover - optional import guard for package init cycles
+    pass
+
+try:
+    from .execution_plan import (
+        CapabilityAwareExecutionPlanCandidateGenerator,
+        build_execution_plan_generation_context,
+        suggest_execution_plan_topology_mutations,
+    )
+
+    __all__.extend(
+        [
+            "CapabilityAwareExecutionPlanCandidateGenerator",
+            "build_execution_plan_generation_context",
+            "suggest_execution_plan_topology_mutations",
+        ]
+    )
+except Exception:  # pragma: no cover - optional import guard for package init cycles
+    pass

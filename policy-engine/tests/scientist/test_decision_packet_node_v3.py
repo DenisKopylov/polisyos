@@ -10,6 +10,14 @@ from polisyos.core.contracts.foundry import ExecPlanRef, Metrics, MetricsRef, Si
 from polisyos.core.contracts.lex import ChangeProposalRef, LegalReportRef
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
+from polisyos.ir.analytics.abstraction import (
+    AbstractionCertificate,
+    AbstractionPreservationType,
+    FiniteStateAbstractionMap,
+    VariableStateAbstraction,
+    persist_abstraction_certificate,
+    persist_finite_state_abstraction_map,
+)
 from polisyos.ir.analytics.abm_bridge import (
     ABMAlignmentReport,
     AlignmentResult,
@@ -49,6 +57,24 @@ from polisyos.ir.analytics.normative_arbitration import (
     persist_normative_arbitration_result,
 )
 from polisyos.ir.analytics.sensitivity import SensitivityResult, persist_sensitivity_result
+from polisyos.ir.analytics.strategic import (
+    EquilibriumSelectionSummary,
+    EquilibriumSetSummary,
+    FiniteStrategicPayoffTable,
+    PostAdaptationPolicyValueSummary,
+    StrategicClosureSummary,
+    StrategicEquilibriumConcept,
+    StrategicFallbackMode,
+    StrategicResponseBundle,
+    StrategicSCM,
+    persist_equilibrium_selection_summary,
+    persist_equilibrium_set_summary,
+    persist_post_adaptation_policy_value_summary,
+    persist_strategic_closure_summary,
+    persist_strategic_payoff_table,
+    persist_strategic_response_bundle,
+    persist_strategic_scm,
+)
 from polisyos.ir.analytics.transportability import (
     TransportabilityResult,
     TransportabilityStatus,
@@ -69,17 +95,21 @@ from polisyos.scientist.governance.report import GovernanceReport, GovernanceRep
 from polisyos.scientist.nodes.builtins.decide.build_decision_packet import BuildDecisionPacketNode
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_ABM_ALIGNMENT_REPORT_REF,
+    ARTIFACT_ABSTRACTION_CERTIFICATE_REF,
     ARTIFACT_BACKTEST_REPORT_REF,
     ARTIFACT_CAUSAL_ENVELOPE_REF,
     ARTIFACT_CAUSAL_ENSEMBLE_REF,
     ARTIFACT_CAUSAL_REPORT_REF,
     ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF,
+    ARTIFACT_FINITE_STATE_ABSTRACTION_MAP_REF,
     ARTIFACT_HTE_RESULT_REF,
     ARTIFACT_METRICS_REF,
     ARTIFACT_NORMATIVE_ARBITRATION_RESULT_REF,
     ARTIFACT_POLICY_RECOMMENDATION_REF,
     ARTIFACT_SENSITIVITY_RESULT_REF,
     ARTIFACT_SIMULATION_RESULT_REF,
+    ARTIFACT_STRATEGIC_RESPONSE_BUNDLE_REF,
+    ARTIFACT_STRATEGIC_SCM_REF,
     ARTIFACT_TRANSPORTABILITY_RESULT_REF,
     INPUT_DATA_SNAPSHOT_REF,
     INPUT_REGISTRY_BUNDLE_REF,
@@ -90,6 +120,11 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     REPORT_LEGAL_REPORT_REF,
     REPORT_LINK_REPORT_REF,
 )
+from polisyos.ir.refs import ArtifactRefModel
+
+
+def _artifact_id(ch: str) -> str:
+    return f"sha256:{ch * 64}"
 
 
 def test_build_decision_packet_node_emits_v3_payload_and_manifest_inputs(tmp_path) -> None:
@@ -831,6 +866,37 @@ def test_build_decision_packet_includes_abm_alignment_section(tmp_path) -> None:
             warnings=["income_level: wide_tolerance_consistent_warning"],
         ),
     )
+    abstraction_map_ref = persist_finite_state_abstraction_map(
+        store,
+        FiniteStateAbstractionMap(
+            variable_maps=(
+                VariableStateAbstraction(
+                    micro_variable="X_m",
+                    macro_variable="X",
+                    state_map={"0": "0", "1": "1"},
+                ),
+            )
+        ),
+    )
+    abstraction_certificate_ref = persist_abstraction_certificate(
+        store,
+        AbstractionCertificate(
+            micro_graph_ref={
+                "artifact_id": _artifact_id("a"),
+                "kind": "ir.causal_graph_model",
+                "media_type": "application/json",
+            },
+            macro_graph_ref={
+                "artifact_id": _artifact_id("b"),
+                "kind": "ir.causal_graph_model",
+                "media_type": "application/json",
+            },
+            abstraction_map_ref=abstraction_map_ref,
+            preservation_type=AbstractionPreservationType.EXACT,
+            preserved_queries=("observational", "interventional"),
+            error_bound=None,
+        ),
+    )
 
     state = ExperimentState(
         run_id="R_packet_abm",
@@ -841,6 +907,8 @@ def test_build_decision_packet_includes_abm_alignment_section(tmp_path) -> None:
         },
         artifacts_index={
             ARTIFACT_ABM_ALIGNMENT_REPORT_REF: abm_ref,
+            ARTIFACT_FINITE_STATE_ABSTRACTION_MAP_REF: abstraction_map_ref,
+            ARTIFACT_ABSTRACTION_CERTIFICATE_REF: abstraction_certificate_ref,
         },
     )
 
@@ -856,8 +924,19 @@ def test_build_decision_packet_includes_abm_alignment_section(tmp_path) -> None:
     assert payload["abm_alignment"]["warnings"] == [
         "income_level: wide_tolerance_consistent_warning"
     ]
+    assert payload["abstraction_certificate"]["certificate_ref"] == str(
+        abstraction_certificate_ref.artifact_id
+    )
+    assert payload["abstraction_certificate"]["abstraction_map_ref"] == str(
+        abstraction_map_ref.artifact_id
+    )
+    assert payload["abstraction_certificate"]["preservation_type"] == "exact"
     assert payload["artifacts"]["abm_alignment_report_ref"] == str(abm_ref.artifact_id)
+    assert payload["artifacts"]["abstraction_certificate_ref"] == str(
+        abstraction_certificate_ref.artifact_id
+    )
     assert "abm_alignment.report_ref" in roles
+    assert "abstraction_certificate.certificate_ref" in roles
 
 
 def test_build_decision_packet_includes_hte_and_backtest_sections(tmp_path) -> None:
@@ -1262,3 +1341,247 @@ def test_build_decision_packet_uses_dual_written_ensemble_envelope_for_causal_po
     payload = from_canonical_bytes(store.get_bytes(packet_ref.artifact_id))
 
     assert payload["uncertainty_bounds"]["causal_effect_point"] == 3.14
+
+
+def test_build_decision_packet_surfaces_strategic_runtime_artifacts(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+    registry_bundle = build_default_registry_bundle(store).bundle_ref
+    run = RunContext.start(store=store, registry_bundle=registry_bundle, run_id="R_packet_strategic")
+    ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test.packet.strategic"))
+
+    trinity_ref = store.put_json(
+        {"trinity": {}},
+        PutOptions(
+            kind="ir.trinity_bundle",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version="1.0"),
+        ),
+    )
+    data_snapshot_ref = store.put_json(
+        {"data_ref": None},
+        PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
+    )
+    base_graph_ref = store.put_json(
+        {"graph": {}},
+        PutOptions(kind="ir.causal_graph", media_type="application/json"),
+    )
+    policy_rule_ref = store.put_json(
+        {"policy_rule": {}},
+        PutOptions(kind="scientist.policy_candidate_schema", media_type="application/json"),
+    )
+    leader_table_ref = persist_strategic_payoff_table(
+        store,
+        FiniteStrategicPayoffTable(
+            agent="leader",
+            strategic_agents=("leader", "follower"),
+            action_spaces={"leader": ("A", "B"), "follower": ("X", "Y")},
+            payoffs={
+                "leader=A|follower=X": 2.0,
+                "leader=A|follower=Y": 1.0,
+                "leader=B|follower=X": 0.0,
+                "leader=B|follower=Y": 0.5,
+            },
+        ),
+    )
+    follower_table_ref = persist_strategic_payoff_table(
+        store,
+        FiniteStrategicPayoffTable(
+            agent="follower",
+            strategic_agents=("leader", "follower"),
+            action_spaces={"leader": ("A", "B"), "follower": ("X", "Y")},
+            payoffs={
+                "leader=A|follower=X": 1.0,
+                "leader=A|follower=Y": 1.0,
+                "leader=B|follower=X": 0.5,
+                "leader=B|follower=Y": 0.25,
+            },
+        ),
+    )
+    strategic_scm_ref = persist_strategic_scm(
+        store,
+        StrategicSCM(
+            base_graph_ref=ArtifactRefModel.model_validate(base_graph_ref.model_dump(mode="json")),
+            strategic_agents=("leader", "follower"),
+            utility_refs={
+                "leader": leader_table_ref,
+                "follower": follower_table_ref,
+            },
+            policy_rule_ref=ArtifactRefModel.model_validate(policy_rule_ref.model_dump(mode="json")),
+            equilibrium_concept=StrategicEquilibriumConcept.STACKELBERG,
+        ),
+    )
+    strategic_closure_ref = persist_strategic_closure_summary(
+        store,
+        StrategicClosureSummary(
+            fallback_mode=StrategicFallbackMode.EXACT_EQUILIBRIUM,
+            equilibrium_concept=StrategicEquilibriumConcept.STACKELBERG,
+            equilibrium_selection_dependence="follower_best_response_tie_breaking",
+            profile_count=4,
+            equilibrium_count=2,
+        ),
+    )
+    equilibrium_set_ref = persist_equilibrium_set_summary(
+        store,
+        EquilibriumSetSummary(
+            equilibrium_profiles=(
+                {"leader": "A", "follower": "X"},
+                {"leader": "A", "follower": "Y"},
+            ),
+            equilibrium_count=2,
+            multiplicity_note="multiple_stackelberg_equilibria",
+        ),
+    )
+    selected_equilibrium_ref = persist_equilibrium_selection_summary(
+        store,
+        EquilibriumSelectionSummary(
+            selected_equilibrium={"leader": "A", "follower": "X"},
+            equilibrium_selection_dependence="follower_best_response_tie_breaking",
+        ),
+    )
+    post_value_ref = persist_post_adaptation_policy_value_summary(
+        store,
+        PostAdaptationPolicyValueSummary(
+            fallback_mode=StrategicFallbackMode.EXACT_EQUILIBRIUM,
+            baseline_policy_value=1.0,
+            point_value=1.3,
+        ),
+    )
+    strategic_bundle_ref = persist_strategic_response_bundle(
+        store,
+        StrategicResponseBundle(
+            causal_component_ref=ArtifactRefModel.model_validate(policy_rule_ref.model_dump(mode="json")),
+            strategic_closure_ref=strategic_closure_ref,
+            equilibrium_selection_dependence="follower_best_response_tie_breaking",
+            equilibrium_set_ref=equilibrium_set_ref,
+            selected_equilibrium_ref=selected_equilibrium_ref,
+            multiplicity_note="multiple_stackelberg_equilibria",
+            post_adaptation_policy_value_ref=post_value_ref,
+            fallback_mode=StrategicFallbackMode.EXACT_EQUILIBRIUM,
+        ),
+    )
+
+    state = ExperimentState(
+        run_id="R_packet_strategic",
+        inputs={
+            INPUT_TRINITY_BUNDLE_REF: trinity_ref,
+            INPUT_REGISTRY_BUNDLE_REF: registry_bundle,
+            INPUT_DATA_SNAPSHOT_REF: data_snapshot_ref,
+        },
+        artifacts_index={
+            ARTIFACT_STRATEGIC_SCM_REF: strategic_scm_ref,
+            ARTIFACT_STRATEGIC_RESPONSE_BUNDLE_REF: strategic_bundle_ref,
+        },
+    )
+
+    outcome = BuildDecisionPacketNode().execute(ctx, state)
+    packet_ref = outcome.artifacts[0]
+    payload = from_canonical_bytes(store.get_bytes(packet_ref.artifact_id))
+
+    assert payload["artifacts"]["strategic_scm_ref"] == str(strategic_scm_ref.artifact_id)
+    assert payload["artifacts"]["strategic_response_bundle_ref"] == str(
+        strategic_bundle_ref.artifact_id
+    )
+    assert payload["strategic"]["fallback_mode"] == "exact_equilibrium"
+    assert payload["strategic"]["equilibrium_selection_dependence"] == (
+        "follower_best_response_tie_breaking"
+    )
+    assert payload["strategic"]["strategic_scm_ref"] == str(strategic_scm_ref.artifact_id)
+    assert payload["strategic"]["strategic_response_bundle_ref"] == str(
+        strategic_bundle_ref.artifact_id
+    )
+    assert payload["strategic"]["post_adaptation_policy_value"] == 1.3
+
+
+def test_build_decision_packet_falls_back_to_blocked_strategic_summary_without_bundle(
+    tmp_path,
+) -> None:
+    store = FileSystemCAS(tmp_path)
+    registry_bundle = build_default_registry_bundle(store).bundle_ref
+    run = RunContext.start(store=store, registry_bundle=registry_bundle, run_id="R_packet_strategic_blocked")
+    ctx = ExecutionContext(
+        store=store,
+        run=run,
+        logger=logging.getLogger("test.packet.strategic.blocked"),
+    )
+
+    trinity_ref = store.put_json(
+        {"trinity": {}},
+        PutOptions(
+            kind="ir.trinity_bundle",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version="1.0"),
+        ),
+    )
+    data_snapshot_ref = store.put_json(
+        {"data_ref": None},
+        PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
+    )
+    base_graph_ref = store.put_json(
+        {"graph": {}},
+        PutOptions(kind="ir.causal_graph", media_type="application/json"),
+    )
+    policy_rule_ref = store.put_json(
+        {"policy_rule": {}},
+        PutOptions(kind="scientist.policy_candidate_schema", media_type="application/json"),
+    )
+    leader_table_ref = persist_strategic_payoff_table(
+        store,
+        FiniteStrategicPayoffTable(
+            agent="leader",
+            strategic_agents=("leader", "follower"),
+            action_spaces={"leader": ("A",), "follower": ("X",)},
+            payoffs={"leader=A|follower=X": 1.0},
+        ),
+    )
+    follower_table_ref = persist_strategic_payoff_table(
+        store,
+        FiniteStrategicPayoffTable(
+            agent="follower",
+            strategic_agents=("leader", "follower"),
+            action_spaces={"leader": ("A",), "follower": ("X",)},
+            payoffs={"leader=A|follower=X": 1.0},
+        ),
+    )
+    strategic_scm_ref = persist_strategic_scm(
+        store,
+        StrategicSCM(
+            base_graph_ref=ArtifactRefModel.model_validate(base_graph_ref.model_dump(mode="json")),
+            strategic_agents=("leader", "follower"),
+            utility_refs={
+                "leader": leader_table_ref,
+                "follower": follower_table_ref,
+            },
+            policy_rule_ref=ArtifactRefModel.model_validate(policy_rule_ref.model_dump(mode="json")),
+            equilibrium_concept=StrategicEquilibriumConcept.STACKELBERG,
+        ),
+    )
+
+    state = ExperimentState(
+        run_id="R_packet_strategic_blocked",
+        params={
+            "strategic_response": {
+                "fallback_mode": "blocked",
+                "equilibrium_selection_dependence": "runtime_precondition_blocked",
+                "blocked_reason": "missing_causal_report_for_strategic_decomposition",
+            }
+        },
+        inputs={
+            INPUT_TRINITY_BUNDLE_REF: trinity_ref,
+            INPUT_REGISTRY_BUNDLE_REF: registry_bundle,
+            INPUT_DATA_SNAPSHOT_REF: data_snapshot_ref,
+        },
+        artifacts_index={
+            ARTIFACT_STRATEGIC_SCM_REF: strategic_scm_ref,
+        },
+    )
+
+    outcome = BuildDecisionPacketNode().execute(ctx, state)
+    packet_ref = outcome.artifacts[0]
+    payload = from_canonical_bytes(store.get_bytes(packet_ref.artifact_id))
+
+    assert payload["strategic"]["strategic_scm_ref"] == str(strategic_scm_ref.artifact_id)
+    assert payload["strategic"]["strategic_response_bundle_ref"] is None
+    assert payload["strategic"]["fallback_mode"] == "blocked"
+    assert payload["strategic"]["blocked_reason"] == (
+        "missing_causal_report_for_strategic_decomposition"
+    )

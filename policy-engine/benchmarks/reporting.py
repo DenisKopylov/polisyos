@@ -267,6 +267,55 @@ def validate_publication_payload(payload: dict[str, Any]) -> list[str]:
         if not isinstance(aggregate.get("case_groups"), dict):
             errors.append("policy benchmark suites require aggregate_metrics.case_groups")
 
+    if suite_id == "temporal_gold":
+        aggregate = payload.get("aggregate_metrics", {})
+        if payload.get("baseline_snapshot_ref") != "temporal_gold@synthetic-v1":
+            errors.append("temporal_gold requires baseline_snapshot_ref=temporal_gold@synthetic-v1")
+        regression_guard = payload.get("regression_guard")
+        if not isinstance(regression_guard, dict) or not regression_guard:
+            errors.append("temporal_gold requires non-empty regression_guard")
+        if payload.get("benchmark_family") != "temporal_causal_dynamics":
+            errors.append("temporal_gold requires benchmark_family=temporal_causal_dynamics")
+        if payload.get("public_claim_eligible") is not True:
+            errors.append("temporal_gold requires public_claim_eligible=true")
+        if not payload.get("literature_anchor"):
+            errors.append("temporal_gold requires literature_anchor")
+        scorecard = aggregate.get("temporal_scorecard")
+        if not isinstance(scorecard, dict):
+            errors.append("temporal_gold requires aggregate_metrics.temporal_scorecard")
+        else:
+            for field_name in (
+                "engine_route_coverage_rate",
+                "bundle_presence_rate",
+                "artifact_loadability_rate",
+                "policy_lineage_rate",
+                "diagnostics_artifact_presence_rate",
+                "truthful_fallback_disclosure_rate",
+            ):
+                if field_name not in scorecard:
+                    errors.append(
+                        f"temporal_gold requires aggregate_metrics.temporal_scorecard.{field_name}"
+                    )
+
+    if suite_id == "temporal_hidden":
+        aggregate = payload.get("aggregate_metrics", {})
+        if payload.get("baseline_snapshot_ref") != "temporal_hidden@synthetic-v1":
+            errors.append("temporal_hidden requires baseline_snapshot_ref=temporal_hidden@synthetic-v1")
+        regression_guard = payload.get("regression_guard")
+        if not isinstance(regression_guard, dict) or not regression_guard:
+            errors.append("temporal_hidden requires non-empty regression_guard")
+        if payload.get("proof_class") != "stress_evidence":
+            errors.append("temporal_hidden requires proof_class=stress_evidence")
+        if payload.get("public_claim_eligible") is not False:
+            errors.append("temporal_hidden requires public_claim_eligible=false")
+        summary = aggregate.get("hidden_temporal_summary")
+        if not isinstance(summary, dict):
+            errors.append("temporal_hidden requires aggregate_metrics.hidden_temporal_summary")
+        elif "artifact_reload_failure_rate" not in summary:
+            errors.append(
+                "temporal_hidden requires aggregate_metrics.hidden_temporal_summary.artifact_reload_failure_rate"
+            )
+
     if suite_id.startswith("estimation_"):
         aggregate = payload.get("aggregate_metrics", {})
         scorecard = aggregate.get("flagship_scorecard")

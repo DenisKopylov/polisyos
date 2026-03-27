@@ -2,11 +2,16 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, Dict, List
 
 from polisyos.common.logger import get_logger
+from pydantic import BaseModel, ConfigDict, Field
+
+from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
+from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.scientist.workflows.engine_base import WorkflowEngine
 
 logger = get_logger(__name__)
@@ -22,7 +27,7 @@ class StageResult:
 
     stage_name: str
     duration_seconds: float = 0.0
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     simulation_results: Dict[str, Any] = field(default_factory=dict)
     feedback: Dict[str, Any] = field(default_factory=dict)
@@ -88,7 +93,7 @@ class CheapStage(SearchStage):
         candidate: Dict[str, Any],
         context: Dict[str, Any],
     ) -> StageResult:
-        start = datetime.utcnow()
+        start = datetime.now(UTC)
 
         issues: List[str] = []
         score = 0.0
@@ -102,7 +107,7 @@ class CheapStage(SearchStage):
         if self._param_checks:
             score += self._check_parameters(interventions, issues)
 
-        duration = (datetime.utcnow() - start).total_seconds()
+        duration = (datetime.now(UTC) - start).total_seconds()
         is_promising = score < self._threshold
 
         if not is_promising:
@@ -202,7 +207,7 @@ class ExpensiveStage(SearchStage):
         candidate: Dict[str, Any],
         context: Dict[str, Any],
     ) -> StageResult:
-        start = datetime.utcnow()
+        start = datetime.now(UTC)
 
         initial_state = {
             "ir": candidate,
@@ -220,11 +225,11 @@ class ExpensiveStage(SearchStage):
                 objective_value=float("inf"),
                 is_promising=False,
                 stage_name=self.stage_name,
-                duration_seconds=(datetime.utcnow() - start).total_seconds(),
+                duration_seconds=(datetime.now(UTC) - start).total_seconds(),
                 feedback={"verdict": "REJECT", "issues": [{"message": str(exc)}]},
             )
 
-        duration = (datetime.utcnow() - start).total_seconds()
+        duration = (datetime.now(UTC) - start).total_seconds()
 
         sim_results = result.get("simulation_results", {})
         feedback = result.get("feedback", {})
@@ -260,33 +265,97 @@ class ExpensiveStage(SearchStage):
 
 @dataclass
 class CorrelationRecord:
-    """Record for tracking Stage A vs Stage B correlation."""
+    """Record for tracking cheap-to-expensive calibration health."""
 
     candidate_hash: str
     stage_a_score: float
     stage_b_score: float
     stage_a_passed: bool
     stage_b_approved: bool
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
+    is_sentinel: bool = False
+    metadata: Dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass(frozen=True)
+class DriftAlert:
+    """Structured calibration alert emitted by the tracker."""
+
+    code: str
+    severity: str
+    message: str
+    metrics: Dict[str, Any] = field(default_factory=dict)
+    recommended_action: str | None = None
+
+
+class CorrelationRecordSnapshot(BaseModel):
+    """Serializable snapshot record for correlation tracker persistence."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_hash: str
+    stage_a_score: float
+    stage_b_score: float
+    stage_a_passed: bool
+    stage_b_approved: bool
+    timestamp: datetime
+    is_sentinel: bool = False
+    metadata: Dict[str, Any] = Field(default_factory=dict)
+
+
+class CorrelationTrackerSnapshot(BaseModel):
+    """Serializable tracker snapshot used by burn-in/reporting helpers."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    schema_version: str = Field(default="1.0", pattern=r"^\d+\.\d+$")
+    max_records: int = Field(ge=1)
+    drift_window_size: int = Field(ge=2)
+    spearman_warning_threshold: float
+    promotion_ban_threshold: float
+    false_negative_ceiling: float
+    sentinel_pass_floor: float
+    records: List[CorrelationRecordSnapshot] = Field(default_factory=list)
 
 
 class CorrelationTracker:
     """
-    Tracks correlation between Stage A predictions and Stage B results.
+    Tracks correlation between Stage A predictions and expensive-stage truth.
 
-    Purpose:
-        Enable tuning of CheapStage threshold based on empirical data.
+    Keeps the legacy CheapStage tuning API intact while adding drift alerts,
+    rolling-window analysis, and optional sentinel monitoring for the funnel.
     """
 
-    def __init__(self, max_records: int = 1000):
+    def __init__(
+        self,
+        max_records: int = 1000,
+        *,
+        drift_window_size: int = 20,
+        spearman_warning_threshold: float = 0.6,
+        promotion_ban_threshold: float = 0.5,
+        false_negative_ceiling: float = 0.02,
+        sentinel_pass_floor: float = 0.9,
+    ):
         self._records: List[CorrelationRecord] = []
         self._max_records = max_records
+        self._drift_window_size = max(2, int(drift_window_size))
+        self._spearman_warning_threshold = float(spearman_warning_threshold)
+        self._promotion_ban_threshold = float(promotion_ban_threshold)
+        self._false_negative_ceiling = float(false_negative_ceiling)
+        self._sentinel_pass_floor = float(sentinel_pass_floor)
+
+    @property
+    def record_count(self) -> int:
+        return len(self._records)
 
     def record(
         self,
         stage_a_result: StageResult,
         stage_b_result: StageResult | None,
         candidate_hash: str,
+        *,
+        is_sentinel: bool = False,
+        metadata: Dict[str, Any] | None = None,
     ) -> None:
         """Record a correlation data point."""
         if stage_b_result is None:
@@ -298,6 +367,8 @@ class CorrelationTracker:
             stage_b_score=stage_b_result.actual_score or stage_b_result.objective_value,
             stage_a_passed=stage_a_result.is_promising,
             stage_b_approved=stage_b_result.is_promising,
+            is_sentinel=bool(is_sentinel),
+            metadata=dict(metadata or {}),
         )
 
         self._records.append(record)
@@ -305,39 +376,233 @@ class CorrelationTracker:
         if len(self._records) > self._max_records:
             self._records = self._records[-self._max_records :]
 
-    def compute_metrics(self) -> Dict[str, float]:
-        """Compute correlation metrics."""
+    def false_negative_rate(
+        self,
+        *,
+        window_size: int | None = None,
+    ) -> float:
+        records = self._window(window_size)
+        rejected = [record for record in records if not record.stage_a_passed]
+        if not rejected:
+            return 0.0
+        false_negatives = sum(1 for record in rejected if record.stage_b_approved)
+        return false_negatives / len(rejected)
+
+    def sentinel_pass_rate(
+        self,
+        *,
+        window_size: int | None = None,
+    ) -> float | None:
+        records = [record for record in self._window(window_size) if record.is_sentinel]
+        if not records:
+            return None
+        passed = sum(1 for record in records if record.stage_a_passed)
+        return passed / len(records)
+
+    def drift_alerts(
+        self,
+        *,
+        window_size: int | None = None,
+    ) -> List[DriftAlert]:
+        records = self._window(window_size)
+        metrics = self._metrics_for_records(records)
+        sentinel_pass_rate = self.sentinel_pass_rate(window_size=len(records))
+        alerts: List[DriftAlert] = []
+
+        spearman = float(metrics.get("spearman_correlation", 0.0))
+        if spearman < self._promotion_ban_threshold:
+            alerts.append(
+                DriftAlert(
+                    code="PROMOTION_BAN",
+                    severity="critical",
+                    message="Cheap-to-expensive correlation dropped below promotion-ban threshold.",
+                    metrics={"spearman_correlation": spearman},
+                    recommended_action="Disable promotions and run calibration burn-in.",
+                )
+            )
+        elif spearman < self._spearman_warning_threshold:
+            alerts.append(
+                DriftAlert(
+                    code="CALIBRATION_DRIFT",
+                    severity="warning",
+                    message="Cheap-to-expensive correlation dropped below warning threshold.",
+                    metrics={"spearman_correlation": spearman},
+                    recommended_action="Disable VOI and route survivors sequentially through medium fidelity.",
+                )
+            )
+
+        false_negative_rate = float(metrics.get("false_negative_rate", 0.0))
+        if false_negative_rate > self._false_negative_ceiling:
+            alerts.append(
+                DriftAlert(
+                    code="FALSE_NEGATIVE_SPIKE",
+                    severity="warning",
+                    message="False-negative rate exceeded the configured ceiling.",
+                    metrics={"false_negative_rate": false_negative_rate},
+                    recommended_action="Recalibrate cheap-stage rejection thresholds.",
+                )
+            )
+
+        if sentinel_pass_rate is not None and float(sentinel_pass_rate) < self._sentinel_pass_floor:
+            alerts.append(
+                DriftAlert(
+                    code="SENTINEL_FAILURE",
+                    severity="warning",
+                    message="Sentinel pass rate dropped below the configured floor.",
+                    metrics={"sentinel_pass_rate": sentinel_pass_rate},
+                    recommended_action="Inject calibration sentinels and inspect recent regressions.",
+                )
+            )
+
+        return alerts
+
+    def promotion_ban_active(self) -> bool:
+        return any(alert.code == "PROMOTION_BAN" for alert in self.drift_alerts())
+
+    def routing_mode(self) -> str:
+        if self.promotion_ban_active():
+            return "no_promotion"
+        if self.drift_alerts():
+            return "conservative_routing"
+        return "normal"
+
+    def compute_metrics(
+        self,
+        *,
+        window_size: int | None = None,
+    ) -> Dict[str, Any]:
+        """Compute legacy metrics plus drift-aware rolling-window fields."""
         if not self._records:
             return {
                 "sample_count": 0,
                 "false_positive_rate": 0.0,
                 "true_positive_rate": 0.0,
+                "spearman_correlation": 0.0,
+                "false_negative_rate": 0.0,
+                "rolling_window_size": 0,
+                "rolling_sample_count": 0,
+                "rolling_spearman_correlation": 0.0,
+                "sentinel_pass_rate": None,
+                "alert_count": 0,
+                "promotion_ban_active": False,
+                "routing_mode": "normal",
             }
 
-        passed_a = [r for r in self._records if r.stage_a_passed]
-
-        true_positives = sum(1 for r in passed_a if r.stage_b_approved)
-        false_positives = sum(1 for r in passed_a if not r.stage_b_approved)
-
-        fp_rate = false_positives / len(passed_a) if passed_a else 0.0
-        tp_rate = true_positives / len(passed_a) if passed_a else 0.0
-
-        if len(self._records) > 2:
-            a_scores = [r.stage_a_score for r in self._records]
-            b_scores = [r.stage_b_score for r in self._records]
-            correlation = self._spearman(a_scores, b_scores)
-        else:
-            correlation = 0.0
+        full_metrics = self._metrics_for_records(self._records)
+        window_records = self._window(window_size)
+        rolling_metrics = self._metrics_for_records(window_records)
+        alerts = self.drift_alerts(window_size=len(window_records))
+        sentinel_rate = self.sentinel_pass_rate(window_size=len(window_records))
 
         return {
             "sample_count": len(self._records),
-            "false_positive_rate": fp_rate,
-            "true_positive_rate": tp_rate,
-            "spearman_correlation": correlation,
+            "false_positive_rate": full_metrics["false_positive_rate"],
+            "true_positive_rate": full_metrics["true_positive_rate"],
+            "spearman_correlation": full_metrics["spearman_correlation"],
+            "false_negative_rate": rolling_metrics["false_negative_rate"],
+            "rolling_window_size": self._drift_window_size,
+            "rolling_sample_count": len(window_records),
+            "rolling_spearman_correlation": rolling_metrics["spearman_correlation"],
+            "sentinel_pass_rate": sentinel_rate,
+            "alert_count": len(alerts),
+            "promotion_ban_active": any(alert.code == "PROMOTION_BAN" for alert in alerts),
+            "routing_mode": self.routing_mode(),
         }
 
     def records(self) -> List[CorrelationRecord]:
         return list(self._records)
+
+    def to_snapshot(self) -> CorrelationTrackerSnapshot:
+        """Serialize tracker state for CAS-backed reporting workflows."""
+        return CorrelationTrackerSnapshot(
+            max_records=self._max_records,
+            drift_window_size=self._drift_window_size,
+            spearman_warning_threshold=self._spearman_warning_threshold,
+            promotion_ban_threshold=self._promotion_ban_threshold,
+            false_negative_ceiling=self._false_negative_ceiling,
+            sentinel_pass_floor=self._sentinel_pass_floor,
+            records=[
+                CorrelationRecordSnapshot(
+                    candidate_hash=record.candidate_hash,
+                    stage_a_score=record.stage_a_score,
+                    stage_b_score=record.stage_b_score,
+                    stage_a_passed=record.stage_a_passed,
+                    stage_b_approved=record.stage_b_approved,
+                    timestamp=record.timestamp,
+                    is_sentinel=record.is_sentinel,
+                    metadata=dict(record.metadata),
+                )
+                for record in self._records
+            ],
+        )
+
+    @classmethod
+    def from_snapshot(
+        cls,
+        snapshot: CorrelationTrackerSnapshot | Dict[str, Any],
+    ) -> "CorrelationTracker":
+        """Restore tracker state from a serialized snapshot."""
+        payload = (
+            snapshot
+            if isinstance(snapshot, CorrelationTrackerSnapshot)
+            else CorrelationTrackerSnapshot.model_validate(snapshot)
+        )
+        tracker = cls(
+            max_records=payload.max_records,
+            drift_window_size=payload.drift_window_size,
+            spearman_warning_threshold=payload.spearman_warning_threshold,
+            promotion_ban_threshold=payload.promotion_ban_threshold,
+            false_negative_ceiling=payload.false_negative_ceiling,
+            sentinel_pass_floor=payload.sentinel_pass_floor,
+        )
+        tracker._records = [
+            CorrelationRecord(
+                candidate_hash=record.candidate_hash,
+                stage_a_score=record.stage_a_score,
+                stage_b_score=record.stage_b_score,
+                stage_a_passed=record.stage_a_passed,
+                stage_b_approved=record.stage_b_approved,
+                timestamp=record.timestamp,
+                is_sentinel=record.is_sentinel,
+                metadata=dict(record.metadata),
+            )
+            for record in payload.records
+        ]
+        return tracker
+
+    def persist_snapshot(
+        self,
+        store: FileSystemCAS,
+        *,
+        inputs: List[InputRef] | None = None,
+    ) -> ArtifactRef:
+        """Persist the tracker snapshot to CAS."""
+        return store.put_json(
+            self.to_snapshot(),
+            PutOptions(
+                kind="scientist.search.correlation_tracker",
+                media_type="application/json",
+                schema=SchemaInfo(
+                    name="polisyos.scientist.search.CorrelationTrackerSnapshot",
+                    version="1.0",
+                ),
+                inputs=list(inputs or []),
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+        )
+
+    @classmethod
+    def load_snapshot(
+        cls,
+        store: FileSystemCAS,
+        ref: ArtifactRef | str,
+    ) -> "CorrelationTracker":
+        """Load tracker state from CAS snapshot."""
+        artifact_id = ref.artifact_id if isinstance(ref, ArtifactRef) else ref
+        snapshot = CorrelationTrackerSnapshot.model_validate(
+            from_canonical_bytes(store.get_bytes(artifact_id))
+        )
+        return cls.from_snapshot(snapshot)
 
     def to_jsonl_rows(self) -> List[Dict[str, Any]]:
         return [
@@ -348,6 +613,8 @@ class CorrelationTracker:
                 "stage_a_passed": record.stage_a_passed,
                 "stage_b_approved": record.stage_b_approved,
                 "timestamp": record.timestamp.isoformat(),
+                "is_sentinel": record.is_sentinel,
+                "metadata": record.metadata,
             }
             for record in self._records
         ]
@@ -369,6 +636,46 @@ class CorrelationTracker:
             suite_version=suite_version,
             holdout_fraction=holdout_fraction,
         )
+
+    def _window(self, window_size: int | None) -> List[CorrelationRecord]:
+        resolved = self._drift_window_size if window_size is None else max(1, int(window_size))
+        if len(self._records) <= resolved:
+            return list(self._records)
+        return self._records[-resolved:]
+
+    def _metrics_for_records(self, records: List[CorrelationRecord]) -> Dict[str, float]:
+        if not records:
+            return {
+                "false_positive_rate": 0.0,
+                "true_positive_rate": 0.0,
+                "false_negative_rate": 0.0,
+                "spearman_correlation": 0.0,
+            }
+
+        passed_a = [record for record in records if record.stage_a_passed]
+        rejected_a = [record for record in records if not record.stage_a_passed]
+
+        true_positives = sum(1 for record in passed_a if record.stage_b_approved)
+        false_positives = sum(1 for record in passed_a if not record.stage_b_approved)
+        false_negatives = sum(1 for record in rejected_a if record.stage_b_approved)
+
+        fp_rate = false_positives / len(passed_a) if passed_a else 0.0
+        tp_rate = true_positives / len(passed_a) if passed_a else 0.0
+        fn_rate = false_negatives / len(rejected_a) if rejected_a else 0.0
+
+        if len(records) > 2:
+            a_scores = [record.stage_a_score for record in records]
+            b_scores = [record.stage_b_score for record in records]
+            correlation = self._spearman(a_scores, b_scores)
+        else:
+            correlation = 0.0
+
+        return {
+            "false_positive_rate": fp_rate,
+            "true_positive_rate": tp_rate,
+            "false_negative_rate": fn_rate,
+            "spearman_correlation": correlation,
+        }
 
     @staticmethod
     def _spearman(x: List[float], y: List[float]) -> float:

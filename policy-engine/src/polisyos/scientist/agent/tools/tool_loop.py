@@ -1,8 +1,10 @@
-"""Tool-use execution loop: LLM → tool calls → results → LLM → ..."""
+"""Tool-use execution loop: LLM -> tool calls -> results -> LLM -> ..."""
 
 from __future__ import annotations
 
+import asyncio
 import json
+import random
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
@@ -12,6 +14,8 @@ from .registry import ToolCallResult, ToolRegistry
 
 if TYPE_CHECKING:
     from polisyos.scientist.engine.convergence import ConvergenceConfig
+
+    from .dependency_graph import ToolDependencyGraph
 
 logger = get_logger(__name__)
 
@@ -86,6 +90,16 @@ def parse_tool_calls_from_response(response: Any) -> list[ParsedToolCall]:
     return results
 
 
+# ---------------------------------------------------------------------------
+# Backoff helper
+# ---------------------------------------------------------------------------
+
+def _tool_backoff_delay(consecutive_failures: int) -> float:
+    """Exponential backoff with full jitter for transient tool failures."""
+    base = min(1.0 * (2.0 ** (consecutive_failures - 1)), 30.0)
+    return base * random.random()
+
+
 async def run_tool_loop(
     *,
     client: Any,
@@ -97,6 +111,7 @@ async def run_tool_loop(
     audit_log: Any | None = None,
     convergence_config: "ConvergenceConfig | None" = None,
     persistent_memory: Any | None = None,
+    tool_dependencies: "ToolDependencyGraph | None" = None,
 ) -> ToolLoopResult:
     """Run an agentic tool-use loop.
 
@@ -105,9 +120,14 @@ async def run_tool_loop(
     3. Inject tool results back as ``role="tool"`` messages.
     4. Repeat until no tool calls or ``max_iterations`` reached.
 
-    If *convergence_config* is provided, the loop tracks the number of
-    new tool calls per iteration as a proxy metric. The loop stops early
-    when the detector signals convergence (tool activity has stabilised).
+    Enhancements over the basic loop:
+
+    * **Adaptive max iterations** — when *budget_enforcer* is provided, the
+      effective ceiling is reduced as the budget is consumed.
+    * **Exponential backoff** — transient per-tool failures trigger increasing
+      delays before the next attempt.
+    * **Tool dependency ordering** — when *tool_dependencies* is provided,
+      tool calls within an iteration are sorted topologically.
     """
     from polisyos.scientist.engine.convergence import ConvergenceDetector
 
@@ -120,6 +140,9 @@ async def run_tool_loop(
     detector: ConvergenceDetector | None = None
     if convergence_config is not None:
         detector = ConvergenceDetector(convergence_config)
+
+    # Per-tool consecutive failure tracking (for backoff)
+    tool_failures: dict[str, int] = {}
 
     # Inject prior knowledge from persistent memory
     if persistent_memory is not None:
@@ -135,6 +158,24 @@ async def run_tool_loop(
             logger.debug("Failed to inject persistent memory into tool loop")
 
     for iteration in range(max_iterations):
+        # Adaptive max iterations: shrink ceiling based on budget usage
+        if budget_enforcer is not None and iteration > 0 and total_tokens > 0:
+            avg_tokens_per_iter = total_tokens / iteration
+            remaining = getattr(budget_enforcer, "remaining_budget", None)
+            if callable(remaining):
+                try:
+                    rem = remaining()
+                    if rem is not None and avg_tokens_per_iter > 0:
+                        budget_limited = max(2, int(rem / avg_tokens_per_iter))
+                        if iteration >= budget_limited:
+                            logger.debug(
+                                "Adaptive iteration cap reached (%d >= %d)",
+                                iteration, budget_limited,
+                            )
+                            break
+                except Exception:
+                    pass
+
         # Build generate kwargs
         generate_kwargs: dict[str, Any] = {
             "system": system,
@@ -168,8 +209,38 @@ async def run_tool_loop(
                 total_tokens=total_tokens,
             )
 
+        # Sort tool calls by dependency order if graph provided
+        if tool_dependencies is not None:
+            ordered_names = tool_dependencies.execution_order(
+                [tc.name for tc in parsed_calls],
+            )
+            name_to_calls: dict[str, list[ParsedToolCall]] = {}
+            for tc in parsed_calls:
+                name_to_calls.setdefault(tc.name, []).append(tc)
+            sorted_calls: list[ParsedToolCall] = []
+            for name in ordered_names:
+                sorted_calls.extend(name_to_calls.get(name, []))
+            parsed_calls = sorted_calls
+
         # Execute tool calls
+        completed_tools: set[str] = set()
         for tc in parsed_calls:
+            # Dependency check
+            if tool_dependencies is not None:
+                if not tool_dependencies.can_execute(tc.name, completed_tools):
+                    result = ToolCallResult(
+                        tool_name=tc.name,
+                        arguments=tc.arguments,
+                        error=f"unmet dependency for {tc.name}",
+                    )
+                    all_tool_calls.append(result)
+                    messages.append({
+                        "role": "tool",
+                        "tool_call_id": tc.id,
+                        "content": json.dumps({"error": result.error}, default=str),
+                    })
+                    continue
+
             if audit_log:
                 audit_log.append(
                     run_id="",
@@ -180,6 +251,21 @@ async def run_tool_loop(
 
             result = await tool_registry.aexecute(tc.name, tc.arguments)
             all_tool_calls.append(result)
+
+            if result.error is not None:
+                # Track consecutive failures for backoff
+                tool_failures[tc.name] = tool_failures.get(tc.name, 0) + 1
+                fail_count = tool_failures[tc.name]
+
+                # Apply exponential backoff on transient failures
+                if fail_count < 3:
+                    delay = _tool_backoff_delay(fail_count)
+                    if delay > 0.01:
+                        await asyncio.sleep(delay)
+            else:
+                # Reset on success
+                tool_failures.pop(tc.name, None)
+                completed_tools.add(tc.name)
 
             if audit_log:
                 action = "TOOL_COMPLETED" if result.error is None else "TOOL_FAILED"

@@ -20,6 +20,16 @@ from typing import Any
 
 import numpy as np
 
+from polisyos.ir.canon import CanonSpec
+from polisyos.ir.analytics.causal import (
+    DataReadinessReport,
+    ProofBundle,
+    build_data_readiness_report,
+    persist_data_readiness_report,
+    persist_proof_bundle,
+    proof_bundle_from_negative_certificate,
+    proof_bundle_from_identification_result,
+)
 from polisyos.ir.analytics.causal_graph import CausalGraphModel, EdgeMark
 from polisyos.ir.analytics.estimand import EstimandAST
 from polisyos.ir.analytics.evidence_bundle import (
@@ -36,6 +46,32 @@ from polisyos.ir.analytics.negative_certificate import (
     FallbackResult,
     NegativeCertificate,
     ParametricRescueResult,
+    persist_negative_certificate,
+    recovery_plan_from_negative_certificate,
+)
+from polisyos.ir.analytics.partial_identification import (
+    BoundsBundle,
+    bounds_bundle_from_partial_identification_result,
+    persist_bounds_bundle,
+)
+from polisyos.ir.analytics.dynamic_regime import (
+    ContinuousTimeQuery,
+    DynamicTreatmentRegime,
+    EffectTrajectoryBundle,
+    StrategicAdaptationMode,
+    TemporalInterventionTrajectory,
+    TemporalQueryMode,
+    load_temporal_intervention_trajectory,
+    persist_continuous_time_query,
+    persist_dynamic_treatment_regime,
+    persist_effect_trajectory_bundle,
+    persist_temporal_intervention_trajectory,
+)
+from polisyos.ir.artifacts import ArtifactStore, InputRef, put_json_artifact
+from polisyos.ir.refs import (
+    ArtifactRefModel,
+    DynamicTreatmentRegimeRef,
+    TemporalInterventionTrajectoryRef,
 )
 from polisyos.foundry.methods.catalog.causal.id_engine import (
     CtfQuery,
@@ -70,6 +106,15 @@ from polisyos.foundry.methods.catalog.causal.schema_resolver import (
 )
 
 
+class DataReadinessBlockedError(RuntimeError):
+    """Typed pre-execution failure raised when an estimation path is not ready."""
+
+    def __init__(self, report: DataReadinessReport, *, reason: str) -> None:
+        self.report = report
+        self.reason = reason
+        super().__init__(reason)
+
+
 class CausalEngine:
     """Pearl-Bareinboim causal engine: identify → compile → estimate → audit.
 
@@ -86,9 +131,11 @@ class CausalEngine:
         self,
         registry: Any = None,
         knowledge_base: Any | None = None,
+        artifact_store: ArtifactStore | None = None,
     ) -> None:
         self._registry = registry
         self._kb = knowledge_base
+        self._artifact_store = artifact_store
 
     # ------------------------------------------------------------------
     # identify
@@ -346,6 +393,10 @@ class CausalEngine:
                 blocking_type=BlockingType.MISSING_DISTRIBUTION,
                 blocking_description=f"Identification failed with exception: {exc}",
                 technical_detail=str(exc),
+                quantitative_diagnostics={
+                    "identification_status": "exception",
+                    "algorithm_version": "id_exception_wrapper",
+                },
                 constructive_message="Check that graph nodes/edges are valid.",
             )
 
@@ -359,6 +410,11 @@ class CausalEngine:
                     "Check for MNAR variables with self-affecting missingness paths."
                 ),
                 technical_detail="; ".join(result.trace[-3:] if result.trace else []),
+                quantitative_diagnostics={
+                    "identification_status": result.status.value,
+                    "algorithm_version": str(getattr(result, "algorithm_version", "") or ""),
+                    "proof_trace": list(result.trace or []),
+                },
                 constructive_message=(
                     "Inspect blocking_r_nodes in the proof trace. "
                     "Consider collecting auxiliary data to break the MNAR path, "
@@ -458,6 +514,11 @@ class CausalEngine:
                 blocking_type=BlockingType.HEDGE_STRUCTURE,
                 blocking_description="Non-identifiable: hedge structure found",
                 suggested_experiments=auto_suggestions,
+                quantitative_diagnostics={
+                    "identification_status": str(result.status.value),
+                    "algorithm_version": str(getattr(result, "algorithm_version", "") or ""),
+                    "proof_trace": list(getattr(result, "trace", []) or []),
+                },
                 constructive_message=(
                     "The query is not nonparametrically identifiable. "
                     "Consider: adding instruments, running an experiment, or computing bounds."
@@ -513,6 +574,9 @@ class CausalEngine:
             "hedge_forest_size": len(cert.hedge_forest),
             "hedge_root_size": len(cert.hedge_root),
             "missing_distributions_count": len(required_dists),
+            "identification_status": str(result.status.value),
+            "algorithm_version": str(getattr(result, "algorithm_version", "") or ""),
+            "proof_trace": list(getattr(result, "trace", []) or []),
         }
 
         return NegativeCertificate(
@@ -573,6 +637,107 @@ class CausalEngine:
             available_domains=available_domain_ids,
             missing_domains=missing_domains or None,
             hedge_certificate=hedge_cert,
+        ).model_copy(
+            update={
+                "quantitative_diagnostics": {
+                    "unresolved_s_node_count": len(unresolved_s_vars),
+                    "available_domain_count": len(available_domain_ids),
+                    "missing_domain_count": len(missing_domains or []),
+                    "identification_status": str(result.status.value),
+                    "algorithm_version": str(getattr(result, "algorithm_version", "") or ""),
+                    "proof_trace": list(getattr(result, "trace", []) or []),
+                }
+            }
+        )
+
+    def _materialize_identification_artifacts(
+        self,
+        identification_outcome: IdentificationResult | NegativeCertificate,
+        *,
+        graph: CausalGraphModel,
+        treatment: str | frozenset[str],
+        outcome: str | frozenset[str],
+        data_dict: dict[str, Any] | None,
+    ) -> tuple[IdentificationResult | None, ProofBundle, NegativeCertificate | None, BoundsBundle | None]:
+        """Normalize positive and negative ID outcomes into canonical public artifacts."""
+        if isinstance(identification_outcome, NegativeCertificate):
+            completed = self._complete_negative_certificate(
+                identification_outcome,
+                graph=graph,
+                treatment=treatment,
+                outcome=outcome,
+                data_dict=data_dict,
+            )
+            proof_bundle = proof_bundle_from_negative_certificate(
+                completed,
+                query_ref=_query_str_from_io(treatment, outcome),
+                theorem_family=str(
+                    completed.quantitative_diagnostics.get("algorithm_version") or ""
+                )
+                or None,
+                status_raw=str(
+                    completed.quantitative_diagnostics.get("identification_status")
+                    or ""
+                )
+                or None,
+            )
+            return None, proof_bundle, completed, completed.bounds_bundle
+
+        proof_bundle = proof_bundle_from_identification_result(identification_outcome)
+        return identification_outcome, proof_bundle, None, None
+
+    def _complete_negative_certificate(
+        self,
+        negative_cert: NegativeCertificate,
+        *,
+        graph: CausalGraphModel,
+        treatment: str | frozenset[str],
+        outcome: str | frozenset[str],
+        data_dict: dict[str, Any] | None,
+    ) -> NegativeCertificate:
+        """Attach recovery/bounds artifacts for any supported non-identification path."""
+        if negative_cert.blocking_type is BlockingType.HEDGE_STRUCTURE:
+            return self._hedge_fallback_chain(
+                negative_cert,
+                graph=graph,
+                treatment=treatment,
+                outcome=outcome,
+                data_dict=data_dict,
+            )
+
+        diagnostics = dict(negative_cert.quantitative_diagnostics)
+        y, t, extraction_notes = self._extract_hedge_fallback_arrays(
+            data_dict=data_dict,
+            treatment=treatment,
+            outcome=outcome,
+        )
+        notes = list(extraction_notes)
+        bounds_bundle: BoundsBundle | None = negative_cert.bounds_bundle
+        if bounds_bundle is None and y is not None and t is not None:
+            bounds_bundle, bounds_notes = self._compute_generic_bounds_bundle(y=y, t=t)
+            notes.extend(bounds_notes)
+        elif bounds_bundle is None:
+            notes.append(
+                "Observed treatment/outcome vectors unavailable; bounds completion skipped."
+            )
+
+        diagnostics.update(
+            {
+                "bounds_completion_attempted": True,
+                "bounds_completion_available": bounds_bundle is not None,
+            }
+        )
+        if notes:
+            diagnostics["bounds_completion_notes"] = list(notes)
+
+        updated = negative_cert.model_copy(
+            update={
+                "bounds_bundle": bounds_bundle,
+                "quantitative_diagnostics": diagnostics,
+            }
+        )
+        return updated.model_copy(
+            update={"recovery_plan": recovery_plan_from_negative_certificate(updated)}
         )
 
     def _hedge_fallback_chain(
@@ -658,7 +823,6 @@ class CausalEngine:
         diagnostics = {
             **dict(negative_cert.quantitative_diagnostics),
             **fallback_result.to_diagnostics_dict(),
-            "fallback_result": fallback_result.model_dump(mode="json"),
             "graph_type": graph.graph_type.value if hasattr(graph.graph_type, "value") else str(graph.graph_type),
         }
         constructive_parts = [negative_cert.constructive_message.strip()]
@@ -679,16 +843,69 @@ class CausalEngine:
                 "Suggested experiments remain Tier-4 guidance for resolving the hedge directly."
             )
         constructive_message = " ".join(part for part in constructive_parts if part)
-
-        return negative_cert.model_copy(
+        bounds_bundle = (
+            bounds_bundle_from_partial_identification_result(
+                bounds_result,
+                rescue_actions=[item.description for item in suggestions if item.description],
+                warnings=list(notes),
+                metadata={
+                    "epistemic_tier": bounds_tier.value if bounds_tier is not None else None,
+                    "fallback_level": fallback_result.fallback_level,
+                },
+            )
+            if bounds_result is not None
+            else None
+        )
+        updated = negative_cert.model_copy(
             update={
                 "partial_bounds": bounds_result,
                 "suggested_experiments": suggestions,
                 "quantitative_diagnostics": diagnostics,
                 "constructive_message": constructive_message,
                 "fallback_result": fallback_result,
+                "bounds_bundle": bounds_bundle,
             }
         )
+
+        return updated.model_copy(
+            update={
+                "recovery_plan": recovery_plan_from_negative_certificate(updated),
+            }
+        )
+
+    def _compute_generic_bounds_bundle(
+        self,
+        *,
+        y: np.ndarray,
+        t: np.ndarray,
+    ) -> tuple[BoundsBundle | None, list[str]]:
+        """Compute generic fallback bounds for non-hedge blockers when data permit it."""
+        from polisyos.foundry.methods.catalog.causal.bounds_engine import BoundsEngineMethod
+
+        try:
+            result = BoundsEngineMethod.pure_step(
+                {"outcome": y, "treatment": t},
+                {
+                    "run_intersection": True,
+                    "use_auto_bounds": True,
+                },
+            )
+            payload = result.get("bounds_report")
+            if payload is None:
+                return None, ["Bounds engine returned no canonical bounds bundle."]
+            bundle = (
+                payload
+                if isinstance(payload, BoundsBundle)
+                else BoundsBundle.model_validate(payload)
+            )
+            return (
+                bundle,
+                [
+                    "Computed bounds-first completion via the canonical bounds engine.",
+                ],
+            )
+        except Exception as exc:
+            return None, [f"Bounds completion failed: {exc}"]
 
     def _extract_hedge_fallback_arrays(
         self,
@@ -1170,13 +1387,90 @@ class CausalEngine:
 
         return last_report, node_outputs
 
+    def _diagnostic_only_executor_graph(self, executor_graph: ExecutorGraph) -> ExecutorGraph:
+        """Reduce an executor graph to diagnostic nodes for readiness preflight."""
+        diagnostic_nodes = tuple(
+            node
+            for node in executor_graph.nodes
+            if str(getattr(node, "method_fqn", "")).startswith("causal.diagnostics.")
+        )
+        nuisance_schedule = tuple(
+            node_id
+            for node_id in executor_graph.nuisance_schedule
+            if any(node.node_id == node_id for node in diagnostic_nodes)
+        )
+        return dataclasses.replace(
+            executor_graph,
+            nodes=diagnostic_nodes,
+            nuisance_schedule=nuisance_schedule,
+        )
+
+    def _run_readiness_preflight(
+        self,
+        *,
+        executor_graph: ExecutorGraph,
+        data_dict: dict[str, Any] | None,
+        sample_size: int | None,
+        fallback_data_available: bool,
+    ) -> tuple[DataReadinessReport, dict[str, Any]]:
+        """Build readiness from diagnostic nodes before any estimator executes."""
+        base_report = build_data_readiness_report(
+            sample_size=sample_size,
+            measurement_quality="unknown",
+            fallback_data_available=fallback_data_available,
+        )
+        if data_dict is None or self._registry is None:
+            return base_report, {}
+
+        diagnostic_graph = self._diagnostic_only_executor_graph(executor_graph)
+        if not diagnostic_graph.nodes:
+            return base_report, {}
+        try:
+            _, diagnostic_outputs = self.estimate(diagnostic_graph, data_dict)
+        except Exception:
+            return base_report, {}
+        return (
+            _build_postrun_readiness_report(
+                node_outputs=diagnostic_outputs,
+                sample_size=sample_size,
+                fallback_data_available=fallback_data_available,
+            )
+            or base_report,
+            diagnostic_outputs,
+        )
+
+    def _require_estimation_readiness(
+        self,
+        *,
+        data: Any,
+        treatment: str | frozenset[str],
+        outcome: str | frozenset[str],
+    ) -> DataReadinessReport:
+        """Block direct estimator wrappers before execution when readiness is insufficient."""
+        data_dict = _coerce_mapping_like_data(data)
+        sample_size = _infer_sample_size(data_dict)
+        readiness = build_data_readiness_report(
+            sample_size=sample_size,
+            measurement_quality="unknown",
+            fallback_data_available=_has_fallback_arrays(data_dict, treatment, outcome),
+        )
+        if readiness.decision in {"block", "unknown"}:
+            raise DataReadinessBlockedError(
+                readiness,
+                reason=(
+                    "Estimation path blocked by DataReadinessReport before execution: "
+                    f"{readiness.decision}"
+                ),
+            )
+        return readiness
+
     # ------------------------------------------------------------------
     # audit
     # ------------------------------------------------------------------
 
     def audit(
         self,
-        identification_result: IdentificationResult,
+        identification_result: IdentificationResult | NegativeCertificate | None,
         estimation_result: Any | None,
         *,
         run_id: str,
@@ -1184,7 +1478,11 @@ class CausalEngine:
         executor_graph: ExecutorGraph | None = None,
         schema_report: SchemaResolutionReport | None = None,
         node_outputs: dict[str, Any] | None = None,
+        negative_certificate: NegativeCertificate | None = None,
         fallback_result: FallbackResult | None = None,
+        proof_bundle: Any | None = None,
+        bounds_bundle: Any | None = None,
+        data_readiness_report: DataReadinessReport | Any | None = None,
     ) -> EvidenceBundle:
         """Build an EvidenceBundle from identification and estimation results.
 
@@ -1196,17 +1494,77 @@ class CausalEngine:
             Compiled ExecutorGraph (for CompilationStep records).
         """
         from polisyos.foundry.methods.catalog.causal.id_engine import _internal_proof_step_to_ir
-        query_str = _identification_query_str(identification_result)
+        query_str = (
+            _identification_query_str(identification_result)
+            if isinstance(identification_result, IdentificationResult)
+            else ""
+        )
+        if proof_bundle is not None:
+            proof_payload = proof_bundle
+        elif isinstance(identification_result, IdentificationResult):
+            proof_payload = proof_bundle_from_identification_result(identification_result)
+        elif negative_certificate is not None:
+            proof_payload = proof_bundle_from_negative_certificate(
+                negative_certificate,
+                query_ref=query_str or None,
+            )
+        else:
+            raise ValueError("audit() requires either an identification result or a proof bundle.")
+        if not isinstance(proof_payload, ProofBundle):
+            proof_payload = ProofBundle.model_validate(proof_payload)
+        if not query_str:
+            query_str = str(proof_payload.query_ref or "")
+        fallback_payload = (
+            fallback_result
+            or (negative_certificate.fallback_result if negative_certificate is not None else None)
+        )
+        bounds_payload = bounds_bundle or (
+            negative_certificate.bounds_bundle if negative_certificate is not None else None
+        )
+        if bounds_payload is None and fallback_result is not None and fallback_result.bounds is not None:
+            bounds_payload = bounds_bundle_from_partial_identification_result(
+                fallback_result.bounds,
+                metadata={
+                    "epistemic_tier": (
+                        fallback_result.bounds_tier.value
+                        if fallback_result.bounds_tier is not None
+                        else None
+                    ),
+                    "fallback_level": fallback_result.fallback_level,
+                },
+            )
+        if bounds_payload is not None and not isinstance(bounds_payload, BoundsBundle):
+            bounds_payload = BoundsBundle.model_validate(bounds_payload)
+        if bounds_payload is None and fallback_payload is not None and fallback_payload.bounds is not None:
+            bounds_payload = bounds_bundle_from_partial_identification_result(
+                fallback_payload.bounds,
+                metadata={
+                    "epistemic_tier": (
+                        fallback_payload.bounds_tier.value
+                        if fallback_payload.bounds_tier is not None
+                        else None
+                    ),
+                    "fallback_level": fallback_payload.fallback_level,
+                },
+            )
 
         # -- Proof steps -------------------------------------------------
-        ir_steps: list[IRProofStep] = [
-            _internal_proof_step_to_ir(s)
-            for s in getattr(identification_result, "proof_steps", [])
-        ]
+        ir_steps: list[IRProofStep] = (
+            [
+                _internal_proof_step_to_ir(s)
+                for s in getattr(identification_result, "proof_steps", [])
+            ]
+            if isinstance(identification_result, IdentificationResult)
+            else []
+        )
 
         # -- DataProvenance ----------------------------------------------
         provenance: list[DataProvenance] = []
-        for dr in getattr(identification_result, "required_distributions", []):
+        for dr in (
+            getattr(identification_result, "required_distributions", [])
+            if isinstance(identification_result, IdentificationResult)
+            else []
+        ):
             ref = getattr(dr, "dataset_ref", None) or ""
             quality = 1.0
             n_obs = None
@@ -1282,7 +1640,11 @@ class CausalEngine:
 
         # -- Estimand AST -----------------------------------------------
         estimand_dict: dict[str, Any] = {}
-        ast = identification_result.estimand_ast
+        ast = (
+            identification_result.estimand_ast
+            if isinstance(identification_result, IdentificationResult)
+            else None
+        )
         if ast is not None:
             try:
                 estimand_dict = ast.model_dump(mode="json")
@@ -1396,6 +1758,47 @@ class CausalEngine:
         except Exception:
             pass
 
+        proof_bundle_ref = None
+        bounds_bundle_ref = None
+        negative_certificate_ref = None
+        data_readiness_report_ref = None
+        if self._artifact_store is not None:
+            proof_bundle_ref = persist_proof_bundle(
+                self._artifact_store,
+                proof_payload,
+            )
+            if bounds_payload is not None:
+                bounds_bundle_ref = persist_bounds_bundle(
+                    self._artifact_store,
+                    bounds_payload,
+                )
+            if data_readiness_report is not None:
+                readiness_payload = (
+                    data_readiness_report
+                    if isinstance(data_readiness_report, DataReadinessReport)
+                    else DataReadinessReport.model_validate(data_readiness_report)
+                )
+                data_readiness_report_ref = persist_data_readiness_report(
+                    self._artifact_store,
+                    readiness_payload,
+                )
+            if negative_certificate is not None:
+                negative_inputs = (
+                    [
+                        InputRef(
+                            artifact_id=bounds_bundle_ref.artifact_id,
+                            role="bounds_bundle",
+                        )
+                    ]
+                    if bounds_bundle_ref is not None
+                    else None
+                )
+                negative_certificate_ref = persist_negative_certificate(
+                    self._artifact_store,
+                    negative_certificate,
+                    inputs=negative_inputs,
+                )
+
         return EvidenceBundle(
             run_id=run_id,
             query_str=query_str,
@@ -1403,8 +1806,20 @@ class CausalEngine:
             proof_steps=tuple(ir_steps),
             data_provenance=tuple(provenance),
             diagnostic_scores=diag,
-            identification_status=identification_result.status.value,
-            algorithm_version=getattr(identification_result, "algorithm_version", "id_v1"),
+            identification_status=(
+                identification_result.status.value
+                if isinstance(identification_result, IdentificationResult)
+                else str(proof_payload.metadata.get("status") or proof_payload.proof_status)
+            ),
+            algorithm_version=(
+                getattr(identification_result, "algorithm_version", "id_v1")
+                if isinstance(identification_result, IdentificationResult)
+                else str(
+                    negative_certificate.quantitative_diagnostics.get("algorithm_version")
+                    if negative_certificate is not None
+                    else proof_payload.theorem_family
+                )
+            ),
             created_at=datetime.now(timezone.utc).isoformat(),
             graph_fingerprint=graph_fp,
             estimand_fingerprint=estimand_fp,
@@ -1412,7 +1827,10 @@ class CausalEngine:
             estimation_steps=tuple(estimation_steps),
             diagnostic_dashboard=dashboard_dict,
             quality_report=quality_dict,
-            fallback_result=fallback_result,
+            proof_bundle_ref=proof_bundle_ref,
+            bounds_bundle_ref=bounds_bundle_ref,
+            negative_certificate_ref=negative_certificate_ref,
+            data_readiness_report_ref=data_readiness_report_ref,
         )
 
     # ------------------------------------------------------------------
@@ -1466,46 +1884,83 @@ class CausalEngine:
             counterfactual_query=counterfactual_query,
         )
 
-        # If identification failed, return NegativeCertificate
-        if isinstance(id_result, NegativeCertificate):
-            id_result = self._hedge_fallback_chain(
+        sample_size = _infer_sample_size(data_dict, explicit_n_obs=n_obs)
+        fallback_data_available = _has_fallback_arrays(data_dict, treatment, outcome)
+        resolved_id_result, proof_bundle, negative_cert, resolved_bounds_bundle = (
+            self._materialize_identification_artifacts(
                 id_result,
                 graph=graph,
                 treatment=treatment,
                 outcome=outcome,
                 data_dict=data_dict,
             )
-            dummy_ir = _make_dummy_identification_result(treatment, outcome)
+        )
+
+        # If identification failed, return canonical impossibility artifacts.
+        if negative_cert is not None:
+            readiness_report = build_data_readiness_report(
+                sample_size=sample_size,
+                measurement_quality="unknown",
+                fallback_data_available=fallback_data_available,
+                extra_metrics=_float_metrics_from_mapping(negative_cert.quantitative_diagnostics),
+            )
             bundle = self.audit(
-                dummy_ir,
+                None,
                 None,
                 run_id=run_id,
                 graph=graph,
                 schema_report=schema_report,
-                fallback_result=id_result.fallback_result,
+                negative_certificate=negative_cert,
+                fallback_result=negative_cert.fallback_result,
+                proof_bundle=proof_bundle,
+                bounds_bundle=resolved_bounds_bundle,
+                data_readiness_report=readiness_report,
             )
-            return None, bundle, id_result
+            return None, bundle, negative_cert
+
+        assert resolved_id_result is not None
 
         # G4: validate query structure and KB feasibility before compiling
         from polisyos.foundry.methods.catalog.causal.query_validator import CausalQueryValidator
-        val_report = CausalQueryValidator().validate(graph, id_result.estimand_ast, self._kb)
+        val_report = CausalQueryValidator().validate(graph, resolved_id_result.estimand_ast, self._kb)
         if val_report.has_errors():
             neg_cert = NegativeCertificate(
                 blocking_type=BlockingType.MISSING_DISTRIBUTION,
                 blocking_description="; ".join(e.message for e in val_report.errors),
+                quantitative_diagnostics={
+                    "identification_status": str(resolved_id_result.status.value),
+                    "algorithm_version": str(
+                        getattr(resolved_id_result, "algorithm_version", "") or ""
+                    ),
+                },
                 constructive_message=(
                     "Fix graph structure or provide required data before proceeding."
                 ),
             )
-            dummy_ir = _make_dummy_identification_result(treatment, outcome)
-            bundle = self.audit(dummy_ir, None, run_id=run_id)
+            bundle = self.audit(
+                resolved_id_result,
+                None,
+                run_id=run_id,
+                graph=graph,
+                negative_certificate=neg_cert,
+                proof_bundle=proof_bundle,
+                data_readiness_report=build_data_readiness_report(
+                    sample_size=sample_size,
+                    measurement_quality="unknown",
+                    fallback_data_available=fallback_data_available,
+                ),
+            )
             return None, bundle, neg_cert
 
         # 2. Optional schema resolution (now that we have the estimand)
-        if df_columns is not None and df_dtypes is not None and id_result.estimand_ast is not None:
+        if (
+            df_columns is not None
+            and df_dtypes is not None
+            and resolved_id_result.estimand_ast is not None
+        ):
             resolver = SchemaResolver()
             schema_report = resolver.resolve(
-                id_result.estimand_ast,
+                resolved_id_result.estimand_ast,
                 df_columns=df_columns,
                 df_dtypes=df_dtypes,
             )
@@ -1513,7 +1968,7 @@ class CausalEngine:
         # 3. Compile
         try:
             executor_graph = self.compile(
-                id_result,
+                resolved_id_result,
                 graph=graph,
                 n_obs=n_obs,
                 covariate_dim=covariate_dim,
@@ -1521,35 +1976,81 @@ class CausalEngine:
                 use_cross_fitting=use_cross_fitting,
             )
         except Exception as exc:
-            bundle = self.audit(id_result, None, run_id=run_id, schema_report=schema_report)
             neg_cert = NegativeCertificate(
                 blocking_type=BlockingType.MISSING_DISTRIBUTION,
                 blocking_description=f"Compilation failed: {exc}",
+                quantitative_diagnostics={
+                    "identification_status": str(resolved_id_result.status.value),
+                    "algorithm_version": str(
+                        getattr(resolved_id_result, "algorithm_version", "") or ""
+                    ),
+                },
                 constructive_message="Check that the estimand AST is valid.",
+            )
+            bundle = self.audit(
+                resolved_id_result,
+                None,
+                run_id=run_id,
+                graph=graph,
+                schema_report=schema_report,
+                negative_certificate=neg_cert,
+                proof_bundle=proof_bundle,
+                data_readiness_report=build_data_readiness_report(
+                    sample_size=sample_size,
+                    measurement_quality="unknown",
+                    fallback_data_available=fallback_data_available,
+                ),
             )
             return None, bundle, neg_cert
 
         # G2: inject diagnostic nodes (PositivityDiagnostic always; SupportMismatch for transport)
-        executor_graph = self._inject_diagnostic_nodes(executor_graph, id_result.estimand_ast)
+        executor_graph = self._inject_diagnostic_nodes(
+            executor_graph,
+            resolved_id_result.estimand_ast,
+        )
 
-        # 4. Estimate (only if data and registry available)
+        preflight_readiness, preflight_outputs = self._run_readiness_preflight(
+            executor_graph=executor_graph,
+            data_dict=data_dict,
+            sample_size=sample_size,
+            fallback_data_available=fallback_data_available,
+        )
+
+        # 4. Estimate only after readiness preflight has allowed execution.
         effect_report: Any = None
-        node_outputs: dict[str, Any] = {}
-        if data_dict is not None and self._registry is not None:
+        node_outputs: dict[str, Any] = dict(preflight_outputs)
+        if (
+            data_dict is not None
+            and self._registry is not None
+            and preflight_readiness.can_run_estimation
+        ):
             try:
-                effect_report, node_outputs = self.estimate(executor_graph, data_dict)
+                effect_report, execution_outputs = self.estimate(executor_graph, data_dict)
+                node_outputs.update(execution_outputs)
             except Exception:
                 pass  # estimate is best-effort; audit still proceeds
+        postrun_readiness = _build_postrun_readiness_report(
+            node_outputs=node_outputs,
+            sample_size=sample_size,
+            fallback_data_available=fallback_data_available,
+        )
+        data_readiness = (
+            preflight_readiness
+            if not preflight_readiness.can_run_estimation
+            else (postrun_readiness or preflight_readiness)
+        )
 
         # 5. Audit
         bundle = self.audit(
-            id_result,
+            resolved_id_result,
             effect_report,
             run_id=run_id,
             graph=graph,
             executor_graph=executor_graph,
             schema_report=schema_report,
             node_outputs=node_outputs,
+            proof_bundle=proof_bundle,
+            data_readiness_report=data_readiness,
         )
 
         # 6. Build CausalRunSnapshot for reproducibility
@@ -1557,9 +2058,9 @@ class CausalEngine:
             from polisyos.ir.analytics.causal_run_snapshot import CausalRunSnapshot
 
             estimand_dict: dict[str, Any] = {}
-            if id_result.estimand_ast is not None:
+            if resolved_id_result.estimand_ast is not None:
                 try:
-                    estimand_dict = id_result.estimand_ast.model_dump(mode="json")
+                    estimand_dict = resolved_id_result.estimand_ast.model_dump(mode="json")
                 except Exception:
                     pass
 
@@ -1585,6 +2086,96 @@ class CausalEngine:
 
         return effect_report, bundle, None
 
+    def _persist_temporal_payload(
+        self,
+        payload: dict[str, Any],
+        *,
+        kind: str,
+        schema_name: str,
+        inputs: list[Any] | None = None,
+    ) -> ArtifactRefModel:
+        if self._artifact_store is None:
+            raise RuntimeError("Temporal payload persistence requires an ArtifactStore")
+        ref = put_json_artifact(
+            self._artifact_store,
+            payload,
+            kind=kind,
+            schema_name=schema_name,
+            schema_version="1.0",
+            inputs=inputs,
+            canon_spec=CanonSpec(forbid_floats=False),
+        )
+        return ArtifactRefModel.model_validate(ref)
+
+    @staticmethod
+    def _artifact_input_ref(ref: Any, *, role: str) -> dict[str, str]:
+        artifact_id = getattr(ref, "artifact_id", ref)
+        return {"artifact_id": str(artifact_id), "role": role}
+
+    def _temporal_input_refs(self, *refs_and_roles: tuple[Any | None, str]) -> list[dict[str, str]]:
+        inputs: list[dict[str, str]] = []
+        for ref, role in refs_and_roles:
+            if ref is None:
+                continue
+            inputs.append(self._artifact_input_ref(ref, role=role))
+        return inputs
+
+    @staticmethod
+    def _serialize_ref(ref: Any | None) -> dict[str, Any] | None:
+        if ref is None:
+            return None
+        if hasattr(ref, "model_dump"):
+            return ref.model_dump(mode="python")
+        if isinstance(ref, dict):
+            return dict(ref)
+        return None
+
+    def _resolve_temporal_intervention(
+        self,
+        query: ContinuousTimeQuery,
+        *,
+        intervention: TemporalInterventionTrajectory | dict[str, Any] | None = None,
+    ) -> tuple[TemporalInterventionTrajectory, ArtifactRefModel | None, str]:
+        from polisyos.foundry.methods.catalog.causal.temporal_estimand_compiler import (
+            TemporalCompileError,
+        )
+
+        if intervention is not None:
+            resolved = (
+                intervention
+                if isinstance(intervention, TemporalInterventionTrajectory)
+                else TemporalInterventionTrajectory.model_validate(intervention)
+            )
+            return resolved, None, "override"
+
+        if self._artifact_store is None:
+            raise TemporalCompileError(
+                "missing_intervention_contract",
+                "CausalEngine.temporal_causal_effect requires an intervention override or an ArtifactStore-backed intervention contract.",
+            )
+
+        if query.intervention_trajectory_ref is None:
+            raise TemporalCompileError(
+                "missing_intervention_contract",
+                "ContinuousTimeQuery.intervention_trajectory_ref is required for fixed_intervention execution when no override is provided.",
+            )
+
+        if query.intervention_trajectory_ref.kind != "ir.temporal_intervention_trajectory":
+            raise TemporalCompileError(
+                "invalid_intervention_contract_ref",
+                "ContinuousTimeQuery.intervention_trajectory_ref must point to an ir.temporal_intervention_trajectory artifact for engine-level execution.",
+                details={"kind": query.intervention_trajectory_ref.kind},
+            )
+
+        intervention_ref = TemporalInterventionTrajectoryRef.model_validate(
+            query.intervention_trajectory_ref.model_dump(mode="python")
+        )
+        return (
+            load_temporal_intervention_trajectory(self._artifact_store, intervention_ref),
+            intervention_ref,
+            "artifact_store",
+        )
+
     def dynamic_causal_effect(
         self,
         data: "DynamicTreatmentData",
@@ -1608,6 +2199,11 @@ class CausalEngine:
         Returns:
             GComputationResult (not EvidenceBundle — no graph-based ID step).
         """
+        self._require_estimation_readiness(
+            data=data,
+            treatment="treatment",
+            outcome="outcome",
+        )
         from polisyos.foundry.methods.catalog.causal.causal_rl import (  # noqa: F401
             CausalBandit,
         )
@@ -1671,6 +2267,249 @@ class CausalEngine:
                     "Check that the estimator succeeded."
                 )
         return g_result
+
+    def temporal_causal_effect(
+        self,
+        data: Any,
+        query: ContinuousTimeQuery,
+        *,
+        regime: DynamicTreatmentRegime | None = None,
+        intervention: TemporalInterventionTrajectory | dict[str, Any] | None = None,
+        method: str = "linear_sde",
+    ) -> Any:
+        """Estimate a temporal effect trajectory and optionally persist its bundle."""
+
+        self._require_estimation_readiness(
+            data=data,
+            treatment="treatment",
+            outcome="outcome",
+        )
+        from polisyos.foundry.methods.catalog.causal.dtr import estimate_dtr_trajectory
+        from polisyos.foundry.methods.catalog.causal.g_computation import (
+            estimate_g_computation_trajectory,
+        )
+        from polisyos.foundry.methods.catalog.causal.protocols import (
+            DynamicTreatmentData,
+            PanelObservationalData,
+        )
+        from polisyos.foundry.methods.catalog.causal.structural_time_series import (
+            estimate_structural_time_series_trajectory,
+        )
+        from polisyos.foundry.methods.catalog.causal.temporal_estimand_compiler import (
+            TemporalCompileError,
+        )
+
+        effective_query = query.model_copy(
+            update={
+                "metadata": {
+                    **query.metadata,
+                    "preferred_backend": method,
+                }
+            }
+        )
+
+        panel_data: PanelObservationalData | None = None
+        dynamic_data: DynamicTreatmentData | None = None
+        if isinstance(data, PanelObservationalData):
+            panel_data = data
+        elif isinstance(data, DynamicTreatmentData):
+            dynamic_data = data
+        else:
+            try:
+                panel_data = PanelObservationalData.model_validate(data)
+            except Exception:
+                dynamic_data = DynamicTreatmentData.model_validate(data)
+
+        if (
+            effective_query.query_mode is TemporalQueryMode.OPTIMAL_POLICY_DISCOVERY
+            and (panel_data is not None or regime is not None)
+        ):
+            raise TemporalCompileError(
+                "query_mode_conflict",
+                "optimal_policy_discovery is only supported for the DTR temporal route.",
+            )
+        if (
+            effective_query.query_mode is TemporalQueryMode.OPTIMAL_POLICY_DISCOVERY
+            and intervention is not None
+        ):
+            raise TemporalCompileError(
+                "query_mode_conflict",
+                "optimal_policy_discovery queries do not accept a fixed intervention override.",
+            )
+
+        resolved_intervention: TemporalInterventionTrajectory | None
+        intervention_ref: ArtifactRefModel | None
+        intervention_resolution_source: str
+        if effective_query.query_mode is TemporalQueryMode.OPTIMAL_POLICY_DISCOVERY:
+            resolved_intervention = None
+            intervention_ref = None
+            intervention_resolution_source = "policy_discovery"
+        else:
+            resolved_intervention, intervention_ref, intervention_resolution_source = (
+                self._resolve_temporal_intervention(
+                    effective_query,
+                    intervention=intervention,
+                )
+            )
+
+        scalar_result: Any | None = None
+        policy_ref: DynamicTreatmentRegimeRef | None = None
+        derived_schedule_ref: ArtifactRefModel | None = None
+        if panel_data is not None:
+            trajectory = estimate_structural_time_series_trajectory(
+                panel_data,
+                effective_query,
+                resolved_intervention=resolved_intervention,
+            )
+        elif regime is not None:
+            estimator_method = str(
+                effective_query.metadata.get("temporal_estimator_method", "parametric_g")
+            )
+            scalar_result, trajectory = estimate_g_computation_trajectory(
+                dynamic_data,
+                effective_query,
+                regime=regime,
+                resolved_intervention=resolved_intervention,
+                method=estimator_method,
+            )
+        else:
+            estimator_method = str(
+                effective_query.metadata.get("temporal_estimator_method", "q_learning")
+            )
+            scalar_result, trajectory = estimate_dtr_trajectory(
+                dynamic_data,
+                effective_query,
+                resolved_intervention=resolved_intervention,
+                intervention_contract_status=(
+                    "derived_optimal_policy"
+                    if effective_query.query_mode
+                    is TemporalQueryMode.OPTIMAL_POLICY_DISCOVERY
+                    else None
+                ),
+                method=estimator_method,
+            )
+            if effective_query.query_mode is TemporalQueryMode.OPTIMAL_POLICY_DISCOVERY:
+                resolved_intervention = trajectory.plan.resolved_intervention
+
+        if (
+            intervention_ref is None
+            and resolved_intervention is not None
+            and self._artifact_store is not None
+        ):
+            intervention_ref = persist_temporal_intervention_trajectory(
+                self._artifact_store,
+                resolved_intervention,
+            )
+            if effective_query.query_mode is TemporalQueryMode.FIXED_INTERVENTION:
+                effective_query = effective_query.model_copy(
+                    update={"intervention_trajectory_ref": intervention_ref}
+                )
+            else:
+                derived_schedule_ref = intervention_ref
+
+        if self._artifact_store is not None:
+            if (
+                effective_query.query_mode is TemporalQueryMode.OPTIMAL_POLICY_DISCOVERY
+                and scalar_result is not None
+            ):
+                policy_ref = persist_dynamic_treatment_regime(
+                    self._artifact_store,
+                    scalar_result.optimal_regime,
+                )
+                derived_schedule_ref = intervention_ref
+            query_ref = persist_continuous_time_query(self._artifact_store, effective_query)
+            trajectory_ref = self._persist_temporal_payload(
+                trajectory.trajectory_payload(),
+                kind="ir.temporal_trajectory",
+                schema_name="ir.temporal_trajectory",
+                inputs=self._temporal_input_refs(
+                    (query_ref, "query"),
+                    (intervention_ref, "intervention_trajectory"),
+                    (policy_ref, "policy_artifact"),
+                ),
+            )
+            confidence_band_ref = self._persist_temporal_payload(
+                trajectory.confidence_band_payload(),
+                kind="ir.temporal_confidence_band",
+                schema_name="ir.temporal_confidence_band",
+                inputs=self._temporal_input_refs(
+                    (query_ref, "query"),
+                    (intervention_ref, "intervention_trajectory"),
+                    (policy_ref, "policy_artifact"),
+                    (trajectory_ref, "trajectory"),
+                ),
+            )
+            diagnostics_ref = self._persist_temporal_payload(
+                trajectory.solver_diagnostics_payload(),
+                kind="ir.temporal_solver_diagnostics",
+                schema_name="ir.temporal_solver_diagnostics",
+                inputs=self._temporal_input_refs(
+                    (query_ref, "query"),
+                    (intervention_ref, "intervention_trajectory"),
+                    (policy_ref, "policy_artifact"),
+                    (trajectory_ref, "trajectory"),
+                ),
+            )
+            bundle = EffectTrajectoryBundle(
+                query_ref=query_ref,
+                trajectory_ref=trajectory_ref,
+                confidence_band_ref=confidence_band_ref,
+                solver_diagnostics_ref=diagnostics_ref,
+                discretization_error=trajectory.discretization_error,
+                discretization_note=trajectory.discretization_note,
+                path_representation=trajectory.path_representation,
+                solver_family=trajectory.solver_family,
+                time_scale=effective_query.time_scale,
+                interpolation_policy=effective_query.interpolation_policy,
+                strategic_adaptation_mode=StrategicAdaptationMode.ABSENT,
+                continuous_time_degraded=trajectory.continuous_time_degraded,
+                metadata={
+                    "backend_target": trajectory.plan.backend_target.value,
+                    "fallback_mode": trajectory.plan.fallback_mode.value,
+                    "comparator_semantics": trajectory.plan.comparator_semantics.value,
+                    "scalar_result_method": getattr(scalar_result, "method", None),
+                    "execution_contract_kind": effective_query.query_mode.value,
+                    "intervention_contract_status": trajectory.plan.intervention_contract_status,
+                    "intervention_resolution_source": intervention_resolution_source,
+                    "intervention_artifact_ref": self._serialize_ref(intervention_ref),
+                    "policy_artifact_ref": self._serialize_ref(policy_ref),
+                    "derived_schedule_ref": self._serialize_ref(derived_schedule_ref),
+                },
+            )
+            bundle_ref = persist_effect_trajectory_bundle(
+                self._artifact_store,
+                bundle,
+                inputs=self._temporal_input_refs(
+                    (query_ref, "query"),
+                    (intervention_ref, "intervention_trajectory"),
+                    (policy_ref, "policy_artifact"),
+                    (trajectory_ref, "trajectory"),
+                    (confidence_band_ref, "confidence_band"),
+                    (diagnostics_ref, "solver_diagnostics"),
+                ),
+            )
+            trajectory.effect_bundle = bundle
+            trajectory.metadata["effect_bundle_artifact_id"] = str(bundle_ref.artifact_id)
+        elif (
+            effective_query.query_mode is TemporalQueryMode.FIXED_INTERVENTION
+            and intervention is None
+        ):
+            raise TemporalCompileError(
+                "missing_intervention_contract",
+                "Engine-level temporal execution without ArtifactStore requires an explicit intervention override.",
+            )
+
+        if scalar_result is not None:
+            trajectory.metadata["scalar_result_method"] = getattr(scalar_result, "method", None)
+        trajectory.metadata["intervention_resolution_source"] = intervention_resolution_source
+        trajectory.metadata["execution_contract_kind"] = effective_query.query_mode.value
+        if policy_ref is not None:
+            trajectory.metadata["policy_artifact_id"] = str(policy_ref.artifact_id)
+        if derived_schedule_ref is not None:
+            trajectory.metadata["derived_schedule_artifact_id"] = str(
+                derived_schedule_ref.artifact_id
+            )
+        return trajectory
 
 
     # ------------------------------------------------------------------
@@ -1793,6 +2632,11 @@ class CausalEngine:
         -------
         dict with mediation decomposition (MediationDecomposition or result dict).
         """
+        self._require_estimation_readiness(
+            data=data,
+            treatment=treatment,
+            outcome=outcome,
+        )
         from polisyos.foundry.methods.catalog.causal.path_specific import (
             PathSpecificEffectEstimator,
         )
@@ -1860,6 +2704,11 @@ class CausalEngine:
         -------
         NetworkInterferenceReport result dict.
         """
+        self._require_estimation_readiness(
+            data=data,
+            treatment=treatment,
+            outcome=outcome,
+        )
         from polisyos.foundry.methods.catalog.causal.interference import (
             BipartiteInterferenceEstimator,
             NetworkAIPWEstimator,
@@ -2003,6 +2852,11 @@ class CausalEngine:
         -------
         CausalFairnessReport result dict.
         """
+        self._require_estimation_readiness(
+            data=data,
+            treatment=protected,
+            outcome=outcome,
+        )
         from polisyos.foundry.methods.catalog.causal.fairness import (
             CounterfactualFairnessEstimator,
             PathSpecificFairnessEstimator,
@@ -2106,6 +2960,135 @@ class CausalEngine:
 
         result = DataFusionEngine.pure_step(state, params)
         return result.get("fusion_result") or result
+
+
+def _infer_sample_size(
+    data_dict: dict[str, Any] | None,
+    *,
+    explicit_n_obs: int | None = None,
+) -> int | None:
+    """Infer sample size from explicit metadata or the first array-like value."""
+    if explicit_n_obs is not None:
+        return int(explicit_n_obs)
+    if not data_dict:
+        return None
+    for value in data_dict.values():
+        try:
+            size = int(len(value))  # type: ignore[arg-type]
+        except Exception:
+            continue
+        if size >= 0:
+            return size
+    return None
+
+
+def _has_fallback_arrays(
+    data_dict: dict[str, Any] | None,
+    treatment: str | frozenset[str],
+    outcome: str | frozenset[str],
+) -> bool:
+    """Return True when treatment and outcome arrays appear to be available."""
+    if not data_dict:
+        return False
+    treatment_name = _singleton_query_name(treatment, "treatment")
+    outcome_name = _singleton_query_name(outcome, "outcome")
+    if treatment_name is None or outcome_name is None:
+        return False
+    treatment_candidates = (
+        data_dict.get(treatment_name),
+        data_dict.get("treatment"),
+        data_dict.get("protected"),
+    )
+    outcome_candidates = (
+        data_dict.get(outcome_name),
+        data_dict.get("outcome"),
+    )
+    return any(candidate is not None for candidate in treatment_candidates) and any(
+        candidate is not None for candidate in outcome_candidates
+    )
+
+
+def _float_metrics_from_mapping(values: dict[str, Any] | None) -> dict[str, float]:
+    """Best-effort float extraction for readiness metrics."""
+    metrics: dict[str, float] = {}
+    for key, value in (values or {}).items():
+        try:
+            metrics[key] = float(value)
+        except (TypeError, ValueError):
+            continue
+    return metrics
+
+
+def _extract_readiness_diagnostics(
+    node_outputs: dict[str, Any] | None,
+) -> tuple[dict[str, Any] | None, dict[str, Any] | None]:
+    """Extract positivity/support diagnostics from executor node outputs."""
+    positivity: dict[str, Any] | None = None
+    support: dict[str, Any] | None = None
+    for output in (node_outputs or {}).values():
+        if not isinstance(output, dict):
+            continue
+        result_dict = output.get("result")
+        if isinstance(result_dict, dict):
+            if positivity is None and "passes_positivity" in result_dict:
+                positivity = result_dict
+            if support is None and (
+                "passes_support_check" in result_dict or "support_mismatch_fraction" in result_dict
+            ):
+                support = result_dict
+        if positivity is not None and support is not None:
+            break
+    return positivity, support
+
+
+def _build_postrun_readiness_report(
+    *,
+    node_outputs: dict[str, Any] | None,
+    sample_size: int | None,
+    fallback_data_available: bool,
+) -> DataReadinessReport | None:
+    """Build a richer readiness report from executor diagnostics when available."""
+    positivity, support = _extract_readiness_diagnostics(node_outputs)
+    if positivity is None and support is None and sample_size is None:
+        return None
+    return build_data_readiness_report(
+        positivity=positivity,
+        support_mismatch=support,
+        sample_size=sample_size,
+        measurement_quality="unknown",
+        fallback_data_available=fallback_data_available,
+    )
+
+
+def _query_str_from_io(
+    treatment: str | frozenset[str],
+    outcome: str | frozenset[str],
+) -> str:
+    treatment_name = _singleton_query_name(treatment, "treatment") or "treatment"
+    outcome_name = _singleton_query_name(outcome, "outcome") or "outcome"
+    return f"P({outcome_name}|do({treatment_name}))"
+
+
+def _coerce_mapping_like_data(data: Any) -> dict[str, Any] | None:
+    if isinstance(data, dict):
+        return dict(data)
+    model_dump = getattr(data, "model_dump", None)
+    if callable(model_dump):
+        try:
+            payload = model_dump(mode="json")
+            if isinstance(payload, dict):
+                return payload
+        except Exception:
+            try:
+                payload = model_dump()
+                if isinstance(payload, dict):
+                    return payload
+            except Exception:
+                return None
+    raw_dict = getattr(data, "__dict__", None)
+    if isinstance(raw_dict, dict):
+        return dict(raw_dict)
+    return None
 
 
 def _make_dummy_identification_result(

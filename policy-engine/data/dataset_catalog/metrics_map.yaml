@@ -1,10 +1,10 @@
 # Mapping from PolicyOS ir/kernel/ metric IDs to external indicator codes & keywords.
 # Used by datasets/batch/normalizer.py to tag datasets with polisyos_metrics.
+# v2 — expanded to ~120 canonical variables for SOTA coverage.
 
-avg_income:
-  keywords: ["average income", "mean income", "середній дохід", "wage", "earnings"]
-  sdmx_concepts: ["EARN", "EARN_NT_NET"]
-  worldbank_indicators: ["SI.SPR.PCAP", "NY.ADJ.NNTY.PC.CD"]
+# ═══════════════════════════════════════════════════════════
+# MACROECONOMICS
+# ═══════════════════════════════════════════════════════════
 
 gdp:
   keywords: ["GDP", "gross domestic product", "ВВП", "валовий внутрішній продукт"]
@@ -18,20 +18,20 @@ gdp_per_capita:
   worldbank_indicators: ["NY.GDP.PCAP.CD", "NY.GDP.PCAP.PP.CD"]
   eurostat_codes: ["nama_10_pc"]
 
-unemployment_rate:
-  keywords: ["unemployment", "безробіття", "jobless"]
-  sdmx_concepts: ["UNE_RT_A", "UNEMPRT", "LUR"]
-  worldbank_indicators: ["SL.UEM.TOTL.ZS", "SL.UEM.TOTL.NE.ZS"]
-  eurostat_codes: ["une_rt_a", "une_rt_m"]
+gdp_growth:
+  keywords: ["GDP growth", "economic growth", "зростання ВВП", "wzrost PKB"]
+  sdmx_concepts: ["GDP_GR"]
+  worldbank_indicators: ["NY.GDP.MKTP.KD.ZG"]
+  eurostat_codes: ["nama_10_gdp"]
 
-inflation_rate:
-  keywords: ["inflation", "CPI", "consumer price", "інфляція", "споживчі ціни"]
+inflation:
+  keywords: ["inflation", "CPI", "consumer price", "інфляція", "споживчі ціни", "inflacja"]
   sdmx_concepts: ["CPI", "PCPI_IX"]
   worldbank_indicators: ["FP.CPI.TOTL.ZG"]
   eurostat_codes: ["prc_hicp_manr"]
 
-inflation:
-  keywords: ["inflation", "CPI", "consumer price", "інфляція", "споживчі ціни"]
+inflation_rate:
+  keywords: ["inflation rate", "CPI growth", "темп інфляції"]
   sdmx_concepts: ["CPI", "PCPI_IX"]
   worldbank_indicators: ["FP.CPI.TOTL.ZG"]
   eurostat_codes: ["prc_hicp_manr"]
@@ -41,119 +41,608 @@ avg_price:
   sdmx_concepts: ["PCPI_IX", "PPI"]
   worldbank_indicators: ["FP.CPI.TOTL"]
 
+avg_income:
+  keywords: ["average income", "mean income", "середній дохід", "wage", "earnings"]
+  sdmx_concepts: ["EARN", "EARN_NT_NET"]
+  worldbank_indicators: ["SI.SPR.PCAP", "NY.ADJ.NNTY.PC.CD"]
+  eurostat_codes: ["earn_ses_annual"]
+
 gov_balance:
   keywords: ["government balance", "fiscal balance", "budget deficit", "budget surplus",
              "державний борг", "дефіцит бюджету"]
   sdmx_concepts: ["GGFL", "GGR", "GGXWDG_NGDP"]
   worldbank_indicators: ["GC.BAL.CASH.GD.ZS", "GC.DOD.TOTL.GD.ZS"]
 
-population:
-  keywords: ["population", "населення", "демографія"]
-  sdmx_concepts: ["POP", "DEMO_PJAN"]
-  worldbank_indicators: ["SP.POP.TOTL"]
-  eurostat_codes: ["demo_pjan"]
+public_debt:
+  keywords: ["public debt", "government debt", "державний борг", "dług publiczny"]
+  sdmx_concepts: ["GGXWDG_NGDP"]
+  worldbank_indicators: ["GC.DOD.TOTL.GD.ZS"]
+  eurostat_codes: ["gov_10dd_edpt1"]
 
-migration:
-  keywords: ["migration", "migrant", "refugee", "міграція", "міграц", "net migration"]
-  sdmx_concepts: ["MIG", "MIGR", "MST_MIGR"]
-  worldbank_indicators: ["SM.POP.NETM"]
-  eurostat_codes: ["migr_immi", "migr_emi"]
+debt_to_gdp:
+  keywords: ["debt to GDP", "debt ratio", "борг до ВВП"]
+  worldbank_indicators: ["GC.DOD.TOTL.GD.ZS"]
 
-poverty_rate:
-  keywords: ["poverty", "бідність", "poverty rate", "poverty headcount"]
-  sdmx_concepts: ["SI_POV"]
-  worldbank_indicators: ["SI.POV.DDAY", "SI.POV.NAHC"]
+current_account_balance:
+  keywords: ["current account", "balance of payments", "поточний рахунок"]
+  sdmx_concepts: ["BPCA"]
+  worldbank_indicators: ["BN.CAB.XOKA.GD.ZS"]
 
-gini_coefficient:
-  keywords: ["gini", "inequality", "нерівність", "Джині"]
-  sdmx_concepts: ["GINI"]
-  worldbank_indicators: ["SI.POV.GINI"]
+savings_rate:
+  keywords: ["savings rate", "gross savings", "норма заощаджень"]
+  worldbank_indicators: ["NY.GNS.ICTR.ZS"]
 
-trade_balance:
-  keywords: ["trade balance", "export", "import", "торговий баланс"]
-  sdmx_concepts: ["TB", "XTBAL"]
-  worldbank_indicators: ["NE.RSB.GNFS.ZS"]
-
-education_spending:
-  keywords: ["education spending", "education expenditure", "витрати на освіту"]
-  sdmx_concepts: ["EDU_EXP"]
-  worldbank_indicators: ["SE.XPD.TOTL.GD.ZS"]
-
-education_outcomes:
-  keywords: ["education", "enrollment", "enrolment", "school", "literacy", "освіта", "зарахування до школи"]
-  sdmx_concepts: ["EDU_ENRL", "LIT"]
-  worldbank_indicators: ["SE.PRM.NENR", "SE.SEC.ENRR", "SE.ADT.LITR.ZS"]
-
-health_spending:
-  keywords: ["health spending", "health expenditure", "витрати на охорону здоров'я"]
-  sdmx_concepts: ["SHA"]
-  worldbank_indicators: ["SH.XPD.CHEX.GD.ZS"]
-
-health_outcomes:
-  keywords: ["life expectancy", "healthy life expectancy", "mortality", "тривалість життя", "здоров'я", "очікувана тривалість життя"]
-  sdmx_concepts: ["DEMO_MLEXPEC", "MORT"]
-  worldbank_indicators: ["SP.DYN.LE00.IN", "SP.DYN.IMRT.IN"]
-  who_indicators: ["WHOSIS_000001", "WHOSIS_000002", "WHOSIS_000015"]
-
-life_expectancy:
-  keywords: ["life expectancy", "тривалість життя"]
-  sdmx_concepts: ["DEMO_MLEXPEC"]
-  worldbank_indicators: ["SP.DYN.LE00.IN"]
-  who_indicators: ["WHOSIS_000001", "WHOSIS_000002", "WHOSIS_000015"]
-
-social_trust:
-  keywords: ["social trust", "trust survey", "values survey", "довіра", "соціальна довіра"]
-
-labor_force_participation:
-  keywords: ["labor force participation", "labour force participation", "участь у робочій силі"]
-  sdmx_concepts: ["LFPR", "TEAP"]
-  worldbank_indicators: ["SL.TLF.CACT.ZS"]
-
-institutional_quality:
-  keywords: ["rule of law", "government effectiveness", "regulatory quality", "institutional quality", "якість врядування"]
-  worldbank_indicators: ["RL.EST", "GE.EST", "RQ.EST", "CC.EST"]
-
-co2_emissions:
-  keywords: ["CO2", "carbon emissions", "greenhouse gas", "викиди"]
-  sdmx_concepts: ["ENV_AC_AIREM"]
-  worldbank_indicators: ["EN.ATM.CO2E.PC"]
-  eurostat_codes: ["env_air_gge"]
+investment_rate:
+  keywords: ["investment rate", "gross capital formation", "інвестиції"]
+  sdmx_concepts: ["GFCF"]
+  worldbank_indicators: ["NE.GDI.TOTL.ZS"]
+  eurostat_codes: ["nama_10_an6"]
 
 interest_rate:
   keywords: ["interest rate", "central bank rate", "відсоткова ставка"]
   sdmx_concepts: ["IR", "IRSTCI"]
   worldbank_indicators: ["FR.INR.RINR"]
 
+# ═══════════════════════════════════════════════════════════
+# POPULATION & DEMOGRAPHICS
+# ═══════════════════════════════════════════════════════════
+
+population:
+  keywords: ["population", "населення", "демографія", "ludność"]
+  sdmx_concepts: ["POP", "DEMO_PJAN"]
+  worldbank_indicators: ["SP.POP.TOTL"]
+  eurostat_codes: ["demo_pjan"]
+
+population_growth:
+  keywords: ["population growth", "приріст населення", "przyrost naturalny"]
+  worldbank_indicators: ["SP.POP.GROW"]
+
+fertility_rate:
+  keywords: ["fertility rate", "birth rate", "коефіцієнт народжуваності", "dzietność"]
+  sdmx_concepts: ["DEMO_FIND"]
+  worldbank_indicators: ["SP.DYN.TFRT.IN"]
+  eurostat_codes: ["demo_find"]
+
+dependency_ratio:
+  keywords: ["dependency ratio", "age dependency", "коефіцієнт залежності"]
+  worldbank_indicators: ["SP.POP.DPND", "SP.POP.DPND.OL", "SP.POP.DPND.YG"]
+
+urbanization_rate:
+  keywords: ["urbanization", "urban population", "урбанізація", "urbanizacja"]
+  worldbank_indicators: ["SP.URB.TOTL.IN.ZS", "SP.URB.GROW"]
+
+median_age:
+  keywords: ["median age", "середній вік", "mediana wieku"]
+
+life_expectancy_gap:
+  keywords: ["life expectancy gap", "gender longevity gap", "розрив тривалості життя"]
+  worldbank_indicators: ["SP.DYN.LE00.MA.IN", "SP.DYN.LE00.FE.IN"]
+
+# ═══════════════════════════════════════════════════════════
+# MIGRATION
+# ═══════════════════════════════════════════════════════════
+
+migration:
+  keywords: ["migration", "migrant", "refugee", "міграція", "міграц", "net migration", "migracja"]
+  sdmx_concepts: ["MIG", "MIGR", "MST_MIGR"]
+  worldbank_indicators: ["SM.POP.NETM"]
+  eurostat_codes: ["migr_immi", "migr_emi"]
+
+refugee_population:
+  keywords: ["refugee", "asylum seeker", "біженці", "uchodźcy"]
+  worldbank_indicators: ["SM.POP.REFG", "SM.POP.REFG.OR"]
+  eurostat_codes: ["migr_asyappctza"]
+
+remittance_inflows:
+  keywords: ["remittances", "грошові перекази", "przekazy pieniężne"]
+  worldbank_indicators: ["BX.TRF.PWKR.DT.GD.ZS", "BX.TRF.PWKR.CD.DT"]
+
+displacement:
+  keywords: ["displacement", "internally displaced", "переміщені особи", "IDPs"]
+  worldbank_indicators: ["SM.POP.REFG.OR", "VC.IDP.TOTL.HE"]
+
+# ═══════════════════════════════════════════════════════════
+# LABOR MARKET
+# ═══════════════════════════════════════════════════════════
+
+unemployment_rate:
+  keywords: ["unemployment", "безробіття", "jobless", "bezrobocie"]
+  sdmx_concepts: ["UNE_RT_A", "UNEMPRT", "LUR"]
+  worldbank_indicators: ["SL.UEM.TOTL.ZS", "SL.UEM.TOTL.NE.ZS"]
+  eurostat_codes: ["une_rt_a", "une_rt_m"]
+
+youth_unemployment:
+  keywords: ["youth unemployment", "молодіжне безробіття", "bezrobocie młodzieży"]
+  sdmx_concepts: ["YOUTH_UNE"]
+  worldbank_indicators: ["SL.UEM.1524.ZS", "SL.UEM.1524.MA.ZS", "SL.UEM.1524.FE.ZS"]
+  eurostat_codes: ["une_rt_a"]
+
+labor_force_participation:
+  keywords: ["labor force participation", "labour force participation", "участь у робочій силі"]
+  sdmx_concepts: ["LFPR", "TEAP"]
+  worldbank_indicators: ["SL.TLF.CACT.ZS"]
+  eurostat_codes: ["lfsa_argan"]
+
+female_labor_participation:
+  keywords: ["female labor participation", "women employment", "жіноча зайнятість"]
+  worldbank_indicators: ["SL.TLF.CACT.FE.ZS"]
+
+employment_rate:
+  keywords: ["employment rate", "рівень зайнятості", "stopa zatrudnienia"]
+  sdmx_concepts: ["LFS_SEXAGE_I_R"]
+  worldbank_indicators: ["SL.EMP.TOTL.SP.ZS"]
+  eurostat_codes: ["lfsa_ergan"]
+
+informality_rate:
+  keywords: ["informal economy", "informal employment", "тіньова економіка", "szara strefa"]
+  worldbank_indicators: ["SL.ISV.IFRM.ZS"]
+
 minimum_wage:
-  keywords: ["minimum wage", "мінімальна заробітна плата"]
+  keywords: ["minimum wage", "мінімальна заробітна плата", "płaca minimalna"]
   sdmx_concepts: ["EARN_MW_CUR"]
   eurostat_codes: ["earn_mw_cur"]
 
-gender_equality:
-  keywords: ["gender equality", "women rights", "гендерна рівність", "gender norms", "gender gap"]
-  worldbank_indicators: ["SG.GEN.PARL.ZS"]
+wage_growth:
+  keywords: ["wage growth", "зростання зарплат", "wzrost płac"]
+  eurostat_codes: ["earn_ses_annual", "lc_lci_r2_a"]
+
+gender_wage_gap:
+  keywords: ["gender wage gap", "gender pay gap", "гендерний розрив в оплаті", "luka płacowa"]
+  sdmx_concepts: ["GENDER_EMP"]
+  eurostat_codes: ["earn_gr_gpgr2"]
+
+long_term_unemployment:
+  keywords: ["long-term unemployment", "довгострокове безробіття", "długotrwałe bezrobocie"]
+  eurostat_codes: ["une_ltu_a"]
+  worldbank_indicators: ["SL.UEM.LTRM.ZS"]
+
+labor_productivity:
+  keywords: ["labor productivity", "продуктивність праці", "wydajność pracy"]
+  sdmx_concepts: ["PDB_LV"]
+  eurostat_codes: ["nama_10_lp_ulc"]
+
+working_poverty:
+  keywords: ["working poverty", "in-work poverty", "працююча бідність"]
+  worldbank_indicators: ["SI.POV.LMIC"]
+  eurostat_codes: ["ilc_iw01"]
+
+# ═══════════════════════════════════════════════════════════
+# POVERTY & INEQUALITY
+# ═══════════════════════════════════════════════════════════
+
+poverty_rate:
+  keywords: ["poverty", "бідність", "poverty rate", "poverty headcount", "ubóstwo"]
+  sdmx_concepts: ["SI_POV"]
+  worldbank_indicators: ["SI.POV.DDAY", "SI.POV.NAHC", "SI.POV.LMIC"]
+
+gini_coefficient:
+  keywords: ["gini", "inequality", "нерівність", "Джині", "współczynnik Giniego"]
+  sdmx_concepts: ["GINI"]
+  worldbank_indicators: ["SI.POV.GINI"]
+  eurostat_codes: ["ilc_di12"]
 
 inequality:
-  keywords: ["inequality", "income inequality", "wealth inequality", "нерівність"]
+  keywords: ["inequality", "income inequality", "wealth inequality", "нерівність", "nierówność"]
   sdmx_concepts: ["INC_INEQ"]
-  worldbank_indicators: ["SI.POV.GINI", "SI.DST.10TH.10"]
+  worldbank_indicators: ["SI.POV.GINI", "SI.DST.10TH.10", "SI.DST.FRST.10"]
+  eurostat_codes: ["ilc_di01"]
 
-democracy_quality:
-  keywords: ["democracy", "democratic", "демократія", "political freedom", "civil liberties"]
+# ═══════════════════════════════════════════════════════════
+# EDUCATION
+# ═══════════════════════════════════════════════════════════
+
+education_spending:
+  keywords: ["education spending", "education expenditure", "витрати на освіту", "wydatki na edukację"]
+  sdmx_concepts: ["EDU_EXP"]
+  worldbank_indicators: ["SE.XPD.TOTL.GD.ZS"]
+  eurostat_codes: ["educ_uoe_fine09"]
+
+education_outcomes:
+  keywords: ["education", "enrollment", "enrolment", "school", "literacy", "освіта", "зарахування до школи", "edukacja"]
+  sdmx_concepts: ["EDU_ENRL", "LIT"]
+  worldbank_indicators: ["SE.PRM.NENR", "SE.SEC.ENRR", "SE.ADT.LITR.ZS"]
+
+tertiary_enrollment:
+  keywords: ["tertiary enrollment", "university enrollment", "вища освіта", "szkolnictwo wyższe"]
+  worldbank_indicators: ["SE.TER.ENRR"]
+  unesco_uis_indicators: ["UIS.ER.3"]
+
+preschool_enrollment:
+  keywords: ["preschool enrollment", "early childhood education", "дошкільна освіта", "edukacja przedszkolna"]
+  worldbank_indicators: ["SE.PRE.ENRR"]
+  unesco_uis_indicators: ["UIS.NERA.0"]
+
+dropout_rate:
+  keywords: ["dropout rate", "school dropout", "відсів зі школи"]
+  unesco_uis_indicators: ["UIS.DROR.1"]
+
+years_of_schooling:
+  keywords: ["years of schooling", "expected years", "роки навчання", "lata nauki"]
+  worldbank_indicators: ["HD.HCI.EYRS", "HD.HCI.EYRS.FE", "HD.HCI.EYRS.MA"]
+
+gender_parity_index:
+  keywords: ["gender parity", "гендерний паритет"]
+  worldbank_indicators: ["SE.ENR.PRSC.FM.ZS"]
+
+school_quality:
+  keywords: ["learning outcomes", "school quality", "якість освіти", "jakość edukacji"]
+  worldbank_indicators: ["SE.LPV.PRIM"]
+  unesco_uis_indicators: ["UIS.NERA.1"]
+
+research_output:
+  keywords: ["research output", "scientific publications", "наукові публікації"]
+  worldbank_indicators: ["IP.JRN.ARTC.SC"]
+
+stem_graduates:
+  keywords: ["STEM graduates", "science technology graduates", "випускники STEM"]
+  unesco_uis_indicators: ["UIS.FGP.5T8.F600"]
+
+# ═══════════════════════════════════════════════════════════
+# HEALTH
+# ═══════════════════════════════════════════════════════════
+
+health_spending:
+  keywords: ["health spending", "health expenditure", "витрати на охорону здоров'я", "wydatki na zdrowie"]
+  sdmx_concepts: ["SHA"]
+  worldbank_indicators: ["SH.XPD.CHEX.GD.ZS"]
+
+health_outcomes:
+  keywords: ["life expectancy", "healthy life expectancy", "mortality", "тривалість життя", "здоров'я"]
+  sdmx_concepts: ["DEMO_MLEXPEC", "MORT"]
+  worldbank_indicators: ["SP.DYN.LE00.IN", "SP.DYN.IMRT.IN"]
+  who_indicators: ["WHOSIS_000001", "WHOSIS_000002", "WHOSIS_000015"]
+
+life_expectancy:
+  keywords: ["life expectancy", "тривалість життя", "oczekiwana długość życia"]
+  sdmx_concepts: ["DEMO_MLEXPEC"]
+  worldbank_indicators: ["SP.DYN.LE00.IN"]
+  who_indicators: ["WHOSIS_000001", "WHOSIS_000002", "WHOSIS_000015"]
+  eurostat_codes: ["demo_mlexpec"]
+
+infant_mortality:
+  keywords: ["infant mortality", "дитяча смертність", "смертність немовлят", "śmiertelność niemowląt"]
+  worldbank_indicators: ["SP.DYN.IMRT.IN"]
+  who_indicators: ["WHS7_104", "MDG_0000000001"]
+
+maternal_mortality:
+  keywords: ["maternal mortality", "материнська смертність", "śmiertelność matek"]
+  worldbank_indicators: ["SH.STA.MMRT"]
+  who_indicators: ["WHS9_95"]
+
+neonatal_mortality:
+  keywords: ["neonatal mortality", "неонатальна смертність"]
+  worldbank_indicators: ["SH.DYN.NMRT"]
+  who_indicators: ["MDG_0000000003", "WHOSIS_000003"]
+
+vaccination_coverage:
+  keywords: ["vaccination", "immunization", "вакцинація", "щеплення", "szczepienia"]
+  worldbank_indicators: ["SH.IMM.MEAS", "SH.IMM.IDPT"]
+  who_indicators: ["WHS4_117", "WHS6_102"]
+
+obesity_prevalence:
+  keywords: ["obesity", "overweight", "ожиріння", "otyłość"]
+  who_indicators: ["NCD_BMI_30A"]
+
+diabetes_prevalence:
+  keywords: ["diabetes", "діабет", "cukrzyca"]
+  who_indicators: ["NCD_CCS_Diab"]
+
+child_stunting:
+  keywords: ["stunting", "child malnutrition", "затримка росту дитини"]
+  worldbank_indicators: ["SH.STA.STNT.ZS"]
+  who_indicators: ["NUTRITION_HA_2"]
+
+physician_density:
+  keywords: ["physician density", "doctors per capita", "лікарі на душу населення", "lekarze"]
+  who_indicators: ["HWF_0001"]
+  worldbank_indicators: ["SH.MED.PHYS.ZS"]
+
+hospital_beds:
+  keywords: ["hospital beds", "лікарняні ліжка", "łóżka szpitalne"]
+  worldbank_indicators: ["SH.MED.BEDS.ZS"]
+  who_indicators: ["HWF_0006"]
+
+clean_water_access:
+  keywords: ["clean water", "drinking water", "safe water", "чиста вода", "czysta woda"]
+  worldbank_indicators: ["SH.H2O.SMDW.ZS"]
+  who_indicators: ["WSH_WATER_SAFELY_MANAGED"]
+
+sanitation_coverage:
+  keywords: ["sanitation", "sewerage", "каналізація", "kanalizacja"]
+  worldbank_indicators: ["SH.STA.SMSS.ZS"]
+  who_indicators: ["WSH_SANITATION_SAFELY_MANAGED"]
+
+out_of_pocket_spending:
+  keywords: ["out-of-pocket health", "витрати з власної кишені"]
+  worldbank_indicators: ["SH.XPD.OOPC.CH.ZS"]
+
+universal_health_coverage:
+  keywords: ["universal health coverage", "UHC", "загальне медичне страхування"]
+  who_indicators: ["UHC_INDEX_REPORTED"]
+
+hiv_prevalence:
+  keywords: ["HIV", "AIDS", "ВІЛ", "СНІД"]
+  worldbank_indicators: ["SH.DYN.AIDS.ZS"]
+  who_indicators: ["HIV_0000000001"]
+
+tuberculosis_incidence:
+  keywords: ["tuberculosis", "TB", "туберкульоз", "gruźlica"]
+  who_indicators: ["MDG_0000000020"]
+  worldbank_indicators: ["SH.TBS.INCD"]
+
+malaria_incidence:
+  keywords: ["malaria", "малярія"]
+  who_indicators: ["MALARIA_EST_INCIDENCE"]
+  worldbank_indicators: ["SH.MLR.INCD.P3"]
+
+noncommunicable_disease_mortality:
+  keywords: ["NCD mortality", "noncommunicable disease", "неінфекційні захворювання"]
+  who_indicators: ["NCDMORT3070"]
+
+suicide_rate:
+  keywords: ["suicide rate", "самогубства", "samobójstwa"]
+  who_indicators: ["MH_12"]
+
+smoking_prevalence:
+  keywords: ["smoking", "tobacco", "куріння", "palenie tytoniu"]
+  who_indicators: ["NCD_TOB_SMOK_CURRE"]
+
+alcohol_consumption:
+  keywords: ["alcohol consumption", "споживання алкоголю", "spożycie alkoholu"]
+  who_indicators: ["SA_0000001688"]
+
+hypertension_prevalence:
+  keywords: ["hypertension", "blood pressure", "гіпертензія", "nadciśnienie"]
+  who_indicators: ["NCD_HYP_PREVALENCE_A"]
+
+air_pollution_health:
+  keywords: ["air pollution deaths", "ambient air pollution", "забруднення повітря"]
+  who_indicators: ["SDGAIRBOD_3"]
+
+# ═══════════════════════════════════════════════════════════
+# TRADE
+# ═══════════════════════════════════════════════════════════
+
+trade_balance:
+  keywords: ["trade balance", "export", "import", "торговий баланс", "bilans handlowy"]
+  sdmx_concepts: ["TB", "XTBAL"]
+  worldbank_indicators: ["NE.RSB.GNFS.ZS"]
+
+trade_openness:
+  keywords: ["trade openness", "trade to GDP", "відкритість торгівлі", "otwartość handlowa"]
+  worldbank_indicators: ["NE.TRD.GNFS.ZS"]
+
+tariff_rate:
+  keywords: ["tariff", "customs duty", "мито", "тарифи", "cła"]
+  worldbank_indicators: ["TM.TAX.MRCH.WM.AR.ZS"]
+
+terms_of_trade:
+  keywords: ["terms of trade", "умови торгівлі"]
+  worldbank_indicators: ["TT.PRI.MRCH.XD.WD"]
+
+fdi_inflows:
+  keywords: ["FDI", "foreign direct investment", "прямі іноземні інвестиції", "BIZ"]
+  worldbank_indicators: ["BX.KLT.DINV.WD.GD.ZS", "BX.KLT.DINV.CD.WD"]
+
+export_diversification:
+  keywords: ["export diversification", "export concentration", "диверсифікація експорту"]
+
+# ═══════════════════════════════════════════════════════════
+# GOVERNANCE & INSTITUTIONS
+# ═══════════════════════════════════════════════════════════
+
+institutional_quality:
+  keywords: ["rule of law", "government effectiveness", "regulatory quality", "institutional quality", "якість врядування"]
+  worldbank_indicators: ["RL.EST", "GE.EST", "RQ.EST", "CC.EST"]
+  wvs_indicators: ["E069_07", "E069_11", "E069_17"]
 
 corruption_level:
-  keywords: ["corruption", "корупція", "political corruption", "bribery"]
+  keywords: ["corruption", "корупція", "political corruption", "bribery", "korupcja"]
   worldbank_indicators: ["CC.EST"]
+  wvs_indicators: ["E196"]
 
-social_capital:
-  keywords: ["social capital", "civic participation", "соціальний капітал", "community", "volunteering"]
+democracy_quality:
+  keywords: ["democracy", "democratic", "демократія", "political freedom", "civil liberties", "demokracja"]
+  wvs_indicators: ["E110", "E117", "F108"]
 
-cultural_cluster:
-  keywords: ["cultural values", "cultural cluster", "freedom of choice", "культурні цінності"]
+political_stability:
+  keywords: ["political stability", "political violence", "політична стабільність", "stabilność polityczna"]
+  worldbank_indicators: ["PV.EST"]
+
+voice_accountability:
+  keywords: ["voice and accountability", "political participation", "підзвітність", "transparentność"]
+  worldbank_indicators: ["VA.EST"]
+
+regulatory_quality:
+  keywords: ["regulatory quality", "business regulation", "якість регулювання", "jakość regulacji"]
+  worldbank_indicators: ["RQ.EST"]
+
+government_effectiveness:
+  keywords: ["government effectiveness", "ефективність уряду", "efektywność rządu"]
+  worldbank_indicators: ["GE.EST"]
+
+state_capacity:
+  keywords: ["state capacity", "government capacity", "спроможність держави"]
+  worldbank_indicators: ["GE.EST", "IQ.CPA.PROP.XQ"]
 
 public_trust:
-  keywords: ["public trust", "confidence in government", "довіра до уряду", "trust in institutions"]
+  keywords: ["public trust", "confidence in government", "довіра до уряду", "trust in institutions", "zaufanie publiczne"]
+  wvs_indicators: ["E069_07", "E069_11", "E069_06", "E069_04", "E069_18", "E069_12"]
 
 judicial_quality:
-  keywords: ["judicial quality", "court system", "судова система", "rule of law", "justice system"]
+  keywords: ["judicial quality", "court system", "судова система", "rule of law", "justice system", "wymiar sprawiedliwości"]
   worldbank_indicators: ["RL.EST"]
+  wvs_indicators: ["E069_17"]
+
+property_rights:
+  keywords: ["property rights", "права власності", "prawa własności"]
+  worldbank_indicators: ["IQ.CPA.PROP.XQ"]
+
+# ═══════════════════════════════════════════════════════════
+# SOCIAL
+# ═══════════════════════════════════════════════════════════
+
+social_trust:
+  keywords: ["social trust", "trust survey", "values survey", "довіра", "соціальна довіра", "zaufanie społeczne"]
+  wvs_indicators: ["A165", "A214", "G007_64"]
+
+social_capital:
+  keywords: ["social capital", "civic participation", "соціальний капітал", "community", "volunteering", "kapitał społeczny"]
+  wvs_indicators: ["A008", "A170", "E023", "E025", "E286", "A062"]
+
+cultural_cluster:
+  keywords: ["cultural values", "cultural cluster", "freedom of choice", "культурні цінності", "wartości kulturowe"]
+  wvs_indicators: ["A173"]
+
+gender_equality:
+  keywords: ["gender equality", "women rights", "гендерна рівність", "gender norms", "gender gap", "równość płci"]
+  worldbank_indicators: ["SG.GEN.PARL.ZS"]
+  wvs_indicators: ["D059", "D060", "E233", "Y022"]
+
+# ═══════════════════════════════════════════════════════════
+# ENVIRONMENT & CLIMATE
+# ═══════════════════════════════════════════════════════════
+
+co2_emissions:
+  keywords: ["CO2", "carbon emissions", "greenhouse gas", "викиди", "emisje CO2"]
+  sdmx_concepts: ["ENV_AC_AIREM"]
+  worldbank_indicators: ["EN.ATM.CO2E.PC", "EN.ATM.CO2E.KT"]
+  eurostat_codes: ["env_air_gge"]
+
+renewable_energy_share:
+  keywords: ["renewable energy", "clean energy", "відновлювана енергія", "energia odnawialna"]
+  worldbank_indicators: ["EG.FEC.RNEW.ZS"]
+  eurostat_codes: ["nrg_ind_ren"]
+
+energy_intensity:
+  keywords: ["energy intensity", "energy efficiency", "енергоінтенсивність", "efektywność energetyczna"]
+  worldbank_indicators: ["EG.EGY.PRIM.PP.KD"]
+  eurostat_codes: ["nrg_ind_ei"]
+
+electricity_access:
+  keywords: ["electricity access", "electrification", "доступ до електрики"]
+  worldbank_indicators: ["EG.ELC.ACCS.ZS"]
+
+forest_cover:
+  keywords: ["forest cover", "forest area", "ліси", "площа лісів", "lasy"]
+  worldbank_indicators: ["AG.LND.FRST.ZS", "AG.LND.FRST.K2"]
+
+water_stress:
+  keywords: ["water stress", "water scarcity", "водний стрес", "stres wodny"]
+  worldbank_indicators: ["ER.H2O.FWST.ZS"]
+
+air_quality_index:
+  keywords: ["air quality", "PM2.5", "air pollution", "якість повітря", "jakość powietrza"]
+  who_indicators: ["SDGAIRBOD_3"]
+  worldbank_indicators: ["EN.ATM.PM25.MC.M3"]
+
+waste_management:
+  keywords: ["waste management", "recycling", "управління відходами", "gospodarka odpadami"]
+  eurostat_codes: ["env_wasgen", "env_wasmun"]
+
+# ═══════════════════════════════════════════════════════════
+# FINANCE & MONETARY
+# ═══════════════════════════════════════════════════════════
+
+financial_inclusion:
+  keywords: ["financial inclusion", "bank account", "фінансова інклюзія", "inkluzja finansowa"]
+  worldbank_indicators: ["FX.OWN.TOTL.ZS"]
+
+credit_access:
+  keywords: ["credit access", "domestic credit", "доступ до кредитів", "dostęp do kredytów"]
+  worldbank_indicators: ["FS.AST.PRVT.GD.ZS"]
+
+banking_sector_stability:
+  keywords: ["banking stability", "bank capital", "стабільність банків", "stabilność bankowa"]
+  worldbank_indicators: ["FB.BNK.CAPA.ZS"]
+
+stock_market_development:
+  keywords: ["stock market", "market capitalization", "фондовий ринок", "rynek kapitałowy"]
+  worldbank_indicators: ["CM.MKT.LCAP.GD.ZS"]
+
+# ═══════════════════════════════════════════════════════════
+# INFRASTRUCTURE & DIGITAL
+# ═══════════════════════════════════════════════════════════
+
+internet_penetration:
+  keywords: ["internet users", "internet access", "інтернет", "dostęp do internetu"]
+  worldbank_indicators: ["IT.NET.USER.ZS"]
+  eurostat_codes: ["isoc_ci_in_h"]
+
+broadband_penetration:
+  keywords: ["broadband", "fixed broadband", "широкосмуговий доступ", "szerokopasmowy"]
+  worldbank_indicators: ["IT.NET.BBND.P2"]
+  eurostat_codes: ["isoc_ci_it_h"]
+
+mobile_coverage:
+  keywords: ["mobile phone", "cellular", "мобільний зв'язок", "telefonia komórkowa"]
+  worldbank_indicators: ["IT.CEL.SETS.P2"]
+
+logistics_performance:
+  keywords: ["logistics performance", "LPI", "логістика"]
+  worldbank_indicators: ["LP.LPI.OVRL.XQ"]
+
+road_quality:
+  keywords: ["road quality", "paved roads", "якість доріг", "jakość dróg"]
+  worldbank_indicators: ["IS.ROD.PAVE.ZS"]
+
+transport_infrastructure:
+  keywords: ["transport infrastructure", "транспортна інфраструктура", "infrastruktura transportowa"]
+  eurostat_codes: ["tran_r_net"]
+
+# ═══════════════════════════════════════════════════════════
+# SECURITY & CONFLICT
+# ═══════════════════════════════════════════════════════════
+
+homicide_rate:
+  keywords: ["homicide rate", "murder rate", "рівень вбивств", "wskaźnik zabójstw"]
+  worldbank_indicators: ["VC.IHR.PSRC.P5"]
+  who_indicators: ["VIOLENCE_HOMICIDERATE"]
+
+military_spending:
+  keywords: ["military spending", "defense spending", "військові витрати", "wydatki wojskowe"]
+  worldbank_indicators: ["MS.MIL.XPND.GD.ZS"]
+
+conflict_intensity:
+  keywords: ["conflict", "armed conflict", "конфлікт", "konflikt zbrojny"]
+
+# ═══════════════════════════════════════════════════════════
+# ADDITIONAL INDICATORS
+# ═══════════════════════════════════════════════════════════
+
+informal_economy_share:
+  keywords: ["informal economy", "shadow economy", "тіньова економіка", "szara strefa"]
+  worldbank_indicators: ["SL.ISV.IFRM.ZS"]
+
+human_capital:
+  keywords: ["human capital index", "HCI", "людський капітал", "kapitał ludzki"]
+  worldbank_indicators: ["HD.HCI.OVRL"]
+
+r_and_d_spending:
+  keywords: ["R&D spending", "research and development", "витрати на НДДКР", "wydatki na B+R"]
+  worldbank_indicators: ["GB.XPD.RSDV.GD.ZS"]
+  eurostat_codes: ["rd_e_gerdtot"]
+
+tax_revenue:
+  keywords: ["tax revenue", "податкові надходження", "wpływy podatkowe"]
+  worldbank_indicators: ["GC.TAX.TOTL.GD.ZS"]
+
+government_spending:
+  keywords: ["government spending", "public expenditure", "державні витрати", "wydatki publiczne"]
+  worldbank_indicators: ["NE.CON.GOVT.ZS"]
+  eurostat_codes: ["gov_10a_exp"]
+
+social_protection_coverage:
+  keywords: ["social protection", "social safety net", "соціальний захист", "ochrona socjalna"]
+  worldbank_indicators: ["per_allsp.cov_pop_tot"]
+
+child_labor:
+  keywords: ["child labor", "child labour", "дитяча праця", "praca dzieci"]
+  worldbank_indicators: ["SL.TLF.0714.ZS"]
+
+access_to_justice:
+  keywords: ["access to justice", "legal aid", "доступ до правосуддя", "dostęp do wymiaru sprawiedliwości"]
+
+at_risk_of_poverty:
+  keywords: ["at-risk-of-poverty", "social exclusion", "ризик бідності", "zagrożenie ubóstwem"]
+  eurostat_codes: ["ilc_peps01n", "ilc_li02"]

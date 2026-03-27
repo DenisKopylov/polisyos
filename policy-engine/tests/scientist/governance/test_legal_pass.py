@@ -180,3 +180,87 @@ def test_legal_pass_properties() -> None:
     assert legal_pass.pass_id == "legal"
     assert legal_pass.estimated_cost_ms == 100
     assert legal_pass.requires_data is True
+
+
+def test_legal_pass_no_norm_pack_returns_empty() -> None:
+    """When no norm_pack is in state, LegalPass returns empty even in STRICT."""
+    ctx = PassContext(
+        ir=None,
+        state={},
+        registry_bundle=None,
+        profile=ValidationProfile.strict(),
+        run_id="test-no-norms",
+    )
+    legal_pass = LegalPass()
+    issues = legal_pass.validate(ctx)
+    assert issues == []
+
+
+def test_legal_pass_multiple_jurisdictions_evaluates_all_norms() -> None:
+    """NormPack with norms from multiple sources evaluates all of them."""
+    norm_pack = NormPack(
+        pack_id="multi_jurisdiction",
+        jurisdiction="US_EU",
+        effective_date="2024-01-01",
+        norms=[
+            NormRule(
+                norm_id="us_ada_title_iii",
+                provision_refs=[NormRef(provision_id="title_iii", source_document="us_ada_1990")],
+                rule_type=RuleType.OBLIGATION,
+                description="Accessibility requirement",
+                backend_refs=["stub"],
+            ),
+            NormRule(
+                norm_id="gdpr_5_1_a",
+                provision_refs=[NormRef(provision_id="art_5_1_a", source_document="eu_gdpr_2016")],
+                rule_type=RuleType.OBLIGATION,
+                description="Lawful processing",
+                backend_refs=["stub"],
+            ),
+            NormRule(
+                norm_id="gdpr_25",
+                provision_refs=[NormRef(provision_id="art_25", source_document="eu_gdpr_2016")],
+                rule_type=RuleType.OBLIGATION,
+                description="Data protection by design",
+                backend_refs=["stub"],
+            ),
+        ],
+    )
+    ctx = PassContext(
+        ir=None,
+        state={"norm_pack": norm_pack},
+        registry_bundle=None,
+        profile=ValidationProfile.strict(),
+        run_id="test-multi-jurisdiction",
+    )
+    legal_pass = LegalPass()
+    issues = legal_pass.validate(ctx)
+    # StubBackend returns one INFO issue per norm
+    assert len(issues) == 3
+    assert all(i.code == "NORM_NOT_IMPLEMENTED" for i in issues)
+
+
+def test_legal_pass_backend_blocker_propagates(strict_ctx: PassContext) -> None:
+    """Backend-returned BLOCKER issues propagate through LegalPass."""
+    mock_backend = MagicMock(spec=RuleBackend)
+    mock_backend.backend_id = "mock"
+    mock_backend.evaluate.return_value = [
+        ComplianceIssue(
+            pass_id="legal",
+            path=["norms", "gdpr_5_1_a"],
+            message="Violation detected",
+            severity=IssueSeverity.BLOCKER,
+            code="GDPR_VIOLATION",
+        )
+    ]
+    legal_pass = LegalPass(backend=mock_backend)
+    issues = legal_pass.validate(strict_ctx)
+    assert len(issues) == 1
+    assert issues[0].severity == IssueSeverity.BLOCKER
+    assert issues[0].code == "GDPR_VIOLATION"
+
+
+def test_legal_pass_unknown_backend_raises() -> None:
+    """Passing an unknown backend string raises ValueError."""
+    with pytest.raises(ValueError, match="Unknown backend"):
+        LegalPass(backend="nonexistent_backend")

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Any, Dict, List
 
 
@@ -77,14 +77,14 @@ class MaxWallTime(StoppingCriterion):
         if max_seconds <= 0:
             raise ValueError("max_seconds must be > 0")
         self._max_seconds = max_seconds
-        self._start_time: datetime | None = datetime.utcnow()
+        self._start_time: datetime | None = datetime.now(UTC)
 
     @property
     def name(self) -> str:
         return "max_wall_time"
 
     def check(self, history: List[Dict[str, Any]], state: Dict[str, Any]) -> StoppingCondition:
-        now = datetime.utcnow()
+        now = datetime.now(UTC)
 
         if self._start_time is None:
             self._start_time = now
@@ -103,7 +103,7 @@ class MaxWallTime(StoppingCriterion):
         )
 
     def reset(self) -> None:
-        self._start_time = datetime.utcnow()
+        self._start_time = datetime.now(UTC)
 
 
 class ImprovementPlateau(StoppingCriterion):
@@ -195,6 +195,34 @@ class TargetAchieved(StoppingCriterion):
         return StoppingCondition(should_stop=False)
 
 
+class CostBudgetStopping(StoppingCriterion):
+    """Stop when cumulative cost exceeds a USD budget."""
+
+    def __init__(
+        self,
+        max_cost_usd: float,
+        cost_key: str = "cumulative_cost_usd",
+    ):
+        if max_cost_usd <= 0:
+            raise ValueError("max_cost_usd must be > 0")
+        self._max_cost = max_cost_usd
+        self._cost_key = cost_key
+
+    @property
+    def name(self) -> str:
+        return "cost_budget"
+
+    def check(self, history: List[Dict[str, Any]], state: Dict[str, Any]) -> StoppingCondition:
+        cost = state.get(self._cost_key, 0.0)
+        if cost >= self._max_cost:
+            return StoppingCondition(
+                should_stop=True,
+                reason=f"Cost budget ({self._max_cost} USD) exhausted",
+                details={"cost": cost, "budget": self._max_cost},
+            )
+        return StoppingCondition(should_stop=False)
+
+
 class CompositeStoppingCriterion(StoppingCriterion):
     """Stop when ANY contained criterion triggers (OR logic)."""
 
@@ -216,6 +244,34 @@ class CompositeStoppingCriterion(StoppingCriterion):
                     reason=f"[{criterion.name}] {result.reason}",
                     details={"triggered_by": criterion.name, **result.details},
                 )
+        return StoppingCondition(should_stop=False)
+
+    def reset(self) -> None:
+        for criterion in self._criteria:
+            criterion.reset()
+
+
+class AllStoppingCriteria(StoppingCriterion):
+    """Stop only when ALL contained criteria trigger (AND logic)."""
+
+    def __init__(self, criteria: List[StoppingCriterion]):
+        if not criteria:
+            raise ValueError("At least one criterion required")
+        self._criteria = criteria
+
+    @property
+    def name(self) -> str:
+        return "all_composite"
+
+    def check(self, history: List[Dict[str, Any]], state: Dict[str, Any]) -> StoppingCondition:
+        results = [c.check(history, state) for c in self._criteria]
+        if all(r.should_stop for r in results):
+            reasons = [r.reason for r in results if r.reason]
+            return StoppingCondition(
+                should_stop=True,
+                reason=" AND ".join(reasons),
+                details={"triggered_by": [c.name for c in self._criteria]},
+            )
         return StoppingCondition(should_stop=False)
 
     def reset(self) -> None:
@@ -258,5 +314,19 @@ class StoppingPresets:
             [
                 MaxWallTime(max_seconds),
                 MaxIterations(100),
+            ]
+        )
+
+    @staticmethod
+    def cost_bounded(
+        max_cost_usd: float,
+        max_iter: int = 100,
+        cost_key: str = "cumulative_cost_usd",
+    ) -> CompositeStoppingCriterion:
+        """Cost-bounded with safety iteration limit."""
+        return CompositeStoppingCriterion(
+            [
+                CostBudgetStopping(max_cost_usd, cost_key=cost_key),
+                MaxIterations(max_iter),
             ]
         )

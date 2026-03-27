@@ -37,13 +37,22 @@ from .did import (
     StandardDifferenceInDifferences,
     StaggeredDifferenceInDifferences,
 )
+from .dtr import estimate_dtr_trajectory
 from .dml import DoubleMachineLearning
 from .dowhy_identify_estimate import DoWhyIdentifyEstimate, DoWhyIdentifyEstimateV1
 from .dowhy_refute import DoWhyRefute
+from .g_computation import estimate_g_computation_trajectory
 from .gcm_fit import HybridSCMFit
 from .gcm_query import GCMQuery
 from .twin_network_query import TwinNetworkQuery
 from .graph_reconciliation import ReconcileCausalGraph, compute_reconciliation_diagnostics
+from .query_preservation import (
+    check_query_preservation,
+    check_query_preservation_batch,
+    evaluate_query_preservation,
+    evaluate_query_preservation_batch,
+    update_query_preservation_cache,
+)
 from .literature_prior import BuildLiteraturePrior
 from .mediation import CausalMediationEstimator, ControlledDirectEffectEstimator
 from .causal_bcf import CausalBCF
@@ -58,6 +67,13 @@ from .modern_did import (
 from .parameter_transfer import ParameterTransfer
 from .pcmci_discovery import PCMCIDiscovery
 from .policy_learning import OptimalPolicyLearner
+from .strategic import (
+    StrategicSolveResult,
+    build_strategic_response_bundle,
+    evaluate_strategic_hook,
+    solve_strategic_response,
+    strategic_result_summary,
+)
 from .protocols import (
     CausalEstimator,
     GraphCausalData,
@@ -76,9 +92,25 @@ from .protocols import (
 )
 from .rdd import RegressionDiscontinuity
 from .sensitivity_metrics import SensitivityMetrics
-from .structural_time_series import StructuralTimeSeries
+from .structural_time_series import (
+    StructuralTimeSeries,
+    TemporalTrajectoryResult,
+    build_solver_diagnostics,
+    estimate_discretization_error,
+    estimate_structural_time_series_trajectory,
+    solve_temporal_effect_path,
+)
 from .symbolic_identify import SymbolicIdentify
 from .synthetic_control import SyntheticControlMethod
+from .temporal_estimand_compiler import (
+    TemporalBackendTarget,
+    TemporalComparatorSemantics,
+    TemporalCompileError,
+    TemporalDataContract,
+    TemporalExecutionPlan,
+    TemporalFallbackMode,
+    compile_temporal_estimand,
+)
 from .causal_engine import CausalEngine
 from .query_validator import CausalQueryValidator
 from .transport_check import CheckTransportability
@@ -172,6 +204,13 @@ __all__ = [
     "StaggeredDifferenceInDifferences",
     "RegressionDiscontinuity",
     "StructuralTimeSeries",
+    "TemporalTrajectoryResult",
+    "TemporalBackendTarget",
+    "TemporalComparatorSemantics",
+    "TemporalCompileError",
+    "TemporalDataContract",
+    "TemporalExecutionPlan",
+    "TemporalFallbackMode",
     "DoWhyIdentifyEstimate",
     "DoWhyIdentifyEstimateV1",
     "DoWhyRefute",
@@ -182,6 +221,11 @@ __all__ = [
     "BuildLiteraturePrior",
     "ReconcileCausalGraph",
     "compute_reconciliation_diagnostics",
+    "check_query_preservation",
+    "check_query_preservation_batch",
+    "evaluate_query_preservation",
+    "evaluate_query_preservation_batch",
+    "update_query_preservation_cache",
     "PCMCIDiscovery",
     "PCDiscovery",
     "FCIDiscovery",
@@ -197,6 +241,7 @@ __all__ = [
     "DoubleMachineLearning",
     "MetaLearnerEstimator",
     "OptimalPolicyLearner",
+    "StrategicSolveResult",
     "AIPWEstimator",
     "TMLEEstimator",
     "IPWEstimator",
@@ -225,6 +270,17 @@ __all__ = [
     "register_causal_methods",
     "ensure_causal_methods_registered",
     "CausalEngine",
+    "compile_temporal_estimand",
+    "build_solver_diagnostics",
+    "estimate_discretization_error",
+    "estimate_structural_time_series_trajectory",
+    "solve_temporal_effect_path",
+    "solve_strategic_response",
+    "strategic_result_summary",
+    "build_strategic_response_bundle",
+    "evaluate_strategic_hook",
+    "estimate_g_computation_trajectory",
+    "estimate_dtr_trajectory",
     "CausalQueryValidator",
     "transport_bounds",
     # Phase 4: Interference

@@ -148,6 +148,38 @@ class TestProxyIdentification:
         assert "PROXY_ADJUSTMENT" in rule_names
 
 
+def test_latent_proxy_boundary_notes_add_no_promotion_reasons_when_unresolved():
+    from polisyos.foundry.methods.catalog.causal.measurement_error import (
+        latent_proxy_boundary_notes,
+    )
+
+    notes = latent_proxy_boundary_notes(
+        proxy_map={"U_income": "income_proxy"},
+        measurement_model="unknown",
+        proxy_explanation_ruled_out=False,
+    )
+
+    assert "measurement_model_unknown" in notes["no_promotion_reasons"]
+    assert "proxy_explanation_not_ruled_out" in notes["no_promotion_reasons"]
+    assert "proxy_boundary:measurement_model_unknown" in notes["boundary_notes"]
+
+
+def test_latent_proxy_boundary_notes_surface_proxy_evidence_when_ruled_out():
+    from polisyos.foundry.methods.catalog.causal.measurement_error import (
+        latent_proxy_boundary_notes,
+    )
+
+    notes = latent_proxy_boundary_notes(
+        proxy_map={"U_income": "income_proxy"},
+        measurement_model="known",
+        proxy_explanation_ruled_out=True,
+    )
+
+    assert notes["no_promotion_reasons"] == []
+    assert "proxy_boundary:measurement_model_known" in notes["boundary_notes"]
+    assert "proxy_boundary:proxy_explanation_ruled_out" in notes["boundary_notes"]
+
+
 # ---------------------------------------------------------------------------
 # TestRegressionCalibration
 # ---------------------------------------------------------------------------

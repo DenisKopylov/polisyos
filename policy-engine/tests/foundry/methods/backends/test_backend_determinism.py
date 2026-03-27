@@ -30,6 +30,14 @@ pytestmark = pytest.mark.skipif(
 # Fixtures
 # ---------------------------------------------------------------------------
 
+
+@pytest.fixture
+def registered_registry(isolated_registry):
+    from polisyos.foundry.methods.catalog import ensure_all_methods_registered
+
+    ensure_all_methods_registered(isolated_registry)
+    return isolated_registry
+
 @pytest.fixture(scope="module")
 def sample_panel_data():
     """Panel data used across determinism tests."""
@@ -62,17 +70,17 @@ class TestSeedDeterminism:
     """Methods must be deterministic when given the same seed."""
 
     @pytest.mark.parametrize("fqn", [
-        "bayesian.regression.linear_regression@1.0.0",
-        "causal.did.standard@1.0.0",
+        "distributional.inequality.theil@1.0.0",
+        "distributional.inequality.atkinson@1.0.0",
     ])
-    def test_same_seed_same_output(self, fqn, sample_panel_data, isolated_registry):
+    def test_same_seed_same_output(self, fqn, registered_registry):
         """Running the same method twice with the same seed yields identical outputs."""
         try:
-            method_cls = isolated_registry.get(fqn)
+            method_cls = registered_registry.get(fqn)
         except Exception:
             pytest.skip(f"Method {fqn} not registered")
 
-        state = sample_panel_data
+        state = {"values": np.linspace(1.0, 50.0, 25)}
         params = {}
         seed = 42
 
@@ -117,47 +125,48 @@ def _get_method_pairs(registry) -> list[tuple[str, str]]:
 class TestCrossBackendEquivalence:
     """JAX and NumPy backends should produce numerically equivalent outputs."""
 
-    def test_numpy_runner_produces_finite_output(self, sample_regression_data, isolated_registry):
+    def test_numpy_runner_produces_finite_output(self, registered_registry):
         """Smoke test: NumPy runner produces finite results for regression methods."""
-        fqn = "bayesian.regression.linear_regression@1.0.0"
+        fqn = "distributional.inequality.theil@1.0.0"
         try:
-            method_cls = isolated_registry.get(fqn)
+            method_cls = registered_registry.get(fqn)
         except Exception:
             pytest.skip(f"{fqn} not registered")
 
-        result = method_cls.pure_step(sample_regression_data, {"seed": 42})
+        result = method_cls.pure_step({"values": np.linspace(1.0, 75.0, 30)}, {"seed": 42})
         for key, val in result.items():
             arr = np.asarray(val)
             if np.issubdtype(arr.dtype, np.floating):
                 assert np.all(np.isfinite(arr)), f"Non-finite values in {key}"
 
-    def test_dispatcher_produces_consistent_results(self, sample_panel_data, isolated_registry):
+    def test_dispatcher_produces_consistent_results(self, registered_registry):
         """Multiple dispatcher calls with same seed produce same result."""
         from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 
-        fqn = "causal.did.standard@1.0.0"
+        fqn = "distributional.inequality.theil@1.0.0"
         try:
-            entry = isolated_registry._store.get_by_fqn(fqn)
+            entry = registered_registry.get_entry(fqn)
             if entry is None:
                 pytest.skip(f"{fqn} not registered")
-            method_cls = entry.factory()
+            method_cls = registered_registry.get(fqn)
             sig = entry.signature
         except Exception as e:
             pytest.skip(f"Could not load {fqn}: {e}")
 
         dispatcher = MethodDispatcher.get_instance()
+        state = {"values": np.linspace(1.0, 75.0, 30)}
 
         result1 = dispatcher.dispatch(
             method_class=method_cls,
             signature=sig,
-            state=sample_panel_data,
+            state=state,
             params={},
             seed=42,
         )
         result2 = dispatcher.dispatch(
             method_class=method_cls,
             signature=sig,
-            state=sample_panel_data,
+            state=state,
             params={},
             seed=42,
         )

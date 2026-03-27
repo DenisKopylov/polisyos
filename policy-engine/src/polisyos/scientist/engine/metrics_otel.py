@@ -51,6 +51,10 @@ class OTelEngineMetrics:
                     "cache_hit": str(cache_hit).lower(),
                 },
             )
+        if retry_count > 0 and self._m.scientist_node_retry_count is not None:
+            self._m.scientist_node_retry_count.record(
+                retry_count, {"node_id": node_id},
+            )
 
     def record_tier_completed(
         self, *, tier_index: int, tier_size: int, duration_ms: int, workflow_id: str,
@@ -71,4 +75,30 @@ class OTelEngineMetrics:
             self._m.slo_dag_duration_seconds.record(
                 duration_ms / 1000.0,
                 {"workflow_id": workflow_id, "status": status},
+            )
+
+    def record_backpressure(
+        self, *, tier_index: int, queued_tasks: int, active_tasks: int, workflow_id: str,
+    ) -> None:
+        if self._m.scientist_tier_queue_depth is not None:
+            self._m.scientist_tier_queue_depth.set(
+                queued_tasks,
+                {"tier_index": str(tier_index), "workflow_id": workflow_id},
+            )
+
+    def record_semaphore_wait(
+        self, *, tier_index: int, wait_seconds: float, workflow_id: str,
+    ) -> None:
+        if self._m.scientist_semaphore_wait_seconds is not None:
+            self._m.scientist_semaphore_wait_seconds.record(
+                wait_seconds,
+                {"tier_index": str(tier_index), "workflow_id": workflow_id},
+            )
+
+    def record_workflow_state(
+        self, *, run_id: str, workflow_id: str, state: str,
+    ) -> None:
+        if self._m.scientist_workflow_state is not None:
+            self._m.scientist_workflow_state.add(
+                1, {"run_id": run_id, "workflow_id": workflow_id, "state": state},
             )

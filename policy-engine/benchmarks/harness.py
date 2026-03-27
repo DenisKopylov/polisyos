@@ -22,11 +22,14 @@ from __future__ import annotations
 
 import dataclasses
 import enum
+import os
 import resource
 import sys
 import time
 import traceback
 from typing import Any, Callable, Sequence
+
+_TIMEOUT_MULTIPLIER: float = float(os.environ.get("BENCH_TIMEOUT_MULTIPLIER", "1.0"))
 
 from benchmarks.metrics import (
     AccuracyMetrics,
@@ -297,9 +300,10 @@ class BenchmarkHarness:
         rss_after = _get_rss_mb()
         memory_delta = max(0.0, rss_after - rss_before)
 
-        if case.timeout_s > 0 and elapsed > case.timeout_s:
+        effective_timeout = case.timeout_s * _TIMEOUT_MULTIPLIER
+        if effective_timeout > 0 and elapsed > effective_timeout:
             verdict = Verdict.TIMEOUT
-            error_msg = f"elapsed {elapsed:.1f}s > timeout {case.timeout_s}s"
+            error_msg = f"elapsed {elapsed:.1f}s > timeout {effective_timeout:.1f}s (base {case.timeout_s}s × {_TIMEOUT_MULTIPLIER})"
 
         if result_obj is not None and case.proof_step_extractor is not None:
             try:

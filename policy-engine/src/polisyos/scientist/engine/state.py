@@ -49,4 +49,7 @@ class ExperimentState(BaseModel):
     source_verification_report_ref: ArtifactRef | None = None
     policy_option_set_ref: ArtifactRef | None = None
     verified_policy_report_ref: ArtifactRef | None = None
+    policy_output_bundle_ref: ArtifactRef | None = None
+    policy_brief_ref: ArtifactRef | None = None
+    champion_policy_dossier_ref: ArtifactRef | None = None
     memory_index_ref: ArtifactRef | None = None

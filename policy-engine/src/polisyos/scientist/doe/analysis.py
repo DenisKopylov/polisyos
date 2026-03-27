@@ -78,6 +78,7 @@ def analyze_sensitivity(
 
         s2_matrix = salib_result.get("S2")
         if s2_matrix is not None:
+            interaction_pairs: list[tuple[str, str, float]] = []
             for i, left in enumerate(names):
                 interactions: dict[str, float] = {}
                 for j, right in enumerate(names):
@@ -87,8 +88,13 @@ def analyze_sensitivity(
                     if math.isnan(value):
                         continue
                     interactions[right] = value
+                    if i < j:
+                        interaction_pairs.append((left, right, value))
                 if interactions:
                     result.s2[left] = interactions
+            # Sort by absolute S2 value descending
+            interaction_pairs.sort(key=lambda x: abs(x[2]), reverse=True)
+            result.top_interactions = interaction_pairs
         result.ranking = sorted(names, key=lambda item: result.st.get(item, 0.0), reverse=True)
         return result
 
@@ -131,9 +137,9 @@ def _prepare_analysis_inputs(
         )
 
     if plan.run_failure_policy == RunFailurePolicy.DROP_FAILED:
-        if plan.method != SensitivityMethod.MORRIS:
+        if plan.method not in (SensitivityMethod.MORRIS, SensitivityMethod.SOBOL):
             raise ValueError(
-                "DROP_FAILED is only supported for MORRIS; use IMPUTE_BASELINE for SOBOL/FAST."
+                "DROP_FAILED is only supported for MORRIS and SOBOL; use IMPUTE_BASELINE for FAST."
             )
         return samples[valid_mask], outputs[valid_mask], success_count, failed_count
 
@@ -148,9 +154,28 @@ def _prepare_analysis_inputs(
 
 
 def _plan_to_salib_problem(plan: SensitivityPlan) -> dict:
-    return {
+    from .designs import ParameterDist
+
+    problem: dict = {
         "num_vars": len(plan.parameter_specs),
         "names": [item.name for item in plan.parameter_specs],
         "bounds": [[item.lower_bound, item.upper_bound] for item in plan.parameter_specs],
     }
+    # Add distribution hints for SALib when non-uniform distributions are used
+    has_non_uniform = any(
+        p.distribution != ParameterDist.UNIFORM for p in plan.parameter_specs
+    )
+    if has_non_uniform:
+        dists: list[str] = []
+        for p in plan.parameter_specs:
+            if p.distribution == ParameterDist.NORMAL:
+                dists.append("norm")
+            elif p.distribution == ParameterDist.LOGNORMAL:
+                dists.append("lognorm")
+            elif p.distribution == ParameterDist.TRIANGULAR:
+                dists.append("triang")
+            else:
+                dists.append("unif")
+        problem["dists"] = dists
+    return problem
 

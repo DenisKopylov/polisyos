@@ -67,6 +67,9 @@ def test_build_literature_prior_node_persists_prior_and_graph(tmp_path) -> None:
             "causal_variables": ["tax", "employment"],
             "skg_db_path": str(db_path),
             "skg_index_dir": str(tmp_path / "idx"),
+            "discovery_data": [[0.0, 1.0], [0.1, 1.1], [2.0, 3.0], [2.1, 3.1]],
+            "discovery_variable_names": ["tax", "employment"],
+            "discovery_environment_labels": ["a", "a", "b", "b"],
         },
     )
 
@@ -79,6 +82,9 @@ def test_build_literature_prior_node_persists_prior_and_graph(tmp_path) -> None:
     prior = load_literature_causal_prior(ctx.store, prior_ref)
     assert len(prior.edges) == 1
     assert prior.skg_version_id == 7
+    assert prior.environment_audit is not None
+    assert prior.environment_audit.status == "ok"
+    assert outcome.state.params["environment_audit_status"] == "ok"
 
 
 def test_build_literature_prior_node_skips_without_variables(tmp_path) -> None:
@@ -88,3 +94,27 @@ def test_build_literature_prior_node_skips_without_variables(tmp_path) -> None:
     outcome = BuildLiteraturePriorNode().execute(ctx, state)
 
     assert outcome.status == "skip"
+
+
+def test_build_literature_prior_node_runs_environment_audit_when_skg_missing(tmp_path) -> None:
+    ctx = _build_ctx(tmp_path)
+    state = ExperimentState(
+        run_id="R_phase9_lit_missing_skg",
+        params={
+            "causal_variables": ["tax", "employment"],
+            "skg_db_path": str(tmp_path / "missing.duckdb"),
+            "discovery_data": [[0.0, 1.0], [0.1, 1.1], [2.0, 3.0], [2.1, 3.1]],
+            "discovery_variable_names": ["tax", "employment"],
+            "discovery_environment_labels": ["a", "a", "b", "b"],
+        },
+    )
+
+    outcome = BuildLiteraturePriorNode().execute(ctx, state)
+
+    assert outcome.status == "ok"
+    prior_ref = outcome.state.artifacts_index[ARTIFACT_LITERATURE_PRIOR_REF]
+    prior = load_literature_causal_prior(ctx.store, prior_ref)
+    assert prior.edges == []
+    assert prior.environment_audit is not None
+    assert prior.environment_audit.status == "ok"
+    assert outcome.state.params["literature_prior_warnings"]

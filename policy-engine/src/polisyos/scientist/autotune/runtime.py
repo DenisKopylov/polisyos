@@ -182,7 +182,10 @@ class SearchLoopRunner:
         initial_candidate: MutationArtifact | dict[str, Any] | None = None,
         context: dict[str, Any] | None = None,
         max_iterations: int = 10,
+        scheduler: Any | None = None,
+        dedup: Any | None = None,
     ) -> SearchResult:
+        del scheduler  # reserved for future Hyperband integration
         generator = spec.candidate_generator
         if generator is None:
             raise ValueError(f"Search loop '{spec.loop_id}' is missing a candidate generator")

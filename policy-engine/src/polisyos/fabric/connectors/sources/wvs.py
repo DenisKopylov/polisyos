@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+import logging
 import time
 from datetime import datetime, timezone
+from functools import lru_cache
+from pathlib import Path
 from typing import Any, AsyncIterator, ClassVar
 
 import pandas as pd
@@ -32,6 +35,38 @@ from polisyos.ir.connectors import (
     TrustLevel,
     capabilities_from_flags,
 )
+
+
+_log = logging.getLogger(__name__)
+
+
+@lru_cache(maxsize=1)
+def _load_wvs_registry_indicators() -> dict[str, str]:
+    """Load indicator titles from wvs_indicator_registry.yaml (wave 7 only)."""
+    try:
+        import yaml  # noqa: PLC0415
+
+        registry_path = (
+            Path(__file__).resolve().parents[5]
+            / "data"
+            / "dataset_catalog"
+            / "wvs_indicator_registry.yaml"
+        )
+        if not registry_path.exists():
+            return {}
+        with open(registry_path) as fh:
+            data = yaml.safe_load(fh)
+        indicators = data.get("indicators", {})
+        result: dict[str, str] = {}
+        for code, spec in indicators.items():
+            waves = spec.get("waves", [])
+            if 7 in waves:
+                result[code] = spec.get("title", code)
+        _log.debug("WVS registry: loaded %d wave-7 indicators", len(result))
+        return result
+    except Exception:
+        _log.warning("Failed to load WVS indicator registry, using static fallback", exc_info=True)
+        return {}
 
 
 class WVSConnector(HTTPConnectorBase[pd.DataFrame]):
@@ -191,7 +226,8 @@ class WVSConnector(HTTPConnectorBase[pd.DataFrame]):
         handle: ConnectionHandle,
     ) -> AsyncIterator[DatasetDescriptor]:
         del handle
-        for indicator_code, label in sorted(self._WAVE7_INDICATORS.items()):
+        merged = {**self._WAVE7_INDICATORS, **_load_wvs_registry_indicators()}
+        for indicator_code, label in sorted(merged.items()):
             yield DatasetDescriptor(
                 dataset_id=indicator_code,
                 name=label,

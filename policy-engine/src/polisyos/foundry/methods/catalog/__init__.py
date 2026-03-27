@@ -2,7 +2,13 @@ from __future__ import annotations
 
 from polisyos.foundry.methods.registry import MethodRegistry
 
-from .causal import ensure_causal_methods_registered
+try:
+    from .causal import ensure_causal_methods_registered
+except ModuleNotFoundError:  # pragma: no cover - defensive for partial installs
+    def ensure_causal_methods_registered(registry: MethodRegistry | None = None) -> None:
+        return None
+
+
 from .econometrics import ensure_econometric_methods_registered
 from .optimization import ensure_optimization_methods_registered
 

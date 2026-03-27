@@ -25,12 +25,12 @@ export PYTHONUNBUFFERED=1
 
 # Validate topics
 TOPICS_DIR="/data/topics"
-TOPICS_FILE=$(ls "$TOPICS_DIR"/relevant_topics_*.csv 2>/dev/null | head -1)
-if [ -z "$TOPICS_FILE" ]; then
+TOPIC_FILE_COUNT=$(ls "$TOPICS_DIR"/relevant_topics_*.csv 2>/dev/null | wc -l)
+if [ "$TOPIC_FILE_COUNT" -eq 0 ]; then
     echo "ERROR: No relevant_topics_*.csv found in $TOPICS_DIR"
     exit 1
 fi
-echo "Topics file: $TOPICS_FILE"
+echo "Topics directory: $TOPICS_DIR ($TOPIC_FILE_COUNT domain files)"
 
 # Count Gonka keys
 KEY_COUNT=0
@@ -100,6 +100,14 @@ python3 -m polisyos.academic.batch.cli run \
   --provider-circuit-breaker-reset-seconds 60 \
   --track-b-enabled \
   --track-c-enabled \
+  --fulltext-max-pdf-pages 50 \
+  --fulltext-extract-html-tables \
+  --doc-infra-enable-grobid \
+  --doc-grobid-base-url http://localhost:8070 \
+  --doc-infra-enable-pub2tei \
+  --doc-pub2tei-base-url http://localhost:8074 \
+  --doc-infra-timeout-seconds 45 \
+  --doc-infra-precedence publisher_xml,pdf,text \
   --transport-target-country-codes UA \
   --stages topic_select,harvest,parse,resolve_extract,merge_dedup,claim_adjudicate,resolve_finalize,graph_load,edge_synthesize,graph_index,transport_score,benchmark,qc \
   2>&1 | tee "$SNAPSHOT_ROOT/pipeline.log"

@@ -1,0 +1,156 @@
+"""Multi-endpoint fallback router for LLM gateway calls."""
+
+from __future__ import annotations
+
+import time
+import threading
+from dataclasses import dataclass, field
+from enum import Enum
+from typing import Any
+
+from .gateway_client import GatewayLLMClient, GatewayLLMResponse
+
+
+class EndpointHealth(str, Enum):
+    HEALTHY = "healthy"
+    DEGRADED = "degraded"
+    UNHEALTHY = "unhealthy"
+
+
+@dataclass(frozen=True)
+class EndpointConfig:
+    """Configuration for a single LLM gateway endpoint."""
+
+    url: str
+    api_key: str = ""
+    model: str = ""
+    provider_hint: str | None = None
+    priority: int = 0  # lower = higher priority
+    timeout_s: float = 60.0
+    max_retries: int = 1
+
+
+@dataclass
+class _EndpointState:
+    """Mutable health state for an endpoint."""
+
+    config: EndpointConfig
+    health: EndpointHealth = EndpointHealth.HEALTHY
+    consecutive_failures: int = 0
+    last_failure_time: float = 0.0
+    failure_threshold: int = 3
+    recovery_timeout_s: float = 60.0
+
+    def record_success(self) -> None:
+        self.consecutive_failures = 0
+        self.health = EndpointHealth.HEALTHY
+
+    def record_failure(self) -> None:
+        self.consecutive_failures += 1
+        self.last_failure_time = time.monotonic()
+        if self.consecutive_failures >= self.failure_threshold:
+            self.health = EndpointHealth.UNHEALTHY
+
+    def is_available(self) -> bool:
+        if self.health == EndpointHealth.HEALTHY:
+            return True
+        if self.health == EndpointHealth.UNHEALTHY:
+            elapsed = time.monotonic() - self.last_failure_time
+            if elapsed >= self.recovery_timeout_s:
+                self.health = EndpointHealth.DEGRADED
+                return True
+            return False
+        # DEGRADED — allow one probe request
+        return True
+
+
+class FallbackRouter:
+    """Routes LLM calls through ordered endpoints with health tracking.
+
+    Endpoints are tried in priority order (lower ``priority`` value first).
+    When an endpoint fails, the router marks it unhealthy and falls through
+    to the next one.  Unhealthy endpoints recover after ``recovery_timeout_s``.
+    """
+
+    def __init__(
+        self,
+        endpoints: list[EndpointConfig],
+        *,
+        failure_threshold: int = 3,
+        recovery_timeout_s: float = 60.0,
+        extra_headers: dict[str, str] | None = None,
+    ) -> None:
+        if not endpoints:
+            raise ValueError("At least one endpoint must be provided")
+        sorted_eps = sorted(endpoints, key=lambda e: e.priority)
+        self._states: list[_EndpointState] = [
+            _EndpointState(
+                config=ep,
+                failure_threshold=failure_threshold,
+                recovery_timeout_s=recovery_timeout_s,
+            )
+            for ep in sorted_eps
+        ]
+        self._extra_headers = dict(extra_headers or {})
+        self._lock = threading.Lock()
+
+    async def generate(
+        self,
+        *,
+        model_override: str | None = None,
+        **kwargs: Any,
+    ) -> GatewayLLMResponse:
+        """Route a generate call through available endpoints.
+
+        Falls through to the next endpoint on failure.  Raises
+        ``RuntimeError`` if all endpoints are exhausted.
+        """
+        last_error: Exception | None = None
+        for state in self._available_endpoints():
+            cfg = state.config
+            client = GatewayLLMClient(
+                base_url=cfg.url,
+                api_key=cfg.api_key,
+                model=model_override or cfg.model or kwargs.get("model", "default"),
+                timeout_s=cfg.timeout_s,
+                max_retries=cfg.max_retries,
+                provider_hint=cfg.provider_hint,
+                extra_headers=self._extra_headers,
+            )
+            try:
+                response = await client.generate(**kwargs)
+                with self._lock:
+                    state.record_success()
+                return response
+            except Exception as exc:
+                last_error = exc
+                with self._lock:
+                    state.record_failure()
+
+        raise RuntimeError(
+            "All LLM endpoints exhausted"
+        ) from last_error
+
+    def _available_endpoints(self) -> list[_EndpointState]:
+        with self._lock:
+            return [s for s in self._states if s.is_available()]
+
+    def endpoint_health(self) -> list[dict[str, Any]]:
+        """Return current health status of all endpoints."""
+        with self._lock:
+            return [
+                {
+                    "url": s.config.url,
+                    "health": s.health.value,
+                    "consecutive_failures": s.consecutive_failures,
+                    "priority": s.config.priority,
+                }
+                for s in self._states
+            ]
+
+
+__all__ = [
+    "EndpointConfig",
+    "EndpointHealth",
+    "FallbackRouter",
+]

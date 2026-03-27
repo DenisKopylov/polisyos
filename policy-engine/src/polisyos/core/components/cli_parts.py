@@ -25,6 +25,8 @@ from ._cli_replay import _cmd_replay, _cmd_resume
 from ._cli_scholar import _cmd_scholar_enrich
 from ._cli_scientist import (
     _cmd_scientist_backtest,
+    _cmd_scientist_burn_in,
+    _cmd_scientist_calibration_report,
     _cmd_scientist_sensitivity_run,
     _cmd_scientist_stress_test,
 )
@@ -46,6 +48,16 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_lex_normpack_build(args)
     if args.command == "lex" and args.lex_command == "impact":
         return _cmd_lex_impact(args)
+    if (
+        args.command == "scientist"
+        and args.scientist_command == "burn-in"
+    ):
+        return _cmd_scientist_burn_in(args)
+    if (
+        args.command == "scientist"
+        and args.scientist_command == "calibration-report"
+    ):
+        return _cmd_scientist_calibration_report(args)
     if (
         args.command == "scientist"
         and args.scientist_command == "sensitivity"
@@ -139,6 +151,18 @@ def _build_parser() -> argparse.ArgumentParser:
 
     cmd_scientist = components.add_parser("scientist")
     scientist_sub = cmd_scientist.add_subparsers(dest="scientist_command")
+
+    burn_in = scientist_sub.add_parser("burn-in")
+    burn_in.add_argument("--config", required=True, help="JSON config path")
+    burn_in.add_argument("--output", default=None)
+    burn_in.add_argument("--format", choices=["json"], default="json")
+    burn_in.add_argument("--cas-root", default=".polisyos")
+
+    calibration_report = scientist_sub.add_parser("calibration-report")
+    calibration_report.add_argument("--config", required=True, help="JSON config path")
+    calibration_report.add_argument("--output", default=None)
+    calibration_report.add_argument("--format", choices=["json", "md"], default="md")
+    calibration_report.add_argument("--cas-root", default=".polisyos")
 
     sensitivity = scientist_sub.add_parser("sensitivity")
     sensitivity_sub = sensitivity.add_subparsers(dest="scientist_sensitivity_command")

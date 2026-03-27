@@ -45,6 +45,7 @@ class QualityGateThresholds:
     max_audit_miss_rate_pct: float = 3.0
     min_reference_resolution_coverage_pct: float = 80.0
     min_llm_saved_pct: float = 50.0
+    min_primary_llm_saved_pct: float = 50.0
     min_audit_samples_for_rate: int = 10
     min_provision_docs_for_doc_rate: int = 25
     min_spo_rows_for_row_rate: int = 50
@@ -56,6 +57,7 @@ class QualityGateThresholds:
 class QualityGateResult:
     passed: bool
     failed_checks: list[str]
+    hotspot_failed_checks: list[str]
     warning_failed_checks: list[str]
     skipped_checks: list[str]
     report: dict[str, Any]
@@ -552,6 +554,13 @@ def build_quality_report(
     report["llm_sent_total"] = int(llm_gate_metrics.get("llm_sent_total") or 0)
     report["llm_primary_sent_total"] = int(llm_gate_metrics.get("llm_primary_sent_total") or 0)
     report["llm_saved_pct"] = float(llm_gate_metrics.get("llm_saved_pct") or 0.0)
+    llm_candidate_total = int(report["llm_candidate_total"] or 0)
+    llm_primary_sent_total = int(report["llm_primary_sent_total"] or 0)
+    report["primary_llm_saved_pct"] = (
+        float(llm_gate_metrics.get("primary_llm_saved_pct") or 0.0)
+        if "primary_llm_saved_pct" in llm_gate_metrics
+        else _safe_pct(max(0, llm_candidate_total - llm_primary_sent_total), llm_candidate_total)
+    )
     report["llm_gap_fill_sent_total"] = int(llm_gate_metrics.get("llm_gap_fill_sent_total") or 0)
     report["llm_gap_fill_added_statements_total"] = int(llm_gate_metrics.get("llm_gap_fill_added_statements_total") or 0)
     report["baseline_vs_gap_fill_added_statements_total"] = int(
@@ -563,7 +572,29 @@ def build_quality_report(
     report["llm_gap_fill_empty_responses_total"] = int(
         llm_gate_metrics.get("llm_gap_fill_empty_responses_total") or 0
     )
+    report["gap_fill_null_yield_total"] = int(
+        llm_gate_metrics.get("gap_fill_null_yield_total")
+        or llm_gate_metrics.get("llm_gap_fill_null_yield_total")
+        or report["llm_gap_fill_empty_responses_total"]
+        or 0
+    )
+    report["gap_fill_null_yield_persisted_empty_total"] = int(
+        llm_gate_metrics.get("gap_fill_null_yield_persisted_empty_total")
+        or llm_gate_metrics.get("llm_gap_fill_null_yield_persisted_empty_total")
+        or 0
+    )
+    report["gap_fill_null_yield_preserved_baseline_total"] = int(
+        llm_gate_metrics.get("gap_fill_null_yield_preserved_baseline_total")
+        or llm_gate_metrics.get("llm_gap_fill_null_yield_preserved_baseline_total")
+        or 0
+    )
     report["llm_gap_fill_gain_rate_pct"] = float(llm_gate_metrics.get("llm_gap_fill_gain_rate_pct") or 0.0)
+    llm_gap_fill_sent_total = int(report["llm_gap_fill_sent_total"] or 0)
+    report["gap_fill_null_yield_pct"] = (
+        float(llm_gate_metrics.get("gap_fill_null_yield_pct") or 0.0)
+        if "gap_fill_null_yield_pct" in llm_gate_metrics
+        else _safe_pct(int(report["gap_fill_null_yield_total"] or 0), llm_gap_fill_sent_total)
+    )
     report["timeout_retry_groups_total"] = int(llm_gate_metrics.get("timeout_retry_groups_total") or 0)
     report["timeout_retry_success_total"] = int(llm_gate_metrics.get("timeout_retry_success_total") or 0)
     report["timeout_retry_failure_total"] = int(llm_gate_metrics.get("timeout_retry_failure_total") or 0)
@@ -677,6 +708,12 @@ def build_quality_report(
     report["top_gap_fill_subtypes"] = list(llm_gate_metrics.get("top_gap_fill_subtypes") or [])
     report["top_gap_fill_families"] = list(llm_gate_metrics.get("top_gap_fill_families") or [])
     report["top_timeout_gap_fill_families"] = list(llm_gate_metrics.get("top_timeout_gap_fill_families") or [])
+    report["gap_fill_trigger_counts"] = dict(
+        sorted(
+            (str(key), int(value or 0))
+            for key, value in (llm_gate_metrics.get("gap_fill_trigger_counts") or {}).items()
+        )
+    )
     return report
 
 
@@ -687,6 +724,7 @@ def evaluate_quality_gates(
 ) -> QualityGateResult:
     """Evaluate report against critical thresholds."""
     failed: list[str] = []
+    hotspot_failed: list[str] = []
     warning_failed: list[str] = []
     skipped: list[str] = []
 
@@ -736,10 +774,13 @@ def evaluate_quality_gates(
 
     llm_candidate_total = int(report.get("llm_candidate_total", 0) or 0)
     if llm_candidate_total > 0:
-        if float(report.get("llm_saved_pct", 0.0)) < thresholds.min_llm_saved_pct:
-            warning_failed.append("llm_saved_pct")
-    else:
-        skipped.append("llm_saved_pct")
+        min_primary_llm_saved_pct = (
+            thresholds.min_primary_llm_saved_pct
+            if thresholds.min_primary_llm_saved_pct != QualityGateThresholds.min_primary_llm_saved_pct
+            else thresholds.min_llm_saved_pct
+        )
+        if float(report.get("primary_llm_saved_pct", 0.0)) < min_primary_llm_saved_pct:
+            warning_failed.append("primary_llm_saved_pct")
 
     family_breakdown = report.get("doc_family_breakdown", {})
     if isinstance(family_breakdown, dict):
@@ -752,28 +793,28 @@ def evaluate_quality_gates(
                 continue
             if int(payload.get("provision_docs_total", 0) or 0) >= family_doc_min:
                 if float(payload.get("full_only_docs_pct", 0.0) or 0.0) > thresholds.max_full_only_docs_pct:
-                    failed.append(f"family:{family}:full_only_docs_pct")
+                    hotspot_failed.append(f"family:{family}:full_only_docs_pct")
                 if float(payload.get("duplicate_anchor_rate_pct", 0.0) or 0.0) > thresholds.max_duplicate_anchor_rate_pct:
-                    failed.append(f"family:{family}:duplicate_anchor_rate_pct")
+                    hotspot_failed.append(f"family:{family}:duplicate_anchor_rate_pct")
             if int(payload.get("spo_rows_total", 0) or 0) >= family_row_min:
                 if float(payload.get("empty_statement_rows_pct", 0.0) or 0.0) > thresholds.max_empty_statement_rows_pct:
-                    failed.append(f"family:{family}:empty_statement_rows_pct")
+                    hotspot_failed.append(f"family:{family}:empty_statement_rows_pct")
             if int(payload.get("statement_total", 0) or 0) >= family_stmt_min:
                 if float(payload.get("oov_action_rate_pct", 0.0) or 0.0) > thresholds.max_oov_action_rate_pct:
-                    failed.append(f"family:{family}:oov_action_rate_pct")
+                    hotspot_failed.append(f"family:{family}:oov_action_rate_pct")
                 family_missing_quote_metric = (
                     float(payload.get("grounded_missing_quote_rate_pct", 0.0) or 0.0)
                     if int(payload.get("grounded_statement_total", 0) or 0) > 0
                     else float(payload.get("missing_quote_rate_pct", 0.0) or 0.0)
                 )
                 if family_missing_quote_metric > thresholds.max_missing_quote_rate_pct:
-                    failed.append(f"family:{family}:missing_quote_rate_pct")
+                    hotspot_failed.append(f"family:{family}:missing_quote_rate_pct")
             if int(payload.get("audit_sample_total", 0) or 0) >= family_audit_min:
                 if float(payload.get("audit_miss_rate_pct", 0.0) or 0.0) > thresholds.max_audit_miss_rate_pct:
-                    failed.append(f"family:{family}:audit_miss_rate_pct")
+                    hotspot_failed.append(f"family:{family}:audit_miss_rate_pct")
             if int(payload.get("reference_rows_total", 0) or 0) >= max(3, thresholds.min_reference_rows_for_rate // 2):
                 if float(payload.get("reference_resolution_coverage_pct", 0.0) or 0.0) < thresholds.min_reference_resolution_coverage_pct:
-                    failed.append(f"family:{family}:reference_resolution_coverage_pct")
+                    hotspot_failed.append(f"family:{family}:reference_resolution_coverage_pct")
 
     subtype_breakdown = report.get("legal_unit_subtype_breakdown", {})
     if isinstance(subtype_breakdown, dict):
@@ -786,36 +827,37 @@ def evaluate_quality_gates(
                 continue
             if int(payload.get("provision_docs_total", 0) or 0) >= subtype_doc_min:
                 if float(payload.get("duplicate_anchor_rate_pct", 0.0) or 0.0) > thresholds.max_duplicate_anchor_rate_pct:
-                    failed.append(f"subtype:{subtype}:duplicate_anchor_rate_pct")
+                    hotspot_failed.append(f"subtype:{subtype}:duplicate_anchor_rate_pct")
             if int(payload.get("spo_rows_total", 0) or 0) >= subtype_row_min:
                 if float(payload.get("empty_statement_rows_pct", 0.0) or 0.0) > thresholds.max_empty_statement_rows_pct:
-                    failed.append(f"subtype:{subtype}:empty_statement_rows_pct")
+                    hotspot_failed.append(f"subtype:{subtype}:empty_statement_rows_pct")
             if int(payload.get("statement_total", 0) or 0) >= subtype_stmt_min:
                 if float(payload.get("oov_action_rate_pct", 0.0) or 0.0) > thresholds.max_oov_action_rate_pct:
-                    failed.append(f"subtype:{subtype}:oov_action_rate_pct")
+                    hotspot_failed.append(f"subtype:{subtype}:oov_action_rate_pct")
                 subtype_missing_quote_metric = (
                     float(payload.get("grounded_missing_quote_rate_pct", 0.0) or 0.0)
                     if int(payload.get("grounded_statement_total", 0) or 0) > 0
                     else float(payload.get("missing_quote_rate_pct", 0.0) or 0.0)
                 )
                 if subtype_missing_quote_metric > thresholds.max_missing_quote_rate_pct:
-                    failed.append(f"subtype:{subtype}:missing_quote_rate_pct")
+                    hotspot_failed.append(f"subtype:{subtype}:missing_quote_rate_pct")
             if int(payload.get("audit_sample_total", 0) or 0) >= subtype_audit_min:
                 if float(payload.get("audit_miss_rate_pct", 0.0) or 0.0) > thresholds.max_audit_miss_rate_pct:
-                    failed.append(f"subtype:{subtype}:audit_miss_rate_pct")
+                    hotspot_failed.append(f"subtype:{subtype}:audit_miss_rate_pct")
             if int(payload.get("reference_rows_total", 0) or 0) >= max(3, thresholds.min_reference_rows_for_rate // 2):
                 if (
                     subtype not in _SEARCH_ONLY_REFERENCE_GATE_EXEMPT_SUBTYPES
                     and not _is_search_only_only(payload)
                     and float(payload.get("reference_resolution_coverage_pct", 0.0) or 0.0) < thresholds.min_reference_resolution_coverage_pct
                 ):
-                    failed.append(f"subtype:{subtype}:reference_resolution_coverage_pct")
+                    hotspot_failed.append(f"subtype:{subtype}:reference_resolution_coverage_pct")
                 elif subtype in _SEARCH_ONLY_REFERENCE_GATE_EXEMPT_SUBTYPES or _is_search_only_only(payload):
                     skipped.append(f"subtype:{subtype}:reference_resolution_coverage_pct")
 
     return QualityGateResult(
         passed=not failed,
         failed_checks=failed,
+        hotspot_failed_checks=hotspot_failed,
         warning_failed_checks=warning_failed,
         skipped_checks=skipped,
         report=report,

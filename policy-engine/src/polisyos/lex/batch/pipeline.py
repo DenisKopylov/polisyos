@@ -102,6 +102,10 @@ async def _process_spo_chunk(
         "timeout_retry_groups_total": 0,
         "timeout_retry_success_total": 0,
         "timeout_retry_failure_total": 0,
+        "retry_followup_passes_run": 0,
+        "retry_followup_pending_items_total": 0,
+        "retry_followup_recovered_items_total": 0,
+        "retry_followup_items_exhausted_total": 0,
     }
     jurisdiction_plugin = get_jurisdiction_plugin(config.jurisdiction)
 
@@ -419,22 +423,25 @@ async def _process_spo_chunk(
                 reason_codes = list(decision.reason_codes)
 
             if decision.route == "auto":
-                result = SPOExtractionResult(
-                    doc_id=doc_id,
-                    provision_anchor=span.anchor_path,
-                    provision_citation=span.citation_label,
-                    statements=deterministic.candidates,
-                    prompt_version="deterministic_spo_v1",
-                    extract_passes=0,
-                    low_confidence=deterministic.confidence < config.llm_gate_auto_conf_threshold,
-                    extraction_source="rule_auto",
-                    gate_score=decision.score,
-                    gate_reason_codes=reason_codes,
-                    **_span_signal_payload(span),
-                )
-                local_rows.append(result.model_dump(mode="json"))
-                total_spo += len(deterministic.candidates)
-                gate_stats.auto_by_code_total += len(deterministic.candidates)
+                if deterministic.candidates:
+                    result = SPOExtractionResult(
+                        doc_id=doc_id,
+                        provision_anchor=span.anchor_path,
+                        provision_citation=span.citation_label,
+                        statements=deterministic.candidates,
+                        prompt_version="deterministic_spo_v1",
+                        extract_passes=0,
+                        low_confidence=deterministic.confidence < config.llm_gate_auto_conf_threshold,
+                        extraction_source="rule_auto",
+                        gate_score=decision.score,
+                        gate_reason_codes=reason_codes,
+                        **_span_signal_payload(span),
+                    )
+                    local_rows.append(result.model_dump(mode="json"))
+                    total_spo += len(deterministic.candidates)
+                    gate_stats.auto_by_code_total += len(deterministic.candidates)
+                else:
+                    gate_stats.auto_empty_skipped_total += 1
                 continue
 
             if decision.route == "llm" and doc_llm_available:
@@ -461,6 +468,10 @@ async def _process_spo_chunk(
                 docs_for_gap_fill[doc_id] = doc
                 spans_by_doc_gap_fill.setdefault(doc_id, []).append(span)
                 gap_fill_settings_by_doc[doc_id] = routing_plan.llm_settings
+                for reason_code in gap_fill_reason_codes:
+                    gate_stats.llm_gap_fill_trigger_counts[reason_code] = int(
+                        gate_stats.llm_gap_fill_trigger_counts.get(reason_code, 0) or 0
+                    ) + 1
                 gate_meta_by_anchor_gap_fill.setdefault(doc_id, {})[span.anchor_path] = {
                     "gate_score": float(decision.score),
                     "gate_reason_codes": list(reason_codes),
@@ -519,22 +530,23 @@ async def _process_spo_chunk(
                 continue
 
             # deferred: keep deterministic rows but mark provenance and low confidence.
-            result = SPOExtractionResult(
-                doc_id=doc_id,
-                provision_anchor=span.anchor_path,
-                provision_citation=span.citation_label,
-                statements=deterministic.candidates,
-                prompt_version="deterministic_spo_v1",
-                extract_passes=0,
-                low_confidence=True,
-                low_confidence_reasons=["deferred_no_llm"],
-                extraction_source="deferred",
-                gate_score=decision.score,
-                gate_reason_codes=reason_codes,
-                **_span_signal_payload(span),
-            )
-            local_rows.append(result.model_dump(mode="json"))
-            total_spo += len(deterministic.candidates)
+            if deterministic.candidates:
+                result = SPOExtractionResult(
+                    doc_id=doc_id,
+                    provision_anchor=span.anchor_path,
+                    provision_citation=span.citation_label,
+                    statements=deterministic.candidates,
+                    prompt_version="deterministic_spo_v1",
+                    extract_passes=0,
+                    low_confidence=True,
+                    low_confidence_reasons=["deferred_no_llm"],
+                    extraction_source="deferred",
+                    gate_score=decision.score,
+                    gate_reason_codes=reason_codes,
+                    **_span_signal_payload(span),
+                )
+                local_rows.append(result.model_dump(mode="json"))
+                total_spo += len(deterministic.candidates)
             gate_stats.deferred_total += 1
             deferred_reason = next((reason for reason in reason_codes if reason), "deferred_no_llm")
             _bump_counter(gate_stats.deferred_reason_counts, deferred_reason)
@@ -555,6 +567,8 @@ async def _process_spo_chunk(
                     task_batch_size=llm_settings.task_batch_size,
                     request_batch_size=llm_settings.request_batch_size,
                     request_batch_chars=llm_settings.request_batch_chars,
+                    adaptive_batch_downshift_enabled=config.spo_adaptive_batch_downshift_enabled,
+                    adaptive_batch_soft_chars_share=config.spo_adaptive_batch_soft_chars_share,
                     group_timeout_seconds=llm_settings.group_timeout_seconds,
                     verify_mode=config.spo_verify_mode,
                     extract_mode=config.spo_extract_mode,
@@ -565,6 +579,12 @@ async def _process_spo_chunk(
                     timeout_retry_enabled=config.spo_timeout_retry_enabled,
                     timeout_retry_batch_size=config.spo_timeout_retry_batch_size,
                     timeout_retry_chars=config.spo_timeout_retry_chars,
+                    retryable_followup_passes=config.spo_retryable_followup_passes,
+                    retryable_followup_delay_seconds=config.spo_retryable_followup_delay_seconds,
+                    retryable_followup_worker_scale=config.spo_retryable_followup_worker_scale,
+                    retryable_followup_dispatch_rps_scale=config.spo_retryable_followup_dispatch_rps_scale,
+                    retryable_followup_client_rate_scale=config.spo_retryable_followup_client_rate_scale,
+                    retryable_followup_client_concurrency_scale=config.spo_retryable_followup_client_concurrency_scale,
                     telemetry=timeout_retry_telemetry,
                 )
                 total_spo += batch_spo
@@ -594,6 +614,14 @@ async def _process_spo_chunk(
                 ) + 1
             elif extraction_source == "llm_gap_fill" and int(row.get("llm_gap_fill_llm_statement_count", 0) or 0) == 0:
                 gate_stats.llm_gap_fill_empty_responses_total += 1
+                gate_stats.llm_gap_fill_null_yield_total += 1
+                statements = row.get("statements")
+                statement_count = len(statements) if isinstance(statements, list) else 0
+                baseline_count = int(row.get("baseline_statement_count", 0) or 0)
+                if statement_count == 0:
+                    gate_stats.llm_gap_fill_null_yield_persisted_empty_total += 1
+                elif baseline_count > 0:
+                    gate_stats.llm_gap_fill_null_yield_preserved_baseline_total += 1
 
         for gap_fill_settings, gap_fill_docs in _group_docs_by_spo_settings(docs_for_gap_fill, gap_fill_settings_by_doc):
             for docs_batch in _chunked(gap_fill_docs, config.spo_batch_docs):
@@ -606,6 +634,8 @@ async def _process_spo_chunk(
                     task_batch_size=gap_fill_settings.task_batch_size,
                     request_batch_size=gap_fill_settings.request_batch_size,
                     request_batch_chars=gap_fill_settings.request_batch_chars,
+                    adaptive_batch_downshift_enabled=config.spo_adaptive_batch_downshift_enabled,
+                    adaptive_batch_soft_chars_share=config.spo_adaptive_batch_soft_chars_share,
                     group_timeout_seconds=gap_fill_settings.group_timeout_seconds,
                     verify_mode=config.spo_verify_mode,
                     extract_mode=config.spo_extract_mode,
@@ -618,6 +648,12 @@ async def _process_spo_chunk(
                     timeout_retry_enabled=config.spo_timeout_retry_enabled,
                     timeout_retry_batch_size=config.spo_timeout_retry_batch_size,
                     timeout_retry_chars=config.spo_timeout_retry_chars,
+                    retryable_followup_passes=config.spo_retryable_followup_passes,
+                    retryable_followup_delay_seconds=config.spo_retryable_followup_delay_seconds,
+                    retryable_followup_worker_scale=config.spo_retryable_followup_worker_scale,
+                    retryable_followup_dispatch_rps_scale=config.spo_retryable_followup_dispatch_rps_scale,
+                    retryable_followup_client_rate_scale=config.spo_retryable_followup_client_rate_scale,
+                    retryable_followup_client_concurrency_scale=config.spo_retryable_followup_client_concurrency_scale,
                     telemetry=timeout_retry_telemetry,
                 )
                 total_spo += batch_spo
@@ -718,6 +754,8 @@ async def _process_spo_chunk(
                     task_batch_size=audit_settings.task_batch_size,
                     request_batch_size=audit_settings.request_batch_size,
                     request_batch_chars=audit_settings.request_batch_chars,
+                    adaptive_batch_downshift_enabled=config.spo_adaptive_batch_downshift_enabled,
+                    adaptive_batch_soft_chars_share=config.spo_adaptive_batch_soft_chars_share,
                     group_timeout_seconds=audit_settings.group_timeout_seconds,
                     verify_mode=config.spo_verify_mode,
                     extract_mode=config.spo_extract_mode,
@@ -729,6 +767,12 @@ async def _process_spo_chunk(
                     timeout_retry_enabled=config.spo_timeout_retry_enabled,
                     timeout_retry_batch_size=config.spo_timeout_retry_batch_size,
                     timeout_retry_chars=config.spo_timeout_retry_chars,
+                    retryable_followup_passes=config.spo_retryable_followup_passes,
+                    retryable_followup_delay_seconds=config.spo_retryable_followup_delay_seconds,
+                    retryable_followup_worker_scale=config.spo_retryable_followup_worker_scale,
+                    retryable_followup_dispatch_rps_scale=config.spo_retryable_followup_dispatch_rps_scale,
+                    retryable_followup_client_rate_scale=config.spo_retryable_followup_client_rate_scale,
+                    retryable_followup_client_concurrency_scale=config.spo_retryable_followup_client_concurrency_scale,
                     telemetry=timeout_retry_telemetry,
                 )
                 total_spo += batch_spo
@@ -758,6 +802,10 @@ async def _process_spo_chunk(
     gate_stats.timeout_retry_groups_total += int(timeout_retry_telemetry["timeout_retry_groups_total"])
     gate_stats.timeout_retry_success_total += int(timeout_retry_telemetry["timeout_retry_success_total"])
     gate_stats.timeout_retry_failure_total += int(timeout_retry_telemetry["timeout_retry_failure_total"])
+    gate_stats.retry_followup_passes_run += int(timeout_retry_telemetry["retry_followup_passes_run"])
+    gate_stats.retry_followup_pending_items_total += int(timeout_retry_telemetry["retry_followup_pending_items_total"])
+    gate_stats.retry_followup_recovered_items_total += int(timeout_retry_telemetry["retry_followup_recovered_items_total"])
+    gate_stats.retry_followup_items_exhausted_total += int(timeout_retry_telemetry["retry_followup_items_exhausted_total"])
 
     # --- Resolve dedup pending: clone SPO results for duplicate provisions ---
     if dedup_pending:
@@ -809,9 +857,10 @@ async def _process_spo_chunk(
             progress.mark_done(doc_id, "spo_extracted", content_hash=doc_hash)
 
     logger.info(
-        "LLM gate chunk: seen={} auto={} llm_sent={} gap_fill_sent={} gap_fill_added={} deferred={} skipped={} dedup={} audit_miss_rate={:.2f}%",
+        "LLM gate chunk: seen={} auto={} auto_empty_skip={} llm_sent={} gap_fill_sent={} gap_fill_added={} deferred={} skipped={} dedup={} audit_miss_rate={:.2f}%",
         gate_stats.provisions_seen,
         gate_stats.auto_by_code_total,
+        gate_stats.auto_empty_skipped_total,
         gate_stats.llm_sent_total,
         gate_stats.llm_gap_fill_sent_total,
         gate_stats.llm_gap_fill_added_statements_total,
@@ -869,11 +918,31 @@ async def run_batch_pipeline(config: BatchConfig) -> PipelineStats:
                     rate_limit_rps=config.rate_limit_rps,
                     temperature=config.llm_temperature,
                     max_retries=config.max_retries,
+                    connect_timeout_seconds=config.spo_connect_timeout_seconds,
+                    read_timeout_seconds=config.spo_read_timeout_seconds,
+                    total_timeout_seconds=config.spo_total_timeout_seconds,
+                    provider_watchdog_seconds=(
+                        None
+                        if config.spo_provider_watchdog_seconds < 0
+                        else (
+                            float(max(300, config.spo_total_timeout_seconds + 15))
+                            if config.spo_provider_watchdog_seconds == 0
+                            else float(config.spo_provider_watchdog_seconds)
+                        )
+                    ),
+                    global_concurrent_cap=config.max_concurrent_llm_global,
+                    rate_warmup_seconds=config.spo_rate_warmup_seconds,
+                    rate_warmup_start_scale=config.spo_rate_warmup_start_scale,
+                    adaptive_rate_enabled=config.spo_adaptive_rate_enabled,
+                    adaptive_rate_recovery_factor=config.spo_adaptive_rate_recovery_factor,
+                    adaptive_rate_penalty_multiplier=config.spo_adaptive_rate_penalty_multiplier,
+                    adaptive_rate_max_scale=config.spo_adaptive_rate_max_scale,
                 )
                 logger.info(
-                    "Using Gonka key pool: {} keys, approx total concurrency={}, approx total rps={:.2f}",
+                    "Using Gonka key pool: {} keys, per_key_concurrency={}, global_concurrency_cap={}, approx total rps={:.2f}",
                     len(llm_keys),
-                    len(llm_keys) * config.max_concurrent_llm,
+                    config.max_concurrent_llm,
+                    getattr(spo_client, "dispatch_worker_hint", len(llm_keys) * config.max_concurrent_llm),
                     len(llm_keys) * config.rate_limit_rps,
                 )
             else:
@@ -886,6 +955,24 @@ async def run_batch_pipeline(config: BatchConfig) -> PipelineStats:
                     rate_limit_rps=config.rate_limit_rps,
                     temperature=config.llm_temperature,
                     max_retries=config.max_retries,
+                    connect_timeout_seconds=config.spo_connect_timeout_seconds,
+                    read_timeout_seconds=config.spo_read_timeout_seconds,
+                    total_timeout_seconds=config.spo_total_timeout_seconds,
+                    provider_watchdog_seconds=(
+                        None
+                        if config.spo_provider_watchdog_seconds < 0
+                        else (
+                            float(max(300, config.spo_total_timeout_seconds + 15))
+                            if config.spo_provider_watchdog_seconds == 0
+                            else float(config.spo_provider_watchdog_seconds)
+                        )
+                    ),
+                    rate_warmup_seconds=config.spo_rate_warmup_seconds,
+                    rate_warmup_start_scale=config.spo_rate_warmup_start_scale,
+                    adaptive_rate_enabled=config.spo_adaptive_rate_enabled,
+                    adaptive_rate_recovery_factor=config.spo_adaptive_rate_recovery_factor,
+                    adaptive_rate_penalty_multiplier=config.spo_adaptive_rate_penalty_multiplier,
+                    adaptive_rate_max_scale=config.spo_adaptive_rate_max_scale,
                 )
             if config.spo_cache_enabled:
                 from polisyos.lex.batch.spo_cache import SPOCache
@@ -896,6 +983,12 @@ async def run_batch_pipeline(config: BatchConfig) -> PipelineStats:
                 logger.info("SPO response cache enabled: {}", cache_path)
             else:
                 spo_response_cache = None
+
+            if config.spo_request_log_enabled and hasattr(spo_client, "set_request_log_path"):
+                if not config.resume and config.llm_request_log_path.exists():
+                    config.llm_request_log_path.unlink()
+                spo_client.set_request_log_path(config.llm_request_log_path)
+                logger.info("SPO request logging enabled: {}", config.llm_request_log_path)
 
             logger.info(
                 "SPO extract_mode={}, verify_mode={}, skip_trivial={}, gate_mode={}",
@@ -1046,6 +1139,7 @@ async def run_batch_pipeline(config: BatchConfig) -> PipelineStats:
                 "provisions_seen": gate_stats.provisions_seen,
                 "skipped_total": gate_stats.skipped_total,
                 "auto_by_code_total": gate_stats.auto_by_code_total,
+                "auto_empty_skipped_total": gate_stats.auto_empty_skipped_total,
                 "llm_candidate_total": gate_stats.llm_candidate_total,
                 "llm_sent_total": gate_stats.llm_sent_total,
                 "llm_primary_sent_total": gate_stats.llm_primary_sent_total,
@@ -1054,11 +1148,16 @@ async def run_batch_pipeline(config: BatchConfig) -> PipelineStats:
                 "baseline_vs_gap_fill_added_statements_total": gate_stats.llm_gap_fill_added_statements_total,
                 "llm_gap_fill_timeout_fallback_total": gate_stats.llm_gap_fill_timeout_fallback_total,
                 "llm_gap_fill_empty_responses_total": gate_stats.llm_gap_fill_empty_responses_total,
+                "gap_fill_null_yield_total": gate_stats.llm_gap_fill_null_yield_total,
+                "gap_fill_null_yield_persisted_empty_total": gate_stats.llm_gap_fill_null_yield_persisted_empty_total,
+                "gap_fill_null_yield_preserved_baseline_total": gate_stats.llm_gap_fill_null_yield_preserved_baseline_total,
                 "llm_gap_fill_gain_rate_pct": round(gate_stats.gap_fill_gain_rate_pct, 3),
+                "gap_fill_null_yield_pct": round(gate_stats.gap_fill_null_yield_pct, 3),
                 "deferred_total": gate_stats.deferred_total,
                 "deferred_reason_counts": gate_stats.deferred_reason_counts,
                 "dedup_reused_total": gate_stats.dedup_reused_total,
                 "llm_saved_pct": round(gate_stats.llm_saved_pct, 3),
+                "primary_llm_saved_pct": round(gate_stats.primary_llm_saved_pct, 3),
                 "audit_sample_total": gate_stats.audit_sample_total,
                 "audit_miss_total": gate_stats.audit_miss_total,
                 "audit_miss_rate_pct": round(gate_stats.audit_miss_rate_pct, 3),
@@ -1070,6 +1169,10 @@ async def run_batch_pipeline(config: BatchConfig) -> PipelineStats:
                 "timeout_retry_groups_total": gate_stats.timeout_retry_groups_total,
                 "timeout_retry_success_total": gate_stats.timeout_retry_success_total,
                 "timeout_retry_failure_total": gate_stats.timeout_retry_failure_total,
+                "retry_followup_passes_run": gate_stats.retry_followup_passes_run,
+                "retry_followup_pending_items_total": gate_stats.retry_followup_pending_items_total,
+                "retry_followup_recovered_items_total": gate_stats.retry_followup_recovered_items_total,
+                "retry_followup_items_exhausted_total": gate_stats.retry_followup_items_exhausted_total,
                 "top_gap_fill_subtypes": [
                     {"legal_unit_subtype": subtype, "count": count}
                     for subtype, count in sorted(
@@ -1094,6 +1197,13 @@ async def run_batch_pipeline(config: BatchConfig) -> PipelineStats:
                         reverse=True,
                     )[:5]
                 ],
+                "gap_fill_trigger_counts": dict(
+                    sorted(
+                        gate_stats.llm_gap_fill_trigger_counts.items(),
+                        key=lambda item: (item[1], item[0]),
+                        reverse=True,
+                    )
+                ),
             }
             (config.output_dir / "manifests").mkdir(parents=True, exist_ok=True)
             with open(config.llm_gate_manifest_path, "w", encoding="utf-8") as fh:
@@ -1242,8 +1352,12 @@ async def run_batch_pipeline(config: BatchConfig) -> PipelineStats:
             min_reference_rows_for_rate=config.quality_min_reference_rows_for_rate,
         )
         gate = evaluate_quality_gates(report=report, thresholds=thresholds)
+        stats.quality_gate_passed = gate.passed
         stats.quality_passed = gate.passed
+        stats.quality_gate_failed_checks = list(gate.failed_checks)
         stats.quality_failed_checks = list(gate.failed_checks)
+        stats.quality_hotspot_failed_checks = list(gate.hotspot_failed_checks)
+        stats.quality_warning_failed_checks = list(gate.warning_failed_checks)
         stats.quality_skipped_checks = list(gate.skipped_checks)
         stats.quality_report = {
             key: float(value) if isinstance(value, (int, float)) else 0.0
@@ -1264,6 +1378,11 @@ async def run_batch_pipeline(config: BatchConfig) -> PipelineStats:
             logger.info("Quality checks skipped due to low sample size: {}", ", ".join(gate.skipped_checks))
         if gate.warning_failed_checks:
             logger.warning("Quality warning checks failed: {}", ", ".join(gate.warning_failed_checks))
+        if gate.hotspot_failed_checks:
+            logger.warning(
+                "Quality hotspot checks failed (triage-only): {}",
+                ", ".join(gate.hotspot_failed_checks),
+            )
         if (not gate.passed) and (not config.quality_fail_on_critical):
             logger.warning(
                 "Quality gates failed (warn-only): {}",
@@ -1318,8 +1437,26 @@ async def run_batch_pipeline(config: BatchConfig) -> PipelineStats:
             fail_fast=config.quality_fail_on_critical,
         )
         stats.stage_times["qc"] = time.monotonic() - st
+        qc_metrics = qc_report.metrics if isinstance(qc_report.metrics, dict) else {}
+        if stats.quality_gate_passed is None:
+            gate_passed = qc_metrics.get("quality_gate_passed")
+            stats.quality_gate_passed = bool(gate_passed) if gate_passed is not None else None
         if stats.quality_passed is None:
-            stats.quality_passed = qc_report.passed
+            stats.quality_passed = stats.quality_gate_passed
+        if not stats.quality_gate_failed_checks and isinstance(qc_metrics.get("quality_gate_failed_checks"), list):
+            stats.quality_gate_failed_checks = list(qc_metrics.get("quality_gate_failed_checks", []))
+            stats.quality_failed_checks = list(stats.quality_gate_failed_checks)
+        if not stats.quality_hotspot_failed_checks and isinstance(qc_metrics.get("quality_hotspot_failed_checks"), list):
+            stats.quality_hotspot_failed_checks = list(qc_metrics.get("quality_hotspot_failed_checks", []))
+        if not stats.quality_warning_failed_checks and isinstance(qc_metrics.get("quality_gate_warning_failed_checks"), list):
+            stats.quality_warning_failed_checks = list(qc_metrics.get("quality_gate_warning_failed_checks", []))
+        if not stats.quality_skipped_checks and isinstance(qc_metrics.get("quality_gate_skipped_checks"), list):
+            stats.quality_skipped_checks = list(qc_metrics.get("quality_gate_skipped_checks", []))
+        stats.qc_passed = bool(qc_metrics.get("qc_passed", qc_report.passed))
+        stats.qc_failed_checks = list(qc_metrics.get("qc_failed_checks", []))
+        release_passed = qc_metrics.get("release_passed")
+        stats.release_passed = bool(release_passed) if release_passed is not None else None
+        stats.release_failed_checks = list(qc_metrics.get("release_failed_checks", []))
 
     if "publish_bundle" in config.stages:
         st = time.monotonic()
@@ -1344,10 +1481,20 @@ async def run_batch_pipeline(config: BatchConfig) -> PipelineStats:
         "facts_normative": stats.normative_facts,
         "reference_edges": stats.reference_edges,
         "llm_gate_metrics": stats.llm_gate_metrics,
+        "llm_request_log_path": str(config.llm_request_log_path) if config.spo_request_log_enabled else "",
+        "quality_gate_passed": stats.quality_gate_passed,
         "quality_passed": stats.quality_passed,
+        "quality_gate_failed_checks": stats.quality_gate_failed_checks,
         "quality_failed_checks": stats.quality_failed_checks,
+        "quality_hotspot_failed_checks": stats.quality_hotspot_failed_checks,
+        "quality_warning_failed_checks": stats.quality_warning_failed_checks,
+        "quality_skipped_checks": stats.quality_skipped_checks,
+        "qc_passed": stats.qc_passed,
+        "qc_failed_checks": stats.qc_failed_checks,
         "benchmark_passed": stats.benchmark_passed,
         "benchmark_failed_checks": stats.benchmark_failed_checks,
+        "release_passed": stats.release_passed,
+        "release_failed_checks": stats.release_failed_checks,
     }
     with open(config.telemetry_path, "w", encoding="utf-8") as fh:
         json.dump(telemetry_payload, fh, ensure_ascii=False, indent=2)

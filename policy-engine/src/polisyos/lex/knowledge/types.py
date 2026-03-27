@@ -287,6 +287,11 @@ class SPOExtractionResult(BaseModel):
     baseline_statement_count: int = 0
     llm_gap_fill_llm_statement_count: int = 0
     llm_gap_fill_added_statement_count: int = 0
+    llm_error_class: str = ""
+    llm_error_retryable: bool = False
+    llm_error_http_status: int = 0
+    llm_error_provider_key_index: int | None = None
+    llm_error_retry_count: int = 0
 
     # Perf and usage
     latency_ms: int = 0

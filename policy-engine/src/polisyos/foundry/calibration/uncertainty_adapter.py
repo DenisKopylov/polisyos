@@ -50,6 +50,25 @@ def envelope_from_calibration_param(
     ci_lower = float(point) - z * std
     ci_upper = float(point) + z * std
 
+    metadata: dict[str, object] = {
+        "param_name": param_name,
+        "std": std,
+        "hessian_rank": unc.hessian_rank,
+        "hessian_condition": unc.hessian_condition,
+        "damping": unc.damping,
+        "method": unc.method,
+        "non_identifiable": param_name in unc.non_identifiable,
+        "covariance_row": list(unc.covariance[idx]) if idx < len(unc.covariance) else None,
+        "covariance_params": list(unc.params),
+    }
+
+    if report.identifiability is not None:
+        for p in report.identifiability.params:
+            if p.name == param_name:
+                metadata["identifiability_status"] = p.status.value
+                metadata["identifiability_eigenvalue"] = p.eigenvalue
+                break
+
     return UncertaintyEnvelope(
         point_estimate=float(point),
         confidence_interval=(ci_lower, ci_upper),
@@ -61,17 +80,7 @@ def envelope_from_calibration_param(
         sample_size=None,
         is_heuristic_ci=False,
         gate_eligible=True,
-        metadata={
-            "param_name": param_name,
-            "std": std,
-            "hessian_rank": unc.hessian_rank,
-            "hessian_condition": unc.hessian_condition,
-            "damping": unc.damping,
-            "method": unc.method,
-            "non_identifiable": param_name in unc.non_identifiable,
-            "covariance_row": list(unc.covariance[idx]) if idx < len(unc.covariance) else None,
-            "covariance_params": list(unc.params),
-        },
+        metadata=metadata,
     )
 
 

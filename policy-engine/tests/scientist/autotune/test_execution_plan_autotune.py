@@ -2,10 +2,13 @@ from __future__ import annotations
 
 import json
 
+import pytest
+
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.contracts.execution_plan import ExecutionPlan, MethodDagNode, PreflightDiagnostic, PreflightReport
 from polisyos.foundry.methods.catalog_snapshot import build_method_catalog_snapshot
 from polisyos.scientist.autotune import (
+    BenchmarkSplit,
     BenchmarkSplitManifest,
     BenchmarkSuite,
     CapabilityAwareExecutionPlanCandidateGenerator,
@@ -64,6 +67,34 @@ def test_execution_plan_params_only_preserves_method_dag_hash() -> None:
     )
 
     assert config.fixed_method_dag_hash == config.method_dag_hash
+
+
+def test_benchmark_split_manifest_supports_extended_runtime_splits() -> None:
+    manifest = BenchmarkSplitManifest(
+        suite_id="execution_plan_suite",
+        id_field="case_id",
+        selection_ids=["sel"],
+        hidden_holdout_ids=["hidden"],
+        rotating_challenge_ids=["rot"],
+        adversarial_ids=["adv"],
+        sentinel_ids=["sentinel"],
+    )
+
+    assert manifest.split_for("sel") is BenchmarkSplit.SELECTION
+    assert manifest.split_for("hidden") is BenchmarkSplit.HIDDEN_HOLDOUT
+    assert manifest.split_for("rot") is BenchmarkSplit.ROTATING_CHALLENGE
+    assert manifest.split_for("adv") is BenchmarkSplit.ADVERSARIAL
+    assert manifest.split_for("sentinel") is BenchmarkSplit.SENTINEL
+
+
+def test_benchmark_split_manifest_rejects_duplicate_assignments() -> None:
+    with pytest.raises(ValueError, match="assigned to both"):
+        BenchmarkSplitManifest(
+            suite_id="execution_plan_suite",
+            id_field="case_id",
+            selection_ids=["dup"],
+            hidden_holdout_ids=["dup"],
+        )
 
 
 def test_execution_plan_topology_step_requires_single_mutation() -> None:

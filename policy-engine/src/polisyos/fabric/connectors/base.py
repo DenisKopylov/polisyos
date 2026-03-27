@@ -162,6 +162,78 @@ class HealthStatus(BaseModel):
         return value
 
 
+class DatasetCapabilitySnapshot(BaseModel):
+    """Connector-provided dataset capability metadata for query planning."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    source: str = Field(description="Logical source name")
+    dataset_id: str = Field(description="Dataset identifier requested by the planner")
+    resolved_dataset_id: str = Field(description="Transport-resolved dataset identifier")
+    preferred_transport: str = Field(default="default", description="Recommended transport mode")
+    dimension_order: tuple[str, ...] = Field(
+        default=(),
+        description="Preferred dimension order for keyed transport APIs",
+    )
+    allowed_positions: dict[str, tuple[str, ...]] = Field(
+        default_factory=dict,
+        description="Allowed dimension members by dimension id",
+    )
+    availability_hash: str = Field(default="", description="Hash of availability/constraint metadata")
+    constraint_hash: str = Field(default="", description="Hash of content constraints")
+    estimated_cardinality: int | None = Field(
+        default=None,
+        description="Estimated number of cells for the dataset or request domain",
+    )
+    version_hint: str = Field(default="", description="Dataset version or transport revision hint")
+    last_checked_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc),
+        description="When the snapshot was produced",
+    )
+
+    @field_validator("last_checked_at", mode="after")
+    @classmethod
+    def _ensure_snapshot_tz_aware(cls, value: datetime) -> datetime:
+        if value.tzinfo is None:
+            return value.replace(tzinfo=timezone.utc)
+        return value
+
+    @field_validator("version_hint", mode="before")
+    @classmethod
+    def _normalize_version_hint(cls, value: Any) -> str:
+        if value is None:
+            return ""
+        text = str(value).strip()
+        return text
+
+
+class AsyncFetchLease(BaseModel):
+    """Lease describing an asynchronous or deferred connector fetch job."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    lease_id: str = Field(description="Stable lease identifier for resume/poll")
+    connector_id: str = Field(description="Connector that owns the lease")
+    dataset_id: str = Field(description="Dataset id associated with the async job")
+    request_key: str = Field(description="Logical request key")
+    status: str = Field(default="pending", description="Lease status")
+    poll_after_seconds: float = Field(default=5.0, ge=0.0)
+    status_url: str | None = Field(default=None)
+    download_url: str | None = Field(default=None)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+    created_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc),
+        description="When the lease was created",
+    )
+
+    @field_validator("created_at", mode="after")
+    @classmethod
+    def _ensure_lease_tz_aware(cls, value: datetime) -> datetime:
+        if value.tzinfo is None:
+            return value.replace(tzinfo=timezone.utc)
+        return value
+
+
 # ============================================================================
 # Source Connector Protocol
 # ============================================================================
@@ -212,6 +284,27 @@ class SourceConnector(Protocol[DataT]):
     ) -> dict[str, Any]:
         ...
 
+    async def describe_dataset(
+        self,
+        handle: ConnectionHandle,
+        dataset_id: str,
+    ) -> DatasetCapabilitySnapshot | None:
+        ...
+
+    async def fetch_async(
+        self,
+        handle: ConnectionHandle,
+        request: FetchRequest,
+    ) -> AsyncFetchLease:
+        ...
+
+    async def poll_async_fetch(
+        self,
+        handle: ConnectionHandle,
+        lease: AsyncFetchLease,
+    ) -> AsyncFetchLease | FetchResult[DataT]:
+        ...
+
     @classmethod
     def validate_config(cls, config: ConnectionConfig) -> "ValidationResult":
         ...
@@ -238,6 +331,46 @@ class BaseConnector(Generic[DataT]):
                 required=required,
                 available=self.capabilities,
             )
+
+    async def describe_dataset(
+        self,
+        handle: ConnectionHandle,
+        dataset_id: str,
+    ) -> DatasetCapabilitySnapshot | None:
+        del handle
+        return DatasetCapabilitySnapshot(
+            source=str(self.connector_id).split(".", 1)[0],
+            dataset_id=dataset_id,
+            resolved_dataset_id=dataset_id,
+        )
+
+    async def fetch_async(
+        self,
+        handle: ConnectionHandle,
+        request: FetchRequest,
+    ) -> AsyncFetchLease:
+        from polisyos.fabric.connectors.types import CapabilityError
+
+        del handle, request
+        raise CapabilityError(
+            connector_id=self.connector_id,
+            required=ConnectorCapability.RESUMABLE,
+            available=self.capabilities,
+        )
+
+    async def poll_async_fetch(
+        self,
+        handle: ConnectionHandle,
+        lease: AsyncFetchLease,
+    ) -> AsyncFetchLease | FetchResult[DataT]:
+        from polisyos.fabric.connectors.types import CapabilityError
+
+        del handle, lease
+        raise CapabilityError(
+            connector_id=self.connector_id,
+            required=ConnectorCapability.RESUMABLE,
+            available=self.capabilities,
+        )
 
     def _ensure_overridden(self, method_name: str) -> None:
         if getattr(type(self), method_name) is getattr(BaseConnector, method_name):

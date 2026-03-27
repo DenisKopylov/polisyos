@@ -15,6 +15,7 @@ from typing import TYPE_CHECKING
 from polisyos.scientist.agent.protocols import (
     AGENT_PROTOCOLS,
     AgentRole,
+    AgentRouter,
     CriticAgent,
     CritiqueCategory,
     CritiqueIssue,
@@ -28,6 +29,7 @@ from polisyos.scientist.agent.protocols import (
     FormalizerAgent,
     PIAgent,
     ProblemFrame,
+    RoutingState,
     SubTask,
     TaskPriority,
     TaskStatus,
@@ -233,6 +235,11 @@ def __getattr__(name: str):
         # base
         "BaseAgent": ("polisyos.scientist.agent.base", "BaseAgent"),
         "MockAgent": ("polisyos.scientist.agent.base", "MockAgent"),
+        # router
+        "FixedPipelineRouter": ("polisyos.scientist.agent.router", "FixedPipelineRouter"),
+        "AdaptiveRouter": ("polisyos.scientist.agent.router", "AdaptiveRouter"),
+        "AgentFallbackChain": ("polisyos.scientist.agent.router", "AgentFallbackChain"),
+        "ParallelAgentRunner": ("polisyos.scientist.agent.router", "ParallelAgentRunner"),
     }
 
     if name in mapping:

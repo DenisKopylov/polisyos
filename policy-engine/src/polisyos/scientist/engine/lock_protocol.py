@@ -20,6 +20,10 @@ class RunLockHandle(Protocol):
     def release(self) -> None:  # pragma: no cover - protocol
         ...
 
+    def is_alive(self) -> bool:  # pragma: no cover - protocol
+        """Return True if the lock is still actively held."""
+        ...
+
 
 @runtime_checkable
 class RunLockBackend(Protocol):
@@ -28,4 +32,8 @@ class RunLockBackend(Protocol):
     def acquire(
         self, *, run_id: str, mode: str, force: bool = False
     ) -> RunLockHandle:  # pragma: no cover - protocol
+        ...
+
+    def detect_stale(self, run_id: str) -> bool:  # pragma: no cover - protocol
+        """Return True if the lock for *run_id* appears stale."""
         ...

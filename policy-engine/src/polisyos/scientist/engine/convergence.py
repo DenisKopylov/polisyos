@@ -11,12 +11,20 @@ Strategies:
 * **semantic_similarity** — converged when ``v > threshold`` (value *is* the
   similarity score)
 * **composite** — converged when **all** sub-checks pass (absolute + relative)
+* **embedding_cosine** — converged when cosine similarity between consecutive
+  text embeddings exceeds threshold
+* **statistical_plateau** — converged when coefficient of variation in the
+  metric window is below threshold
+* **budget_projection** — converged when projected improvement over remaining
+  budget is below threshold
+* **multi_signal** — weighted combination of numeric, budget, and semantic signals
 """
 
 from __future__ import annotations
 
+import math
 from enum import Enum
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -36,6 +44,10 @@ class ConvergenceStrategy(str, Enum):
     RELATIVE_DELTA = "relative_delta"
     SEMANTIC_SIMILARITY = "semantic_similarity"
     COMPOSITE = "composite"
+    EMBEDDING_COSINE = "embedding_cosine"
+    STATISTICAL_PLATEAU = "statistical_plateau"
+    BUDGET_PROJECTION = "budget_projection"
+    MULTI_SIGNAL = "multi_signal"
 
 
 class ConvergenceConfig(BaseModel):
@@ -58,6 +70,10 @@ class ConvergenceConfig(BaseModel):
         le=1.0,
         description="Stop when remaining budget < headroom_ratio * limit",
     )
+    signal_weights: dict[str, float] = Field(
+        default_factory=lambda: {"numeric": 0.5, "budget": 0.3, "semantic": 0.2},
+        description="Weights for MULTI_SIGNAL strategy sub-signals",
+    )
 
 
 class ConvergenceState(BaseModel):
@@ -71,23 +87,58 @@ class ConvergenceState(BaseModel):
     reason: str = ""
 
 
+# ---------------------------------------------------------------------------
+# Pure-Python cosine similarity (avoids numpy dependency)
+# ---------------------------------------------------------------------------
+
+def _cosine_similarity(a: list[float], b: list[float]) -> float:
+    """Cosine similarity between two vectors."""
+    dot = sum(x * y for x, y in zip(a, b))
+    norm_a = math.sqrt(sum(x * x for x in a))
+    norm_b = math.sqrt(sum(x * x for x in b))
+    if norm_a < 1e-12 or norm_b < 1e-12:
+        return 0.0
+    return dot / (norm_a * norm_b)
+
+
+def _linear_regression_slope(values: list[float]) -> float:
+    """Ordinary least-squares slope for a sequence indexed 0..n-1."""
+    n = len(values)
+    if n < 2:
+        return 0.0
+    sum_x = n * (n - 1) / 2.0
+    sum_x2 = n * (n - 1) * (2 * n - 1) / 6.0
+    sum_y = sum(values)
+    sum_xy = sum(i * v for i, v in enumerate(values))
+    denom = n * sum_x2 - sum_x * sum_x
+    if abs(denom) < 1e-12:
+        return 0.0
+    return (n * sum_xy - sum_x * sum_y) / denom
+
+
 class ConvergenceDetector:
     """Stateful convergence detector.
 
     Call :meth:`check` after each iteration with the current metric value.
     The returned :class:`ConvergenceState` indicates whether iteration should
     stop.
+
+    For embedding-based strategies, use :meth:`check_with_text` which also
+    accepts the raw text output for embedding comparison.
     """
 
     def __init__(
         self,
         config: ConvergenceConfig,
         budget_state: "BudgetState | None" = None,
+        embedder: Any | None = None,
     ) -> None:
         self._config = config
         self._budget = budget_state
+        self._embedder = embedder
         self._history: list[float] = []
         self._iteration = 0
+        self._text_embeddings: list[list[float]] = []
 
     @property
     def config(self) -> ConvergenceConfig:
@@ -99,6 +150,36 @@ class ConvergenceDetector:
         Returns a :class:`ConvergenceState` indicating whether iteration
         should stop (``converged=True``).
         """
+        return self._do_check(metric_value)
+
+    def check_with_text(
+        self, metric_value: float, text: str | None = None,
+    ) -> ConvergenceState:
+        """Like :meth:`check` but also tracks text embeddings.
+
+        When an *embedder* was provided at construction time and *text* is not
+        ``None``, the text is embedded and stored for cosine-based convergence
+        strategies.
+        """
+        if text is not None and self._embedder is not None:
+            try:
+                emb = self._embedder.embed([text])[0]
+                self._text_embeddings.append(emb)
+            except Exception:
+                pass  # degrade gracefully
+        return self._do_check(metric_value)
+
+    def reset(self) -> None:
+        """Reset detector state for reuse."""
+        self._history.clear()
+        self._text_embeddings.clear()
+        self._iteration = 0
+
+    # ------------------------------------------------------------------
+    # Internal
+    # ------------------------------------------------------------------
+
+    def _do_check(self, metric_value: float) -> ConvergenceState:
         self._iteration += 1
         self._history.append(metric_value)
 
@@ -135,16 +216,19 @@ class ConvergenceDetector:
             converged = self._check_semantic_similarity()
         elif strategy == ConvergenceStrategy.COMPOSITE:
             converged = self._check_absolute_delta() and self._check_relative_delta()
+        elif strategy == ConvergenceStrategy.EMBEDDING_COSINE:
+            converged = self._check_embedding_cosine()
+        elif strategy == ConvergenceStrategy.STATISTICAL_PLATEAU:
+            converged = self._check_statistical_plateau()
+        elif strategy == ConvergenceStrategy.BUDGET_PROJECTION:
+            converged = self._check_budget_projection()
+        elif strategy == ConvergenceStrategy.MULTI_SIGNAL:
+            converged = self._check_multi_signal()
         else:
             converged = False
 
         reason = f"converged_{strategy.value}" if converged else ""
         return self._state(converged=converged, reason=reason)
-
-    def reset(self) -> None:
-        """Reset detector state for reuse."""
-        self._history.clear()
-        self._iteration = 0
 
     def _state(self, *, converged: bool, reason: str = "") -> ConvergenceState:
         return ConvergenceState(
@@ -153,6 +237,8 @@ class ConvergenceDetector:
             converged=converged,
             reason=reason,
         )
+
+    # -- Classic strategies ------------------------------------------------
 
     def _check_absolute_delta(self) -> bool:
         window = self._history[-self._config.window_size :]
@@ -178,3 +264,92 @@ class ConvergenceDetector:
         # For semantic similarity, the metric value IS the similarity.
         # Converged when latest value exceeds threshold.
         return self._history[-1] >= self._config.threshold
+
+    # -- New strategies (Phase 6 WS6.2) ------------------------------------
+
+    def _check_embedding_cosine(self) -> bool:
+        """Converged when consecutive text embeddings have high similarity."""
+        if len(self._text_embeddings) < 2:
+            return False
+        sim = _cosine_similarity(
+            self._text_embeddings[-1], self._text_embeddings[-2],
+        )
+        return sim >= self._config.threshold
+
+    def _check_statistical_plateau(self) -> bool:
+        """Converged when the coefficient of variation in the window is small.
+
+        Uses CV = std / |mean|.  When mean is near zero, falls back to an
+        absolute std check.
+        """
+        window = self._history[-self._config.window_size :]
+        n = len(window)
+        if n < 2:
+            return False
+        mean = sum(window) / n
+        variance = sum((x - mean) ** 2 for x in window) / n
+        std = math.sqrt(variance)
+        if abs(mean) < 1e-10:
+            # Near-zero mean: converge when std itself is small
+            return std < self._config.threshold
+        cv = std / abs(mean)
+        return cv < self._config.threshold
+
+    def _check_budget_projection(self) -> bool:
+        """Converged when projected remaining improvement is below threshold.
+
+        Fits a simple linear regression on the metric history and extrapolates
+        to estimate the total remaining improvement.
+        """
+        if len(self._history) < 3:
+            return False
+        slope = _linear_regression_slope(self._history)
+
+        # Estimate remaining iterations from budget
+        remaining_iters = self._config.max_iterations - self._iteration
+        if self._budget is not None and self._config.budget_key is not None:
+            remaining = self._budget.remaining(self._config.budget_key)
+            if remaining is not None and self._iteration > 0:
+                avg_cost = float(
+                    self._budget.spent.get(self._config.budget_key, 0)
+                ) / self._iteration
+                if avg_cost > 0:
+                    remaining_iters = min(remaining_iters, int(float(remaining) / avg_cost))
+
+        projected_improvement = abs(slope) * remaining_iters
+        return projected_improvement < self._config.threshold
+
+    def _check_multi_signal(self) -> bool:
+        """Converged when weighted sum of sub-signals exceeds threshold.
+
+        Sub-signals (each in [0, 1]):
+        - ``numeric``: 1.0 if absolute_delta converged, else 0.0
+        - ``budget``: budget_spent / budget_limit (higher = more pressure)
+        - ``semantic``: latest embedding cosine similarity (0 if unavailable)
+        """
+        weights = self._config.signal_weights
+
+        # Numeric signal
+        numeric_signal = 1.0 if self._check_absolute_delta() else 0.0
+
+        # Budget signal
+        budget_signal = 0.0
+        if self._budget is not None and self._config.budget_key is not None:
+            remaining = self._budget.remaining(self._config.budget_key)
+            limit = self._budget.limits.get(self._config.budget_key)
+            if remaining is not None and limit is not None and float(limit.max_usd) > 0:
+                budget_signal = 1.0 - float(remaining) / float(limit.max_usd)
+
+        # Semantic signal
+        semantic_signal = 0.0
+        if len(self._text_embeddings) >= 2:
+            semantic_signal = max(0.0, _cosine_similarity(
+                self._text_embeddings[-1], self._text_embeddings[-2],
+            ))
+
+        total = (
+            weights.get("numeric", 0.5) * numeric_signal
+            + weights.get("budget", 0.3) * budget_signal
+            + weights.get("semantic", 0.2) * semantic_signal
+        )
+        return total >= self._config.threshold

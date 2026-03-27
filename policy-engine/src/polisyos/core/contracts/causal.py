@@ -1,23 +1,31 @@
 from polisyos.ir.refs import (
+    AbstractionCertificateRef,
     CausalDiscoveryReportRef,
     CausalEffectReportRef,
     CausalGraphModelRef,
     CausalModelEnsembleRef,
     CausalQueryResultRef,
     CausalSensitivityResultRef,
+    FiniteStateAbstractionMapRef,
     LiteratureCausalPriorRef,
+    StrategicResponseBundleRef,
+    StrategicSCMRef,
     StructuralCausalModelSpecRef,
     TransportabilityResultRef,
 )
 
 __all__ = [
+    "AbstractionCertificateRef",
     "CausalModelEnsembleRef",
     "CausalDiscoveryReportRef",
     "CausalEffectReportRef",
     "CausalGraphModelRef",
     "CausalQueryResultRef",
     "CausalSensitivityResultRef",
+    "FiniteStateAbstractionMapRef",
     "LiteratureCausalPriorRef",
+    "StrategicResponseBundleRef",
+    "StrategicSCMRef",
     "TransportabilityResultRef",
     "StructuralCausalModelSpecRef",
 ]

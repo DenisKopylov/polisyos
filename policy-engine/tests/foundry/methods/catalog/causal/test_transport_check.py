@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 from polisyos.foundry.methods.catalog.causal.transport_check import CheckTransportability
+from polisyos.ir.analytics.causal import ProofBundle
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType
 from polisyos.ir.analytics.context import ContextProfile, IncomeLevel
+from polisyos.ir.analytics.negative_certificate import NegativeCertificate, RecoveryPlan
 from polisyos.ir.analytics.transportability import (
     SelectionDiagram,
     SNode,
@@ -119,6 +121,18 @@ def test_transport_check_non_transportable_tracks_unsupported_cases() -> None:
     assert result.unsupported_cases
     assert result.algorithm_version == "trso_v2"
     assert result.unsupported_reason == "simplified_unresolved_s_nodes"
+    assert "proof_bundle" in payload
+    assert "negative_certificate" in payload
+    assert "recovery_plan" in payload
+
+    proof_bundle = ProofBundle.model_validate(payload["proof_bundle"])
+    negative_certificate = NegativeCertificate.model_validate(payload["negative_certificate"])
+    recovery_plan = RecoveryPlan.model_validate(payload["recovery_plan"])
+
+    assert proof_bundle.proof_status == "non_identified"
+    assert negative_certificate.blocking_type.value == "s_node_unresolved"
+    assert recovery_plan.blocking_reason
+    assert "transport query" in recovery_plan.blocking_reason.lower()
 
 
 def _pag_diagram_for_probabilistic_test() -> SelectionDiagram:

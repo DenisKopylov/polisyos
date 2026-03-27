@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import math
 from enum import Enum
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -514,6 +514,24 @@ class ReconciliationDiagnostics(BaseModel):
     operators: dict[str, Any] = Field(default_factory=dict)
 
 
+class EnvironmentAuditReport(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    status: Literal["ok", "warning", "skipped", "degraded"] = "skipped"
+    n_environments: int = Field(default=0, ge=0)
+    ks_passed: bool | None = None
+    ks_rejected_variables: list[int] = Field(default_factory=list)
+    ks_p_values: dict[str, float] = Field(default_factory=dict)
+    icp_run: bool = False
+    icp_passed: bool | None = None
+    invariant_features: list[int] = Field(default_factory=list)
+    variant_features: list[int] = Field(default_factory=list)
+    icp_p_values: dict[str, float] = Field(default_factory=dict)
+    warnings: list[str] = Field(default_factory=list)
+    provenance_refs: list[str] = Field(default_factory=list)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
 class LiteratureCausalPrior(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -521,6 +539,7 @@ class LiteratureCausalPrior(BaseModel):
     edges: list[LiteratureEdgePrior] = Field(default_factory=list)
     skg_version_id: int | None = None
     skg_snapshot_ref: str | None = None
+    environment_audit: EnvironmentAuditReport | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     def to_causal_graph_model(
@@ -563,6 +582,14 @@ class LiteratureCausalPrior(BaseModel):
             metadata={
                 "skg_snapshot_ref": self.skg_snapshot_ref,
                 "literature_prior_edge_count": len(graph_edges),
+                **(
+                    {
+                        "environment_audit_status": self.environment_audit.status,
+                        "environment_audit_n_environments": self.environment_audit.n_environments,
+                    }
+                    if self.environment_audit is not None
+                    else {}
+                ),
                 **self.metadata,
             },
         )
@@ -653,6 +680,7 @@ __all__ = [
     "ClaimAdjudicationResult",
     "LiteratureEdgePrior",
     "ReconciliationDiagnostics",
+    "EnvironmentAuditReport",
     "LiteratureCausalPrior",
     "persist_article_extraction_result",
     "load_article_extraction_result",

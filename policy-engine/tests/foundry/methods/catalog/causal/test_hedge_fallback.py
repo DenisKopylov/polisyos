@@ -2,9 +2,13 @@ from __future__ import annotations
 
 import numpy as np
 
+from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.foundry.methods.catalog.causal.causal_engine import CausalEngine
+from polisyos.ir.analytics.causal import load_data_readiness_report, load_proof_bundle
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType
+from polisyos.ir.analytics.negative_certificate import load_negative_certificate
 from polisyos.ir.analytics.negative_certificate import BlockingType, EpistemicTier
+from polisyos.ir.analytics.partial_identification import load_bounds_bundle
 
 
 def _edge(src: str, dst: str, *, bidirected: bool = False) -> CausalEdge:
@@ -76,8 +80,9 @@ def _wright_data(seed: int = 0, n: int = 1000) -> dict[str, np.ndarray]:
     return {"Z": z, "W": w, "X": x, "Y": y}
 
 
-def _run_bow_arc(seed: int = 0):
-    engine = CausalEngine()
+def _run_bow_arc(tmp_path, seed: int = 0):
+    store = FileSystemCAS(tmp_path / f"cas-bow-{seed}")
+    engine = CausalEngine(artifact_store=store)
     report, bundle, cert = engine.run(
         "X",
         "Y",
@@ -88,11 +93,12 @@ def _run_bow_arc(seed: int = 0):
     assert report is None
     assert cert is not None
     assert cert.blocking_type is BlockingType.HEDGE_STRUCTURE
-    return bundle, cert
+    return store, bundle, cert
 
 
-def _run_linear_iv_hedge(seed: int = 0):
-    engine = CausalEngine()
+def _run_linear_iv_hedge(tmp_path, seed: int = 0):
+    store = FileSystemCAS(tmp_path / f"cas-linear-{seed}")
+    engine = CausalEngine(artifact_store=store)
     report, bundle, cert = engine.run(
         "X",
         "Y",
@@ -103,11 +109,12 @@ def _run_linear_iv_hedge(seed: int = 0):
     assert report is None
     assert cert is not None
     assert cert.blocking_type is BlockingType.HEDGE_STRUCTURE
-    return bundle, cert
+    return store, bundle, cert
 
 
-def _run_wright_hedge(seed: int = 0):
-    engine = CausalEngine()
+def _run_wright_hedge(tmp_path, seed: int = 0):
+    store = FileSystemCAS(tmp_path / f"cas-wright-{seed}")
+    engine = CausalEngine(artifact_store=store)
     report, bundle, cert = engine.run(
         "X",
         "Y",
@@ -118,12 +125,13 @@ def _run_wright_hedge(seed: int = 0):
     assert report is None
     assert cert is not None
     assert cert.blocking_type is BlockingType.HEDGE_STRUCTURE
-    return bundle, cert
+    return store, bundle, cert
 
 
-def test_fallback_provides_bounds_on_bow_arc() -> None:
-    _, cert = _run_bow_arc()
+def test_fallback_provides_bounds_on_bow_arc(tmp_path) -> None:
+    _, _, cert = _run_bow_arc(tmp_path)
     assert cert.partial_bounds is not None
+    assert cert.bounds_bundle is not None
     assert cert.partial_bounds.lower_bound < cert.partial_bounds.upper_bound
     assert (
         cert.partial_bounds.lower_bound,
@@ -135,18 +143,20 @@ def test_fallback_provides_bounds_on_bow_arc() -> None:
         EpistemicTier.EXACT_NONPARAMETRIC,
         EpistemicTier.PARTIAL_IDENTIFICATION,
     }
+    assert cert.recovery_plan is not None
+    assert cert.recovery_plan.candidate_actions
 
 
-def test_fallback_parametric_rescue_monotone() -> None:
-    _, cert = _run_bow_arc(seed=4)
+def test_fallback_parametric_rescue_monotone(tmp_path) -> None:
+    _, _, cert = _run_bow_arc(tmp_path, seed=4)
     assert cert.fallback_result is not None
     assert cert.fallback_result.parametric_rescue is not None
     assert cert.fallback_result.parametric_rescue.assumption == "monotone_treatment_response"
     assert cert.fallback_result.parametric_tier is EpistemicTier.ASSUMPTION_DEPENDENT
 
 
-def test_fallback_parametric_rescue_linear() -> None:
-    _, cert = _run_linear_iv_hedge(seed=11)
+def test_fallback_parametric_rescue_linear(tmp_path) -> None:
+    _, _, cert = _run_linear_iv_hedge(tmp_path, seed=11)
     assert cert.fallback_result is not None
     assert cert.fallback_result.parametric_rescue is not None
     assert cert.fallback_result.parametric_rescue.assumption == "linearity"
@@ -158,8 +168,8 @@ def test_fallback_parametric_rescue_linear() -> None:
     assert cert.fallback_result.parametric_tier is EpistemicTier.ASSUMPTION_DEPENDENT
 
 
-def test_fallback_parametric_rescue_wright_path_tracing() -> None:
-    _, cert = _run_wright_hedge(seed=17)
+def test_fallback_parametric_rescue_wright_path_tracing(tmp_path) -> None:
+    _, _, cert = _run_wright_hedge(tmp_path, seed=17)
     assert cert.fallback_result is not None
     assert cert.fallback_result.parametric_rescue is not None
     assert cert.fallback_result.parametric_rescue.assumption == "linearity"
@@ -171,8 +181,8 @@ def test_fallback_parametric_rescue_wright_path_tracing() -> None:
     assert cert.fallback_result.parametric_tier is EpistemicTier.ASSUMPTION_DEPENDENT
 
 
-def test_fallback_sensitivity_curve_monotone() -> None:
-    _, cert = _run_bow_arc(seed=1)
+def test_fallback_sensitivity_curve_monotone(tmp_path) -> None:
+    _, _, cert = _run_bow_arc(tmp_path, seed=1)
     curve = cert.quantitative_diagnostics["sensitivity_curve"]
     lowers = [point[1] for point in curve]
     uppers = [point[2] for point in curve]
@@ -180,16 +190,26 @@ def test_fallback_sensitivity_curve_monotone() -> None:
     assert uppers == sorted(uppers)
 
 
-def test_fallback_suggested_experiments() -> None:
-    _, cert = _run_bow_arc(seed=2)
+def test_fallback_suggested_experiments(tmp_path) -> None:
+    _, _, cert = _run_bow_arc(tmp_path, seed=2)
     assert cert.suggested_experiments
     assert cert.suggested_experiments[0].design_type == "RCT"
 
 
-def test_fallback_audit_trail() -> None:
-    bundle, cert = _run_bow_arc(seed=3)
+def test_fallback_audit_trail(tmp_path) -> None:
+    store, bundle, cert = _run_bow_arc(tmp_path, seed=3)
     assert bundle.run_id == "hedge-3"
     assert bundle.query_str
-    assert bundle.fallback_result is not None
+    assert bundle.proof_bundle_ref is not None
+    assert bundle.data_readiness_report_ref is not None
+    assert bundle.bounds_bundle_ref is not None
+    assert bundle.negative_certificate_ref is not None
     assert cert.quantitative_diagnostics["fallback_level"] == 4
-    assert bundle.fallback_result.fallback_level == 4
+    assert load_proof_bundle(store, bundle.proof_bundle_ref).proof_status == "non_identified"
+    assert load_data_readiness_report(store, bundle.data_readiness_report_ref).decision in {
+        "pass",
+        "warn",
+        "unknown",
+    }
+    assert load_bounds_bundle(store, bundle.bounds_bundle_ref).lower_bound == cert.bounds_bundle.lower_bound
+    assert load_negative_certificate(store, bundle.negative_certificate_ref).blocking_type is BlockingType.HEDGE_STRUCTURE

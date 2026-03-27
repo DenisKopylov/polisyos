@@ -71,6 +71,8 @@ class ChampionRegistry:
         candidate_ref: ArtifactRef,
         evaluation_ref: ArtifactRef,
         policy: PromotionPolicy,
+        *,
+        pareto_promoter: Any | None = None,
     ) -> PromotionDecision:
         evaluation = load_model_artifact(self._store, evaluation_ref, BenchmarkEvaluation)
         if not isinstance(evaluation, BenchmarkEvaluation):
@@ -196,6 +198,9 @@ class ChampionRegistry:
     def _pointer_path(self, loop_id: str) -> Path:
         return self._root / loop_id / "champion.json"
 
+    def write_pointer(self, loop_id: str, pointer: ChampionPointer) -> None:
+        self._write_pointer(loop_id, pointer)
+
     def _write_pointer(self, loop_id: str, pointer: ChampionPointer) -> None:
         path = self._pointer_path(loop_id)
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -212,4 +217,3 @@ class ChampionRegistry:
             os.fsync(tmp.fileno())
             tmp_path = Path(tmp.name)
         os.replace(tmp_path, path)
-

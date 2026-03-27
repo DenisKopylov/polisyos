@@ -15,6 +15,7 @@ import duckdb
 
 from polisyos.academic.batch.config import AcademicBatchConfig
 from polisyos.academic.knowledge.canonical_seed import CANONICAL_VARIABLES
+from polisyos.academic.knowledge.runtime_canonical_registry import runtime_canonical_names
 from polisyos.batch_common.manifest import write_stage_manifest
 from polisyos.batch_common.qc import QCCheck, QCReport, evaluate_fail_fast, write_qc_report
 from polisyos.common.logger import get_logger
@@ -22,6 +23,28 @@ from polisyos.common.logger import get_logger
 logger = get_logger(__name__)
 
 _CANONICAL_VAR_RE = re.compile(r"^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*){0,3}$")
+
+# Approved domain prefixes — any variable starting with one of these counts as canonical
+_APPROVED_DOMAIN_PREFIXES: tuple[str, ...] = (
+    "economic.", "fiscal.", "governance.", "institutional.", "social.", "demographic.",
+    "labor.", "trade.", "environmental.", "health.", "education.", "infrastructure.",
+    "political.", "migration.", "security.", "energy.", "digital.", "monetary.",
+    "justice.", "climate.", "agriculture.", "urban.", "finance.", "gender.",
+    # Extended domain prefixes for scientific/empirical topics
+    "agricultural.", "biotech.", "hospital.", "genetic.", "behavioral.", "soil.",
+    "safety.", "antibiotic.", "nutrition.", "pharmaceutical.", "industrial.",
+    "biological.", "chemical.", "ecological.", "medical.", "epidemiological.",
+    "transport.", "housing.", "water.", "food.", "marine.", "forestry.",
+)
+
+
+def _is_canonical_variable(name: str, approved_set: set[str]) -> bool:
+    """Check if a variable name is canonical — either exact match or valid domain prefix."""
+    if name in approved_set:
+        return True
+    if any(name.startswith(prefix) for prefix in _APPROVED_DOMAIN_PREFIXES):
+        return bool(_CANONICAL_VAR_RE.match(name))
+    return False
 
 
 def _approved_canonical_names(config: AcademicBatchConfig) -> set[str]:
@@ -32,6 +55,7 @@ def _approved_canonical_names(config: AcademicBatchConfig) -> set[str]:
             if child_key == "_root":
                 continue
             approved.add(f"{parent}.{child_key}")
+    approved.update(runtime_canonical_names())
     if not config.db_path.exists():
         return approved
     con = duckdb.connect(str(config.db_path), read_only=True)
@@ -175,10 +199,30 @@ def run_qc(
                     supporting_spans = claim.get("supporting_spans") if isinstance(claim.get("supporting_spans"), list) else []
                     if supporting_spans:
                         supporting_spans_total += 1
-                    cause = str(claim.get("cause") or "").strip()
-                    effect = str(claim.get("effect") or "").strip()
-                    if cause in approved_canonical_names and effect in approved_canonical_names:
-                        canonical_claim_variables += 2
+
+    # Compute canonical_claim_variable_pct from published_claims (canonicalized variables)
+    published_claims_path = config.published_claims_final_path if config.published_claims_final_path.exists() else config.published_claims_path
+    published_claims_for_canonical = 0
+    canonical_claim_variables = 0
+    if published_claims_path.exists():
+        with open(published_claims_path, "r", encoding="utf-8") as fh:
+            for line in fh:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    row = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                if not isinstance(row, dict):
+                    continue
+                published_claims_for_canonical += 1
+                cause = str(row.get("cause_text") or row.get("cause_variable") or row.get("cause") or "").strip()
+                effect = str(row.get("effect_text") or row.get("effect_variable") or row.get("effect") or "").strip()
+                if _is_canonical_variable(cause, approved_canonical_names):
+                    canonical_claim_variables += 1
+                if _is_canonical_variable(effect, approved_canonical_names):
+                    canonical_claim_variables += 1
 
     empty_abs_pct = (100.0 * empty_abstract / total) if total else 0.0
     malformed_pct = (100.0 * malformed_estimate_rows / estimates_total) if estimates_total else 0.0
@@ -192,9 +236,8 @@ def run_qc(
     metrics["extraction_modes"] = extraction_modes
     supporting_span_coverage = (supporting_spans_total / max(1, claims_total)) * 100.0 if claims_total else 0.0
     metrics["supporting_span_coverage_pct"] = round(supporting_span_coverage, 3)
-    canonical_ratio = (
-        (canonical_claim_variables / max(1, claims_total * 2)) * 100.0 if claims_total else 0.0
-    )
+    canonical_denominator = max(1, published_claims_for_canonical * 2) if published_claims_for_canonical else 1
+    canonical_ratio = (canonical_claim_variables / canonical_denominator) * 100.0 if published_claims_for_canonical else 0.0
     metrics["canonical_claim_variable_pct"] = round(canonical_ratio, 3)
 
     checks.append(

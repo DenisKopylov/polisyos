@@ -226,21 +226,25 @@ def _should_route_llm_gap_fill(
         reasons.append("single_fact_tail")
     if quality_family == "treaty_protocol" and (family_match or subtype_match):
         reasons.append("treaty_priority_family")
-    if quality_family == "appendix_heavy" and subtype in {
-        "application_requirement",
-        "core_normative_clause",
-        "approval_bundle",
-        "amendment_bundle",
-        "tariff_threshold_row",
-    }:
-        reasons.append("appendix_priority_subtype")
-    if quality_family == "law" and subtype in {
-        "core_normative_clause",
-        "temporal_clause",
-        "exception_clause",
-        "sanction_clause",
-    }:
-        reasons.append("law_priority_subtype")
+    if subtype in {"approval_bundle", "amendment_bundle"} and (family_match or subtype_match):
+        reasons.append("bundle_priority_subtype")
+    strong_appendix_signal = any(
+        (
+            det_count == 0,
+            tail_hit,
+            delegation_tail_hit,
+            bool(span.reference_bearing),
+            bool(span.threshold_bearing),
+        )
+    )
+    if quality_family == "appendix_heavy" and subtype == "core_normative_clause" and strong_appendix_signal:
+        reasons.append("appendix_core_strong_signal")
+    if subtype == "sanction_clause" and det_count <= 1:
+        reasons.append("sanction_low_det")
+    if subtype == "tariff_threshold_row" and det_count <= 1:
+        reasons.append("tariff_threshold_low_det")
+    if span.audit_miss_prone and det_count <= 1 and (family_match or subtype_match):
+        reasons.append("audit_miss_prone_low_det")
     if tail_hit:
         reasons.append("tail_marker")
     if delegation_tail_hit:
@@ -459,6 +463,24 @@ def _build_spo_doc_routing_plan(
     if not selected_spans and reasoning_spans:
         selected_spans = reasoning_spans[: min(len(reasoning_spans), max(1, base_limit))]
 
+    risky_selected_spans = [
+        span
+        for span in selected_spans
+        if (span.legal_unit_subtype or "") in {"sanction_clause", "tariff_threshold_row"}
+        or (
+            quality_family == "appendix_heavy"
+            and (span.legal_unit_subtype or "") == "core_normative_clause"
+        )
+    ]
+    if risky_selected_spans:
+        flags.append("risk_subtype_downshift")
+        llm_settings = SPOLLMSettings(
+            task_batch_size=min(llm_settings.task_batch_size, 12),
+            request_batch_size=1,
+            request_batch_chars=min(llm_settings.request_batch_chars or 2200, 2200),
+            group_timeout_seconds=llm_settings.group_timeout_seconds,
+        )
+
     if not llm_allowed:
         flags.append("deterministic_only_outlier")
 
@@ -577,9 +599,27 @@ def _check_structure_quality_gate(*, config: BatchConfig, stats: StructureQualit
     logger.warning(message)
 
 
+_MIN_PROVISION_TEXT_CHARS = 10
+"""Minimum number of non-whitespace characters for a provision to be worth
+extracting SPO from.  Provisions below this threshold are structural anchors
+with no meaningful normative content (e.g. empty table cells, stray numbers,
+or unicode-only whitespace that survives ``str.strip``)."""
+
+
+def _strip_all_whitespace(text: str) -> str:
+    """Remove ALL unicode whitespace including NBSP / zero-width chars."""
+    import re
+    return re.sub(r"\s+", "", text)
+
+
 def _should_extract_spo_from_span(span: ProvisionSpan) -> bool:
     high_precision_fallback = False
     if not span.text.strip():
+        return False
+    # Catch provisions that are structurally anchored but contain only trivial
+    # text (numbers, punctuation, invisible unicode) — these always produce
+    # empty SPO rows and inflate empty_statement_rows_pct.
+    if len(_strip_all_whitespace(span.text)) < _MIN_PROVISION_TEXT_CHARS:
         return False
     if span.is_fallback_chunk:
         subtype = (span.legal_unit_subtype or "").strip().lower()

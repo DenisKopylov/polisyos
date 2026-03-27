@@ -70,6 +70,12 @@ class BaseSearchStrategy(ABC):
             candidates.append(self.suggest(evaluations, pending=candidates))
         return candidates
 
+    def warm_start(self, evaluations: list[Evaluation]) -> None:
+        """Pre-seed the strategy with historical evaluations (default: no-op).
+
+        Subclasses override to incorporate warm-start data into their model.
+        """
+
     def update(self, evaluation: Evaluation) -> None:
         del evaluation
 

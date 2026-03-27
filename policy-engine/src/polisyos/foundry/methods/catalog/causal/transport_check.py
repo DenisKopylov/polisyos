@@ -26,6 +26,10 @@ from polisyos.ir.analytics.causal_graph import (
     GraphType,
     PAGIdentificationPolicy,
 )
+from polisyos.ir.analytics.causal import ProofBundle
+from polisyos.ir.analytics.negative_certificate import (
+    negative_certificate_from_transport_result,
+)
 from polisyos.ir.analytics.transportability import (
     SelectionDiagram,
     SNode,
@@ -125,7 +129,51 @@ class CheckTransportability:
             pag_threshold=float(params.get("pag_threshold", 0.5) or 0.5),
             pag_seed=int(params.get("pag_seed", 0) or 0),
         )
-        return {"transport_result": result.model_dump(mode="json")}
+        payload: dict[str, Any] = {"transport_result": result.model_dump(mode="json")}
+        if result.status is TransportabilityStatus.IDENTIFIED:
+            payload["proof_bundle"] = ProofBundle(
+                proof_status="identified",
+                proof_stratum="A1_extended",
+                theorem_family=str(result.algorithm_version or "transportability"),
+                completeness_regime="complete",
+                implementation_coverage="transportability_solver",
+                query_ref=str(result.query or ""),
+                proof_trace=list(result.identification_trace),
+                assumptions=[],
+                metadata={
+                    "status": result.status.value,
+                    "transport_mode": result.transport_mode.value,
+                },
+            ).model_dump(mode="json")
+            return payload
+
+        negative_certificate = negative_certificate_from_transport_result(
+            result=result,
+            treatment=str(state["query_treatment"]),
+            outcome=str(state["query_outcome"]),
+        )
+        payload["proof_bundle"] = ProofBundle(
+            proof_status="non_identified",
+            proof_stratum="A1_extended",
+            theorem_family=str(result.algorithm_version or "transportability"),
+            completeness_regime="complete",
+            implementation_coverage="transportability_solver",
+            query_ref=str(result.query or ""),
+            negative_certificate_summary=negative_certificate.to_summary(),
+            proof_trace=list(result.identification_trace),
+            assumptions=[],
+            metadata={
+                "status": result.status.value,
+                "transport_mode": result.transport_mode.value,
+                "blocking_type": negative_certificate.blocking_type.value,
+            },
+        ).model_dump(mode="json")
+        payload["negative_certificate"] = negative_certificate.model_dump(mode="json")
+        if negative_certificate.bounds_bundle is not None:
+            payload["bounds_bundle"] = negative_certificate.bounds_bundle.model_dump(mode="json")
+        if negative_certificate.recovery_plan is not None:
+            payload["recovery_plan"] = negative_certificate.recovery_plan.model_dump(mode="json")
+        return payload
 
 
 def _legacy_pure_step(state: Mapping[str, Any], params: Mapping[str, Any]) -> dict[str, Any]:

@@ -27,6 +27,7 @@ from polisyos.core.canon import content_hash as compute_content_hash
 from polisyos.fabric.connectors.base import (
     ConnectionConfig,
     ConnectionHandle,
+    DatasetCapabilitySnapshot,
     FetchRequest,
     FetchResult,
     HealthStatus,
@@ -340,6 +341,107 @@ class SDMXSourceConnector(HTTPConnectorBase[pd.DataFrame]):
             return dataflows
         return []
 
+    @staticmethod
+    def _extract_dataflow_version(body: dict[str, Any], dataset_id: str) -> str | None:
+        target = dataset_id.split(".")[-1]
+        for entry in SDMXSourceConnector._extract_dataflows(body):
+            if str(entry.get("id") or "") == target:
+                version = str(entry.get("version") or "").strip()
+                return version or None
+        return None
+
+    @staticmethod
+    def _extract_structure_dimension_order(body: dict[str, Any]) -> list[str]:
+        structure = body.get("structure", body)
+        candidate_sets = (
+            structure.get("dataStructures"),
+            structure.get("datastructures"),
+            structure.get("dataStructure"),
+            structure.get("datastructure"),
+        )
+        entries: list[dict[str, Any]] = []
+        for candidate in candidate_sets:
+            if isinstance(candidate, list):
+                entries.extend(entry for entry in candidate if isinstance(entry, dict))
+            elif isinstance(candidate, dict):
+                if all(isinstance(value, dict) for value in candidate.values()):
+                    entries.extend(value for value in candidate.values() if isinstance(value, dict))
+                else:
+                    entries.append(candidate)
+        for entry in entries:
+            components = (
+                entry.get("dataStructureComponents")
+                or entry.get("dataStructureDefinition")
+                or entry.get("components")
+                or {}
+            )
+            dimensions = components.get("dimensionList") or components.get("dimensions") or {}
+            values = dimensions.get("dimensions") or dimensions.get("dimension") or dimensions
+            if isinstance(values, list):
+                names = [str(dim.get("id") or "").strip() for dim in values if isinstance(dim, dict)]
+                names = [name for name in names if name]
+                if names:
+                    return names
+        return []
+
+    @staticmethod
+    def _extract_constraint_positions(body: dict[str, Any]) -> dict[str, list[str]]:
+        structure = body.get("structure", body)
+        constraints = (
+            structure.get("contentConstraints")
+            or structure.get("contentconstraints")
+            or structure.get("constraints")
+            or []
+        )
+        entries: list[dict[str, Any]] = []
+        if isinstance(constraints, list):
+            entries = [entry for entry in constraints if isinstance(entry, dict)]
+        elif isinstance(constraints, dict):
+            if all(isinstance(value, dict) for value in constraints.values()):
+                entries = [value for value in constraints.values() if isinstance(value, dict)]
+            else:
+                entries = [constraints]
+        allowed: dict[str, set[str]] = {}
+        for entry in entries:
+            cube_regions = entry.get("cubeRegions") or entry.get("cubeRegion") or []
+            if isinstance(cube_regions, dict):
+                cube_regions = [cube_regions]
+            for region in cube_regions:
+                if not isinstance(region, dict):
+                    continue
+                key_values = region.get("keyValues") or region.get("keyvalues") or {}
+                for dim_name, payload in key_values.items():
+                    if not isinstance(payload, dict):
+                        continue
+                    values = payload.get("values") or payload.get("value") or []
+                    if isinstance(values, dict):
+                        values = [values]
+                    bucket = allowed.setdefault(str(dim_name), set())
+                    for value in values:
+                        if isinstance(value, dict):
+                            token = str(value.get("id") or value.get("value") or "").strip()
+                        else:
+                            token = str(value).strip()
+                        if token:
+                            bucket.add(token)
+        return {
+            key: sorted(values)
+            for key, values in allowed.items()
+            if values
+        }
+
+    @staticmethod
+    def _estimate_constraint_cardinality(allowed_positions: dict[str, list[str]]) -> int:
+        if not allowed_positions:
+            return 0
+        cardinality = 1
+        for values in allowed_positions.values():
+            size = len(values)
+            if size <= 0:
+                continue
+            cardinality *= size
+        return cardinality
+
     # ------------------------------------------------------------------
     # Core fetch
     # ------------------------------------------------------------------
@@ -515,6 +617,37 @@ class SDMXSourceConnector(HTTPConnectorBase[pd.DataFrame]):
             ],
             "notes": "Schema is dynamic — dimension columns depend on the dataflow.",
         }
+
+    async def describe_dataset(
+        self,
+        handle: ConnectionHandle,
+        dataset_id: str,
+    ) -> DatasetCapabilitySnapshot:
+        cfg = handle.state.get("sdmx") or self._parse_sdmx_config(handle.config)
+        base = self._base_url(handle)
+        url = _join_url(base, cfg["dataflow_path"], cfg["agency"], dataset_id)
+        url = f"{url}?references=descendants&detail=referencepartial"
+        body, _headers, raw = await self._sdmx_request_json(
+            handle,
+            url,
+            accept="structure",
+        )
+        dimension_order = tuple(self._extract_structure_dimension_order(body))
+        allowed_positions = self._extract_constraint_positions(body)
+        constraint_hash = compute_content_hash(raw, prefix=True)
+        return DatasetCapabilitySnapshot(
+            source=str(cfg["agency"]).lower(),
+            dataset_id=dataset_id,
+            resolved_dataset_id=dataset_id,
+            preferred_transport="sdmx",
+            dimension_order=dimension_order,
+            allowed_positions=allowed_positions,
+            availability_hash=constraint_hash,
+            constraint_hash=constraint_hash,
+            estimated_cardinality=self._estimate_constraint_cardinality(allowed_positions),
+            version_hint=self._extract_dataflow_version(body, dataset_id),
+            last_checked_at=datetime.now(timezone.utc),
+        )
 
     # ------------------------------------------------------------------
     # Config validation

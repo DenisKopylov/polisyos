@@ -1,0 +1,987 @@
+{
+  "cases": [
+    {
+      "name": "composition::ministry_valid_observed_query_preserved",
+      "fragments": [
+        {
+          "fragment_id": "labor_core",
+          "graph_ref": "artifact:graph:labor_core",
+          "semantic_namespace": "policy.labor",
+          "interface_variables": ["employment_rate", "wages"],
+          "exposed_outputs": ["employment_rate", "wages"],
+          "variable_definitions": {
+            "employment_rate": "Employment rate",
+            "wages": "Average wage level"
+          },
+          "variable_units": {
+            "employment_rate": "percent",
+            "wages": "usd_per_month"
+          }
+        },
+        {
+          "fragment_id": "training",
+          "graph_ref": "artifact:graph:training",
+          "semantic_namespace": "policy.training",
+          "interface_variables": ["employment_rate", "wages"],
+          "exposed_inputs": ["employment_rate", "wages"],
+          "variable_definitions": {
+            "employment_rate": "Employment rate",
+            "wages": "Average wage level"
+          },
+          "variable_units": {
+            "employment_rate": "percent",
+            "wages": "usd_per_month"
+          }
+        }
+      ],
+      "fragment_graphs": {
+        "labor_core": {
+          "graph_type": "dag",
+          "nodes": ["schooling", "employment_rate", "wages"],
+          "edges": [
+            {"src": "schooling", "dst": "employment_rate", "mark_src": "tail", "mark_dst": "arrow", "sources": ["data"], "data_confidence": 0.82, "combined_confidence": 0.82},
+            {"src": "schooling", "dst": "wages", "mark_src": "tail", "mark_dst": "arrow", "sources": ["data"], "data_confidence": 0.8, "combined_confidence": 0.8},
+            {"src": "employment_rate", "dst": "wages", "mark_src": "tail", "mark_dst": "arrow", "sources": ["data"], "data_confidence": 0.78, "combined_confidence": 0.78}
+          ],
+          "discovery_method": "benchmark_fixture"
+        },
+        "training": {
+          "graph_type": "dag",
+          "nodes": ["employment_rate", "wages", "training_slots"],
+          "edges": [
+            {"src": "employment_rate", "dst": "training_slots", "mark_src": "tail", "mark_dst": "arrow", "sources": ["data"], "data_confidence": 0.77, "combined_confidence": 0.77}
+          ],
+          "discovery_method": "benchmark_fixture"
+        }
+      },
+      "expected_composition_status": "preserved",
+      "query": {
+        "query_type": "interventional",
+        "treatment_variable": "employment_rate",
+        "treatment_value": 1.0,
+        "outcome_variable": "wages",
+        "condition": {"schooling": 1.0}
+      },
+      "expected_query_status": "preserved"
+    },
+    {
+      "name": "composition::asymmetric_valid_stitch",
+      "fragments": [
+        {
+          "fragment_id": "a",
+          "graph_ref": "artifact:graph:a",
+          "semantic_namespace": "policy.labor",
+          "interface_variables": ["employment_rate"],
+          "exposed_outputs": ["employment_rate"],
+          "variable_definitions": {"employment_rate": "Employment rate"},
+          "variable_units": {"employment_rate": "percent"}
+        },
+        {
+          "fragment_id": "b",
+          "graph_ref": "artifact:graph:b",
+          "semantic_namespace": "policy.training",
+          "interface_variables": ["employment_rate", "wages"],
+          "exposed_inputs": ["employment_rate"],
+          "exposed_outputs": ["wages"],
+          "variable_definitions": {
+            "employment_rate": "Employment rate",
+            "wages": "Average wage level"
+          },
+          "variable_units": {
+            "employment_rate": "percent",
+            "wages": "usd_per_month"
+          }
+        }
+      ],
+      "fragment_graphs": {
+        "a": {
+          "graph_type": "dag",
+          "nodes": ["tax", "employment_rate"],
+          "edges": [
+            {"src": "tax", "dst": "employment_rate", "mark_src": "tail", "mark_dst": "arrow", "sources": ["data"], "data_confidence": 0.81, "combined_confidence": 0.81}
+          ],
+          "discovery_method": "benchmark_fixture"
+        },
+        "b": {
+          "graph_type": "dag",
+          "nodes": ["employment_rate", "wages"],
+          "edges": [
+            {"src": "employment_rate", "dst": "wages", "mark_src": "tail", "mark_dst": "arrow", "sources": ["data"], "data_confidence": 0.77, "combined_confidence": 0.77}
+          ],
+          "discovery_method": "benchmark_fixture"
+        }
+      },
+      "expected_composition_status": "preserved",
+      "use_scientist_bridge": true
+    },
+    {
+      "name": "composition::chain_valid_stitch",
+      "fragments": [
+        {
+          "fragment_id": "a",
+          "graph_ref": "artifact:graph:a",
+          "semantic_namespace": "policy.labor",
+          "interface_variables": ["employment_rate"],
+          "exposed_outputs": ["employment_rate"],
+          "variable_definitions": {"employment_rate": "Employment rate"},
+          "variable_units": {"employment_rate": "percent"}
+        },
+        {
+          "fragment_id": "b",
+          "graph_ref": "artifact:graph:b",
+          "semantic_namespace": "policy.training",
+          "interface_variables": ["employment_rate", "wages"],
+          "exposed_inputs": ["employment_rate"],
+          "exposed_outputs": ["wages"],
+          "variable_definitions": {
+            "employment_rate": "Employment rate",
+            "wages": "Average wage level"
+          },
+          "variable_units": {
+            "employment_rate": "percent",
+            "wages": "usd_per_month"
+          }
+        },
+        {
+          "fragment_id": "c",
+          "graph_ref": "artifact:graph:c",
+          "semantic_namespace": "policy.wages",
+          "interface_variables": ["wages"],
+          "exposed_inputs": ["wages"],
+          "variable_definitions": {"wages": "Average wage level"},
+          "variable_units": {"wages": "usd_per_month"}
+        }
+      ],
+      "fragment_graphs": {
+        "a": {
+          "graph_type": "dag",
+          "nodes": ["tax", "employment_rate"],
+          "edges": [
+            {"src": "tax", "dst": "employment_rate", "mark_src": "tail", "mark_dst": "arrow", "sources": ["data"], "data_confidence": 0.81, "combined_confidence": 0.81}
+          ],
+          "discovery_method": "benchmark_fixture"
+        },
+        "b": {
+          "graph_type": "dag",
+          "nodes": ["employment_rate", "wages"],
+          "edges": [
+            {"src": "employment_rate", "dst": "wages", "mark_src": "tail", "mark_dst": "arrow", "sources": ["data"], "data_confidence": 0.77, "combined_confidence": 0.77}
+          ],
+          "discovery_method": "benchmark_fixture"
+        },
+        "c": {
+          "graph_type": "dag",
+          "nodes": ["wages", "consumption"],
+          "edges": [
+            {"src": "wages", "dst": "consumption", "mark_src": "tail", "mark_dst": "arrow", "sources": ["data"], "data_confidence": 0.73, "combined_confidence": 0.73}
+          ],
+          "discovery_method": "benchmark_fixture"
+        }
+      },
+      "expected_composition_status": "preserved"
+    },
+    {
+      "name": "composition::dag_plus_admg_valid_stitch",
+      "fragments": [
+        {
+          "fragment_id": "a",
+          "graph_ref": "artifact:graph:a",
+          "semantic_namespace": "policy.labor",
+          "interface_variables": ["employment_rate"],
+          "exposed_outputs": ["employment_rate"],
+          "variable_definitions": {"employment_rate": "Employment rate"},
+          "variable_units": {"employment_rate": "percent"}
+        },
+        {
+          "fragment_id": "b",
+          "graph_ref": "artifact:graph:b",
+          "semantic_namespace": "policy.labor",
+          "interface_variables": ["employment_rate"],
+          "exposed_inputs": ["employment_rate"],
+          "variable_definitions": {"employment_rate": "Employment rate"},
+          "variable_units": {"employment_rate": "percent"}
+        }
+      ],
+      "fragment_graphs": {
+        "a": {
+          "graph_type": "dag",
+          "nodes": ["tax", "employment_rate"],
+          "edges": [
+            {"src": "tax", "dst": "employment_rate", "mark_src": "tail", "mark_dst": "arrow", "sources": ["data"], "data_confidence": 0.81, "combined_confidence": 0.81}
+          ],
+          "discovery_method": "benchmark_fixture"
+        },
+        "b": {
+          "graph_type": "admg",
+          "nodes": ["employment_rate", "latent_shock"],
+          "edges": [
+            {"src": "employment_rate", "dst": "latent_shock", "mark_src": "arrow", "mark_dst": "arrow", "sources": ["data"], "data_confidence": 0.64, "combined_confidence": 0.64}
+          ],
+          "discovery_method": "benchmark_fixture"
+        }
+      },
+      "expected_composition_status": "preserved"
+    },
+    {
+      "name": "composition::same_name_semantic_conflict",
+      "fragments": [
+        {
+          "fragment_id": "labor",
+          "graph_ref": "artifact:graph:labor",
+          "semantic_namespace": "policy.labor",
+          "interface_variables": ["rate"],
+          "exposed_outputs": ["rate"],
+          "measurement_models": {"rate": "artifact:mm:labor"},
+          "variable_definitions": {"rate": "Employment rate among working-age adults"},
+          "variable_units": {"rate": "percent"}
+        },
+        {
+          "fragment_id": "health",
+          "graph_ref": "artifact:graph:health",
+          "semantic_namespace": "policy.health",
+          "interface_variables": ["rate"],
+          "exposed_inputs": ["rate"],
+          "measurement_models": {"rate": "artifact:mm:health"},
+          "variable_definitions": {"rate": "Hospital occupancy beds"},
+          "variable_units": {"rate": "beds_per_hospital"}
+        }
+      ],
+      "fragment_graphs": {
+        "labor": {"graph_type": "dag", "nodes": ["rate"], "edges": [], "discovery_method": "benchmark_fixture"},
+        "health": {"graph_type": "dag", "nodes": ["rate"], "edges": [], "discovery_method": "benchmark_fixture"}
+      },
+      "expected_composition_status": "broken",
+      "expected_failure_types": ["alignment_incompatible"]
+    },
+    {
+      "name": "composition::disconnected_extra_fragment",
+      "fragments": [
+        {
+          "fragment_id": "a",
+          "graph_ref": "artifact:graph:a",
+          "semantic_namespace": "policy.labor",
+          "interface_variables": ["employment_rate"],
+          "exposed_outputs": ["employment_rate"],
+          "variable_definitions": {"employment_rate": "Employment rate"},
+          "variable_units": {"employment_rate": "percent"}
+        },
+        {
+          "fragment_id": "b",
+          "graph_ref": "artifact:graph:b",
+          "semantic_namespace": "policy.training",
+          "interface_variables": ["employment_rate"],
+          "exposed_inputs": ["employment_rate"],
+          "variable_definitions": {"employment_rate": "Employment rate"},
+          "variable_units": {"employment_rate": "percent"}
+        },
+        {
+          "fragment_id": "c",
+          "graph_ref": "artifact:graph:c",
+          "semantic_namespace": "policy.health",
+          "interface_variables": ["hospital_occupancy"],
+          "exposed_outputs": ["hospital_occupancy"],
+          "variable_definitions": {"hospital_occupancy": "Hospital occupancy rate"},
+          "variable_units": {"hospital_occupancy": "beds_per_hospital"}
+        }
+      ],
+      "fragment_graphs": {
+        "a": {"graph_type": "dag", "nodes": ["tax", "employment_rate"], "edges": [{"src": "tax", "dst": "employment_rate", "mark_src": "tail", "mark_dst": "arrow", "sources": ["data"], "data_confidence": 0.8, "combined_confidence": 0.8}], "discovery_method": "benchmark_fixture"},
+        "b": {"graph_type": "dag", "nodes": ["employment_rate", "wages"], "edges": [{"src": "employment_rate", "dst": "wages", "mark_src": "tail", "mark_dst": "arrow", "sources": ["data"], "data_confidence": 0.78, "combined_confidence": 0.78}], "discovery_method": "benchmark_fixture"},
+        "c": {"graph_type": "dag", "nodes": ["hospital_occupancy"], "edges": [], "discovery_method": "benchmark_fixture"}
+      },
+      "expected_composition_status": "broken",
+      "expected_failure_types": ["fragment_topology_disconnected"],
+      "use_scientist_bridge": true
+    },
+    {
+      "name": "composition::unrelated_interface_mismatch",
+      "fragments": [
+        {
+          "fragment_id": "labor",
+          "graph_ref": "artifact:graph:labor",
+          "semantic_namespace": "policy.labor",
+          "interface_variables": ["employment_rate"],
+          "exposed_outputs": ["employment_rate"],
+          "variable_definitions": {"employment_rate": "Employment rate"},
+          "variable_units": {"employment_rate": "percent"}
+        },
+        {
+          "fragment_id": "health",
+          "graph_ref": "artifact:graph:health",
+          "semantic_namespace": "policy.health",
+          "interface_variables": ["hospital_occupancy"],
+          "exposed_inputs": ["hospital_occupancy"],
+          "variable_definitions": {"hospital_occupancy": "Hospital occupancy rate"},
+          "variable_units": {"hospital_occupancy": "beds_per_hospital"}
+        }
+      ],
+      "fragment_graphs": {
+        "labor": {"graph_type": "dag", "nodes": ["employment_rate"], "edges": [], "discovery_method": "benchmark_fixture"},
+        "health": {"graph_type": "dag", "nodes": ["hospital_occupancy"], "edges": [], "discovery_method": "benchmark_fixture"}
+      },
+      "expected_composition_status": "broken",
+      "expected_failure_types": ["alignment_incompatible"]
+    },
+    {
+      "name": "composition::unobserved_interface_reject",
+      "fragments": [
+        {
+          "fragment_id": "a",
+          "graph_ref": "artifact:graph:a",
+          "semantic_namespace": "policy.labor",
+          "interface_variables": ["employment_rate"],
+          "exposed_outputs": ["employment_rate"],
+          "latent_summary": {"employment_rate": "latent proxy"}
+        },
+        {
+          "fragment_id": "b",
+          "graph_ref": "artifact:graph:b",
+          "semantic_namespace": "policy.labor",
+          "interface_variables": ["employment_rate"],
+          "exposed_inputs": ["employment_rate"]
+        }
+      ],
+      "fragment_graphs": {
+        "a": {"graph_type": "dag", "nodes": ["employment_rate"], "edges": [], "discovery_method": "benchmark_fixture"},
+        "b": {"graph_type": "dag", "nodes": ["employment_rate"], "edges": [], "discovery_method": "benchmark_fixture"}
+      },
+      "expected_composition_status": "broken",
+      "expected_needs_expert_review": true,
+      "expected_failure_types": ["unobserved_interface"]
+    },
+    {
+      "name": "composition::cycle_reject",
+      "fragments": [
+        {
+          "fragment_id": "a",
+          "graph_ref": "artifact:graph:a",
+          "semantic_namespace": "policy.labor",
+          "interface_variables": ["x", "y"],
+          "exposed_outputs": ["x", "y"],
+          "variable_definitions": {"x": "Labor market state", "y": "Wage outcome"}
+        },
+        {
+          "fragment_id": "b",
+          "graph_ref": "artifact:graph:b",
+          "semantic_namespace": "policy.labor",
+          "interface_variables": ["x", "y"],
+          "exposed_inputs": ["x", "y"],
+          "variable_definitions": {"x": "Labor market state", "y": "Wage outcome"}
+        }
+      ],
+      "fragment_graphs": {
+        "a": {
+          "graph_type": "dag",
+          "nodes": ["x", "y"],
+          "edges": [
+            {"src": "x", "dst": "y", "mark_src": "tail", "mark_dst": "arrow", "sources": ["data"], "data_confidence": 0.8, "combined_confidence": 0.8}
+          ],
+          "discovery_method": "benchmark_fixture"
+        },
+        "b": {
+          "graph_type": "dag",
+          "nodes": ["x", "y"],
+          "edges": [
+            {"src": "y", "dst": "x", "mark_src": "tail", "mark_dst": "arrow", "sources": ["data"], "data_confidence": 0.75, "combined_confidence": 0.75}
+          ],
+          "discovery_method": "benchmark_fixture"
+        }
+      },
+      "expected_composition_status": "broken",
+      "expected_needs_expert_review": true,
+      "expected_failure_types": ["directed_cycle"]
+    },
+    {
+      "name": "composition::proxy_deferred_review",
+      "fragments": [
+        {
+          "fragment_id": "gov_a",
+          "graph_ref": "artifact:graph:gov_a",
+          "semantic_namespace": "policy.governance",
+          "interface_variables": ["RL.EST"],
+          "exposed_outputs": ["RL.EST"],
+          "variable_definitions": {"RL.EST": "Rule of law estimate"}
+        },
+        {
+          "fragment_id": "gov_b",
+          "graph_ref": "artifact:graph:gov_b",
+          "semantic_namespace": "policy.governance",
+          "interface_variables": ["GE.EST"],
+          "exposed_inputs": ["GE.EST"],
+          "variable_definitions": {"GE.EST": "Government effectiveness estimate"}
+        }
+      ],
+      "fragment_graphs": {
+        "gov_a": {
+          "graph_type": "dag",
+          "nodes": ["tax", "RL.EST"],
+          "edges": [
+            {"src": "tax", "dst": "RL.EST", "mark_src": "tail", "mark_dst": "arrow", "sources": ["data"], "data_confidence": 0.8, "combined_confidence": 0.8}
+          ],
+          "discovery_method": "benchmark_fixture"
+        },
+        "gov_b": {
+          "graph_type": "dag",
+          "nodes": ["GE.EST", "wages"],
+          "edges": [
+            {"src": "GE.EST", "dst": "wages", "mark_src": "tail", "mark_dst": "arrow", "sources": ["data"], "data_confidence": 0.7, "combined_confidence": 0.7}
+          ],
+          "discovery_method": "benchmark_fixture"
+        }
+      },
+      "expected_composition_status": "deferred",
+      "expected_needs_expert_review": true,
+      "expected_failure_types": ["proxy_alignment_pending_review"],
+      "use_scientist_bridge": true
+    },
+    {
+      "name": "composition::pending_latent_bridge_deferred",
+      "fragments": [
+        {
+          "fragment_id": "a",
+          "graph_ref": "artifact:graph:a",
+          "semantic_namespace": "policy.labor",
+          "interface_variables": ["x"],
+          "exposed_outputs": ["x"],
+          "variable_definitions": {"x": "Labor market state"}
+        },
+        {
+          "fragment_id": "b",
+          "graph_ref": "artifact:graph:b",
+          "semantic_namespace": "policy.labor",
+          "interface_variables": ["x"],
+          "exposed_inputs": ["x"],
+          "variable_definitions": {"x": "Labor market state"}
+        }
+      ],
+      "fragment_graphs": {
+        "a": {
+          "graph_type": "dag",
+          "nodes": ["x", "y"],
+          "edges": [
+            {"src": "x", "dst": "y", "mark_src": "tail", "mark_dst": "arrow", "sources": ["data"], "data_confidence": 0.8, "combined_confidence": 0.8}
+          ],
+          "discovery_method": "benchmark_fixture"
+        },
+        "b": {
+          "graph_type": "dag",
+          "nodes": ["x", "z"],
+          "edges": [
+            {"src": "x", "dst": "z", "mark_src": "tail", "mark_dst": "arrow", "sources": ["data"], "data_confidence": 0.7, "combined_confidence": 0.7}
+          ],
+          "discovery_method": "benchmark_fixture"
+        }
+      },
+      "config": {
+        "explicit_latent_bridges": {"a:x|b:x": "artifact:latent:x"}
+      },
+      "expected_composition_status": "deferred",
+      "expected_needs_expert_review": true,
+      "expected_failure_types": ["latent_bridge_pending_review"]
+    },
+    {
+      "name": "composition::ontology_warning_non_blocking",
+      "fragments": [
+        {
+          "fragment_id": "labor",
+          "graph_ref": "artifact:graph:labor",
+          "semantic_namespace": "policy.labor",
+          "interface_variables": ["employment_rate"],
+          "exposed_outputs": ["employment_rate"],
+          "variable_definitions": {"employment_rate": "Employment rate"},
+          "variable_units": {"employment_rate": "percent"}
+        },
+        {
+          "fragment_id": "health",
+          "graph_ref": "artifact:graph:health",
+          "semantic_namespace": "policy.health",
+          "interface_variables": ["employment_rate"],
+          "exposed_inputs": ["employment_rate"],
+          "variable_definitions": {"employment_rate": "Employment rate"},
+          "variable_units": {"employment_rate": "percent"}
+        }
+      ],
+      "fragment_graphs": {
+        "labor": {"graph_type": "dag", "nodes": ["employment_rate", "tax"], "edges": [{"src": "tax", "dst": "employment_rate", "mark_src": "tail", "mark_dst": "arrow", "sources": ["data"], "data_confidence": 0.8, "combined_confidence": 0.8}], "discovery_method": "benchmark_fixture"},
+        "health": {"graph_type": "dag", "nodes": ["employment_rate", "wages"], "edges": [{"src": "employment_rate", "dst": "wages", "mark_src": "tail", "mark_dst": "arrow", "sources": ["data"], "data_confidence": 0.8, "combined_confidence": 0.8}], "discovery_method": "benchmark_fixture"}
+      },
+      "ontology": [
+        {
+          "concept_id": "concept.labor.employment",
+          "concept_kind": "variable",
+          "label": "Labor employment rate",
+          "join_keys": {"namespace": ["policy.labor"], "variable": ["employment_rate"]}
+        },
+        {
+          "concept_id": "concept.health.employment",
+          "concept_kind": "variable",
+          "label": "Health employment rate",
+          "join_keys": {"namespace": ["policy.health"], "variable": ["employment_rate"]}
+        }
+      ],
+      "expected_composition_status": "preserved",
+      "expected_ontology_warning": true,
+      "expected_failure_types": ["ontology_warning"]
+    },
+    {
+      "name": "composition::query_unknown_counterfactual",
+      "fragments": [
+        {
+          "fragment_id": "core",
+          "graph_ref": "artifact:graph:core",
+          "semantic_namespace": "policy.labor",
+          "interface_variables": ["employment_rate", "wages"],
+          "exposed_outputs": ["employment_rate", "wages"],
+          "variable_definitions": {"employment_rate": "Employment rate", "wages": "Average wage level"},
+          "variable_units": {"employment_rate": "percent", "wages": "usd_per_month"}
+        },
+        {
+          "fragment_id": "training",
+          "graph_ref": "artifact:graph:training",
+          "semantic_namespace": "policy.training",
+          "interface_variables": ["employment_rate", "wages"],
+          "exposed_inputs": ["employment_rate", "wages"],
+          "variable_definitions": {"employment_rate": "Employment rate", "wages": "Average wage level"},
+          "variable_units": {"employment_rate": "percent", "wages": "usd_per_month"}
+        }
+      ],
+      "fragment_graphs": {
+        "core": {
+          "graph_type": "dag",
+          "nodes": ["schooling", "employment_rate", "wages"],
+          "edges": [
+            {"src": "schooling", "dst": "employment_rate", "mark_src": "tail", "mark_dst": "arrow", "sources": ["data"], "data_confidence": 0.82, "combined_confidence": 0.82},
+            {"src": "schooling", "dst": "wages", "mark_src": "tail", "mark_dst": "arrow", "sources": ["data"], "data_confidence": 0.8, "combined_confidence": 0.8}
+          ],
+          "discovery_method": "benchmark_fixture"
+        },
+        "training": {
+          "graph_type": "dag",
+          "nodes": ["employment_rate", "wages", "training_slots"],
+          "edges": [
+            {"src": "employment_rate", "dst": "training_slots", "mark_src": "tail", "mark_dst": "arrow", "sources": ["data"], "data_confidence": 0.77, "combined_confidence": 0.77}
+          ],
+          "discovery_method": "benchmark_fixture"
+        }
+      },
+      "expected_composition_status": "preserved",
+      "query": {
+        "query_type": "counterfactual",
+        "treatment_variable": "employment_rate",
+        "treatment_value": 1.0,
+        "outcome_variable": "wages",
+        "condition": {"schooling": 1.0}
+      },
+      "expected_query_status": "unknown"
+    },
+    {
+      "name": "composition::query_broken_adjustment",
+      "fragments": [
+        {
+          "fragment_id": "core",
+          "graph_ref": "artifact:graph:core",
+          "semantic_namespace": "policy.labor",
+          "interface_variables": ["schooling", "employment_rate", "wages"],
+          "exposed_outputs": ["schooling", "employment_rate", "wages"],
+          "variable_definitions": {
+            "schooling": "Years of schooling",
+            "employment_rate": "Employment rate",
+            "wages": "Average wage level"
+          },
+          "variable_units": {
+            "schooling": "years",
+            "employment_rate": "percent",
+            "wages": "usd_per_month"
+          }
+        },
+        {
+          "fragment_id": "aid",
+          "graph_ref": "artifact:graph:aid",
+          "semantic_namespace": "policy.aid",
+          "interface_variables": ["schooling", "employment_rate", "wages"],
+          "exposed_inputs": ["schooling", "employment_rate", "wages"],
+          "variable_definitions": {
+            "schooling": "Years of schooling",
+            "employment_rate": "Employment rate",
+            "wages": "Average wage level"
+          },
+          "variable_units": {
+            "schooling": "years",
+            "employment_rate": "percent",
+            "wages": "usd_per_month"
+          }
+        }
+      ],
+      "fragment_graphs": {
+        "core": {
+          "graph_type": "dag",
+          "nodes": ["schooling", "employment_rate", "wages"],
+          "edges": [
+            {"src": "employment_rate", "dst": "wages", "mark_src": "tail", "mark_dst": "arrow", "sources": ["data"], "data_confidence": 0.78, "combined_confidence": 0.78}
+          ],
+          "discovery_method": "benchmark_fixture"
+        },
+        "aid": {
+          "graph_type": "dag",
+          "nodes": ["schooling", "employment_rate", "wages"],
+          "edges": [
+            {"src": "employment_rate", "dst": "schooling", "mark_src": "tail", "mark_dst": "arrow", "sources": ["data"], "data_confidence": 0.72, "combined_confidence": 0.72}
+          ],
+          "discovery_method": "benchmark_fixture"
+        }
+      },
+      "expected_composition_status": "preserved",
+      "query": {
+        "query_type": "interventional",
+        "treatment_variable": "employment_rate",
+        "treatment_value": 1.0,
+        "outcome_variable": "wages",
+        "condition": {"schooling": 1.0}
+      },
+      "expected_query_status": "broken"
+    },
+    {
+      "name": "composition::human_verified_proxy_preserved",
+      "fragments": [
+        {
+          "fragment_id": "gov_a",
+          "graph_ref": "artifact:graph:gov_a",
+          "semantic_namespace": "policy.governance",
+          "interface_variables": ["RL.EST"],
+          "exposed_outputs": ["RL.EST"],
+          "variable_definitions": {"RL.EST": "Rule of law estimate"}
+        },
+        {
+          "fragment_id": "gov_b",
+          "graph_ref": "artifact:graph:gov_b",
+          "semantic_namespace": "policy.governance",
+          "interface_variables": ["GE.EST"],
+          "exposed_inputs": ["GE.EST"],
+          "variable_definitions": {"GE.EST": "Government effectiveness estimate"}
+        }
+      ],
+      "fragment_graphs": {
+        "gov_a": {
+          "graph_type": "dag",
+          "nodes": ["tax", "RL.EST"],
+          "edges": [
+            {"src": "tax", "dst": "RL.EST", "mark_src": "tail", "mark_dst": "arrow", "sources": ["data"], "data_confidence": 0.8, "combined_confidence": 0.8}
+          ],
+          "discovery_method": "benchmark_fixture"
+        },
+        "gov_b": {
+          "graph_type": "dag",
+          "nodes": ["GE.EST", "wages"],
+          "edges": [
+            {"src": "GE.EST", "dst": "wages", "mark_src": "tail", "mark_dst": "arrow", "sources": ["data"], "data_confidence": 0.7, "combined_confidence": 0.7}
+          ],
+          "discovery_method": "benchmark_fixture"
+        }
+      },
+      "config": {
+        "human_verified_pairs": ["gov_a:RL.EST|gov_b:GE.EST"]
+      },
+      "expected_composition_status": "preserved"
+    },
+    {
+      "name": "composition::human_verified_latent_bridge_preserved_query_unknown",
+      "fragments": [
+        {
+          "fragment_id": "a",
+          "graph_ref": "artifact:graph:a",
+          "semantic_namespace": "policy.labor",
+          "interface_variables": ["x", "y"],
+          "exposed_outputs": ["x", "y"],
+          "variable_definitions": {"x": "Labor market state", "y": "Wage outcome"}
+        },
+        {
+          "fragment_id": "b",
+          "graph_ref": "artifact:graph:b",
+          "semantic_namespace": "policy.labor",
+          "interface_variables": ["x", "y"],
+          "exposed_inputs": ["x", "y"],
+          "variable_definitions": {"x": "Labor market state", "y": "Wage outcome"}
+        }
+      ],
+      "fragment_graphs": {
+        "a": {
+          "graph_type": "dag",
+          "nodes": ["schooling", "x", "y"],
+          "edges": [
+            {"src": "schooling", "dst": "x", "mark_src": "tail", "mark_dst": "arrow", "sources": ["data"], "data_confidence": 0.82, "combined_confidence": 0.82},
+            {"src": "schooling", "dst": "y", "mark_src": "tail", "mark_dst": "arrow", "sources": ["data"], "data_confidence": 0.8, "combined_confidence": 0.8},
+            {"src": "x", "dst": "y", "mark_src": "tail", "mark_dst": "arrow", "sources": ["data"], "data_confidence": 0.78, "combined_confidence": 0.78}
+          ],
+          "discovery_method": "benchmark_fixture"
+        },
+        "b": {
+          "graph_type": "dag",
+          "nodes": ["x", "y", "spill"],
+          "edges": [
+            {"src": "x", "dst": "spill", "mark_src": "tail", "mark_dst": "arrow", "sources": ["data"], "data_confidence": 0.74, "combined_confidence": 0.74}
+          ],
+          "discovery_method": "benchmark_fixture"
+        }
+      },
+      "config": {
+        "explicit_latent_bridges": {
+          "a:x|b:x": "artifact:latent:x",
+          "a:y|b:y": "artifact:latent:y"
+        },
+        "human_verified_pairs": ["a:x|b:x", "a:y|b:y"]
+      },
+      "expected_composition_status": "preserved",
+      "query": {
+        "query_type": "interventional",
+        "treatment_variable": "x",
+        "treatment_value": 1.0,
+        "outcome_variable": "y",
+        "condition": {"schooling": 1.0}
+      },
+      "expected_query_status": "unknown"
+    },
+    {
+      "name": "composition::chain_query_preserved",
+      "fragments": [
+        {
+          "fragment_id": "a",
+          "graph_ref": "artifact:graph:a",
+          "semantic_namespace": "policy.labor",
+          "interface_variables": ["employment_rate"],
+          "exposed_outputs": ["employment_rate"],
+          "variable_definitions": {"employment_rate": "Employment rate"},
+          "variable_units": {"employment_rate": "unitless"}
+        },
+        {
+          "fragment_id": "b",
+          "graph_ref": "artifact:graph:b",
+          "semantic_namespace": "policy.training",
+          "interface_variables": ["employment_rate", "wages"],
+          "exposed_inputs": ["employment_rate"],
+          "exposed_outputs": ["wages"],
+          "variable_definitions": {"employment_rate": "Employment rate", "wages": "Average wage level"},
+          "variable_units": {"employment_rate": "unitless", "wages": "unitless"}
+        },
+        {
+          "fragment_id": "c",
+          "graph_ref": "artifact:graph:c",
+          "semantic_namespace": "policy.consumption",
+          "interface_variables": ["wages"],
+          "exposed_inputs": ["wages"],
+          "variable_definitions": {"wages": "Average wage level"},
+          "variable_units": {"wages": "unitless"}
+        }
+      ],
+      "fragment_graphs": {
+        "a": {
+          "graph_type": "dag",
+          "nodes": ["schooling", "employment_rate"],
+          "edges": [
+            {"src": "schooling", "dst": "employment_rate", "mark_src": "tail", "mark_dst": "arrow", "sources": ["data"], "data_confidence": 0.81, "combined_confidence": 0.81}
+          ],
+          "discovery_method": "benchmark_fixture"
+        },
+        "b": {
+          "graph_type": "dag",
+          "nodes": ["employment_rate", "wages"],
+          "edges": [
+            {"src": "employment_rate", "dst": "wages", "mark_src": "tail", "mark_dst": "arrow", "sources": ["data"], "data_confidence": 0.77, "combined_confidence": 0.77}
+          ],
+          "discovery_method": "benchmark_fixture"
+        },
+        "c": {
+          "graph_type": "dag",
+          "nodes": ["wages", "consumption"],
+          "edges": [
+            {"src": "wages", "dst": "consumption", "mark_src": "tail", "mark_dst": "arrow", "sources": ["data"], "data_confidence": 0.73, "combined_confidence": 0.73}
+          ],
+          "discovery_method": "benchmark_fixture"
+        }
+      },
+      "expected_composition_status": "preserved",
+      "query": {
+        "query_type": "interventional",
+        "treatment_variable": "employment_rate",
+        "treatment_value": 1.0,
+        "outcome_variable": "consumption",
+        "condition": {"schooling": 1.0}
+      },
+      "expected_query_status": "preserved"
+    },
+    {
+      "name": "composition::metadata_population_mismatch_reject",
+      "fragments": [
+        {
+          "fragment_id": "a",
+          "graph_ref": "artifact:graph:a",
+          "semantic_namespace": "policy.labor",
+          "interface_variables": ["employment_rate"],
+          "exposed_outputs": ["employment_rate"],
+          "variable_definitions": {"employment_rate": "Employment rate"},
+          "variable_metadata": {"employment_rate": {"population": "adults"}}
+        },
+        {
+          "fragment_id": "b",
+          "graph_ref": "artifact:graph:b",
+          "semantic_namespace": "policy.labor",
+          "interface_variables": ["employment_rate"],
+          "exposed_inputs": ["employment_rate"],
+          "variable_definitions": {"employment_rate": "Employment rate"},
+          "variable_metadata": {"employment_rate": {"population": "youth"}}
+        }
+      ],
+      "fragment_graphs": {
+        "a": {"graph_type": "dag", "nodes": ["employment_rate"], "edges": [], "discovery_method": "benchmark_fixture"},
+        "b": {"graph_type": "dag", "nodes": ["employment_rate"], "edges": [], "discovery_method": "benchmark_fixture"}
+      },
+      "expected_composition_status": "broken",
+      "expected_failure_types": ["alignment_incompatible"]
+    },
+    {
+      "name": "composition::metadata_time_window_disjoint_reject",
+      "fragments": [
+        {
+          "fragment_id": "a",
+          "graph_ref": "artifact:graph:a",
+          "semantic_namespace": "policy.labor",
+          "interface_variables": ["employment_rate"],
+          "exposed_outputs": ["employment_rate"],
+          "variable_definitions": {"employment_rate": "Employment rate"},
+          "variable_metadata": {
+            "employment_rate": {
+              "population": "adults",
+              "time_window": {"start": "2020-01-01", "end": "2020-03-31"}
+            }
+          }
+        },
+        {
+          "fragment_id": "b",
+          "graph_ref": "artifact:graph:b",
+          "semantic_namespace": "policy.labor",
+          "interface_variables": ["employment_rate"],
+          "exposed_inputs": ["employment_rate"],
+          "variable_definitions": {"employment_rate": "Employment rate"},
+          "variable_metadata": {
+            "employment_rate": {
+              "population": "adults",
+              "time_window": {"start": "2020-07-01", "end": "2020-09-30"}
+            }
+          }
+        }
+      ],
+      "fragment_graphs": {
+        "a": {"graph_type": "dag", "nodes": ["employment_rate"], "edges": [], "discovery_method": "benchmark_fixture"},
+        "b": {"graph_type": "dag", "nodes": ["employment_rate"], "edges": [], "discovery_method": "benchmark_fixture"}
+      },
+      "expected_composition_status": "broken",
+      "expected_failure_types": ["alignment_incompatible"]
+    },
+    {
+      "name": "composition::metadata_warning_non_blocking",
+      "fragments": [
+        {
+          "fragment_id": "a",
+          "graph_ref": "artifact:graph:a",
+          "semantic_namespace": "policy.labor",
+          "interface_variables": ["employment_rate"],
+          "exposed_outputs": ["employment_rate"],
+          "variable_definitions": {"employment_rate": "Employment rate"},
+          "variable_units": {"employment_rate": "percent"},
+          "variable_metadata": {
+            "employment_rate": {
+              "population": "adults",
+              "geography": "Kyiv",
+              "time_window": {"start": "2020-01-01", "end": "2020-12-31"}
+            }
+          }
+        },
+        {
+          "fragment_id": "b",
+          "graph_ref": "artifact:graph:b",
+          "semantic_namespace": "policy.labor",
+          "interface_variables": ["employment_rate"],
+          "exposed_inputs": ["employment_rate"],
+          "variable_definitions": {"employment_rate": "Employment rate"},
+          "variable_units": {"employment_rate": "percent"},
+          "variable_metadata": {
+            "employment_rate": {
+              "population": "adults",
+              "geography": "Lviv",
+              "time_window": {"start": "2020-06-01", "end": "2020-09-30"}
+            }
+          }
+        }
+      ],
+      "fragment_graphs": {
+        "a": {"graph_type": "dag", "nodes": ["employment_rate", "tax"], "edges": [{"src": "tax", "dst": "employment_rate", "mark_src": "tail", "mark_dst": "arrow", "sources": ["data"], "data_confidence": 0.8, "combined_confidence": 0.8}], "discovery_method": "benchmark_fixture"},
+        "b": {"graph_type": "dag", "nodes": ["employment_rate", "wages"], "edges": [{"src": "employment_rate", "dst": "wages", "mark_src": "tail", "mark_dst": "arrow", "sources": ["data"], "data_confidence": 0.8, "combined_confidence": 0.8}], "discovery_method": "benchmark_fixture"}
+      },
+      "expected_composition_status": "preserved"
+    },
+    {
+      "name": "composition::scientist_bridge_equivalence",
+      "fragments": [
+        {
+          "fragment_id": "labor_core",
+          "graph_ref": "artifact:graph:labor_core",
+          "semantic_namespace": "policy.labor",
+          "interface_variables": ["employment_rate", "wages"],
+          "exposed_outputs": ["employment_rate", "wages"],
+          "variable_definitions": {
+            "employment_rate": "Employment rate",
+            "wages": "Average wage level"
+          },
+          "variable_units": {
+            "employment_rate": "percent",
+            "wages": "usd_per_month"
+          }
+        },
+        {
+          "fragment_id": "training",
+          "graph_ref": "artifact:graph:training",
+          "semantic_namespace": "policy.training",
+          "interface_variables": ["employment_rate", "wages"],
+          "exposed_inputs": ["employment_rate", "wages"],
+          "variable_definitions": {
+            "employment_rate": "Employment rate",
+            "wages": "Average wage level"
+          },
+          "variable_units": {
+            "employment_rate": "percent",
+            "wages": "usd_per_month"
+          }
+        }
+      ],
+      "fragment_graphs": {
+        "labor_core": {
+          "graph_type": "dag",
+          "nodes": ["schooling", "employment_rate", "wages"],
+          "edges": [
+            {"src": "schooling", "dst": "employment_rate", "mark_src": "tail", "mark_dst": "arrow", "sources": ["data"], "data_confidence": 0.82, "combined_confidence": 0.82},
+            {"src": "schooling", "dst": "wages", "mark_src": "tail", "mark_dst": "arrow", "sources": ["data"], "data_confidence": 0.8, "combined_confidence": 0.8},
+            {"src": "employment_rate", "dst": "wages", "mark_src": "tail", "mark_dst": "arrow", "sources": ["data"], "data_confidence": 0.78, "combined_confidence": 0.78}
+          ],
+          "discovery_method": "benchmark_fixture"
+        },
+        "training": {
+          "graph_type": "dag",
+          "nodes": ["employment_rate", "wages", "training_slots"],
+          "edges": [
+            {"src": "employment_rate", "dst": "training_slots", "mark_src": "tail", "mark_dst": "arrow", "sources": ["data"], "data_confidence": 0.77, "combined_confidence": 0.77}
+          ],
+          "discovery_method": "benchmark_fixture"
+        }
+      },
+      "expected_composition_status": "preserved",
+      "query": {
+        "query_type": "interventional",
+        "treatment_variable": "employment_rate",
+        "treatment_value": 1.0,
+        "outcome_variable": "wages",
+        "condition": {"schooling": 1.0}
+      },
+      "expected_query_status": "preserved",
+      "use_scientist_bridge": true
+    }
+  ]
+}

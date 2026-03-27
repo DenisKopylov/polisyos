@@ -201,12 +201,15 @@ class WorkflowExecutor:
         *,
         checkpoint_hook: CheckpointHook | None = None,
         checkpoint_cache_seed_refs: list[ArtifactRef] | None = None,
+        provenance_dag: Any | None = None,
     ) -> None:
         self._ctx = ctx
         self._registry = registry
         self._cache: NodeResultCache | None = None
         self._checkpoint_hook = checkpoint_hook
         self._checkpoint_cache_seed_refs = list(checkpoint_cache_seed_refs or [])
+        self._provenance_dag = provenance_dag
+        self._node_outputs: dict[str, list[ArtifactRef]] = {}
 
     def execute(self, workflow: WorkflowSpec, state: ExperimentState) -> WorkflowExecutionResult:
         _validate_aliases(workflow.nodes)
@@ -548,6 +551,36 @@ class WorkflowExecutor:
                         },
                     )
 
+                # Record provenance
+                if self._provenance_dag is not None:
+                    try:
+                        from datetime import datetime, timezone as tz
+                        ended_at = datetime.now(tz.utc)
+                        started_at_dt = datetime.fromtimestamp(
+                            ended_at.timestamp() - duration_ms / 1000, tz=tz.utc,
+                        )
+                        if outcome.status == "ok":
+                            input_refs: list[Any] = []
+                            for dep in (inv.depends_on or []):
+                                input_refs.extend(self._node_outputs.get(dep, []))
+                            self._provenance_dag.record_node_execution(
+                                alias=alias, node_id=node_id,
+                                started_at=started_at_dt, ended_at=ended_at,
+                                input_refs=input_refs,
+                                output_refs=list(outcome.artifacts),
+                                params=dict(inv.params) if inv.params else {},
+                            )
+                            self._node_outputs[alias] = list(outcome.artifacts)
+                        elif outcome.status == "fail":
+                            self._provenance_dag.record_node_failure(
+                                alias=alias, node_id=node_id,
+                                error=str(outcome.error.message) if outcome.error else "Unknown",
+                                traceback=outcome.error.details.get("type", "") if outcome.error and outcome.error.details else None,
+                                started_at=started_at_dt, ended_at=ended_at,
+                            )
+                    except Exception:  # noqa: BLE001
+                        _module_logger.debug("Provenance recording failed for node %s", alias)
+
                 if outcome.status == "fail":
                     failed.add(alias)
 
@@ -623,6 +656,22 @@ class WorkflowExecutor:
 
         self._ctx.run.add_output(final_state_ref)
         self._ctx.run.add_output(report_ref)
+
+        # Finalize and persist provenance DAG
+        if self._provenance_dag is not None:
+            try:
+                self._provenance_dag.finalize()
+                prov_json = self._provenance_dag.to_prov_json()
+                prov_ref = self._ctx.store.put_json(
+                    prov_json,
+                    PutOptions(
+                        kind="scientist.provenance.run_dag",
+                        media_type="application/json",
+                    ),
+                )
+                self._ctx.run.add_output(prov_ref)
+            except Exception:  # noqa: BLE001
+                _module_logger.debug("Provenance DAG finalization failed")
 
         errors_payload = [
             {

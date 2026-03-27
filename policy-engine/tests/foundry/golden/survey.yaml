@@ -1,0 +1,55 @@
+domain: survey
+version: "1.0"
+cases:
+  - id: fay_herriot_homogeneous
+    method_fqn: "survey.estimation.fay_herriot@1.0.0"
+    description: "Fay-Herriot EBLUP on 5 areas with equal sampling variance"
+    input_data:
+      y_direct: [10.0, 12.0, 8.0, 11.0, 9.0]
+      X: [[1.0, 2.0], [1.0, 3.0], [1.0, 1.0], [1.0, 2.5], [1.0, 1.5]]
+      sampling_var: [1.0, 1.0, 1.0, 1.0, 1.0]
+    expected_output:
+      result:
+        n_areas: 5
+    tolerances: {rtol: 0.05, atol: 0.5}
+    tags: [estimation, deterministic]
+
+  - id: fay_herriot_large_sampling_var
+    method_fqn: "survey.estimation.fay_herriot@1.0.0"
+    description: "Large sampling variance → EBLUP shrinks heavily toward regression"
+    input_data:
+      y_direct: [50.0, 30.0, 70.0, 40.0, 60.0]
+      X: [[1.0, 1.0], [1.0, 2.0], [1.0, 3.0], [1.0, 4.0], [1.0, 5.0]]
+      sampling_var: [100.0, 100.0, 100.0, 100.0, 100.0]
+    expected_output:
+      result:
+        n_areas: 5
+    tolerances: {rtol: 0.1, atol: 2.0}
+    tags: [estimation, deterministic]
+
+  - id: greg_simple_calibration
+    method_fqn: "survey.estimation.calibration_greg@1.0.0"
+    description: "GREG calibration with known population totals"
+    input_data:
+      y: [10.0, 20.0, 30.0, 40.0, 50.0]
+      X: [[1.0, 1.0], [1.0, 2.0], [1.0, 3.0], [1.0, 4.0], [1.0, 5.0]]
+      weights: [1.0, 1.0, 1.0, 1.0, 1.0]
+      population_totals: [10.0, 30.0]
+    expected_output:
+      result:
+        n_obs: 5
+    tolerances: {rtol: 0.1, atol: 5.0}
+    tags: [estimation, deterministic]
+
+  - id: fay_herriot_single_covariate
+    method_fqn: "survey.estimation.fay_herriot@1.0.0"
+    description: "Fay-Herriot with intercept only → EBLUP is weighted avg"
+    input_data:
+      y_direct: [5.0, 10.0, 15.0, 20.0]
+      X: [[1.0], [1.0], [1.0], [1.0]]
+      sampling_var: [2.0, 2.0, 2.0, 2.0]
+    expected_output:
+      result:
+        n_areas: 4
+    tolerances: {rtol: 0.1, atol: 2.0}
+    tags: [estimation, deterministic]

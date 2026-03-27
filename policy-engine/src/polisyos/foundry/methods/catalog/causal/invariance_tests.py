@@ -33,6 +33,7 @@ from polisyos.foundry.methods.base import (
     Unit,
     foundry_method,
 )
+from polisyos.ir.analytics.literature import EnvironmentAuditReport
 
 _EPS = 1e-12
 
@@ -184,31 +185,63 @@ def _f_pvalue(f: float, df1: int, df2: int) -> float:
 
 
 def _regularised_beta(x: float, a: float, b: float, max_iter: int = 200) -> float:
-    """Regularised incomplete beta function I_x(a,b) via Lentz continued fraction."""
+    """Regularised incomplete beta function I_x(a,b) via continued fraction."""
     if x <= 0.0:
         return 0.0
     if x >= 1.0:
         return 1.0
-    lbeta = math.lgamma(a) + math.lgamma(b) - math.lgamma(a + b)
-    front = math.exp(math.log(x) * a + math.log(1.0 - x) * b - lbeta) / a
-    # Lentz CF
-    f = front
-    C = front
-    D = 0.0
+    bt = math.exp(
+        math.lgamma(a + b)
+        - math.lgamma(a)
+        - math.lgamma(b)
+        + a * math.log(x)
+        + b * math.log(1.0 - x)
+    )
+    threshold = (a + 1.0) / (a + b + 2.0)
+    if x < threshold:
+        value = bt * _beta_continued_fraction(a, b, x, max_iter=max_iter) / a
+    else:
+        value = 1.0 - bt * _beta_continued_fraction(b, a, 1.0 - x, max_iter=max_iter) / b
+    if not math.isfinite(value):
+        return 1.0
+    return min(max(float(value), 0.0), 1.0)
+
+
+def _beta_continued_fraction(a: float, b: float, x: float, max_iter: int = 200) -> float:
+    qab = a + b
+    qap = a + 1.0
+    qam = a - 1.0
+    c = 1.0
+    d = 1.0 - qab * x / qap
+    if abs(d) < _EPS:
+        d = _EPS
+    d = 1.0 / d
+    h = d
     for m in range(1, max_iter + 1):
-        for sign in (1, -1):
-            if sign == 1:
-                d = m * (b - m) * x / ((a + 2 * m - 1) * (a + 2 * m))
-            else:
-                d = -(a + m) * (a + b + m) * x / ((a + 2 * m) * (a + 2 * m + 1))
-            D = 1.0 + d * D
-            C = 1.0 + d / C if abs(C) > _EPS else 1.0 + d * _EPS
-            D = 1.0 / D if abs(D) > _EPS else _EPS
-            delta = C * D
-            f *= delta
-            if abs(delta - 1.0) < 1e-10:
-                return min(max(float(f), 0.0), 1.0)
-    return min(max(float(f), 0.0), 1.0)
+        m2 = 2 * m
+        aa = m * (b - m) * x / ((qam + m2) * (a + m2))
+        d = 1.0 + aa * d
+        if abs(d) < _EPS:
+            d = _EPS
+        c = 1.0 + aa / c
+        if abs(c) < _EPS:
+            c = _EPS
+        d = 1.0 / d
+        h *= d * c
+
+        aa = -(a + m) * (qab + m) * x / ((a + m2) * (qap + m2))
+        d = 1.0 + aa * d
+        if abs(d) < _EPS:
+            d = _EPS
+        c = 1.0 + aa / c
+        if abs(c) < _EPS:
+            c = _EPS
+        d = 1.0 / d
+        delta = d * c
+        h *= delta
+        if abs(delta - 1.0) < 1e-10:
+            break
+    return float(h)
 
 
 # ---------------------------------------------------------------------------
@@ -572,4 +605,295 @@ class ICPInvarianceTest:
         }
 
 
-__all__ = ["ICPInvarianceTest", "KSInvarianceTest"]
+def build_environment_audit_report(
+    *,
+    data: Any,
+    variable_names: list[str],
+    domain_labels: Any,
+    target_col: int | str | None = None,
+    alpha: float = 0.05,
+    correction: str = "bh",
+    provenance_refs: list[str] | None = None,
+    metadata: Mapping[str, Any] | None = None,
+) -> EnvironmentAuditReport:
+    warnings: list[str] = []
+    audit_metadata = dict(metadata or {})
+    normalized_correction = _normalize_correction(correction, warnings)
+    audit_metadata.setdefault("correction", normalized_correction)
+    audit_metadata.setdefault("alpha", float(alpha))
+    provenance = [str(item) for item in (provenance_refs or []) if str(item).strip()]
+
+    if data is None:
+        return _environment_audit_report(
+            status="skipped",
+            warnings=["environment_audit_missing_data", *warnings],
+            provenance_refs=provenance,
+            metadata={**audit_metadata, "reason": "missing_data"},
+        )
+    if domain_labels is None:
+        return _environment_audit_report(
+            status="skipped",
+            warnings=["environment_audit_missing_domain_labels", *warnings],
+            provenance_refs=provenance,
+            metadata={**audit_metadata, "reason": "missing_domain_labels"},
+        )
+
+    try:
+        data_array = np.asarray(data, dtype=float)
+    except Exception as exc:  # noqa: BLE001
+        return _environment_audit_report(
+            status="degraded",
+            warnings=[f"environment_audit_invalid_data:{type(exc).__name__}", *warnings],
+            provenance_refs=provenance,
+            metadata={**audit_metadata, "reason": "invalid_data", "error": str(exc)},
+        )
+    if data_array.ndim == 1:
+        data_array = data_array[:, None]
+    if data_array.ndim != 2:
+        return _environment_audit_report(
+            status="degraded",
+            warnings=["environment_audit_data_must_be_2d", *warnings],
+            provenance_refs=provenance,
+            metadata={**audit_metadata, "reason": "data_not_2d"},
+        )
+    if not np.isfinite(data_array).all():
+        return _environment_audit_report(
+            status="degraded",
+            warnings=["environment_audit_data_contains_non_finite", *warnings],
+            provenance_refs=provenance,
+            metadata={**audit_metadata, "reason": "non_finite_data"},
+        )
+
+    resolved_variable_names = [str(item).strip() for item in variable_names if str(item).strip()]
+    if not resolved_variable_names:
+        return _environment_audit_report(
+            status="skipped",
+            warnings=["environment_audit_missing_variable_names", *warnings],
+            provenance_refs=provenance,
+            metadata={**audit_metadata, "reason": "missing_variable_names"},
+        )
+    if len(resolved_variable_names) != data_array.shape[1]:
+        return _environment_audit_report(
+            status="degraded",
+            warnings=["environment_audit_variable_name_mismatch", *warnings],
+            provenance_refs=provenance,
+            metadata={
+                **audit_metadata,
+                "reason": "variable_name_mismatch",
+                "n_features": int(data_array.shape[1]),
+                "n_variable_names": len(resolved_variable_names),
+            },
+        )
+
+    labels_array = np.asarray(domain_labels)
+    if labels_array.ndim != 1:
+        return _environment_audit_report(
+            status="degraded",
+            warnings=["environment_audit_domain_labels_not_vector", *warnings],
+            provenance_refs=provenance,
+            metadata={**audit_metadata, "reason": "domain_labels_not_vector"},
+        )
+    if labels_array.shape[0] != data_array.shape[0]:
+        return _environment_audit_report(
+            status="degraded",
+            warnings=["environment_audit_domain_label_length_mismatch", *warnings],
+            provenance_refs=provenance,
+            metadata={
+                **audit_metadata,
+                "reason": "domain_label_length_mismatch",
+                "n_obs": int(data_array.shape[0]),
+                "n_labels": int(labels_array.shape[0]),
+            },
+        )
+
+    unique_domains, counts = np.unique(labels_array, return_counts=True)
+    n_environments = int(len(unique_domains))
+    audit_metadata.setdefault(
+        "variable_names",
+        list(resolved_variable_names),
+    )
+    audit_metadata.setdefault(
+        "environment_counts",
+        {str(domain): int(count) for domain, count in zip(unique_domains, counts)},
+    )
+    if n_environments < 2:
+        return _environment_audit_report(
+            status="skipped",
+            n_environments=n_environments,
+            warnings=["environment_audit_single_environment", *warnings],
+            provenance_refs=provenance,
+            metadata={**audit_metadata, "reason": "single_environment"},
+        )
+    if any(int(count) < 2 for count in counts):
+        return _environment_audit_report(
+            status="skipped",
+            n_environments=n_environments,
+            warnings=["environment_audit_insufficient_samples_per_environment", *warnings],
+            provenance_refs=provenance,
+            metadata={**audit_metadata, "reason": "insufficient_samples_per_environment"},
+        )
+
+    ks_payload = KSInvarianceTest.pure_step(
+        {"data": data_array, "domain_labels": labels_array},
+        {"alpha": alpha, "correction": normalized_correction},
+    )["result"]
+    status = "ok"
+    if not bool(ks_payload.get("passed", True)):
+        status = "warning"
+        warnings.append("ks_detected_distribution_shift")
+
+    icp_run = False
+    icp_passed: bool | None = None
+    invariant_features: list[int] = []
+    variant_features: list[int] = []
+    icp_p_values: dict[str, float] = {}
+
+    resolved_target_col, target_warning = _resolve_target_col(
+        target_col,
+        variable_names=resolved_variable_names,
+        n_features=data_array.shape[1],
+    )
+    if target_warning is not None:
+        warnings.append(target_warning)
+        status = _merge_environment_audit_status(status, "warning")
+    elif resolved_target_col is not None:
+        if data_array.shape[1] < 2:
+            warnings.append("icp_skipped_no_predictor_features")
+            status = _merge_environment_audit_status(status, "warning")
+        else:
+            icp_run = True
+            try:
+                icp_payload = ICPInvarianceTest.pure_step(
+                    {
+                        "data": data_array,
+                        "domain_labels": labels_array,
+                        "target_col": resolved_target_col,
+                    },
+                    {"alpha": alpha, "correction": normalized_correction},
+                )["result"]
+                icp_passed = bool(icp_payload.get("passed", True))
+                invariant_features = [
+                    int(item) for item in icp_payload.get("invariant_features", [])
+                ]
+                variant_features = [
+                    int(item) for item in icp_payload.get("variant_features", [])
+                ]
+                icp_p_values = {
+                    str(key): float(value)
+                    for key, value in dict(icp_payload.get("p_values", {})).items()
+                }
+                audit_metadata["icp_target_col"] = int(resolved_target_col)
+                audit_metadata["icp_target_variable"] = resolved_variable_names[resolved_target_col]
+                if not icp_passed:
+                    warnings.append("icp_detected_feature_heterogeneity")
+                    status = _merge_environment_audit_status(status, "warning")
+            except Exception as exc:  # noqa: BLE001
+                warnings.append(f"icp_failed:{type(exc).__name__}")
+                audit_metadata["icp_error"] = str(exc)
+                status = _merge_environment_audit_status(status, "degraded")
+    else:
+        audit_metadata["icp_skip_reason"] = "target_not_requested"
+
+    return _environment_audit_report(
+        status=status,
+        n_environments=n_environments,
+        ks_passed=bool(ks_payload.get("passed", True)),
+        ks_rejected_variables=[
+            int(item) for item in ks_payload.get("rejected_variables", [])
+        ],
+        ks_p_values={
+            str(key): float(value)
+            for key, value in dict(ks_payload.get("p_values_matrix", {})).items()
+        },
+        icp_run=icp_run,
+        icp_passed=icp_passed,
+        invariant_features=invariant_features,
+        variant_features=variant_features,
+        icp_p_values=icp_p_values,
+        warnings=warnings,
+        provenance_refs=provenance,
+        metadata=audit_metadata,
+    )
+
+
+def _resolve_target_col(
+    target_col: int | str | None,
+    *,
+    variable_names: list[str],
+    n_features: int,
+) -> tuple[int | None, str | None]:
+    if target_col is None:
+        return None, None
+    if isinstance(target_col, str):
+        name = target_col.strip()
+        if not name:
+            return None, "icp_invalid_target_col"
+        if name in variable_names:
+            return variable_names.index(name), None
+        try:
+            target_col = int(name)
+        except Exception:  # noqa: BLE001
+            return None, "icp_invalid_target_col"
+    try:
+        resolved = int(target_col)
+    except Exception:  # noqa: BLE001
+        return None, "icp_invalid_target_col"
+    if not (0 <= resolved < n_features):
+        return None, "icp_invalid_target_col"
+    return resolved, None
+
+
+def _normalize_correction(correction: str, warnings: list[str]) -> str:
+    normalized = str(correction or "bh").strip().lower()
+    if normalized in {"bh", "bonferroni"}:
+        return normalized
+    warnings.append(f"environment_audit_unknown_correction:{normalized or 'empty'}")
+    return "bh"
+
+
+def _merge_environment_audit_status(
+    current: str,
+    incoming: str,
+) -> str:
+    priority = {"ok": 0, "warning": 1, "degraded": 2}
+    return incoming if priority[incoming] > priority[current] else current
+
+
+def _environment_audit_report(
+    *,
+    status: str,
+    n_environments: int = 0,
+    ks_passed: bool | None = None,
+    ks_rejected_variables: list[int] | None = None,
+    ks_p_values: dict[str, float] | None = None,
+    icp_run: bool = False,
+    icp_passed: bool | None = None,
+    invariant_features: list[int] | None = None,
+    variant_features: list[int] | None = None,
+    icp_p_values: dict[str, float] | None = None,
+    warnings: list[str] | None = None,
+    provenance_refs: list[str] | None = None,
+    metadata: Mapping[str, Any] | None = None,
+) -> EnvironmentAuditReport:
+    return EnvironmentAuditReport(
+        status=status,
+        n_environments=n_environments,
+        ks_passed=ks_passed,
+        ks_rejected_variables=list(ks_rejected_variables or []),
+        ks_p_values=dict(ks_p_values or {}),
+        icp_run=bool(icp_run),
+        icp_passed=icp_passed,
+        invariant_features=list(invariant_features or []),
+        variant_features=list(variant_features or []),
+        icp_p_values=dict(icp_p_values or {}),
+        warnings=[str(item) for item in (warnings or []) if str(item).strip()],
+        provenance_refs=[str(item) for item in (provenance_refs or []) if str(item).strip()],
+        metadata=dict(metadata or {}),
+    )
+
+
+__all__ = [
+    "ICPInvarianceTest",
+    "KSInvarianceTest",
+    "build_environment_audit_report",
+]

@@ -28,7 +28,8 @@ class BudgetState(BaseModel):
     """Tracks limits and cumulative spend across budget keys.
 
     Thread-safe via external locking (callers should hold a lock
-    when calling ``record_spend``).
+    when calling mutating methods like ``record_spend``, ``reserve``,
+    ``release``, ``commit_reservation``).
 
     Budget key conventions for ``ExperimentState.budgets``:
 
@@ -42,6 +43,8 @@ class BudgetState(BaseModel):
 
     limits: dict[str, BudgetLimit] = Field(default_factory=dict)
     spent: dict[str, Decimal] = Field(default_factory=dict)
+    provider_spent: dict[str, Decimal] = Field(default_factory=dict)
+    reserved: dict[str, Decimal] = Field(default_factory=dict)
 
     def remaining(self, key: str) -> Decimal | None:
         """Return remaining budget for *key*, or ``None`` if no limit set."""
@@ -49,7 +52,8 @@ class BudgetState(BaseModel):
         if limit is None:
             return None
         current_spend = self.spent.get(key, Decimal(0))
-        return limit.max_usd - current_spend
+        current_reserved = self.reserved.get(key, Decimal(0))
+        return limit.max_usd - current_spend - current_reserved
 
     def would_exceed(self, key: str, estimated_cost: Decimal) -> bool:
         """Return ``True`` if spending *estimated_cost* would exceed budget."""
@@ -58,10 +62,35 @@ class BudgetState(BaseModel):
             return False
         return estimated_cost > remaining
 
-    def record_spend(self, key: str, amount: Decimal) -> None:
+    def record_spend(
+        self, key: str, amount: Decimal, *, provider: str | None = None,
+    ) -> None:
         """Add *amount* to cumulative spend for *key*."""
         current = self.spent.get(key, Decimal(0))
         self.spent[key] = current + amount
+        if provider is not None:
+            prov_current = self.provider_spent.get(provider, Decimal(0))
+            self.provider_spent[provider] = prov_current + amount
+
+    def reserve(self, key: str, amount: Decimal) -> bool:
+        """Pre-allocate budget.  Returns ``False`` if insufficient."""
+        remaining = self.remaining(key)
+        if remaining is None:
+            return True
+        if amount > remaining:
+            return False
+        self.reserved[key] = self.reserved.get(key, Decimal(0)) + amount
+        return True
+
+    def release(self, key: str, amount: Decimal) -> None:
+        """Release previously reserved budget."""
+        current = self.reserved.get(key, Decimal(0))
+        self.reserved[key] = max(Decimal(0), current - amount)
+
+    def commit_reservation(self, key: str, amount: Decimal) -> None:
+        """Convert a reservation into actual spend."""
+        self.release(key, amount)
+        self.record_spend(key, amount)
 
     def is_soft_limit_exceeded(self, key: str) -> bool:
         """Check if soft limit has been crossed for *key*."""
@@ -69,6 +98,28 @@ class BudgetState(BaseModel):
         if limit is None or limit.soft_limit_usd is None:
             return False
         return self.spent.get(key, Decimal(0)) > limit.soft_limit_usd
+
+    def utilization(self, key: str) -> float | None:
+        """Return spend / max_usd ratio for *key*, or ``None`` if no limit."""
+        limit = self.limits.get(key)
+        if limit is None or limit.max_usd <= 0:
+            return None
+        current = self.spent.get(key, Decimal(0))
+        return float(current / limit.max_usd)
+
+    def threshold_alerts(self, key: str) -> list[int]:
+        """Return list of crossed thresholds (80, 90) for *key*."""
+        limit = self.limits.get(key)
+        if limit is None or limit.max_usd <= 0:
+            return []
+        current = self.spent.get(key, Decimal(0))
+        ratio = float(current / limit.max_usd)
+        alerts: list[int] = []
+        if ratio >= 0.9:
+            alerts.append(90)
+        elif ratio >= 0.8:
+            alerts.append(80)
+        return alerts
 
     @classmethod
     def from_experiment_budgets(

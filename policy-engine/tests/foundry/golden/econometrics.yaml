@@ -1,0 +1,50 @@
+domain: econometrics
+version: "1.0"
+cases:
+  - id: quantile_regression_median
+    method_fqn: "econometrics.regression.quantile_regression@1.0.0"
+    description: "Median regression on simple linear data"
+    skip_reason: "Requires QuantileRegressionData model — deferred to Phase 10b"
+    input_data: {}
+    expected_output: {}
+    tags: [regression]
+
+  - id: poisson_count_simple
+    method_fqn: "econometrics.count.poisson@1.0.0"
+    description: "Poisson regression on count data with known coefficients"
+    skip_reason: "Requires CountData model — deferred to Phase 10b"
+    input_data: {}
+    expected_output: {}
+    tags: [count]
+
+  - id: hausman_test_basic
+    method_fqn: "econometrics.diagnostics.hausman_test@1.0.0"
+    description: "Hausman test: FE vs RE on panel with entity effects"
+    skip_reason: "Requires PanelData model — deferred to Phase 10b"
+    input_data: {}
+    expected_output: {}
+    tags: [diagnostics]
+
+  - id: garch_constant_variance
+    method_fqn: "econometrics.timeseries.garch@1.0.0"
+    description: "GARCH(1,1) on constant-variance series"
+    skip_reason: "Requires TimeSeriesData model — deferred to Phase 10b"
+    input_data: {}
+    expected_output: {}
+    tags: [timeseries]
+
+  - id: change_point_single_break
+    method_fqn: "econometrics.timeseries.change_point@1.0.0"
+    description: "Detect single mean shift in synthetic series"
+    skip_reason: "Requires TimeSeriesData model — deferred to Phase 10b"
+    input_data: {}
+    expected_output: {}
+    tags: [timeseries]
+
+  - id: weak_iv_test_strong
+    method_fqn: "econometrics.diagnostics.weak_iv_test@1.0.0"
+    description: "Strong instrument → F-stat well above 10"
+    skip_reason: "Requires IVData model — deferred to Phase 10b"
+    input_data: {}
+    expected_output: {}
+    tags: [diagnostics]

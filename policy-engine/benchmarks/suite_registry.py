@@ -18,6 +18,7 @@ class SuiteSpec:
     profiles: tuple[str, ...] = ("air-m2", "extended")
     claim_profiles: tuple[str, ...] = ()
     proof_class: str = "standard"
+    default_timeout_s: float = 0.0
     headline: bool = False
     stress_only: bool = False
 
@@ -139,6 +140,25 @@ _SUITES: tuple[SuiteSpec, ...] = (
         headline=True,
     ),
     SuiteSpec(
+        suite_id="temporal_gold",
+        label="Circuit 4f: Temporal — Continuous-time gold benchmark",
+        script_relpath="temporal/temporal_gold_benchmark.py",
+        aliases=("temporal", "core", "publication_core"),
+        claim_profiles=("frontier_frontier_claim", "full_stack_publication_claim"),
+        proof_class="publication_benchmark",
+        headline=True,
+    ),
+    SuiteSpec(
+        suite_id="temporal_hidden",
+        label="Circuit 4g: Temporal — Hidden temporal stress benchmark",
+        script_relpath="temporal/temporal_hidden_benchmark.py",
+        aliases=("temporal", "stress", "frontier"),
+        claim_profiles=("frontier_frontier_claim", "full_stack_publication_claim"),
+        proof_class="stress_evidence",
+        headline=False,
+        stress_only=True,
+    ),
+    SuiteSpec(
         suite_id="adversarial_symbolic_stress",
         label="Circuit 4e: Stress — Adversarial symbolic generator benchmark",
         script_relpath="adversarial/adversarial_symbolic_stress.py",
@@ -237,6 +257,14 @@ _SUITES: tuple[SuiteSpec, ...] = (
         claim_profiles=("frontier_frontier_claim", "full_stack_publication_claim"),
         proof_class="capability_gap",
         headline=True,
+    ),
+    SuiteSpec(
+        suite_id="capability_compositional_causality",
+        label="Circuit 5l: Capability — Compositional causality stitching benchmark",
+        script_relpath="composition/compositional_causality_benchmark.py",
+        aliases=("composition", "capability", "capability_demos"),
+        proof_class="supplementary_benchmark",
+        headline=False,
     ),
     SuiteSpec(
         suite_id="capability_nontransportability_bounds",

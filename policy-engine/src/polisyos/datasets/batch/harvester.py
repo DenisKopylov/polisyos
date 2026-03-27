@@ -23,6 +23,13 @@ from polisyos.datasets.metrics_map import load_metrics_map
 from polisyos.datasets.batch.source_registry import SourceSpec
 
 logger = get_logger(__name__)
+_HARVEST_MAX_PARALLELISM = 6
+_SERIAL_HARVEST_SOURCES: frozenset[str] = frozenset({
+    "data_gov_ua_broad",
+    "data_gov_ro_broad",
+    "data_gov_md_broad",
+    "data_gov_pl_broad",
+})
 _SMOKE_PRIORITY_METRICS: tuple[str, ...] = (
     "gdp_per_capita",
     "gdp",
@@ -191,30 +198,212 @@ _WVS_STATIC_INDICATORS: tuple[dict[str, Any], ...] = (
     {"id": "Y022", "name": "Welzel equality sub-index", "description": "WVS longitudinal equality composite item", "wave": "timeseries", "harvest_metric_candidates": ["gender_equality"]},
 )
 _WHO_STATIC_INDICATORS: tuple[dict[str, Any], ...] = (
-    {
-        "id": "WHOSIS_000001",
-        "IndicatorCode": "WHOSIS_000001",
-        "IndicatorName": "Life expectancy at birth (years)",
-        "name": "Life expectancy at birth (years)",
-        "description": "WHO GHO life expectancy at birth indicator",
-        "harvest_metric_candidates": ["health_outcomes", "life_expectancy"],
-    },
-    {
-        "id": "WHOSIS_000002",
-        "IndicatorCode": "WHOSIS_000002",
-        "IndicatorName": "Healthy life expectancy (HALE) at birth (years)",
-        "name": "Healthy life expectancy (HALE) at birth (years)",
-        "description": "WHO GHO healthy life expectancy at birth indicator",
-        "harvest_metric_candidates": ["health_outcomes", "life_expectancy"],
-    },
-    {
-        "id": "WHOSIS_000015",
-        "IndicatorCode": "WHOSIS_000015",
-        "IndicatorName": "Life expectancy at age 60 (years)",
-        "name": "Life expectancy at age 60 (years)",
-        "description": "WHO GHO life expectancy at age 60 indicator",
-        "harvest_metric_candidates": ["health_outcomes", "life_expectancy"],
-    },
+    # ── Mortality & Life Expectancy ──
+    {"id": "WHOSIS_000001", "IndicatorCode": "WHOSIS_000001",
+     "IndicatorName": "Life expectancy at birth (years)",
+     "name": "Life expectancy at birth (years)",
+     "description": "WHO GHO life expectancy at birth indicator",
+     "harvest_metric_candidates": ["health_outcomes", "life_expectancy"]},
+    {"id": "WHOSIS_000002", "IndicatorCode": "WHOSIS_000002",
+     "IndicatorName": "Healthy life expectancy (HALE) at birth (years)",
+     "name": "Healthy life expectancy (HALE) at birth (years)",
+     "description": "WHO GHO healthy life expectancy at birth indicator",
+     "harvest_metric_candidates": ["health_outcomes", "life_expectancy"]},
+    {"id": "WHOSIS_000015", "IndicatorCode": "WHOSIS_000015",
+     "IndicatorName": "Life expectancy at age 60 (years)",
+     "name": "Life expectancy at age 60 (years)",
+     "description": "WHO GHO life expectancy at age 60 indicator",
+     "harvest_metric_candidates": ["health_outcomes", "life_expectancy"]},
+    {"id": "WHOSIS_000003", "IndicatorCode": "WHOSIS_000003",
+     "IndicatorName": "Neonatal mortality rate (per 1000 live births)",
+     "name": "Neonatal mortality rate (per 1000 live births)",
+     "description": "WHO GHO neonatal mortality rate",
+     "harvest_metric_candidates": ["neonatal_mortality", "infant_mortality"]},
+    {"id": "WHS7_104", "IndicatorCode": "WHS7_104",
+     "IndicatorName": "Infant mortality rate (per 1000 live births)",
+     "name": "Infant mortality rate (per 1000 live births)",
+     "description": "WHO GHO infant mortality rate",
+     "harvest_metric_candidates": ["infant_mortality", "health_outcomes"]},
+    {"id": "MDG_0000000001", "IndicatorCode": "MDG_0000000001",
+     "IndicatorName": "Under-five mortality rate (per 1000 live births)",
+     "name": "Under-five mortality rate (per 1000 live births)",
+     "description": "WHO GHO under-five mortality rate",
+     "harvest_metric_candidates": ["infant_mortality", "health_outcomes"]},
+    {"id": "MDG_0000000003", "IndicatorCode": "MDG_0000000003",
+     "IndicatorName": "Neonatal mortality rate (per 1000 live births)",
+     "name": "Neonatal mortality rate (per 1000 live births)",
+     "description": "WHO GHO neonatal mortality rate (MDG series)",
+     "harvest_metric_candidates": ["neonatal_mortality"]},
+    {"id": "WHS9_95", "IndicatorCode": "WHS9_95",
+     "IndicatorName": "Maternal mortality ratio (per 100 000 live births)",
+     "name": "Maternal mortality ratio (per 100 000 live births)",
+     "description": "WHO GHO maternal mortality ratio",
+     "harvest_metric_candidates": ["maternal_mortality", "health_outcomes"]},
+    # ── Infectious Disease ──
+    {"id": "MDG_0000000020", "IndicatorCode": "MDG_0000000020",
+     "IndicatorName": "Tuberculosis incidence (per 100 000 population per year)",
+     "name": "Tuberculosis incidence (per 100 000 population)",
+     "description": "WHO GHO tuberculosis incidence rate",
+     "harvest_metric_candidates": ["tuberculosis_incidence"]},
+    {"id": "MALARIA_EST_INCIDENCE", "IndicatorCode": "MALARIA_EST_INCIDENCE",
+     "IndicatorName": "Estimated malaria incidence (per 1000 population at risk)",
+     "name": "Estimated malaria incidence (per 1000 population at risk)",
+     "description": "WHO GHO malaria incidence estimate",
+     "harvest_metric_candidates": ["malaria_incidence"]},
+    {"id": "HIV_0000000001", "IndicatorCode": "HIV_0000000001",
+     "IndicatorName": "Estimated number of people (all ages) newly infected with HIV",
+     "name": "New HIV infections",
+     "description": "WHO GHO new HIV infections estimate",
+     "harvest_metric_candidates": ["hiv_prevalence"]},
+    {"id": "WHS3_62", "IndicatorCode": "WHS3_62",
+     "IndicatorName": "Hepatitis B surface antigen prevalence among children under 5",
+     "name": "Hepatitis B prevalence children under 5",
+     "description": "WHO GHO hepatitis B prevalence",
+     "harvest_metric_candidates": ["health_outcomes"]},
+    # ── NCD / Risk Factors ──
+    {"id": "NCD_BMI_30A", "IndicatorCode": "NCD_BMI_30A",
+     "IndicatorName": "Prevalence of obesity among adults, BMI >= 30 (age-standardized estimate) (%)",
+     "name": "Prevalence of obesity among adults (BMI >= 30)",
+     "description": "WHO GHO adult obesity prevalence",
+     "harvest_metric_candidates": ["obesity_prevalence", "health_outcomes"]},
+    {"id": "NCD_CCS_Diab", "IndicatorCode": "NCD_CCS_Diab",
+     "IndicatorName": "Diabetes prevalence",
+     "name": "Diabetes prevalence",
+     "description": "WHO GHO diabetes prevalence",
+     "harvest_metric_candidates": ["diabetes_prevalence", "health_outcomes"]},
+    {"id": "NCD_HYP_PREVALENCE_A", "IndicatorCode": "NCD_HYP_PREVALENCE_A",
+     "IndicatorName": "Raised blood pressure (SBP>=140 OR DBP>=90) (age-standardized estimate)",
+     "name": "Hypertension prevalence",
+     "description": "WHO GHO hypertension prevalence",
+     "harvest_metric_candidates": ["hypertension_prevalence", "health_outcomes"]},
+    {"id": "NCDMORT3070", "IndicatorCode": "NCDMORT3070",
+     "IndicatorName": "Probability (%) of dying between age 30 and exact age 70 from any of cardiovascular disease, cancer, diabetes, or chronic respiratory disease",
+     "name": "NCD mortality probability 30-70",
+     "description": "WHO GHO NCD premature mortality probability",
+     "harvest_metric_candidates": ["noncommunicable_disease_mortality", "health_outcomes"]},
+    {"id": "NCD_TOB_SMOK_CURRE", "IndicatorCode": "NCD_TOB_SMOK_CURRE",
+     "IndicatorName": "Estimate of current tobacco smoking prevalence (%)",
+     "name": "Current tobacco smoking prevalence",
+     "description": "WHO GHO tobacco smoking prevalence",
+     "harvest_metric_candidates": ["smoking_prevalence"]},
+    {"id": "SA_0000001688", "IndicatorCode": "SA_0000001688",
+     "IndicatorName": "Total alcohol per capita (>=15) consumption, in litres of pure alcohol",
+     "name": "Total alcohol per capita consumption",
+     "description": "WHO GHO alcohol consumption per capita",
+     "harvest_metric_candidates": ["alcohol_consumption"]},
+    # ── Health System ──
+    {"id": "UHC_INDEX_REPORTED", "IndicatorCode": "UHC_INDEX_REPORTED",
+     "IndicatorName": "UHC index of service coverage",
+     "name": "UHC service coverage index",
+     "description": "WHO GHO universal health coverage index",
+     "harvest_metric_candidates": ["universal_health_coverage", "health_outcomes"]},
+    {"id": "HWF_0001", "IndicatorCode": "HWF_0001",
+     "IndicatorName": "Medical doctors (per 10 000 population)",
+     "name": "Medical doctors per 10 000 population",
+     "description": "WHO GHO physician density",
+     "harvest_metric_candidates": ["physician_density"]},
+    {"id": "HWF_0006", "IndicatorCode": "HWF_0006",
+     "IndicatorName": "Hospital beds (per 10 000 population)",
+     "name": "Hospital beds per 10 000 population",
+     "description": "WHO GHO hospital bed density",
+     "harvest_metric_candidates": ["hospital_beds"]},
+    {"id": "WHS6_102", "IndicatorCode": "WHS6_102",
+     "IndicatorName": "Diphtheria tetanus toxoid and pertussis (DTP3) immunization coverage among 1-year-olds (%)",
+     "name": "DTP3 immunization coverage",
+     "description": "WHO GHO DTP3 immunization",
+     "harvest_metric_candidates": ["vaccination_coverage"]},
+    {"id": "WHS4_117", "IndicatorCode": "WHS4_117",
+     "IndicatorName": "Measles-containing-vaccine first-dose (MCV1) immunization coverage among 1-year-olds (%)",
+     "name": "Measles immunization coverage",
+     "description": "WHO GHO measles immunization",
+     "harvest_metric_candidates": ["vaccination_coverage"]},
+    {"id": "WHS4_128", "IndicatorCode": "WHS4_128",
+     "IndicatorName": "Polio (Pol3) immunization coverage among 1-year-olds (%)",
+     "name": "Polio immunization coverage",
+     "description": "WHO GHO polio immunization",
+     "harvest_metric_candidates": ["vaccination_coverage"]},
+    # ── WASH / Environment ──
+    {"id": "WSH_WATER_SAFELY_MANAGED", "IndicatorCode": "WSH_WATER_SAFELY_MANAGED",
+     "IndicatorName": "Population using safely managed drinking-water services (%)",
+     "name": "Safely managed drinking water",
+     "description": "WHO GHO safely managed water services",
+     "harvest_metric_candidates": ["clean_water_access"]},
+    {"id": "WSH_SANITATION_SAFELY_MANAGED", "IndicatorCode": "WSH_SANITATION_SAFELY_MANAGED",
+     "IndicatorName": "Population using safely managed sanitation services (%)",
+     "name": "Safely managed sanitation",
+     "description": "WHO GHO safely managed sanitation services",
+     "harvest_metric_candidates": ["sanitation_coverage"]},
+    {"id": "SDGAIRBOD_3", "IndicatorCode": "SDGAIRBOD_3",
+     "IndicatorName": "Ambient and household air pollution attributable death rate (per 100 000 population, age-standardized)",
+     "name": "Air pollution attributable death rate",
+     "description": "WHO GHO air pollution mortality",
+     "harvest_metric_candidates": ["air_pollution_health", "air_quality_index"]},
+    # ── Reproductive / Child Nutrition ──
+    {"id": "NUTRITION_HA_2", "IndicatorCode": "NUTRITION_HA_2",
+     "IndicatorName": "Children aged < 5 years stunted (%)",
+     "name": "Child stunting prevalence",
+     "description": "WHO GHO child stunting",
+     "harvest_metric_candidates": ["child_stunting"]},
+    {"id": "NUTRITION_WH_2", "IndicatorCode": "NUTRITION_WH_2",
+     "IndicatorName": "Children aged < 5 years wasted (%)",
+     "name": "Child wasting prevalence",
+     "description": "WHO GHO child wasting",
+     "harvest_metric_candidates": ["child_stunting"]},
+    {"id": "NUTRITION_WA_2", "IndicatorCode": "NUTRITION_WA_2",
+     "IndicatorName": "Children aged < 5 years underweight (%)",
+     "name": "Child underweight prevalence",
+     "description": "WHO GHO child underweight",
+     "harvest_metric_candidates": ["child_stunting"]},
+    {"id": "NUTRITION_ANE_WRA_P", "IndicatorCode": "NUTRITION_ANE_WRA_P",
+     "IndicatorName": "Anaemia prevalence in women of reproductive age (%)",
+     "name": "Anaemia prevalence in women",
+     "description": "WHO GHO anaemia prevalence women reproductive age",
+     "harvest_metric_candidates": ["health_outcomes"]},
+    # ── Violence / Injury ──
+    {"id": "VIOLENCE_HOMICIDERATE", "IndicatorCode": "VIOLENCE_HOMICIDERATE",
+     "IndicatorName": "Estimates of rates of homicides per 100 000 population",
+     "name": "Homicide rate",
+     "description": "WHO GHO homicide rate",
+     "harvest_metric_candidates": ["homicide_rate"]},
+    {"id": "VIOLENCE_YPLLRATE", "IndicatorCode": "VIOLENCE_YPLLRATE",
+     "IndicatorName": "Years of potential life lost from violence",
+     "name": "Years of life lost from violence",
+     "description": "WHO GHO violence years of life lost",
+     "harvest_metric_candidates": ["homicide_rate"]},
+    # ── Mental Health ──
+    {"id": "MH_12", "IndicatorCode": "MH_12",
+     "IndicatorName": "Crude suicide rates (per 100 000 population)",
+     "name": "Suicide rate",
+     "description": "WHO GHO crude suicide rate",
+     "harvest_metric_candidates": ["suicide_rate"]},
+    # ── Road Safety ──
+    {"id": "RS_198", "IndicatorCode": "RS_198",
+     "IndicatorName": "Estimated road traffic death rate (per 100 000 population)",
+     "name": "Road traffic death rate",
+     "description": "WHO GHO road traffic mortality",
+     "harvest_metric_candidates": ["health_outcomes"]},
+    # ── Reproductive Health ──
+    {"id": "MDG_0000000025", "IndicatorCode": "MDG_0000000025",
+     "IndicatorName": "Adolescent birth rate (per 1000 women aged 15-19 years)",
+     "name": "Adolescent birth rate",
+     "description": "WHO GHO adolescent fertility",
+     "harvest_metric_candidates": ["fertility_rate", "health_outcomes"]},
+    {"id": "MDG_0000000026", "IndicatorCode": "MDG_0000000026",
+     "IndicatorName": "Births attended by skilled health personnel (%)",
+     "name": "Skilled birth attendance",
+     "description": "WHO GHO skilled birth attendance",
+     "harvest_metric_candidates": ["maternal_mortality", "health_outcomes"]},
+    # ── Expenditure ──
+    {"id": "GHED_CHE_pc_PPP_SHA2011", "IndicatorCode": "GHED_CHE_pc_PPP_SHA2011",
+     "IndicatorName": "Current health expenditure (CHE) per capita in PPP int$",
+     "name": "Health expenditure per capita PPP",
+     "description": "WHO GHO health expenditure per capita",
+     "harvest_metric_candidates": ["health_spending"]},
+    {"id": "GHED_OOPS_SHA2011", "IndicatorCode": "GHED_OOPS_SHA2011",
+     "IndicatorName": "Out-of-pocket spending as percentage of current health expenditure (CHE) (%)",
+     "name": "Out-of-pocket health spending %",
+     "description": "WHO GHO out-of-pocket health expenditure",
+     "harvest_metric_candidates": ["out_of_pocket_spending", "health_spending"]},
 )
 _WVS_LOCAL_METRIC_CANDIDATES: dict[str, tuple[str, ...]] = {
     str(item["id"]).strip().upper(): tuple(str(metric) for metric in item.get("harvest_metric_candidates", []) if str(metric).strip())
@@ -305,6 +494,10 @@ def _wvs_raw_dir() -> Path:
     return Path(__file__).resolve().parents[4] / "data" / "raw" / "wvs"
 
 
+def _wvs_registry_path() -> Path:
+    return Path(__file__).resolve().parents[4] / "data" / "dataset_catalog" / "wvs_indicator_registry.yaml"
+
+
 def _wvs_variable_catalog_path() -> Path:
     return (
         _wvs_raw_dir()
@@ -313,7 +506,50 @@ def _wvs_variable_catalog_path() -> Path:
 
 
 @lru_cache(maxsize=1)
+def _load_wvs_indicator_registry() -> dict[str, dict[str, Any]]:
+    """Load the WVS indicator registry YAML.  Returns ``{code: spec}``."""
+    registry_path = _wvs_registry_path()
+    if not registry_path.exists():
+        return {}
+    try:
+        import yaml
+
+        data = yaml.safe_load(registry_path.read_text(encoding="utf-8"))
+        indicators = data.get("indicators", {}) if isinstance(data, dict) else {}
+        return {str(k).strip().upper(): v for k, v in indicators.items() if isinstance(v, dict)}
+    except Exception:
+        logger.warning("Failed to load WVS indicator registry from {}", registry_path, exc_info=True)
+        return {}
+
+
+@lru_cache(maxsize=1)
 def _load_wvs_indicator_catalog_from_local_file() -> tuple[dict[str, Any], ...]:
+    # First try loading from registry YAML (auto-generated from codebook)
+    registry = _load_wvs_indicator_registry()
+    if registry:
+        catalog: list[dict[str, Any]] = []
+        for variable, spec in registry.items():
+            title = str(spec.get("title", variable))
+            candidates = spec.get("canonical_candidates", [])
+            if isinstance(candidates, str):
+                candidates = [candidates]
+            # Also check the static metric candidates
+            static_candidates = _WVS_LOCAL_METRIC_CANDIDATES.get(variable, ())
+            merged_candidates = list(dict.fromkeys(list(candidates) + list(static_candidates)))
+            item: dict[str, Any] = {
+                "id": variable,
+                "name": title,
+                "description": f"World Values Survey longitudinal variable {variable}: {title}",
+                "wave": "timeseries",
+            }
+            if merged_candidates:
+                item["harvest_metric_candidates"] = merged_candidates
+            catalog.append(item)
+        if catalog:
+            logger.info("Loaded {} WVS indicators from registry", len(catalog))
+            return tuple(catalog)
+
+    # Fallback: try Excel codebook (read ALL indicators, not just supported)
     path = _wvs_variable_catalog_path()
     if not path.exists():
         return _WVS_STATIC_INDICATORS
@@ -327,7 +563,6 @@ def _load_wvs_indicator_catalog_from_local_file() -> tuple[dict[str, Any], ...]:
     try:
         workbook = load_workbook(path, read_only=True, data_only=True)
         worksheet = workbook[workbook.sheetnames[0]]
-        supported = {str(item["id"]).strip().upper(): dict(item) for item in _WVS_STATIC_INDICATORS}
         header_index: dict[str, int] = {}
         rows = worksheet.iter_rows(values_only=True)
         header = next(rows, ())
@@ -341,21 +576,24 @@ def _load_wvs_indicator_catalog_from_local_file() -> tuple[dict[str, Any], ...]:
         if variable_idx is None or title_idx is None:
             return _WVS_STATIC_INDICATORS
 
-        catalog: list[dict[str, Any]] = []
+        catalog = []
         for row in rows:
             variable = str(row[variable_idx] or "").strip().upper()
-            if variable not in supported:
+            if not variable:
                 continue
             title = str(row[title_idx] or "").strip()
-            item = dict(supported[variable])
-            if title:
-                item["name"] = title
-                item["description"] = f"World Values Survey longitudinal variable {variable}: {title}"
+            item: dict[str, Any] = {
+                "id": variable,
+                "name": title or variable,
+                "description": f"World Values Survey longitudinal variable {variable}: {title}",
+                "wave": "timeseries",
+            }
             metric_candidates = _WVS_LOCAL_METRIC_CANDIDATES.get(variable, ())
             if metric_candidates:
                 item["harvest_metric_candidates"] = list(metric_candidates)
             catalog.append(item)
         if catalog:
+            logger.info("Loaded {} WVS indicators from Excel codebook", len(catalog))
             return tuple(catalog)
     except Exception:
         logger.warning("Failed to load local WVS indicator catalog from {}", path, exc_info=True)
@@ -461,20 +699,35 @@ async def harvest_sources(config: DatasetBatchConfig) -> dict[str, list[dict]]:
 
     started_at = datetime.now(UTC).isoformat()
     out: dict[str, list[dict]] = {}
+    state_lock = asyncio.Lock()
+    semaphore = asyncio.Semaphore(_HARVEST_MAX_PARALLELISM)
+    completed_names: set[str] = set()
+    pending_specs = list(specs)
 
-    # Wave C is intentionally serial-only and heavy (CKAN data.gov.ua).
-    for spec in specs:
-        try:
-            rows = await harvest_one_source(
-                spec,
-                config,
-                harvested=out,
-                metrics_map=metrics_map,
-                checkpoint=checkpoint,
-            )
-        except Exception as exc:
-            logger.error("Harvest failed for source {}: {}", spec.name, exc)
-            rows = []
+    async def _record_success(spec: SourceSpec, rows: list[dict]) -> None:
+        payload_path = _current_snapshot_payload_path(config, spec.name)
+        async with state_lock:
+            out[spec.name] = rows
+            checkpoint[spec.name] = {
+                "status": "complete",
+                "records_fetched": len(rows),
+                "row_bytes": int(payload_path.stat().st_size) if payload_path.exists() else 0,
+                "cursor": None,
+                "offset": 0,
+                "page": 0,
+                "etag": None,
+                "last_modified": None,
+                "payload_hash": _payload_hash(payload_path) if payload_path.exists() else "",
+                "last_success_at": datetime.now(UTC).isoformat(),
+                "error": "",
+            }
+            completed_names.add(spec.name)
+            write_json(config.harvest_checkpoint_path, checkpoint)
+
+    async def _record_failure(spec: SourceSpec, exc: Exception) -> None:
+        logger.error("Harvest failed for source {}: {}", spec.name, exc)
+        async with state_lock:
+            out[spec.name] = []
             checkpoint[spec.name] = {
                 "status": "failed",
                 "records_fetched": 0,
@@ -488,25 +741,53 @@ async def harvest_sources(config: DatasetBatchConfig) -> dict[str, list[dict]]:
                 "last_success_at": "",
                 "error": str(exc)[:500],
             }
+            completed_names.add(spec.name)
             write_json(config.harvest_checkpoint_path, checkpoint)
-            out[spec.name] = rows
-            continue
-        out[spec.name] = rows
-        payload_path = _current_snapshot_payload_path(config, spec.name)
-        checkpoint[spec.name] = {
-            "status": "complete",
-            "records_fetched": len(rows),
-            "row_bytes": int(payload_path.stat().st_size) if payload_path.exists() else 0,
-            "cursor": None,
-            "offset": 0,
-            "page": 0,
-            "etag": None,
-            "last_modified": None,
-            "payload_hash": _payload_hash(payload_path) if payload_path.exists() else "",
-            "last_success_at": datetime.now(UTC).isoformat(),
-            "error": "",
-        }
-        write_json(config.harvest_checkpoint_path, checkpoint)
+
+    async def _harvest_spec(spec: SourceSpec) -> None:
+        try:
+            rows = await harvest_one_source(
+                spec,
+                config,
+                harvested=out,
+                metrics_map=metrics_map,
+                checkpoint=checkpoint,
+            )
+        except Exception as exc:
+            await _record_failure(spec, exc)
+            return
+        await _record_success(spec, rows)
+
+    async def _run_parallel_spec(spec: SourceSpec) -> None:
+        async with semaphore:
+            await _harvest_spec(spec)
+
+    async def _run_serial_group(group_specs: list[SourceSpec]) -> None:
+        for spec in group_specs:
+            await _harvest_spec(spec)
+
+    while pending_specs:
+        ready_specs = [
+            spec
+            for spec in pending_specs
+            if not spec.seed_from or spec.seed_from in completed_names
+        ]
+        if not ready_specs:
+            unresolved = ", ".join(
+                f"{spec.name}->{spec.seed_from}"
+                for spec in pending_specs
+            )
+            raise RuntimeError(f"Harvest dependency deadlock: {unresolved}")
+
+        serial_specs = [spec for spec in ready_specs if _harvest_runs_serially(spec)]
+        parallel_specs = [spec for spec in ready_specs if not _harvest_runs_serially(spec)]
+        tasks = [asyncio.create_task(_run_parallel_spec(spec)) for spec in parallel_specs]
+        if serial_specs:
+            tasks.append(asyncio.create_task(_run_serial_group(serial_specs)))
+        if tasks:
+            await asyncio.gather(*tasks)
+        ready_names = {spec.name for spec in ready_specs}
+        pending_specs = [spec for spec in pending_specs if spec.name not in ready_names]
 
     stage_manifest = config.manifests_dir / "harvest.json"
     write_stage_manifest(
@@ -518,6 +799,10 @@ async def harvest_sources(config: DatasetBatchConfig) -> dict[str, list[dict]]:
         started_at=started_at,
     )
     return out
+
+
+def _harvest_runs_serially(spec: SourceSpec) -> bool:
+    return spec.name in _SERIAL_HARVEST_SOURCES
 
 
 async def harvest_one_source(

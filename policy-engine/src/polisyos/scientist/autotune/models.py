@@ -7,7 +7,7 @@ from enum import Enum
 from pathlib import Path
 from typing import Any, Protocol
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
@@ -23,6 +23,10 @@ class MetricDirection(str, Enum):
 class BenchmarkSplit(str, Enum):
     SELECTION = "selection"
     HOLDOUT = "holdout"
+    HIDDEN_HOLDOUT = "hidden_holdout"
+    ROTATING_CHALLENGE = "rotating_challenge"
+    ADVERSARIAL = "adversarial"
+    SENTINEL = "sentinel"
 
 
 class MutationArtifact(BaseModel):
@@ -42,12 +46,44 @@ class BenchmarkSplitManifest(BaseModel):
     id_field: str = Field(default="id", min_length=1, max_length=128)
     selection_ids: list[str] = Field(default_factory=list)
     holdout_ids: list[str] = Field(default_factory=list)
+    hidden_holdout_ids: list[str] = Field(default_factory=list)
+    rotating_challenge_ids: list[str] = Field(default_factory=list)
+    adversarial_ids: list[str] = Field(default_factory=list)
+    sentinel_ids: list[str] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _validate_unique_assignments(self) -> "BenchmarkSplitManifest":
+        assignments: dict[str, BenchmarkSplit] = {}
+        for split in BenchmarkSplit:
+            for item_id in self.ids_for_split(split):
+                existing = assignments.get(item_id)
+                if existing is not None and existing is not split:
+                    raise ValueError(
+                        f"Benchmark item '{item_id}' is assigned to both "
+                        f"'{existing.value}' and '{split.value}'."
+                    )
+                assignments[item_id] = split
+        return self
+
+    def ids_for_split(self, split: BenchmarkSplit) -> list[str]:
+        if split is BenchmarkSplit.SELECTION:
+            return list(self.selection_ids)
+        if split is BenchmarkSplit.HOLDOUT:
+            return list(self.holdout_ids)
+        if split is BenchmarkSplit.HIDDEN_HOLDOUT:
+            return list(self.hidden_holdout_ids)
+        if split is BenchmarkSplit.ROTATING_CHALLENGE:
+            return list(self.rotating_challenge_ids)
+        if split is BenchmarkSplit.ADVERSARIAL:
+            return list(self.adversarial_ids)
+        if split is BenchmarkSplit.SENTINEL:
+            return list(self.sentinel_ids)
+        return []
 
     def split_for(self, item_id: str) -> BenchmarkSplit | None:
-        if item_id in set(self.selection_ids):
-            return BenchmarkSplit.SELECTION
-        if item_id in set(self.holdout_ids):
-            return BenchmarkSplit.HOLDOUT
+        for split in BenchmarkSplit:
+            if item_id in set(self.ids_for_split(split)):
+                return split
         return None
 
 
@@ -76,6 +112,7 @@ class BenchmarkEvaluation(BaseModel):
     promotable: bool = False
     status: str = Field(default="ok", min_length=1, max_length=64)
     notes: list[str] = Field(default_factory=list)
+    runtime_split_type: BenchmarkSplit | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     def metrics_for_split(self, split: BenchmarkSplit) -> dict[str, float]:
@@ -83,12 +120,40 @@ class BenchmarkEvaluation(BaseModel):
             return dict(self.selection_metrics)
         return dict(self.holdout_metrics)
 
+    def resolved_runtime_split_type(self) -> BenchmarkSplit:
+        if self.runtime_split_type is not None:
+            return self.runtime_split_type
+        suite_name = self.suite_id.strip().lower()
+        if "hidden_holdout" in suite_name:
+            return BenchmarkSplit.HIDDEN_HOLDOUT
+        if "rotating" in suite_name or "challenge" in suite_name:
+            return BenchmarkSplit.ROTATING_CHALLENGE
+        if "adversarial" in suite_name:
+            return BenchmarkSplit.ADVERSARIAL
+        if "sentinel" in suite_name:
+            return BenchmarkSplit.SENTINEL
+        if "holdout" in suite_name:
+            return BenchmarkSplit.HOLDOUT
+        return BenchmarkSplit.SELECTION
+
+    def matches_runtime_split(self, *expected: BenchmarkSplit) -> bool:
+        if not expected:
+            return True
+        return self.resolved_runtime_split_type() in set(expected)
+
     def primary_value(self, *, split: BenchmarkSplit, metric: str) -> float | None:
         metrics = self.metrics_for_split(split)
         value = metrics.get(metric)
         return float(value) if value is not None else None
 
     def sample_count(self, *, split: BenchmarkSplit) -> int:
+        if split is BenchmarkSplit.HIDDEN_HOLDOUT:
+            return int(
+                self.sample_counts.get(
+                    BenchmarkSplit.HIDDEN_HOLDOUT.value,
+                    self.sample_counts.get(BenchmarkSplit.HOLDOUT.value, 0),
+                )
+            )
         return int(self.sample_counts.get(split.value, 0))
 
 
@@ -125,6 +190,18 @@ class PromotionDecision(BaseModel):
     reason: str = Field(..., min_length=1, max_length=256)
     champion: ChampionPointer | None = None
     previous_champion: ChampionPointer | None = None
+
+
+class CandidateGenerator(Protocol):
+    """Protocol for autotune candidate generators."""
+
+    def generate(
+        self,
+        history: list[Any],
+        current_best: dict[str, Any] | None,
+        context: dict[str, Any],
+    ) -> dict[str, Any]:
+        ...
 
 
 class BenchmarkedEvaluator(Protocol):

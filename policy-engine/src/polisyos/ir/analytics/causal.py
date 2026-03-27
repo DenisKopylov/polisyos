@@ -17,7 +17,11 @@ from polisyos.ir.analytics.uncertainty import (
 )
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.canon import CanonSpec
-from polisyos.ir.refs import CausalEffectReportRef
+from polisyos.ir.refs import (
+    CausalEffectReportRef,
+    DataReadinessReportRef,
+    ProofBundleRef,
+)
 
 
 class CausalMethod(str, Enum):
@@ -93,6 +97,26 @@ class DiagnosticTest(BaseModel):
     p_value: float | None = Field(default=None, ge=0.0, le=1.0)
     passed: bool
     details: dict[str, Any] = Field(default_factory=dict)
+
+
+class ProofBundle(BaseModel):
+    """Canonical public proof artifact for causal identification."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
+    proof_status: Literal["identified", "non_identified", "oracle_needed"]
+    proof_stratum: Literal["A0_trusted", "A1_extended", "A2_oracle_backed"]
+    theorem_family: str
+    completeness_regime: Literal["complete", "sound_incomplete", "heuristic_backed"]
+    implementation_coverage: str
+    graph_ref: str | None = None
+    query_ref: str | None = None
+    estimand_ast: dict[str, Any] | None = None
+    negative_certificate_summary: str | None = None
+    proof_trace: list[str] = Field(default_factory=list)
+    assumptions: list[str] = Field(default_factory=list)
+    metadata: dict[str, Any] = Field(default_factory=dict)
 
 
 class CausalEffectReport(BaseModel):
@@ -259,6 +283,34 @@ def load_causal_effect_report(
     return CausalEffectReport.model_validate(payload)
 
 
+def persist_proof_bundle(
+    store: ArtifactStore,
+    bundle: ProofBundle,
+    *,
+    inputs: list[InputRef] | None = None,
+    schema_name: str = "ir.proof_bundle",
+    schema_version: str = "1.0",
+) -> ProofBundleRef:
+    ref = put_json_artifact(
+        store,
+        bundle.model_dump(mode="json"),
+        kind="ir.proof_bundle",
+        schema_name=schema_name,
+        schema_version=schema_version,
+        inputs=inputs,
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    return ProofBundleRef.model_validate(ref)
+
+
+def load_proof_bundle(
+    store: ArtifactStore,
+    ref: ProofBundleRef,
+) -> ProofBundle:
+    payload = get_json_artifact(store, ref.artifact_id)
+    return ProofBundle.model_validate(payload)
+
+
 class PositivityDiagnosticReport(BaseModel):
     """Positivity / overlap diagnostic result for causal identification governance.
 
@@ -291,8 +343,311 @@ class PositivityDiagnosticReport(BaseModel):
     side_conditions_violated: list[SideConditionKind] = Field(default_factory=list)
 
 
+class DataReadinessReport(BaseModel):
+    """Canonical pre-estimation readiness gate for causal execution."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
+    decision: Literal["pass", "warn", "block", "unknown"]
+    can_compile_estimation: bool
+    can_run_estimation: bool
+    sample_size: int | None = Field(default=None, ge=0)
+    measurement_quality: Literal["known_good", "proxy_only", "unknown"] = "unknown"
+    fallback_data_available: bool = False
+    positivity: PositivityDiagnosticReport | None = None
+    support_mismatch: dict[str, Any] | None = None
+    blocking_reasons: list[str] = Field(default_factory=list)
+    warnings: list[str] = Field(default_factory=list)
+    metrics: dict[str, float] = Field(default_factory=dict)
+
+
+def persist_data_readiness_report(
+    store: ArtifactStore,
+    report: DataReadinessReport,
+    *,
+    inputs: list[InputRef] | None = None,
+    schema_name: str = "ir.data_readiness_report",
+    schema_version: str = "1.0",
+) -> DataReadinessReportRef:
+    ref = put_json_artifact(
+        store,
+        report.model_dump(mode="json"),
+        kind="ir.data_readiness_report",
+        schema_name=schema_name,
+        schema_version=schema_version,
+        inputs=inputs,
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    return DataReadinessReportRef.model_validate(ref)
+
+
+def load_data_readiness_report(
+    store: ArtifactStore,
+    ref: DataReadinessReportRef,
+) -> DataReadinessReport:
+    payload = get_json_artifact(store, ref.artifact_id)
+    return DataReadinessReport.model_validate(payload)
+
+
+def proof_bundle_from_identification_result(
+    result: Any,
+    *,
+    graph_ref: str | None = None,
+    query_ref: str | None = None,
+    negative_certificate_summary: str | None = None,
+) -> ProofBundle:
+    """Translate an internal identification result into the canonical proof surface."""
+    status_raw = _status_value(getattr(result, "status", "oracle_needed"))
+    algorithm_version = str(getattr(result, "algorithm_version", "") or "")
+    theorem_family = algorithm_version or "id_unknown"
+    proof_status: Literal["identified", "non_identified", "oracle_needed"]
+    completeness_regime: Literal["complete", "sound_incomplete", "heuristic_backed"]
+    if status_raw == "identified":
+        proof_status = "identified"
+        completeness_regime = "complete"
+    elif status_raw in {"hedge_found", "not_recoverable"}:
+        proof_status = "non_identified"
+        completeness_regime = "complete"
+    elif status_raw in {"oracle_needed", "pag_ambiguous"}:
+        proof_status = "oracle_needed"
+        completeness_regime = "heuristic_backed"
+    else:
+        proof_status = "oracle_needed"
+        completeness_regime = "sound_incomplete"
+
+    proof_stratum = _proof_stratum_for_result(status_raw=status_raw, theorem_family=theorem_family)
+    estimand_ast = getattr(result, "estimand_ast", None)
+    assumptions = _extract_assumptions_from_estimand(estimand_ast)
+    return ProofBundle(
+        proof_status=proof_status,
+        proof_stratum=proof_stratum,
+        theorem_family=theorem_family,
+        completeness_regime=completeness_regime,
+        implementation_coverage=_implementation_coverage_for_result(
+            status_raw=status_raw,
+            theorem_family=theorem_family,
+        ),
+        graph_ref=graph_ref,
+        query_ref=query_ref or getattr(result, "query_str", None),
+        estimand_ast=(
+            estimand_ast.model_dump(mode="json")
+            if hasattr(estimand_ast, "model_dump")
+            else estimand_ast
+        ),
+        negative_certificate_summary=negative_certificate_summary,
+        proof_trace=list(getattr(result, "trace", []) or []),
+        assumptions=assumptions,
+        metadata={
+            "status": status_raw,
+            "required_distributions_count": len(getattr(result, "required_distributions", []) or []),
+        },
+    )
+
+
+def proof_bundle_from_negative_certificate(
+    certificate: Any,
+    *,
+    graph_ref: str | None = None,
+    query_ref: str | None = None,
+    theorem_family: str | None = None,
+    status_raw: str | None = None,
+) -> ProofBundle:
+    """Translate a canonical impossibility artifact into the public proof surface."""
+    diagnostics = dict(getattr(certificate, "quantitative_diagnostics", {}) or {})
+    blocking_type = str(getattr(getattr(certificate, "blocking_type", None), "value", "") or "")
+    resolved_status = str(status_raw or diagnostics.get("identification_status") or "").strip().lower()
+    if not resolved_status:
+        resolved_status = "non_identified"
+    resolved_theorem_family = (
+        str(theorem_family or diagnostics.get("algorithm_version") or "").strip()
+        or f"negative_{blocking_type or 'certificate'}"
+    )
+    if resolved_status in {"oracle_needed", "pag_ambiguous"}:
+        proof_status: Literal["identified", "non_identified", "oracle_needed"] = "oracle_needed"
+        completeness_regime: Literal["complete", "sound_incomplete", "heuristic_backed"] = (
+            "heuristic_backed"
+        )
+    else:
+        proof_status = "non_identified"
+        completeness_regime = "complete"
+
+    proof_trace = diagnostics.get("proof_trace")
+    if not isinstance(proof_trace, list):
+        proof_trace = []
+
+    return ProofBundle(
+        proof_status=proof_status,
+        proof_stratum=_proof_stratum_for_result(
+            status_raw=resolved_status,
+            theorem_family=resolved_theorem_family,
+        ),
+        theorem_family=resolved_theorem_family,
+        completeness_regime=completeness_regime,
+        implementation_coverage=_implementation_coverage_for_result(
+            status_raw=resolved_status,
+            theorem_family=resolved_theorem_family,
+        ),
+        graph_ref=graph_ref,
+        query_ref=query_ref,
+        estimand_ast=None,
+        negative_certificate_summary=(
+            certificate.to_summary() if hasattr(certificate, "to_summary") else None
+        ),
+        proof_trace=[str(item) for item in proof_trace],
+        assumptions=[],
+        metadata={
+            "status": resolved_status,
+            "blocking_type": blocking_type,
+            "constructive_message": str(
+                getattr(certificate, "constructive_message", "") or ""
+            ),
+        },
+    )
+
+
+def build_data_readiness_report(
+    *,
+    positivity: PositivityDiagnosticReport | dict[str, Any] | None = None,
+    support_mismatch: dict[str, Any] | None = None,
+    sample_size: int | None = None,
+    measurement_quality: Literal["known_good", "proxy_only", "unknown"] = "unknown",
+    fallback_data_available: bool = False,
+    extra_metrics: dict[str, float] | None = None,
+) -> DataReadinessReport:
+    """Aggregate existing causal diagnostics into a canonical readiness gate."""
+    positivity_report = _normalize_positivity(positivity)
+    metrics = dict(extra_metrics or {})
+    blocking_reasons: list[str] = []
+    warnings: list[str] = []
+
+    if positivity_report is not None:
+        metrics.setdefault("ess_fraction", positivity_report.ess_fraction)
+        metrics.setdefault("overlap_score", positivity_report.overlap_score)
+        metrics.setdefault(
+            "effective_sample_size",
+            float(positivity_report.effective_sample_size),
+        )
+        if not positivity_report.passes_positivity:
+            blocking_reasons.append("positivity_failed")
+        if positivity_report.ess_fraction < 0.30:
+            blocking_reasons.append("low_ess_fraction")
+        elif positivity_report.ess_fraction < 0.50:
+            warnings.append("ess_fraction_warn")
+        if positivity_report.overlap_score < 0.50:
+            blocking_reasons.append("low_overlap_score")
+        elif positivity_report.overlap_score < 0.70:
+            warnings.append("overlap_score_warn")
+
+    if support_mismatch is not None:
+        passes_support = bool(support_mismatch.get("passes_support_check", True))
+        support_score = support_mismatch.get("support_mismatch_score")
+        if support_score is not None:
+            try:
+                metrics.setdefault("support_mismatch_score", float(support_score))
+            except (TypeError, ValueError):
+                pass
+        if not passes_support:
+            blocking_reasons.append("support_mismatch_failed")
+
+    if sample_size is not None:
+        metrics.setdefault("sample_size", float(sample_size))
+        if sample_size < 50:
+            warnings.append("small_sample_size")
+
+    if measurement_quality == "unknown":
+        warnings.append("measurement_quality_unknown")
+    elif measurement_quality == "proxy_only":
+        warnings.append("proxy_measurement_only")
+
+    if not fallback_data_available:
+        warnings.append("fallback_arrays_unavailable")
+
+    if positivity_report is None and support_mismatch is None and sample_size is None:
+        decision: Literal["pass", "warn", "block", "unknown"] = "unknown"
+    elif blocking_reasons:
+        decision = "block"
+    elif warnings:
+        decision = "warn"
+    else:
+        decision = "pass"
+
+    can_run_estimation = decision in {"pass", "warn"}
+    return DataReadinessReport(
+        decision=decision,
+        can_compile_estimation=can_run_estimation,
+        can_run_estimation=can_run_estimation,
+        sample_size=sample_size,
+        measurement_quality=measurement_quality,
+        fallback_data_available=fallback_data_available,
+        positivity=positivity_report,
+        support_mismatch=dict(support_mismatch) if support_mismatch is not None else None,
+        blocking_reasons=blocking_reasons,
+        warnings=warnings,
+        metrics=metrics,
+    )
+
+
+def _normalize_positivity(
+    positivity: PositivityDiagnosticReport | dict[str, Any] | None,
+) -> PositivityDiagnosticReport | None:
+    if positivity is None:
+        return None
+    if isinstance(positivity, PositivityDiagnosticReport):
+        return positivity
+    try:
+        return PositivityDiagnosticReport.model_validate(positivity)
+    except Exception:
+        return None
+
+
+def _status_value(status: Any) -> str:
+    return str(getattr(status, "value", status) or "").strip().lower()
+
+
+def _proof_stratum_for_result(
+    *,
+    status_raw: str,
+    theorem_family: str,
+) -> Literal["A0_trusted", "A1_extended", "A2_oracle_backed"]:
+    family = theorem_family.lower()
+    if status_raw in {"oracle_needed", "pag_ambiguous"}:
+        return "A2_oracle_backed"
+    if any(token in family for token in ("sigma", "cyclic", "recover", "id_star", "idc_star", "ctf")):
+        return "A1_extended"
+    return "A0_trusted"
+
+
+def _implementation_coverage_for_result(
+    *,
+    status_raw: str,
+    theorem_family: str,
+) -> str:
+    if status_raw == "oracle_needed":
+        return f"conditional-coverage:{theorem_family or 'oracle'}"
+    if status_raw == "pag_ambiguous":
+        return "sound only under oriented-equivalence handling policy"
+    return f"declared-scope:{theorem_family or 'native_id'}"
+
+
+def _extract_assumptions_from_estimand(estimand_ast: Any) -> list[str]:
+    if estimand_ast is None:
+        return []
+    side_conditions = getattr(estimand_ast, "side_conditions", None)
+    if not side_conditions:
+        return []
+    assumptions: list[str] = []
+    for item in side_conditions:
+        kind = getattr(item, "kind", None)
+        value = getattr(kind, "value", kind)
+        if value is not None:
+            assumptions.append(str(value))
+    return assumptions
+
+
 __all__ = [
     "CausalMethod",
+    "DataReadinessReport",
     "EstimationStatus",
     "RefutationTestType",
     "RefutationResult",
@@ -300,7 +655,15 @@ __all__ = [
     "DiagnosticTest",
     "CausalEffectReport",
     "PositivityDiagnosticReport",
+    "ProofBundle",
     "TransportabilityResult",
+    "build_data_readiness_report",
+    "persist_data_readiness_report",
     "persist_causal_effect_report",
+    "persist_proof_bundle",
+    "load_data_readiness_report",
     "load_causal_effect_report",
+    "load_proof_bundle",
+    "proof_bundle_from_identification_result",
+    "proof_bundle_from_negative_certificate",
 ]

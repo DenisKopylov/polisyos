@@ -13,6 +13,7 @@ from polisyos.ir.analytics.literature import (
     DesignFamily,
     EvidenceSpan,
     EvidenceParameter,
+    EnvironmentAuditReport,
     EvidenceStrength,
     LiteratureCausalPrior,
     LiteratureEdgePrior,
@@ -187,6 +188,44 @@ def test_literature_prior_artifact_persist_load_roundtrip(tmp_path) -> None:
     assert loaded == prior
     assert loaded.edges[0].src == "x"
     assert loaded.metadata["topic"] == "labor"
+
+
+def test_literature_prior_roundtrips_environment_audit(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    prior = LiteratureCausalPrior(
+        edges=[
+            LiteratureEdgePrior(
+                src="x",
+                dst="y",
+                confidence=0.66,
+                evidence_strength=EvidenceStrength.OBSERVATIONAL,
+                article_refs=["W42"],
+            )
+        ],
+        environment_audit=EnvironmentAuditReport(
+            status="warning",
+            n_environments=3,
+            ks_passed=False,
+            ks_rejected_variables=[0],
+            ks_p_values={"feature_0_domain_a_vs_b": 0.01},
+            icp_run=True,
+            icp_passed=False,
+            variant_features=[1],
+            icp_p_values={"feature_1": 0.02},
+            warnings=["ks_detected_distribution_shift"],
+            metadata={"source": "test"},
+        ),
+        metadata={"topic": "labor"},
+    )
+
+    ref = persist_literature_causal_prior(store, prior)
+    loaded = load_literature_causal_prior(store, ref)
+    graph = loaded.to_causal_graph_model(nodes=["x", "y"])
+
+    assert loaded.environment_audit is not None
+    assert loaded.environment_audit.status == "warning"
+    assert loaded.environment_audit.variant_features == [1]
+    assert graph.metadata["environment_audit_status"] == "warning"
 
 
 def test_reconciliation_diagnostics_contract_minimal() -> None:

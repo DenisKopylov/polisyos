@@ -4,6 +4,7 @@ from __future__ import annotations
 from polisyos.foundry.methods.catalog.causal.interference import (
     InterferenceAugmentedGraph,
     InterferenceIdentificationResult,
+    build_interference_topology_contracts,
     identify_interference_effect,
 )
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType
@@ -66,3 +67,44 @@ def test_identify_interference_roundtrip_serialization() -> None:
     assert rebuilt == result
     assert rebuilt.augmented_graph.exposure_nodes == ("E__u0",)
     assert rebuilt.proof_steps[0].rule_name == "SUTVA_CHECK"
+
+
+def test_topology_adapter_discloses_cluster_and_pairwise_fallbacks() -> None:
+    graph = _make_graph(with_interference=True)
+    result = identify_interference_effect(graph, treatment="T_1", outcome="Y_1")
+
+    cluster_complex, cluster_certificate = build_interference_topology_contracts(
+        result,
+        reduction_policy="cluster_projection",
+    )
+    pairwise_complex, pairwise_certificate = build_interference_topology_contracts(
+        result.augmented_graph,
+        reduction_policy="pairwise_projection",
+    )
+
+    assert cluster_complex is not None
+    assert cluster_complex.hyperedges == (("T_1", "Y_1"), ("T_2", "Y_2"))
+    assert cluster_complex.reduction_policy == "cluster_projection"
+    assert cluster_certificate.fallback_mode == "clustered"
+    assert cluster_certificate.supported_query_family == "cluster_projection_queries"
+    assert pairwise_complex is not None
+    assert pairwise_complex.reduction_policy == "pairwise_projection"
+    assert pairwise_certificate.fallback_mode == "pairwise"
+    assert pairwise_certificate.supported_query_family == "pairwise_projection_queries"
+
+
+def test_topology_adapter_marks_full_complex_as_unsupported() -> None:
+    graph = _make_graph(with_interference=True)
+    result = identify_interference_effect(graph, treatment="T_1", outcome="Y_1")
+
+    interaction_complex, certificate = build_interference_topology_contracts(
+        result,
+        reduction_policy="full_complex",
+    )
+
+    assert interaction_complex is not None
+    assert interaction_complex.reduction_policy == "full_complex"
+    assert certificate.fallback_mode == "unsupported"
+    assert certificate.reduction_error_bound is None
+    assert certificate.supported_query_family == "cluster_projection_queries"
+    assert "hypergraph_identification_not_claimed" in certificate.exposure_assumptions

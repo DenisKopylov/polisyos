@@ -18,6 +18,8 @@ class EntityType(Enum):
     FACT_SEGMENT = "fact_segment"
     QUERY_RESULT = "query_result"
     SIMULATION_STATE = "simulation_state"
+    CHECKPOINT = "checkpoint"
+    ERROR_TRACE = "error_trace"
 
 
 class ActivityType(Enum):
@@ -30,6 +32,9 @@ class ActivityType(Enum):
     SIMULATION_STEP = "simulation_step"
     VALIDATION = "validation"
     MERGE = "merge"
+    ERROR = "error"
+    GOVERNANCE = "governance"
+    CHECKPOINT = "checkpoint"
 
 
 class AgentType(Enum):

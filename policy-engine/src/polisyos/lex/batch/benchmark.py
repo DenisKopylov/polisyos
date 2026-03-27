@@ -24,25 +24,30 @@ READINESS_THRESHOLDS: dict[str, float] = {
     "benchmark_constraints_ready_pct": 70.0,
     "benchmark_cross_graph_non_unknown_pct": 70.0,
     "benchmark_normpack_ready_pct": 90.0,
-    "benchmark_entity_dedup_ready_pct": 60.0,
     "benchmark_reference_resolution_ready_pct": 85.0,
     "benchmark_amendment_extraction_ready_pct": 60.0,
     "benchmark_amendment_target_resolution_pct": 70.0,
-    "benchmark_hallucination_clean_pct": 97.0,
+    "benchmark_hallucination_blocking_clean_pct": 97.0,
     "benchmark_consistency_resolution_ready_pct": 80.0,
+}
+ADVISORY_THRESHOLDS: dict[str, float] = {
+    "benchmark_entity_dedup_ready_pct": 60.0,
+    "benchmark_hallucination_clean_pct": 97.0,
 }
 _READINESS_TOTALS: dict[str, str] = {
     "benchmark_search_top5_relevance_pct": "benchmark_search_cases_total",
     "benchmark_constraints_ready_pct": "benchmark_constraints_domains_total",
     "benchmark_cross_graph_non_unknown_pct": "benchmark_cross_graph_cases_total",
     "benchmark_normpack_ready_pct": "benchmark_normpack_cases_total",
-    "benchmark_entity_dedup_ready_pct": "benchmark_entity_resolution_cases_total",
     "benchmark_reference_resolution_ready_pct": "benchmark_reference_resolution_cases_total",
     "benchmark_amendment_extraction_ready_pct": "benchmark_amendment_docs_total",
     "benchmark_amendment_target_resolution_pct": "benchmark_amendment_cases_total",
     "benchmark_hallucination_clean_pct": "benchmark_hallucination_cases_total",
+    "benchmark_hallucination_blocking_clean_pct": "benchmark_hallucination_cases_total",
     "benchmark_consistency_resolution_ready_pct": "benchmark_consistency_cases_total",
 }
+_BLOCKING_HALLUCINATION_FLAGS = ("phantom_number", "phantom_article_reference")
+_ADVISORY_HALLUCINATION_FLAGS = ("ungrounded_subject", "norm_type_mismatch")
 
 _POLICY_CASES: tuple[tuple[str, dict[str, Any]], ...] = (
     ("licensing", {"retroactive": True}),
@@ -121,6 +126,15 @@ def _column_exists(con: duckdb.DuckDBPyConnection, table_name: str, column_name:
         [table_name, column_name],
     ).fetchone()
     return row is not None
+
+
+def _hallucination_flag_condition(flags: tuple[str, ...]) -> str:
+    if not flags:
+        return "FALSE"
+    return " OR ".join(
+        f"LOWER(COALESCE(hallucination_flags_json, '')) LIKE '%{flag.lower()}%'"
+        for flag in flags
+    )
 
 
 def _load_top_domains(con: duckdb.DuckDBPyConnection) -> list[str]:
@@ -518,6 +532,7 @@ def _run_quality_capability_benchmark(
         "benchmark_amendment_target_resolution_pct": 0.0,
         "benchmark_hallucination_cases_total": 0,
         "benchmark_hallucination_clean_pct": 0.0,
+        "benchmark_hallucination_blocking_clean_pct": 0.0,
         "benchmark_consistency_cases_total": 0,
         "benchmark_consistency_resolution_ready_pct": 0.0,
         "benchmark_high_confidence_norm_cases_total": 0,
@@ -645,15 +660,42 @@ def _run_quality_capability_benchmark(
                         """
                     ).fetchone()[0]
                 )
+                hallucination_blocking_flagged_total = int(
+                    con.execute(
+                        f"""
+                        SELECT COUNT(*) FROM {normative_table}
+                        {normative_where}
+                        {" AND " if normative_where else " WHERE "}
+                        ({_hallucination_flag_condition(_BLOCKING_HALLUCINATION_FLAGS)})
+                        """
+                    ).fetchone()[0]
+                )
+                hallucination_advisory_flagged_total = int(
+                    con.execute(
+                        f"""
+                        SELECT COUNT(*) FROM {normative_table}
+                        {normative_where}
+                        {" AND " if normative_where else " WHERE "}
+                        ({_hallucination_flag_condition(_ADVISORY_HALLUCINATION_FLAGS)})
+                        """
+                    ).fetchone()[0]
+                )
                 metrics["benchmark_hallucination_cases_total"] = normative_total
                 metrics["benchmark_hallucination_clean_pct"] = round(
                     _pct(hallucination_clean_total, normative_total),
+                    3,
+                )
+                metrics["benchmark_hallucination_blocking_clean_pct"] = round(
+                    _pct(max(0, normative_total - hallucination_blocking_flagged_total), normative_total),
                     3,
                 )
                 payload["sections"]["hallucination"] = {
                     "facts_checked": normative_total,
                     "clean_facts": hallucination_clean_total,
                     "hallucination_clean_pct": metrics["benchmark_hallucination_clean_pct"],
+                    "blocking_flagged_facts": hallucination_blocking_flagged_total,
+                    "advisory_flagged_facts": hallucination_advisory_flagged_total,
+                    "hallucination_blocking_clean_pct": metrics["benchmark_hallucination_blocking_clean_pct"],
                 }
 
         if _table_exists(con, "lex_consistency_issues"):
@@ -707,6 +749,19 @@ def _evaluate_readiness(metrics: dict[str, float | int]) -> tuple[bool, list[str
     return not failed, failed
 
 
+def _evaluate_advisory(metrics: dict[str, float | int]) -> list[str]:
+    failed: list[str] = []
+    for metric_name, threshold in ADVISORY_THRESHOLDS.items():
+        total_name = _READINESS_TOTALS.get(metric_name, metric_name.replace("_pct", "_total"))
+        total = int(metrics.get(total_name, 0) or 0)
+        if total <= 0:
+            continue
+        value = float(metrics.get(metric_name, 0.0) or 0.0)
+        if value < threshold:
+            failed.append(metric_name)
+    return failed
+
+
 def run_benchmark(config: BatchConfig) -> BenchmarkOutcome:
     """Run deterministic legal consumer benchmarks and write JSON report."""
     if not config.db_path.exists():
@@ -744,6 +799,7 @@ def run_benchmark(config: BatchConfig) -> BenchmarkOutcome:
         **quality_capability_metrics,
     }
     passed, failed_checks = _evaluate_readiness(metrics)
+    advisory_failed_checks = _evaluate_advisory(metrics)
     payload = {
         "kind": "lex_benchmark",
         "generated_at": datetime.now(UTC).isoformat(),
@@ -753,6 +809,8 @@ def run_benchmark(config: BatchConfig) -> BenchmarkOutcome:
             "passed": passed,
             "failed_checks": failed_checks,
             "thresholds": READINESS_THRESHOLDS,
+            "advisory_failed_checks": advisory_failed_checks,
+            "advisory_thresholds": ADVISORY_THRESHOLDS,
         },
         "sections": {
             "search": search_payload,

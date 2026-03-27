@@ -13,6 +13,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import time
+from enum import StrEnum
 from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -33,7 +34,16 @@ __all__ = [
     "FanOutConfig",
     "FanOutNode",
     "FanOutResult",
+    "MergeConflictPolicy",
 ]
+
+
+class MergeConflictPolicy(StrEnum):
+    """How to resolve key conflicts during dict_merge fan-out."""
+
+    LAST_WRITE_WINS = "last_write_wins"
+    FIRST_WRITE_WINS = "first_write_wins"
+    ERROR = "error"
 
 
 class FanOutConfig(BaseModel):
@@ -70,6 +80,9 @@ class FanOutConfig(BaseModel):
     )
     max_parallelism: int = Field(default=4, ge=1, le=32)
     continue_on_item_failure: bool = Field(default=True)
+    merge_conflict_policy: MergeConflictPolicy = Field(
+        default=MergeConflictPolicy.LAST_WRITE_WINS,
+    )
 
 
 class FanOutResult(BaseModel):
@@ -177,21 +190,7 @@ class FanOutNode:
         failed_items: list[int] = []
 
         for i, item in enumerate(items):
-            params = {
-                **self._config.task_params_template,
-                self._config.item_param_key: item,
-                self._config.item_index_key: i,
-            }
-            # Bind params if the node supports it
-            bound_node = task_node
-            if hasattr(task_node, "bind"):
-                try:
-                    bound_result = task_node.bind(params)
-                    if bound_result is not None:
-                        bound_node = bound_result
-                except Exception:
-                    pass
-
+            bound_node = self._bind_item(task_node, item, i)
             item_state = state.model_copy(deep=True)
             try:
                 outcome = bound_node.execute(ctx, item_state)
@@ -214,7 +213,108 @@ class FanOutNode:
                     break
             outcomes.append((i, outcome))
 
-        # Merge results
+        return self._merge_outcomes(ctx, state, items, outcomes, failed_items)
+
+    async def execute_async(
+        self, ctx: ExecutionContext, state: ExperimentState,
+    ) -> NodeOutcome:
+        """Async fan-out with real parallelism via asyncio.TaskGroup."""
+        items = _resolve_path(state, self._config.items_state_path)
+        if items is None or not isinstance(items, list):
+            return NodeOutcome(
+                status="skip",
+                state=state,
+                events=[NodeEvent(
+                    level="info", message="No items found for fan-out",
+                    code="fan_out.no_items", attrs={},
+                )],
+            )
+
+        if len(items) == 0:
+            return NodeOutcome(
+                status="skip",
+                state=state,
+                events=[NodeEvent(
+                    level="info", message="Empty items list",
+                    code="fan_out.empty_items", attrs={},
+                )],
+            )
+
+        task_node = self._registry.get(self._config.task_node_id)
+        semaphore = asyncio.Semaphore(self._config.max_parallelism)
+        results: dict[int, NodeOutcome] = {}
+        cancel_event = asyncio.Event()
+
+        async def _run_item(i: int, item: Any) -> None:
+            if cancel_event.is_set():
+                return
+            async with semaphore:
+                if cancel_event.is_set():
+                    return
+                bound_node = self._bind_item(task_node, item, i)
+                item_state = state.model_copy(deep=True)
+                try:
+                    outcome = await asyncio.to_thread(
+                        bound_node.execute, ctx, item_state,
+                    )
+                except Exception as exc:
+                    logger.warning("Fan-out item %d failed: %s", i, exc)
+                    outcome = NodeOutcome(
+                        status="fail",
+                        state=item_state,
+                        error=NodeError(
+                            code="fan_out.item_failed",
+                            message=f"Item {i} failed: {exc}",
+                            details={"item_index": i, "type": exc.__class__.__name__},
+                        ),
+                    )
+                results[i] = outcome
+                if outcome.status == "fail" and not self._config.continue_on_item_failure:
+                    cancel_event.set()
+
+        async with asyncio.TaskGroup() as tg:
+            for i, item in enumerate(items):
+                tg.create_task(_run_item(i, item))
+
+        # Build ordered outcomes list
+        outcomes: list[tuple[int, NodeOutcome]] = []
+        failed_items: list[int] = []
+        for i in range(len(items)):
+            if i not in results:
+                continue  # cancelled before execution
+            outcome = results[i]
+            outcomes.append((i, outcome))
+            if outcome.status == "fail":
+                failed_items.append(i)
+
+        return self._merge_outcomes(ctx, state, items, outcomes, failed_items)
+
+    def _bind_item(self, task_node: Any, item: Any, index: int) -> Any:
+        """Bind item params to a task node."""
+        params = {
+            **self._config.task_params_template,
+            self._config.item_param_key: item,
+            self._config.item_index_key: index,
+        }
+        bound_node = task_node
+        if hasattr(task_node, "bind"):
+            try:
+                bound_result = task_node.bind(params)
+                if bound_result is not None:
+                    bound_node = bound_result
+            except Exception:
+                pass
+        return bound_node
+
+    def _merge_outcomes(
+        self,
+        ctx: ExecutionContext,
+        state: ExperimentState,
+        items: list[Any],
+        outcomes: list[tuple[int, NodeOutcome]],
+        failed_items: list[int],
+    ) -> NodeOutcome:
+        """Merge item outcomes into a single NodeOutcome."""
         ok_outcomes = [(i, o) for i, o in outcomes if o.status == "ok"]
         merged_state = state.model_copy(deep=True)
         all_artifacts: list[ArtifactRef] = []
@@ -225,7 +325,21 @@ class FanOutNode:
         elif self._config.merge_strategy == "dict_merge":
             merged: dict[str, Any] = {}
             for i, o in ok_outcomes:
-                merged[str(i)] = [a.artifact_id for a in o.artifacts]
+                key = str(i)
+                if key in merged:
+                    if self._config.merge_conflict_policy == MergeConflictPolicy.ERROR:
+                        return NodeOutcome(
+                            status="fail",
+                            state=merged_state,
+                            error=NodeError(
+                                code="fan_out.merge_conflict",
+                                message=f"Merge conflict on key '{key}'",
+                                details={"key": key},
+                            ),
+                        )
+                    if self._config.merge_conflict_policy == MergeConflictPolicy.FIRST_WRITE_WINS:
+                        continue
+                merged[key] = [a.artifact_id for a in o.artifacts]
             self._write_result(merged_state, self._config.result_state_path, merged)
         elif self._config.merge_strategy == "artifact_index":
             for i, o in ok_outcomes:

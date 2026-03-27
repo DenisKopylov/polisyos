@@ -12,6 +12,7 @@ from polisyos.core.contracts.foundry import CompileRequest, Metrics, StateDelta
 from polisyos.core.registry import build_default_registry_bundle, load_registry_bundle_content
 from polisyos.foundry.compile.api import compile as compile_foundry
 from polisyos.foundry.contracts.state import GlobalState
+from polisyos.foundry._executor_models import ExecutionStrictness
 from polisyos.foundry.executor import apply_state_delta_and_snapshot, execute_program_graph
 from polisyos.ir.model_spec import ModelSpec
 from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
@@ -112,6 +113,7 @@ def test_patch_executor_emits_artifacts(tmp_path) -> None:
         slot_registry=registries.slot_registry,
         merge_registry=registries.merge_registry,
         step=0,
+        strictness=ExecutionStrictness.RESEARCH,
     )
 
     assert store.has(exec_artifacts.state_delta_ref.artifact_id)
@@ -189,6 +191,7 @@ def test_patch_executor_respects_target_mask(tmp_path) -> None:
         merge_registry=registries.merge_registry,
         selector_field_registry=registries.selector_field_registry,
         step=0,
+        strictness=ExecutionStrictness.RESEARCH,
     )
 
     next_state, _ = apply_state_delta_and_snapshot(
@@ -246,6 +249,7 @@ def test_tax_subsidy_emits_patches_with_mask(tmp_path) -> None:
         merge_registry=registries.merge_registry,
         selector_field_registry=registries.selector_field_registry,
         step=0,
+        strictness=ExecutionStrictness.RESEARCH,
     )
 
     next_state, _ = apply_state_delta_and_snapshot(

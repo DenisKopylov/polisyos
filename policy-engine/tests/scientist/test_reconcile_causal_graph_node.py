@@ -5,7 +5,30 @@ import logging
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
-from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeSource, GraphType, load_causal_graph_model
+from polisyos.ir.analytics.alignment_certification import (
+    load_alignment_report,
+    persist_alignment_report,
+    verify_fragment_bundle_alignment,
+)
+from polisyos.ir.analytics.causal_graph import (
+    CausalEdge,
+    CausalGraphModel,
+    EdgeSource,
+    GraphType,
+    load_causal_graph_model,
+    persist_causal_graph_model,
+)
+from polisyos.ir.analytics.causal_queries import CausalQuery, QueryType
+from polisyos.ir.analytics.cross_graph import (
+    SCMFragment,
+    load_composition_certificate,
+    load_interface_mapping,
+    persist_interface_mapping,
+    persist_scm_fragment,
+)
+from polisyos.foundry.methods.catalog.causal.composition_failure_cards import (
+    load_composition_failure_card_bundle,
+)
 from polisyos.ir.analytics.literature import (
     LiteratureCausalPrior,
     LiteratureEdgePrior,
@@ -17,7 +40,11 @@ from polisyos.scientist.nodes.builtins.causal.reconcile_causal_graph import (
     ReconcileCausalGraphNode,
 )
 from polisyos.scientist.nodes.builtins.state_keys import (
+    ARTIFACT_ALIGNMENT_REPORT_REF,
     ARTIFACT_LITERATURE_PRIOR_REF,
+    ARTIFACT_COMPOSITION_CERTIFICATE_REF,
+    ARTIFACT_COMPOSITION_FAILURE_CARD_BUNDLE_REF,
+    ARTIFACT_INTERFACE_MAPPING_REF,
     ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF,
 )
 
@@ -79,3 +106,416 @@ def test_reconcile_causal_graph_node_skips_without_data_graph(tmp_path) -> None:
     outcome = ReconcileCausalGraphNode().execute(ctx, state)
 
     assert outcome.status == "skip"
+
+
+def test_reconcile_causal_graph_node_composes_fragments_and_persists_artifacts(tmp_path) -> None:
+    ctx = _build_ctx(tmp_path)
+    graph_a = CausalGraphModel(
+        graph_type=GraphType.DAG,
+        nodes=["employment_rate", "tax"],
+        edges=[
+            CausalEdge(
+                src="tax",
+                dst="employment_rate",
+                sources=[EdgeSource.DATA],
+                data_confidence=0.8,
+                combined_confidence=0.8,
+            )
+        ],
+    )
+    graph_b = CausalGraphModel(
+        graph_type=GraphType.DAG,
+        nodes=["employment_rate", "wages"],
+        edges=[
+            CausalEdge(
+                src="employment_rate",
+                dst="wages",
+                sources=[EdgeSource.DATA],
+                data_confidence=0.75,
+                combined_confidence=0.75,
+            )
+        ],
+    )
+    graph_a_ref = persist_causal_graph_model(ctx.store, graph_a)
+    graph_b_ref = persist_causal_graph_model(ctx.store, graph_b)
+    fragment_a_ref = persist_scm_fragment(
+        ctx.store,
+        SCMFragment(
+            fragment_id="labor_a",
+            graph_ref=str(graph_a_ref.artifact_id),
+            semantic_namespace="policy.labor",
+            interface_variables=["employment_rate"],
+            exposed_outputs=["employment_rate"],
+            variable_definitions={"employment_rate": "Employment rate"},
+            variable_units={"employment_rate": "percent"},
+        ),
+    )
+    fragment_b_ref = persist_scm_fragment(
+        ctx.store,
+        SCMFragment(
+            fragment_id="labor_b",
+            graph_ref=str(graph_b_ref.artifact_id),
+            semantic_namespace="policy.labor",
+            interface_variables=["employment_rate"],
+            exposed_inputs=["employment_rate"],
+            variable_definitions={"employment_rate": "Employment rate"},
+            variable_units={"employment_rate": "percent"},
+        ),
+    )
+
+    state = ExperimentState(
+        run_id="R_phase9_compose",
+        params={
+            "scm_fragment_refs": [
+                str(fragment_a_ref.artifact_id),
+                str(fragment_b_ref.artifact_id),
+            ]
+        },
+    )
+
+    outcome = ReconcileCausalGraphNode().execute(ctx, state)
+
+    assert outcome.status == "ok"
+    assert ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF in outcome.state.artifacts_index
+    assert ARTIFACT_ALIGNMENT_REPORT_REF in outcome.state.artifacts_index
+    assert ARTIFACT_INTERFACE_MAPPING_REF in outcome.state.artifacts_index
+    assert ARTIFACT_COMPOSITION_CERTIFICATE_REF in outcome.state.artifacts_index
+    composed_graph = load_causal_graph_model(
+        ctx.store,
+        outcome.state.artifacts_index[ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF],
+    )
+    mapping = load_interface_mapping(
+        ctx.store,
+        outcome.state.artifacts_index[ARTIFACT_INTERFACE_MAPPING_REF],
+    )
+    certificate = load_composition_certificate(
+        ctx.store,
+        outcome.state.artifacts_index[ARTIFACT_COMPOSITION_CERTIFICATE_REF],
+    )
+
+    assert any(node.startswith("stitched::employment_rate") for node in composed_graph.nodes)
+    assert len(mapping.entries) == 1
+    assert certificate.status == "preserved"
+    assert certificate.structure_status == "valid"
+    assert certificate.review_status == "clear"
+    assert outcome.state.params["needs_expert_review"] is False
+    assert outcome.state.params["reconciliation_diagnostics"]["structure_status"] == "valid"
+    assert outcome.state.params["reconciliation_diagnostics"]["review_status"] == "clear"
+
+
+def test_reconcile_causal_graph_node_reuses_precomputed_alignment_artifacts(tmp_path) -> None:
+    ctx = _build_ctx(tmp_path)
+    graph_a = CausalGraphModel(
+        graph_type=GraphType.DAG,
+        nodes=["employment_rate", "tax"],
+        edges=[CausalEdge(src="tax", dst="employment_rate", combined_confidence=0.8)],
+    )
+    graph_b = CausalGraphModel(
+        graph_type=GraphType.DAG,
+        nodes=["employment_rate", "wages"],
+        edges=[CausalEdge(src="employment_rate", dst="wages", combined_confidence=0.7)],
+    )
+    graph_a_ref = persist_causal_graph_model(ctx.store, graph_a)
+    graph_b_ref = persist_causal_graph_model(ctx.store, graph_b)
+    fragments = [
+        {
+            "fragment_id": "labor_a",
+            "graph_ref": str(graph_a_ref.artifact_id),
+            "semantic_namespace": "policy.labor",
+            "interface_variables": ["employment_rate"],
+            "exposed_outputs": ["employment_rate"],
+            "variable_definitions": {"employment_rate": "Employment rate"},
+            "variable_units": {"employment_rate": "percent"},
+        },
+        {
+            "fragment_id": "labor_b",
+            "graph_ref": str(graph_b_ref.artifact_id),
+            "semantic_namespace": "policy.labor",
+            "interface_variables": ["employment_rate"],
+            "exposed_inputs": ["employment_rate"],
+            "variable_definitions": {"employment_rate": "Employment rate"},
+            "variable_units": {"employment_rate": "percent"},
+        },
+    ]
+    report, mapping = verify_fragment_bundle_alignment(
+        [SCMFragment.model_validate(item) for item in fragments]
+    )
+    report_ref = persist_alignment_report(ctx.store, report)
+    mapping_ref = persist_interface_mapping(ctx.store, mapping)
+
+    state = ExperimentState(
+        run_id="R_phase9_compose_reuse",
+        artifacts_index={
+            ARTIFACT_ALIGNMENT_REPORT_REF: report_ref,
+            ARTIFACT_INTERFACE_MAPPING_REF: mapping_ref,
+        },
+        params={"scm_fragments": fragments},
+    )
+
+    outcome = ReconcileCausalGraphNode().execute(ctx, state)
+
+    assert outcome.status == "ok"
+    assert (
+        outcome.state.artifacts_index[ARTIFACT_ALIGNMENT_REPORT_REF].artifact_id
+        == report_ref.artifact_id
+    )
+    assert (
+        outcome.state.artifacts_index[ARTIFACT_INTERFACE_MAPPING_REF].artifact_id
+        == mapping_ref.artifact_id
+    )
+    loaded_report = load_alignment_report(
+        ctx.store,
+        outcome.state.artifacts_index[ARTIFACT_ALIGNMENT_REPORT_REF],
+    )
+    assert loaded_report.overall_status.value == "aligned"
+    assert loaded_report.review_status.value == "clear"
+
+
+def test_reconcile_causal_graph_node_updates_query_preservation_cache_without_recomposing(tmp_path) -> None:
+    ctx = _build_ctx(tmp_path)
+    graph_a = CausalGraphModel(
+        graph_type=GraphType.DAG,
+        nodes=["schooling", "employment_rate", "wages"],
+        edges=[
+            CausalEdge(
+                src="schooling",
+                dst="employment_rate",
+                sources=[EdgeSource.DATA],
+                data_confidence=0.8,
+                combined_confidence=0.8,
+            ),
+            CausalEdge(
+                src="schooling",
+                dst="wages",
+                sources=[EdgeSource.DATA],
+                data_confidence=0.8,
+                combined_confidence=0.8,
+            ),
+            CausalEdge(
+                src="employment_rate",
+                dst="wages",
+                sources=[EdgeSource.DATA],
+                data_confidence=0.8,
+                combined_confidence=0.8,
+            )
+        ],
+    )
+    graph_b = CausalGraphModel(
+        graph_type=GraphType.DAG,
+        nodes=["employment_rate", "wages", "training_slots"],
+        edges=[
+            CausalEdge(
+                src="employment_rate",
+                dst="training_slots",
+                sources=[EdgeSource.DATA],
+                data_confidence=0.75,
+                combined_confidence=0.75,
+            )
+        ],
+    )
+    graph_a_ref = persist_causal_graph_model(ctx.store, graph_a)
+    graph_b_ref = persist_causal_graph_model(ctx.store, graph_b)
+    fragment_a_ref = persist_scm_fragment(
+        ctx.store,
+        SCMFragment(
+            fragment_id="labor_core",
+            graph_ref=str(graph_a_ref.artifact_id),
+            semantic_namespace="policy.labor",
+            interface_variables=["employment_rate", "wages"],
+            exposed_outputs=["employment_rate", "wages"],
+            variable_definitions={
+                "employment_rate": "Employment rate",
+                "wages": "Average wage level",
+            },
+            variable_units={"employment_rate": "percent", "wages": "usd_per_month"},
+        ),
+    )
+    fragment_b_ref = persist_scm_fragment(
+        ctx.store,
+        SCMFragment(
+            fragment_id="training",
+            graph_ref=str(graph_b_ref.artifact_id),
+            semantic_namespace="policy.training",
+            interface_variables=["employment_rate", "wages"],
+            exposed_inputs=["employment_rate", "wages"],
+            variable_definitions={
+                "employment_rate": "Employment rate",
+                "wages": "Average wage level",
+            },
+            variable_units={"employment_rate": "percent", "wages": "usd_per_month"},
+        ),
+    )
+
+    initial_state = ExperimentState(
+        run_id="R_phase9_compose_query",
+        params={
+            "scm_fragment_refs": [
+                str(fragment_a_ref.artifact_id),
+                str(fragment_b_ref.artifact_id),
+            ]
+        },
+    )
+    initial_outcome = ReconcileCausalGraphNode().execute(ctx, initial_state)
+    assert initial_outcome.status == "ok"
+
+    replay_state = initial_outcome.state.model_copy(deep=True)
+    replay_state.params.pop("scm_fragment_refs", None)
+    replay_state.params.pop("scm_fragments", None)
+    replay_state.params["query_preservation_queries"] = [
+        CausalQuery(
+            query_type=QueryType.INTERVENTIONAL,
+            treatment_variable="employment_rate",
+            treatment_value=1.0,
+            outcome_variable="wages",
+            condition={"schooling": 1.0},
+        ).model_dump(mode="json")
+    ]
+    replay_outcome = ReconcileCausalGraphNode().execute(ctx, replay_state)
+
+    assert replay_outcome.status == "ok"
+    certificate = load_composition_certificate(
+        ctx.store,
+        replay_outcome.state.artifacts_index[ARTIFACT_COMPOSITION_CERTIFICATE_REF],
+    )
+    assert len(certificate.checked_queries) == 1
+    assert set(certificate.checked_queries.values()) == {"preserved"}
+    diagnostics = replay_outcome.state.params["reconciliation_diagnostics"]
+    assert diagnostics["query_preservation_statuses"] == certificate.checked_queries
+    assert set(diagnostics["query_preservation_reasons"].values()) == {"evaluated"}
+
+
+def test_reconcile_causal_graph_node_persists_failure_card_bundle_for_broken_composition(tmp_path) -> None:
+    ctx = _build_ctx(tmp_path)
+    labor_graph_ref = persist_causal_graph_model(
+        ctx.store,
+        CausalGraphModel(graph_type=GraphType.DAG, nodes=["rate"], edges=[]),
+    )
+    health_graph_ref = persist_causal_graph_model(
+        ctx.store,
+        CausalGraphModel(graph_type=GraphType.DAG, nodes=["rate"], edges=[]),
+    )
+    fragment_a_ref = persist_scm_fragment(
+        ctx.store,
+        SCMFragment(
+            fragment_id="labor",
+            graph_ref=str(labor_graph_ref.artifact_id),
+            semantic_namespace="policy.labor",
+            interface_variables=["rate"],
+            exposed_outputs=["rate"],
+            variable_definitions={"rate": "Employment rate among working-age adults"},
+            variable_units={"rate": "percent"},
+            measurement_models={"rate": "artifact:mm:labor"},
+        ),
+    )
+    fragment_b_ref = persist_scm_fragment(
+        ctx.store,
+        SCMFragment(
+            fragment_id="health",
+            graph_ref=str(health_graph_ref.artifact_id),
+            semantic_namespace="policy.health",
+            interface_variables=["rate"],
+            exposed_inputs=["rate"],
+            variable_definitions={"rate": "Hospital occupancy beds"},
+            variable_units={"rate": "beds_per_hospital"},
+            measurement_models={"rate": "artifact:mm:health"},
+        ),
+    )
+
+    state = ExperimentState(
+        run_id="R_phase9_compose_failure_cards",
+        params={
+            "scm_fragment_refs": [
+                str(fragment_a_ref.artifact_id),
+                str(fragment_b_ref.artifact_id),
+            ]
+        },
+    )
+
+    outcome = ReconcileCausalGraphNode().execute(ctx, state)
+
+    assert outcome.status == "ok"
+    assert ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF not in outcome.state.artifacts_index
+    assert ARTIFACT_COMPOSITION_FAILURE_CARD_BUNDLE_REF in outcome.state.artifacts_index
+    certificate = load_composition_certificate(
+        ctx.store,
+        outcome.state.artifacts_index[ARTIFACT_COMPOSITION_CERTIFICATE_REF],
+    )
+    assert certificate.status == "broken"
+    assert certificate.failure_card_bundle_ref is not None
+    bundle = load_composition_failure_card_bundle(
+        ctx.store,
+        outcome.state.artifacts_index[ARTIFACT_COMPOSITION_FAILURE_CARD_BUNDLE_REF],
+    )
+    assert {card.failure_type for card in bundle.cards} >= {"alignment_incompatible"}
+
+
+def test_reconcile_causal_graph_node_rejects_disconnected_fragment_topology(tmp_path) -> None:
+    ctx = _build_ctx(tmp_path)
+    graph_a_ref = persist_causal_graph_model(
+        ctx.store,
+        CausalGraphModel(graph_type=GraphType.DAG, nodes=["employment_rate"], edges=[]),
+    )
+    graph_b_ref = persist_causal_graph_model(
+        ctx.store,
+        CausalGraphModel(graph_type=GraphType.DAG, nodes=["employment_rate"], edges=[]),
+    )
+    graph_c_ref = persist_causal_graph_model(
+        ctx.store,
+        CausalGraphModel(graph_type=GraphType.DAG, nodes=["hospital_occupancy"], edges=[]),
+    )
+    refs = [
+        persist_scm_fragment(
+            ctx.store,
+            SCMFragment(
+                fragment_id="a",
+                graph_ref=str(graph_a_ref.artifact_id),
+                semantic_namespace="policy.labor",
+                interface_variables=["employment_rate"],
+                exposed_outputs=["employment_rate"],
+                variable_definitions={"employment_rate": "Employment rate"},
+                variable_units={"employment_rate": "percent"},
+            ),
+        ),
+        persist_scm_fragment(
+            ctx.store,
+            SCMFragment(
+                fragment_id="b",
+                graph_ref=str(graph_b_ref.artifact_id),
+                semantic_namespace="policy.training",
+                interface_variables=["employment_rate"],
+                exposed_inputs=["employment_rate"],
+                variable_definitions={"employment_rate": "Employment rate"},
+                variable_units={"employment_rate": "percent"},
+            ),
+        ),
+        persist_scm_fragment(
+            ctx.store,
+            SCMFragment(
+                fragment_id="c",
+                graph_ref=str(graph_c_ref.artifact_id),
+                semantic_namespace="policy.health",
+                interface_variables=["hospital_occupancy"],
+                exposed_outputs=["hospital_occupancy"],
+                variable_definitions={"hospital_occupancy": "Hospital occupancy rate"},
+                variable_units={"hospital_occupancy": "beds_per_hospital"},
+            ),
+        ),
+    ]
+    state = ExperimentState(
+        run_id="R_phase9_compose_disconnected",
+        params={"scm_fragment_refs": [str(ref.artifact_id) for ref in refs]},
+    )
+
+    outcome = ReconcileCausalGraphNode().execute(ctx, state)
+
+    assert outcome.status == "ok"
+    certificate = load_composition_certificate(
+        ctx.store,
+        outcome.state.artifacts_index[ARTIFACT_COMPOSITION_CERTIFICATE_REF],
+    )
+    assert certificate.status == "broken"
+    bundle = load_composition_failure_card_bundle(
+        ctx.store,
+        outcome.state.artifacts_index[ARTIFACT_COMPOSITION_FAILURE_CARD_BUNDLE_REF],
+    )
+    assert {card.failure_type for card in bundle.cards} >= {"fragment_topology_disconnected"}

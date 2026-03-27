@@ -16,6 +16,7 @@ from polisyos.core.contracts.scientist import (
     SourceVerificationReportRef,
     VerifiedPolicyReportRef,
 )
+from polisyos.ir.analytics.cross_graph import EvidenceSourceStatus
 from polisyos.lex.knowledge.types import LegalFactResult, LegalProvisionResult, LegalSourceBundle
 
 
@@ -46,6 +47,7 @@ class LegalCandidatePack(BaseModel):
     hit_reasons: dict[str, str] = Field(default_factory=dict)
     source_family_hints: dict[str, str] = Field(default_factory=dict)
     anchor_coverage_hints: dict[str, list[str]] = Field(default_factory=dict)
+    source_statuses: dict[str, EvidenceSourceStatus] = Field(default_factory=dict)
     notes: list[str] = Field(default_factory=list)
 
 
@@ -56,6 +58,7 @@ class LegalSourcePack(BaseModel):
     request_id: str
     source_bundles: list[LegalSourceBundle] = Field(default_factory=list)
     unresolved_anchor_hints: list[str] = Field(default_factory=list)
+    source_statuses: dict[str, EvidenceSourceStatus] = Field(default_factory=dict)
     notes: list[str] = Field(default_factory=list)
 
 
@@ -103,6 +106,7 @@ class SourceVerificationReport(BaseModel):
     verified_claim_citation_coverage_pct: float = 0.0
     verification_cycles_completed: int = 0
     needs_expert_review: bool = False
+    source_statuses: dict[str, EvidenceSourceStatus] = Field(default_factory=dict)
     notes: list[str] = Field(default_factory=list)
 
 
@@ -158,6 +162,7 @@ class VerifiedPolicyReport(BaseModel):
     citation_appendix: list[str] = Field(default_factory=list)
     intervention_legal_basis_map: dict[str, list[str]] = Field(default_factory=dict)
     needs_expert_review: bool = False
+    source_statuses: dict[str, EvidenceSourceStatus] = Field(default_factory=dict)
     notes: list[str] = Field(default_factory=list)
 
 

@@ -16,9 +16,17 @@ class PipelineStats:
     elapsed_seconds: float = 0.0
     stage_times: dict[str, float] = field(default_factory=dict)
     quality_passed: bool | None = None
+    quality_gate_passed: bool | None = None
+    qc_passed: bool | None = None
+    release_passed: bool | None = None
     quality_report: dict[str, float] = field(default_factory=dict)
     quality_failed_checks: list[str] = field(default_factory=list)
+    quality_gate_failed_checks: list[str] = field(default_factory=list)
+    quality_hotspot_failed_checks: list[str] = field(default_factory=list)
+    quality_warning_failed_checks: list[str] = field(default_factory=list)
     quality_skipped_checks: list[str] = field(default_factory=list)
+    qc_failed_checks: list[str] = field(default_factory=list)
+    release_failed_checks: list[str] = field(default_factory=list)
     llm_gate_metrics: dict[str, float | int] = field(default_factory=dict)
     grounded_statements: int = 0
     normative_statements: int = 0
@@ -48,6 +56,10 @@ class LLMGateStats:
     llm_gap_fill_added_statements_total: int = 0
     llm_gap_fill_timeout_fallback_total: int = 0
     llm_gap_fill_empty_responses_total: int = 0
+    llm_gap_fill_null_yield_total: int = 0
+    llm_gap_fill_null_yield_persisted_empty_total: int = 0
+    llm_gap_fill_null_yield_preserved_baseline_total: int = 0
+    auto_empty_skipped_total: int = 0
     deferred_total: int = 0
     audit_sample_total: int = 0
     audit_miss_total: int = 0
@@ -56,9 +68,14 @@ class LLMGateStats:
     timeout_retry_groups_total: int = 0
     timeout_retry_success_total: int = 0
     timeout_retry_failure_total: int = 0
+    retry_followup_passes_run: int = 0
+    retry_followup_pending_items_total: int = 0
+    retry_followup_recovered_items_total: int = 0
+    retry_followup_items_exhausted_total: int = 0
     llm_gap_fill_family_counts: dict[str, int] = field(default_factory=dict)
     llm_gap_fill_subtype_counts: dict[str, int] = field(default_factory=dict)
     llm_gap_fill_timeout_family_counts: dict[str, int] = field(default_factory=dict)
+    llm_gap_fill_trigger_counts: dict[str, int] = field(default_factory=dict)
     deferred_reason_counts: dict[str, int] = field(default_factory=dict)
     audit_miss_category_counts: dict[str, int] = field(default_factory=dict)
 
@@ -67,6 +84,13 @@ class LLMGateStats:
         if self.llm_candidate_total <= 0:
             return 100.0
         saved = max(0, self.llm_candidate_total - self.llm_sent_total)
+        return (saved * 100.0) / self.llm_candidate_total
+
+    @property
+    def primary_llm_saved_pct(self) -> float:
+        if self.llm_candidate_total <= 0:
+            return 100.0
+        saved = max(0, self.llm_candidate_total - self.llm_primary_sent_total)
         return (saved * 100.0) / self.llm_candidate_total
 
     @property
@@ -80,6 +104,12 @@ class LLMGateStats:
         if self.llm_gap_fill_sent_total <= 0:
             return 0.0
         return (self.llm_gap_fill_added_statements_total * 100.0) / self.llm_gap_fill_sent_total
+
+    @property
+    def gap_fill_null_yield_pct(self) -> float:
+        if self.llm_gap_fill_sent_total <= 0:
+            return 0.0
+        return (self.llm_gap_fill_null_yield_total * 100.0) / self.llm_gap_fill_sent_total
 
 
 @dataclass

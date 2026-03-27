@@ -334,6 +334,38 @@ def _extract_threshold_row_candidates_inner(
     quote = _clip_text(cleaned, size=320)
     analysis_text = _combine_with_context(cleaned, context_prefix)
     thresholds = extract_thresholds_from_text(analysis_text, applies_to=doc_title or "регульований показник")
+
+    def _emit_threshold_candidates(
+        *,
+        subject_hint: str,
+        raw_thresholds: list,
+        base_confidence: float,
+        reason_code: str,
+    ) -> tuple[list[SPOCandidate], list[str]]:
+        candidates: list[SPOCandidate] = []
+        reasons: list[str] = []
+        subject = _clip_text(subject_hint or doc_title or "регульований показник", 160)
+        for threshold in raw_thresholds:
+            value_text = str(getattr(threshold, "value_text", "") or getattr(threshold, "value_decimal", "") or "").strip()
+            unit = str(getattr(threshold, "unit", "") or "").strip()
+            if not value_text:
+                continue
+            object_uk = f"{value_text} {unit}".strip()
+            candidates.append(
+                _build_candidate(
+                    subject_uk=subject or "регульований показник",
+                    predicate="sets_threshold",
+                    object_uk=object_uk,
+                    norm_type="obligation",
+                    fact_text=f"{subject or 'регульований показник'} має поріг {object_uk}",
+                    quote=quote,
+                    confidence=base_confidence,
+                    thresholds_text=analysis_text,
+                )
+            )
+            reasons.append(reason_code)
+        return candidates, reasons
+
     match = _THRESHOLD_ROW_RE.search(cleaned)
     if not match:
         unitless_match = _UNITLESS_THRESHOLD_ROW_RE.search(cleaned)
@@ -356,20 +388,23 @@ def _extract_threshold_row_candidates_inner(
         multi_match = _MULTIVALUE_THRESHOLD_ROW_RE.search(cleaned)
         if multi_match:
             subject_uk = _clip_text(multi_match.group("subject").strip(" .;:"), 160)
-            thresholds = extract_thresholds_from_text(cleaned, applies_to=subject_uk or doc_title or "регульований показник")
-            value_label = thresholds[0].value_text if thresholds else multi_match.group("values").split()[0]
-            return [
+            unit = str(multi_match.group("unit") or "").strip()
+            raw_values = [value for value in re.split(r"\s+", multi_match.group("values").strip()) if value]
+            multi_candidates = [
                 _build_candidate(
                     subject_uk=subject_uk or "регульований показник",
                     predicate="sets_threshold",
-                    object_uk=doc_title or subject_uk or "регульований показник",
+                    object_uk=f"{value} {unit}".strip(),
                     norm_type="obligation",
-                    fact_text=f"{subject_uk or 'регульований показник'} має встановлені ліміти {value_label}",
+                    fact_text=f"{subject_uk or 'регульований показник'} має поріг {(f'{value} {unit}').strip()}",
                     quote=quote,
                     confidence=0.88,
                     thresholds_text=cleaned,
                 )
-            ], ["subtype_threshold_multivalue_row"]
+                for value in raw_values
+            ]
+            if multi_candidates:
+                return multi_candidates, ["subtype_threshold_multivalue_row"] * len(multi_candidates)
         condition_match = _CONDITION_THRESHOLD_RE.search(cleaned)
         if condition_match:
             value_label = f"{condition_match.group('lemma').strip()} {condition_match.group('value').strip()} {condition_match.group('unit').strip()}"
@@ -398,22 +433,18 @@ def _extract_threshold_row_candidates_inner(
                     fact_text="Встановлено схему посадових окладів для зазначених посад",
                     quote=quote,
                     confidence=0.87,
-                thresholds_text=analysis_text,
-            )
-        ], ["subtype_threshold_schedule_row"]
-        value_label = thresholds[0].value_text or thresholds[0].value_decimal or "числовий поріг"
-        return [
-            _build_candidate(
-                subject_uk="орган, що прийняв акт",
-                predicate="sets_threshold",
-                object_uk=doc_title or "регульований показник",
-                norm_type="obligation",
-                fact_text=f"Встановлено поріг: {value_label}",
-                quote=quote,
-                confidence=0.86,
-                thresholds_text=analysis_text,
-            )
-        ], ["subtype_threshold_fallback"]
+                    thresholds_text=analysis_text,
+                )
+            ], ["subtype_threshold_schedule_row"]
+        threshold_candidates, threshold_reasons = _emit_threshold_candidates(
+            subject_hint=doc_title or "орган, що прийняв акт",
+            raw_thresholds=thresholds,
+            base_confidence=0.86,
+            reason_code="subtype_threshold_fallback",
+        )
+        if threshold_candidates:
+            return threshold_candidates, threshold_reasons
+        return [], []
     subject_uk = _clip_text(match.group("subject").strip(" .;:"), 160)
     value = match.group("value").strip()
     unit = match.group("unit").strip()
@@ -692,4 +723,3 @@ def _extract_application_requirement_candidates(
                 )
 
     return candidates, reason_codes
-

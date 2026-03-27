@@ -156,6 +156,11 @@ CREATE OR REPLACE VIEW lex_fact_grounded AS
 CREATE OR REPLACE VIEW lex_normative_facts AS
     SELECT * FROM lex_facts WHERE trust_tier = 'normative_fact';
 
+CREATE OR REPLACE VIEW lex_normative_ready_facts AS
+    SELECT * FROM lex_facts
+    WHERE trust_tier = 'normative_fact'
+      AND COALESCE(fused_confidence, confidence, 0.0) >= 0.65;
+
 CREATE OR REPLACE VIEW lex_high_confidence_norms AS
     SELECT * FROM lex_facts
     WHERE trust_tier = 'normative_fact'
@@ -1631,6 +1636,8 @@ def _stream_amendments_to_duckdb(
                         source_doc_id=doc_id,
                         doc_meta=meta,
                         target_hints=amendment_target_hints,
+                        source_text=amendment.source_text,
+                        target_anchor=amendment.target_anchor,
                         doc_index=doc_index,
                     )
                     if amended_doc_id:
@@ -1642,6 +1649,8 @@ def _stream_amendments_to_duckdb(
                             detected_by = "pattern+title"
                         elif target_source.startswith("doc_metadata"):
                             detected_by = "pattern+metadata"
+                        elif target_source.startswith("source_text"):
+                            detected_by = "pattern+source_text"
                         else:
                             detected_by = "pattern+refs"
                     batch.append(
@@ -1660,6 +1669,11 @@ def _stream_amendments_to_duckdb(
                                 {
                                     "source_anchor": str(row.get("anchor_path") or ""),
                                     "source_text": amendment.source_text,
+                                    "target_resolution_method": str(target_hint.get("source") or ""),
+                                    "target_resolution_score": float(target_hint.get("score") or 0.0),
+                                    "target_resolution_candidates_count": int(
+                                        target_hint.get("target_resolution_candidates_count") or 0
+                                    ),
                                     "target_hint": target_hint,
                                 },
                                 ensure_ascii=False,
@@ -1722,6 +1736,8 @@ def _select_amendment_target(
     source_doc_id: str,
     doc_meta: dict[str, Any],
     target_hints: list[dict[str, Any]],
+    source_text: str,
+    target_anchor: str,
     doc_index: DocResolutionIndex,
 ) -> tuple[str, dict[str, Any]]:
     explicit_target = _explicit_amendment_target_from_meta(doc_meta=doc_meta, doc_index=doc_index)
@@ -1731,6 +1747,7 @@ def _select_amendment_target(
             "target_doc_id": explicit_target.doc_id,
             "target_doc_name": explicit_target.doc_name,
             "score": round(explicit_target.score, 4),
+            "target_resolution_candidates_count": explicit_target.candidate_count,
         }
 
     relation_priority = {
@@ -1754,25 +1771,43 @@ def _select_amendment_target(
         ),
         reverse=True,
     )
-    if not ranked:
-        inferred = _infer_amendment_target_from_title(
-            source_doc_id=source_doc_id,
-            doc_meta=doc_meta,
-            doc_index=doc_index,
-        )
-        if inferred is not None:
-            return inferred.doc_id, {
-                "source": inferred.source,
-                "target_doc_id": inferred.doc_id,
-                "target_doc_name": inferred.doc_name,
-                "score": round(inferred.score, 4),
-            }
-        return "", {}
-    best = ranked[0]
-    return str(best.get("target_doc_id") or ""), {
-        **best,
-        "source": str(best.get("source") or "resolved_references"),
-    }
+    if ranked:
+        best = ranked[0]
+        return str(best.get("target_doc_id") or ""), {
+            **best,
+            "source": str(best.get("source") or "resolved_references"),
+            "target_resolution_candidates_count": len(ranked),
+        }
+
+    inferred = _infer_amendment_target_from_title(
+        source_doc_id=source_doc_id,
+        doc_meta=doc_meta,
+        doc_index=doc_index,
+    )
+    if inferred is not None:
+        return inferred.doc_id, {
+            "source": inferred.source,
+            "target_doc_id": inferred.doc_id,
+            "target_doc_name": inferred.doc_name,
+            "score": round(inferred.score, 4),
+            "target_resolution_candidates_count": inferred.candidate_count,
+        }
+
+    inferred_from_source = _infer_amendment_target_from_source_text(
+        source_doc_id=source_doc_id,
+        source_text=source_text,
+        target_anchor=target_anchor,
+        doc_index=doc_index,
+    )
+    if inferred_from_source is not None:
+        return inferred_from_source.doc_id, {
+            "source": inferred_from_source.source,
+            "target_doc_id": inferred_from_source.doc_id,
+            "target_doc_name": inferred_from_source.doc_name,
+            "score": round(inferred_from_source.score, 4),
+            "target_resolution_candidates_count": inferred_from_source.candidate_count,
+        }
+    return "", {}
 
 
 @dataclass(frozen=True)
@@ -1781,6 +1816,7 @@ class _AmendmentTargetMatch:
     doc_name: str
     source: str
     score: float
+    candidate_count: int = 1
 
 
 def _explicit_amendment_target_from_meta(
@@ -1788,7 +1824,21 @@ def _explicit_amendment_target_from_meta(
     doc_meta: dict[str, Any],
     doc_index: DocResolutionIndex,
 ) -> _AmendmentTargetMatch | None:
-    explicit_doc_id = str(doc_meta.get("amends_doc_id") or doc_meta.get("amended_doc_id") or "").strip()
+    def _first_value(keys: tuple[str, ...]) -> str:
+        for key in keys:
+            value = str(doc_meta.get(key) or "").strip()
+            if value:
+                return value
+        return ""
+
+    explicit_doc_id = _first_value(
+        (
+            "amends_doc_id",
+            "amended_doc_id",
+            "target_doc_id",
+            "amendment_target_doc_id",
+        )
+    )
     if explicit_doc_id and explicit_doc_id in doc_index.by_doc_id:
         entry = doc_index.by_doc_id[explicit_doc_id]
         return _AmendmentTargetMatch(
@@ -1798,7 +1848,16 @@ def _explicit_amendment_target_from_meta(
             score=1.0,
         )
 
-    reestr_code = normalize_ref_number(str(doc_meta.get("amends_reestr_code") or doc_meta.get("amended_reestr_code") or ""))
+    reestr_code = normalize_ref_number(
+        _first_value(
+            (
+                "amends_reestr_code",
+                "amended_reestr_code",
+                "target_reestr_code",
+                "amendment_target_reestr_code",
+            )
+        )
+    )
     if reestr_code:
         candidates = doc_index.by_reestr_code.get(reestr_code, [])
         if candidates:
@@ -1810,8 +1869,26 @@ def _explicit_amendment_target_from_meta(
                 score=0.99,
             )
 
-    number = normalize_ref_number(str(doc_meta.get("amends_number") or doc_meta.get("amended_number") or ""))
-    date_acc = str(doc_meta.get("amends_date_acc") or doc_meta.get("amended_date_acc") or "").strip()
+    number = normalize_ref_number(
+        _first_value(
+            (
+                "amends_number",
+                "amended_number",
+                "target_number",
+                "amendment_target_number",
+            )
+        )
+    )
+    date_acc = _first_value(
+        (
+            "amends_date_acc",
+            "amended_date_acc",
+            "target_date_acc",
+            "amendment_target_date_acc",
+            "target_date",
+            "amendment_target_date",
+        )
+    )
     if number and date_acc:
         candidates = [*doc_index.by_number_date.get((number, date_acc), []), *doc_index.by_reg_number_date.get((number, date_acc), [])]
         if candidates:
@@ -1823,7 +1900,15 @@ def _explicit_amendment_target_from_meta(
                 score=0.98,
             )
 
-    target_name = str(doc_meta.get("amends_name") or doc_meta.get("amended_name") or "").strip()
+    target_name = _first_value(
+        (
+            "amends_name",
+            "amended_name",
+            "target_name",
+            "amendment_target_name",
+            "target_doc_name",
+        )
+    )
     if target_name:
         return _best_title_target_match(
             source_doc_id="",
@@ -1880,6 +1965,51 @@ def _infer_amendment_target_from_title(
     )
 
 
+def _infer_amendment_target_from_source_text(
+    *,
+    source_doc_id: str,
+    source_text: str,
+    target_anchor: str,
+    doc_index: DocResolutionIndex,
+) -> _AmendmentTargetMatch | None:
+    cleaned = " ".join(str(source_text or "").split()).strip()
+    if not cleaned:
+        return None
+
+    fragments: list[str] = []
+    for match in re.finditer(r"[«\"'](?P<target>[^»\"']{6,220})[»\"']", cleaned):
+        fragment = str(match.group("target") or "").strip()
+        if fragment:
+            fragments.append(fragment)
+    generic_target_match = re.search(
+        r"(?:до|у)\s+(?P<target>[^,.:\n]{8,240})",
+        cleaned,
+        re.IGNORECASE,
+    )
+    if generic_target_match:
+        target_fragment = str(generic_target_match.group("target") or "").strip()
+        if target_fragment:
+            fragments.append(target_fragment)
+    if target_anchor:
+        anchor_fragment = re.sub(r"^article:", "стаття ", str(target_anchor)).strip()
+        if anchor_fragment:
+            fragments.append(f"{cleaned} {anchor_fragment}")
+
+    best_match: _AmendmentTargetMatch | None = None
+    for fragment in fragments:
+        match = _best_title_target_match(
+            source_doc_id=source_doc_id,
+            target_raw=fragment,
+            doc_index=doc_index,
+            source="source_text_inference",
+        )
+        if match is None:
+            continue
+        if best_match is None or match.score > best_match.score:
+            best_match = match
+    return best_match
+
+
 def _best_title_target_match(
     *,
     source_doc_id: str,
@@ -1896,8 +2026,7 @@ def _best_title_target_match(
     target_content_tokens = target_tokens - _STOP
     type_hint = doc_type_category(target_raw)
     number_hint = normalize_ref_number(target_raw)
-    best_entry: DocIndexEntry | None = None
-    best_score = 0.0
+    ranked: list[tuple[float, DocIndexEntry]] = []
     for entry in doc_index.entries:
         if entry.doc_id == source_doc_id:
             continue
@@ -1917,16 +2046,27 @@ def _best_title_target_match(
                 recall = overlap / max(1, len(entry_tokens))
                 f1 = (2 * precision * recall) / max(0.001, precision + recall)
                 score = max(score, f1)
-        if score > best_score:
-            best_score = score
-            best_entry = entry
-    if best_entry is None or best_score < 0.40:
+        if score >= 0.40:
+            ranked.append((score, entry))
+    if not ranked:
+        return None
+    ranked.sort(
+        key=lambda item: (
+            item[0],
+            item[1].doc_date.isoformat() if item[1].doc_date else str(item[1].meta.get("date_acc") or ""),
+            item[1].doc_id,
+        ),
+        reverse=True,
+    )
+    best_score, best_entry = ranked[0]
+    if len(ranked) > 1 and ranked[1][0] >= best_score - 0.03:
         return None
     return _AmendmentTargetMatch(
         doc_id=best_entry.doc_id,
         doc_name=best_entry.name,
         source=source,
         score=best_score,
+        candidate_count=len(ranked),
     )
 
 

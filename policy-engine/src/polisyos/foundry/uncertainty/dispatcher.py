@@ -12,6 +12,7 @@ from polisyos.ir.analytics.uncertainty import (
     UncertaintyEnvelope,
 )
 
+from .analytical import AnalyticalPropagator
 from .config import PropagationConfig
 from .delta import DeltaMethodPropagator
 from .monte_carlo import MonteCarloPropagator
@@ -23,6 +24,7 @@ logger = get_logger(__name__)
 class PropagationDispatcher:
     def __init__(self, config: PropagationConfig | None = None) -> None:
         self._config = config or PropagationConfig()
+        self._analytical = AnalyticalPropagator()
         self._delta = DeltaMethodPropagator(self._config)
         self._mc = MonteCarloPropagator(self._config)
 
@@ -34,6 +36,7 @@ class PropagationDispatcher:
         output_metric_ids: list[str],
         *,
         is_jax_differentiable: bool = True,
+        weights: Mapping[str, float] | None = None,
     ) -> list[PropagationResult]:
         if not input_envelopes or not output_metric_ids:
             return []
@@ -44,24 +47,34 @@ class PropagationDispatcher:
             input_envelopes,
             output_metric_ids,
             is_jax_differentiable,
+            weights=weights,
         )
 
+        if method == PropagationMethod.ANALYTICAL:
+            if weights and AnalyticalPropagator.is_applicable(input_envelopes):
+                try:
+                    return [
+                        self._analytical.propagate_linear_combination(
+                            weights=weights,
+                            input_envelopes=input_envelopes,
+                            output_metric_id=mid,
+                            confidence_level=self._config.confidence_level,
+                        )
+                        for mid in output_metric_ids
+                    ]
+                except Exception as exc:
+                    logger.warning(
+                        "Analytical propagation failed (%s). Falling back to delta method.", exc,
+                    )
+            # Fallback: try delta, then MC
+            return self._propagate_delta_with_mc_fallback(
+                simulation_fn, nominal_params, input_envelopes, output_metric_ids,
+            )
+
         if method == PropagationMethod.DELTA_METHOD:
-            try:
-                return self._delta.propagate(
-                    simulation_fn,
-                    nominal_params,
-                    input_envelopes,
-                    output_metric_ids,
-                )
-            except Exception as exc:  # pragma: no cover - robustness fallback
-                logger.warning("Delta propagation failed (%s). Falling back to Monte Carlo.", exc)
-                return self._mc.propagate(
-                    simulation_fn,
-                    nominal_params,
-                    input_envelopes,
-                    output_metric_ids,
-                )
+            return self._propagate_delta_with_mc_fallback(
+                simulation_fn, nominal_params, input_envelopes, output_metric_ids,
+            )
 
         return self._mc.propagate(
             simulation_fn,
@@ -70,6 +83,29 @@ class PropagationDispatcher:
             output_metric_ids,
         )
 
+    def _propagate_delta_with_mc_fallback(
+        self,
+        simulation_fn: Callable[..., Mapping[str, float]],
+        nominal_params: Mapping[str, float],
+        input_envelopes: Mapping[str, UncertaintyEnvelope],
+        output_metric_ids: list[str],
+    ) -> list[PropagationResult]:
+        try:
+            return self._delta.propagate(
+                simulation_fn,
+                nominal_params,
+                input_envelopes,
+                output_metric_ids,
+            )
+        except Exception as exc:
+            logger.warning("Delta propagation failed (%s). Falling back to Monte Carlo.", exc)
+            return self._mc.propagate(
+                simulation_fn,
+                nominal_params,
+                input_envelopes,
+                output_metric_ids,
+            )
+
     def _resolve_method(
         self,
         simulation_fn: Callable[..., Mapping[str, float]],
@@ -77,6 +113,8 @@ class PropagationDispatcher:
         input_envelopes: Mapping[str, UncertaintyEnvelope],
         output_metric_ids: list[str],
         is_jax_differentiable: bool,
+        *,
+        weights: Mapping[str, float] | None = None,
     ) -> PropagationMethod:
         preferred = (self._config.preferred_method or "auto").lower()
         if preferred == "delta":
@@ -84,11 +122,16 @@ class PropagationDispatcher:
         if preferred == "monte_carlo":
             return PropagationMethod.MONTE_CARLO
         if preferred == "analytical":
-            return PropagationMethod.MONTE_CARLO
+            return PropagationMethod.ANALYTICAL
 
         all_normal = all(
             env.distribution_family == DistributionFamily.NORMAL for env in input_envelopes.values()
         )
+
+        # Auto-select: prefer analytical when weights are provided and all inputs are normal
+        if weights and all_normal and AnalyticalPropagator.is_applicable(input_envelopes):
+            return PropagationMethod.ANALYTICAL
+
         if not all_normal:
             return PropagationMethod.MONTE_CARLO
 

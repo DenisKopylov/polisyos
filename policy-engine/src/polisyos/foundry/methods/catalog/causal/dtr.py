@@ -48,17 +48,34 @@ from polisyos.foundry.methods.catalog.causal._common import (
 from polisyos.foundry.methods.catalog.causal.g_computation import (
     _apply_regime,
     _build_history_matrix,
+    _build_temporal_intervention_from_schedule,
+    _compat_schedule_from_dynamic_regime,
     _dynamic_input_slots,
     _extract_dynamic_data,
     _fit_propensity_model,
     _ice_estimate,
+    _materialize_intervention_schedule,
+    _regime_params_from_spec,
+    _schedule_from_regime,
     _predict_proba_safe,
+    _simulate_regime_trajectory_ensemble,
 )
 from polisyos.foundry.methods.catalog.causal.protocols import DynamicTreatmentData
+from polisyos.foundry.methods.catalog.causal.strategic import evaluate_strategic_hook
+from polisyos.foundry.methods.catalog.causal.structural_time_series import (
+    TemporalTrajectoryResult,
+    solve_temporal_effect_path,
+)
+from polisyos.foundry.methods.catalog.causal.temporal_estimand_compiler import (
+    TemporalCompileError,
+    compile_temporal_estimand,
+)
 from polisyos.ir.analytics.causal import CausalMethod, EstimationStatus
 from polisyos.ir.analytics.dynamic_regime import (
+    ContinuousTimeQuery,
     DTRResult,
     DynamicTreatmentRegime,
+    TemporalInterventionTrajectory,
     RegimeRule,
 )
 
@@ -199,6 +216,7 @@ def _build_dtr_output(
     n_periods: int,
     n_treated: int,
     warnings: list[str],
+    params: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     report = build_success_report(
         method=method_enum,
@@ -218,7 +236,163 @@ def _build_dtr_output(
             "optimal_regime_rule": dtr_result.optimal_regime.rule.value,
         },
     )
-    return wrap_causal_output(report, warnings=warnings, extras={"dtr_result": dtr_result})
+    extras: dict[str, Any] = {"dtr_result": dtr_result}
+    if params:
+        strategic_summary, strategic_warnings, strategic_bundle = evaluate_strategic_hook(
+            params=params,
+            baseline_policy_value=dtr_result.value_estimate,
+        )
+        if strategic_summary is not None:
+            warnings.extend(
+                warning for warning in strategic_warnings if warning not in warnings
+            )
+            dtr_result.metadata["strategic_response"] = strategic_summary
+            report.metadata["strategic_response"] = strategic_summary
+            report.metadata["strategic_response_present"] = True
+            extras["strategic_response_summary"] = strategic_summary
+            if strategic_bundle is not None:
+                extras["strategic_response_bundle"] = strategic_bundle
+    return wrap_causal_output(report, warnings=warnings, extras=extras)
+
+
+def estimate_dtr_trajectory(
+    data: DynamicTreatmentData | dict[str, Any],
+    query: ContinuousTimeQuery,
+    *,
+    resolved_intervention: TemporalInterventionTrajectory | dict[str, Any] | None = None,
+    intervention_contract_status: str | None = None,
+    method: Literal["q_learning", "a_learning", "owl", "dr_dtr"] = "q_learning",
+    method_params: Mapping[str, Any] | None = None,
+    allow_discrete_fallback: bool = True,
+) -> tuple[DTRResult, TemporalTrajectoryResult]:
+    """Return scalar DTR output plus a temporal policy-value trajectory."""
+
+    dynamic_data = _extract_dynamic_data(data)
+    method_dispatch: dict[str, type] = {
+        "q_learning": QLearningDTR,
+        "a_learning": ALearningDTR,
+        "owl": OutcomeWeightedLearning,
+        "dr_dtr": DoublyRobustDTR,
+    }
+    method_cls = method_dispatch.get(method)
+    if method_cls is None:
+        raise ValueError(
+            f"Unknown DTR temporal method {method!r}. Choose from: {sorted(method_dispatch)}"
+        )
+
+    scalar_result = method_cls.pure_step(dynamic_data, dict(method_params or {}))
+    dtr_result = scalar_result.get("dtr_result")
+    if not isinstance(dtr_result, DTRResult):
+        raise RuntimeError("Temporal DTR helper expected a DTRResult payload")
+
+    intervention = (
+        None
+        if resolved_intervention is None
+        else (
+            resolved_intervention
+            if isinstance(resolved_intervention, TemporalInterventionTrajectory)
+            else TemporalInterventionTrajectory.model_validate(resolved_intervention)
+        )
+    )
+    contract_status = (
+        str(intervention_contract_status)
+        if intervention_contract_status is not None
+        else ("resolved_artifact" if intervention is not None else "compatibility_synthesized")
+    )
+    full_time_grid = (
+        np.arange(dynamic_data.n_periods, dtype=float)
+        if dynamic_data.time_ids is None
+        else np.asarray(dynamic_data.time_ids, dtype=float)
+    )
+    if intervention is None:
+        intervention = _build_temporal_intervention_from_schedule(
+            query=query,
+            time_grid=full_time_grid,
+            schedule=_compat_schedule_from_dynamic_regime(
+                dtr_result.optimal_regime,
+                data=dynamic_data,
+            ),
+            metadata={"contract_status": contract_status, "derived_from_optimal_regime": True},
+        )
+    else:
+        expected_schedule = _schedule_from_regime(
+            dtr_result.optimal_regime,
+            time_grid=full_time_grid,
+        )
+        intervention_schedule = _materialize_intervention_schedule(
+            intervention,
+            time_grid=full_time_grid,
+        )
+        if intervention_schedule != expected_schedule:
+            raise TemporalCompileError(
+                "intervention_regime_mismatch",
+                "Resolved intervention artifact does not match the DTR optimal regime on the compiled grid.",
+                details={
+                    "expected_schedule": list(expected_schedule),
+                    "intervention_schedule": list(intervention_schedule),
+                },
+            )
+
+    plan = compile_temporal_estimand(
+        query,
+        data=dynamic_data,
+        resolved_intervention=intervention,
+        intervention_contract_status=contract_status,
+        allow_discrete_fallback=allow_discrete_fallback,
+    )
+
+    optimal_params = _regime_params_from_spec(dtr_result.optimal_regime)
+    baseline_params = {
+        "regime": RegimeRule.NEVER_TREAT.value,
+        "threshold_covariate_index": 0,
+        "threshold_value": 0.0,
+        "scheduled_actions": None,
+    }
+    rng = np.random.default_rng(42)
+    n_paths = int(plan.solver_config.get("monte_carlo_paths", 256))
+    target_samples = _simulate_regime_trajectory_ensemble(
+        dynamic_data,
+        regime_params=optimal_params,
+        outcome_process=query.outcome_process,
+        n_mc=n_paths,
+        rng=rng,
+    )
+    baseline_samples = _simulate_regime_trajectory_ensemble(
+        dynamic_data,
+        regime_params=baseline_params,
+        outcome_process=query.outcome_process,
+        n_mc=n_paths,
+        rng=rng,
+    )
+    grid_positions = np.asarray(plan.time_index_positions, dtype=int)
+    target_aligned = target_samples[:, grid_positions]
+    baseline_aligned = baseline_samples[:, grid_positions]
+    trajectory = solve_temporal_effect_path(
+        plan,
+        observed_series=target_aligned.mean(axis=0),
+        controls={
+            "counterfactual_series": baseline_aligned.mean(axis=0),
+            "effect_samples": target_aligned - baseline_aligned,
+            "seed": 42,
+        },
+    )
+    trajectory.metadata.update(
+        {
+            "optimal_regime_rule": dtr_result.optimal_regime.rule.value,
+            "scalar_method": dtr_result.method,
+            "outcome_process": query.outcome_process,
+            "intervention_contract_status": contract_status,
+        }
+    )
+    trajectory.diagnostics["optimal_regime_rule"] = dtr_result.optimal_regime.rule.value
+    trajectory.diagnostics["scalar_value_estimate"] = float(dtr_result.value_estimate)
+    strategic_summary = scalar_result.get("strategic_response_summary")
+    if isinstance(strategic_summary, dict):
+        trajectory.metadata["strategic_response"] = dict(strategic_summary)
+        trajectory.diagnostics["strategic_fallback_mode"] = str(
+            strategic_summary.get("fallback_mode")
+        )
+    return dtr_result, trajectory
 
 
 # ---------------------------------------------------------------------------
@@ -395,6 +569,7 @@ class QLearningDTR:
             n_periods=n_periods,
             n_treated=n_treated,
             warnings=[],
+            params=params,
         )
 
 
@@ -602,6 +777,7 @@ class ALearningDTR:
             n_periods=n_periods,
             n_treated=n_treated,
             warnings=[],
+            params=params,
         )
 
 
@@ -841,6 +1017,7 @@ class OutcomeWeightedLearning:
             n_periods=n_periods,
             n_treated=n_treated,
             warnings=["OWL value estimate uses IPW and may have high variance with small samples."],
+            params=params,
         )
 
 
@@ -1047,6 +1224,7 @@ class DoublyRobustDTR:
             n_periods=n_periods,
             n_treated=n_treated,
             warnings=[],
+            params=params,
         )
 
 
@@ -1056,4 +1234,5 @@ __all__ = [
     "DTRResult",
     "OutcomeWeightedLearning",
     "QLearningDTR",
+    "estimate_dtr_trajectory",
 ]

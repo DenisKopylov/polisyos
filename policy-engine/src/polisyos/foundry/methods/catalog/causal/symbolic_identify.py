@@ -21,7 +21,9 @@ from polisyos.foundry.methods.catalog.causal.full_transport_bridge import (
     normalize_transport_formula,
     probe_backend_availability,
 )
+from polisyos.ir.analytics.causal import ProofBundle, proof_bundle_from_identification_result
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark
+from polisyos.ir.analytics.negative_certificate import negative_certificate_from_transport_result
 from polisyos.ir.analytics.transportability import (
     SelectionDiagram,
     SNodeRole,
@@ -197,6 +199,31 @@ def _unsupported_symbolic_result(
     )
 
 
+def _proof_bundle_from_transport_result(result: TransportabilityResult) -> ProofBundle:
+    """Build a heuristic-backed proof bundle for transport-only symbolic paths."""
+    proof_status = "identified" if result.status is TransportabilityStatus.IDENTIFIED else "oracle_needed"
+    proof_stratum = "A1_extended" if proof_status == "identified" else "A2_oracle_backed"
+    return ProofBundle(
+        proof_status=proof_status,
+        proof_stratum=proof_stratum,
+        theorem_family=result.identification_engine or result.algorithm_version or "transport_symbolic",
+        completeness_regime="heuristic_backed",
+        implementation_coverage="transportability_bridge",
+        query_ref=result.query,
+        estimand_ast=result.estimand_ast if isinstance(result.estimand_ast, dict) else None,
+        negative_certificate_summary=(
+            result.unsupported_reason if proof_status != "identified" else None
+        ),
+        proof_trace=list(result.identification_trace),
+        assumptions=list(result.warnings),
+        metadata={
+            "transport_mode": result.transport_mode.value,
+            "algorithm_version": result.algorithm_version,
+            "final_confidence": result.final_confidence,
+        },
+    )
+
+
 def _symbolic_from_frontdoor(
     *,
     diagram: SelectionDiagram,
@@ -332,7 +359,11 @@ class SymbolicIdentify:
                 backend_name=selected_backend,
             )
             if symbolic_result is not None:
-                return {"transport_result": symbolic_result.model_dump(mode="json")}
+                proof_bundle = _proof_bundle_from_transport_result(symbolic_result)
+                return {
+                    "transport_result": symbolic_result.model_dump(mode="json"),
+                    "proof_bundle": proof_bundle.model_dump(mode="json"),
+                }
         elif require_symbolic:
             reason = ";".join(unavailable_reasons) or "symbolic_backend_unavailable"
             unsupported = _unsupported_symbolic_result(
@@ -343,7 +374,17 @@ class SymbolicIdentify:
                 backend_name=None if symbolic_backend == "full_auto" else symbolic_backend,
                 reason=reason,
             )
-            return {"transport_result": unsupported.model_dump(mode="json")}
+            proof_bundle = _proof_bundle_from_transport_result(unsupported)
+            negative_certificate = negative_certificate_from_transport_result(
+                result=unsupported,
+                treatment=query_treatment,
+                outcome=query_outcome,
+            )
+            return {
+                "transport_result": unsupported.model_dump(mode="json"),
+                "proof_bundle": proof_bundle.model_dump(mode="json"),
+                "negative_certificate": negative_certificate.model_dump(mode="json"),
+            }
 
         solver_mode = "full_auto"
         if symbolic_backend == "y0":
@@ -385,7 +426,19 @@ class SymbolicIdentify:
                 backend_name=selected_backend,
                 reason=reason,
             )
-        return {"transport_result": result.model_dump(mode="json")}
+        proof_bundle = _proof_bundle_from_transport_result(result)
+        payload = {
+            "transport_result": result.model_dump(mode="json"),
+            "proof_bundle": proof_bundle.model_dump(mode="json"),
+        }
+        if result.status is not TransportabilityStatus.IDENTIFIED:
+            negative_certificate = negative_certificate_from_transport_result(
+                result=result,
+                treatment=query_treatment,
+                outcome=query_outcome,
+            )
+            payload["negative_certificate"] = negative_certificate.model_dump(mode="json")
+        return payload
 
 
 def _id_result_to_transport_result(
@@ -615,10 +668,43 @@ class SymbolicIdentifyV2:
                     if id_result.estimand_ast is not None
                     else None
                 )
-                return {
+                payload = {
                     "transport_result": transport_result.model_dump(mode="json"),
                     "estimand_ast": estimand_dict,
+                    "proof_bundle": proof_bundle_from_identification_result(
+                        id_result
+                    ).model_dump(mode="json"),
                 }
+                if id_result.status is IdentificationStatus.HEDGE_FOUND:
+                    from polisyos.foundry.methods.catalog.causal.causal_engine import CausalEngine
+
+                    negative_certificate = CausalEngine()._hedge_to_negative_cert(id_result)
+                    payload["proof_bundle"] = proof_bundle_from_identification_result(
+                        id_result,
+                        negative_certificate_summary=negative_certificate.to_summary(),
+                    ).model_dump(mode="json")
+                    payload["negative_certificate"] = negative_certificate.model_dump(mode="json")
+                    if negative_certificate.bounds_bundle is not None:
+                        payload["bounds_bundle"] = negative_certificate.bounds_bundle.model_dump(
+                            mode="json"
+                        )
+                return payload
+
+            transport_result = _id_result_to_transport_result(
+                id_result, selection_diagram, query_treatment, query_outcome
+            )
+            proof_bundle = proof_bundle_from_identification_result(id_result)
+            negative_certificate = negative_certificate_from_transport_result(
+                result=transport_result,
+                treatment=query_treatment,
+                outcome=query_outcome,
+            )
+            return {
+                "transport_result": transport_result.model_dump(mode="json"),
+                "estimand_ast": None,
+                "proof_bundle": proof_bundle.model_dump(mode="json"),
+                "negative_certificate": negative_certificate.model_dump(mode="json"),
+            }
 
         # Fallback: v1 solve_transportability
         symbolic_backend = normalize_symbolic_backend_mode(params.get("symbolic_backend"))
@@ -637,9 +723,11 @@ class SymbolicIdentifyV2:
                 backend_name=selected_backend,
             )
             if frontdoor_result is not None:
+                proof_bundle = _proof_bundle_from_transport_result(frontdoor_result)
                 return {
                     "transport_result": frontdoor_result.model_dump(mode="json"),
                     "estimand_ast": None,
+                    "proof_bundle": proof_bundle.model_dump(mode="json"),
                 }
 
         result = solve_transportability(
@@ -653,10 +741,20 @@ class SymbolicIdentifyV2:
             pag_threshold=float(params.get("pag_threshold", 0.5) or 0.5),
             pag_seed=int(params.get("pag_seed", 0) or 0),
         )
-        return {
+        proof_bundle = _proof_bundle_from_transport_result(result)
+        payload = {
             "transport_result": result.model_dump(mode="json"),
             "estimand_ast": None,
+            "proof_bundle": proof_bundle.model_dump(mode="json"),
         }
+        if result.status is not TransportabilityStatus.IDENTIFIED:
+            negative_certificate = negative_certificate_from_transport_result(
+                result=result,
+                treatment=query_treatment,
+                outcome=query_outcome,
+            )
+            payload["negative_certificate"] = negative_certificate.model_dump(mode="json")
+        return payload
 
 
 # Import deferred to avoid circular imports at module-load time

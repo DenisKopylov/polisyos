@@ -34,9 +34,17 @@ _FULLTEXT_HEADER_TRIM_RE = re.compile(r"(?is)\A.{0,4000}?\b(abstract|introductio
 _FULLTEXT_REFERENCE_TAIL_RE = re.compile(r"(?is)\b(references|bibliography|works cited)\b.{1200,}\Z")
 _FULLTEXT_BOILERPLATE_RE = re.compile(
     r"(?is)"
-    r"(cookie policy|cookie settings|accept cookies|all rights reserved|download pdf|view abstract|view pdf|"
-    r"sign in to access|institutional login|research output|explore all metrics|accesses|citations|"
-    r"doi:\s*\S+|doi\.org/\S+|https?://\S+)"
+    r"(cookie policy|cookie settings|cookie preferences|cookie consent|accept cookies|manage cookies|we use cookies|"
+    r"all rights reserved|copyright \d{4}|download pdf|view abstract|view pdf|"
+    r"sign in to access|institutional login|research output|explore all metrics|accesses|citations|altmetric|"
+    r"doi:\s*\S+|doi\.org/\S+|https?://\S{20,}|"
+    r"export citation|download citation|cite this article|"
+    r"published by \w[\w\s]{2,30}press|elsevier|springer|wiley|taylor & francis|sage publications|"
+    r"supplementary (?:materials?|data|information|files?)|"
+    r"orcid\.org/\S+|"
+    r"funding[:\s]+this (?:work|research|study) was (?:supported|funded)[\s\S]{0,200}?\.|"
+    r"journal contributions|prodotti della ricerca|retrieved from https?://\S+|"
+    r"prev\s+next|skip to main content|toggle navigation)"
 )
 _REPOSITORY_SHELL_CUE_RE = re.compile(
     r"(?i)\b("
@@ -123,7 +131,89 @@ def reconstruct_abstract(work: dict[str, Any]) -> str:
     return " ".join(word for _, word in positions)
 
 
+def _extract_html_tables(html: str) -> list[dict[str, Any]]:
+    """Extract structured tables from HTML using lxml or BeautifulSoup."""
+    tables: list[dict[str, Any]] = []
+    try:
+        from lxml.html import fromstring as _lxml_parse_html  # type: ignore[import-untyped]
+
+        doc = _lxml_parse_html(html)
+        for idx, table_elem in enumerate(doc.xpath("//table"), start=1):
+            rows: list[list[str]] = []
+            for tr in table_elem.xpath(".//tr"):
+                cells = []
+                for td in tr.xpath(".//td|.//th"):
+                    cells.append(
+                        re.sub(r"\s+", " ", (td.text_content() or "").strip())
+                    )
+                if cells:
+                    rows.append(cells)
+            if len(rows) < 2:
+                continue
+            headers = rows[0]
+            md_lines = ["| " + " | ".join(headers) + " |"]
+            md_lines.append("| " + " | ".join("---" for _ in headers) + " |")
+            for row in rows[1:]:
+                padded = row + [""] * max(0, len(headers) - len(row))
+                md_lines.append("| " + " | ".join(padded[: len(headers)]) + " |")
+            tables.append({
+                "table_id": f"html_tbl_{idx:03d}",
+                "label": f"table_{idx}",
+                "text": "\n".join(md_lines),
+                "headers": headers,
+                "rows": rows[1:],
+                "score": 0.7,
+                "structure_source": "html_table",
+            })
+    except ImportError:
+        try:
+            from bs4 import BeautifulSoup  # type: ignore[import-untyped]
+
+            soup = BeautifulSoup(html, "html.parser")
+            for idx, table_elem in enumerate(soup.find_all("table"), start=1):
+                rows: list[list[str]] = []  # type: ignore[no-redef]
+                for tr in table_elem.find_all("tr"):
+                    cells = [
+                        re.sub(r"\s+", " ", (td.get_text() or "").strip())
+                        for td in tr.find_all(["td", "th"])
+                    ]
+                    if cells:
+                        rows.append(cells)
+                if len(rows) < 2:
+                    continue
+                headers = rows[0]
+                md_lines = ["| " + " | ".join(headers) + " |"]
+                md_lines.append("| " + " | ".join("---" for _ in headers) + " |")
+                for row in rows[1:]:
+                    padded = row + [""] * max(0, len(headers) - len(row))
+                    md_lines.append("| " + " | ".join(padded[: len(headers)]) + " |")
+                tables.append({
+                    "table_id": f"html_tbl_{idx:03d}",
+                    "label": f"table_{idx}",
+                    "text": "\n".join(md_lines),
+                    "headers": headers,
+                    "rows": rows[1:],
+                    "score": 0.7,
+                    "structure_source": "html_table",
+                })
+        except ImportError:
+            pass
+    except Exception as exc:
+        logger.debug("HTML table extraction failed: {}", exc)
+    return tables
+
+
 def _extract_html_text(html: str) -> str:
+    try:
+        import html2text  # type: ignore[import-untyped]
+
+        h = html2text.HTML2Text()
+        h.ignore_links = True
+        h.ignore_images = True
+        h.body_width = 0
+        return h.handle(html).strip()
+    except ImportError:
+        pass
     cleaned = re.sub(r"(?is)<script.*?>.*?</script>", " ", html)
     cleaned = re.sub(r"(?is)<style.*?>.*?</style>", " ", cleaned)
     cleaned = re.sub(r"(?s)<[^>]+>", " ", cleaned)
@@ -131,7 +221,38 @@ def _extract_html_text(html: str) -> str:
     return cleaned.strip()
 
 
-def _extract_pdf_text(raw_bytes: bytes) -> str:
+_DEFAULT_MAX_PDF_PAGES: int = 50
+
+
+def _extract_pdf_text(raw_bytes: bytes, *, max_pages: int = 0) -> str:
+    if max_pages <= 0:
+        max_pages = _DEFAULT_MAX_PDF_PAGES
+
+    # Try PyMuPDF first (better text extraction quality)
+    try:
+        import fitz  # type: ignore[import-untyped]  # pymupdf
+
+        doc = fitz.open(stream=raw_bytes, filetype="pdf")
+        total_pages = len(doc)
+        texts: list[str] = []
+        for page_num in range(min(total_pages, max_pages)):
+            page = doc[page_num]
+            texts.append(page.get_text("text") or "")
+        doc.close()
+        if total_pages > max_pages:
+            logger.warning(
+                "PDF has {} pages, truncated to {} — data loss possible",
+                total_pages, max_pages,
+            )
+        result = "\n".join(texts).strip()
+        if result:
+            return result
+    except ImportError:
+        pass
+    except Exception as exc:
+        logger.debug("PyMuPDF extraction failed, falling back to pypdf: {}", exc)
+
+    # Fallback to pypdf
     try:
         from pypdf import PdfReader  # type: ignore[import-not-found]
     except (ImportError, ModuleNotFoundError):
@@ -140,12 +261,18 @@ def _extract_pdf_text(raw_bytes: bytes) -> str:
         import io
 
         reader = PdfReader(io.BytesIO(raw_bytes))
-        texts: list[str] = []
-        for page in reader.pages[:30]:
-            texts.append(str(page.extract_text() or ""))
-        return "\n".join(texts).strip()
+        total_pages = len(reader.pages)
+        texts_fallback: list[str] = []
+        for page in reader.pages[:max_pages]:
+            texts_fallback.append(str(page.extract_text() or ""))
+        if total_pages > max_pages:
+            logger.warning(
+                "PDF has {} pages, truncated to {} — data loss possible",
+                total_pages, max_pages,
+            )
+        return "\n".join(texts_fallback).strip()
     except (OSError, TypeError, ValueError) as exc:
-        logger.debug("PDF text extraction failed: %s", exc)
+        logger.debug("PDF text extraction failed: {}", exc)
         return ""
 
 

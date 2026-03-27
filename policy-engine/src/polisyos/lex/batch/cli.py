@@ -58,9 +58,52 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     run_p.add_argument("--llm-model", default="qwen/qwen3-235b-a22b-instruct-2507-fp8")
     run_p.add_argument("--parallel-llm", type=int, default=20, help="Max concurrent LLM requests")
+    run_p.add_argument(
+        "--parallel-llm-global",
+        type=int,
+        default=None,
+        help="Optional global concurrency cap across all Gonka keys.",
+    )
     run_p.add_argument("--gonka-rate-limit-rps", type=float, default=5.0, help="Gonka request rate limit")
     run_p.add_argument("--max-retries", type=int, default=7, help="Max retries per LLM request on 429/5xx")
     run_p.add_argument("--llm-temperature", type=float, default=0.1, help="LLM temperature for SPO extraction")
+    run_p.add_argument("--spo-connect-timeout-seconds", type=int, default=15)
+    run_p.add_argument("--spo-read-timeout-seconds", type=int, default=120)
+    run_p.add_argument("--spo-total-timeout-seconds", type=int, default=180)
+    run_p.add_argument(
+        "--spo-provider-watchdog-seconds",
+        type=int,
+        default=0,
+        help="0 = adaptive watchdog, -1 = disable watchdog.",
+    )
+    run_p.add_argument(
+        "--spo-rate-warmup-seconds",
+        type=float,
+        default=45.0,
+        help="Seconds to ramp from a slower cold-start request rate to the configured target.",
+    )
+    run_p.add_argument(
+        "--spo-rate-warmup-start-scale",
+        type=float,
+        default=3.0,
+        help="Initial slowdown factor during SPO LLM warm-up (>=1.0).",
+    )
+    run_p.add_argument(
+        "--spo-adaptive-rate-enabled",
+        dest="spo_adaptive_rate_enabled",
+        action="store_true",
+        help="Enable adaptive rate cooling/recovery after 429 bursts.",
+    )
+    run_p.add_argument(
+        "--no-spo-adaptive-rate-enabled",
+        dest="spo_adaptive_rate_enabled",
+        action="store_false",
+        help="Disable adaptive rate cooling/recovery for SPO LLM requests.",
+    )
+    run_p.set_defaults(spo_adaptive_rate_enabled=True)
+    run_p.add_argument("--spo-adaptive-rate-recovery-factor", type=float, default=0.97)
+    run_p.add_argument("--spo-adaptive-rate-penalty-multiplier", type=float, default=1.35)
+    run_p.add_argument("--spo-adaptive-rate-max-scale", type=float, default=8.0)
     run_p.add_argument("--xml-parse-chunk", type=int, default=5000, help="Documents buffered per stream chunk")
     run_p.add_argument("--structure-workers", type=int, default=4, help="Worker processes for structure extraction")
     run_p.add_argument(
@@ -95,6 +138,25 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Approximate max total provision characters per single LLM request.",
     )
     run_p.add_argument(
+        "--spo-adaptive-batch-downshift-enabled",
+        dest="spo_adaptive_batch_downshift_enabled",
+        action="store_true",
+        help="Downshift grouped SPO request size early for long prompts before the hard char cap.",
+    )
+    run_p.add_argument(
+        "--no-spo-adaptive-batch-downshift-enabled",
+        dest="spo_adaptive_batch_downshift_enabled",
+        action="store_false",
+        help="Disable prompt-size-aware SPO batch downshift.",
+    )
+    run_p.set_defaults(spo_adaptive_batch_downshift_enabled=True)
+    run_p.add_argument(
+        "--spo-adaptive-batch-soft-chars-share",
+        type=float,
+        default=0.80,
+        help="Soft-share of spo-request-batch-chars used for early downshift before the hard cap.",
+    )
+    run_p.add_argument(
         "--spo-group-timeout-seconds",
         type=float,
         default=None,
@@ -115,6 +177,35 @@ def _build_parser() -> argparse.ArgumentParser:
     run_p.set_defaults(spo_timeout_retry_enabled=True)
     run_p.add_argument("--spo-timeout-retry-batch-size", type=int, default=1)
     run_p.add_argument("--spo-timeout-retry-chars", type=int, default=3000)
+    run_p.add_argument(
+        "--spo-retryable-followup-passes",
+        type=int,
+        default=1,
+        help="Extra follow-up passes for retryable LLM failures with reduced pressure.",
+    )
+    run_p.add_argument(
+        "--spo-retryable-followup-delay-seconds",
+        type=float,
+        default=5.0,
+        help="Delay before each retryable follow-up pass.",
+    )
+    run_p.add_argument("--spo-retryable-followup-worker-scale", type=float, default=0.5)
+    run_p.add_argument("--spo-retryable-followup-dispatch-rps-scale", type=float, default=0.5)
+    run_p.add_argument("--spo-retryable-followup-client-rate-scale", type=float, default=0.5)
+    run_p.add_argument("--spo-retryable-followup-client-concurrency-scale", type=float, default=0.5)
+    run_p.add_argument(
+        "--spo-request-log-enabled",
+        dest="spo_request_log_enabled",
+        action="store_true",
+        help="Write per-request LLM telemetry to manifests/llm_requests.jsonl.",
+    )
+    run_p.add_argument(
+        "--no-spo-request-log-enabled",
+        dest="spo_request_log_enabled",
+        action="store_false",
+        help="Disable per-request LLM telemetry logging.",
+    )
+    run_p.set_defaults(spo_request_log_enabled=True)
     run_p.add_argument(
         "--spo-extract-mode",
         choices=("light", "full"),
@@ -316,12 +407,48 @@ def _build_parser() -> argparse.ArgumentParser:
     smoke_p.add_argument("--parallel-llm", type=int, default=None, help="Override profile LLM concurrency.")
     smoke_p.add_argument("--gonka-rate-limit-rps", type=float, default=None, help="Override profile Gonka request rate.")
     smoke_p.add_argument("--max-retries", type=int, default=None, help="Override profile retry count.")
+    smoke_p.add_argument("--spo-rate-warmup-seconds", type=float, default=None, help="Override profile SPO LLM warm-up ramp seconds.")
+    smoke_p.add_argument("--spo-rate-warmup-start-scale", type=float, default=None, help="Override profile SPO LLM warm-up slowdown factor.")
+    smoke_p.add_argument(
+        "--spo-adaptive-rate-enabled",
+        dest="spo_adaptive_rate_enabled",
+        action="store_true",
+        help="Enable adaptive SPO LLM rate cooling for smoke run.",
+    )
+    smoke_p.add_argument(
+        "--no-spo-adaptive-rate-enabled",
+        dest="spo_adaptive_rate_enabled",
+        action="store_false",
+        help="Disable adaptive SPO LLM rate cooling for smoke run.",
+    )
+    smoke_p.set_defaults(spo_adaptive_rate_enabled=None)
+    smoke_p.add_argument("--spo-adaptive-rate-recovery-factor", type=float, default=None)
+    smoke_p.add_argument("--spo-adaptive-rate-penalty-multiplier", type=float, default=None)
+    smoke_p.add_argument("--spo-adaptive-rate-max-scale", type=float, default=None)
+    smoke_p.add_argument("--spo-retryable-followup-worker-scale", type=float, default=None)
+    smoke_p.add_argument("--spo-retryable-followup-dispatch-rps-scale", type=float, default=None)
+    smoke_p.add_argument("--spo-retryable-followup-client-rate-scale", type=float, default=None)
+    smoke_p.add_argument("--spo-retryable-followup-client-concurrency-scale", type=float, default=None)
     smoke_p.add_argument(
         "--spo-request-batch-chars",
         type=int,
         default=None,
         help="Override profile max total provision characters per LLM request.",
     )
+    smoke_p.add_argument(
+        "--spo-adaptive-batch-downshift-enabled",
+        dest="spo_adaptive_batch_downshift_enabled",
+        action="store_true",
+        help="Enable prompt-size-aware early downshift for grouped SPO requests.",
+    )
+    smoke_p.add_argument(
+        "--no-spo-adaptive-batch-downshift-enabled",
+        dest="spo_adaptive_batch_downshift_enabled",
+        action="store_false",
+        help="Disable prompt-size-aware early downshift for grouped SPO requests.",
+    )
+    smoke_p.set_defaults(spo_adaptive_batch_downshift_enabled=None)
+    smoke_p.add_argument("--spo-adaptive-batch-soft-chars-share", type=float, default=None)
     smoke_p.add_argument(
         "--spo-group-timeout-seconds",
         type=float,
@@ -493,9 +620,20 @@ def _cmd_run(args: argparse.Namespace) -> None:
         gonka_disable_json_mode=args.gonka_disable_json_mode,
         llm_model=args.llm_model,
         max_concurrent_llm=args.parallel_llm,
+        max_concurrent_llm_global=args.parallel_llm_global,
         rate_limit_rps=args.gonka_rate_limit_rps,
         max_retries=args.max_retries,
         llm_temperature=args.llm_temperature,
+        spo_connect_timeout_seconds=args.spo_connect_timeout_seconds,
+        spo_read_timeout_seconds=args.spo_read_timeout_seconds,
+        spo_total_timeout_seconds=args.spo_total_timeout_seconds,
+        spo_provider_watchdog_seconds=args.spo_provider_watchdog_seconds,
+        spo_rate_warmup_seconds=args.spo_rate_warmup_seconds,
+        spo_rate_warmup_start_scale=args.spo_rate_warmup_start_scale,
+        spo_adaptive_rate_enabled=args.spo_adaptive_rate_enabled,
+        spo_adaptive_rate_recovery_factor=args.spo_adaptive_rate_recovery_factor,
+        spo_adaptive_rate_penalty_multiplier=args.spo_adaptive_rate_penalty_multiplier,
+        spo_adaptive_rate_max_scale=args.spo_adaptive_rate_max_scale,
         stages=stages,
         resume=args.resume,
         xml_parse_chunk=args.xml_parse_chunk,
@@ -507,10 +645,19 @@ def _cmd_run(args: argparse.Namespace) -> None:
         spo_task_batch_size=args.spo_task_batch_size,
         spo_request_batch_size=args.spo_request_batch_size,
         spo_request_batch_chars=args.spo_request_batch_chars,
+        spo_adaptive_batch_downshift_enabled=args.spo_adaptive_batch_downshift_enabled,
+        spo_adaptive_batch_soft_chars_share=args.spo_adaptive_batch_soft_chars_share,
         spo_group_timeout_seconds=args.spo_group_timeout_seconds,
         spo_timeout_retry_enabled=args.spo_timeout_retry_enabled,
         spo_timeout_retry_batch_size=args.spo_timeout_retry_batch_size,
         spo_timeout_retry_chars=args.spo_timeout_retry_chars,
+        spo_retryable_followup_passes=args.spo_retryable_followup_passes,
+        spo_retryable_followup_delay_seconds=args.spo_retryable_followup_delay_seconds,
+        spo_retryable_followup_worker_scale=args.spo_retryable_followup_worker_scale,
+        spo_retryable_followup_dispatch_rps_scale=args.spo_retryable_followup_dispatch_rps_scale,
+        spo_retryable_followup_client_rate_scale=args.spo_retryable_followup_client_rate_scale,
+        spo_retryable_followup_client_concurrency_scale=args.spo_retryable_followup_client_concurrency_scale,
+        spo_request_log_enabled=args.spo_request_log_enabled,
         spo_extract_mode=args.spo_extract_mode,
         spo_skip_trivial=not args.no_spo_skip_trivial,
         spo_verify_mode=args.spo_verify_mode,
@@ -578,15 +725,29 @@ def _cmd_run(args: argparse.Namespace) -> None:
         print(f"  Claim sets:      {stats.exported_claim_sets}")
     if stats.published_bundle:
         print("  Publish bundle: yes")
+    if stats.quality_gate_passed is not None:
+        print(f"  Quality Gate OK: {stats.quality_gate_passed}")
+    elif stats.quality_passed is not None:
+        print(f"  Quality Gate OK: {stats.quality_passed}")
+    if stats.qc_passed is not None:
+        print(f"  QC OK:      {stats.qc_passed}")
     if stats.benchmark_passed is not None:
         print(f"  Benchmark OK: {stats.benchmark_passed}")
+    if stats.release_passed is not None:
+        print(f"  Release OK:   {stats.release_passed}")
     print(f"  Time:       {stats.elapsed_seconds:.1f}s")
     if config.sharded:
         print(f"  Shard:      {config.shard_index + 1}/{config.shard_count} ({config.shard_slug})")
-    if stats.quality_passed is not None:
-        print(f"  Quality OK: {stats.quality_passed}")
+    if stats.quality_gate_failed_checks:
+        print(f"  Quality gate failed checks: {', '.join(stats.quality_gate_failed_checks)}")
+    if stats.quality_hotspot_failed_checks:
+        print(f"  Quality hotspot failed checks: {', '.join(stats.quality_hotspot_failed_checks)}")
+    if stats.qc_failed_checks:
+        print(f"  QC failed checks: {', '.join(stats.qc_failed_checks)}")
     if stats.benchmark_passed is not None and stats.benchmark_failed_checks:
         print(f"  Benchmark failed checks: {', '.join(stats.benchmark_failed_checks)}")
+    if stats.release_failed_checks:
+        print(f"  Release failed checks: {', '.join(stats.release_failed_checks)}")
     for stage, dt in sorted(stats.stage_times.items()):
         print(f"    {stage}: {dt:.1f}s")
 
@@ -648,7 +809,19 @@ def _cmd_smoke(args: argparse.Namespace) -> None:
         parallel_llm=args.parallel_llm,
         gonka_rate_limit_rps=args.gonka_rate_limit_rps,
         max_retries=args.max_retries,
+        spo_rate_warmup_seconds=args.spo_rate_warmup_seconds,
+        spo_rate_warmup_start_scale=args.spo_rate_warmup_start_scale,
+        spo_adaptive_rate_enabled=args.spo_adaptive_rate_enabled,
+        spo_adaptive_rate_recovery_factor=args.spo_adaptive_rate_recovery_factor,
+        spo_adaptive_rate_penalty_multiplier=args.spo_adaptive_rate_penalty_multiplier,
+        spo_adaptive_rate_max_scale=args.spo_adaptive_rate_max_scale,
+        spo_retryable_followup_worker_scale=args.spo_retryable_followup_worker_scale,
+        spo_retryable_followup_dispatch_rps_scale=args.spo_retryable_followup_dispatch_rps_scale,
+        spo_retryable_followup_client_rate_scale=args.spo_retryable_followup_client_rate_scale,
+        spo_retryable_followup_client_concurrency_scale=args.spo_retryable_followup_client_concurrency_scale,
         spo_request_batch_chars=args.spo_request_batch_chars,
+        spo_adaptive_batch_downshift_enabled=args.spo_adaptive_batch_downshift_enabled,
+        spo_adaptive_batch_soft_chars_share=args.spo_adaptive_batch_soft_chars_share,
         spo_group_timeout_seconds=args.spo_group_timeout_seconds,
         llm_gap_fill_mode=args.llm_gap_fill_mode,
         llm_gap_fill_max_share=args.llm_gap_fill_max_share,
@@ -665,9 +838,18 @@ def _cmd_smoke(args: argparse.Namespace) -> None:
     print(f"  Grounded facts: {stats.grounded_facts}")
     print(f"  Normative facts:{stats.normative_facts}")
     print(f"  Resolved refs:  {stats.reference_edges}")
-    print(f"  Quality OK:     {stats.quality_passed}")
-    if stats.quality_failed_checks:
-        print(f"  Failed checks:  {', '.join(stats.quality_failed_checks)}")
+    print(f"  Quality Gate OK:{stats.quality_gate_passed if stats.quality_gate_passed is not None else stats.quality_passed}")
+    print(f"  QC OK:         {stats.qc_passed}")
+    print(f"  Benchmark OK:  {stats.benchmark_passed}")
+    print(f"  Release OK:    {stats.release_passed}")
+    if stats.quality_gate_failed_checks:
+        print(f"  Quality fails: {', '.join(stats.quality_gate_failed_checks)}")
+    if stats.quality_hotspot_failed_checks:
+        print(f"  Hotspots:      {', '.join(stats.quality_hotspot_failed_checks)}")
+    if stats.qc_failed_checks:
+        print(f"  QC fails:      {', '.join(stats.qc_failed_checks)}")
+    if stats.release_failed_checks:
+        print(f"  Release fails: {', '.join(stats.release_failed_checks)}")
     print(f"  Time:           {stats.elapsed_seconds:.1f}s")
     print(f"  Plan:           {result['plan_path']}")
     print(f"  Report:         {result['report_path']}")

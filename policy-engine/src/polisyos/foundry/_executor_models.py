@@ -2,7 +2,8 @@
 from __future__ import annotations
 
 import dataclasses
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from enum import Enum
 from io import BytesIO
 from typing import Any
 
@@ -19,6 +20,9 @@ from polisyos.core.contracts.foundry import ConstraintReportRef
 __all__ = [
     "ExecuteArtifacts",
     "ApplyArtifacts",
+    "FailureSeverity",
+    "FailureCard",
+    "ExecutionStrictness",
     "artifact_id",
     "load_model",
     "load_payload",
@@ -29,6 +33,36 @@ __all__ = [
 ]
 
 
+class FailureSeverity(str, Enum):
+    """Severity classification for method execution failures."""
+
+    FATAL = "fatal"
+    RECOVERABLE = "recoverable"
+    DEGRADED = "degraded"
+
+
+class FailureCard(BaseModel, frozen=True, extra="forbid"):
+    """Structured failure report for a method node execution."""
+
+    node_id: str
+    method_fqn: str
+    severity: FailureSeverity
+    error_type: str
+    error_message: str
+    traceback_hash: str
+    timestamp: float
+    retry_eligible: bool
+    suggested_fallback: str | None = None
+
+
+class ExecutionStrictness(str, Enum):
+    """Configurable strictness level for program graph execution."""
+
+    FAIL_CLOSED = "fail_closed"
+    DEGRADED = "degraded"
+    RESEARCH = "research"
+
+
 @dataclass(frozen=True)
 class ExecuteArtifacts:
     state_delta_ref: ArtifactRef
@@ -37,6 +71,9 @@ class ExecuteArtifacts:
     constraint_hard_fail: bool = False
     environment_ref: EnvironmentManifestRef | None = None
     environment_fingerprint: str | None = None
+    failure_cards: tuple[FailureCard, ...] = ()
+    is_degraded: bool = False
+    provenance: dict[str, tuple[str, ...]] = field(default_factory=dict)
 
 
 @dataclass(frozen=True)

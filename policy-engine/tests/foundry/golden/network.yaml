@@ -1,0 +1,26 @@
+domain: network
+version: "1.0"
+cases:
+  - id: community_detection_two_blocks
+    method_fqn: "network.community.community_detection@1.0.0"
+    description: "Two well-separated blocks → 2 communities"
+    skip_reason: "Requires NetworkData model — deferred to Phase 10b"
+    input_data: {}
+    expected_output: {}
+    tags: [community]
+
+  - id: io_network_leontief
+    method_fqn: "network.io.input_output_network@1.0.0"
+    description: "Simple Leontief IO model"
+    skip_reason: "Requires IOData model — deferred to Phase 10b"
+    input_data: {}
+    expected_output: {}
+    tags: [io]
+
+  - id: network_diffusion_simple
+    method_fqn: "network.diffusion.network_diffusion@1.0.0"
+    description: "Diffusion on star graph"
+    skip_reason: "Requires NetworkData model — deferred to Phase 10b"
+    input_data: {}
+    expected_output: {}
+    tags: [diffusion]

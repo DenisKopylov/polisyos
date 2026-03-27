@@ -142,6 +142,7 @@ class SensitivityResult(BaseModel):
     s2: dict[str, dict[str, float]] = Field(default_factory=dict)
 
     ranking: list[str] = Field(default_factory=list)
+    top_interactions: list[tuple[str, str, float]] = Field(default_factory=list)
     total_runs: int = Field(default=0, ge=0)
     successful_runs: int = Field(default=0, ge=0)
     failed_runs: int = Field(default=0, ge=0)

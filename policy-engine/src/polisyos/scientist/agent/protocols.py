@@ -399,3 +399,33 @@ def is_valid_agent(agent: object, role: AgentRole) -> bool:
     """Check if an object implements the protocol for a role."""
     protocol = get_protocol_for_role(role)
     return isinstance(agent, protocol)
+
+
+# =============================================================================
+# AGENT ROUTING (Phase 6 WS6.3)
+# =============================================================================
+
+
+@dataclass(frozen=True, slots=True)
+class RoutingState:
+    """Immutable snapshot of agent pipeline state for routing decisions."""
+
+    current_role: AgentRole
+    iteration: int
+    error_count: int
+    confidence: float  # 0.0 - 1.0
+    budget_remaining_ratio: float  # 0.0 - 1.0
+    history: tuple[AgentRole, ...] = ()
+
+
+@runtime_checkable
+class AgentRouter(Protocol):
+    """Protocol for dynamic agent selection and routing."""
+
+    def select_next_agent(self, state: RoutingState) -> AgentRole:
+        """Choose the next agent role based on pipeline state."""
+        ...
+
+    def should_escalate(self, state: RoutingState) -> bool:
+        """Return ``True`` if the pipeline should escalate to PI."""
+        ...

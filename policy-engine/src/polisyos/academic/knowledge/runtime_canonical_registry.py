@@ -828,6 +828,702 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
         canonical_name="security.peacebuilding",
         aliases=("peacebuilding", "peace building", "post-conflict reconstruction"),
     ),
+    # ── Gender ───────────────────────────────────────────────────────
+    "gender.wage_gap": RuntimeCanonicalEntry(
+        canonical_name="gender.wage_gap",
+        aliases=("gender wage gap", "gender pay gap", "wage gap between men and women", "pay equity gap"),
+    ),
+    "gender.female_labor_participation": RuntimeCanonicalEntry(
+        canonical_name="gender.female_labor_participation",
+        aliases=("female labor force participation", "female labour force participation", "women labor participation", "female lfpr"),
+    ),
+    "gender.reproductive_health": RuntimeCanonicalEntry(
+        canonical_name="gender.reproductive_health",
+        aliases=("reproductive health", "reproductive rights", "family planning access", "contraceptive prevalence"),
+    ),
+    "gender.gender_based_violence": RuntimeCanonicalEntry(
+        canonical_name="gender.gender_based_violence",
+        aliases=("gender-based violence", "gbv", "violence against women", "domestic violence prevalence", "intimate partner violence"),
+    ),
+    "gender.child_marriage": RuntimeCanonicalEntry(
+        canonical_name="gender.child_marriage",
+        aliases=("child marriage", "early marriage", "child marriage prevalence"),
+    ),
+    "gender.care_work_burden": RuntimeCanonicalEntry(
+        canonical_name="gender.care_work_burden",
+        aliases=("care work burden", "unpaid care work", "time spent on care", "care economy"),
+    ),
+    "gender.female_entrepreneurship": RuntimeCanonicalEntry(
+        canonical_name="gender.female_entrepreneurship",
+        aliases=("female entrepreneurship", "women entrepreneurship", "women-owned businesses"),
+    ),
+    "gender.maternal_mortality_ratio": RuntimeCanonicalEntry(
+        canonical_name="gender.maternal_mortality_ratio",
+        aliases=("maternal mortality ratio", "mmr", "maternal death ratio"),
+    ),
+    "gender.female_education_gap": RuntimeCanonicalEntry(
+        canonical_name="gender.female_education_gap",
+        aliases=("female education gap", "girls education gap", "gender education disparity", "female literacy gap"),
+    ),
+    "gender.women_political_representation": RuntimeCanonicalEntry(
+        canonical_name="gender.women_political_representation",
+        aliases=("women political representation", "female parliament share", "women in parliament", "female political participation"),
+    ),
+    "gender.female_property_rights": RuntimeCanonicalEntry(
+        canonical_name="gender.female_property_rights",
+        aliases=("female property rights", "women property rights", "women land rights", "gender land tenure"),
+    ),
+    "gender.female_financial_inclusion": RuntimeCanonicalEntry(
+        canonical_name="gender.female_financial_inclusion",
+        aliases=("female financial inclusion", "women bank account", "women financial access", "gender financial gap"),
+    ),
+    # ── Migration ────────────────────────────────────────────────────
+    "migration.net_flows": RuntimeCanonicalEntry(
+        canonical_name="migration.net_flows",
+        aliases=("net migration flows", "migration flows", "net migration", "immigration flows"),
+    ),
+    "migration.refugee_population": RuntimeCanonicalEntry(
+        canonical_name="migration.refugee_population",
+        aliases=("refugee population", "refugees", "refugee stock", "refugee count"),
+    ),
+    "migration.remittance_inflows": RuntimeCanonicalEntry(
+        canonical_name="migration.remittance_inflows",
+        aliases=("remittance inflows", "remittances received", "diaspora remittances", "worker remittance inflows"),
+    ),
+    "migration.brain_drain": RuntimeCanonicalEntry(
+        canonical_name="migration.brain_drain",
+        aliases=("brain drain", "skilled emigration", "human capital flight", "talent outflow"),
+    ),
+    "migration.asylum_processing": RuntimeCanonicalEntry(
+        canonical_name="migration.asylum_processing",
+        aliases=("asylum processing", "asylum applications", "refugee determination", "asylum recognition rate"),
+    ),
+    "migration.internal_displacement": RuntimeCanonicalEntry(
+        canonical_name="migration.internal_displacement",
+        aliases=("internal displacement", "internally displaced persons", "idp population", "internal migration forced"),
+    ),
+    "migration.diaspora_investment": RuntimeCanonicalEntry(
+        canonical_name="migration.diaspora_investment",
+        aliases=("diaspora investment", "diaspora fdi", "diaspora bonds", "diaspora engagement"),
+    ),
+    "migration.immigration_policy": RuntimeCanonicalEntry(
+        canonical_name="migration.immigration_policy",
+        aliases=("immigration policy", "migration policy", "immigration restrictiveness", "visa policy"),
+    ),
+    "migration.migrant_integration": RuntimeCanonicalEntry(
+        canonical_name="migration.migrant_integration",
+        aliases=("migrant integration", "immigrant integration", "refugee integration", "migrant inclusion"),
+    ),
+    "migration.human_trafficking": RuntimeCanonicalEntry(
+        canonical_name="migration.human_trafficking",
+        aliases=("human trafficking", "trafficking in persons", "modern slavery", "forced labor trafficking"),
+    ),
+    "migration.labor_migration": RuntimeCanonicalEntry(
+        canonical_name="migration.labor_migration",
+        aliases=("labor migration", "labour migration", "economic migration", "guest worker"),
+    ),
+    "migration.return_migration": RuntimeCanonicalEntry(
+        canonical_name="migration.return_migration",
+        aliases=("return migration", "returnee reintegration", "circular migration", "migrant return"),
+    ),
+    # ── Security (expanded) ──────────────────────────────────────────
+    "security.organized_crime": RuntimeCanonicalEntry(
+        canonical_name="security.organized_crime",
+        aliases=("organized crime", "organised crime", "criminal networks", "mafia", "transnational crime"),
+    ),
+    "security.terrorism_risk": RuntimeCanonicalEntry(
+        canonical_name="security.terrorism_risk",
+        aliases=("terrorism risk", "terrorism", "terrorist attacks", "violent extremism", "radicalization"),
+    ),
+    "security.civil_unrest": RuntimeCanonicalEntry(
+        canonical_name="security.civil_unrest",
+        aliases=("civil unrest", "political unrest", "protests", "social unrest", "riots"),
+    ),
+    "security.arms_trade": RuntimeCanonicalEntry(
+        canonical_name="security.arms_trade",
+        aliases=("arms trade", "arms trafficking", "weapons trade", "small arms proliferation"),
+    ),
+    "security.military_spending": RuntimeCanonicalEntry(
+        canonical_name="security.military_spending",
+        aliases=("military spending", "defense spending", "military expenditure", "defense budget"),
+    ),
+    "security.gang_violence": RuntimeCanonicalEntry(
+        canonical_name="security.gang_violence",
+        aliases=("gang violence", "gang activity", "gang-related crime", "urban violence"),
+    ),
+    "security.police_reform": RuntimeCanonicalEntry(
+        canonical_name="security.police_reform",
+        aliases=("police reform", "law enforcement reform", "police accountability", "police effectiveness"),
+    ),
+    "security.prison_overcrowding": RuntimeCanonicalEntry(
+        canonical_name="security.prison_overcrowding",
+        aliases=("prison overcrowding", "incarceration rate", "prison population", "detention conditions"),
+    ),
+    "security.cybercrime": RuntimeCanonicalEntry(
+        canonical_name="security.cybercrime",
+        aliases=("cybercrime", "cyber crime", "online crime", "cyber attacks"),
+    ),
+    "security.border_security": RuntimeCanonicalEntry(
+        canonical_name="security.border_security",
+        aliases=("border security", "border control", "border management", "cross-border security"),
+    ),
+    "security.drug_trafficking": RuntimeCanonicalEntry(
+        canonical_name="security.drug_trafficking",
+        aliases=("drug trafficking", "narcotics trade", "illicit drug trade", "drug-related violence"),
+    ),
+    # ── Environment (expanded) ───────────────────────────────────────
+    "environment.land_degradation": RuntimeCanonicalEntry(
+        canonical_name="environment.land_degradation",
+        aliases=("land degradation", "soil erosion", "desertification", "land degradation neutrality"),
+    ),
+    "environment.wetland_loss": RuntimeCanonicalEntry(
+        canonical_name="environment.wetland_loss",
+        aliases=("wetland loss", "wetland degradation", "wetland conversion", "peatland loss"),
+    ),
+    "environment.plastic_pollution": RuntimeCanonicalEntry(
+        canonical_name="environment.plastic_pollution",
+        aliases=("plastic pollution", "microplastic pollution", "plastic waste", "ocean plastic"),
+    ),
+    "environment.water_pollution": RuntimeCanonicalEntry(
+        canonical_name="environment.water_pollution",
+        aliases=("water pollution", "water contamination", "water quality degradation", "effluent discharge"),
+    ),
+    "environment.ecosystem_services": RuntimeCanonicalEntry(
+        canonical_name="environment.ecosystem_services",
+        aliases=("ecosystem services", "ecosystem valuation", "natural capital", "environmental services"),
+    ),
+    "environment.protected_areas": RuntimeCanonicalEntry(
+        canonical_name="environment.protected_areas",
+        aliases=("protected areas", "nature reserves", "conservation areas", "national parks coverage"),
+    ),
+    "environment.wildlife_trade": RuntimeCanonicalEntry(
+        canonical_name="environment.wildlife_trade",
+        aliases=("wildlife trade", "illegal wildlife trade", "poaching", "wildlife trafficking"),
+    ),
+    "environment.nitrogen_runoff": RuntimeCanonicalEntry(
+        canonical_name="environment.nitrogen_runoff",
+        aliases=("nitrogen runoff", "nutrient pollution", "eutrophication", "phosphorus runoff", "agricultural runoff"),
+    ),
+    "environment.air_pollution_health": RuntimeCanonicalEntry(
+        canonical_name="environment.air_pollution_health",
+        aliases=("air pollution health impact", "pm2.5 health burden", "air pollution mortality", "respiratory disease pollution"),
+    ),
+    "environment.groundwater_depletion": RuntimeCanonicalEntry(
+        canonical_name="environment.groundwater_depletion",
+        aliases=("groundwater depletion", "aquifer depletion", "groundwater overdraft", "water table decline"),
+    ),
+    # ── Infrastructure (expanded) ────────────────────────────────────
+    "infrastructure.water_supply": RuntimeCanonicalEntry(
+        canonical_name="infrastructure.water_supply",
+        aliases=("water supply", "water infrastructure", "piped water", "water supply system"),
+    ),
+    "infrastructure.sanitation_coverage": RuntimeCanonicalEntry(
+        canonical_name="infrastructure.sanitation_coverage",
+        aliases=("sanitation coverage", "improved sanitation", "sewage system", "sanitation access"),
+    ),
+    "infrastructure.electricity_grid": RuntimeCanonicalEntry(
+        canonical_name="infrastructure.electricity_grid",
+        aliases=("electricity grid", "power grid", "transmission network", "grid infrastructure", "power distribution"),
+    ),
+    "infrastructure.port_capacity": RuntimeCanonicalEntry(
+        canonical_name="infrastructure.port_capacity",
+        aliases=("port capacity", "port infrastructure", "container port throughput", "maritime infrastructure"),
+    ),
+    "infrastructure.rail_network": RuntimeCanonicalEntry(
+        canonical_name="infrastructure.rail_network",
+        aliases=("rail network", "railway infrastructure", "railroad", "rail transport"),
+    ),
+    "infrastructure.irrigation_infrastructure": RuntimeCanonicalEntry(
+        canonical_name="infrastructure.irrigation_infrastructure",
+        aliases=("irrigation infrastructure", "irrigation systems", "irrigation canals", "water management infrastructure"),
+    ),
+    "infrastructure.wastewater_treatment": RuntimeCanonicalEntry(
+        canonical_name="infrastructure.wastewater_treatment",
+        aliases=("wastewater treatment", "sewage treatment", "water treatment plant", "effluent treatment"),
+    ),
+    "infrastructure.road_safety": RuntimeCanonicalEntry(
+        canonical_name="infrastructure.road_safety",
+        aliases=("road safety", "road traffic deaths", "road accidents", "traffic fatalities"),
+    ),
+    # ── Trade (expanded) ─────────────────────────────────────────────
+    "trade.trade_agreements": RuntimeCanonicalEntry(
+        canonical_name="trade.trade_agreements",
+        aliases=("trade agreements", "free trade agreements", "fta", "regional trade agreements", "bilateral trade"),
+    ),
+    "trade.fdi_inflows": RuntimeCanonicalEntry(
+        canonical_name="trade.fdi_inflows",
+        aliases=("fdi inflows", "foreign direct investment inflows", "inward fdi"),
+    ),
+    "trade.supply_chain_resilience": RuntimeCanonicalEntry(
+        canonical_name="trade.supply_chain_resilience",
+        aliases=("supply chain resilience", "supply chain disruption", "value chain resilience", "supply chain vulnerability"),
+    ),
+    "trade.services_trade": RuntimeCanonicalEntry(
+        canonical_name="trade.services_trade",
+        aliases=("services trade", "trade in services", "service exports", "services sector trade"),
+    ),
+    "trade.trade_facilitation": RuntimeCanonicalEntry(
+        canonical_name="trade.trade_facilitation",
+        aliases=("trade facilitation", "customs efficiency", "border clearance time", "trade logistics"),
+    ),
+    "trade.value_added_exports": RuntimeCanonicalEntry(
+        canonical_name="trade.value_added_exports",
+        aliases=("value added exports", "domestic value added in exports", "export sophistication"),
+    ),
+    "trade.special_economic_zones": RuntimeCanonicalEntry(
+        canonical_name="trade.special_economic_zones",
+        aliases=("special economic zones", "sez", "free trade zones", "export processing zones"),
+    ),
+    # ── Energy (expanded) ────────────────────────────────────────────
+    "energy.energy_storage": RuntimeCanonicalEntry(
+        canonical_name="energy.energy_storage",
+        aliases=("energy storage", "battery storage", "grid storage", "energy storage capacity"),
+    ),
+    "energy.grid_modernization": RuntimeCanonicalEntry(
+        canonical_name="energy.grid_modernization",
+        aliases=("grid modernization", "smart grid", "grid upgrade", "power grid modernization"),
+    ),
+    "energy.renewable_costs": RuntimeCanonicalEntry(
+        canonical_name="energy.renewable_costs",
+        aliases=("renewable energy costs", "solar cost", "wind cost", "lcoe renewables", "cost of clean energy"),
+    ),
+    "energy.carbon_pricing": RuntimeCanonicalEntry(
+        canonical_name="energy.carbon_pricing",
+        aliases=("carbon pricing", "carbon tax", "emissions trading", "cap and trade", "carbon market"),
+    ),
+    "energy.energy_efficiency_standards": RuntimeCanonicalEntry(
+        canonical_name="energy.energy_efficiency_standards",
+        aliases=("energy efficiency standards", "building energy codes", "appliance efficiency", "energy performance"),
+    ),
+    "energy.distributed_generation": RuntimeCanonicalEntry(
+        canonical_name="energy.distributed_generation",
+        aliases=("distributed generation", "rooftop solar", "decentralized energy", "mini grid", "off-grid energy"),
+    ),
+    "energy.nuclear_capacity": RuntimeCanonicalEntry(
+        canonical_name="energy.nuclear_capacity",
+        aliases=("nuclear capacity", "nuclear power", "nuclear energy", "nuclear generation"),
+    ),
+    # ── Digital (expanded) ───────────────────────────────────────────
+    "digital.data_privacy": RuntimeCanonicalEntry(
+        canonical_name="digital.data_privacy",
+        aliases=("data privacy", "data protection", "privacy regulation", "gdpr compliance"),
+    ),
+    "digital.platform_regulation": RuntimeCanonicalEntry(
+        canonical_name="digital.platform_regulation",
+        aliases=("platform regulation", "big tech regulation", "digital platform governance", "antitrust digital"),
+    ),
+    "digital.ai_governance": RuntimeCanonicalEntry(
+        canonical_name="digital.ai_governance",
+        aliases=("ai governance", "artificial intelligence regulation", "ai policy", "ai ethics"),
+    ),
+    "digital.digital_divide": RuntimeCanonicalEntry(
+        canonical_name="digital.digital_divide",
+        aliases=("digital divide", "digital gap", "internet access gap", "connectivity gap"),
+    ),
+    "digital.e_government_maturity": RuntimeCanonicalEntry(
+        canonical_name="digital.e_government_maturity",
+        aliases=("e-government maturity", "digital government index", "online public services", "e-government readiness"),
+    ),
+    "digital.mobile_money_adoption": RuntimeCanonicalEntry(
+        canonical_name="digital.mobile_money_adoption",
+        aliases=("mobile money adoption", "mobile payment adoption", "mobile banking", "mobile wallet"),
+    ),
+    "digital.open_data": RuntimeCanonicalEntry(
+        canonical_name="digital.open_data",
+        aliases=("open data", "open government data", "data openness", "public data availability"),
+    ),
+    "digital.digital_identity": RuntimeCanonicalEntry(
+        canonical_name="digital.digital_identity",
+        aliases=("digital identity", "digital id", "e-identity", "national digital identity"),
+    ),
+    # ── Social (expanded) ────────────────────────────────────────────
+    "social.pension_coverage": RuntimeCanonicalEntry(
+        canonical_name="social.pension_coverage",
+        aliases=("pension coverage", "pension system coverage", "retirement coverage", "old age pension"),
+    ),
+    "social.unemployment_insurance": RuntimeCanonicalEntry(
+        canonical_name="social.unemployment_insurance",
+        aliases=("unemployment insurance", "unemployment benefits", "jobseeker benefits", "unemployment protection"),
+    ),
+    "social.disability_benefits": RuntimeCanonicalEntry(
+        canonical_name="social.disability_benefits",
+        aliases=("disability benefits", "disability assistance", "disability insurance", "disability support"),
+    ),
+    "social.elderly_care": RuntimeCanonicalEntry(
+        canonical_name="social.elderly_care",
+        aliases=("elderly care", "aged care", "long-term care", "elder care services"),
+    ),
+    "social.school_feeding": RuntimeCanonicalEntry(
+        canonical_name="social.school_feeding",
+        aliases=("school feeding", "school meals", "school lunch program", "midday meal"),
+    ),
+    "social.social_protection_floor": RuntimeCanonicalEntry(
+        canonical_name="social.social_protection_floor",
+        aliases=("social protection floor", "basic social protection", "minimum social protection"),
+    ),
+    "social.multidimensional_poverty": RuntimeCanonicalEntry(
+        canonical_name="social.multidimensional_poverty",
+        aliases=("multidimensional poverty", "mpi", "multidimensional poverty index", "non-monetary poverty"),
+    ),
+    # ── Monetary (NEW) ───────────────────────────────────────────────
+    "monetary.money_supply": RuntimeCanonicalEntry(
+        canonical_name="monetary.money_supply",
+        aliases=("money supply", "m2 money supply", "broad money", "monetary aggregate"),
+    ),
+    "monetary.reserve_requirements": RuntimeCanonicalEntry(
+        canonical_name="monetary.reserve_requirements",
+        aliases=("reserve requirements", "reserve ratio", "bank reserves", "required reserves"),
+    ),
+    "monetary.central_bank_independence": RuntimeCanonicalEntry(
+        canonical_name="monetary.central_bank_independence",
+        aliases=("central bank independence", "monetary policy independence", "cbi index", "central bank autonomy"),
+    ),
+    "monetary.inflation_targeting": RuntimeCanonicalEntry(
+        canonical_name="monetary.inflation_targeting",
+        aliases=("inflation targeting", "inflation target", "price stability target", "monetary policy framework"),
+    ),
+    "monetary.quantitative_easing": RuntimeCanonicalEntry(
+        canonical_name="monetary.quantitative_easing",
+        aliases=("quantitative easing", "qe", "unconventional monetary policy", "asset purchases"),
+    ),
+    "monetary.financial_regulation": RuntimeCanonicalEntry(
+        canonical_name="monetary.financial_regulation",
+        aliases=("financial regulation", "banking regulation", "prudential regulation", "financial supervision"),
+    ),
+    "monetary.systemic_risk": RuntimeCanonicalEntry(
+        canonical_name="monetary.systemic_risk",
+        aliases=("systemic risk", "financial systemic risk", "too big to fail", "macroprudential risk"),
+    ),
+    "monetary.capital_controls": RuntimeCanonicalEntry(
+        canonical_name="monetary.capital_controls",
+        aliases=("capital controls", "capital flow management", "capital account restrictions", "capital mobility"),
+    ),
+    "monetary.exchange_rate_regime": RuntimeCanonicalEntry(
+        canonical_name="monetary.exchange_rate_regime",
+        aliases=("exchange rate regime", "fixed exchange rate", "floating exchange rate", "currency peg", "exchange rate arrangement"),
+    ),
+    "monetary.financial_depth": RuntimeCanonicalEntry(
+        canonical_name="monetary.financial_depth",
+        aliases=("financial depth", "financial sector depth", "private credit to gdp", "financial intermediation"),
+    ),
+    # ── Justice (NEW) ────────────────────────────────────────────────
+    "justice.access_to_justice": RuntimeCanonicalEntry(
+        canonical_name="justice.access_to_justice",
+        aliases=("access to justice", "legal access", "justice accessibility", "legal empowerment"),
+    ),
+    "justice.legal_aid": RuntimeCanonicalEntry(
+        canonical_name="justice.legal_aid",
+        aliases=("legal aid", "legal assistance", "free legal services", "public defender"),
+    ),
+    "justice.case_resolution_time": RuntimeCanonicalEntry(
+        canonical_name="justice.case_resolution_time",
+        aliases=("case resolution time", "court processing time", "trial duration", "judicial efficiency"),
+    ),
+    "justice.judicial_backlog": RuntimeCanonicalEntry(
+        canonical_name="justice.judicial_backlog",
+        aliases=("judicial backlog", "court backlog", "pending cases", "case backlog"),
+    ),
+    "justice.transitional_justice": RuntimeCanonicalEntry(
+        canonical_name="justice.transitional_justice",
+        aliases=("transitional justice", "post-conflict justice", "truth and reconciliation", "war crimes tribunal"),
+    ),
+    "justice.restorative_justice": RuntimeCanonicalEntry(
+        canonical_name="justice.restorative_justice",
+        aliases=("restorative justice", "community justice", "victim-offender mediation"),
+    ),
+    "justice.anti_money_laundering": RuntimeCanonicalEntry(
+        canonical_name="justice.anti_money_laundering",
+        aliases=("anti money laundering", "aml", "money laundering prevention", "illicit financial flows"),
+    ),
+    "justice.beneficial_ownership": RuntimeCanonicalEntry(
+        canonical_name="justice.beneficial_ownership",
+        aliases=("beneficial ownership", "beneficial ownership transparency", "company ownership registry"),
+    ),
+    "justice.whistleblower_protection": RuntimeCanonicalEntry(
+        canonical_name="justice.whistleblower_protection",
+        aliases=("whistleblower protection", "whistleblowing", "anti-retaliation", "corruption reporting"),
+    ),
+    "justice.juvenile_justice": RuntimeCanonicalEntry(
+        canonical_name="justice.juvenile_justice",
+        aliases=("juvenile justice", "youth justice", "child justice", "minor offender"),
+    ),
+    # ── Demographic (expanded) ───────────────────────────────────────
+    "demographic.youth_bulge": RuntimeCanonicalEntry(
+        canonical_name="demographic.youth_bulge",
+        aliases=("youth bulge", "youth population share", "youth demographic", "young population"),
+    ),
+    "demographic.aging_population": RuntimeCanonicalEntry(
+        canonical_name="demographic.aging_population",
+        aliases=("aging population", "population aging", "elderly population share", "old age population"),
+    ),
+    "demographic.urbanization_rate": RuntimeCanonicalEntry(
+        canonical_name="demographic.urbanization_rate",
+        aliases=("urbanization rate", "urban population growth", "rural-urban migration rate"),
+    ),
+    "demographic.life_expectancy_gap": RuntimeCanonicalEntry(
+        canonical_name="demographic.life_expectancy_gap",
+        aliases=("life expectancy gap", "life expectancy inequality", "mortality gap", "longevity gap"),
+    ),
+    # ── Fiscal (expanded) ────────────────────────────────────────────
+    "fiscal.budget_transparency": RuntimeCanonicalEntry(
+        canonical_name="fiscal.budget_transparency",
+        aliases=("budget transparency", "open budget index", "fiscal openness", "budget disclosure"),
+    ),
+    "fiscal.tax_effort": RuntimeCanonicalEntry(
+        canonical_name="fiscal.tax_effort",
+        aliases=("tax effort", "tax capacity utilization", "tax gap", "revenue mobilization"),
+    ),
+    "fiscal.debt_sustainability": RuntimeCanonicalEntry(
+        canonical_name="fiscal.debt_sustainability",
+        aliases=("debt sustainability", "debt sustainability analysis", "fiscal sustainability", "dsa"),
+    ),
+    "fiscal.revenue_diversification": RuntimeCanonicalEntry(
+        canonical_name="fiscal.revenue_diversification",
+        aliases=("revenue diversification", "tax base diversification", "revenue composition", "non-tax revenue"),
+    ),
+    "fiscal.tax_progressivity": RuntimeCanonicalEntry(
+        canonical_name="fiscal.tax_progressivity",
+        aliases=("tax progressivity", "progressive taxation", "tax incidence", "redistributive taxation"),
+    ),
+    "fiscal.subnational_fiscal": RuntimeCanonicalEntry(
+        canonical_name="fiscal.subnational_fiscal",
+        aliases=("subnational fiscal", "local government finance", "municipal revenue", "fiscal decentralization"),
+    ),
+    "fiscal.public_investment_efficiency": RuntimeCanonicalEntry(
+        canonical_name="fiscal.public_investment_efficiency",
+        aliases=("public investment efficiency", "capital spending efficiency", "pima score", "infrastructure investment quality"),
+    ),
+    "fiscal.subsidy_reform": RuntimeCanonicalEntry(
+        canonical_name="fiscal.subsidy_reform",
+        aliases=("subsidy reform", "fossil fuel subsidy reform", "agricultural subsidy reform", "targeted subsidies"),
+    ),
+    # ── Labor (expanded) ─────────────────────────────────────────────
+    "labor.gig_economy": RuntimeCanonicalEntry(
+        canonical_name="labor.gig_economy",
+        aliases=("gig economy", "platform work", "freelance economy", "gig workers"),
+    ),
+    "labor.automation_risk": RuntimeCanonicalEntry(
+        canonical_name="labor.automation_risk",
+        aliases=("automation risk", "job automation", "technological displacement", "ai job displacement"),
+    ),
+    "labor.apprenticeship_programs": RuntimeCanonicalEntry(
+        canonical_name="labor.apprenticeship_programs",
+        aliases=("apprenticeship programs", "apprenticeships", "on-the-job training", "vocational apprenticeship"),
+    ),
+    "labor.occupational_safety": RuntimeCanonicalEntry(
+        canonical_name="labor.occupational_safety",
+        aliases=("occupational safety", "workplace safety", "occupational health", "work injuries", "industrial accidents"),
+    ),
+    "labor.collective_bargaining": RuntimeCanonicalEntry(
+        canonical_name="labor.collective_bargaining",
+        aliases=("collective bargaining", "collective bargaining coverage", "labor negotiations", "wage bargaining"),
+    ),
+    "labor.labor_inspection": RuntimeCanonicalEntry(
+        canonical_name="labor.labor_inspection",
+        aliases=("labor inspection", "labour inspection", "workplace inspection", "labor compliance"),
+    ),
+    "labor.wage_productivity_gap": RuntimeCanonicalEntry(
+        canonical_name="labor.wage_productivity_gap",
+        aliases=("wage productivity gap", "wage-productivity decoupling", "labor share decline", "wage lag"),
+    ),
+    "labor.female_employment": RuntimeCanonicalEntry(
+        canonical_name="labor.female_employment",
+        aliases=("female employment", "women employment rate", "female employment rate", "women in workforce"),
+    ),
+    "labor.remote_work": RuntimeCanonicalEntry(
+        canonical_name="labor.remote_work",
+        aliases=("remote work", "telework", "work from home", "hybrid work"),
+    ),
+    # ── Health (expanded) ────────────────────────────────────────────
+    "health.mental_health_prevalence": RuntimeCanonicalEntry(
+        canonical_name="health.mental_health_prevalence",
+        aliases=("mental health prevalence", "mental illness", "depression prevalence", "anxiety prevalence", "mental disorders"),
+    ),
+    "health.antimicrobial_resistance": RuntimeCanonicalEntry(
+        canonical_name="health.antimicrobial_resistance",
+        aliases=("antimicrobial resistance", "amr", "antibiotic resistance", "drug resistance"),
+    ),
+    "health.health_insurance_coverage": RuntimeCanonicalEntry(
+        canonical_name="health.health_insurance_coverage",
+        aliases=("health insurance coverage", "health coverage rate", "insured population", "health insurance enrollment"),
+    ),
+    "health.pandemic_preparedness": RuntimeCanonicalEntry(
+        canonical_name="health.pandemic_preparedness",
+        aliases=("pandemic preparedness", "epidemic preparedness", "health security", "disease surveillance"),
+    ),
+    "health.telemedicine_adoption": RuntimeCanonicalEntry(
+        canonical_name="health.telemedicine_adoption",
+        aliases=("telemedicine adoption", "telehealth", "digital health", "remote healthcare"),
+    ),
+    "health.health_workforce": RuntimeCanonicalEntry(
+        canonical_name="health.health_workforce",
+        aliases=("health workforce", "health workers", "nurses per capita", "health worker density"),
+    ),
+    "health.surgical_capacity": RuntimeCanonicalEntry(
+        canonical_name="health.surgical_capacity",
+        aliases=("surgical capacity", "surgery access", "operating rooms per capita", "essential surgery"),
+    ),
+    "health.pharmaceutical_access": RuntimeCanonicalEntry(
+        canonical_name="health.pharmaceutical_access",
+        aliases=("pharmaceutical access", "medicine access", "drug availability", "essential medicines access"),
+    ),
+    "health.tobacco_use": RuntimeCanonicalEntry(
+        canonical_name="health.tobacco_use",
+        aliases=("tobacco use", "smoking prevalence", "tobacco consumption", "cigarette smoking rate"),
+    ),
+    "health.obesity_prevalence": RuntimeCanonicalEntry(
+        canonical_name="health.obesity_prevalence",
+        aliases=("obesity prevalence", "overweight prevalence", "adult obesity rate", "bmi overweight"),
+    ),
+    # ── Education (expanded) ─────────────────────────────────────────
+    "education.higher_education_quality": RuntimeCanonicalEntry(
+        canonical_name="education.higher_education_quality",
+        aliases=("higher education quality", "university quality", "tertiary education quality", "university ranking"),
+    ),
+    "education.research_output": RuntimeCanonicalEntry(
+        canonical_name="education.research_output",
+        aliases=("research output", "scientific publications", "research productivity", "academic output"),
+    ),
+    "education.education_equity": RuntimeCanonicalEntry(
+        canonical_name="education.education_equity",
+        aliases=("education equity", "educational inequality", "learning gap", "education access disparity"),
+    ),
+    "education.school_infrastructure": RuntimeCanonicalEntry(
+        canonical_name="education.school_infrastructure",
+        aliases=("school infrastructure", "school facilities", "classroom conditions", "school buildings"),
+    ),
+    "education.adult_literacy": RuntimeCanonicalEntry(
+        canonical_name="education.adult_literacy",
+        aliases=("adult literacy", "adult literacy programs", "adult education", "lifelong learning"),
+    ),
+    "education.curriculum_relevance": RuntimeCanonicalEntry(
+        canonical_name="education.curriculum_relevance",
+        aliases=("curriculum relevance", "curriculum reform", "skills-oriented curriculum", "education content"),
+    ),
+    "education.education_finance_efficiency": RuntimeCanonicalEntry(
+        canonical_name="education.education_finance_efficiency",
+        aliases=("education finance efficiency", "education spending efficiency", "cost per student", "education budget efficiency"),
+    ),
+    # ── Agriculture (expanded) ───────────────────────────────────────
+    "agriculture.crop_diversification": RuntimeCanonicalEntry(
+        canonical_name="agriculture.crop_diversification",
+        aliases=("crop diversification", "agricultural diversification", "cropping diversity", "crop variety"),
+    ),
+    "agriculture.agroforestry": RuntimeCanonicalEntry(
+        canonical_name="agriculture.agroforestry",
+        aliases=("agroforestry", "farm forestry", "tree-based farming", "silvopasture"),
+    ),
+    "agriculture.organic_farming": RuntimeCanonicalEntry(
+        canonical_name="agriculture.organic_farming",
+        aliases=("organic farming", "organic agriculture", "organic certification", "chemical-free farming"),
+    ),
+    "agriculture.livestock_productivity": RuntimeCanonicalEntry(
+        canonical_name="agriculture.livestock_productivity",
+        aliases=("livestock productivity", "animal husbandry", "cattle productivity", "dairy yield"),
+    ),
+    "agriculture.aquaculture": RuntimeCanonicalEntry(
+        canonical_name="agriculture.aquaculture",
+        aliases=("aquaculture", "fish farming", "aquaculture production", "mariculture"),
+    ),
+    "agriculture.fisheries_sustainability": RuntimeCanonicalEntry(
+        canonical_name="agriculture.fisheries_sustainability",
+        aliases=("fisheries sustainability", "sustainable fishing", "fish stock", "overfishing"),
+    ),
+    "agriculture.agricultural_extension": RuntimeCanonicalEntry(
+        canonical_name="agriculture.agricultural_extension",
+        aliases=("agricultural extension", "farm extension services", "farmer advisory", "rural extension"),
+    ),
+    "agriculture.seed_system": RuntimeCanonicalEntry(
+        canonical_name="agriculture.seed_system",
+        aliases=("seed system", "seed access", "improved seeds", "seed certification"),
+    ),
+    "agriculture.commodity_price_volatility": RuntimeCanonicalEntry(
+        canonical_name="agriculture.commodity_price_volatility",
+        aliases=("commodity price volatility", "food price volatility", "agricultural price instability", "price shocks"),
+    ),
+    "agriculture.soil_carbon": RuntimeCanonicalEntry(
+        canonical_name="agriculture.soil_carbon",
+        aliases=("soil carbon", "soil carbon sequestration", "soil organic carbon", "carbon farming"),
+    ),
+    # ── Urban (expanded) ─────────────────────────────────────────────
+    "urban.informal_settlement_tenure": RuntimeCanonicalEntry(
+        canonical_name="urban.informal_settlement_tenure",
+        aliases=("informal settlement tenure", "slum tenure security", "informal housing rights", "land tenure urban"),
+    ),
+    "urban.eviction_rate": RuntimeCanonicalEntry(
+        canonical_name="urban.eviction_rate",
+        aliases=("eviction rate", "forced evictions", "housing displacement", "eviction prevalence"),
+    ),
+    "urban.urban_heat_island": RuntimeCanonicalEntry(
+        canonical_name="urban.urban_heat_island",
+        aliases=("urban heat island", "urban heating", "heat island effect", "urban temperature"),
+    ),
+    "urban.street_safety": RuntimeCanonicalEntry(
+        canonical_name="urban.street_safety",
+        aliases=("street safety", "pedestrian safety", "urban crime", "public safety urban"),
+    ),
+    "urban.transportation_equity": RuntimeCanonicalEntry(
+        canonical_name="urban.transportation_equity",
+        aliases=("transportation equity", "transport equity", "mobility equity", "transit accessibility gap"),
+    ),
+    "urban.urban_air_quality": RuntimeCanonicalEntry(
+        canonical_name="urban.urban_air_quality",
+        aliases=("urban air quality", "city air pollution", "urban pm2.5", "urban air pollution"),
+    ),
+    # ── Climate (expanded) ───────────────────────────────────────────
+    "climate.just_transition": RuntimeCanonicalEntry(
+        canonical_name="climate.just_transition",
+        aliases=("just transition", "green transition equity", "climate transition jobs", "fair transition"),
+    ),
+    "climate.loss_and_damage": RuntimeCanonicalEntry(
+        canonical_name="climate.loss_and_damage",
+        aliases=("loss and damage", "climate loss and damage", "climate reparations", "climate damage costs"),
+    ),
+    "climate.climate_finance": RuntimeCanonicalEntry(
+        canonical_name="climate.climate_finance",
+        aliases=("climate finance", "climate funding", "green climate fund", "climate aid"),
+    ),
+    "climate.methane_reduction": RuntimeCanonicalEntry(
+        canonical_name="climate.methane_reduction",
+        aliases=("methane reduction", "methane emissions", "methane pledge", "fugitive methane"),
+    ),
+    "climate.flood_risk": RuntimeCanonicalEntry(
+        canonical_name="climate.flood_risk",
+        aliases=("flood risk", "flooding", "flood damage", "flood vulnerability", "flash floods"),
+    ),
+    "climate.drought_frequency": RuntimeCanonicalEntry(
+        canonical_name="climate.drought_frequency",
+        aliases=("drought frequency", "drought severity", "drought impact", "water shortage"),
+    ),
+    "climate.sea_level_rise": RuntimeCanonicalEntry(
+        canonical_name="climate.sea_level_rise",
+        aliases=("sea level rise", "coastal flooding", "sea level change", "coastal erosion"),
+    ),
+    "climate.heat_stress": RuntimeCanonicalEntry(
+        canonical_name="climate.heat_stress",
+        aliases=("heat stress", "extreme heat", "heat wave", "thermal stress", "heat mortality"),
+    ),
+    "climate.climate_migration": RuntimeCanonicalEntry(
+        canonical_name="climate.climate_migration",
+        aliases=("climate migration", "environmental migration", "climate refugees", "climate displacement"),
+    ),
+    "climate.carbon_sequestration": RuntimeCanonicalEntry(
+        canonical_name="climate.carbon_sequestration",
+        aliases=("carbon sequestration", "carbon capture", "carbon sink", "negative emissions", "ccs"),
+    ),
+    # ── Finance (expanded) ───────────────────────────────────────────
+    "finance.credit_access": RuntimeCanonicalEntry(
+        canonical_name="finance.credit_access",
+        aliases=("credit access", "access to credit", "loan access", "borrowing access"),
+    ),
+    "finance.stock_market_development": RuntimeCanonicalEntry(
+        canonical_name="finance.stock_market_development",
+        aliases=("stock market development", "equity market", "capital market depth", "stock market capitalization"),
+    ),
+    "finance.sovereign_credit_rating": RuntimeCanonicalEntry(
+        canonical_name="finance.sovereign_credit_rating",
+        aliases=("sovereign credit rating", "country credit rating", "sovereign rating", "credit risk rating"),
+    ),
 }
 
 

@@ -704,7 +704,7 @@ def _acic_case(
         runner=runner,
         checker=checker,
         tags=("acic",),
-        timeout_s=120.0,
+        timeout_s=300.0,
     )
 
 

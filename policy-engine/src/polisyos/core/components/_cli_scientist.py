@@ -16,6 +16,8 @@ __all__ = [
     "_cmd_scientist_sensitivity_run",
     "_cmd_scientist_stress_test",
     "_cmd_scientist_backtest",
+    "_cmd_scientist_burn_in",
+    "_cmd_scientist_calibration_report",
 ]
 
 
@@ -248,6 +250,141 @@ def _cmd_scientist_stress_test(args: Any) -> int:
     if args.output:
         Path(args.output).write_text(rendered, encoding="utf-8")
         print(f"stress_report={args.output}")
+    else:
+        print(rendered)
+    return 0
+
+
+def _cmd_scientist_burn_in(args: Any) -> int:
+    try:
+        _validate_output_extension(args.output, args.format)
+    except ValueError as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 2
+
+    payload = json.loads(Path(args.config).read_text(encoding="utf-8"))
+    search_cold_start = importlib.import_module("polisyos.scientist.search.cold_start")
+    search_lessons = importlib.import_module("polisyos.scientist.search.lessons")
+    search_sentinels = importlib.import_module("polisyos.scientist.search.sentinels")
+    search_stages = importlib.import_module("polisyos.scientist.search.stages")
+
+    try:
+        config = search_cold_start.BurnInConfig.model_validate(payload)
+    except Exception as exc:
+        print(f"ERROR: invalid burn-in config: {exc}", file=sys.stderr)
+        return 2
+
+    cas = FileSystemCAS(Path(args.cas_root))
+    tracker = search_stages.CorrelationTracker()
+    lesson_registry = search_lessons.LessonRegistry(store=cas)
+    sentinel_set = None
+    if config.sentinel_set_ref:
+        try:
+            sentinel_set = search_sentinels.load_sentinel_set(cas, config.sentinel_set_ref)
+        except Exception as exc:
+            print(f"ERROR: failed to load sentinel set: {exc}", file=sys.stderr)
+            return 2
+
+    orchestrator = search_cold_start.build_default_burn_in_orchestrator(
+        correlation_tracker=tracker,
+        lesson_registry=lesson_registry,
+    )
+    try:
+        report = search_cold_start.run_burn_in(
+            orchestrator=orchestrator,
+            config=config,
+            correlation_tracker=tracker,
+            lesson_registry=lesson_registry,
+            sentinel_set=sentinel_set,
+            store=cas,
+        )
+    except Exception as exc:
+        print(f"ERROR: burn-in failed: {exc}", file=sys.stderr)
+        return 1
+
+    report_ref = search_cold_start.persist_burn_in_report(cas, report)
+    out_payload = report.model_dump(mode="json")
+    out_payload["cas_artifact_id"] = str(report_ref.artifact_id)
+    rendered = json.dumps(out_payload, ensure_ascii=True, indent=2, sort_keys=True)
+    if args.output:
+        Path(args.output).write_text(rendered, encoding="utf-8")
+        print(f"burn_in_report={args.output}")
+    else:
+        print(rendered)
+    return 0
+
+
+def _cmd_scientist_calibration_report(args: Any) -> int:
+    try:
+        _validate_output_extension(args.output, args.format)
+    except ValueError as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 2
+
+    payload = json.loads(Path(args.config).read_text(encoding="utf-8"))
+    cas = FileSystemCAS(Path(args.cas_root))
+    search_calibration = importlib.import_module("polisyos.scientist.search.calibration_report")
+    search_cold_start = importlib.import_module("polisyos.scientist.search.cold_start")
+    search_lessons = importlib.import_module("polisyos.scientist.search.lessons")
+    search_sentinels = importlib.import_module("polisyos.scientist.search.sentinels")
+    search_stages = importlib.import_module("polisyos.scientist.search.stages")
+
+    tracker = search_stages.CorrelationTracker()
+    tracker_ref = payload.get("correlation_tracker_ref")
+    if tracker_ref:
+        try:
+            tracker = search_stages.CorrelationTracker.load_snapshot(cas, tracker_ref)
+        except Exception as exc:
+            print(f"ERROR: failed to load correlation tracker snapshot: {exc}", file=sys.stderr)
+            return 2
+
+    lesson_snapshot = None
+    lesson_snapshot_ref = payload.get("lessons_snapshot_ref")
+    if lesson_snapshot_ref:
+        try:
+            lesson_snapshot = search_lessons.LessonRegistry.load_snapshot(cas, lesson_snapshot_ref)
+        except Exception as exc:
+            print(f"ERROR: failed to load lesson snapshot: {exc}", file=sys.stderr)
+            return 2
+
+    sentinel_set = None
+    sentinel_set_ref = payload.get("sentinel_set_ref")
+    if sentinel_set_ref:
+        try:
+            sentinel_set = search_sentinels.load_sentinel_set(cas, sentinel_set_ref)
+        except Exception as exc:
+            print(f"ERROR: failed to load sentinel set: {exc}", file=sys.stderr)
+            return 2
+
+    burn_in_report = None
+    burn_in_report_ref = payload.get("burn_in_report_ref")
+    if burn_in_report_ref:
+        try:
+            burn_in_report = search_cold_start.load_burn_in_report(cas, burn_in_report_ref)
+        except Exception as exc:
+            print(f"ERROR: failed to load burn-in report: {exc}", file=sys.stderr)
+            return 2
+
+    try:
+        report = search_calibration.build_calibration_report(
+            correlation_tracker=tracker,
+            lesson_registry=lesson_snapshot,
+            sentinel_set=sentinel_set,
+            burn_in_report=burn_in_report,
+        )
+    except Exception as exc:
+        print(f"ERROR: calibration report build failed: {exc}", file=sys.stderr)
+        return 1
+
+    report_ref = search_calibration.persist_funnel_calibration_report(cas, report)
+    rendered = search_calibration.render_calibration_report(report, format=args.format)
+    if args.format == "json":
+        payload_out = json.loads(rendered)
+        payload_out["cas_artifact_id"] = str(report_ref.artifact_id)
+        rendered = json.dumps(payload_out, ensure_ascii=True, indent=2, sort_keys=True)
+    if args.output:
+        Path(args.output).write_text(rendered, encoding="utf-8")
+        print(f"calibration_report={args.output}")
     else:
         print(rendered)
     return 0

@@ -94,6 +94,10 @@ causal-dowhy = [
 causal-bcf = [
     "stochtree>=0.1.0",
 ]
+causal-nuisance = [
+    "lightgbm>=4.0",
+    "zepid>=0.9",
+]
 causal-discovery = [
     "tigramite>=5.2",
     "causal-learn>=0.1.3.8",
@@ -112,6 +116,7 @@ causal-symbolic-r = [
 ]
 causal-full = [
     "policy-engine[causal]",
+    "policy-engine[causal-nuisance]",
     "policy-engine[causal-symbolic-y0]",
     "policy-engine[causal-symbolic-r]",
 ]

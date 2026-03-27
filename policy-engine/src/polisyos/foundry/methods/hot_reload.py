@@ -51,6 +51,7 @@ from typing import Any, Callable
 
 __all__ = [
     "FoundryHotReloader",
+    "get_reload_version",
     "start_hot_reload",
     "stop_hot_reload",
 ]
@@ -86,6 +87,8 @@ class FoundryHotReloader:
         self._registry = registry
         self._stop_event = threading.Event()
         self._thread: threading.Thread | None = None
+        self._reload_lock = threading.RLock()
+        self._reload_version: int = 0
 
     # ------------------------------------------------------------------
     # Public API
@@ -114,6 +117,11 @@ class FoundryHotReloader:
             self._thread.join(timeout=2.0)
             self._thread = None
         _logger.info("Hot-reload stopped.")
+
+    @property
+    def reload_version(self) -> int:
+        """Monotonically increasing counter, incremented on each successful reload."""
+        return self._reload_version
 
     def reload_module_at(self, path: Path) -> bool:
         """
@@ -162,23 +170,35 @@ class FoundryHotReloader:
 
     def _reload_and_register(self, module_name: str, path: Path) -> bool:
         """Reload module and re-register any Foundry methods found in it."""
-        try:
-            if module_name in sys.modules:
-                module = importlib.reload(sys.modules[module_name])
-            else:
-                spec = importlib.util.spec_from_file_location(module_name, path)
-                if spec is None or spec.loader is None:
-                    return False
-                module = importlib.util.module_from_spec(spec)
-                sys.modules[module_name] = module
-                spec.loader.exec_module(module)  # type: ignore[union-attr]
+        with self._reload_lock:
+            try:
+                if module_name in sys.modules:
+                    module = importlib.reload(sys.modules[module_name])
+                else:
+                    spec = importlib.util.spec_from_file_location(module_name, path)
+                    if spec is None or spec.loader is None:
+                        return False
+                    module = importlib.util.module_from_spec(spec)
+                    sys.modules[module_name] = module
+                    spec.loader.exec_module(module)  # type: ignore[union-attr]
 
-            self._register_from_module(module)
-            _logger.info("Hot-reloaded: %s", module_name)
-            return True
+                self._register_from_module(module)
+                self._invalidate_cache()
+                self._reload_version += 1
+                _logger.info("Hot-reloaded: %s (version=%d)", module_name, self._reload_version)
+                return True
+            except Exception as exc:
+                _logger.warning("Failed to reload %s: %s", module_name, exc)
+                return False
+
+    def _invalidate_cache(self) -> None:
+        """Clear compilation cache after method reload to prevent stale hits."""
+        try:
+            from polisyos.foundry.methods.compiler import get_global_cache
+            cleared = get_global_cache().clear()
+            _logger.debug("Cleared %d compilation cache entries after reload", cleared)
         except Exception as exc:
-            _logger.warning("Failed to reload %s: %s", module_name, exc)
-            return False
+            _logger.debug("Cache invalidation skipped: %s", exc)
 
     def _register_from_module(self, module: Any) -> None:
         """Discover and re-register Foundry methods from a reloaded module."""
@@ -264,6 +284,14 @@ def stop_hot_reload() -> None:
         if _global_reloader is not None:
             _global_reloader.stop()
             _global_reloader = None
+
+
+def get_reload_version() -> int:
+    """Return the current reload version of the global reloader, or 0 if not active."""
+    with _global_reloader_lock:
+        if _global_reloader is not None:
+            return _global_reloader.reload_version
+        return 0
 
 
 # ---------------------------------------------------------------------------

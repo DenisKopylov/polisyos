@@ -86,3 +86,24 @@ def test_resolve_workflow_id_uses_policy_verified_for_policy_request_without_tri
     )
 
     assert resolve_workflow_id(state) == "scientist_policy_verified"
+
+
+def test_resolve_workflow_id_uses_discovery_when_discovery_payload_present() -> None:
+    state = ExperimentState(
+        run_id="R_workflow_discovery",
+        params={
+            "discovery_data": [[1.0, 2.0], [2.0, 3.0], [3.0, 5.0]],
+            "discovery_variable_names": ["x", "y"],
+        },
+    )
+
+    assert resolve_workflow_id(state) == "scientist_discovery"
+
+
+def test_resolve_workflow_id_escalates_for_nested_evidence_sources() -> None:
+    state = ExperimentState(
+        run_id="R_workflow_nested_sources",
+        params={"evidence_sources": {"academic_db_path": "/tmp/academic.duckdb"}},
+    )
+
+    assert resolve_workflow_id(state) == "scientist_causal_full"

@@ -36,6 +36,18 @@ class EngineMetricsCollector(Protocol):
         self, *, workflow_id: str, status: str, duration_ms: int, node_count: int,
     ) -> None: ...  # pragma: no cover
 
+    def record_backpressure(
+        self, *, tier_index: int, queued_tasks: int, active_tasks: int, workflow_id: str,
+    ) -> None: ...  # pragma: no cover
+
+    def record_semaphore_wait(
+        self, *, tier_index: int, wait_seconds: float, workflow_id: str,
+    ) -> None: ...  # pragma: no cover
+
+    def record_workflow_state(
+        self, *, run_id: str, workflow_id: str, state: str,
+    ) -> None: ...  # pragma: no cover
+
 
 class NoopEngineMetrics:
     """No-op implementation for cases when metrics are disabled."""
@@ -50,4 +62,13 @@ class NoopEngineMetrics:
         pass
 
     def record_workflow_completed(self, **kw: object) -> None:
+        pass
+
+    def record_backpressure(self, **kw: object) -> None:
+        pass
+
+    def record_semaphore_wait(self, **kw: object) -> None:
+        pass
+
+    def record_workflow_state(self, **kw: object) -> None:
         pass

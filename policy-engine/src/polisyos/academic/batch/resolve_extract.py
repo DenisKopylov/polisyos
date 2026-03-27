@@ -211,7 +211,188 @@ _SHARED_VOCABULARY_PREFIXES = (
     "education.",
     "infrastructure.",
     "political.",
+    "migration.",
+    "security.",
+    "energy.",
+    "digital.",
+    "monetary.",
+    "justice.",
+    "climate.",
+    "agriculture.",
+    "urban.",
+    "finance.",
+    "gender.",
+    # Extended scientific/empirical domain prefixes
+    "agricultural.",
+    "biotech.",
+    "hospital.",
+    "genetic.",
+    "behavioral.",
+    "soil.",
+    "safety.",
+    "antibiotic.",
+    "nutrition.",
+    "pharmaceutical.",
+    "industrial.",
+    "biological.",
+    "chemical.",
+    "ecological.",
+    "medical.",
+    "epidemiological.",
+    "transport.",
+    "housing.",
+    "water.",
+    "food.",
+    "marine.",
+    "forestry.",
 )
+
+_TOPIC_KEYWORD_TO_PREFIXES: dict[str, tuple[str, ...]] = {
+    "health": ("health.", "demographic.", "social."),
+    "disease": ("health.", "demographic.", "social."),
+    "medical": ("health.", "social."),
+    "nutrition": ("health.", "agriculture.", "social."),
+    "education": ("education.", "labor.", "social."),
+    "school": ("education.", "social."),
+    "learning": ("education.", "social."),
+    "economy": ("economic.", "fiscal.", "trade.", "finance.", "monetary."),
+    "economic": ("economic.", "fiscal.", "trade.", "finance.", "monetary."),
+    "gdp": ("economic.", "fiscal.", "trade."),
+    "growth": ("economic.", "fiscal.", "trade."),
+    "inflation": ("economic.", "monetary.", "fiscal."),
+    "labor": ("labor.", "economic.", "social.", "migration."),
+    "employment": ("labor.", "economic.", "social."),
+    "wage": ("labor.", "economic.", "gender."),
+    "work": ("labor.", "economic.", "social."),
+    "governance": ("governance.", "institutional.", "justice.", "fiscal."),
+    "corruption": ("governance.", "institutional.", "justice."),
+    "institution": ("institutional.", "governance."),
+    "democracy": ("governance.", "institutional.", "political."),
+    "agriculture": ("agriculture.", "climate.", "environmental.", "trade."),
+    "farm": ("agriculture.", "trade.", "environmental."),
+    "food": ("agriculture.", "health.", "trade."),
+    "climate": ("climate.", "energy.", "environmental.", "agriculture."),
+    "carbon": ("climate.", "energy.", "environmental."),
+    "temperature": ("climate.", "environmental."),
+    "urban": ("urban.", "infrastructure.", "social."),
+    "city": ("urban.", "infrastructure.", "social."),
+    "housing": ("urban.", "social.", "finance."),
+    "security": ("security.", "governance.", "justice.", "migration."),
+    "conflict": ("security.", "governance.", "migration."),
+    "violence": ("security.", "gender.", "justice."),
+    "crime": ("security.", "justice.", "social."),
+    "digital": ("digital.", "economic.", "education.", "infrastructure."),
+    "technology": ("digital.", "economic.", "infrastructure."),
+    "internet": ("digital.", "infrastructure.", "economic."),
+    "trade": ("trade.", "economic.", "fiscal.", "labor."),
+    "export": ("trade.", "economic."),
+    "tariff": ("trade.", "fiscal.", "economic."),
+    "energy": ("energy.", "climate.", "infrastructure.", "economic."),
+    "renewable": ("energy.", "climate.", "environmental."),
+    "electricity": ("energy.", "infrastructure."),
+    "migration": ("migration.", "labor.", "demographic.", "social."),
+    "refugee": ("migration.", "security.", "social."),
+    "immigration": ("migration.", "labor.", "social."),
+    "gender": ("gender.", "labor.", "social.", "education."),
+    "women": ("gender.", "labor.", "social.", "health."),
+    "maternal": ("gender.", "health.", "demographic."),
+    "poverty": ("social.", "economic.", "fiscal."),
+    "inequality": ("social.", "economic.", "fiscal.", "gender."),
+    "welfare": ("social.", "fiscal.", "labor."),
+    "tax": ("fiscal.", "economic.", "governance."),
+    "debt": ("fiscal.", "economic.", "finance."),
+    "budget": ("fiscal.", "governance."),
+    "finance": ("finance.", "economic.", "monetary."),
+    "bank": ("finance.", "monetary.", "economic."),
+    "credit": ("finance.", "monetary.", "economic."),
+    "monetary": ("monetary.", "finance.", "economic."),
+    "justice": ("justice.", "governance.", "security."),
+    "court": ("justice.", "governance."),
+    "prison": ("justice.", "security."),
+    "water": ("environmental.", "infrastructure.", "health."),
+    "pollution": ("environmental.", "health.", "urban."),
+    "forest": ("environmental.", "climate.", "agriculture."),
+    "biodiversity": ("environmental.", "climate.", "agriculture."),
+    "environment": ("environmental.", "climate.", "energy."),
+    "transport": ("infrastructure.", "urban.", "trade."),
+    "road": ("infrastructure.", "urban.", "trade."),
+    "sanitation": ("infrastructure.", "health.", "urban."),
+    "demographic": ("demographic.", "social.", "health."),
+    "population": ("demographic.", "social.", "health."),
+    "fertility": ("demographic.", "health.", "gender."),
+    "aging": ("demographic.", "social.", "health."),
+    # Extended scientific/empirical keywords
+    "antibiotic": ("antibiotic.", "health.", "hospital.", "pharmaceutical."),
+    "antimicrobial": ("antibiotic.", "health.", "hospital.", "epidemiological."),
+    "infection": ("health.", "hospital.", "epidemiological.", "antibiotic."),
+    "hospital": ("hospital.", "health.", "epidemiological."),
+    "soil": ("soil.", "agriculture.", "environmental.", "ecological."),
+    "biochar": ("soil.", "agriculture.", "environmental.", "chemical."),
+    "crop": ("agricultural.", "agriculture.", "food.", "soil."),
+    "sugarcane": ("agricultural.", "agriculture.", "biological.", "biotech."),
+    "plant": ("biological.", "agricultural.", "ecology.", "genetic."),
+    "photosynthesis": ("biological.", "agricultural.", "ecological."),
+    "drought": ("environmental.", "agricultural.", "climate.", "water."),
+    "irrigation": ("water.", "agricultural.", "agriculture."),
+    "genetic": ("genetic.", "biotech.", "biological.", "health."),
+    "mutation": ("genetic.", "biological.", "biotech."),
+    "pharmaceutical": ("pharmaceutical.", "health.", "economic."),
+    "drug": ("pharmaceutical.", "health.", "chemical."),
+    "safety": ("safety.", "health.", "industrial.", "transport."),
+    "biotech": ("biotech.", "genetic.", "pharmaceutical.", "biological."),
+    "mortality": ("health.", "demographic.", "epidemiological."),
+    "epidem": ("epidemiological.", "health.", "demographic."),
+}
+
+_UNIVERSAL_CANONICAL_VARS: tuple[str, ...] = (
+    "gdp_growth",
+    "unemployment_rate",
+    "poverty_rate",
+    "inflation",
+    "tax_revenue",
+    "government_spending",
+    "inequality",
+    "education_outcomes",
+    "health_outcomes",
+    "institutional_quality",
+    "corruption_level",
+    "trade_balance",
+    "investment_rate",
+    "productivity",
+)
+
+
+def _select_relevant_canonical_names(topic_display_names: list[str]) -> list[str]:
+    """Select top-60 canonical names relevant to the work's topic(s)."""
+    from polisyos.academic.knowledge.canonical_seed import CANONICAL_VARIABLES
+    from polisyos.academic.knowledge.runtime_canonical_registry import RUNTIME_CANONICAL_REGISTRY
+
+    all_names: set[str] = set()
+    for parent, children in CANONICAL_VARIABLES.items():
+        all_names.add(parent)
+        for child in children:
+            if child != "_root":
+                all_names.add(f"{parent}.{child}")
+    all_names.update(RUNTIME_CANONICAL_REGISTRY.keys())
+
+    # Collect matching prefixes from topic keywords
+    matched_prefixes: set[str] = set()
+    topic_text = " ".join(topic_display_names).lower()
+    for keyword, prefixes in _TOPIC_KEYWORD_TO_PREFIXES.items():
+        if keyword in topic_text:
+            matched_prefixes.update(prefixes)
+
+    # If no keyword matched, use all prefixes
+    if not matched_prefixes:
+        matched_prefixes.update(_SHARED_VOCABULARY_PREFIXES)
+
+    matched = [
+        n for n in sorted(all_names)
+        if any(n.startswith(p) or n == p.rstrip(".") for p in matched_prefixes)
+    ]
+    universal = [n for n in _UNIVERSAL_CANONICAL_VARS if n in all_names]
+    combined = list(dict.fromkeys(matched + universal))
+    return combined[:60]
 _CONTEXT_EFFECT_ESTIMATE_RE = re.compile(r"(?:^|[_\.])(multiplier|effect|impact|estimate|coefficient)(?:$|[_\.])", re.IGNORECASE)
 _CONTAMINATION_RE = re.compile(
     r"(?i)"
@@ -292,20 +473,44 @@ Return strict JSON with keys:
 - heterogeneity_results: array of objects (if the paper tests effect heterogeneity)
 - external_validity_assessment: short string (author's stated scope/generalizability)
 
-Variable names should prefer these canonical prefixes when applicable:
+Each empirical_parameters object:
+{
+  "name": "canonical-like variable name (e.g. labor.minimum_wage_elasticity)",
+  "display_name": "Human-readable parameter name",
+  "parameter_type": "quantitative",
+  "value": number|null,
+  "value_range": [lower_bound, upper_bound]|null,
+  "value_qualitative": null,
+  "confidence_interval": [ci_lower, ci_upper]|null,
+  "std_error": number|null,
+  "unit": "percentage_points|percent|log_points|ratio|elasticity|odds_ratio|hazard_ratio|coefficient|usd|index|...",
+  "evidence_strength": "rct|quasi_natural|quasi_natural_event|panel_fe|structural|observational|cross_sectional|meta_analysis|theoretical|unknown",
+  "geographic_scope": "country or region",
+  "time_period": "e.g. 1990-2010"
+}
+
+IMPORTANT: ALL variable names MUST start with a domain prefix from this list:
 economic. fiscal. governance. institutional. social. demographic. labor. trade.
-environmental. health. education. infrastructure. political.
+environmental. health. education. infrastructure. political. migration. security.
+energy. digital. monetary. justice. climate. agriculture. urban. finance. gender.
+agricultural. biotech. hospital. genetic. behavioral. soil. safety. antibiotic.
+nutrition. pharmaceutical. industrial. biological. chemical. ecological. medical.
+epidemiological. transport. housing. water. food. marine. forestry.
+Example: "photosynthesis" → "biological.photosynthesis", "drought_stress" → "environmental.drought_stress",
+"antibiotic_use" → "antibiotic.use", "soil_ph" → "soil.ph". NEVER output a bare variable without a domain prefix.
+
+{canonical_names_block}
 
 Each causal_claim object must use sentence IDs, not verbatim spans:
 {
   "claim_text": "short paper-grounded claim",
   "claim_type": "causal_claim|associative|mechanism|review_summary|descriptive|normative|unclear|not_applicable",
-  "cause_variable": "canonical-like text",
-  "effect_variable": "canonical-like text",
+  "cause_variable": "domain.snake_case_name (MUST have domain prefix, e.g. health.mortality)",
+  "effect_variable": "domain.snake_case_name (MUST have domain prefix, e.g. economic.gdp_growth)",
   "direction": "positive|negative|null|mixed|ambiguous|non_linear",
   "claim_explicitness": "explicit|implicit|unclear",
   "design_family_hint": "rct|iv|did|rdd|synthetic_control|event_study|quasi_experimental_other|panel_fe|ols|ols_cross_sectional|review_narrative|review_meta_analysis|theoretical|structural_model|unclear",
-  "effect_size": number|null,
+  "effect_size": number|null (MUST be set if the paper reports ANY numeric magnitude for this claim),
   "evidence_strength": "rct|quasi_natural|quasi_natural_event|panel_fe|structural|observational|cross_sectional|meta_analysis|theoretical|unknown",
   "supporting_span_ids": ["c_01", "r_02"],
   "method_span_ids": ["m_01"],
@@ -342,13 +547,20 @@ Rules:
 - If evidence is only associational or review-based, set claim_type accordingly instead of forcing causal_claim.
 - sample_size must be integer or null.
 - Numeric fields must be numeric, never words like high/medium/low.
-- empirical_parameters must only include true effect estimates, treatment effects, coefficients, elasticities, odds ratios,
-  hazard ratios, or quantified policy contrasts.
-- If a paper reports only descriptive percentages, prevalence, sample shares, baseline levels, or p-values without an effect size,
-  return empirical_parameters as [].
-- Never emit named parameter shells. If you cannot provide a numeric value or value_range, omit that parameter entirely.
+- empirical_parameters should capture ALL quantitative findings: regression coefficients, treatment effects,
+  elasticities, odds ratios, hazard ratios, marginal effects, quantified policy contrasts, percentage changes,
+  rates, proportions, or any numeric estimate from tables and results sections.
+  Also include coefficients from OLS, IV, DID, panel FE, and similar regressions — these ARE valid parameters.
+- CRITICAL: Scan all tables and results sections for numeric values. If a table has coefficients, effect sizes,
+  or treatment-control comparisons, extract them as parameters. Tables are a PRIMARY source of parameters.
+- If a paper reports regression results with coefficients and standard errors, extract ALL main coefficients as parameters.
+- If a paper reports only descriptive statistics without any regression or causal analysis, return empirical_parameters as [].
+- Each parameter MUST have at least a numeric value or value_range. Omit parameters that have no numbers.
 - When the paper reports uncertainty in forms like `95% CI [a, b]` or `(SE = x)`, copy it into confidence_interval/std_error.
-- Prefer 1-4 strongest policy-relevant estimates instead of many weak numeric candidates.
+- Extract up to 12 strongest policy-relevant estimates. Prioritize parameters with standard errors or confidence intervals.
+- Do NOT include p-values, t-statistics, F-statistics, R-squared, sample sizes, or descriptive counts as parameter values.
+- IMPORTANT: For each causal_claim that has a numeric effect in the paper, also set effect_size to that number.
+  If the paper says "X increased Y by 15 percentage points", set effect_size=15 and extract a parameter with value=15.
 - For identification_strategy: only include if the paper has a clear causal identification strategy. Set null otherwise.
 - For heterogeneity_results: include only if the paper explicitly tests effect heterogeneity or moderation.
 """.strip()
@@ -383,7 +595,8 @@ Rules:
 - Never include p-values, significance stars, standard errors by themselves, t-stats, z-stats, F-stats, R-squared, sample sizes, descriptive counts, or baseline means without a contrast.
 - If the paper reports significance but no effect magnitude, return an empty array.
 - If the estimate is dimensionless but clearly a coefficient/effect size, set unit to "unitless" or a more specific dimensionless unit.
-- Prefer the most policy-relevant 1-4 estimates instead of exhaustively listing weak candidates.
+- Extract up to 8 policy-relevant estimates. Include all coefficients with standard errors or confidence intervals.
+- Scan ALL tables for numeric coefficients, effect sizes, odds ratios, or treatment effects.
 """.strip()
 
 _NON_EFFECT_PARAMETER_RE = re.compile(
@@ -1767,11 +1980,12 @@ def _build_streaming_evidence_bundle(
         if isinstance(substrate.get("references"), list):
             bundle["references"] = list(substrate["references"])[:20]
         if isinstance(substrate.get("tables"), list):
-            bundle["tables"] = list(substrate["tables"])[:8]
+            sorted_tables = sorted(substrate["tables"], key=lambda t: float(t.get("score") or 0), reverse=True)
+            bundle["tables"] = sorted_tables[:16]
         if isinstance(substrate.get("figures"), list):
-            bundle["figures"] = list(substrate["figures"])[:6]
+            bundle["figures"] = list(substrate["figures"])[:10]
         if isinstance(substrate.get("appendix_blocks"), list):
-            bundle["appendix_blocks"] = list(substrate["appendix_blocks"])[:6]
+            bundle["appendix_blocks"] = list(substrate["appendix_blocks"])[:10]
         extra_numeric_blocks: list[dict[str, Any]] = []
         for row in [*(substrate.get("tables") or []), *(substrate.get("appendix_blocks") or [])]:
             if not isinstance(row, dict):
@@ -1792,10 +2006,21 @@ def _build_streaming_evidence_bundle(
     return bundle
 
 
-def _prompt_for_bundle(bundle: dict[str, Any]) -> str:
+def _prompt_for_bundle(bundle: dict[str, Any], topic_display_names: list[str] | None = None) -> str:
+    topic_names = topic_display_names or []
+    selected = _select_relevant_canonical_names(topic_names)
+    if selected:
+        canonical_block = (
+            "When naming cause_variable and effect_variable, strongly prefer these canonical names:\n"
+            + ", ".join(selected)
+            + "\nIf no canonical name fits, use the prefix convention above to create a new name."
+        )
+    else:
+        canonical_block = ""
+    schema = _ONE_CALL_SCHEMA_HINT.replace("{canonical_names_block}", canonical_block)
     return (
         "Extract policy-relevant empirical evidence from this evidence bundle.\n"
-        + _ONE_CALL_SCHEMA_HINT
+        + schema
         + "\n\nEvidence bundle:\n"
         + json.dumps(bundle, ensure_ascii=False)
     )
@@ -2129,6 +2354,12 @@ def _needs_numeric_rescue(result: ArticleExtractionResult) -> bool:
         return False
     if not any(_claim_supports_numeric_rescue(claim) for claim in result.causal_claims):
         return False
+    # Relax: allow rescue if claims have effect_size or there are any numeric signals
+    has_effect_sizes = any(
+        claim.effect_size is not None for claim in result.causal_claims
+    )
+    if has_effect_sizes:
+        return True
     if not result.methodology and not any(claim.method_spans for claim in result.causal_claims):
         return False
     if not _has_precision_numeric_signal(result):
@@ -2234,7 +2465,7 @@ def _apply_publish_gate(result: ArticleExtractionResult) -> ArticleExtractionRes
             # partial penalties (not full veto) because papers often use cautious
             # language even when they have genuine identification strategies.
             _promo_score = (0.70 * float(has_strong)) * (1.0 - 0.5 * float(has_downgrade)) * (1.0 - 0.3 * float(has_hedge))
-            if _promo_score >= 0.35:
+            if _promo_score >= 0.50:
                 design_tier = 4
         # Abstract-only is a blocker ONLY for weak designs (tier 3-4 or None).
         # Strong designs (RCT, IV, DID, RDD, SC, meta-analysis) can publish
@@ -3125,7 +3356,7 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
                 request_kind = "context_extract"
                 prompt = _build_track_b_prompt(bundle, [])
             else:
-                prompt = _prompt_for_bundle(bundle)
+                prompt = _prompt_for_bundle(bundle, topic_display_names=work_item.topic_display_names)
             response = _empty_provider_response(error_class="provider_client_exception")
             request_failure_exc: Exception | None = None
             try:

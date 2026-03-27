@@ -12,8 +12,18 @@ from polisyos.core.contracts.execution_plan import (
 from polisyos.foundry.methods.base import parse_fqn
 from polisyos.foundry.methods.linker import check_linkable
 from polisyos.foundry.methods.registry import MethodRegistry
+from polisyos.foundry.methods.selection_history import (
+    RuntimePredictor,
+    SelectionHistoryStore,
+    fit_runtime_predictor_from_history,
+    get_global_selection_history,
+)
+from polisyos.ir.analytics.uncertainty import UncertaintyEnvelope
 
 _FIDELITY_ORDER = {"low": 0, "medium": 1, "high": 2}
+
+COST_PER_MS: float = 0.001
+"""Default cost per millisecond for VOI / budget calculations."""
 
 
 @dataclass(frozen=True, slots=True)
@@ -85,7 +95,17 @@ def rank_method_catalog_entries(
     *,
     limit: int | None = None,
     data: DataCharacteristics | None = None,
+    history: SelectionHistoryStore | None = None,
+    runtime_predictor: RuntimePredictor | None = None,
+    runtime_budget_ms: float | None = None,
 ) -> list[MethodCatalogEntry]:
+    if history is None and runtime_predictor is None:
+        default_history = get_global_selection_history()
+        if len(default_history) > 0:
+            history = default_history
+            runtime_predictor = fit_runtime_predictor_from_history(default_history)
+
+    use_evidence = history is not None or (runtime_predictor is not None and runtime_budget_ms is not None)
     scored: list[tuple[float, MethodCatalogEntry]] = []
     for entry in entries:
         if entry.fqn in criteria.exclude_fqns:
@@ -101,7 +121,17 @@ def rank_method_catalog_entries(
             entry_rank = _FIDELITY_ORDER.get(entry.fidelity_tier, -1)
             if entry_rank < required_rank:
                 continue
-        score = _score_entry(entry, criteria)
+        if use_evidence:
+            score = _score_entry_v2(
+                entry,
+                criteria,
+                history=history,
+                runtime_predictor=runtime_predictor,
+                runtime_budget_ms=runtime_budget_ms,
+                data=data,
+            )
+        else:
+            score = _score_entry(entry, criteria)
         if data is not None:
             score += _score_data_characteristics(entry, data)
         if score > float("-inf"):
@@ -400,6 +430,38 @@ def _score_entry(entry: MethodCatalogEntry, criteria: MethodSelectionCriteria) -
     return score
 
 
+def _score_entry_v2(
+    entry: MethodCatalogEntry,
+    criteria: MethodSelectionCriteria,
+    *,
+    history: SelectionHistoryStore | None = None,
+    runtime_predictor: RuntimePredictor | None = None,
+    runtime_budget_ms: float | None = None,
+    data: DataCharacteristics | None = None,
+) -> float:
+    """Score with evidence conditioning. Falls back to ``_score_entry`` when no history."""
+    score = _score_entry(entry, criteria)
+
+    if history is not None:
+        sr = history.success_rate(entry.fqn)
+        if sr is not None:
+            score += 30.0 * sr
+            score -= 15.0 * (1.0 - sr)
+        quantiles = history.quality_quantiles(entry.fqn)
+        if quantiles is not None:
+            score += 20.0 * quantiles[1]  # median quality bonus
+
+    if runtime_predictor is not None and runtime_budget_ms is not None:
+        n_obs = data.n_obs if data and data.n_obs else 1000
+        predicted = runtime_predictor.predict_ms(entry.fqn, n_obs)
+        if predicted > runtime_budget_ms:
+            score -= 50.0
+        else:
+            score += 10.0 * (1.0 - predicted / runtime_budget_ms)
+
+    return score
+
+
 def _score_data_characteristics(
     entry: MethodCatalogEntry,
     data: DataCharacteristics,
@@ -570,10 +632,36 @@ def _adapter_score(
     return score
 
 
+def compute_voi(
+    current_uncertainty: UncertaintyEnvelope,
+    method_expected_reduction: float,
+    method_cost_ms: float,
+    decision_value: float,
+    *,
+    cost_per_ms: float = COST_PER_MS,
+) -> float:
+    """Compute Value of Information for running an additional method.
+
+    ``VOI = P(changes_decision) * decision_value - cost``
+
+    where ``P = min(1.0, method_expected_reduction / ci_width)``
+    and ``cost = method_cost_ms * cost_per_ms``.
+
+    Returns positive VOI when expected information gain outweighs cost.
+    """
+    ci_width = current_uncertainty.ci_width
+    if ci_width <= 0:
+        return -method_cost_ms * cost_per_ms
+    p_changes = min(1.0, method_expected_reduction / ci_width)
+    return p_changes * decision_value - method_cost_ms * cost_per_ms
+
+
 __all__ = [
+    "COST_PER_MS",
     "DataCharacteristics",
     "MethodSelectionCriteria",
     "authoring_catalog_payload",
+    "compute_voi",
     "method_selection_payload",
     "rank_method_catalog_entries",
     "suggest_adapter_methods",

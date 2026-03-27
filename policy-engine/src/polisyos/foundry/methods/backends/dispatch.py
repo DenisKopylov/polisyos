@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import threading
+import time as _time
 from dataclasses import dataclass
 from functools import lru_cache
-from typing import Any, Mapping
+from typing import Any, Mapping, Protocol, runtime_checkable
 
 from polisyos.core.backends import BackendDispatcher
 from polisyos.core.backends import BackendNotAvailableError as CoreBackendNotAvailableError
@@ -16,8 +17,53 @@ from polisyos.foundry.methods._logging import _infer_n_obs, get_foundry_logger
 from polisyos.foundry.methods.backends.protocol import MethodResult, MethodRunner
 from polisyos.foundry.methods.base import ComputeBackend, MethodSignature
 from polisyos.foundry.methods.output_monitor import _emit_anomaly_metric, get_output_monitor
+from polisyos.foundry.methods.selection_history import (
+    MethodExecutionRecord,
+    get_global_selection_history,
+)
 
 _log = get_foundry_logger("foundry.backends.dispatch")
+
+
+def _infer_data_characteristics(state: Any, n_obs: int | None) -> dict[str, Any]:
+    characteristics: dict[str, Any] = {}
+    if n_obs is not None:
+        characteristics["n_obs"] = int(n_obs)
+    if isinstance(state, Mapping):
+        for key in ("features", "covariates", "X"):
+            value = state.get(key)
+            shape = getattr(value, "shape", None)
+            if shape and len(shape) >= 2:
+                characteristics["n_features"] = int(shape[-1])
+                break
+    return characteristics
+
+
+def _record_execution(
+    *,
+    signature: MethodSignature,
+    elapsed_ms: float,
+    success: bool,
+    n_obs: int | None,
+    state: Any,
+    failure_type: str | None = None,
+    backend_used: ComputeBackend | None = None,
+) -> None:
+    try:
+        record = MethodExecutionRecord(
+            method_fqn=signature.fqn,
+            timestamp=_time.time(),
+            latency_ms=max(elapsed_ms, 0.0),
+            success=success,
+            failure_type=failure_type,
+            data_characteristics={
+                **_infer_data_characteristics(state, n_obs),
+                "backend": (backend_used or signature.backend).value,
+            },
+        )
+        get_global_selection_history().record(record)
+    except Exception:
+        return
 
 
 @dataclass(frozen=True)
@@ -31,18 +77,62 @@ class BackendNotAvailableError(RuntimeError):
         )
 
 
+@runtime_checkable
+class FallbackStrategy(Protocol):
+    """Strategy for choosing fallback backend when primary fails."""
+
+    def select_fallback(
+        self,
+        method_class: type,
+        signature: MethodSignature,
+        failed_backend: ComputeBackend,
+    ) -> ComputeBackend | None: ...
+
+
+class SignatureAwareFallback:
+    """Default fallback: check signature compatibility before falling back."""
+
+    FALLBACK_ORDER = [ComputeBackend.NUMPY]
+
+    def select_fallback(
+        self,
+        method_class: type,
+        signature: MethodSignature,
+        failed_backend: ComputeBackend,
+    ) -> ComputeBackend | None:
+        for backend in self.FALLBACK_ORDER:
+            if backend == failed_backend:
+                continue
+            if self._is_compatible(signature, backend):
+                return backend
+        return None
+
+    def _is_compatible(self, signature: MethodSignature, backend: ComputeBackend) -> bool:
+        # JAX-specific features (vmap, grad) incompatible with NumPy
+        if backend == ComputeBackend.NUMPY and (
+            signature.supports_grad or signature.supports_vmap
+        ):
+            return False
+        return True
+
+
 class MethodDispatcher:
     """Thread-safe singleton dispatcher for compute backend routing."""
 
     _instance: MethodDispatcher | None = None
     _instance_lock = threading.Lock()
 
-    def __init__(self) -> None:
+    def __init__(
+        self, *, fallback_strategy: FallbackStrategy | None = None,
+    ) -> None:
         self._dispatcher = BackendDispatcher[ComputeBackend, MethodRunner](
             factory=self._create_runner,
             availability_check=lambda runner: runner.is_available(),
         )
         self._runner_lock = threading.RLock()
+        self._fallback_strategy: FallbackStrategy = (
+            fallback_strategy or SignatureAwareFallback()
+        )
 
     @classmethod
     def get_instance(cls) -> MethodDispatcher:
@@ -75,11 +165,10 @@ class MethodDispatcher:
         params: Mapping[str, Any],
         seed: int,
     ) -> MethodResult:
-        import time as _time
-
         runner = self._resolve_runner(signature.backend)
         breaker = get_circuit_breaker_registry().get(signature.backend.value)
         n_obs = _infer_n_obs(state)
+        backend_used = signature.backend
 
         _log.debug(
             "method_dispatch_start",
@@ -101,16 +190,18 @@ class MethodDispatcher:
         try:
             result = breaker.call(_execute)
         except BackendCircuitOpenError:
-            # Backend circuit is open — attempt fallback to NumPy
-            fallback_backend = ComputeBackend.NUMPY
-            if signature.backend == fallback_backend:
+            # Backend circuit is open — ask strategy for fallback
+            fallback_backend = self._fallback_strategy.select_fallback(
+                method_class, signature, signature.backend,
+            )
+            if fallback_backend is None:
                 _log.error(
                     "method_dispatch_error",
                     fqn=signature.fqn,
                     backend=signature.backend.value,
                     reason="circuit_open_no_fallback",
                 )
-                raise  # no fallback available
+                raise  # no compatible fallback available
             try:
                 _log.warning(
                     "method_dispatch_fallback",
@@ -119,6 +210,7 @@ class MethodDispatcher:
                     fallback_backend=fallback_backend.value,
                 )
                 fallback_runner = self._resolve_runner(fallback_backend)
+                backend_used = fallback_backend
                 result = fallback_runner.execute(
                     method_class=method_class,
                     signature=signature,
@@ -127,7 +219,17 @@ class MethodDispatcher:
                     seed=seed,
                 )
             except Exception:
-                raise  # re-raise the original BackendCircuitOpenError's cause
+                elapsed_ms = (_time.perf_counter() - t0) * 1000
+                _record_execution(
+                    signature=signature,
+                    elapsed_ms=elapsed_ms,
+                    success=False,
+                    n_obs=n_obs,
+                    state=state,
+                    failure_type="fallback_failure",
+                    backend_used=fallback_backend,
+                )
+                raise  # re-raise the fallback failure
         except Exception as exc:
             elapsed_ms = (_time.perf_counter() - t0) * 1000
             _log.error(
@@ -136,6 +238,15 @@ class MethodDispatcher:
                 backend=signature.backend.value,
                 elapsed_ms=round(elapsed_ms, 2),
                 exc=type(exc).__name__,
+            )
+            _record_execution(
+                signature=signature,
+                elapsed_ms=elapsed_ms,
+                success=False,
+                n_obs=n_obs,
+                state=state,
+                failure_type=type(exc).__name__,
+                backend_used=backend_used,
             )
             raise
 
@@ -146,6 +257,14 @@ class MethodDispatcher:
             backend=signature.backend.value,
             elapsed_ms=round(elapsed_ms, 2),
             n_obs=n_obs,
+        )
+        _record_execution(
+            signature=signature,
+            elapsed_ms=elapsed_ms,
+            success=True,
+            n_obs=n_obs,
+            state=state,
+            backend_used=backend_used,
         )
 
         # Basic anomaly detection: NaN/Inf + key sanity (vectorised, near-zero cost)

@@ -14,10 +14,15 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
+from polisyos.ir.canon import CanonSpec
 from polisyos.ir.analytics.partial_identification import (
+    BoundsBundle,
     PartialIdentificationResult,
     SensitivitySweepResult,
+    bounds_bundle_from_partial_identification_result,
 )
+from polisyos.ir.refs import NegativeCertificateRef
 
 
 class BlockingType(str, Enum):
@@ -193,6 +198,18 @@ class FallbackResult(BaseModel):
         }
 
 
+class RecoveryPlan(BaseModel):
+    """Canonical next-step artifact for non-identification paths."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    blocking_reason: str
+    candidate_actions: list[str] = Field(default_factory=list)
+    minimal_oracle_sets: list[list[str]] = Field(default_factory=list)
+    expected_width_reduction: float | None = None
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
 class NegativeCertificate(BaseModel):
     """Constructive certificate of non-identification.
 
@@ -242,14 +259,35 @@ class NegativeCertificate(BaseModel):
     fallback_result: FallbackResult | None = None
     """Typed fallback chain artifact attached for hedge-style non-identification."""
 
+    bounds_bundle: BoundsBundle | None = None
+    """Canonical public bounds artifact. Auto-populated from transitional fields when possible."""
+
+    recovery_plan: RecoveryPlan | None = None
+    """Canonical next-step artifact. Auto-populated when omitted."""
+
+    @model_validator(mode="after")
+    def _populate_canonical_artifacts(self) -> "NegativeCertificate":
+        if self.bounds_bundle is None:
+            inferred = _infer_bounds_bundle(self.partial_bounds, self.fallback_result)
+            if inferred is not None:
+                object.__setattr__(self, "bounds_bundle", inferred)
+        if self.recovery_plan is None:
+            object.__setattr__(self, "recovery_plan", recovery_plan_from_negative_certificate(self))
+        return self
+
     def has_partial_bounds(self) -> bool:
         """Return True if partial identification bounds are available."""
-        return self.partial_bounds is not None
+        return self.bounds_bundle is not None or self.partial_bounds is not None
 
     def to_summary(self) -> str:
         """Return a concise human-readable summary."""
         bounds_str = ""
-        if self.partial_bounds is not None:
+        if self.bounds_bundle is not None:
+            lo = self.bounds_bundle.lower_bound
+            hi = self.bounds_bundle.upper_bound
+            if lo is not None and hi is not None:
+                bounds_str = f" bounds=[{lo:.3f}, {hi:.3f}]"
+        elif self.partial_bounds is not None:
             lo = self.partial_bounds.lower_bound
             hi = self.partial_bounds.upper_bound
             bounds_str = f" bounds=[{lo:.3f}, {hi:.3f}]"
@@ -420,11 +458,138 @@ class NegativeCertificate(BaseModel):
         )
 
 
+def recovery_plan_from_negative_certificate(
+    certificate: NegativeCertificate,
+) -> RecoveryPlan:
+    """Build a canonical recovery plan from a negative certificate and fallback chain."""
+    actions: list[str] = []
+    seen: set[str] = set()
+
+    if certificate.constructive_message.strip():
+        action = certificate.constructive_message.strip()
+        actions.append(action)
+        seen.add(action)
+
+    for experiment in certificate.suggested_experiments:
+        description = experiment.description.strip()
+        if description and description not in seen:
+            actions.append(description)
+            seen.add(description)
+
+    if certificate.bounds_bundle is not None and certificate.bounds_bundle.warnings:
+        for warning in certificate.bounds_bundle.warnings:
+            if warning not in seen:
+                actions.append(warning)
+                seen.add(warning)
+
+    minimal_oracle_sets: list[list[str]] = []
+    if certificate.missing_dataset_refs:
+        minimal_oracle_sets.append(list(certificate.missing_dataset_refs))
+
+    expected_width_reduction = None
+    if certificate.bounds_bundle is not None:
+        lo = certificate.bounds_bundle.lower_bound
+        hi = certificate.bounds_bundle.upper_bound
+        if lo is not None and hi is not None:
+            expected_width_reduction = max(0.0, hi - lo)
+
+    return RecoveryPlan(
+        blocking_reason=certificate.blocking_description,
+        candidate_actions=actions or ["Collect additional data or relax query assumptions."],
+        minimal_oracle_sets=minimal_oracle_sets,
+        expected_width_reduction=expected_width_reduction,
+        metadata={
+            "blocking_type": certificate.blocking_type.value,
+            "suggested_experiment_count": len(certificate.suggested_experiments),
+        },
+    )
+
+
+def negative_certificate_from_transport_result(
+    *,
+    result: Any,
+    treatment: str,
+    outcome: str,
+) -> NegativeCertificate:
+    """Build a canonical impossibility artifact from a transportability-style result."""
+    blocking_s_nodes = list(getattr(result, "blocking_s_nodes", []) or [])
+    blocking_type = (
+        BlockingType.S_NODE_UNRESOLVED if blocking_s_nodes else BlockingType.MISSING_DISTRIBUTION
+    )
+    partial_bounds = getattr(result, "partial_identification_result", None)
+    transport_reason = str(getattr(result, "unsupported_reason", "") or "transport_unsupported")
+    suggested = NegativeCertificate.auto_suggest_experiments(
+        blocking_type,
+        missing_vars=tuple(getattr(node, "target_variable", str(node)) for node in blocking_s_nodes),
+    )
+    return NegativeCertificate(
+        blocking_type=blocking_type,
+        blocking_description=f"Could not identify transport query P*({outcome}|do({treatment})).",
+        technical_detail=transport_reason,
+        suggested_experiments=suggested,
+        partial_bounds=partial_bounds if isinstance(partial_bounds, PartialIdentificationResult) else None,
+        constructive_message=(
+            "Provide additional target-domain evidence or use bounded transport assumptions."
+        ),
+        quantitative_diagnostics={
+            "blocking_s_node_count": len(blocking_s_nodes),
+            "transport_final_confidence": float(getattr(result, "final_confidence", 0.0) or 0.0),
+        },
+    )
+
+
+def _infer_bounds_bundle(
+    partial_bounds: PartialIdentificationResult | None,
+    fallback_result: FallbackResult | None,
+) -> BoundsBundle | None:
+    if partial_bounds is not None:
+        return bounds_bundle_from_partial_identification_result(partial_bounds)
+    if fallback_result is not None and fallback_result.bounds is not None:
+        return bounds_bundle_from_partial_identification_result(
+            fallback_result.bounds,
+            rescue_actions=[note for note in fallback_result.notes if isinstance(note, str)],
+        )
+    return None
+
+
+def persist_negative_certificate(
+    store: ArtifactStore,
+    certificate: NegativeCertificate,
+    *,
+    inputs: list[InputRef] | None = None,
+    schema_name: str = "ir.negative_certificate",
+    schema_version: str = "1.0",
+) -> NegativeCertificateRef:
+    ref = put_json_artifact(
+        store,
+        certificate.model_dump(mode="json"),
+        kind="ir.negative_certificate",
+        schema_name=schema_name,
+        schema_version=schema_version,
+        inputs=inputs,
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    return NegativeCertificateRef.model_validate(ref)
+
+
+def load_negative_certificate(
+    store: ArtifactStore,
+    ref: NegativeCertificateRef,
+) -> NegativeCertificate:
+    payload = get_json_artifact(store, ref.artifact_id)
+    return NegativeCertificate.model_validate(payload)
+
+
 __all__ = [
     "BlockingType",
     "EpistemicTier",
     "FallbackResult",
     "NegativeCertificate",
     "ParametricRescueResult",
+    "RecoveryPlan",
     "SuggestedExperiment",
+    "load_negative_certificate",
+    "negative_certificate_from_transport_result",
+    "persist_negative_certificate",
+    "recovery_plan_from_negative_certificate",
 ]

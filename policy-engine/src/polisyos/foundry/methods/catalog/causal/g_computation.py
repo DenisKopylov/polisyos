@@ -18,7 +18,7 @@ References:
 """
 from __future__ import annotations
 
-from typing import Any, ClassVar, Mapping
+from typing import Any, ClassVar, Mapping, Sequence
 
 import numpy as np
 
@@ -46,8 +46,22 @@ from polisyos.foundry.methods.catalog.causal._common import (
     wrap_causal_output,
 )
 from polisyos.foundry.methods.catalog.causal.protocols import DynamicTreatmentData
+from polisyos.foundry.methods.catalog.causal.structural_time_series import (
+    TemporalTrajectoryResult,
+    solve_temporal_effect_path,
+)
+from polisyos.foundry.methods.catalog.causal.temporal_estimand_compiler import (
+    TemporalCompileError,
+    compile_temporal_estimand,
+)
 from polisyos.ir.analytics.causal import CausalMethod, EstimationStatus
-from polisyos.ir.analytics.dynamic_regime import GComputationResult, RegimeRule
+from polisyos.ir.analytics.dynamic_regime import (
+    ContinuousTimeQuery,
+    DynamicTreatmentRegime,
+    GComputationResult,
+    TemporalInterventionTrajectory,
+    RegimeRule,
+)
 
 # ---------------------------------------------------------------------------
 # Internal shared helpers
@@ -86,6 +100,9 @@ def _apply_regime(
     rule: str,
     threshold_cov_idx: int = 0,
     threshold_value: float = 0.0,
+    *,
+    time_index: int | None = None,
+    scheduled_actions: Sequence[float] | None = None,
 ) -> np.ndarray:
     """Map history H_t → action A_t under the specified regime.
 
@@ -100,6 +117,11 @@ def _apply_regime(
         # treat if L_t[threshold_cov_idx] > threshold_value
         cov_idx = min(threshold_cov_idx, L_t.shape[1] - 1)
         return (L_t[:, cov_idx] > threshold_value).astype(float)
+    if rule == RegimeRule.EXPLICIT_SCHEDULE.value:
+        if scheduled_actions is None or time_index is None:
+            raise ValueError("explicit_schedule regimes require time_index and scheduled_actions")
+        action = float(scheduled_actions[min(int(time_index), len(scheduled_actions) - 1)])
+        return np.full(n_units, action, dtype=float)
     # Default: always treat
     return np.ones(n_units, dtype=float)
 
@@ -146,6 +168,7 @@ def _ice_estimate(
     rule = regime_params.get("regime", RegimeRule.ALWAYS_TREAT.value)
     thr_cov = int(regime_params.get("threshold_covariate_index", 0))
     thr_val = float(regime_params.get("threshold_value", 0.0))
+    scheduled_actions = regime_params.get("scheduled_actions")
 
     # Step 1: fit Q_T = E[Y | H_{T-1}, A_{T-1}]
     H_last = _build_history_matrix(A_seq, L_seq, n_periods - 1)
@@ -157,13 +180,29 @@ def _ice_estimate(
     for t in range(n_periods - 2, -1, -1):
         H_t = _build_history_matrix(A_seq, L_seq, t)
         L_t = L_seq[:, t, :]
-        a_regime = _apply_regime(H_t, L_t, rule, thr_cov, thr_val)
+        a_regime = _apply_regime(
+            H_t,
+            L_t,
+            rule,
+            thr_cov,
+            thr_val,
+            time_index=t,
+            scheduled_actions=scheduled_actions,
+        )
 
         # Predict Q_{t+1}(H_{t+1}, d*(H_{t+1})) using current pseudo_Y model
         # but apply regime at period t+1
         H_next = _build_history_matrix(A_seq, L_seq, t + 1)
         L_next = L_seq[:, t + 1, :] if t + 1 < n_periods else L_seq[:, -1, :]
-        a_next = _apply_regime(H_next, L_next, rule, thr_cov, thr_val)
+        a_next = _apply_regime(
+            H_next,
+            L_next,
+            rule,
+            thr_cov,
+            thr_val,
+            time_index=t + 1,
+            scheduled_actions=scheduled_actions,
+        )
         X_next_regime = np.hstack(
             [_build_history_matrix(A_seq, L_seq, t + 1), a_next.reshape(-1, 1)]
         )
@@ -176,7 +215,15 @@ def _ice_estimate(
     # Step 3: final estimate — apply regime at t=0
     H0 = _build_history_matrix(A_seq, L_seq, 0)
     L0 = L_seq[:, 0, :]
-    a0 = _apply_regime(H0, L0, rule, thr_cov, thr_val)
+    a0 = _apply_regime(
+        H0,
+        L0,
+        rule,
+        thr_cov,
+        thr_val,
+        time_index=0,
+        scheduled_actions=scheduled_actions,
+    )
     X0_regime = np.hstack([H0, a0.reshape(-1, 1)])
     final_pseudo = q_model.predict(X0_regime)
     return float(np.mean(final_pseudo))
@@ -202,6 +249,7 @@ def _parametric_mc_estimate(
     rule = regime_params.get("regime", RegimeRule.ALWAYS_TREAT.value)
     thr_cov = int(regime_params.get("threshold_covariate_index", 0))
     thr_val = float(regime_params.get("threshold_value", 0.0))
+    scheduled_actions = regime_params.get("scheduled_actions")
 
     # Fit covariate models P(L_t | H_{t-1}, A_{t-1}) for t = 1, ..., T-1
     cov_models: list[list[LinearRegression]] = []  # [t][feature_j]
@@ -238,7 +286,15 @@ def _parametric_mc_estimate(
         for t in range(n_periods):
             H_t = _build_history_matrix(A_sim, L_sim, t)
             L_t = L_sim[0, t, :].reshape(1, -1)
-            a_t = _apply_regime(H_t, L_t, rule, thr_cov, thr_val)
+            a_t = _apply_regime(
+                H_t,
+                L_t,
+                rule,
+                thr_cov,
+                thr_val,
+                time_index=t,
+                scheduled_actions=scheduled_actions,
+            )
             A_sim[0, t] = a_t[0]
 
             if t < n_periods - 1:
@@ -349,6 +405,403 @@ def _build_g_output(
         metadata={"regime": g_result.regime, "n_periods": n_periods},
     )
     return wrap_causal_output(report, warnings=warnings, extras={"g_result": g_result})
+
+
+def _regime_params_from_spec(
+    regime: DynamicTreatmentRegime | None,
+) -> dict[str, Any]:
+    if regime is None:
+        return {
+            "regime": RegimeRule.ALWAYS_TREAT.value,
+            "threshold_covariate_index": 0,
+            "threshold_value": 0.0,
+            "scheduled_actions": None,
+        }
+    return {
+        "regime": regime.rule.value,
+        "threshold_covariate_index": int(regime.threshold_covariate_index),
+        "threshold_value": float(regime.threshold_value),
+        "scheduled_actions": (
+            None
+            if regime.scheduled_actions is None
+            else tuple(float(action) for action in regime.scheduled_actions)
+        ),
+    }
+
+
+def _build_temporal_intervention_from_schedule(
+    *,
+    query: ContinuousTimeQuery,
+    time_grid: Sequence[float],
+    schedule: Sequence[float],
+    metadata: Mapping[str, Any] | None = None,
+) -> TemporalInterventionTrajectory:
+    return TemporalInterventionTrajectory(
+        time_points=tuple(float(value) for value in time_grid),
+        values=tuple(float(value) for value in schedule),
+        time_scale=query.time_scale,
+        interpolation_policy=query.interpolation_policy,
+        metadata=dict(metadata or {}),
+    )
+
+
+def _materialize_intervention_schedule(
+    intervention: TemporalInterventionTrajectory,
+    *,
+    time_grid: Sequence[float],
+) -> tuple[int, ...]:
+    knot_times = np.asarray(intervention.time_points, dtype=float)
+    knot_values = np.asarray(intervention.values, dtype=float)
+    grid = np.asarray(tuple(float(value) for value in time_grid), dtype=float)
+    if intervention.interpolation_policy.value == "linear":
+        materialized = np.interp(grid, knot_times, knot_values)
+    else:
+        indices = np.searchsorted(knot_times, grid, side="right") - 1
+        indices = np.clip(indices, 0, knot_values.shape[0] - 1)
+        materialized = knot_values[indices]
+    rounded = np.round(materialized)
+    if not np.allclose(materialized, rounded, atol=1e-8) or not np.isin(rounded, [0, 1]).all():
+        raise TemporalCompileError(
+            "unsupported_dynamic_intervention",
+            "Phase C dynamic-treatment execution currently supports only binary schedules.",
+            details={"materialized_values": materialized.tolist()},
+        )
+    return tuple(int(value) for value in rounded.tolist())
+
+
+def _schedule_from_regime(
+    regime: DynamicTreatmentRegime,
+    *,
+    time_grid: Sequence[float],
+) -> tuple[int, ...]:
+    if regime.rule is RegimeRule.ALWAYS_TREAT:
+        return tuple(1 for _ in time_grid)
+    if regime.rule is RegimeRule.NEVER_TREAT:
+        return tuple(0 for _ in time_grid)
+    if regime.rule is RegimeRule.EXPLICIT_SCHEDULE and regime.scheduled_actions is not None:
+        if len(regime.scheduled_actions) != len(tuple(time_grid)):
+            raise TemporalCompileError(
+                "intervention_regime_mismatch",
+                "Explicit schedule regime length must match the dynamic time grid.",
+                details={
+                    "scheduled_actions": list(regime.scheduled_actions),
+                    "time_grid_length": len(tuple(time_grid)),
+                },
+            )
+        return tuple(int(value) for value in regime.scheduled_actions)
+    raise TemporalCompileError(
+        "unsupported_intervention_regime_consistency",
+        "Only always_treat, never_treat, and explicit_schedule regimes can be checked against fixed intervention artifacts in Phase C.",
+        details={"rule": regime.rule.value},
+    )
+
+
+def _regime_from_intervention(
+    *,
+    query: ContinuousTimeQuery,
+    data: DynamicTreatmentData,
+    intervention: TemporalInterventionTrajectory,
+) -> DynamicTreatmentRegime:
+    time_grid = (
+        np.arange(data.n_periods, dtype=float)
+        if data.time_ids is None
+        else np.asarray(data.time_ids, dtype=float)
+    )
+    schedule = _materialize_intervention_schedule(intervention, time_grid=time_grid)
+    return DynamicTreatmentRegime(
+        time_points=tuple(range(len(schedule))),
+        treatment_variables=tuple(f"{data.treatment_name}_{index}" for index in range(len(schedule))),
+        time_varying_covariates=tuple(data.variable_names or [query.outcome_process]),
+        outcome=data.outcome_name,
+        rule=RegimeRule.EXPLICIT_SCHEDULE,
+        scheduled_actions=schedule,
+        metadata={"derived_from_intervention_contract": True},
+    )
+
+
+def _compat_schedule_from_dynamic_regime(
+    regime: DynamicTreatmentRegime,
+    *,
+    data: DynamicTreatmentData,
+) -> tuple[int, ...]:
+    try:
+        return _schedule_from_regime(
+            regime,
+            time_grid=(
+                np.arange(data.n_periods, dtype=float)
+                if data.time_ids is None
+                else np.asarray(data.time_ids, dtype=float)
+            ),
+        )
+    except TemporalCompileError:
+        A_seq = data.treatment_sequence.astype(float)
+        L_seq = data.covariate_sequence.astype(float)
+        schedule: list[int] = []
+        params = _regime_params_from_spec(regime)
+        for t in range(data.n_periods):
+            H_t = _build_history_matrix(A_seq, L_seq, t)
+            L_t = L_seq[:, t, :]
+            actions = _apply_regime(
+                H_t,
+                L_t,
+                params["regime"],
+                int(params["threshold_covariate_index"]),
+                float(params["threshold_value"]),
+                time_index=t,
+                scheduled_actions=params.get("scheduled_actions"),
+            )
+            schedule.append(int(float(np.mean(actions)) >= 0.5))
+        return tuple(schedule)
+
+
+def _resolve_temporal_process_index(
+    data: DynamicTreatmentData,
+    outcome_process: str,
+) -> int:
+    candidate = str(outcome_process).strip()
+    if data.variable_names is not None:
+        for index, name in enumerate(data.variable_names):
+            if str(name).strip().lower() == candidate.lower():
+                return index
+    if data.covariate_sequence.shape[2] == 1:
+        return 0
+    raise ValueError(
+        "Temporal dynamic-treatment queries must name a covariate in variable_names "
+        "unless there is exactly one covariate channel."
+    )
+
+
+def _fit_covariate_transition_models(
+    A_seq: np.ndarray,
+    L_seq: np.ndarray,
+) -> tuple[list[list[LinearRegression]], list[np.ndarray]]:
+    n_units, n_periods, n_cov = L_seq.shape
+    _ = n_units
+    cov_models: list[list[LinearRegression]] = []
+    cov_residual_stds: list[np.ndarray] = []
+    for t in range(1, n_periods):
+        H_prev = _build_history_matrix(A_seq, L_seq, t - 1)
+        X_cov = np.hstack([H_prev, A_seq[:, t - 1 : t]])
+        models_t: list[LinearRegression] = []
+        stds_t: list[float] = []
+        for j in range(n_cov):
+            model = _fit_outcome_model(X_cov, L_seq[:, t, j])
+            models_t.append(model)
+            residual = L_seq[:, t, j] - model.predict(X_cov)
+            stds_t.append(float(np.std(residual) + 1e-8))
+        cov_models.append(models_t)
+        cov_residual_stds.append(np.asarray(stds_t, dtype=float))
+    return cov_models, cov_residual_stds
+
+
+def _simulate_regime_trajectory_ensemble(
+    data: DynamicTreatmentData,
+    *,
+    regime_params: Mapping[str, Any],
+    outcome_process: str,
+    n_mc: int = 256,
+    rng: np.random.Generator | None = None,
+) -> np.ndarray:
+    """Simulate covariate trajectories for the requested temporal process."""
+
+    if rng is None:
+        rng = np.random.default_rng(0)
+
+    A_seq = data.treatment_sequence.astype(float)
+    L_seq = data.covariate_sequence.astype(float)
+    n_units, n_periods, n_cov = L_seq.shape
+    process_index = _resolve_temporal_process_index(data, outcome_process)
+    cov_models, cov_residual_stds = _fit_covariate_transition_models(A_seq, L_seq)
+
+    rule = str(regime_params.get("regime", RegimeRule.ALWAYS_TREAT.value))
+    thr_cov = int(regime_params.get("threshold_covariate_index", 0))
+    thr_val = float(regime_params.get("threshold_value", 0.0))
+    scheduled_actions = regime_params.get("scheduled_actions")
+
+    samples = np.empty((max(1, n_mc), n_periods), dtype=float)
+    for draw in range(samples.shape[0]):
+        unit_idx = int(rng.integers(0, n_units))
+        L_sim = np.zeros((1, n_periods, n_cov), dtype=float)
+        A_sim = np.zeros((1, n_periods), dtype=float)
+        L_sim[0, 0, :] = L_seq[unit_idx, 0, :]
+        samples[draw, 0] = float(L_sim[0, 0, process_index])
+
+        for t in range(n_periods):
+            H_t = _build_history_matrix(A_sim, L_sim, t)
+            L_t = L_sim[0, t, :].reshape(1, -1)
+            action = _apply_regime(
+                H_t,
+                L_t,
+                rule,
+                thr_cov,
+                thr_val,
+                time_index=t,
+                scheduled_actions=scheduled_actions,
+            )
+            A_sim[0, t] = float(action[0])
+            if t >= n_periods - 1:
+                continue
+            X_cov_sim = np.hstack([H_t, action.reshape(-1, 1)])
+            for cov_index in range(n_cov):
+                mean_value = cov_models[t][cov_index].predict(X_cov_sim)[0]
+                L_sim[0, t + 1, cov_index] = mean_value + rng.normal(
+                    0.0,
+                    cov_residual_stds[t][cov_index],
+                )
+            samples[draw, t + 1] = float(L_sim[0, t + 1, process_index])
+    return samples
+
+
+def estimate_g_computation_trajectory(
+    data: DynamicTreatmentData | dict[str, Any],
+    query: ContinuousTimeQuery,
+    *,
+    regime: DynamicTreatmentRegime | None = None,
+    resolved_intervention: TemporalInterventionTrajectory | dict[str, Any] | None = None,
+    method: str = "parametric_g",
+    method_params: Mapping[str, Any] | None = None,
+    allow_discrete_fallback: bool = True,
+) -> tuple[GComputationResult, TemporalTrajectoryResult]:
+    """Return scalar g-computation output plus a temporal effect trajectory."""
+
+    dynamic_data = _extract_dynamic_data(data)
+    intervention = (
+        None
+        if resolved_intervention is None
+        else (
+            resolved_intervention
+            if isinstance(resolved_intervention, TemporalInterventionTrajectory)
+            else TemporalInterventionTrajectory.model_validate(resolved_intervention)
+        )
+    )
+    effective_regime = regime
+    contract_status = "resolved_artifact" if intervention is not None else "compatibility_synthesized"
+    if intervention is None:
+        effective_regime = regime or DynamicTreatmentRegime(
+            time_points=tuple(range(dynamic_data.n_periods)),
+            treatment_variables=tuple(f"{dynamic_data.treatment_name}_{index}" for index in range(dynamic_data.n_periods)),
+            time_varying_covariates=tuple(dynamic_data.variable_names or [query.outcome_process]),
+            outcome=dynamic_data.outcome_name,
+            rule=RegimeRule.ALWAYS_TREAT,
+        )
+        intervention = _build_temporal_intervention_from_schedule(
+            query=query,
+            time_grid=(
+                np.arange(dynamic_data.n_periods, dtype=float)
+                if dynamic_data.time_ids is None
+                else np.asarray(dynamic_data.time_ids, dtype=float)
+            ),
+            schedule=_compat_schedule_from_dynamic_regime(
+                effective_regime,
+                data=dynamic_data,
+            ),
+            metadata={"contract_status": contract_status},
+        )
+    elif effective_regime is None:
+        effective_regime = _regime_from_intervention(
+            query=query,
+            data=dynamic_data,
+            intervention=intervention,
+        )
+    else:
+        expected_schedule = _schedule_from_regime(
+            effective_regime,
+            time_grid=(
+                np.arange(dynamic_data.n_periods, dtype=float)
+                if dynamic_data.time_ids is None
+                else np.asarray(dynamic_data.time_ids, dtype=float)
+            ),
+        )
+        intervention_schedule = _materialize_intervention_schedule(
+            intervention,
+            time_grid=(
+                np.arange(dynamic_data.n_periods, dtype=float)
+                if dynamic_data.time_ids is None
+                else np.asarray(dynamic_data.time_ids, dtype=float)
+            ),
+        )
+        if intervention_schedule != expected_schedule:
+            raise TemporalCompileError(
+                "intervention_regime_mismatch",
+                "Resolved intervention artifact does not match the requested dynamic treatment regime on the compiled grid.",
+                details={
+                    "expected_schedule": list(expected_schedule),
+                    "intervention_schedule": list(intervention_schedule),
+                },
+            )
+
+    plan = compile_temporal_estimand(
+        query,
+        data=dynamic_data,
+        resolved_intervention=intervention,
+        intervention_contract_status=contract_status,
+        allow_discrete_fallback=allow_discrete_fallback,
+    )
+    method_dispatch: dict[str, type] = {
+        "parametric_g": ParametricGFormula,
+        "ice_g": ICEGFormula,
+        "ltmle": LTMLEEstimator,
+    }
+    method_cls = method_dispatch.get(method)
+    if method_cls is None:
+        raise ValueError(
+            f"Unknown g-computation temporal method {method!r}. "
+            f"Choose from: {sorted(method_dispatch)}"
+        )
+
+    scalar_params = dict(method_params or {})
+    scalar_params.update(_regime_params_from_spec(effective_regime))
+    scalar_result = method_cls.pure_step(dynamic_data, scalar_params)
+    g_result = scalar_result.get("g_result")
+    if not isinstance(g_result, GComputationResult):
+        raise RuntimeError("Temporal g-computation helper expected a GComputationResult payload")
+
+    regime_params = _regime_params_from_spec(effective_regime)
+    baseline_params = {
+        "regime": RegimeRule.NEVER_TREAT.value,
+        "threshold_covariate_index": 0,
+        "threshold_value": 0.0,
+        "scheduled_actions": None,
+    }
+    rng = np.random.default_rng(42)
+    n_paths = int(plan.solver_config.get("monte_carlo_paths", 256))
+    target_samples = _simulate_regime_trajectory_ensemble(
+        dynamic_data,
+        regime_params=regime_params,
+        outcome_process=query.outcome_process,
+        n_mc=n_paths,
+        rng=rng,
+    )
+    baseline_samples = _simulate_regime_trajectory_ensemble(
+        dynamic_data,
+        regime_params=baseline_params,
+        outcome_process=query.outcome_process,
+        n_mc=n_paths,
+        rng=rng,
+    )
+    grid_positions = np.asarray(plan.time_index_positions, dtype=int)
+    target_aligned = target_samples[:, grid_positions]
+    baseline_aligned = baseline_samples[:, grid_positions]
+    trajectory = solve_temporal_effect_path(
+        plan,
+        observed_series=target_aligned.mean(axis=0),
+        controls={
+            "counterfactual_series": baseline_aligned.mean(axis=0),
+            "effect_samples": target_aligned - baseline_aligned,
+            "seed": 42,
+        },
+    )
+    trajectory.metadata.update(
+        {
+            "regime": regime_params["regime"],
+            "scalar_method": g_result.method,
+            "outcome_process": query.outcome_process,
+            "intervention_contract_status": contract_status,
+        }
+    )
+    trajectory.diagnostics["scalar_counterfactual_mean"] = float(g_result.counterfactual_mean)
+    trajectory.diagnostics["regime"] = regime_params["regime"]
+    return g_result, trajectory
 
 
 # ---------------------------------------------------------------------------
@@ -936,4 +1389,5 @@ __all__ = [
     "ICEGFormula",
     "LTMLEEstimator",
     "ParametricGFormula",
+    "estimate_g_computation_trajectory",
 ]

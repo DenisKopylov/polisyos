@@ -3,6 +3,7 @@ from __future__ import annotations
 from polisyos.foundry.methods.catalog.causal import symbolic_identify as symbolic_module
 from polisyos.foundry.methods.catalog.causal.symbolic_identify import (
     SymbolicIdentify,
+    SymbolicIdentifyV2,
     convert_graph_to_symbolic_repr,
 )
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, GraphType
@@ -83,6 +84,7 @@ def test_symbolic_identify_handles_frontdoor_like_case(monkeypatch) -> None:
     assert result.transport_formula is not None
     assert result.transport_formula.adjustment_type == "frontdoor_symbolic"
     assert "P*(M|X)" in result.transport_formula.target_quantities
+    assert raw["proof_bundle"]["proof_status"] == "identified"
 
 
 def test_symbolic_identify_reports_unavailable_backend(monkeypatch) -> None:
@@ -108,6 +110,8 @@ def test_symbolic_identify_reports_unavailable_backend(monkeypatch) -> None:
     assert result.identification_engine == "y0"
     assert result.unsupported_reason == "y0_unavailable;rpy2_unavailable"
     assert any("symbolic_backend_unavailable" in step for step in result.identification_trace)
+    assert raw["negative_certificate"]["blocking_type"] == "missing_distribution"
+    assert raw["proof_bundle"]["proof_status"] == "oracle_needed"
 
 
 def test_symbolic_identify_supports_r_backend_mode(monkeypatch) -> None:
@@ -150,3 +154,32 @@ def test_symbolic_identify_full_auto_fallback_order(monkeypatch) -> None:
     result = TransportabilityResult.model_validate(raw["transport_result"])
     assert result.status is TransportabilityStatus.UNSUPPORTED
     assert any("symbolic_backend_order:y0,r" in step for step in result.identification_trace)
+
+
+def test_symbolic_identify_v2_emits_canonical_payloads() -> None:
+    graph = CausalGraphModel(
+        graph_type=GraphType.DAG,
+        nodes=["X", "Y"],
+        edges=[CausalEdge(src="X", dst="Y")],
+    )
+    diagram = SelectionDiagram(
+        base_graph=graph,
+        s_nodes=[],
+        source_context=ContextProfile(context_id="SRC"),
+        target_context=ContextProfile(context_id="TGT"),
+        context_distance=0.0,
+    )
+
+    raw = SymbolicIdentifyV2.pure_step(
+        state={
+            "selection_diagram": diagram.model_dump(mode="json"),
+            "query_treatment": "X",
+            "query_outcome": "Y",
+        },
+        params={"use_native_id": True},
+    )
+
+    result = TransportabilityResult.model_validate(raw["transport_result"])
+    assert result.status is TransportabilityStatus.IDENTIFIED
+    assert raw["proof_bundle"]["proof_status"] == "identified"
+    assert "negative_certificate" not in raw

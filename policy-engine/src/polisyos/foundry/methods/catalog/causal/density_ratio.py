@@ -20,6 +20,8 @@ Output:
 
 from __future__ import annotations
 
+from dataclasses import dataclass
+import math
 from typing import Any, ClassVar, Mapping
 
 import numpy as np
@@ -37,6 +39,62 @@ from polisyos.foundry.methods.base import (
     Unit,
     foundry_method,
 )
+
+MAX_DISTRIBUTIONAL_OT_BINS = 128
+DEFAULT_DISTRIBUTIONAL_QUANTILES = (0.10, 0.25, 0.50, 0.75, 0.90, 0.95)
+DEFAULT_DISTRIBUTIONAL_TAIL_PROBS = (0.90, 0.95)
+
+
+@dataclass(frozen=True)
+class ScalarDiscreteMeasure:
+    bin_edges: np.ndarray
+    support: np.ndarray
+    probabilities: np.ndarray
+    sample_size: int
+    total_weight: float
+    weighting_mode: str
+    mean_value: float
+    min_value: float
+    max_value: float
+
+
+@dataclass(frozen=True)
+class QuantileShiftResult:
+    quantiles: np.ndarray
+    baseline_values: np.ndarray
+    counterfactual_values: np.ndarray
+    shifts: np.ndarray
+
+
+@dataclass(frozen=True)
+class TailRiskResult:
+    tail_probs: np.ndarray
+    thresholds: np.ndarray
+    baseline_exceedance_probs: np.ndarray
+    counterfactual_exceedance_probs: np.ndarray
+    exceedance_deltas: np.ndarray
+    baseline_expected_shortfalls: np.ndarray
+    counterfactual_expected_shortfalls: np.ndarray
+    expected_shortfall_deltas: np.ndarray
+
+
+@dataclass(frozen=True)
+class ScalarOTDistributionalResult:
+    baseline_measure: ScalarDiscreteMeasure
+    counterfactual_measure: ScalarDiscreteMeasure
+    coupling_matrix: np.ndarray
+    wasserstein_distance: float
+    quantile_shift: QuantileShiftResult
+    tail_risk: TailRiskResult
+    mass_conservation_error: float
+    source_marginal_l1_error: float
+    target_marginal_l1_error: float
+    support_mismatch_note: str | None
+    regularization_strength: float
+    sinkhorn_iterations: int
+    convergence_delta: float
+    weighting_mode: str
+    density_ratio_diagnostics: dict[str, Any]
 
 
 # ---------------------------------------------------------------------------
@@ -249,6 +307,389 @@ def _compute_diagnostics(
 
 
 # ---------------------------------------------------------------------------
+# Phase D.1 scalar OT helpers
+# ---------------------------------------------------------------------------
+
+
+def _coerce_1d_finite(values: np.ndarray | list[float], *, field_name: str) -> np.ndarray:
+    arr = np.asarray(values, dtype=float)
+    if arr.ndim != 1:
+        raise ValueError(f"{field_name} must be a 1D finite array")
+    if arr.size == 0:
+        raise ValueError(f"{field_name} must be non-empty")
+    if np.any(~np.isfinite(arr)):
+        raise ValueError(f"{field_name} must contain only finite values")
+    return arr
+
+
+def _coerce_2d_finite(
+    values: np.ndarray | list[list[float]] | list[float],
+    *,
+    field_name: str,
+) -> np.ndarray:
+    arr = np.asarray(values, dtype=float)
+    if arr.ndim == 1:
+        arr = arr[:, None]
+    if arr.ndim != 2:
+        raise ValueError(f"{field_name} must be a 2D finite array")
+    if arr.size == 0:
+        raise ValueError(f"{field_name} must be non-empty")
+    if np.any(~np.isfinite(arr)):
+        raise ValueError(f"{field_name} must contain only finite values")
+    return arr
+
+
+def _validate_compute_budget(
+    *,
+    n_bins: int,
+    regularization_strength: float,
+    max_iter: int,
+) -> None:
+    if n_bins < 2:
+        raise ValueError("n_bins must be at least 2")
+    if n_bins > MAX_DISTRIBUTIONAL_OT_BINS:
+        raise ValueError(
+            f"n_bins exceeds compute budget ({MAX_DISTRIBUTIONAL_OT_BINS}); raw-data OT is prohibited"
+        )
+    if regularization_strength <= 0.0:
+        raise ValueError("regularization_strength must be strictly positive for Sinkhorn OT")
+    if max_iter < 1 or max_iter > 200:
+        raise ValueError("max_iter must be within [1, 200]")
+
+
+def _support_mismatch_note(source_values: np.ndarray, target_values: np.ndarray) -> str | None:
+    source_min, source_max = float(np.min(source_values)), float(np.max(source_values))
+    target_min, target_max = float(np.min(target_values)), float(np.max(target_values))
+    overlap_lo = max(source_min, target_min)
+    overlap_hi = min(source_max, target_max)
+    if overlap_hi < overlap_lo:
+        return "disjoint_support_ranges"
+    if source_min > target_min or source_max < target_max:
+        return "counterfactual_support_extends_beyond_baseline"
+    if target_min > source_min or target_max < source_max:
+        return "baseline_support_extends_beyond_counterfactual"
+    return None
+
+
+def _build_common_bin_edges(
+    baseline_values: np.ndarray,
+    counterfactual_values: np.ndarray,
+    *,
+    n_bins: int,
+) -> np.ndarray:
+    lower = float(min(np.min(baseline_values), np.min(counterfactual_values)))
+    upper = float(max(np.max(baseline_values), np.max(counterfactual_values)))
+    if math.isclose(lower, upper, rel_tol=0.0, abs_tol=1e-12):
+        lower -= 0.5
+        upper += 0.5
+    return np.linspace(lower, upper, n_bins + 1, dtype=float)
+
+
+def _weighted_histogram(values: np.ndarray, edges: np.ndarray, weights: np.ndarray) -> np.ndarray:
+    hist, _ = np.histogram(values, bins=edges, weights=weights)
+    hist = np.asarray(hist, dtype=float)
+    total = float(np.sum(hist))
+    if total <= 0.0:
+        raise ValueError("discrete histogram mass must be positive")
+    return hist / total
+
+
+def _discretize_scalar_distribution(
+    values: np.ndarray | list[float],
+    *,
+    bin_edges: np.ndarray,
+    sample_weights: np.ndarray | list[float] | None = None,
+    weighting_mode: str = "uniform",
+) -> ScalarDiscreteMeasure:
+    arr = _coerce_1d_finite(values, field_name="values")
+    if sample_weights is None:
+        weights = np.ones(arr.shape[0], dtype=float)
+    else:
+        weights = _coerce_1d_finite(sample_weights, field_name="sample_weights")
+        if weights.shape[0] != arr.shape[0]:
+            raise ValueError("sample_weights must align with values")
+        if np.any(weights < 0.0):
+            raise ValueError("sample_weights must be non-negative")
+        if float(np.sum(weights)) <= 0.0:
+            raise ValueError("sample_weights must have positive total mass")
+
+    probabilities = _weighted_histogram(arr, bin_edges, weights)
+    support = 0.5 * (bin_edges[:-1] + bin_edges[1:])
+    counts, _ = np.histogram(arr, bins=bin_edges)
+    return ScalarDiscreteMeasure(
+        bin_edges=np.asarray(bin_edges, dtype=float),
+        support=support,
+        probabilities=probabilities,
+        sample_size=int(arr.shape[0]),
+        total_weight=float(np.sum(weights)),
+        weighting_mode=weighting_mode,
+        mean_value=float(np.average(arr, weights=weights)),
+        min_value=float(np.min(arr)),
+        max_value=float(np.max(arr)),
+    )
+
+
+def compute_sinkhorn_coupling(
+    source_support: np.ndarray | list[float],
+    source_probabilities: np.ndarray | list[float] | None,
+    target_support: np.ndarray | list[float],
+    target_probabilities: np.ndarray | list[float] | None,
+    *,
+    regularization_strength: float = 0.05,
+    max_iter: int = 200,
+    tolerance: float = 1e-8,
+) -> tuple[np.ndarray, dict[str, Any]]:
+    if source_probabilities is None or target_probabilities is None:
+        raise ValueError(
+            "raw sample-to-sample OT is prohibited; provide normalized discrete measures instead"
+        )
+    _validate_compute_budget(
+        n_bins=max(len(source_support), len(target_support)),
+        regularization_strength=regularization_strength,
+        max_iter=max_iter,
+    )
+
+    source_support_arr = _coerce_1d_finite(source_support, field_name="source_support")
+    target_support_arr = _coerce_1d_finite(target_support, field_name="target_support")
+    source_prob_arr = _coerce_1d_finite(source_probabilities, field_name="source_probabilities")
+    target_prob_arr = _coerce_1d_finite(target_probabilities, field_name="target_probabilities")
+
+    if source_support_arr.shape[0] != source_prob_arr.shape[0]:
+        raise ValueError("source_probabilities must align with source_support")
+    if target_support_arr.shape[0] != target_prob_arr.shape[0]:
+        raise ValueError("target_probabilities must align with target_support")
+    if np.any(source_prob_arr < 0.0) or np.any(target_prob_arr < 0.0):
+        raise ValueError("discrete OT probabilities must be non-negative")
+
+    source_mass = float(np.sum(source_prob_arr))
+    target_mass = float(np.sum(target_prob_arr))
+    if source_mass <= 0.0 or target_mass <= 0.0:
+        raise ValueError("discrete OT probabilities must have positive mass")
+    source_prob_arr = source_prob_arr / source_mass
+    target_prob_arr = target_prob_arr / target_mass
+
+    cost = np.abs(source_support_arr[:, None] - target_support_arr[None, :])
+    cost_scale = max(float(np.max(cost)), 1.0)
+    normalized_cost = cost / cost_scale
+    kernel = np.exp(-normalized_cost / regularization_strength)
+    kernel = np.clip(kernel, 1e-300, None)
+
+    u = np.ones_like(source_prob_arr)
+    v = np.ones_like(target_prob_arr)
+    convergence_delta = float("inf")
+    iterations = 0
+    for step in range(1, max_iter + 1):
+        prev_u = u.copy()
+        prev_v = v.copy()
+
+        Kv = np.clip(kernel @ v, 1e-300, None)
+        u = source_prob_arr / Kv
+        KTu = np.clip(kernel.T @ u, 1e-300, None)
+        v = target_prob_arr / KTu
+
+        convergence_delta = float(
+            max(
+                np.max(np.abs(u - prev_u)),
+                np.max(np.abs(v - prev_v)),
+            )
+        )
+        iterations = step
+        if convergence_delta <= tolerance:
+            break
+
+    coupling = (u[:, None] * kernel) * v[None, :]
+    total_mass = float(np.sum(coupling))
+    if total_mass <= 0.0:
+        raise ValueError("Sinkhorn coupling collapsed to zero mass")
+    coupling = coupling / total_mass
+
+    row_error = float(np.sum(np.abs(np.sum(coupling, axis=1) - source_prob_arr)))
+    col_error = float(np.sum(np.abs(np.sum(coupling, axis=0) - target_prob_arr)))
+    diagnostics = {
+        "mass_conservation_error": max(row_error, col_error),
+        "source_marginal_l1_error": row_error,
+        "target_marginal_l1_error": col_error,
+        "regularization_strength": float(regularization_strength),
+        "sinkhorn_iterations": int(iterations),
+        "convergence_delta": float(convergence_delta),
+    }
+    return coupling, diagnostics
+
+
+def _quantiles_from_discrete_measure(
+    support: np.ndarray,
+    probabilities: np.ndarray,
+    quantiles: np.ndarray,
+) -> np.ndarray:
+    cdf = np.cumsum(probabilities)
+    indices = np.searchsorted(cdf, quantiles, side="left")
+    indices = np.clip(indices, 0, support.shape[0] - 1)
+    return support[indices]
+
+
+def _expected_shortfall(
+    support: np.ndarray,
+    probabilities: np.ndarray,
+    threshold: float,
+) -> float:
+    mask = support >= threshold
+    exceedance = float(np.sum(probabilities[mask]))
+    if exceedance <= 0.0:
+        return float("nan")
+    return float(np.sum(support[mask] * probabilities[mask]) / exceedance)
+
+
+def _quantile_shift_result(
+    baseline: ScalarDiscreteMeasure,
+    counterfactual: ScalarDiscreteMeasure,
+    quantiles: tuple[float, ...],
+) -> QuantileShiftResult:
+    grid = np.asarray(quantiles, dtype=float)
+    baseline_values = _quantiles_from_discrete_measure(
+        baseline.support,
+        baseline.probabilities,
+        grid,
+    )
+    counterfactual_values = _quantiles_from_discrete_measure(
+        counterfactual.support,
+        counterfactual.probabilities,
+        grid,
+    )
+    return QuantileShiftResult(
+        quantiles=grid,
+        baseline_values=baseline_values,
+        counterfactual_values=counterfactual_values,
+        shifts=counterfactual_values - baseline_values,
+    )
+
+
+def _tail_risk_result(
+    baseline: ScalarDiscreteMeasure,
+    counterfactual: ScalarDiscreteMeasure,
+    tail_probs: tuple[float, ...],
+) -> TailRiskResult:
+    probs = np.asarray(tail_probs, dtype=float)
+    thresholds = _quantiles_from_discrete_measure(
+        baseline.support,
+        baseline.probabilities,
+        probs,
+    )
+    baseline_exceedance = np.asarray(
+        [float(np.sum(baseline.probabilities[baseline.support >= threshold])) for threshold in thresholds],
+        dtype=float,
+    )
+    counterfactual_exceedance = np.asarray(
+        [float(np.sum(counterfactual.probabilities[counterfactual.support >= threshold])) for threshold in thresholds],
+        dtype=float,
+    )
+    baseline_shortfall = np.asarray(
+        [_expected_shortfall(baseline.support, baseline.probabilities, threshold) for threshold in thresholds],
+        dtype=float,
+    )
+    counterfactual_shortfall = np.asarray(
+        [
+            _expected_shortfall(counterfactual.support, counterfactual.probabilities, threshold)
+            for threshold in thresholds
+        ],
+        dtype=float,
+    )
+    return TailRiskResult(
+        tail_probs=probs,
+        thresholds=thresholds,
+        baseline_exceedance_probs=baseline_exceedance,
+        counterfactual_exceedance_probs=counterfactual_exceedance,
+        exceedance_deltas=counterfactual_exceedance - baseline_exceedance,
+        baseline_expected_shortfalls=baseline_shortfall,
+        counterfactual_expected_shortfalls=counterfactual_shortfall,
+        expected_shortfall_deltas=counterfactual_shortfall - baseline_shortfall,
+    )
+
+
+def compute_scalar_distributional_effect(
+    baseline_values: np.ndarray | list[float],
+    counterfactual_values: np.ndarray | list[float],
+    *,
+    baseline_covariates: np.ndarray | list[list[float]] | list[float] | None = None,
+    counterfactual_covariates: np.ndarray | list[list[float]] | list[float] | None = None,
+    density_ratio_method: str = "logistic_trick",
+    n_bins: int = 64,
+    regularization_strength: float = 0.05,
+    max_iter: int = 200,
+    quantiles: tuple[float, ...] = DEFAULT_DISTRIBUTIONAL_QUANTILES,
+    tail_probs: tuple[float, ...] = DEFAULT_DISTRIBUTIONAL_TAIL_PROBS,
+) -> ScalarOTDistributionalResult:
+    baseline_arr = _coerce_1d_finite(baseline_values, field_name="baseline_values")
+    counterfactual_arr = _coerce_1d_finite(counterfactual_values, field_name="counterfactual_values")
+    _validate_compute_budget(
+        n_bins=n_bins,
+        regularization_strength=regularization_strength,
+        max_iter=max_iter,
+    )
+
+    weighting_mode = "uniform"
+    density_ratio_diagnostics: dict[str, Any] = {}
+    baseline_weights: np.ndarray | None = None
+    if baseline_covariates is not None and counterfactual_covariates is not None:
+        X_source = _coerce_2d_finite(baseline_covariates, field_name="baseline_covariates")
+        X_target = _coerce_2d_finite(counterfactual_covariates, field_name="counterfactual_covariates")
+        if X_source.shape[0] != baseline_arr.shape[0]:
+            raise ValueError("baseline_covariates must align with baseline_values")
+        if X_target.shape[0] != counterfactual_arr.shape[0]:
+            raise ValueError("counterfactual_covariates must align with counterfactual_values")
+        density_ratio_output = DensityRatioEstimator.pure_step(
+            {"X_source": X_source, "X_target": X_target},
+            {"method": density_ratio_method},
+        )
+        baseline_weights = np.asarray(density_ratio_output["weights"], dtype=float)
+        density_ratio_diagnostics = dict(density_ratio_output["diagnostics"])
+        weighting_mode = "density_ratio"
+
+    edges = _build_common_bin_edges(baseline_arr, counterfactual_arr, n_bins=n_bins)
+    baseline_measure = _discretize_scalar_distribution(
+        baseline_arr,
+        bin_edges=edges,
+        sample_weights=baseline_weights,
+        weighting_mode=weighting_mode,
+    )
+    counterfactual_measure = _discretize_scalar_distribution(
+        counterfactual_arr,
+        bin_edges=edges,
+        weighting_mode="uniform",
+    )
+
+    coupling, diagnostics = compute_sinkhorn_coupling(
+        baseline_measure.support,
+        baseline_measure.probabilities,
+        counterfactual_measure.support,
+        counterfactual_measure.probabilities,
+        regularization_strength=regularization_strength,
+        max_iter=max_iter,
+    )
+    quantile_shift = _quantile_shift_result(baseline_measure, counterfactual_measure, quantiles)
+    tail_risk = _tail_risk_result(baseline_measure, counterfactual_measure, tail_probs)
+    cost = np.abs(baseline_measure.support[:, None] - counterfactual_measure.support[None, :])
+    wasserstein_distance = float(np.sum(coupling * cost))
+
+    return ScalarOTDistributionalResult(
+        baseline_measure=baseline_measure,
+        counterfactual_measure=counterfactual_measure,
+        coupling_matrix=coupling,
+        wasserstein_distance=wasserstein_distance,
+        quantile_shift=quantile_shift,
+        tail_risk=tail_risk,
+        mass_conservation_error=float(diagnostics["mass_conservation_error"]),
+        source_marginal_l1_error=float(diagnostics["source_marginal_l1_error"]),
+        target_marginal_l1_error=float(diagnostics["target_marginal_l1_error"]),
+        support_mismatch_note=_support_mismatch_note(baseline_arr, counterfactual_arr),
+        regularization_strength=float(diagnostics["regularization_strength"]),
+        sinkhorn_iterations=int(diagnostics["sinkhorn_iterations"]),
+        convergence_delta=float(diagnostics["convergence_delta"]),
+        weighting_mode=weighting_mode,
+        density_ratio_diagnostics=density_ratio_diagnostics,
+    )
+
+
+# ---------------------------------------------------------------------------
 # Foundry method
 # ---------------------------------------------------------------------------
 
@@ -414,4 +855,15 @@ class DensityRatioEstimator:
         }
 
 
-__all__ = ["DensityRatioEstimator"]
+__all__ = [
+    "DEFAULT_DISTRIBUTIONAL_QUANTILES",
+    "DEFAULT_DISTRIBUTIONAL_TAIL_PROBS",
+    "MAX_DISTRIBUTIONAL_OT_BINS",
+    "DensityRatioEstimator",
+    "QuantileShiftResult",
+    "ScalarDiscreteMeasure",
+    "ScalarOTDistributionalResult",
+    "TailRiskResult",
+    "compute_scalar_distributional_effect",
+    "compute_sinkhorn_coupling",
+]

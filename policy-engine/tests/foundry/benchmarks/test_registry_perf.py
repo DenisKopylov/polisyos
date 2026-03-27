@@ -53,7 +53,7 @@ def sample_fqn(populated_registry):
     entries = populated_registry.list_all()
     if not entries:
         pytest.skip("No methods registered")
-    return entries[0].signature.fqn
+    return entries[0].fqn
 
 
 # ---------------------------------------------------------------------------
@@ -181,8 +181,8 @@ def test_plan_optimizer_is_fast(benchmark, populated_registry):
     if len(entries) < 2:
         pytest.skip("Need ≥2 registered methods")
 
-    fqn_a = entries[0].signature.fqn
-    fqn_b = entries[1].signature.fqn
+    fqn_a = entries[0].fqn
+    fqn_b = entries[1].fqn
 
     def _optimize():
         optimizer = ExecutionPlanOptimizer(check_circuit_breakers=False)

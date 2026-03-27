@@ -7,6 +7,7 @@ from enum import Enum
 from typing import Any
 
 from polisyos.common.logger import get_logger
+from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.environment import (
     EnvironmentDiff,
     EnvironmentManifest,
@@ -22,7 +23,6 @@ from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.foundry import ExecPlan, Metrics, SimulationResult
-
 _SHA256_HEX_RE = re.compile(r"^[0-9a-f]{64}$")
 _SHA256_PREF_RE = re.compile(r"^sha256:[0-9a-f]{64}$")
 
@@ -124,6 +124,17 @@ class ReplayPlan:
     seed: SeedResolution
     completeness: CompletenessReport
     payload: dict[str, Any]
+
+
+@dataclass(frozen=True)
+class ReplayBundleMeasurement:
+    replay_bundle_ref: ArtifactRef
+    completeness: CompletenessReport
+    verification_mode: str
+    passed: bool
+    overall_similarity: float
+    reason_codes: list[str] = field(default_factory=list)
+    details: dict[str, Any] = field(default_factory=dict)
 
 
 def set_global_seeds(seed: int) -> None:
@@ -238,6 +249,225 @@ def build_replay_plan(store: FileSystemCAS, packet_ref: ArtifactID) -> ReplayPla
         completeness=completeness,
         payload=payload,
     )
+
+
+def measure_replayable_audit_bundle(
+    store: FileSystemCAS,
+    replay_bundle_ref: ArtifactRef,
+) -> ReplayBundleMeasurement:
+    from polisyos.scientist.policy_design.output import load_replayable_audit_bundle
+
+    bundle = load_replayable_audit_bundle(store, replay_bundle_ref)
+    refs: list[ArtifactRef] = []
+    if bundle.candidate_ref is not None:
+        refs.append(bundle.candidate_ref)
+    if bundle.evaluation_ref is not None:
+        refs.append(bundle.evaluation_ref)
+    if bundle.readiness_ref is not None:
+        refs.append(bundle.readiness_ref)
+    refs.extend(bundle.upstream_audit_refs)
+    refs.extend(bundle.actionable_side_information_refs)
+    refs.extend(bundle.artifact_refs.values())
+    refs.extend(bundle.runtime_input_refs.values())
+    refs.extend(bundle.runtime_artifacts_index.values())
+    refs.extend(bundle.runtime_reports_index.values())
+
+    missing: list[MissingArtifact] = []
+    total_size_bytes = 0
+    for ref in refs:
+        try:
+            manifest = store.get_manifest(ref.artifact_id)
+            total_size_bytes += int(getattr(manifest, "size_bytes", 0) or 0)
+        except FileNotFoundError:
+            missing.append(
+                MissingArtifact(
+                    artifact_id=str(ref.artifact_id),
+                    role=str(ref.kind or "artifact"),
+                    kind=ref.kind,
+                    critical=True,
+                    status=NodeStatus.MISSING,
+                )
+            )
+
+    reason_codes: list[str] = []
+    if bundle.candidate_ref is None:
+        reason_codes.append("candidate_ref_missing")
+    if bundle.evaluation_ref is None:
+        reason_codes.append("evaluation_ref_missing")
+    if missing:
+        reason_codes.append("bundle_dependency_missing")
+
+    completeness_level = (
+        CompletenessLevel.COMPLETE
+        if not missing and not reason_codes
+        else CompletenessLevel.INCOMPLETE
+    )
+    completeness = CompletenessReport(
+        level=completeness_level,
+        strategy=ReplayStrategy.SCIENTIST,
+        total_artifacts=len(refs),
+        present_artifacts=max(len(refs) - len(missing), 0),
+        missing=missing,
+        total_size_bytes=total_size_bytes,
+        reason_codes=sorted(set(reason_codes)),
+    )
+    if completeness.level != CompletenessLevel.COMPLETE:
+        return ReplayBundleMeasurement(
+            replay_bundle_ref=replay_bundle_ref,
+            completeness=completeness,
+            verification_mode="artifact_snapshot",
+            passed=False,
+            overall_similarity=0.0,
+            reason_codes=list(completeness.reason_codes),
+            details={
+                "artifact_ref_count": len(refs),
+                "trace_notes": list(bundle.trace_notes),
+            },
+        )
+
+    if _bundle_has_runtime_snapshot(bundle):
+        try:
+            measured = _measure_scientist_replay_from_bundle(store, replay_bundle_ref, bundle)
+            return ReplayBundleMeasurement(
+                replay_bundle_ref=replay_bundle_ref,
+                completeness=completeness,
+                verification_mode=measured["verification_mode"],
+                passed=bool(measured["passed"]),
+                overall_similarity=float(measured["overall_similarity"]),
+                reason_codes=list(measured["reason_codes"]),
+                details=dict(measured["details"]),
+            )
+        except Exception as exc:
+            return ReplayBundleMeasurement(
+                replay_bundle_ref=replay_bundle_ref,
+                completeness=completeness,
+                verification_mode="semantic_diff",
+                passed=False,
+                overall_similarity=0.0,
+                reason_codes=["replay_execution_failed"],
+                details={
+                    "artifact_ref_count": len(refs),
+                    "trace_notes": list(bundle.trace_notes),
+                    "replay_error": f"{type(exc).__name__}: {exc}",
+                },
+            )
+
+    return ReplayBundleMeasurement(
+        replay_bundle_ref=replay_bundle_ref,
+        completeness=completeness,
+        verification_mode="artifact_snapshot",
+        passed=True,
+        overall_similarity=1.0,
+        reason_codes=["replay_execution_not_available"],
+        details={
+            "artifact_ref_count": len(refs),
+            "trace_notes": list(bundle.trace_notes),
+            "snapshot_only": True,
+        },
+    )
+
+
+def _bundle_has_runtime_snapshot(bundle: Any) -> bool:
+    return bool(
+        bundle.runtime_input_refs
+        and bundle.runtime_params_snapshot
+        and (
+            bundle.workflow_id
+            or bundle.runtime_params_snapshot.get("workflow_id")
+        )
+    )
+
+
+def _measure_scientist_replay_from_bundle(
+    store: FileSystemCAS,
+    replay_bundle_ref: ArtifactRef,
+    bundle: Any,
+) -> dict[str, Any]:
+    from polisyos.scientist.engine.state import ExperimentState
+    from polisyos.scientist.nodes.builtins.state_keys import (
+        ARTIFACT_DECISION_PACKET_REF,
+        ARTIFACT_SIMULATION_RESULT_REF,
+    )
+    from polisyos.scientist.replay.diff import compute_replay_diff
+    from polisyos.scientist.workflows.builder import run_selected_workflow
+
+    replay_run_id = f"replay_bundle_{str(replay_bundle_ref.artifact_id)[7:19]}"
+    params_snapshot = dict(bundle.runtime_params_snapshot or {})
+    if bundle.workflow_id is not None:
+        params_snapshot.setdefault("workflow_id", bundle.workflow_id)
+    params_snapshot.setdefault("replay_mode", True)
+    state = ExperimentState(
+        run_id=replay_run_id,
+        inputs=dict(bundle.runtime_input_refs),
+        artifacts_index=dict(bundle.runtime_artifacts_index),
+        reports_index=dict(bundle.runtime_reports_index),
+        params=params_snapshot,
+        execution_profile=bundle.execution_profile,
+    )
+    replay_result = run_selected_workflow(initial_state=state, store=store)
+    replay_state = replay_result.state
+    replay_evaluation_ref = _resolve_replay_evaluation_ref(replay_state)
+    if bundle.evaluation_ref is None or replay_evaluation_ref is None:
+        raise ValueError("Measured replay requires both original and replayed evaluation refs.")
+    original_payload = _load_artifact_payload_for_diff(store, bundle.evaluation_ref)
+    replayed_payload = _load_artifact_payload_for_diff(store, replay_evaluation_ref)
+    diff = compute_replay_diff(original_payload, replayed_payload)
+    reason_codes: list[str] = []
+    if not diff.structural_match:
+        reason_codes.append("semantic_diff_exceeded_tolerance")
+    return {
+        "verification_mode": "semantic_diff",
+        "passed": diff.structural_match,
+        "overall_similarity": diff.overall_similarity,
+        "reason_codes": reason_codes,
+        "details": {
+            "replay_run_id": replay_run_id,
+            "replay_decision_packet_ref": _artifact_id_from_index(
+                replay_state.artifacts_index,
+                ARTIFACT_DECISION_PACKET_REF,
+            ),
+            "replay_simulation_result_ref": _artifact_id_from_index(
+                replay_state.artifacts_index,
+                ARTIFACT_SIMULATION_RESULT_REF,
+            ),
+            "replay_evaluation_ref": str(replay_evaluation_ref.artifact_id),
+            "environment_diffs": [],
+            "semantic_diff_summary": {
+                "overall_similarity": diff.overall_similarity,
+                "structural_match": diff.structural_match,
+                "field_diff_count": len(diff.field_diffs),
+            },
+            "field_diffs": [item.model_dump(mode="json") for item in diff.field_diffs[:50]],
+            "reason_codes": reason_codes,
+        },
+    }
+
+
+def _resolve_replay_evaluation_ref(state: Any) -> ArtifactRef | None:
+    raw = state.params.get("policy_evaluation_ref")
+    if isinstance(raw, ArtifactRef):
+        return raw
+    if isinstance(raw, dict):
+        try:
+            return ArtifactRef.model_validate(raw)
+        except Exception:
+            return None
+    return None
+
+
+def _load_artifact_payload_for_diff(
+    store: FileSystemCAS,
+    ref: ArtifactRef,
+) -> dict[str, Any]:
+    payload = from_canonical_bytes(store.get_bytes(ref.artifact_id))
+    if isinstance(payload, dict):
+        return payload
+    return {"value": payload}
+
+
+def _artifact_id_from_index(index: dict[str, ArtifactRef], key: str) -> str | None:
+    ref = index.get(key)
+    return None if ref is None else str(ref.artifact_id)
 
 
 def completeness_check(
@@ -578,6 +808,7 @@ __all__ = [
     "CompletenessLevel",
     "CompletenessReport",
     "MissingArtifact",
+    "ReplayBundleMeasurement",
     "ReplayPlan",
     "ReplayStrategy",
     "SeedResolution",
@@ -587,6 +818,7 @@ __all__ = [
     "build_replay_plan",
     "compare_current_environment",
     "completeness_check",
+    "measure_replayable_audit_bundle",
     "determine_replay_strategy",
     "normalize_artifact_id",
     "resolve_effective_seed",

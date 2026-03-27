@@ -106,7 +106,6 @@ _HIGH_PRIORITY_NORMATIVE_SUBTYPES = {
     "amendment_bundle",
     "approval_bundle",
     "application_requirement",
-    "tariff_threshold_row",
 }
 
 
@@ -468,6 +467,7 @@ def build_legal_unit_signals(
         "exception_clause",
         "temporal_clause",
         "sanction_clause",
+        "tariff_threshold_row",
     }:
         route_class = "deterministic_then_llm_retry"
     else:

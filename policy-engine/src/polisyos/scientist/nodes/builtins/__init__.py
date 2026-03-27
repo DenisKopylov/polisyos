@@ -40,7 +40,12 @@ __all__ = [
     "RunPreflightNode",
     "ReadyToRunNode",
     "RunEvaluatorNode",
+    "BuildPolicyOutputBundleNode",
     "BuildVerifiedPolicyReportNode",
+    "RunPolicyBlueprintRuntimeNode",
+    "RunPolicyTranslationNode",
+    "RunTranslatorComplianceNode",
+    "RunDiscoveryBlueprintRuntimeNode",
     "builtin_nodes",
 ]
 
@@ -78,8 +83,20 @@ def builtin_nodes() -> list["Node"]:
     from polisyos.scientist.nodes.builtins.decide.build_decision_packet import (
         BuildDecisionPacketNode,
     )
+    from polisyos.scientist.nodes.builtins.decide.build_policy_output_bundle import (
+        BuildPolicyOutputBundleNode,
+    )
     from polisyos.scientist.nodes.builtins.decide.build_verified_policy_report import (
         BuildVerifiedPolicyReportNode,
+    )
+    from polisyos.scientist.nodes.builtins.decide.run_policy_blueprint_runtime import (
+        RunPolicyBlueprintRuntimeNode,
+    )
+    from polisyos.scientist.nodes.builtins.decide.run_policy_translation import (
+        RunPolicyTranslationNode,
+    )
+    from polisyos.scientist.nodes.builtins.decide.run_translator_compliance import (
+        RunTranslatorComplianceNode,
     )
     from polisyos.scientist.nodes.builtins.governance.data_plane_gate import DataPlaneGateNode
     from polisyos.scientist.nodes.builtins.governance.legal_check import LegalCheckNode
@@ -117,6 +134,9 @@ def builtin_nodes() -> list["Node"]:
     )
     from polisyos.scientist.nodes.builtins.planning.run_evaluator import RunEvaluatorNode
     from polisyos.scientist.nodes.builtins.planning.run_preflight import RunPreflightNode
+    from polisyos.scientist.nodes.builtins.planning.run_discovery_blueprint_runtime import (
+        RunDiscoveryBlueprintRuntimeNode,
+    )
     from polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty import (
         PropagateUncertaintyNode,
     )
@@ -163,6 +183,11 @@ def builtin_nodes() -> list["Node"]:
         RunGovernanceNode(),
         RunEvaluatorNode(),
         BuildVerifiedPolicyReportNode(),
+        RunPolicyBlueprintRuntimeNode(),
+        RunPolicyTranslationNode(),
+        RunTranslatorComplianceNode(),
+        RunDiscoveryBlueprintRuntimeNode(),
+        BuildPolicyOutputBundleNode(),
         BuildDecisionPacketNode(),
     ]
 
@@ -350,10 +375,40 @@ def __getattr__(name: str) -> Any:
         )
 
         return BuildDecisionPacketNode
+    if name == "BuildPolicyOutputBundleNode":
+        from polisyos.scientist.nodes.builtins.decide.build_policy_output_bundle import (
+            BuildPolicyOutputBundleNode,
+        )
+
+        return BuildPolicyOutputBundleNode
     if name == "BuildVerifiedPolicyReportNode":
         from polisyos.scientist.nodes.builtins.decide.build_verified_policy_report import (
             BuildVerifiedPolicyReportNode,
         )
 
         return BuildVerifiedPolicyReportNode
+    if name == "RunPolicyBlueprintRuntimeNode":
+        from polisyos.scientist.nodes.builtins.decide.run_policy_blueprint_runtime import (
+            RunPolicyBlueprintRuntimeNode,
+        )
+
+        return RunPolicyBlueprintRuntimeNode
+    if name == "RunPolicyTranslationNode":
+        from polisyos.scientist.nodes.builtins.decide.run_policy_translation import (
+            RunPolicyTranslationNode,
+        )
+
+        return RunPolicyTranslationNode
+    if name == "RunTranslatorComplianceNode":
+        from polisyos.scientist.nodes.builtins.decide.run_translator_compliance import (
+            RunTranslatorComplianceNode,
+        )
+
+        return RunTranslatorComplianceNode
+    if name == "RunDiscoveryBlueprintRuntimeNode":
+        from polisyos.scientist.nodes.builtins.planning.run_discovery_blueprint_runtime import (
+            RunDiscoveryBlueprintRuntimeNode,
+        )
+
+        return RunDiscoveryBlueprintRuntimeNode
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

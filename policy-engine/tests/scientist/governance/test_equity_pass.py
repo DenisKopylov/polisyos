@@ -126,3 +126,106 @@ def test_equity_pass_without_report_returns_empty() -> None:
     )
 
     assert EquityPass().validate(ctx) == []
+
+
+def test_equity_pass_single_non_vulnerable_group_no_disproportionate_issue() -> None:
+    """Non-vulnerable cohorts should not trigger EQUITY_VULNERABLE_DISPROPORTIONATE."""
+    breakdown = DimensionBreakdown(
+        dimension=CohortDimension.INCOME_QUINTILE,
+        dimension_label="Income Quintiles",
+        primary_metric="income_change_pct",
+        primary_metric_unit=MetricUnit.PERCENT,
+        cohorts=[
+            CohortImpact(
+                cohort_id="Q3",
+                cohort_label="Q3",
+                population_share=0.5,
+                metric_deltas={"income_change_pct": -10.0},
+                impact_direction=ImpactDirection.NEGATIVE,
+                is_vulnerable=False,
+            ),
+            CohortImpact(
+                cohort_id="Q4",
+                cohort_label="Q4",
+                population_share=0.5,
+                metric_deltas={"income_change_pct": 2.0},
+                impact_direction=ImpactDirection.POSITIVE,
+                is_vulnerable=False,
+            ),
+        ],
+        gini_before=0.30,
+        gini_after=0.30,
+    )
+    winners_losers = WinnersLosersTable(
+        winners=[],
+        losers=[
+            WinnersLosersEntry(
+                cohort_id="Q3",
+                cohort_label="Q3",
+                dimension=CohortDimension.INCOME_QUINTILE,
+                net_impact=-10.0,
+                impact_direction=ImpactDirection.NEGATIVE,
+                population_share=0.3,
+                is_vulnerable=False,
+            )
+        ],
+        canonical_dimension=CohortDimension.INCOME_QUINTILE,
+    )
+    report = DistributionalReport(
+        breakdowns=[breakdown],
+        winners_losers=winners_losers,
+        overall_gini_before=0.30,
+        overall_gini_after=0.30,
+    )
+    ctx = PassContext(
+        ir=None,
+        state={"distributional_report": report},
+        registry_bundle=None,
+        profile=ValidationProfile.strict(),
+        run_id="R_equity_single_group",
+    )
+    issues = EquityPass().validate(ctx)
+    assert not any(i.code == "EQUITY_VULNERABLE_DISPROPORTIONATE" for i in issues)
+
+
+def test_equity_pass_gini_below_threshold_no_issue() -> None:
+    """Gini delta below the threshold should NOT trigger EQUITY_GINI_INCREASE."""
+    report = _build_report(vulnerable_delta=-1.0, gini_delta=0.019)
+    ctx = PassContext(
+        ir=None,
+        state={"distributional_report": report},
+        registry_bundle=None,
+        profile=ValidationProfile.strict(),
+        run_id="R_equity_gini_boundary",
+    )
+    issues = EquityPass().validate(ctx)
+    gini_issues = [i for i in issues if i.code == "EQUITY_GINI_INCREASE"]
+    assert len(gini_issues) == 0
+
+
+def test_equity_pass_vulnerable_exactly_at_threshold_no_issue() -> None:
+    """Vulnerable loss exactly at threshold (-5.0%) should NOT trigger."""
+    report = _build_report(vulnerable_delta=-5.0, gini_delta=0.0)
+    ctx = PassContext(
+        ir=None,
+        state={"distributional_report": report},
+        registry_bundle=None,
+        profile=ValidationProfile.strict(),
+        run_id="R_equity_vuln_boundary",
+    )
+    issues = EquityPass().validate(ctx)
+    vuln_issues = [i for i in issues if i.code == "EQUITY_VULNERABLE_DISPROPORTIONATE"]
+    assert len(vuln_issues) == 0
+
+
+def test_equity_pass_invalid_dict_report_returns_empty() -> None:
+    """Invalid dict for distributional_report should be silently skipped."""
+    ctx = PassContext(
+        ir=None,
+        state={"distributional_report": {"invalid": True}},
+        registry_bundle=None,
+        profile=ValidationProfile.strict(),
+        run_id="R_equity_bad_dict",
+    )
+    issues = EquityPass().validate(ctx)
+    assert issues == []

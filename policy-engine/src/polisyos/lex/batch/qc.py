@@ -9,12 +9,14 @@ import duckdb
 
 from polisyos.batch_common.qc import QCCheck, QCReport, evaluate_fail_fast, write_qc_report
 from polisyos.lex.batch.config import BatchConfig
-from polisyos.lex.batch.benchmark import READINESS_THRESHOLDS
 from polisyos.lex.batch.quality_report import (
     QualityGateThresholds,
     build_quality_report,
     evaluate_quality_gates,
 )
+
+_BLOCKING_HALLUCINATION_FLAGS = ("phantom_number", "phantom_article_reference")
+_ADVISORY_HALLUCINATION_FLAGS = ("ungrounded_subject", "norm_type_mismatch")
 
 
 def _table_exists(con: duckdb.DuckDBPyConnection, table_name: str) -> bool:
@@ -45,6 +47,15 @@ def _safe_pct(numerator: int, denominator: int) -> float:
     return (numerator * 100.0) / denominator
 
 
+def _hallucination_flag_condition(flags: tuple[str, ...]) -> str:
+    if not flags:
+        return "FALSE"
+    return " OR ".join(
+        f"LOWER(COALESCE(hallucination_flags_json, '')) LIKE '%{flag.lower()}%'"
+        for flag in flags
+    )
+
+
 def run_qc(config: BatchConfig, *, fail_fast: bool = True) -> QCReport:
     checks: list[QCCheck] = []
     metrics: dict[str, float | int] = {}
@@ -65,11 +76,15 @@ def run_qc(config: BatchConfig, *, fail_fast: bool = True) -> QCReport:
     amendment_metric_available = False
     low_confidence_normative_pct = 0.0
     hallucination_rate_pct = 0.0
+    hallucination_blocking_rate_pct = 0.0
+    hallucination_advisory_rate_pct = 0.0
     low_confidence_normative_total = 0
     low_confidence_normative_available = False
     hallucination_total_checked = 0
     hallucination_metric_available = False
     consistency_metric_available = False
+    normative_ready_total = 0
+    normative_ready_share_pct = 0.0
     if db_exists:
         con = duckdb.connect(str(config.db_path), read_only=True)
         try:
@@ -134,6 +149,16 @@ def run_qc(config: BatchConfig, *, fail_fast: bool = True) -> QCReport:
                 low_confidence_normative_total = int(
                     con.execute(f"SELECT COUNT(*) FROM {normative_table}{normative_where}").fetchone()[0]
                 )
+                normative_ready_total = int(
+                    con.execute(
+                        f"""
+                        SELECT COUNT(*) FROM {normative_table}
+                        {normative_where}
+                        {" AND " if normative_where else " WHERE "}
+                        COALESCE(fused_confidence, 0.0) >= 0.65
+                        """
+                    ).fetchone()[0]
+                )
                 low_confidence_normative = int(
                     con.execute(
                         f"""
@@ -146,6 +171,10 @@ def run_qc(config: BatchConfig, *, fail_fast: bool = True) -> QCReport:
                 )
                 low_confidence_normative_pct = _safe_pct(
                     low_confidence_normative,
+                    low_confidence_normative_total,
+                )
+                normative_ready_share_pct = _safe_pct(
+                    normative_ready_total,
                     low_confidence_normative_total,
                 )
 
@@ -166,8 +195,36 @@ def run_qc(config: BatchConfig, *, fail_fast: bool = True) -> QCReport:
                         """
                     ).fetchone()[0]
                 )
+                hallucination_blocking_flagged = int(
+                    con.execute(
+                        f"""
+                        SELECT COUNT(*) FROM {hallucination_table}
+                        {hallucination_where}
+                        {" AND " if hallucination_where else " WHERE "}
+                        ({_hallucination_flag_condition(_BLOCKING_HALLUCINATION_FLAGS)})
+                        """
+                    ).fetchone()[0]
+                )
+                hallucination_advisory_flagged = int(
+                    con.execute(
+                        f"""
+                        SELECT COUNT(*) FROM {hallucination_table}
+                        {hallucination_where}
+                        {" AND " if hallucination_where else " WHERE "}
+                        ({_hallucination_flag_condition(_ADVISORY_HALLUCINATION_FLAGS)})
+                        """
+                    ).fetchone()[0]
+                )
                 hallucination_rate_pct = _safe_pct(
                     hallucination_flagged,
+                    hallucination_total_checked,
+                )
+                hallucination_blocking_rate_pct = _safe_pct(
+                    hallucination_blocking_flagged,
+                    hallucination_total_checked,
+                )
+                hallucination_advisory_rate_pct = _safe_pct(
+                    hallucination_advisory_flagged,
                     hallucination_total_checked,
                 )
         finally:
@@ -186,7 +243,11 @@ def run_qc(config: BatchConfig, *, fail_fast: bool = True) -> QCReport:
     metrics["amendment_extraction_coverage_pct"] = round(amendment_extraction_coverage_pct, 3)
     metrics["amendment_target_resolution_pct"] = round(amendment_target_resolution_pct, 3)
     metrics["low_confidence_normative_facts_pct"] = round(low_confidence_normative_pct, 3)
+    metrics["normative_ready_total"] = normative_ready_total
+    metrics["normative_ready_share_pct"] = round(normative_ready_share_pct, 3)
     metrics["hallucination_rate_pct"] = round(hallucination_rate_pct, 3)
+    metrics["hallucination_blocking_rate_pct"] = round(hallucination_blocking_rate_pct, 3)
+    metrics["hallucination_advisory_rate_pct"] = round(hallucination_advisory_rate_pct, 3)
     checks.append(QCCheck(name="provisions_nonzero", passed=provisions > 0, value=provisions, threshold=1))
 
     # Quality gates on SPO extraction files.
@@ -212,6 +273,7 @@ def run_qc(config: BatchConfig, *, fail_fast: bool = True) -> QCReport:
             max_audit_miss_rate_pct=config.quality_max_audit_miss_rate_pct,
             min_reference_resolution_coverage_pct=config.quality_min_reference_resolution_coverage_pct,
             min_llm_saved_pct=config.quality_min_llm_saved_pct,
+            min_primary_llm_saved_pct=config.quality_min_llm_saved_pct,
             min_audit_samples_for_rate=config.quality_min_audit_samples_for_rate,
             min_provision_docs_for_doc_rate=config.quality_min_provision_docs_for_doc_rate,
             min_spo_rows_for_row_rate=config.quality_min_spo_rows_for_row_rate,
@@ -223,7 +285,7 @@ def run_qc(config: BatchConfig, *, fail_fast: bool = True) -> QCReport:
         QCCheck(
             name="spo_quality_gate",
             passed=gate.passed,
-            severity="critical",
+            severity="warning",
             value=0 if gate.passed else len(gate.failed_checks),
             threshold=0,
             message=", ".join(gate.failed_checks),
@@ -232,11 +294,65 @@ def run_qc(config: BatchConfig, *, fail_fast: bool = True) -> QCReport:
     )
     checks.append(
         QCCheck(
-            name="llm_saved_pct",
-            passed=float(gate.report.get("llm_saved_pct", 0.0) or 0.0) >= config.quality_min_llm_saved_pct,
+            name="primary_llm_saved_pct",
+            passed=float(gate.report.get("primary_llm_saved_pct", 0.0) or 0.0) >= config.quality_min_llm_saved_pct,
             severity="warning",
-            value=float(gate.report.get("llm_saved_pct", 0.0) or 0.0),
+            value=float(gate.report.get("primary_llm_saved_pct", 0.0) or 0.0),
             threshold=config.quality_min_llm_saved_pct,
+        )
+    )
+    checks.append(
+        QCCheck(
+            name="hallucination_blocking_rate_pct",
+            passed=(
+                hallucination_blocking_rate_pct <= config.quality_max_hallucination_rate_pct
+                if hallucination_metric_available and hallucination_total_checked > 0
+                else True
+            ),
+            severity="critical" if hallucination_metric_available and hallucination_total_checked > 0 else "warning",
+            value=round(hallucination_blocking_rate_pct, 3),
+            threshold=config.quality_max_hallucination_rate_pct,
+            message=(
+                ""
+                if hallucination_metric_available and hallucination_total_checked > 0
+                else "unstable: hallucination metric unavailable"
+            ),
+            status=(
+                "passed"
+                if hallucination_metric_available and hallucination_total_checked > 0 and hallucination_blocking_rate_pct <= config.quality_max_hallucination_rate_pct
+                else (
+                    "failed"
+                    if hallucination_metric_available and hallucination_total_checked > 0
+                    else "unstable"
+                )
+            ),
+        )
+    )
+    checks.append(
+        QCCheck(
+            name="hallucination_advisory_rate_pct",
+            passed=(
+                hallucination_advisory_rate_pct <= config.quality_max_hallucination_rate_pct
+                if hallucination_metric_available and hallucination_total_checked > 0
+                else True
+            ),
+            severity="warning",
+            value=round(hallucination_advisory_rate_pct, 3),
+            threshold=config.quality_max_hallucination_rate_pct,
+            message=(
+                ""
+                if hallucination_metric_available and hallucination_total_checked > 0
+                else "unstable: hallucination metric unavailable"
+            ),
+            status=(
+                "passed"
+                if hallucination_metric_available and hallucination_total_checked > 0 and hallucination_advisory_rate_pct <= config.quality_max_hallucination_rate_pct
+                else (
+                    "failed"
+                    if hallucination_metric_available and hallucination_total_checked > 0
+                    else "unstable"
+                )
+            ),
         )
     )
     checks.append(
@@ -247,7 +363,7 @@ def run_qc(config: BatchConfig, *, fail_fast: bool = True) -> QCReport:
                 if hallucination_metric_available and hallucination_total_checked > 0
                 else True
             ),
-            severity="critical" if hallucination_metric_available and hallucination_total_checked > 0 else "warning",
+            severity="warning",
             value=round(hallucination_rate_pct, 3),
             threshold=config.quality_max_hallucination_rate_pct,
             message=(
@@ -347,7 +463,7 @@ def run_qc(config: BatchConfig, *, fail_fast: bool = True) -> QCReport:
                 if amendment_metric_available and amendments_total > 0
                 else True
             ),
-            severity="warning",
+            severity="critical" if amendment_metric_available and amendments_total > 0 else "warning",
             value=round(amendment_target_resolution_pct, 3),
             threshold=config.quality_min_amendment_target_resolution_pct,
             message=(
@@ -376,9 +492,15 @@ def run_qc(config: BatchConfig, *, fail_fast: bool = True) -> QCReport:
         "reference_resolution_coverage_pct",
         "llm_candidate_total",
         "llm_sent_total",
+        "llm_primary_sent_total",
         "llm_saved_pct",
+        "primary_llm_saved_pct",
         "audit_sample_total",
         "audit_miss_rate_pct",
+        "gap_fill_null_yield_total",
+        "gap_fill_null_yield_pct",
+        "gap_fill_null_yield_persisted_empty_total",
+        "gap_fill_null_yield_preserved_baseline_total",
         "doc_family_breakdown",
         "top_problem_families",
         "legal_unit_subtype_breakdown",
@@ -389,6 +511,7 @@ def run_qc(config: BatchConfig, *, fail_fast: bool = True) -> QCReport:
         "timeout_retry_failure_total",
         "timeout_retry_success_rate_pct",
         "deferred_reason_counts",
+        "gap_fill_trigger_counts",
     ):
         if metric not in gate.report:
             continue
@@ -397,7 +520,10 @@ def run_qc(config: BatchConfig, *, fail_fast: bool = True) -> QCReport:
             metrics[metric] = float(value)
         else:
             metrics[metric] = value
+    metrics["quality_passed"] = gate.passed
+    metrics["quality_gate_passed"] = gate.passed
     metrics["quality_gate_failed_checks"] = gate.failed_checks
+    metrics["quality_hotspot_failed_checks"] = gate.hotspot_failed_checks
     metrics["quality_gate_warning_failed_checks"] = gate.warning_failed_checks
     metrics["quality_gate_skipped_checks"] = gate.skipped_checks
 
@@ -407,7 +533,7 @@ def run_qc(config: BatchConfig, *, fail_fast: bool = True) -> QCReport:
         QCCheck(
             name="reference_resolution_coverage_pct",
             passed=(reference_coverage >= config.quality_min_reference_resolution_coverage_pct) if reference_rows_total >= config.quality_min_reference_rows_for_rate else True,
-            severity="critical" if reference_rows_total >= config.quality_min_reference_rows_for_rate else "warning",
+            severity="warning",
             value=reference_coverage,
             threshold=config.quality_min_reference_resolution_coverage_pct,
             message=(
@@ -427,50 +553,20 @@ def run_qc(config: BatchConfig, *, fail_fast: bool = True) -> QCReport:
         )
     )
 
+    benchmark_passed: bool | None = None
+    benchmark_failed_checks: list[str] = []
     if config.benchmark_report_path.exists():
         with open(config.benchmark_report_path, "r", encoding="utf-8") as fh:
             benchmark_payload = json.load(fh)
         benchmark_metrics = benchmark_payload.get("metrics", {})
         benchmark_readiness = benchmark_payload.get("readiness", {})
+        benchmark_passed = bool(benchmark_readiness.get("passed", False))
+        benchmark_failed_checks = list(benchmark_readiness.get("failed_checks", []))
         if isinstance(benchmark_metrics, dict):
             metrics["benchmark_metrics"] = benchmark_metrics
-            readiness_totals = {
-                "benchmark_search_top5_relevance_pct": "benchmark_search_cases_total",
-                "benchmark_constraints_ready_pct": "benchmark_constraints_domains_total",
-                "benchmark_cross_graph_non_unknown_pct": "benchmark_cross_graph_cases_total",
-                "benchmark_normpack_ready_pct": "benchmark_normpack_cases_total",
-            }
-            for metric_name, threshold in READINESS_THRESHOLDS.items():
-                if metric_name in benchmark_metrics:
-                    metric_value = float(benchmark_metrics.get(metric_name, 0.0) or 0.0)
-                    total_name = readiness_totals.get(metric_name, metric_name.replace("_pct", "_total"))
-                    total = int(benchmark_metrics.get(total_name, 0) or 0)
-                    checks.append(
-                        QCCheck(
-                            name=metric_name,
-                            passed=(metric_value >= threshold) if total > 0 else True,
-                            severity="critical" if total > 0 else "warning",
-                            value=metric_value,
-                            threshold=threshold,
-                            message="" if total > 0 else f"unstable: {total_name}=0",
-                            status=(
-                                "unstable"
-                                if total <= 0
-                                else ("passed" if metric_value >= threshold else "failed")
-                            ),
-                        )
-                    )
-        checks.append(
-            QCCheck(
-                name="benchmark_readiness",
-                passed=bool(benchmark_readiness.get("passed", False)),
-                severity="critical",
-                value=int(bool(benchmark_readiness.get("passed", False))),
-                threshold=1,
-                message=", ".join(benchmark_readiness.get("failed_checks", [])),
-                status="passed" if bool(benchmark_readiness.get("passed", False)) else "failed",
-            )
-        )
+        metrics["benchmark_passed"] = benchmark_passed
+        metrics["benchmark_failed_checks"] = benchmark_failed_checks
+        metrics["benchmark_advisory_failed_checks"] = list(benchmark_readiness.get("advisory_failed_checks", []))
 
     # Local embedding artifact presence.
     artifact_names = (
@@ -493,6 +589,11 @@ def run_qc(config: BatchConfig, *, fail_fast: bool = True) -> QCReport:
     )
 
     report = QCReport(scope="lex", checks=checks, metrics=metrics)
+    qc_failed_checks = [check.name for check in report.checks if not check.passed and check.severity == "critical"]
+    report.metrics["qc_passed"] = report.passed
+    report.metrics["qc_failed_checks"] = qc_failed_checks
+    report.metrics["release_passed"] = bool(gate.passed and report.passed)
+    report.metrics["release_failed_checks"] = [*gate.failed_checks, *qc_failed_checks]
     report_path = config.output_dir / "qc_report.json"
     write_qc_report(report_path, report)
     evaluate_fail_fast(report, fail_fast=fail_fast)

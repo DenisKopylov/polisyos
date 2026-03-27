@@ -43,3 +43,31 @@ class NodeTimeoutError(NodeExecutionError):
 
 class RetryExhaustedError(NodeExecutionError):
     """All retries exhausted, last error attached."""
+
+
+class CircuitBreakerOpenError(EngineError):
+    """Raised when a circuit breaker is open and rejects a request."""
+
+    default_stage = "scientist.engine.circuit_breaker"
+    default_category = ErrorCategory.TRANSIENT
+
+
+class WorkflowTimeoutError(EngineError):
+    """Workflow exceeded its overall timeout."""
+
+    default_stage = "scientist.engine.workflow"
+    default_category = ErrorCategory.TRANSIENT
+
+
+class StateMergeConflictError(EngineError):
+    """Two parallel node results modified the same state key."""
+
+    default_stage = "scientist.engine.runner.state_merge"
+    default_category = ErrorCategory.FATAL
+
+
+class DeserializationError(EngineError):
+    """Failed to deserialise state or outcome from bytes."""
+
+    default_stage = "scientist.engine.runner.serialization"
+    default_category = ErrorCategory.FATAL

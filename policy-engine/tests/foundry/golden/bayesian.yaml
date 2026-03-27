@@ -1,0 +1,42 @@
+domain: bayesian
+version: "1.0"
+cases:
+  - id: bayesian_linreg_known_beta
+    method_fqn: "bayesian.regression.linear_regression@1.0.0"
+    description: "Bayesian linear regression on y=2x+1 with noise"
+    skip_reason: "Requires TabularData model — deferred to Phase 10b"
+    input_data: {}
+    expected_output: {}
+    tags: [regression, stochastic]
+
+  - id: bayesian_hierarchical_simple
+    method_fqn: "bayesian.regression.hierarchical@1.0.0"
+    description: "Hierarchical model with 3 groups"
+    skip_reason: "Requires HierarchicalData model — deferred to Phase 10b"
+    input_data: {}
+    expected_output: {}
+    tags: [regression, stochastic]
+
+  - id: gaussian_process_interpolation
+    method_fqn: "bayesian.gp.gaussian_process@1.0.0"
+    description: "GP posterior mean at training points ≈ training values"
+    skip_reason: "Requires TabularData model — deferred to Phase 10b"
+    input_data: {}
+    expected_output: {}
+    tags: [gp, stochastic]
+
+  - id: mean_field_vi_simple
+    method_fqn: "bayesian.variational.mean_field_vi@1.0.0"
+    description: "MFVI on simple Gaussian model"
+    skip_reason: "Requires specific model spec — deferred to Phase 10b"
+    input_data: {}
+    expected_output: {}
+    tags: [variational, stochastic]
+
+  - id: bayesian_timeseries_ar1
+    method_fqn: "bayesian.timeseries.autoregression@1.0.0"
+    description: "Bayesian AR(1) on simple autoregressive data"
+    skip_reason: "Requires TimeSeriesData model — deferred to Phase 10b"
+    input_data: {}
+    expected_output: {}
+    tags: [timeseries, stochastic]

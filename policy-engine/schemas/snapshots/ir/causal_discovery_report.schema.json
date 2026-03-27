@@ -1,5 +1,142 @@
 {
   "$defs": {
+    "AlgebraicConstraintFamily": {
+      "enum": [
+        "ci",
+        "tetrad",
+        "overcomplete"
+      ],
+      "title": "AlgebraicConstraintFamily",
+      "type": "string"
+    },
+    "AlgebraicConstraintReport": {
+      "additionalProperties": false,
+      "properties": {
+        "families_run": {
+          "items": {
+            "$ref": "#/$defs/AlgebraicConstraintFamily"
+          },
+          "title": "Families Run",
+          "type": "array"
+        },
+        "implied_constraints_preview": {
+          "items": {
+            "$ref": "#/$defs/ImpliedConstraintSpec"
+          },
+          "title": "Implied Constraints Preview",
+          "type": "array"
+        },
+        "implied_constraints_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ArtifactRefModel"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "n_implied_constraints": {
+          "default": 0,
+          "minimum": 0,
+          "title": "N Implied Constraints",
+          "type": "integer"
+        },
+        "n_violated_constraints": {
+          "default": 0,
+          "minimum": 0,
+          "title": "N Violated Constraints",
+          "type": "integer"
+        },
+        "severity": {
+          "default": "info",
+          "enum": [
+            "info",
+            "warning",
+            "blocker"
+          ],
+          "title": "Severity",
+          "type": "string"
+        },
+        "suggested_repairs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Suggested Repairs",
+          "type": "array"
+        },
+        "tested_by_family": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Tested By Family",
+          "type": "object"
+        },
+        "violated_by_family": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Violated By Family",
+          "type": "object"
+        },
+        "violated_constraints_preview": {
+          "items": {
+            "$ref": "#/$defs/ConstraintEvaluationResult"
+          },
+          "title": "Violated Constraints Preview",
+          "type": "array"
+        },
+        "violated_constraints_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ArtifactRefModel"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "warnings": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Warnings",
+          "type": "array"
+        }
+      },
+      "title": "AlgebraicConstraintReport",
+      "type": "object"
+    },
+    "ArtifactID": {
+      "description": "IR-local artifact ID model compatible with CAS interfaces.",
+      "title": "ArtifactID",
+      "type": "string"
+    },
+    "ArtifactRefModel": {
+      "additionalProperties": false,
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactID"
+        },
+        "kind": {
+          "title": "Kind",
+          "type": "string"
+        },
+        "media_type": {
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id",
+        "kind",
+        "media_type"
+      ],
+      "title": "ArtifactRefModel",
+      "type": "object"
+    },
     "CausalEdge": {
       "additionalProperties": false,
       "properties": {
@@ -152,7 +289,7 @@
     },
     "CausalGraphModel": {
       "additionalProperties": false,
-      "description": "DAG / CPDAG / PAG causal graph IR contract.",
+      "description": "DAG / CPDAG / PAG / MGRAPH / ADMG causal graph IR contract.",
       "properties": {
         "discovery_method": {
           "default": "",
@@ -223,6 +360,99 @@
       "title": "CausalGraphModel",
       "type": "object"
     },
+    "ConstraintEvaluationResult": {
+      "additionalProperties": false,
+      "properties": {
+        "adjusted_p_value": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Adjusted P Value"
+        },
+        "constraint_id": {
+          "minLength": 1,
+          "title": "Constraint Id",
+          "type": "string"
+        },
+        "family": {
+          "$ref": "#/$defs/AlgebraicConstraintFamily"
+        },
+        "metadata": {
+          "additionalProperties": true,
+          "title": "Metadata",
+          "type": "object"
+        },
+        "p_value": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "P Value"
+        },
+        "severity": {
+          "default": "info",
+          "enum": [
+            "info",
+            "warning",
+            "blocker"
+          ],
+          "title": "Severity",
+          "type": "string"
+        },
+        "statistic": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Statistic"
+        },
+        "status": {
+          "enum": [
+            "passed",
+            "violated",
+            "skipped",
+            "error",
+            "unsupported"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "warnings": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Warnings",
+          "type": "array"
+        }
+      },
+      "required": [
+        "constraint_id",
+        "family",
+        "status"
+      ],
+      "title": "ConstraintEvaluationResult",
+      "type": "object"
+    },
     "EdgeMark": {
       "enum": [
         "tail",
@@ -247,9 +477,208 @@
       "enum": [
         "dag",
         "cpdag",
-        "pag"
+        "pag",
+        "mgraph",
+        "admg"
       ],
       "title": "GraphType",
+      "type": "string"
+    },
+    "ImpliedConstraintSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "conditioning_set": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Conditioning Set",
+          "type": "array"
+        },
+        "constraint_id": {
+          "minLength": 1,
+          "title": "Constraint Id",
+          "type": "string"
+        },
+        "family": {
+          "$ref": "#/$defs/AlgebraicConstraintFamily"
+        },
+        "metadata": {
+          "additionalProperties": true,
+          "title": "Metadata",
+          "type": "object"
+        },
+        "source_block_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Block Id"
+        },
+        "statement": {
+          "minLength": 1,
+          "title": "Statement",
+          "type": "string"
+        },
+        "variables": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Variables",
+          "type": "array"
+        }
+      },
+      "required": [
+        "constraint_id",
+        "family",
+        "statement",
+        "variables"
+      ],
+      "title": "ImpliedConstraintSpec",
+      "type": "object"
+    },
+    "LatentAssumptionCard": {
+      "additionalProperties": false,
+      "properties": {
+        "assumption_id": {
+          "minLength": 1,
+          "title": "Assumption Id",
+          "type": "string"
+        },
+        "description": {
+          "minLength": 1,
+          "title": "Description",
+          "type": "string"
+        },
+        "evidence_basis": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence Basis",
+          "type": "array"
+        },
+        "falsification_hook": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Falsification Hook"
+        },
+        "metadata": {
+          "additionalProperties": true,
+          "title": "Metadata",
+          "type": "object"
+        },
+        "title": {
+          "minLength": 1,
+          "title": "Title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "assumption_id",
+        "title",
+        "description"
+      ],
+      "title": "LatentAssumptionCard",
+      "type": "object"
+    },
+    "LatentDiscoveryBundle": {
+      "additionalProperties": false,
+      "properties": {
+        "assumption_cards": {
+          "items": {
+            "$ref": "#/$defs/LatentAssumptionCard"
+          },
+          "title": "Assumption Cards",
+          "type": "array"
+        },
+        "falsification_tests": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Falsification Tests",
+          "type": "array"
+        },
+        "human_gate_required": {
+          "default": true,
+          "title": "Human Gate Required",
+          "type": "boolean"
+        },
+        "identification_conditions": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Identification Conditions",
+          "type": "array"
+        },
+        "inducing_environments": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Inducing Environments",
+          "type": "array"
+        },
+        "metadata": {
+          "additionalProperties": true,
+          "title": "Metadata",
+          "type": "object"
+        },
+        "no_promotion_reasons": {
+          "items": {
+            "type": "string"
+          },
+          "title": "No Promotion Reasons",
+          "type": "array"
+        },
+        "not_for_decision_support": {
+          "default": true,
+          "title": "Not For Decision Support",
+          "type": "boolean"
+        },
+        "promotion_allowed": {
+          "default": false,
+          "title": "Promotion Allowed",
+          "type": "boolean"
+        },
+        "proposed_latent_nodes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Proposed Latent Nodes",
+          "type": "array"
+        },
+        "readiness_cap": {
+          "const": "proof_only",
+          "default": "proof_only",
+          "title": "Readiness Cap",
+          "type": "string"
+        },
+        "trust_level": {
+          "$ref": "#/$defs/LatentTrustLevel",
+          "default": "research"
+        }
+      },
+      "title": "LatentDiscoveryBundle",
+      "type": "object"
+    },
+    "LatentTrustLevel": {
+      "enum": [
+        "research",
+        "conditional",
+        "validated"
+      ],
+      "title": "LatentTrustLevel",
       "type": "string"
     },
     "PAGIdentificationPolicy": {
@@ -264,6 +693,17 @@
   },
   "additionalProperties": false,
   "properties": {
+    "algebraic_constraints": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/AlgebraicConstraintReport"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
     "bootstrap_stability": {
       "additionalProperties": {
         "type": "number"
@@ -279,6 +719,17 @@
     },
     "graph": {
       "$ref": "#/$defs/CausalGraphModel"
+    },
+    "latent_discovery": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/LatentDiscoveryBundle"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
     },
     "metadata": {
       "additionalProperties": true,

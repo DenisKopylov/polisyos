@@ -11,8 +11,12 @@ from polisyos.foundry.methods.catalog.causal.constraint_discovery import (
     PCDiscovery,
 )
 from polisyos.foundry.methods.catalog.causal.protocols import TabularCausalDiscoveryData
-from polisyos.ir.analytics.causal_discovery import CausalDiscoveryReport
+from polisyos.ir.analytics.causal_discovery import (
+    AlgebraicConstraintFamily,
+    CausalDiscoveryReport,
+)
 from polisyos.ir.analytics.causal_graph import (
+    CausalEdge,
     CausalGraphModel,
     EdgeMark,
     GraphType,
@@ -55,6 +59,67 @@ def _adj_with_xy_edge() -> np.ndarray:
 
 def _adj_without_edges() -> np.ndarray:
     return np.zeros((3, 3), dtype=int)
+
+
+def _complete_adj(n_variables: int) -> np.ndarray:
+    adjacency = np.zeros((n_variables, n_variables), dtype=int)
+    for src in range(n_variables):
+        for dst in range(src + 1, n_variables):
+            adjacency[src, dst] = -1
+            adjacency[dst, src] = 1
+    return adjacency
+
+
+def _one_factor_state(n_samples: int = 800, seed: int = 7) -> TabularCausalDiscoveryData:
+    rng = np.random.default_rng(seed)
+    latent = rng.normal(0.0, 1.0, size=n_samples)
+    noise = rng.normal(0.0, 0.2, size=(n_samples, 4))
+    loadings = np.array([0.9, 0.8, 1.1, 0.7], dtype=float)
+    data = latent[:, None] * loadings[None, :] + noise
+    return TabularCausalDiscoveryData(
+        data=data,
+        variable_names=["X1", "X2", "X3", "X4"],
+    )
+
+
+def _two_factor_state(n_samples: int = 800, seed: int = 11) -> TabularCausalDiscoveryData:
+    rng = np.random.default_rng(seed)
+    latent_a = rng.normal(0.0, 1.0, size=n_samples)
+    latent_b = rng.normal(0.0, 1.0, size=n_samples)
+    noise = rng.normal(0.0, 0.2, size=(n_samples, 4))
+    data = np.column_stack(
+        [
+            0.9 * latent_a + noise[:, 0],
+            0.8 * latent_a + noise[:, 1],
+            1.0 * latent_b + noise[:, 2],
+            0.7 * latent_b + noise[:, 3],
+        ]
+    )
+    return TabularCausalDiscoveryData(
+        data=data,
+        variable_names=["X1", "X2", "X3", "X4"],
+    )
+
+
+def _low_rank_state(n_samples: int = 900, seed: int = 17) -> TabularCausalDiscoveryData:
+    rng = np.random.default_rng(seed)
+    latent = rng.normal(0.0, 1.0, size=n_samples)
+    noise = rng.normal(0.0, 0.15, size=(n_samples, 5))
+    loadings = np.array([1.1, 0.9, 0.8, 1.0, 0.7], dtype=float)
+    data = latent[:, None] * loadings[None, :] + noise
+    return TabularCausalDiscoveryData(
+        data=data,
+        variable_names=["M1", "M2", "M3", "M4", "M5"],
+    )
+
+
+def _full_rank_state(n_samples: int = 900, seed: int = 19) -> TabularCausalDiscoveryData:
+    rng = np.random.default_rng(seed)
+    data = rng.normal(0.0, 1.0, size=(n_samples, 5))
+    return TabularCausalDiscoveryData(
+        data=data,
+        variable_names=["M1", "M2", "M3", "M4", "M5"],
+    )
 
 
 def test_pc_discovery_graceful_fallback_on_missing_backend(monkeypatch) -> None:
@@ -236,6 +301,254 @@ def test_pc_discovery_explicit_jax_ci_backend_is_functional() -> None:
     assert report.metadata["ci_backend_used"] == "jax"
     assert report.metadata["ci_backend_runtime"] == "jax_partial_corr"
     assert report.graph.nodes == ["X", "Y", "Z"]
+
+
+def test_implied_ci_constraints_extract_minimal_dag_separator() -> None:
+    graph = CausalGraphModel(
+        graph_type=GraphType.DAG,
+        nodes=["X", "Z", "Y"],
+        edges=[
+            CausalEdge(src="X", dst="Z"),
+            CausalEdge(src="Z", dst="Y"),
+        ],
+        discovery_method="unit",
+    )
+
+    constraints = constraint_module._implied_ci_constraints(graph)
+
+    assert any(
+        constraint.variables == ("X", "Y") and constraint.conditioning_set == ("Z",)
+        for constraint in constraints
+    )
+
+
+def test_implied_ci_constraints_extract_pag_marginal_separation() -> None:
+    graph = CausalGraphModel(
+        graph_type=GraphType.PAG,
+        nodes=["X", "Y"],
+        edges=[],
+        discovery_method="unit",
+        pag_identification_policy=PAGIdentificationPolicy.CONSERVATIVE,
+    )
+
+    constraints = constraint_module._implied_ci_constraints(graph)
+
+    assert any(
+        frozenset(constraint.variables) == frozenset({"X", "Y"})
+        and constraint.conditioning_set == ()
+        for constraint in constraints
+    )
+
+
+def test_ci_violation_escalates_to_blocker(monkeypatch) -> None:
+    rng = np.random.default_rng(23)
+    x = rng.normal(0.0, 1.0, size=200)
+    y = 0.85 * x + rng.normal(0.0, 0.25, size=200)
+    z = rng.normal(0.0, 1.0, size=200)
+    state = TabularCausalDiscoveryData(
+        data=np.column_stack([x, y, z]),
+        variable_names=["X", "Y", "Z"],
+    )
+
+    def _fake_runner(**kwargs):
+        del kwargs
+        return constraint_module._DiscoveryExecutionResult(
+            adjacency=_adj_without_edges(),
+            metadata={},
+            error=None,
+            timed_out=False,
+        )
+
+    monkeypatch.setattr(constraint_module, "_run_discovery_with_timeout", _fake_runner)
+
+    output = PCDiscovery.pure_step(
+        state,
+        params={"n_bootstrap": 0, "timeout_seconds": 30},
+    )
+    report = output["report"]
+
+    assert report.algebraic_constraints is not None
+    assert report.algebraic_constraints.severity == "blocker"
+    assert report.algebraic_constraints.n_violated_constraints >= 1
+    assert report.metadata["algebraic_constraint_severity"] == "blocker"
+    assert "ci" in report.metadata["algebraic_constraint_families_run"]
+
+
+def test_malformed_algebraic_blocks_are_rejected() -> None:
+    with pytest.raises(ValueError):
+        PCDiscovery.pure_step(
+            _state(),
+            params={
+                "algebraic_blocks": [
+                    {
+                        "block_id": "bad_rank",
+                        "family": "overcomplete",
+                        "variables": ["X", "Y", "Z"],
+                    }
+                ]
+            },
+        )
+
+
+def test_tetrad_block_passes_for_single_factor_data(monkeypatch) -> None:
+    state = _one_factor_state()
+
+    def _fake_runner(**kwargs):
+        del kwargs
+        return constraint_module._DiscoveryExecutionResult(
+            adjacency=_complete_adj(4),
+            metadata={},
+            error=None,
+            timed_out=False,
+        )
+
+    monkeypatch.setattr(constraint_module, "_run_discovery_with_timeout", _fake_runner)
+
+    report = PCDiscovery.pure_step(
+        state,
+        params={
+            "timeout_seconds": 30,
+            "algebraic_blocks": [
+                {
+                    "block_id": "factor_1",
+                    "family": "tetrad",
+                    "variables": ["X1", "X2", "X3", "X4"],
+                }
+            ],
+        },
+    )["report"]
+
+    assert report.algebraic_constraints is not None
+    assert AlgebraicConstraintFamily.TETRAD.value in report.metadata["algebraic_constraint_families_run"]
+    assert report.algebraic_constraints.violated_by_family["tetrad"] == 0
+
+
+def test_tetrad_block_flags_two_factor_violation(monkeypatch) -> None:
+    state = _two_factor_state()
+
+    def _fake_runner(**kwargs):
+        del kwargs
+        return constraint_module._DiscoveryExecutionResult(
+            adjacency=_complete_adj(4),
+            metadata={},
+            error=None,
+            timed_out=False,
+        )
+
+    monkeypatch.setattr(constraint_module, "_run_discovery_with_timeout", _fake_runner)
+
+    report = PCDiscovery.pure_step(
+        state,
+        params={
+            "timeout_seconds": 30,
+            "algebraic_blocks": [
+                {
+                    "block_id": "factor_1",
+                    "family": "tetrad",
+                    "variables": ["X1", "X2", "X3", "X4"],
+                }
+            ],
+        },
+    )["report"]
+
+    assert report.algebraic_constraints is not None
+    assert report.algebraic_constraints.violated_by_family["tetrad"] >= 1
+    assert report.algebraic_constraints.severity == "warning"
+
+
+def test_overcomplete_block_passes_for_low_rank_data(monkeypatch) -> None:
+    state = _low_rank_state()
+
+    def _fake_runner(**kwargs):
+        del kwargs
+        return constraint_module._DiscoveryExecutionResult(
+            adjacency=_complete_adj(5),
+            metadata={},
+            error=None,
+            timed_out=False,
+        )
+
+    monkeypatch.setattr(constraint_module, "_run_discovery_with_timeout", _fake_runner)
+
+    report = PCDiscovery.pure_step(
+        state,
+        params={
+            "timeout_seconds": 30,
+            "algebraic_blocks": [
+                {
+                    "block_id": "rank_1",
+                    "family": "overcomplete",
+                    "variables": ["M1", "M2", "M3", "M4", "M5"],
+                    "expected_rank": 1,
+                    "max_residual_energy": 0.12,
+                }
+            ],
+        },
+    )["report"]
+
+    assert report.algebraic_constraints is not None
+    assert report.algebraic_constraints.violated_by_family["overcomplete"] == 0
+
+
+def test_overcomplete_block_flags_full_rank_violation(monkeypatch) -> None:
+    state = _full_rank_state()
+
+    def _fake_runner(**kwargs):
+        del kwargs
+        return constraint_module._DiscoveryExecutionResult(
+            adjacency=_complete_adj(5),
+            metadata={},
+            error=None,
+            timed_out=False,
+        )
+
+    monkeypatch.setattr(constraint_module, "_run_discovery_with_timeout", _fake_runner)
+
+    report = PCDiscovery.pure_step(
+        state,
+        params={
+            "timeout_seconds": 30,
+            "algebraic_blocks": [
+                {
+                    "block_id": "rank_1",
+                    "family": "overcomplete",
+                    "variables": ["M1", "M2", "M3", "M4", "M5"],
+                    "expected_rank": 1,
+                    "max_residual_energy": 0.05,
+                }
+            ],
+        },
+    )["report"]
+
+    assert report.algebraic_constraints is not None
+    assert report.algebraic_constraints.violated_by_family["overcomplete"] >= 1
+    assert report.algebraic_constraints.severity == "warning"
+
+
+def test_algebraic_audit_failure_degrades_to_warning(monkeypatch) -> None:
+    def _fake_runner(**kwargs):
+        del kwargs
+        return constraint_module._DiscoveryExecutionResult(
+            adjacency=_adj_with_xy_edge(),
+            metadata={},
+            error=None,
+            timed_out=False,
+        )
+
+    monkeypatch.setattr(constraint_module, "_run_discovery_with_timeout", _fake_runner)
+
+    def _boom(**kwargs):
+        del kwargs
+        raise RuntimeError("audit blew up")
+
+    monkeypatch.setattr(constraint_module, "_run_algebraic_constraint_audit", _boom)
+
+    report = PCDiscovery.pure_step(_state(), params={"timeout_seconds": 30})["report"]
+
+    assert any("algebraic_audit_failed" in warning for warning in report.warnings)
+    assert report.graph.edges
+    assert report.algebraic_constraints is not None
+    assert report.algebraic_constraints.severity == "info"
 
 
 @pytest.mark.integration

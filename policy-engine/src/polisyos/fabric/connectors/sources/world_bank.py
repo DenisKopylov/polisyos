@@ -9,6 +9,7 @@ import pandas as pd
 from polisyos.core.canon import streaming_hash
 from polisyos.fabric.connectors.base import (
     ConnectionHandle,
+    DatasetCapabilitySnapshot,
     FetchRequest,
     FetchResult,
     HealthStatus,
@@ -130,7 +131,7 @@ class WorldBankConnector(HTTPConnectorBase[pd.DataFrame]):
         request: FetchRequest,
     ) -> FetchResult[pd.DataFrame]:
         base_url = self._base_url(handle)
-        indicator_id = request.dataset_id
+        indicator_id = self._normalize_indicator_batch(request.dataset_id)
         countries = self._parse_countries(request)
         date_range = self._parse_date_range(request)
         started = time.monotonic()
@@ -148,9 +149,16 @@ class WorldBankConnector(HTTPConnectorBase[pd.DataFrame]):
 
         while page <= pages:
             url = f"{base_url}/country/{countries}/indicator/{indicator_id}"
-            params: dict[str, str] = {"format": "json", "per_page": "1000", "page": str(page)}
+            params: dict[str, str] = {
+                "format": "json",
+                "per_page": str(self._parse_per_page(request)),
+                "page": str(page),
+            }
             if date_range:
                 params["date"] = date_range
+            extra_params = self._parse_additional_params(request)
+            if extra_params:
+                params.update(extra_params)
 
             body, headers, raw = await self._resilient_request_json(
                 handle,
@@ -211,6 +219,26 @@ class WorldBankConnector(HTTPConnectorBase[pd.DataFrame]):
         del handle, dataset_id
         return WDI_GENERIC_SCHEMA.model_dump(mode="python")
 
+    async def describe_dataset(
+        self,
+        handle: ConnectionHandle,
+        dataset_id: str,
+    ) -> DatasetCapabilitySnapshot:
+        del handle
+        normalized = self._normalize_indicator_batch(dataset_id)
+        indicators = [token for token in normalized.split(";") if token]
+        return DatasetCapabilitySnapshot(
+            source=self.namespace,
+            dataset_id=dataset_id,
+            resolved_dataset_id=normalized,
+            preferred_transport="worldbank_v2",
+            dimension_order=("country", "indicator", "date"),
+            allowed_positions={},
+            estimated_cardinality=max(len(indicators), 1),
+            version_hint="v2",
+            last_checked_at=datetime.now(timezone.utc),
+        )
+
     @staticmethod
     def _parse_countries(request: FetchRequest) -> str:
         filters = {key: list(values) for key, values in request.filters}
@@ -218,6 +246,29 @@ class WorldBankConnector(HTTPConnectorBase[pd.DataFrame]):
         if not countries:
             return "all"
         return ";".join(sorted({value for value in countries if value}))
+
+    @staticmethod
+    def _normalize_indicator_batch(dataset_id: str) -> str:
+        indicators = [
+            token.strip()
+            for token in str(dataset_id or "").split(";")
+            if token and token.strip()
+        ]
+        return ";".join(dict.fromkeys(indicators))
+
+    @staticmethod
+    def _parse_per_page(request: FetchRequest) -> int:
+        return max(1, min(int(request.page_size or 1000), 20_000))
+
+    @staticmethod
+    def _parse_additional_params(request: FetchRequest) -> dict[str, str]:
+        filters = {key: list(values) for key, values in request.filters}
+        params: dict[str, str] = {}
+        for key in ("mrv", "mrnev", "frequency"):
+            values = [str(value).strip() for value in filters.get(key, []) if str(value).strip()]
+            if values:
+                params[key] = values[0]
+        return params
 
     @staticmethod
     def _parse_date_range(request: FetchRequest) -> str | None:

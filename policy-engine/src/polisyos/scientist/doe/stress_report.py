@@ -11,6 +11,9 @@ class VulnerabilityType(str, Enum):
     OBJECTIVE_COLLAPSE = "objective_collapse"
     CONVERGENCE_FAILURE = "convergence_failure"
     EXTREME_SENSITIVITY = "extreme_sensitivity"
+    DISTRIBUTIONAL = "distributional"
+    COMBINATORIAL = "combinatorial"
+    TEMPORAL = "temporal"
 
 
 class Vulnerability(BaseModel):

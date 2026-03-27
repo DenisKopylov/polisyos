@@ -570,6 +570,19 @@ def test_deterministic_spo_extracts_core_normative_threshold_fallback() -> None:
     assert "cnc_fallback_threshold_pattern" in result.reason_codes
 
 
+def test_deterministic_spo_skips_cue_less_core_normative_clause() -> None:
+    result = extract_deterministic_spo(
+        text="Головний бухгалтер централізованої бухгалтерії",
+        citation_label="Рядок 5",
+        doc_title="Схема посадових окладів",
+        legal_unit_subtype="core_normative_clause",
+        quality_family="appendix_heavy",
+    )
+
+    assert result.candidates == []
+    assert result.reason_codes == ["no_match"]
+
+
 def test_deterministic_spo_extracts_mandatory_execution_clause_from_law_article() -> None:
     result = extract_deterministic_spo(
         text=(

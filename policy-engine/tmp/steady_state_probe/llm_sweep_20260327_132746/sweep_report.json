@@ -1,0 +1,794 @@
+{
+  "benchmark": "lex_llm_sweep",
+  "created_at": "2026-03-27T13:37:03.581240+00:00",
+  "provisions_dir": "/Users/deniskopylov/polisyos/data/lex_smoke_500docs_llm_20260326/provisions",
+  "duration_minutes": 1.5,
+  "drain_grace_seconds": 20.0,
+  "worker_ramp_seconds": 30.0,
+  "worker_ramp_jitter_seconds": 1.0,
+  "configurations_total": 5,
+  "successful_runs": 5,
+  "failed_runs": [],
+  "ranked_runs": [
+    {
+      "benchmark": "lex_llm_steady_state",
+      "started_at": "2026-03-27T13:33:22.205264+00:00",
+      "ended_at": "2026-03-27T13:35:12.208293+00:00",
+      "provisions_dir": "/Users/deniskopylov/polisyos/data/lex_smoke_500docs_llm_20260326/provisions",
+      "model": "qwen/qwen3-235b-a22b-instruct-2507-fp8",
+      "base_url": "https://api.gonkagate.com/v1",
+      "keys": 5,
+      "parallel": 12,
+      "parallel_global": 12,
+      "batch_size": 5,
+      "rate_limit_rps_per_key": 0.6,
+      "max_retries": 6,
+      "warmup_seconds": 90.0,
+      "warmup_start_scale": 4.0,
+      "adaptive_rate_recovery_factor": 0.97,
+      "adaptive_rate_penalty_multiplier": 1.35,
+      "adaptive_rate_max_scale": 8.0,
+      "worker_ramp_seconds": 30.0,
+      "worker_ramp_jitter_seconds": 1.0,
+      "active_window_seconds": 90.0,
+      "drain_grace_seconds": 20.0,
+      "active_end_epoch_ms": 1774618492205,
+      "cancelled_workers": 12,
+      "sample_items": 240,
+      "sample_subtypes_top10": [
+        [
+          "core_normative_clause",
+          140
+        ],
+        [
+          "registry_catalog_row",
+          36
+        ],
+        [
+          "tariff_threshold_row",
+          30
+        ],
+        [
+          "approval_bundle",
+          11
+        ],
+        [
+          "sanction_clause",
+          9
+        ],
+        [
+          "amendment_bundle",
+          8
+        ],
+        [
+          "form_scaffold",
+          3
+        ],
+        [
+          "exception_clause",
+          2
+        ],
+        [
+          "temporal_clause",
+          1
+        ]
+      ],
+      "sample_text_len_avg": 271.4,
+      "overall": {
+        "requests_total": 2,
+        "success_requests": 2,
+        "failed_requests": 0,
+        "success_items": 10,
+        "status_counts": {
+          "200": 2
+        },
+        "duration_seconds": 42.227,
+        "requests_per_hour": 170.5,
+        "items_per_hour": 852.5,
+        "tokens_total": 4136,
+        "tokens_per_hour": 352608.5,
+        "avg_retry_count": 0.0,
+        "retried_request_pct": 0.0,
+        "avg_wall_ms_success": 29640.3,
+        "avg_provider_rate_scale": 2.712,
+        "avg_shared_rate_scale": 7.76,
+        "five_minute_windows": [
+          {
+            "window_index": 0,
+            "window_start_minute": 0,
+            "requests_total": 2,
+            "success_requests": 2,
+            "failed_requests": 0,
+            "success_items": 10,
+            "tokens_total": 4136,
+            "requests_per_hour": 24.0,
+            "items_per_hour": 120.0,
+            "avg_retry_count": 0.0,
+            "avg_provider_rate_scale": 2.712,
+            "avg_shared_rate_scale": 7.76
+          }
+        ]
+      },
+      "active_window": {
+        "requests_total": 2,
+        "success_requests": 2,
+        "failed_requests": 0,
+        "success_items": 10,
+        "status_counts": {
+          "200": 2
+        },
+        "duration_seconds": 90.0,
+        "requests_per_hour": 80.0,
+        "items_per_hour": 400.0,
+        "tokens_total": 4136,
+        "tokens_per_hour": 165440.0,
+        "avg_retry_count": 0.0,
+        "retried_request_pct": 0.0,
+        "avg_wall_ms_success": 29640.3,
+        "avg_provider_rate_scale": 2.712,
+        "avg_shared_rate_scale": 7.76,
+        "five_minute_windows": [
+          {
+            "window_index": 0,
+            "window_start_minute": 0,
+            "requests_total": 2,
+            "success_requests": 2,
+            "failed_requests": 0,
+            "success_items": 10,
+            "tokens_total": 4136,
+            "requests_per_hour": 24.0,
+            "items_per_hour": 120.0,
+            "avg_retry_count": 0.0,
+            "avg_provider_rate_scale": 2.712,
+            "avg_shared_rate_scale": 7.76
+          }
+        ]
+      },
+      "drain_window": {
+        "requests_total": 0,
+        "success_requests": 0,
+        "failed_requests": 0,
+        "success_items": 0,
+        "status_counts": {},
+        "duration_seconds": 0.0,
+        "requests_per_hour": 0.0,
+        "items_per_hour": 0.0,
+        "tokens_total": 0,
+        "tokens_per_hour": 0.0,
+        "avg_retry_count": 0.0,
+        "retried_request_pct": 0.0,
+        "avg_wall_ms_success": 0.0,
+        "avg_provider_rate_scale": 1.0,
+        "avg_shared_rate_scale": 1.0,
+        "five_minute_windows": []
+      },
+      "log_path": "/Users/deniskopylov/polisyos/policy-engine/tmp/steady_state_probe/lex_llm_steady_state_20260327_133322.jsonl",
+      "summary_path": "/Users/deniskopylov/polisyos/policy-engine/tmp/steady_state_probe/lex_llm_steady_state_20260327_133322.summary.json",
+      "stderr_path": "/Users/deniskopylov/polisyos/policy-engine/tmp/steady_state_probe/llm_sweep_20260327_132746/run_04_stderr.log"
+    },
+    {
+      "benchmark": "lex_llm_steady_state",
+      "started_at": "2026-03-27T13:35:13.423121+00:00",
+      "ended_at": "2026-03-27T13:37:03.425409+00:00",
+      "provisions_dir": "/Users/deniskopylov/polisyos/data/lex_smoke_500docs_llm_20260326/provisions",
+      "model": "qwen/qwen3-235b-a22b-instruct-2507-fp8",
+      "base_url": "https://api.gonkagate.com/v1",
+      "keys": 5,
+      "parallel": 12,
+      "parallel_global": 12,
+      "batch_size": 6,
+      "rate_limit_rps_per_key": 0.6,
+      "max_retries": 6,
+      "warmup_seconds": 90.0,
+      "warmup_start_scale": 4.0,
+      "adaptive_rate_recovery_factor": 0.97,
+      "adaptive_rate_penalty_multiplier": 1.35,
+      "adaptive_rate_max_scale": 8.0,
+      "worker_ramp_seconds": 30.0,
+      "worker_ramp_jitter_seconds": 1.0,
+      "active_window_seconds": 90.0,
+      "drain_grace_seconds": 20.0,
+      "active_end_epoch_ms": 1774618603423,
+      "cancelled_workers": 12,
+      "sample_items": 240,
+      "sample_subtypes_top10": [
+        [
+          "core_normative_clause",
+          140
+        ],
+        [
+          "registry_catalog_row",
+          36
+        ],
+        [
+          "tariff_threshold_row",
+          30
+        ],
+        [
+          "approval_bundle",
+          11
+        ],
+        [
+          "sanction_clause",
+          9
+        ],
+        [
+          "amendment_bundle",
+          8
+        ],
+        [
+          "form_scaffold",
+          3
+        ],
+        [
+          "exception_clause",
+          2
+        ],
+        [
+          "temporal_clause",
+          1
+        ]
+      ],
+      "sample_text_len_avg": 271.4,
+      "overall": {
+        "requests_total": 1,
+        "success_requests": 1,
+        "failed_requests": 0,
+        "success_items": 6,
+        "status_counts": {
+          "200": 1
+        },
+        "duration_seconds": 56.768,
+        "requests_per_hour": 63.4,
+        "items_per_hour": 380.5,
+        "tokens_total": 1838,
+        "tokens_per_hour": 116558.6,
+        "avg_retry_count": 0.0,
+        "retried_request_pct": 0.0,
+        "avg_wall_ms_success": 28321.6,
+        "avg_provider_rate_scale": 2.108,
+        "avg_shared_rate_scale": 7.76,
+        "five_minute_windows": [
+          {
+            "window_index": 0,
+            "window_start_minute": 0,
+            "requests_total": 1,
+            "success_requests": 1,
+            "failed_requests": 0,
+            "success_items": 6,
+            "tokens_total": 1838,
+            "requests_per_hour": 12.0,
+            "items_per_hour": 72.0,
+            "avg_retry_count": 0.0,
+            "avg_provider_rate_scale": 2.108,
+            "avg_shared_rate_scale": 7.76
+          }
+        ]
+      },
+      "active_window": {
+        "requests_total": 1,
+        "success_requests": 1,
+        "failed_requests": 0,
+        "success_items": 6,
+        "status_counts": {
+          "200": 1
+        },
+        "duration_seconds": 90.0,
+        "requests_per_hour": 40.0,
+        "items_per_hour": 240.0,
+        "tokens_total": 1838,
+        "tokens_per_hour": 73520.0,
+        "avg_retry_count": 0.0,
+        "retried_request_pct": 0.0,
+        "avg_wall_ms_success": 28321.6,
+        "avg_provider_rate_scale": 2.108,
+        "avg_shared_rate_scale": 7.76,
+        "five_minute_windows": [
+          {
+            "window_index": 0,
+            "window_start_minute": 0,
+            "requests_total": 1,
+            "success_requests": 1,
+            "failed_requests": 0,
+            "success_items": 6,
+            "tokens_total": 1838,
+            "requests_per_hour": 12.0,
+            "items_per_hour": 72.0,
+            "avg_retry_count": 0.0,
+            "avg_provider_rate_scale": 2.108,
+            "avg_shared_rate_scale": 7.76
+          }
+        ]
+      },
+      "drain_window": {
+        "requests_total": 0,
+        "success_requests": 0,
+        "failed_requests": 0,
+        "success_items": 0,
+        "status_counts": {},
+        "duration_seconds": 0.0,
+        "requests_per_hour": 0.0,
+        "items_per_hour": 0.0,
+        "tokens_total": 0,
+        "tokens_per_hour": 0.0,
+        "avg_retry_count": 0.0,
+        "retried_request_pct": 0.0,
+        "avg_wall_ms_success": 0.0,
+        "avg_provider_rate_scale": 1.0,
+        "avg_shared_rate_scale": 1.0,
+        "five_minute_windows": []
+      },
+      "log_path": "/Users/deniskopylov/polisyos/policy-engine/tmp/steady_state_probe/lex_llm_steady_state_20260327_133513.jsonl",
+      "summary_path": "/Users/deniskopylov/polisyos/policy-engine/tmp/steady_state_probe/lex_llm_steady_state_20260327_133513.summary.json",
+      "stderr_path": "/Users/deniskopylov/polisyos/policy-engine/tmp/steady_state_probe/llm_sweep_20260327_132746/run_05_stderr.log"
+    },
+    {
+      "benchmark": "lex_llm_steady_state",
+      "started_at": "2026-03-27T13:27:48.103629+00:00",
+      "ended_at": "2026-03-27T13:29:38.107577+00:00",
+      "provisions_dir": "/Users/deniskopylov/polisyos/data/lex_smoke_500docs_llm_20260326/provisions",
+      "model": "qwen/qwen3-235b-a22b-instruct-2507-fp8",
+      "base_url": "https://api.gonkagate.com/v1",
+      "keys": 5,
+      "parallel": 12,
+      "parallel_global": 12,
+      "batch_size": 2,
+      "rate_limit_rps_per_key": 0.6,
+      "max_retries": 6,
+      "warmup_seconds": 90.0,
+      "warmup_start_scale": 4.0,
+      "adaptive_rate_recovery_factor": 0.97,
+      "adaptive_rate_penalty_multiplier": 1.35,
+      "adaptive_rate_max_scale": 8.0,
+      "worker_ramp_seconds": 30.0,
+      "worker_ramp_jitter_seconds": 1.0,
+      "active_window_seconds": 90.0,
+      "drain_grace_seconds": 20.0,
+      "active_end_epoch_ms": 1774618158103,
+      "cancelled_workers": 12,
+      "sample_items": 240,
+      "sample_subtypes_top10": [
+        [
+          "core_normative_clause",
+          140
+        ],
+        [
+          "registry_catalog_row",
+          36
+        ],
+        [
+          "tariff_threshold_row",
+          30
+        ],
+        [
+          "approval_bundle",
+          11
+        ],
+        [
+          "sanction_clause",
+          9
+        ],
+        [
+          "amendment_bundle",
+          8
+        ],
+        [
+          "form_scaffold",
+          3
+        ],
+        [
+          "exception_clause",
+          2
+        ],
+        [
+          "temporal_clause",
+          1
+        ]
+      ],
+      "sample_text_len_avg": 271.4,
+      "overall": {
+        "requests_total": 2,
+        "success_requests": 2,
+        "failed_requests": 0,
+        "success_items": 4,
+        "status_counts": {
+          "200": 2
+        },
+        "duration_seconds": 86.61,
+        "requests_per_hour": 83.1,
+        "items_per_hour": 166.3,
+        "tokens_total": 3581,
+        "tokens_per_hour": 148846.6,
+        "avg_retry_count": 2.0,
+        "retried_request_pct": 100.0,
+        "avg_wall_ms_success": 39731.1,
+        "avg_provider_rate_scale": 1.556,
+        "avg_shared_rate_scale": 7.76,
+        "five_minute_windows": [
+          {
+            "window_index": 0,
+            "window_start_minute": 0,
+            "requests_total": 2,
+            "success_requests": 2,
+            "failed_requests": 0,
+            "success_items": 4,
+            "tokens_total": 3581,
+            "requests_per_hour": 24.0,
+            "items_per_hour": 48.0,
+            "avg_retry_count": 2.0,
+            "avg_provider_rate_scale": 1.556,
+            "avg_shared_rate_scale": 7.76
+          }
+        ]
+      },
+      "active_window": {
+        "requests_total": 2,
+        "success_requests": 2,
+        "failed_requests": 0,
+        "success_items": 4,
+        "status_counts": {
+          "200": 2
+        },
+        "duration_seconds": 90.0,
+        "requests_per_hour": 80.0,
+        "items_per_hour": 160.0,
+        "tokens_total": 3581,
+        "tokens_per_hour": 143240.0,
+        "avg_retry_count": 2.0,
+        "retried_request_pct": 100.0,
+        "avg_wall_ms_success": 39731.1,
+        "avg_provider_rate_scale": 1.556,
+        "avg_shared_rate_scale": 7.76,
+        "five_minute_windows": [
+          {
+            "window_index": 0,
+            "window_start_minute": 0,
+            "requests_total": 2,
+            "success_requests": 2,
+            "failed_requests": 0,
+            "success_items": 4,
+            "tokens_total": 3581,
+            "requests_per_hour": 24.0,
+            "items_per_hour": 48.0,
+            "avg_retry_count": 2.0,
+            "avg_provider_rate_scale": 1.556,
+            "avg_shared_rate_scale": 7.76
+          }
+        ]
+      },
+      "drain_window": {
+        "requests_total": 0,
+        "success_requests": 0,
+        "failed_requests": 0,
+        "success_items": 0,
+        "status_counts": {},
+        "duration_seconds": 0.0,
+        "requests_per_hour": 0.0,
+        "items_per_hour": 0.0,
+        "tokens_total": 0,
+        "tokens_per_hour": 0.0,
+        "avg_retry_count": 0.0,
+        "retried_request_pct": 0.0,
+        "avg_wall_ms_success": 0.0,
+        "avg_provider_rate_scale": 1.0,
+        "avg_shared_rate_scale": 1.0,
+        "five_minute_windows": []
+      },
+      "log_path": "/Users/deniskopylov/polisyos/policy-engine/tmp/steady_state_probe/lex_llm_steady_state_20260327_132748.jsonl",
+      "summary_path": "/Users/deniskopylov/polisyos/policy-engine/tmp/steady_state_probe/lex_llm_steady_state_20260327_132748.summary.json",
+      "stderr_path": "/Users/deniskopylov/polisyos/policy-engine/tmp/steady_state_probe/llm_sweep_20260327_132746/run_01_stderr.log"
+    },
+    {
+      "benchmark": "lex_llm_steady_state",
+      "started_at": "2026-03-27T13:31:31.038015+00:00",
+      "ended_at": "2026-03-27T13:33:21.041231+00:00",
+      "provisions_dir": "/Users/deniskopylov/polisyos/data/lex_smoke_500docs_llm_20260326/provisions",
+      "model": "qwen/qwen3-235b-a22b-instruct-2507-fp8",
+      "base_url": "https://api.gonkagate.com/v1",
+      "keys": 5,
+      "parallel": 12,
+      "parallel_global": 12,
+      "batch_size": 4,
+      "rate_limit_rps_per_key": 0.6,
+      "max_retries": 6,
+      "warmup_seconds": 90.0,
+      "warmup_start_scale": 4.0,
+      "adaptive_rate_recovery_factor": 0.97,
+      "adaptive_rate_penalty_multiplier": 1.35,
+      "adaptive_rate_max_scale": 8.0,
+      "worker_ramp_seconds": 30.0,
+      "worker_ramp_jitter_seconds": 1.0,
+      "active_window_seconds": 90.0,
+      "drain_grace_seconds": 20.0,
+      "active_end_epoch_ms": 1774618381038,
+      "cancelled_workers": 12,
+      "sample_items": 240,
+      "sample_subtypes_top10": [
+        [
+          "core_normative_clause",
+          140
+        ],
+        [
+          "registry_catalog_row",
+          36
+        ],
+        [
+          "tariff_threshold_row",
+          30
+        ],
+        [
+          "approval_bundle",
+          11
+        ],
+        [
+          "sanction_clause",
+          9
+        ],
+        [
+          "amendment_bundle",
+          8
+        ],
+        [
+          "form_scaffold",
+          3
+        ],
+        [
+          "exception_clause",
+          2
+        ],
+        [
+          "temporal_clause",
+          1
+        ]
+      ],
+      "sample_text_len_avg": 271.4,
+      "overall": {
+        "requests_total": 1,
+        "success_requests": 1,
+        "failed_requests": 0,
+        "success_items": 4,
+        "status_counts": {
+          "200": 1
+        },
+        "duration_seconds": 84.378,
+        "requests_per_hour": 42.7,
+        "items_per_hour": 170.7,
+        "tokens_total": 721,
+        "tokens_per_hour": 30761.6,
+        "avg_retry_count": 1.0,
+        "retried_request_pct": 100.0,
+        "avg_wall_ms_success": 42900.3,
+        "avg_provider_rate_scale": 1.768,
+        "avg_shared_rate_scale": 7.76,
+        "five_minute_windows": [
+          {
+            "window_index": 0,
+            "window_start_minute": 0,
+            "requests_total": 1,
+            "success_requests": 1,
+            "failed_requests": 0,
+            "success_items": 4,
+            "tokens_total": 721,
+            "requests_per_hour": 12.0,
+            "items_per_hour": 48.0,
+            "avg_retry_count": 1.0,
+            "avg_provider_rate_scale": 1.768,
+            "avg_shared_rate_scale": 7.76
+          }
+        ]
+      },
+      "active_window": {
+        "requests_total": 1,
+        "success_requests": 1,
+        "failed_requests": 0,
+        "success_items": 4,
+        "status_counts": {
+          "200": 1
+        },
+        "duration_seconds": 90.0,
+        "requests_per_hour": 40.0,
+        "items_per_hour": 160.0,
+        "tokens_total": 721,
+        "tokens_per_hour": 28840.0,
+        "avg_retry_count": 1.0,
+        "retried_request_pct": 100.0,
+        "avg_wall_ms_success": 42900.3,
+        "avg_provider_rate_scale": 1.768,
+        "avg_shared_rate_scale": 7.76,
+        "five_minute_windows": [
+          {
+            "window_index": 0,
+            "window_start_minute": 0,
+            "requests_total": 1,
+            "success_requests": 1,
+            "failed_requests": 0,
+            "success_items": 4,
+            "tokens_total": 721,
+            "requests_per_hour": 12.0,
+            "items_per_hour": 48.0,
+            "avg_retry_count": 1.0,
+            "avg_provider_rate_scale": 1.768,
+            "avg_shared_rate_scale": 7.76
+          }
+        ]
+      },
+      "drain_window": {
+        "requests_total": 0,
+        "success_requests": 0,
+        "failed_requests": 0,
+        "success_items": 0,
+        "status_counts": {},
+        "duration_seconds": 0.0,
+        "requests_per_hour": 0.0,
+        "items_per_hour": 0.0,
+        "tokens_total": 0,
+        "tokens_per_hour": 0.0,
+        "avg_retry_count": 0.0,
+        "retried_request_pct": 0.0,
+        "avg_wall_ms_success": 0.0,
+        "avg_provider_rate_scale": 1.0,
+        "avg_shared_rate_scale": 1.0,
+        "five_minute_windows": []
+      },
+      "log_path": "/Users/deniskopylov/polisyos/policy-engine/tmp/steady_state_probe/lex_llm_steady_state_20260327_133131.jsonl",
+      "summary_path": "/Users/deniskopylov/polisyos/policy-engine/tmp/steady_state_probe/lex_llm_steady_state_20260327_133131.summary.json",
+      "stderr_path": "/Users/deniskopylov/polisyos/policy-engine/tmp/steady_state_probe/llm_sweep_20260327_132746/run_03_stderr.log"
+    },
+    {
+      "benchmark": "lex_llm_steady_state",
+      "started_at": "2026-03-27T13:29:39.545055+00:00",
+      "ended_at": "2026-03-27T13:31:29.550369+00:00",
+      "provisions_dir": "/Users/deniskopylov/polisyos/data/lex_smoke_500docs_llm_20260326/provisions",
+      "model": "qwen/qwen3-235b-a22b-instruct-2507-fp8",
+      "base_url": "https://api.gonkagate.com/v1",
+      "keys": 5,
+      "parallel": 12,
+      "parallel_global": 12,
+      "batch_size": 3,
+      "rate_limit_rps_per_key": 0.6,
+      "max_retries": 6,
+      "warmup_seconds": 90.0,
+      "warmup_start_scale": 4.0,
+      "adaptive_rate_recovery_factor": 0.97,
+      "adaptive_rate_penalty_multiplier": 1.35,
+      "adaptive_rate_max_scale": 8.0,
+      "worker_ramp_seconds": 30.0,
+      "worker_ramp_jitter_seconds": 1.0,
+      "active_window_seconds": 90.0,
+      "drain_grace_seconds": 20.0,
+      "active_end_epoch_ms": 1774618269545,
+      "cancelled_workers": 12,
+      "sample_items": 240,
+      "sample_subtypes_top10": [
+        [
+          "core_normative_clause",
+          140
+        ],
+        [
+          "registry_catalog_row",
+          36
+        ],
+        [
+          "tariff_threshold_row",
+          30
+        ],
+        [
+          "approval_bundle",
+          11
+        ],
+        [
+          "sanction_clause",
+          9
+        ],
+        [
+          "amendment_bundle",
+          8
+        ],
+        [
+          "form_scaffold",
+          3
+        ],
+        [
+          "exception_clause",
+          2
+        ],
+        [
+          "temporal_clause",
+          1
+        ]
+      ],
+      "sample_text_len_avg": 271.4,
+      "overall": {
+        "requests_total": 1,
+        "success_requests": 1,
+        "failed_requests": 0,
+        "success_items": 3,
+        "status_counts": {
+          "200": 1
+        },
+        "duration_seconds": 44.487,
+        "requests_per_hour": 80.9,
+        "items_per_hour": 242.8,
+        "tokens_total": 622,
+        "tokens_per_hour": 50333.8,
+        "avg_retry_count": 0.0,
+        "retried_request_pct": 0.0,
+        "avg_wall_ms_success": 17272.2,
+        "avg_provider_rate_scale": 2.517,
+        "avg_shared_rate_scale": 7.76,
+        "five_minute_windows": [
+          {
+            "window_index": 0,
+            "window_start_minute": 0,
+            "requests_total": 1,
+            "success_requests": 1,
+            "failed_requests": 0,
+            "success_items": 3,
+            "tokens_total": 622,
+            "requests_per_hour": 12.0,
+            "items_per_hour": 36.0,
+            "avg_retry_count": 0.0,
+            "avg_provider_rate_scale": 2.517,
+            "avg_shared_rate_scale": 7.76
+          }
+        ]
+      },
+      "active_window": {
+        "requests_total": 1,
+        "success_requests": 1,
+        "failed_requests": 0,
+        "success_items": 3,
+        "status_counts": {
+          "200": 1
+        },
+        "duration_seconds": 90.0,
+        "requests_per_hour": 40.0,
+        "items_per_hour": 120.0,
+        "tokens_total": 622,
+        "tokens_per_hour": 24880.0,
+        "avg_retry_count": 0.0,
+        "retried_request_pct": 0.0,
+        "avg_wall_ms_success": 17272.2,
+        "avg_provider_rate_scale": 2.517,
+        "avg_shared_rate_scale": 7.76,
+        "five_minute_windows": [
+          {
+            "window_index": 0,
+            "window_start_minute": 0,
+            "requests_total": 1,
+            "success_requests": 1,
+            "failed_requests": 0,
+            "success_items": 3,
+            "tokens_total": 622,
+            "requests_per_hour": 12.0,
+            "items_per_hour": 36.0,
+            "avg_retry_count": 0.0,
+            "avg_provider_rate_scale": 2.517,
+            "avg_shared_rate_scale": 7.76
+          }
+        ]
+      },
+      "drain_window": {
+        "requests_total": 0,
+        "success_requests": 0,
+        "failed_requests": 0,
+        "success_items": 0,
+        "status_counts": {},
+        "duration_seconds": 0.0,
+        "requests_per_hour": 0.0,
+        "items_per_hour": 0.0,
+        "tokens_total": 0,
+        "tokens_per_hour": 0.0,
+        "avg_retry_count": 0.0,
+        "retried_request_pct": 0.0,
+        "avg_wall_ms_success": 0.0,
+        "avg_provider_rate_scale": 1.0,
+        "avg_shared_rate_scale": 1.0,
+        "five_minute_windows": []
+      },
+      "log_path": "/Users/deniskopylov/polisyos/policy-engine/tmp/steady_state_probe/lex_llm_steady_state_20260327_132939.jsonl",
+      "summary_path": "/Users/deniskopylov/polisyos/policy-engine/tmp/steady_state_probe/lex_llm_steady_state_20260327_132939.summary.json",
+      "stderr_path": "/Users/deniskopylov/polisyos/policy-engine/tmp/steady_state_probe/llm_sweep_20260327_132746/run_02_stderr.log"
+    }
+  ]
+}

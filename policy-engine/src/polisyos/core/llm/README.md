@@ -1,37 +1,35 @@
-# LLM — traced facade для LLM-вызовов
+# LLM (`polisyos.core.llm`)
 
-`core.llm` дает единый адаптер над LLM-клиентами: протокол клиента, telemetry wrapper, извлечение usage, cost estimation и retry.
+`core.llm` provides the traced LLM facade used across PolicyOS. It wraps client calls with
+telemetry, cost estimation, response parsing, and retry logic so domain packages can stay thin.
 
-## Состав
+## Role in System
 
-```text
-llm/
-├── protocols.py     # LLMClientProtocol (invoke/ainvoke/generate)
-├── traced_client.py # TracedLLMClient (span/metrics/cost/callback)
-├── response.py      # extract_llm_response_data()
-├── cost.py          # estimate_cost* wrappers
-└── retry.py         # retry_async facade -> core.resilience.retry
-```
+- **Depends on:** `core.observability` for metrics/tracing and `core.resilience` for retry behavior.
+- **Used by:** `scientist`, `lex`, and `runtime` when they need model calls.
+- **Boundary function:** keeps provider-specific LLM logic out of domain modules.
 
-## TracedLLMClient
+## Key Concepts
 
-`TracedLLMClient` оборачивает `invoke`, `ainvoke`, `generate` и:
-- создает `CLIENT` span с атрибутами модели/провайдера;
-- считает latency и токены (`prompt/completion/total`);
-- пишет стоимость (`cost_usd`) из ответа или через pricing fallback;
-- записывает метрики через `core.observability.get_metrics()`;
-- опционально вызывает `call_observer` (без влияния на основной execution path).
+- **Client protocol** - `LLMClientProtocol` standardizes `invoke`, `ainvoke`, and `generate`.
+- **Traced client** - `TracedLLMClient` adds spans, token accounting, and callback hooks.
+- **Response extraction** - `extract_llm_response_data()` normalizes usage/response metadata.
+- **Cost estimation** - helper functions estimate pricing from tokens or raw text.
+- **Retry wrapper** - `retry_async` forwards to the shared retry layer.
 
-## Где используется
-
-- `scientist`, `lex`, `runtime` как единый вход для LLM-взаимодействий.
-- `observability` как источник трасс и cost telemetry.
-- `resilience` как общий retry policy.
-
-## Публичный API
+## Public API
 
 - `LLMClientProtocol`
 - `TracedLLMClient`
-- `LLMResponseData`, `extract_llm_response_data`
-- `estimate_cost`, `estimate_cost_from_tokens`, `estimate_cost_from_text`
+- `LLMResponseData`
+- `extract_llm_response_data`
+- `estimate_cost`
+- `estimate_cost_from_tokens`
+- `estimate_cost_from_text`
 - `retry_async`
+
+## Current State
+
+- Last updated: 2026-04-03
+- The package still centers around `protocols.py`, `traced_client.py`, `response.py`, `cost.py`, and `retry.py`.
+- Cost telemetry falls back to shared pricing defaults when provider responses omit pricing data.

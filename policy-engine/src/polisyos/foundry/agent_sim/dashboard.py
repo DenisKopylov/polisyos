@@ -1,3 +1,4 @@
+"""Public agent sim dashboard module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -9,6 +10,7 @@ import jax.numpy as jnp
 
 @dataclass
 class DashboardConfig:
+    """Dashboard config data model."""
     title: str = "PolisyOS Training Dashboard"
     output_path: Path = Path("./dashboard.html")
     refresh_interval: int = 5
@@ -16,6 +18,7 @@ class DashboardConfig:
 
 
 class DashboardGenerator:
+    """Dashboard generator implementation."""
     def __init__(self, config: DashboardConfig | None = None):
         self.config = config or DashboardConfig()
 

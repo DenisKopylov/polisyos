@@ -1,3 +1,4 @@
+"""Public agent sim rewards module API."""
 from __future__ import annotations
 
 import jax
@@ -11,6 +12,7 @@ from polisyos.foundry.agent_sim.state import GlobalState
 
 
 class UtilityFunction:
+    """Utility function public type."""
     @staticmethod
     def crra(consumption: jnp.ndarray, risk_aversion: jnp.ndarray) -> jnp.ndarray:
         gamma = risk_aversion
@@ -49,6 +51,7 @@ def compute_agent_reward(
     utility_type: str = "crra",
     ies: float | jnp.ndarray | None = None,
 ) -> jnp.ndarray:
+    """Compute agent reward helper."""
     agents = next_state.agents
 
     if utility_type == "crra":
@@ -83,6 +86,7 @@ def apply_discounting(
     discount_factors: jnp.ndarray,
     active_mask: jnp.ndarray,
 ) -> jnp.ndarray:
+    """Apply discounting helper."""
     def discount_step(carry, t):
         cumulative = carry
         reward_t = rewards[t]
@@ -107,6 +111,7 @@ def compute_agent_reward_with_credit(
     ies: float | jnp.ndarray | None = None,
     rng_key: jax.Array | None = None,
 ) -> jnp.ndarray:
+    """Compute agent reward with credit helper."""
     individual_rewards = compute_agent_reward(
         state,
         next_state,

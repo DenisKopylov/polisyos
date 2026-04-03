@@ -1,3 +1,4 @@
+"""Public scholar types module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -19,6 +20,7 @@ from polisyos.fabric.docs import DocSourceSpec
 
 @dataclass(frozen=True)
 class AcquireResult:
+    """Acquire result data model."""
     source: SourceSpec
     source_identity: str
     raw_bytes: bytes
@@ -28,6 +30,7 @@ class AcquireResult:
 
 @dataclass(frozen=True)
 class DocPipelineRefs:
+    """Doc pipeline refs public type."""
     doc_source_id: str
     doc_version_id: str
     doc_meta_artifact_id: str
@@ -40,6 +43,7 @@ class DocPipelineRefs:
 
 @dataclass(frozen=True)
 class ClaimsPipelineRefs:
+    """Claims pipeline refs public type."""
     claim_set_artifact_id: str
     normalized_claim_set_artifact_id: str
     claim_ids: list[str] = field(default_factory=list)
@@ -50,6 +54,7 @@ class ClaimsPipelineRefs:
 
 @dataclass(frozen=True)
 class ReconcileRefs:
+    """Reconcile refs public type."""
     conflict_set_ids: list[str] = field(default_factory=list)
     conflict_set_artifact_ids: list[str] = field(default_factory=list)
     winner_by_conflict_set: dict[str, str] = field(default_factory=dict)
@@ -61,6 +66,7 @@ class ReconcileRefs:
 
 
 class KnowledgeBundlePayloadV1(BaseModel):
+    """Knowledge bundle payload V 1 public type."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: Literal["1.0"] = "1.0"
@@ -91,6 +97,7 @@ class KnowledgeBundlePayloadV1(BaseModel):
 
 
 class EnrichmentReportV1(BaseModel):
+    """Enrichment report V 1 public type."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: Literal["1.0"] = "1.0"
@@ -108,6 +115,7 @@ class EnrichmentReportV1(BaseModel):
 
 @dataclass(frozen=True)
 class EnrichResultV1:
+    """Enrich result V 1 public type."""
     knowledge_bundle_ref: KnowledgeBundleRef
     bundle_id: str
     report: EnrichmentReportV1

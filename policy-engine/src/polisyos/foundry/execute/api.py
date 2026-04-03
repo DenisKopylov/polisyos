@@ -1,3 +1,4 @@
+"""Public execute api module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -35,6 +36,8 @@ class _ResolvedStateSource:
 
 
 def execute(store: FileSystemCAS, request: ExecuteRequest) -> ExecuteResult:
+    """Execute a compiled Foundry plan from a resolved state snapshot."""
+
     resolved_state = _resolve_state_snapshot(store, request)
     state_snapshot_ref = resolved_state.state_snapshot_ref
     registry_bundle_ref = request.registry_bundle_ref

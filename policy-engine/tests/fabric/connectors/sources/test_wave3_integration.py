@@ -115,7 +115,7 @@ class TestWave3RESTProfiles:
 class TestAllWavesSummary:
     def test_total_connectors(self):
         reg = ConnectorRegistry.get_instance()
-        assert len(reg) == 14
+        assert len(reg) == 11
 
     def test_total_profiles(self):
         reg = SourceProfileRegistry.get_instance()

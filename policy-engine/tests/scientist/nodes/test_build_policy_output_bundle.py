@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from polisyos.core.artifacts.manifest import SchemaInfo
-from polisyos.core.artifacts.store import PutOptions
-from polisyos.core.canon import from_canonical_bytes
 from decimal import Decimal
 
+from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
+from polisyos.core.artifacts.store import PutOptions
+from polisyos.core.canon import from_canonical_bytes
 from polisyos.ir.governance.policy_spec import InterventionSpec, ParameterSpec, PolicySpec
 from polisyos.ir.governance.problem_frame import (
     ConstraintSpec,
@@ -22,15 +22,30 @@ from polisyos.scientist.nodes.builtins.decide.build_policy_output_bundle import 
     BuildPolicyOutputBundleNode,
 )
 from polisyos.scientist.nodes.builtins.state_keys import (
+    ARTIFACT_CALIBRATION_VALIDATION_BUNDLE_REF,
     ARTIFACT_POLICY_BRIEF_REF,
     ARTIFACT_POLICY_OUTPUT_BUNDLE_REF,
     INPUT_DATA_SNAPSHOT_REF,
     INPUT_REGISTRY_BUNDLE_REF,
     INPUT_TRINITY_BUNDLE_REF,
 )
+from polisyos.scientist.governance.backtest_matrix import BacktestKind, BacktestMatrixResult
+from polisyos.scientist.governance.calibration_leaderboard import (
+    CalibrationLeaderboardEntry,
+    CalibrationLeaderboardMetrics,
+)
+from polisyos.scientist.governance.calibration_validation import (
+    CalibrationValidationBundle,
+    persist_calibration_validation_bundle,
+)
+from polisyos.scientist.governance.stress_scenarios import StressScenarioKind, StressScenarioResult
 from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
-from polisyos.scientist.policy_design.output import load_policy_artifact_bundle
-from polisyos.scientist.policy_design.output import PolicyBrief, load_replayable_audit_bundle
+from polisyos.scientist.policy_design.output import (
+    PolicyBrief,
+    load_champion_policy_dossier,
+    load_policy_artifact_bundle,
+    load_replayable_audit_bundle,
+)
 from polisyos.scientist.policy_design.translator import TranslatorComplianceResult
 from polisyos.scientist.search import (
     ActionableSideInformation,
@@ -288,6 +303,82 @@ def test_build_policy_output_bundle_fails_when_required_inputs_missing(execution
 
     assert outcome.status == "fail"
     assert outcome.error is not None
+
+
+def test_build_policy_output_bundle_embeds_calibration_validation_summary(
+    execution_context,
+    minimal_state,
+    cas_store,
+) -> None:
+    candidate = _candidate()
+    state = minimal_state.model_copy(deep=True)
+    candidate_ref = ArtifactRef(
+        artifact_id="sha256:" + "1" * 64,
+        kind="scientist.test",
+        media_type="application/json",
+    )
+    calibration_validation_ref = persist_calibration_validation_bundle(
+        cas_store,
+        CalibrationValidationBundle(
+            run_id="R_policy_c5b",
+            candidate_ref=candidate_ref,
+            governance_verdict="approve",
+            status="completed",
+            backtest_matrix=BacktestMatrixResult(
+                report_id="BTM_policy",
+                composite_score=0.79,
+                worst_kind=BacktestKind.DISTRESS,
+            ),
+            stress_scenarios=StressScenarioResult(
+                report_id="stress_policy",
+                robustness_score=0.73,
+                worst_scenario=StressScenarioKind.TRADE_DISRUPTION,
+            ),
+            leaderboard_entry=CalibrationLeaderboardEntry(
+                entry_id="leaderboard_policy",
+                run_id="R_policy_c5b",
+                candidate_ref=candidate_ref,
+                metrics=CalibrationLeaderboardMetrics(
+                    calibration_fit_score=0.88,
+                    backtest_matrix_score=0.79,
+                    stress_robustness_score=0.73,
+                    specification_curve_robustness=0.7,
+                    transportability_score=0.81,
+                    interference_fit=0.76,
+                    strategic_response_plausibility=0.82,
+                    governance_verdict="approve",
+                    adversarial_passed=True,
+                    eligible_for_promotion=True,
+                    composite_score=0.8,
+                ),
+                worst_backtest_kind=BacktestKind.DISTRESS,
+                worst_stress_scenario=StressScenarioKind.TRADE_DISRUPTION,
+            ),
+        ),
+    )
+    state.params.update(
+        {
+            "workflow_id": "scientist_policy_design",
+            "policy_mode": True,
+            "policy_candidate_schema": candidate.model_dump(mode="json"),
+            "policy_evaluation": _evaluation_vector(candidate).model_dump(mode="json"),
+            "decision_readiness_contract": _readiness_contract().model_dump(mode="json"),
+            "policy_brief": _policy_brief().model_dump(mode="json"),
+            "translator_compliance": _translator_compliance().model_dump(mode="json"),
+        }
+    )
+    state.artifacts_index[ARTIFACT_CALIBRATION_VALIDATION_BUNDLE_REF] = calibration_validation_ref
+
+    outcome = BuildPolicyOutputBundleNode().execute(execution_context, state)
+
+    assert outcome.status == "ok"
+    bundle = load_policy_artifact_bundle(
+        cas_store,
+        outcome.state.artifacts_index[ARTIFACT_POLICY_OUTPUT_BUNDLE_REF],
+    )
+    dossier = load_champion_policy_dossier(cas_store, bundle.champion_policy_dossier_ref)
+    assert dossier.calibration_validation_summary["composite_score"] == 0.8
+    assert dossier.calibration_validation_summary["worst_backtest_kind"] == "distress"
 
 
 def test_decision_packet_not_mutated_when_policy_bundle_absent(tmp_path) -> None:

@@ -1,3 +1,4 @@
+"""Public cross graph compiler module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -32,6 +33,7 @@ from polisyos.ir.analytics.cross_graph import (
     TransportStatus,
     build_evidence_need_id,
 )
+from polisyos.ir.analytics.literature import LiteratureCausalPrior
 from polisyos.ir.analytics.transportability import TransportMode
 from polisyos.ir.governance.policy_spec import InterventionSpec, ParameterSpec, PolicySpec
 from polisyos.ir.governance.problem_frame import (
@@ -44,10 +46,12 @@ from polisyos.ir.governance.problem_frame import (
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.lex.api import evaluate_transport_constraints
 from polisyos.lex.legal_evaluation.transport_constraints import LegalConstraintSet
+from polisyos.scientist.cross_graph.gatherers.academic import AcademicGatherer
 from polisyos.scientist.evidence_sources import build_path_source_status, update_source_status
 
 
 class CrossGraphEvidenceConfig(BaseModel):
+    """Cross graph evidence config data model."""
     model_config = ConfigDict(extra="forbid")
 
     enabled: bool = True
@@ -112,6 +116,7 @@ class _TransportResult:
 
 
 class CrossGraphEvidenceCompiler:
+    """Cross graph evidence compiler implementation."""
     def __init__(self, config: CrossGraphEvidenceConfig) -> None:
         self.config = config
 
@@ -121,6 +126,8 @@ class CrossGraphEvidenceCompiler:
         *,
         target_context: ContextProfile | None = None,
         causal_graph: CausalGraphModel | None = None,
+        literature_prior: LiteratureCausalPrior | None = None,
+        literature_prior_ref: str | None = None,
     ) -> CrossGraphEvidenceProfile:
         policy_domain = self.config.policy_domain or bundle.problem_frame.domain.value
         jurisdiction = (
@@ -148,6 +155,7 @@ class CrossGraphEvidenceCompiler:
         academic_query, academic_status = _build_academic_query(self.config)
         dataset_registry, dataset_status = _build_dataset_registry(self.config)
         legal_status = _build_legal_source_status(self.config)
+        academic_gatherer = AcademicGatherer()
         legal_adapter = _LegalGraphAdapter(
             config=self.config,
             bundle=bundle,
@@ -176,11 +184,26 @@ class CrossGraphEvidenceCompiler:
                     country_code=self.config.country_code or _country_code(target_context),
                     target_year=target_year,
                 )
-                academic_result = _assess_academic_need(
-                    need,
-                    concepts=resolved_concepts,
-                    academic_query=academic_query,
-                    target_context=target_context,
+                academic_result = _academic_result_from_gatherer(
+                    academic_gatherer.assess(
+                        need,
+                        concepts=resolved_concepts,
+                        context={
+                            "academic_query": academic_query,
+                            "target_context": target_context,
+                            "_assess_academic_need": _assess_academic_need,
+                            "literature_prior": literature_prior,
+                            "literature_prior_ref": literature_prior_ref,
+                            "environment_audit": (
+                                literature_prior.environment_audit
+                                if literature_prior is not None
+                                else None
+                            ),
+                            "environment_audit_summary": _environment_audit_summary(
+                                literature_prior
+                            ),
+                        },
+                    )
                 )
                 transport_result = _compose_transportability_view(
                     need,
@@ -273,7 +296,15 @@ class CrossGraphEvidenceCompiler:
         return CrossGraphEvidenceProfile(
             summary=summary,
             needs=assessments,
-            diagnostics=_dedupe_diagnostics(diagnostics),
+            diagnostics=_dedupe_diagnostics(
+                [
+                    *diagnostics,
+                    *_literature_prior_diagnostics(
+                        literature_prior=literature_prior,
+                        literature_prior_ref=literature_prior_ref,
+                    ),
+                ]
+            ),
             ontology_snapshot=[used_concepts[key] for key in sorted(used_concepts)],
             bridges=_dedupe_bridges(bridges),
             source_refs=CrossGraphSourceRefs(
@@ -285,7 +316,13 @@ class CrossGraphEvidenceCompiler:
             source_statuses=source_statuses,
             benchmark_summary={},
             target_context=target_context,
-            notes=_profile_notes(self.config),
+            notes=[
+                *_profile_notes(self.config),
+                *_literature_prior_notes(
+                    literature_prior=literature_prior,
+                    literature_prior_ref=literature_prior_ref,
+                ),
+            ],
         )
 
 
@@ -299,6 +336,7 @@ def extract_evidence_needs(
     country_code: str | None = None,
     target_year: int | None = None,
 ) -> list[EvidenceNeed]:
+    """Extract evidence needs helper."""
     problem_frame = bundle.problem_frame
     policy_spec = bundle.policy_spec
     resolved_policy_domain = policy_domain or problem_frame.domain.value
@@ -947,6 +985,90 @@ def _assess_academic_need(
         transport_confidence=None,
         transport_reasons=(),
     )
+
+
+def _academic_result_from_gatherer(result: Any) -> _AcademicResult:
+    status_raw = str(getattr(result, "status", EvidenceStatus.INSUFFICIENT.value))
+    try:
+        status = EvidenceStatus(status_raw)
+    except ValueError:
+        status = EvidenceStatus.INSUFFICIENT
+    metadata = dict(getattr(result, "metadata", {}) or {})
+    transport_reasons = tuple(str(item) for item in list(metadata.get("transport_reasons", []) or []))
+    confidence = max(0.0, min(1.0, float(getattr(result, "confidence", 0.0) or 0.0)))
+    return _AcademicResult(
+        status=status,
+        confidence=confidence,
+        requires_expert_review=(
+            status is not EvidenceStatus.SUPPORTED
+            or bool(metadata.get("environment_audit_summary"))
+        ),
+        recommended_actions=(),
+        provenance_refs=tuple(str(item) for item in list(getattr(result, "provenance_refs", []) or [])),
+        diagnostics=tuple(getattr(result, "diagnostics", []) or ()),
+        best_context_distance=None,
+        transport_confidence=confidence,
+        transport_reasons=transport_reasons,
+    )
+
+
+def _environment_audit_summary(
+    literature_prior: LiteratureCausalPrior | None,
+) -> dict[str, Any]:
+    if literature_prior is None or literature_prior.environment_audit is None:
+        return {}
+    audit = literature_prior.environment_audit
+    return {
+        "status": audit.status,
+        "n_environments": audit.n_environments,
+        "ks_passed": audit.ks_passed,
+        "ks_rejected_variables": list(audit.ks_rejected_variables),
+        "icp_run": audit.icp_run,
+        "icp_passed": audit.icp_passed,
+        "variant_features": list(audit.variant_features),
+        "warnings": list(audit.warnings),
+    }
+
+
+def _literature_prior_diagnostics(
+    *,
+    literature_prior: LiteratureCausalPrior | None,
+    literature_prior_ref: str | None,
+) -> list[CrossGraphDiagnostic]:
+    if literature_prior is None:
+        return []
+    details: dict[str, Any] = {
+        "literature_prior_ref": literature_prior_ref,
+        "build_status": literature_prior.metadata.get("build_status"),
+        "edge_count": len(literature_prior.edges),
+    }
+    environment_summary = _environment_audit_summary(literature_prior)
+    if environment_summary:
+        details["environment_audit_summary"] = environment_summary
+    return [
+        CrossGraphDiagnostic(
+            code="cross_graph.academic.literature_prior_context",
+            message="Cross-graph compiler incorporated literature prior and environment audit context.",
+            details=details,
+        )
+    ]
+
+
+def _literature_prior_notes(
+    *,
+    literature_prior: LiteratureCausalPrior | None,
+    literature_prior_ref: str | None,
+) -> list[str]:
+    if literature_prior is None:
+        return []
+    notes = ["literature_prior_context_attached"]
+    if literature_prior_ref:
+        notes.append(f"literature_prior_ref:{literature_prior_ref}")
+    if literature_prior.environment_audit is not None:
+        notes.append(
+            f"environment_audit_status:{literature_prior.environment_audit.status}"
+        )
+    return notes
 
 
 def _compose_transportability_view(
@@ -1712,6 +1834,7 @@ def build_fragment_alignment_ontology_warnings(
     certificates: list[Any] | tuple[Any, ...],
     ontology: list[CanonicalConcept],
 ) -> list[str]:
+    """Build fragment alignment ontology warnings."""
     normalized_ontology: list[CanonicalConcept] = []
     for concept in ontology:
         if isinstance(concept, CanonicalConcept):

@@ -1,3 +1,4 @@
+"""Public backends lex norm regex v 1 module API."""
 from __future__ import annotations
 
 import re
@@ -62,6 +63,7 @@ def extract(
     normalized_text: str,
     options: ClaimExtractOptions,
 ) -> list[ClaimCandidate]:
+    """Extract helper."""
     del meta
 
     chunk_text = normalized_text[ctx.offset_start : ctx.offset_end]

@@ -1,3 +1,4 @@
+"""Public agent sim distributions module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -14,6 +15,7 @@ if TYPE_CHECKING:
 
 
 class ComputeMode(str, Enum):
+    """Compute mode public type."""
     HARD = "hard"
     SOFT = "soft"
     CACHED = "cached"
@@ -21,6 +23,7 @@ class ComputeMode(str, Enum):
 
 @chex.dataclass(frozen=True)
 class DistributionConfig:
+    """Distribution config data model."""
     mode: ComputeMode = ComputeMode.HARD
     update_frequency: int = 8
     soft_temperature: float = 1.0
@@ -31,6 +34,7 @@ class DistributionConfig:
 
 @chex.dataclass(frozen=True)
 class DistributionState:
+    """Distribution state data model."""
     last_update_step: Int[Array, ""]
     wealth_quantiles: Float[Array, "n_quantiles"]
     income_quantiles: Float[Array, "n_quantiles"]
@@ -62,6 +66,7 @@ class DistributionState:
 
 @chex.dataclass(frozen=True)
 class CompactDistributionState:
+    """Compact distribution state data model."""
     wealth_deciles: Float[Array, "10"]
     income_deciles: Float[Array, "10"]
     gini_wealth: Float[Array, ""]
@@ -73,6 +78,7 @@ class CompactDistributionState:
 
 
 def maybe_update_distributions(state: "GlobalState", config: DistributionConfig) -> "GlobalState":
+    """Maybe update distributions helper."""
     last_step = state.distributions.last_update_step
     needs_update = (last_step < 0) | (
         (state.time_step - last_step) >= config.update_frequency
@@ -94,6 +100,7 @@ def compute_all_distributions(
     state: "GlobalState",
     config: DistributionConfig,
 ) -> DistributionState:
+    """Compute all distributions helper."""
     agents = state.agents
     active = agents.active
     mode = ComputeMode.HARD if config.mode == ComputeMode.CACHED else config.mode
@@ -196,6 +203,7 @@ def compute_quantiles(
     rng_key: chex.PRNGKey | None = None,
     sample_size: int = 1000,
 ) -> jnp.ndarray:
+    """Compute quantiles helper."""
     if mode == ComputeMode.SOFT:
         return compute_quantiles_soft(values, active, n_quantiles, temperature=temperature)
     if use_approximate and rng_key is not None:
@@ -216,6 +224,7 @@ def compute_ranks(
     mode: ComputeMode = ComputeMode.HARD,
     temperature: float = 1.0,
 ) -> jnp.ndarray:
+    """Compute ranks helper."""
     if mode == ComputeMode.SOFT:
         return compute_ranks_soft(values, active, temperature=temperature)
     return compute_ranks_hard(values, active)
@@ -226,6 +235,7 @@ def compute_quantiles_hard(
     active: jnp.ndarray,
     n_quantiles: int,
 ) -> jnp.ndarray:
+    """Compute quantiles hard helper."""
     n_agents = values.shape[0]
     n_active = jnp.sum(active).astype(jnp.int32)
 
@@ -246,6 +256,7 @@ def compute_quantiles_hard(
 
 
 def compute_ranks_hard(values: jnp.ndarray, active: jnp.ndarray) -> jnp.ndarray:
+    """Compute ranks hard helper."""
     n_active = jnp.sum(active).astype(jnp.float32)
     safe_n = jnp.maximum(n_active - 1.0, 1.0)
     masked_values = jnp.where(active, values, jnp.inf)
@@ -257,6 +268,7 @@ def compute_ranks_hard(values: jnp.ndarray, active: jnp.ndarray) -> jnp.ndarray:
 
 
 def soft_sort(values: jnp.ndarray, *, temperature: float = 1.0, n_iters: int = 10) -> jnp.ndarray:
+    """Soft sort helper."""
     target = jnp.sort(values)
     cost = (values[:, None] - target[None, :]) ** 2
     log_p = -cost / temperature
@@ -272,6 +284,7 @@ def soft_sort(values: jnp.ndarray, *, temperature: float = 1.0, n_iters: int = 1
 
 
 def soft_rank(values: jnp.ndarray, *, temperature: float = 1.0) -> jnp.ndarray:
+    """Soft rank helper."""
     diff = values[:, None] - values[None, :]
     soft_comp = jax.nn.sigmoid(diff / temperature)
     ranks = jnp.sum(soft_comp, axis=1) - 0.5
@@ -285,6 +298,7 @@ def compute_quantiles_soft(
     *,
     temperature: float = 1.0,
 ) -> jnp.ndarray:
+    """Compute quantiles soft helper."""
     n_agents = values.shape[0]
     n_active = jnp.sum(active).astype(jnp.int32)
 
@@ -313,6 +327,7 @@ def compute_ranks_soft(
     *,
     temperature: float = 1.0,
 ) -> jnp.ndarray:
+    """Compute ranks soft helper."""
     masked_values = jnp.where(active, values, -1e6)
     ranks = soft_rank(masked_values, temperature=temperature)
     return jnp.where(active, ranks, 0.0)
@@ -326,6 +341,7 @@ def compute_quantiles_approximate(
     rng_key: chex.PRNGKey,
     sample_size: int = 1000,
 ) -> jnp.ndarray:
+    """Compute quantiles approximate helper."""
     n_active = jnp.sum(active)
     sample_size = min(int(sample_size), values.shape[0])
 
@@ -358,12 +374,14 @@ def compute_gini(
     mode: ComputeMode = ComputeMode.HARD,
     temperature: float = 1.0,
 ) -> jnp.ndarray:
+    """Compute gini helper."""
     if mode == ComputeMode.SOFT:
         return compute_gini_soft(values, active, temperature=temperature)
     return compute_gini_hard(values, active)
 
 
 def compute_gini_hard(values: jnp.ndarray, active: jnp.ndarray) -> jnp.ndarray:
+    """Compute gini hard helper."""
     n_agents = values.shape[0]
     n_active = jnp.sum(active).astype(jnp.int32)
 
@@ -393,6 +411,7 @@ def compute_gini_soft(
     *,
     temperature: float = 1.0,
 ) -> jnp.ndarray:
+    """Compute gini soft helper."""
     n_active = jnp.sum(active).astype(jnp.float32)
     ranks = compute_ranks_soft(values, active, temperature=temperature)
     masked_values = jnp.where(active, values, 0.0)
@@ -403,6 +422,7 @@ def compute_gini_soft(
 
 
 def compute_gini_proxy(values: jnp.ndarray, active: jnp.ndarray) -> jnp.ndarray:
+    """Compute gini proxy helper."""
     n_active = jnp.sum(active).astype(jnp.float32)
     masked = jnp.where(active, values, 0.0)
     mean_value = jnp.sum(masked) / jnp.maximum(n_active, 1.0)
@@ -417,6 +437,7 @@ def compute_top_share(
     *,
     ranks: jnp.ndarray | None = None,
 ) -> jnp.ndarray:
+    """Compute top share helper."""
     total = jnp.sum(values * active)
     if ranks is not None:
         threshold = 1.0 - float(top_fraction)
@@ -450,6 +471,7 @@ def compute_bottom_share(
     *,
     ranks: jnp.ndarray | None = None,
 ) -> jnp.ndarray:
+    """Compute bottom share helper."""
     total = jnp.sum(values * active)
     if ranks is not None:
         threshold = float(bottom_fraction)
@@ -477,12 +499,14 @@ def compute_bottom_share(
 
 
 def compute_palma_ratio(values: jnp.ndarray, active: jnp.ndarray) -> jnp.ndarray:
+    """Compute palma ratio helper."""
     top_10 = compute_top_share(values, active, 0.10)
     bottom_40 = compute_bottom_share(values, active, 0.40)
     return top_10 / (bottom_40 + 1e-8)
 
 
 def compute_percentile_ratios(values: jnp.ndarray, active: jnp.ndarray) -> dict[str, jnp.ndarray]:
+    """Compute percentile ratios helper."""
     quantiles = compute_quantiles_hard(values, active, 100)
     return {
         "p90_p10": quantiles[89] / (quantiles[9] + 1e-8),
@@ -496,6 +520,7 @@ def compute_rank_correlation(
     values_t_plus_k: jnp.ndarray,
     active: jnp.ndarray,
 ) -> jnp.ndarray:
+    """Compute rank correlation helper."""
     ranks_t = compute_ranks_hard(values_t, active)
     ranks_k = compute_ranks_hard(values_t_plus_k, active)
     n_active = jnp.sum(active).astype(jnp.float32)
@@ -515,6 +540,7 @@ def compute_transition_matrix(
     *,
     n_bins: int = 5,
 ) -> jnp.ndarray:
+    """Compute transition matrix helper."""
     ranks_t = compute_ranks_hard(values_t, active)
     ranks_k = compute_ranks_hard(values_t_plus_k, active)
     bins_t = jnp.clip(jnp.floor(ranks_t * n_bins), 0, n_bins - 1).astype(jnp.int32)
@@ -528,6 +554,7 @@ def compute_transition_matrix(
 
 
 class AgentGrouping:
+    """Agent grouping public type."""
     @staticmethod
     def by_quantile(values: jnp.ndarray, active: jnp.ndarray, n_groups: int) -> jnp.ndarray:
         ranks = compute_ranks_hard(values, active)
@@ -569,6 +596,7 @@ def compute_group_statistics(
     active: jnp.ndarray,
     n_groups: int,
 ) -> dict[str, jnp.ndarray]:
+    """Compute group statistics helper."""
     group_ids = jnp.arange(n_groups)
 
     def _stats_for_group(gid):
@@ -591,6 +619,7 @@ def compute_group_statistics(
 
 
 def batch_compute_group_means(values: jnp.ndarray, groups: jnp.ndarray, n_groups: int) -> jnp.ndarray:
+    """Batch compute group means helper."""
     group_onehot = jax.nn.one_hot(groups, n_groups)
     group_sums = jnp.sum(values[:, None] * group_onehot, axis=0)
     group_counts = jnp.sum(group_onehot, axis=0)
@@ -602,6 +631,7 @@ def batch_assign_to_quantile_groups(
     quantiles: jnp.ndarray,
     active: jnp.ndarray,
 ) -> jnp.ndarray:
+    """Batch assign to quantile groups helper."""
     above = values[:, None] >= quantiles[None, :]
     groups = jnp.sum(above, axis=1).astype(jnp.int32)
     groups = jnp.clip(groups, 0, quantiles.shape[0])
@@ -614,6 +644,7 @@ def compress_distribution_state(
     wealth_values: jnp.ndarray | None = None,
     wealth_active: jnp.ndarray | None = None,
 ) -> CompactDistributionState:
+    """Compress distribution state helper."""
     top_1 = full_state.top_10_share
     if wealth_values is not None and wealth_active is not None:
         top_1 = compute_top_share(wealth_values, wealth_active, 0.01)
@@ -631,6 +662,7 @@ def compress_distribution_state(
 
 @dataclass
 class RewardConfig:
+    """Reward config data model."""
     reward_mobility: bool = False
     penalize_inequality: bool = False
     mobility_weight: float = 0.1
@@ -642,6 +674,7 @@ def compute_distribution_aware_reward(
     next_state: "GlobalState",
     config: RewardConfig,
 ) -> jnp.ndarray:
+    """Compute distribution aware reward helper."""
     from polisyos.foundry.agent_sim.rewards import UtilityFunction
 
     agents = next_state.agents
@@ -660,6 +693,7 @@ def compute_distribution_aware_reward(
 
 
 class AdaptiveUpdateStrategy:
+    """Adaptive update strategy data model."""
     def __init__(
         self,
         base_frequency: int = 8,
@@ -690,6 +724,7 @@ class AdaptiveUpdateStrategy:
 
 
 def create_distribution_update_schedule(total_steps: int, *, strategy: str = "fixed") -> list[int]:
+    """Create distribution update schedule."""
     if strategy == "fixed":
         return list(range(0, total_steps, 8))
     if strategy == "logarithmic":

@@ -1,3 +1,4 @@
+"""Public policy registry boot module API."""
 from __future__ import annotations
 
 from typing import Sequence
@@ -23,6 +24,7 @@ from .welfare import (
 
 
 def register_policy_methods() -> Sequence[type]:
+    """Register policy methods."""
     return (
         CostBenefitAnalysisEstimator,
         CostEffectivenessEstimator,

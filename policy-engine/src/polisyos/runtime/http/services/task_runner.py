@@ -16,6 +16,7 @@ TaskState = Literal["pending", "running", "completed", "failed"]
 
 @dataclass
 class TaskRecord:
+    """Task record data model."""
     task_id: str
     run_id: str
     state: TaskState = "pending"

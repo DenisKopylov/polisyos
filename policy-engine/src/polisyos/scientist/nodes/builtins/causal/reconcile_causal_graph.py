@@ -1,3 +1,4 @@
+"""Public causal reconcile causal graph module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -422,6 +423,13 @@ def _apply_query_preservation_hook(
 
 @dataclass(frozen=True)
 class ReconcileCausalGraphNode:
+    """Merge data, literature, and fragment evidence into a reconciled graph.
+
+    The node assembles all available graph sources, runs reconciliation and
+    alignment checks, then persists the reconciled graph plus diagnostics used
+    by causal readiness, transportability, and governance passes.
+    """
+
     @property
     def spec(self) -> NodeSpec:
         return _SPEC
@@ -537,14 +545,18 @@ class ReconcileCausalGraphNode:
                     ),
                 )
 
+            certificate = result["composition_certificate"]
             artifacts = []
             graph_ref = None
             composed_graph = result.get("composed_graph")
-            if composed_graph is not None:
+            # Only persist the composed graph when the certificate is not "broken".
+            # A broken certificate means alignment is incompatible or the composition has
+            # unresolvable structural/alignment errors — the graph output is suppressed so
+            # downstream nodes cannot accidentally use an invalid composition.
+            if composed_graph is not None and certificate.status != "broken":
                 graph_ref = persist_causal_graph_model(ctx.store, composed_graph)
                 artifacts.append(graph_ref)
 
-            certificate = result["composition_certificate"]
             if graph_ref is not None:
                 certificate = certificate.model_copy(
                     update={"composed_graph_ref": str(graph_ref.artifact_id)}

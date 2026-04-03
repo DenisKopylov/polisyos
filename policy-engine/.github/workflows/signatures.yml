@@ -24,7 +24,7 @@ jobs:
         with:
           python-version: "3.11"
       - name: Install dependencies
-        run: pip install -e ".[dev,test]"
+        run: pip install -e ".[dev,test,causal-discovery]"
       - name: Run signing test suite
         run: |
           pytest \

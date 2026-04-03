@@ -1,3 +1,4 @@
+"""Public simulator report module API."""
 from __future__ import annotations
 
 from enum import Enum
@@ -8,6 +9,8 @@ from polisyos.core.contracts.lex import ComplianceIssue
 
 
 class ComplianceTransition(str, Enum):
+    """How a compliance issue changed after a norm-pack mutation."""
+
     PASS_TO_FAIL = "pass_to_fail"
     FAIL_TO_PASS = "fail_to_pass"
     NEW_ISSUE = "new_issue"
@@ -17,6 +20,8 @@ class ComplianceTransition(str, Enum):
 
 
 class ComplianceDelta(BaseModel):
+    """Transition record for one compliance issue across two policy states."""
+
     model_config = ConfigDict(extra="forbid")
 
     norm_id: str
@@ -28,6 +33,8 @@ class ComplianceDelta(BaseModel):
 
 
 class AffectedKPI(BaseModel):
+    """Heuristic KPI impact summary inferred from changed norms."""
+
     model_config = ConfigDict(extra="forbid")
 
     kpi_id: str
@@ -37,6 +44,8 @@ class AffectedKPI(BaseModel):
 
 
 class NormImpactReport(BaseModel):
+    """Combined norm diff and compliance impact report for what-if analysis."""
+
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = "1.0"
@@ -67,4 +76,3 @@ class NormImpactReport(BaseModel):
     @property
     def has_new_blockers(self) -> bool:
         return self.new_blockers > 0
-

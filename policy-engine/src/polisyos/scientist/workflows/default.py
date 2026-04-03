@@ -1,9 +1,11 @@
+"""Public workflows default module API."""
 from __future__ import annotations
 
 from polisyos.scientist.engine.workflow_spec import NodeInvocation, WorkflowSpec
 
 
 def default_workflow_spec() -> WorkflowSpec:
+    """Default workflow spec helper."""
     return WorkflowSpec(
         workflow_id="scientist_default",
         error_policy="continue",

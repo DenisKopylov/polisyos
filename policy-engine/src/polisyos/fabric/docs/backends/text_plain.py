@@ -1,3 +1,4 @@
+"""Public backends text plain module API."""
 from __future__ import annotations
 
 

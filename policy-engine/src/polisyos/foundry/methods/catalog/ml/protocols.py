@@ -1,3 +1,4 @@
+"""Public ml protocols module API."""
 from __future__ import annotations
 
 from typing import Any, ClassVar
@@ -21,6 +22,7 @@ def _to_numpy(value: Any) -> np.ndarray:
 
 
 class TabularData(BaseModel):
+    """Tabular data public type."""
     contract_id: ClassVar[str] = "foundry.ml.tabular_data.v1"
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
 
@@ -65,6 +67,7 @@ class TabularData(BaseModel):
 
 
 class SurvivalData(BaseModel):
+    """Survival data public type."""
     contract_id: ClassVar[str] = "foundry.ml.survival_data.v1"
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
 
@@ -102,6 +105,7 @@ class SurvivalData(BaseModel):
 
 
 class PredictionResult(BaseModel):
+    """Prediction result data model."""
     contract_id: ClassVar[str] = "foundry.ml.prediction_result.v1"
     model_config = ConfigDict(extra="forbid", frozen=True, arbitrary_types_allowed=True)
 
@@ -162,6 +166,7 @@ class PredictionResult(BaseModel):
 
 
 class PredictionIntervalResult(BaseModel):
+    """Prediction interval result data model."""
     contract_id: ClassVar[str] = "foundry.ml.prediction_interval_result.v1"
     model_config = ConfigDict(extra="forbid", frozen=True, arbitrary_types_allowed=True)
 
@@ -186,6 +191,7 @@ class PredictionIntervalResult(BaseModel):
 
 
 class ClusteringResult(BaseModel):
+    """Clustering result data model."""
     contract_id: ClassVar[str] = "foundry.ml.clustering_result.v1"
     model_config = ConfigDict(extra="forbid", frozen=True, arbitrary_types_allowed=True)
 
@@ -210,6 +216,7 @@ class ClusteringResult(BaseModel):
 
 
 class EmbeddingResult(BaseModel):
+    """Embedding result data model."""
     contract_id: ClassVar[str] = "foundry.ml.embedding_result.v1"
     model_config = ConfigDict(extra="forbid", frozen=True, arbitrary_types_allowed=True)
 
@@ -234,6 +241,7 @@ class EmbeddingResult(BaseModel):
 
 
 class SurvivalResult(BaseModel):
+    """Survival result data model."""
     contract_id: ClassVar[str] = "foundry.ml.survival_result.v1"
     model_config = ConfigDict(extra="forbid", frozen=True, arbitrary_types_allowed=True)
 

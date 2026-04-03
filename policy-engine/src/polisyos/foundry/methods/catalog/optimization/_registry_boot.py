@@ -1,3 +1,4 @@
+"""Public optimization registry boot module API."""
 from __future__ import annotations
 
 from typing import Sequence
@@ -18,6 +19,7 @@ from .sequential import (
 
 
 def register_optimization_methods() -> Sequence[type]:
+    """Register optimization methods."""
     return (
         BudgetMILP,
         ResourceLP,

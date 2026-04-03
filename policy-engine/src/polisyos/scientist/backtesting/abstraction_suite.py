@@ -1,3 +1,4 @@
+"""Public backtesting abstraction suite module API."""
 from __future__ import annotations
 
 from collections.abc import Mapping
@@ -30,6 +31,7 @@ def run_abstraction_challenge_suite(
     abstraction_map_ref: ArtifactRef | None,
     abm_alignment_report: ABMAlignmentReport | None,
 ) -> tuple[ChallengeSuiteResult | None, tuple[str, ...]]:
+    """Run abstraction challenge suite."""
     del run_id
 
     preservation_type = _resolve_preservation_type(params, abstraction_certificate)

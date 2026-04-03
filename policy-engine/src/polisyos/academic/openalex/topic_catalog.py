@@ -9,6 +9,7 @@ from pathlib import Path
 
 @dataclass(frozen=True)
 class TopicEntry:
+    """Topic entry data model."""
     topic_id: str
     display_name: str
     description: str

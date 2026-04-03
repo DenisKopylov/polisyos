@@ -1,3 +1,4 @@
+"""Public audit prov json module API."""
 from __future__ import annotations
 
 import re

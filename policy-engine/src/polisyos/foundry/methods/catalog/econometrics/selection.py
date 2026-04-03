@@ -1,3 +1,4 @@
+"""Public econometrics selection module API."""
 from __future__ import annotations
 
 from typing import Any, ClassVar, Mapping
@@ -37,6 +38,7 @@ def _normal_pdf(z: np.ndarray) -> np.ndarray:
     tags={"econometrics", "selection", "heckman", "cross-section"},
 )
 class HeckmanSelectionEstimator:
+    """Heckman selection estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -131,6 +133,7 @@ class HeckmanSelectionEstimator:
     tags={"econometrics", "selection", "tobit", "cross-section"},
 )
 class TobitEstimator:
+    """Tobit estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -205,6 +208,7 @@ class TobitEstimator:
     tags={"econometrics", "selection", "truncated", "cross-section"},
 )
 class TruncatedRegressionEstimator:
+    """Truncated regression estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 

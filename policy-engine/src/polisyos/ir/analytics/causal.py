@@ -1,3 +1,4 @@
+"""Public analytics causal module API."""
 from __future__ import annotations
 
 import math
@@ -25,6 +26,8 @@ from polisyos.ir.refs import (
 
 
 class CausalMethod(str, Enum):
+    """Canonical estimator family used to produce a causal effect report."""
+
     SYNTHETIC_CONTROL = "synthetic_control"
     DIFFERENCE_IN_DIFFERENCES = "difference_in_differences"
     REGRESSION_DISCONTINUITY = "regression_discontinuity"
@@ -53,6 +56,8 @@ class CausalMethod(str, Enum):
 
 
 class EstimationStatus(str, Enum):
+    """Execution status for a causal estimation run."""
+
     SUCCESS = "success"
     INPUT_INVALID = "input_invalid"
     ASSUMPTION_FAILED = "assumption_failed"
@@ -60,6 +65,8 @@ class EstimationStatus(str, Enum):
 
 
 class RefutationTestType(str, Enum):
+    """Supported robustness checks for a causal estimate."""
+
     PLACEBO_TREATMENT = "placebo_treatment"
     RANDOM_COMMON_CAUSE = "random_common_cause"
     DATA_SUBSET = "data_subset"
@@ -68,6 +75,8 @@ class RefutationTestType(str, Enum):
 
 
 class RefutationResult(BaseModel):
+    """Outcome of a single causal refutation or robustness check."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     test_type: RefutationTestType
@@ -80,6 +89,8 @@ class RefutationResult(BaseModel):
 
 
 class PlaceboResult(BaseModel):
+    """Per-unit placebo diagnostic for synthetic-control style methods."""
+
     model_config = ConfigDict(extra="forbid")
 
     unit_id: str | int
@@ -90,6 +101,8 @@ class PlaceboResult(BaseModel):
 
 
 class DiagnosticTest(BaseModel):
+    """Named diagnostic emitted alongside a causal estimate."""
+
     model_config = ConfigDict(extra="forbid")
 
     test_name: str
@@ -120,6 +133,13 @@ class ProofBundle(BaseModel):
 
 
 class CausalEffectReport(BaseModel):
+    """Canonical causal effect artifact emitted by Foundry methods.
+
+    Combines the estimand, point estimate, uncertainty, diagnostics, placebo
+    checks, and transportability context needed by Scientist governance and
+    downstream reporting.
+    """
+
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -263,6 +283,7 @@ def persist_causal_effect_report(
     schema_name: str = "ir.causal_effect_report",
     schema_version: str = "1.0",
 ) -> CausalEffectReportRef:
+    """Persist causal effect report helper."""
     ref = put_json_artifact(
         store,
         report.model_dump(mode="json"),
@@ -279,6 +300,7 @@ def load_causal_effect_report(
     store: ArtifactStore,
     ref: CausalEffectReportRef,
 ) -> CausalEffectReport:
+    """Load causal effect report."""
     payload = get_json_artifact(store, ref.artifact_id)
     return CausalEffectReport.model_validate(payload)
 
@@ -291,6 +313,7 @@ def persist_proof_bundle(
     schema_name: str = "ir.proof_bundle",
     schema_version: str = "1.0",
 ) -> ProofBundleRef:
+    """Persist proof bundle helper."""
     ref = put_json_artifact(
         store,
         bundle.model_dump(mode="json"),
@@ -307,6 +330,7 @@ def load_proof_bundle(
     store: ArtifactStore,
     ref: ProofBundleRef,
 ) -> ProofBundle:
+    """Load proof bundle."""
     payload = get_json_artifact(store, ref.artifact_id)
     return ProofBundle.model_validate(payload)
 
@@ -370,6 +394,7 @@ def persist_data_readiness_report(
     schema_name: str = "ir.data_readiness_report",
     schema_version: str = "1.0",
 ) -> DataReadinessReportRef:
+    """Persist data readiness report helper."""
     ref = put_json_artifact(
         store,
         report.model_dump(mode="json"),
@@ -386,6 +411,7 @@ def load_data_readiness_report(
     store: ArtifactStore,
     ref: DataReadinessReportRef,
 ) -> DataReadinessReport:
+    """Load data readiness report."""
     payload = get_json_artifact(store, ref.artifact_id)
     return DataReadinessReport.model_validate(payload)
 

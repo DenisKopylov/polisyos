@@ -37,6 +37,7 @@ _STRUCTURALLY_EMPTY_SUBTYPES = {
 
 @dataclass(frozen=True)
 class QualityGateThresholds:
+    """Quality gate thresholds public type."""
     max_full_only_docs_pct: float = 30.0
     max_empty_statement_rows_pct: float = 12.0
     max_oov_action_rate_pct: float = 1.0
@@ -55,6 +56,7 @@ class QualityGateThresholds:
 
 @dataclass(frozen=True)
 class QualityGateResult:
+    """Quality gate result data model."""
     passed: bool
     failed_checks: list[str]
     hotspot_failed_checks: list[str]
@@ -647,6 +649,7 @@ def build_quality_report(
             report["doc_family_breakdown"].items(),
             key=lambda item: (
                 float(item[1].get("empty_statement_rows_pct", 0.0) or 0.0),
+                float(item[1].get("primary_clause_miss_rate_pct", 0.0) or 0.0),
                 float(item[1].get("audit_miss_rate_pct", 0.0) or 0.0),
                 float(item[1].get("timeout_fallback_rate_pct", 0.0) or 0.0),
             ),
@@ -670,6 +673,7 @@ def build_quality_report(
             report["legal_unit_subtype_breakdown"].items(),
             key=lambda item: (
                 float(item[1].get("empty_statement_rows_pct", 0.0) or 0.0),
+                float(item[1].get("primary_clause_miss_rate_pct", 0.0) or 0.0),
                 float(item[1].get("audit_miss_rate_pct", 0.0) or 0.0),
                 float(item[1].get("timeout_fallback_rate_pct", 0.0) or 0.0),
             ),
@@ -692,6 +696,7 @@ def build_quality_report(
             key=lambda item: (
                 float(item[1].get("reference_resolution_coverage_pct", 0.0) or 0.0),
                 -float(item[1].get("empty_statement_rows_pct", 0.0) or 0.0),
+                -float(item[1].get("primary_clause_miss_rate_pct", 0.0) or 0.0),
                 -float(item[1].get("audit_miss_rate_pct", 0.0) or 0.0),
             ),
         )
@@ -760,10 +765,12 @@ def evaluate_quality_gates(
 
     audit_sample_total = int(report.get("audit_sample_total", 0) or 0)
     if audit_sample_total >= thresholds.min_audit_samples_for_rate:
+        if float(report.get("primary_clause_miss_rate_pct", 0.0)) > thresholds.max_audit_miss_rate_pct:
+            failed.append("primary_clause_miss_rate_pct")
         if float(report.get("audit_miss_rate_pct", 0.0)) > thresholds.max_audit_miss_rate_pct:
-            failed.append("audit_miss_rate_pct")
+            warning_failed.append("audit_miss_rate_pct")
     else:
-        skipped.append("audit_miss_rate_pct")
+        skipped.extend(["primary_clause_miss_rate_pct", "audit_miss_rate_pct"])
 
     reference_rows_total = int(report.get("reference_rows_total", 0) or 0)
     if reference_rows_total >= thresholds.min_reference_rows_for_rate:
@@ -810,8 +817,8 @@ def evaluate_quality_gates(
                 if family_missing_quote_metric > thresholds.max_missing_quote_rate_pct:
                     hotspot_failed.append(f"family:{family}:missing_quote_rate_pct")
             if int(payload.get("audit_sample_total", 0) or 0) >= family_audit_min:
-                if float(payload.get("audit_miss_rate_pct", 0.0) or 0.0) > thresholds.max_audit_miss_rate_pct:
-                    hotspot_failed.append(f"family:{family}:audit_miss_rate_pct")
+                if float(payload.get("primary_clause_miss_rate_pct", 0.0) or 0.0) > thresholds.max_audit_miss_rate_pct:
+                    hotspot_failed.append(f"family:{family}:primary_clause_miss_rate_pct")
             if int(payload.get("reference_rows_total", 0) or 0) >= max(3, thresholds.min_reference_rows_for_rate // 2):
                 if float(payload.get("reference_resolution_coverage_pct", 0.0) or 0.0) < thresholds.min_reference_resolution_coverage_pct:
                     hotspot_failed.append(f"family:{family}:reference_resolution_coverage_pct")
@@ -842,8 +849,8 @@ def evaluate_quality_gates(
                 if subtype_missing_quote_metric > thresholds.max_missing_quote_rate_pct:
                     hotspot_failed.append(f"subtype:{subtype}:missing_quote_rate_pct")
             if int(payload.get("audit_sample_total", 0) or 0) >= subtype_audit_min:
-                if float(payload.get("audit_miss_rate_pct", 0.0) or 0.0) > thresholds.max_audit_miss_rate_pct:
-                    hotspot_failed.append(f"subtype:{subtype}:audit_miss_rate_pct")
+                if float(payload.get("primary_clause_miss_rate_pct", 0.0) or 0.0) > thresholds.max_audit_miss_rate_pct:
+                    hotspot_failed.append(f"subtype:{subtype}:primary_clause_miss_rate_pct")
             if int(payload.get("reference_rows_total", 0) or 0) >= max(3, thresholds.min_reference_rows_for_rate // 2):
                 if (
                     subtype not in _SEARCH_ONLY_REFERENCE_GATE_EXEMPT_SUBTYPES

@@ -227,6 +227,7 @@ def persist_graph_prior_bundle(
     *,
     inputs: list[InputRef] | None = None,
 ) -> GraphPriorBundleRef:
+    """Persist graph prior bundle helper."""
     ref = store.put_json(
         bundle,
         PutOptions(
@@ -247,6 +248,7 @@ def load_graph_prior_bundle(
     store: FileSystemCAS,
     ref: GraphPriorBundleRef,
 ) -> GraphPriorBundle:
+    """Load graph prior bundle."""
     payload = from_canonical_bytes(store.get_bytes(ref.artifact_id))
     return GraphPriorBundle.model_validate(payload)
 
@@ -257,6 +259,7 @@ def persist_prior_knowledge_bundle(
     *,
     inputs: list[InputRef] | None = None,
 ) -> PriorKnowledgeBundleRef:
+    """Persist prior knowledge bundle helper."""
     ref = store.put_json(
         bundle,
         PutOptions(
@@ -277,6 +280,7 @@ def load_prior_knowledge_bundle(
     store: FileSystemCAS,
     ref: PriorKnowledgeBundleRef,
 ) -> PriorKnowledgeBundle:
+    """Load prior knowledge bundle."""
     payload = from_canonical_bytes(store.get_bytes(ref.artifact_id))
     return PriorKnowledgeBundle.model_validate(payload)
 

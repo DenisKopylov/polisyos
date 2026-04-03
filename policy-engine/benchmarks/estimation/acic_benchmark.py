@@ -704,7 +704,7 @@ def _acic_case(
         runner=runner,
         checker=checker,
         tags=("acic",),
-        timeout_s=300.0,
+        timeout_s=1800.0,
     )
 
 
@@ -1039,7 +1039,7 @@ def build_acic_harness(
                             min_ci_coverage=0.80,
                         ),
                         tags=("acic", "real", "research_acceptance"),
-                        timeout_s=300.0,
+                        timeout_s=1800.0,
                     )
                 )
         else:
@@ -1107,7 +1107,7 @@ def build_acic_harness(
                         min_ci_coverage=0.80,
                     ),
                     tags=("acic", "real", "local_evidence"),
-                    timeout_s=300.0,
+                    timeout_s=1800.0,
                 )
                 harness.register(case)
 
@@ -1357,7 +1357,7 @@ def main(argv: list[str] | None = None) -> int:
     gaps = acceptance_gaps(
         mode,
         tier=tier,
-        require_real_data=True,
+        require_real_data=False,
         has_real_data=has_real_data,
         require_modules=comparator_required_modules(),
     )

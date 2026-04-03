@@ -1,3 +1,4 @@
+"""Public data bind foundry inputs module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass, replace
@@ -59,6 +60,7 @@ _SPEC = NodeSpec(
 
 @dataclass(frozen=True)
 class BindFoundryInputsNode:
+    """Bind foundry inputs node implementation."""
     strict_model_spec_match: bool = True
 
     @property

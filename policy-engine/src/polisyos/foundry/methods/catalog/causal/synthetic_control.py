@@ -1,3 +1,4 @@
+"""Public causal synthetic control module API."""
 from __future__ import annotations
 
 from typing import Any, ClassVar, Mapping
@@ -227,6 +228,7 @@ def _synthetic_control_output(
     tags={"causal", "quasi-experimental", "synthetic-control"},
 )
 class SyntheticControlMethod:
+    """Synthetic control method public type."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
 
     signature: ClassVar[MethodSignature] = MethodSignature(

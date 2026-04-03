@@ -1,3 +1,4 @@
+"""Public sources wvs module API."""
 from __future__ import annotations
 
 import logging
@@ -70,7 +71,22 @@ def _load_wvs_registry_indicators() -> dict[str, str]:
 
 
 class WVSConnector(HTTPConnectorBase[pd.DataFrame]):
-    """Production connector for World Values Survey wave data."""
+    """Connector for World Values Survey wave and time-series data.
+
+    Normalizes WVS wave lookups and temporal matching so survey observations
+    can be joined into Fabric world snapshots.
+
+    Data source:
+        https://www.worldvaluessurvey.org
+    Protocol:
+        REST JSON plus local bulk-file profile support
+    Auth:
+        None
+    Async support:
+        Standard async HTTP execution only
+    Profile:
+        ``wvs_wave7``
+    """
 
     namespace: ClassVar[str] = "wvs"
     short_id: ClassVar[str] = "wave7"

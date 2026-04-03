@@ -1,3 +1,4 @@
+"""Public causal literature prior module API."""
 from __future__ import annotations
 
 from collections.abc import Mapping
@@ -145,6 +146,9 @@ class BuildLiteraturePrior:
             "lineage": "Result metadata carries skg snapshot/version for reproducibility.",
         },
         when_to_use="Incorporate literature-informed causal priors into graph discovery; constrain structure learning with prior knowledge",
+        citations=(
+            "Pearl, J. (2009). Causality: Models, Reasoning, and Inference. Cambridge University Press.",
+        ),
         when_not_to_use="No SKG available and purely data-driven discovery is preferred; variables are entirely novel with no prior literature",
         output_interpretation="Literature prior edges with confidence scores. Higher confidence = stronger prior. Empty prior = no matching literature found.",
     )

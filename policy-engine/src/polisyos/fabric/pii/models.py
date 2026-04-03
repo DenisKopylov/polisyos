@@ -1,3 +1,4 @@
+"""Public pii models module API."""
 from __future__ import annotations
 
 from enum import Enum
@@ -6,6 +7,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 class PIISeverity(str, Enum):
+    """PII severity public type."""
     NONE = "none"
     LOW = "low"
     MEDIUM = "medium"
@@ -14,6 +16,7 @@ class PIISeverity(str, Enum):
 
 
 class PIIEntityType(str, Enum):
+    """PII entity type public type."""
     PERSON = "PERSON"
     EMAIL_ADDRESS = "EMAIL_ADDRESS"
     PHONE_NUMBER = "PHONE_NUMBER"
@@ -49,6 +52,7 @@ PII_SEVERITY_MAP: dict[PIIEntityType, PIISeverity] = {
 
 
 class PIIEntity(BaseModel):
+    """PII entity public type."""
     model_config = ConfigDict(extra="forbid")
 
     entity_type: PIIEntityType
@@ -61,6 +65,7 @@ class PIIEntity(BaseModel):
 
 
 class PIIScanResult(BaseModel):
+    """PII scan result data model."""
     model_config = ConfigDict(extra="forbid")
 
     total_records_scanned: int = Field(0, ge=0)
@@ -84,10 +89,12 @@ _SEVERITY_ORDER: tuple[PIISeverity, ...] = (
 
 
 def max_severity(left: PIISeverity, right: PIISeverity) -> PIISeverity:
+    """Max severity helper."""
     return left if _SEVERITY_ORDER.index(left) >= _SEVERITY_ORDER.index(right) else right
 
 
 def severity_leq(left: str, right: str) -> bool:
+    """Severity leq helper."""
     try:
         left_idx = _SEVERITY_ORDER.index(PIISeverity(left))
     except (ValueError, KeyError):

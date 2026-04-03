@@ -1,3 +1,4 @@
+"""Public causal bounds module API."""
 from __future__ import annotations
 
 import logging
@@ -34,6 +35,7 @@ def _result_slot() -> frozenset[SlotSpec]:
     tags={"causal", "bounds", "manski"},
 )
 class ManskiBoundsEstimator:
+    """Manski bounds estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -116,6 +118,7 @@ class ManskiBoundsEstimator:
     tags={"causal", "bounds", "lee"},
 )
 class LeeBoundsEstimator:
+    """Lee bounds estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 

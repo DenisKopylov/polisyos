@@ -1,3 +1,4 @@
+"""Public analytics causal discovery module API."""
 from __future__ import annotations
 
 from enum import Enum
@@ -17,12 +18,14 @@ _ALGEBRAIC_VIOLATED_CONSTRAINTS_SCHEMA_NAME = "ir.algebraic_violated_constraints
 
 
 class AlgebraicConstraintFamily(str, Enum):
+    """Algebraic constraint family public type."""
     CI = "ci"
     TETRAD = "tetrad"
     OVERCOMPLETE = "overcomplete"
 
 
 class AlgebraicBlockSpec(BaseModel):
+    """Algebraic block spec data model."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     block_id: str = Field(min_length=1)
@@ -68,6 +71,7 @@ class AlgebraicBlockSpec(BaseModel):
 
 
 class ImpliedConstraintSpec(BaseModel):
+    """Implied constraint spec data model."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     constraint_id: str = Field(min_length=1)
@@ -80,6 +84,7 @@ class ImpliedConstraintSpec(BaseModel):
 
 
 class ConstraintEvaluationResult(BaseModel):
+    """Constraint evaluation result data model."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     constraint_id: str = Field(min_length=1)
@@ -94,6 +99,7 @@ class ConstraintEvaluationResult(BaseModel):
 
 
 class AlgebraicConstraintReport(BaseModel):
+    """Algebraic constraint report data model."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     implied_constraints_ref: ArtifactRefModel | None = None
@@ -111,12 +117,14 @@ class AlgebraicConstraintReport(BaseModel):
 
 
 class LatentTrustLevel(str, Enum):
+    """Latent trust level public type."""
     RESEARCH = "research"
     CONDITIONAL = "conditional"
     VALIDATED = "validated"
 
 
 class LatentAssumptionCard(BaseModel):
+    """Latent assumption card public type."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     assumption_id: str = Field(min_length=1)
@@ -128,6 +136,7 @@ class LatentAssumptionCard(BaseModel):
 
 
 class LatentDiscoveryBundle(BaseModel):
+    """Latent discovery bundle data model."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     proposed_latent_nodes: list[str] = Field(default_factory=list)
@@ -145,6 +154,8 @@ class LatentDiscoveryBundle(BaseModel):
 
 
 class CausalDiscoveryReport(BaseModel):
+    """Output of a causal-discovery run, including optional latent diagnostics."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     schema_version: str = "1.0"
@@ -162,17 +173,20 @@ class CausalDiscoveryReport(BaseModel):
 
 
 class DataType(str, Enum):
+    """Data type public type."""
     CROSS_SECTIONAL = "cross_sectional"
     TIME_SERIES = "time_series"
 
 
 class DimensionRegime(str, Enum):
+    """Dimension regime public type."""
     LOW_DIM = "low_dim"   # n_vars <= 20
     MED_DIM = "med_dim"   # 21 <= n_vars <= 50
     HIGH_DIM = "high_dim"  # n_vars > 50
 
 
 class DataCharacteristics(BaseModel):
+    """Data characteristics public type."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     data_type: DataType
@@ -187,6 +201,7 @@ class DataCharacteristics(BaseModel):
 
 
 class EdgeAgreement(BaseModel):
+    """Edge agreement public type."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     edge_key: str
@@ -198,6 +213,7 @@ class EdgeAgreement(BaseModel):
 
 
 class DiscoveryPipelineReport(BaseModel):
+    """Discovery pipeline report data model."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     unified_pag: CausalGraphModel
@@ -222,6 +238,7 @@ def persist_causal_discovery_report(
     schema_name: str = "ir.causal_discovery_report",
     schema_version: str = "1.0",
 ) -> CausalDiscoveryReportRef:
+    """Persist causal discovery report helper."""
     persisted_report = _materialize_algebraic_constraint_payloads(
         store,
         report,
@@ -243,6 +260,7 @@ def load_causal_discovery_report(
     store: ArtifactStore,
     ref: CausalDiscoveryReportRef,
 ) -> CausalDiscoveryReport:
+    """Load causal discovery report."""
     payload = get_json_artifact(store, ref.artifact_id)
     report = CausalDiscoveryReport.model_validate(payload)
     return _hydrate_algebraic_constraint_payloads(store, report)

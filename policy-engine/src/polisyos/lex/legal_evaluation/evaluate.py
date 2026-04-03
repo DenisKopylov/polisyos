@@ -1,3 +1,4 @@
+"""Public legal evaluation evaluate module API."""
 from __future__ import annotations
 
 import re
@@ -266,6 +267,7 @@ def evaluate_legality_impl(
     request: LegalEvaluationRequest,
     segment_name: str | None = None,
 ) -> tuple[LegalReportRef, list[ChangeProposalRef]]:
+    """Evaluate legality impl helper."""
     (
         normalized_request,
         jurisdiction_norm,

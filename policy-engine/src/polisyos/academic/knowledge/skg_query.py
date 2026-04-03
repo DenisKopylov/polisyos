@@ -33,6 +33,7 @@ logger = get_logger(__name__)
 
 @dataclass(frozen=True)
 class LiteraturePriorResult:
+    """Literature prior result data model."""
     variable: str
     prior: ParameterPrior | None
     estimates: list[ParameterEstimateResult]
@@ -40,6 +41,7 @@ class LiteraturePriorResult:
 
 @dataclass(frozen=True)
 class ParameterCandidate:
+    """Parameter candidate public type."""
     parameter: EvidenceParameter
     source_context: ContextProfile | None
     transport_penalty: float = 0.0
@@ -54,6 +56,7 @@ class ParameterCandidate:
 
 @dataclass(frozen=True)
 class EdgeSupportRecord:
+    """Edge support record data model."""
     edge_id: str
     src: str
     dst: str
@@ -78,6 +81,7 @@ class EdgeSupportRecord:
 
 @dataclass(frozen=True)
 class EdgeTransportRecord:
+    """Edge transport record data model."""
     edge_id: str
     target_context_id: str
     transport_confidence: float

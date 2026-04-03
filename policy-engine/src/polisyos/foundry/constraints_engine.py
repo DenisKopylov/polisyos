@@ -1,3 +1,4 @@
+"""Public foundry constraints engine module API."""
 from __future__ import annotations
 
 import ast
@@ -42,6 +43,7 @@ def check_constraints(
     slot_registry: SlotRegistry,
     state: Any,
 ) -> ConstraintReport:
+    """Check constraints helper."""
     verdicts: list[ConstraintViolation] = []
     hard_fail = False
     penalty_total = Decimal("0")

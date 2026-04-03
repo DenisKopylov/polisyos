@@ -1,3 +1,4 @@
+"""Public claims conflicts package API."""
 from __future__ import annotations
 
 from .detect import detect_conflicts

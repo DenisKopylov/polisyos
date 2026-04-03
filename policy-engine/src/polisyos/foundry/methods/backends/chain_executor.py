@@ -1,3 +1,4 @@
+"""Public backends chain executor module API."""
 from __future__ import annotations
 
 import asyncio
@@ -168,6 +169,7 @@ class LevelAwareExecutor:
 
 @dataclass(frozen=True, slots=True)
 class ChainExecutionResult:
+    """Chain execution result data model."""
     final_state: Any
     node_results: tuple[tuple[UUID, MethodResult], ...]
 
@@ -520,6 +522,7 @@ def execute_heterogeneous_chain(
     executor_mode: ExecutorMode = "sequential",
     async_node_timeout_sec: float | None = None,
 ) -> ChainExecutionResult:
+    """Execute heterogeneous chain."""
     if executor_mode == "auto":
         executor_mode = LevelAwareExecutor().choose_mode(chain)
 
@@ -863,6 +866,7 @@ async def execute_heterogeneous_chain_async(
     fx_rate_provider: FxRateProvider | None = None,
     async_node_timeout_sec: float | None = None,
 ) -> ChainExecutionResult:
+    """Execute heterogeneous chain async."""
     if AsyncChainExecutor is None:
         raise RuntimeError("AsyncChainExecutor is unavailable in this environment.")
     reg = registry or MethodRegistry.get_instance()

@@ -1,3 +1,4 @@
+"""Public cross graph feedback module API."""
 from __future__ import annotations
 
 import json
@@ -19,6 +20,7 @@ if TYPE_CHECKING:
 
 
 class BenchmarkCausalEdge(BaseModel):
+    """Benchmark causal edge public type."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     cause: str
@@ -26,6 +28,7 @@ class BenchmarkCausalEdge(BaseModel):
 
 
 class BenchmarkScholarQuery(BaseModel):
+    """Benchmark scholar query public type."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     cause: str
@@ -36,6 +39,7 @@ class BenchmarkScholarQuery(BaseModel):
 
 
 class BenchmarkCredibilityPolicy(BaseModel):
+    """Benchmark credibility policy data model."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     min_confidence: float = Field(default=0.7, ge=0.0, le=1.0)
@@ -46,6 +50,7 @@ class BenchmarkCredibilityPolicy(BaseModel):
 
 
 class AcademicBenchmarkScenario(BaseModel):
+    """Academic benchmark scenario public type."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     scenario_id: str
@@ -59,6 +64,7 @@ class AcademicBenchmarkScenario(BaseModel):
 
 
 class AcademicBenchmarkSuite(BaseModel):
+    """Academic benchmark suite public type."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     suite_id: str = "academic_usefulness"
@@ -66,6 +72,7 @@ class AcademicBenchmarkSuite(BaseModel):
 
 
 def load_benchmark_suite(path: Path) -> AcademicBenchmarkSuite:
+    """Load benchmark suite."""
     payload = json.loads(path.read_text(encoding="utf-8"))
     if isinstance(payload, dict) and "scenarios" in payload:
         return AcademicBenchmarkSuite.model_validate(payload)
@@ -79,6 +86,7 @@ def build_need_backlog(
     *,
     max_items: int | None = None,
 ) -> list[dict[str, Any]]:
+    """Build need backlog."""
     items: list[dict[str, Any]] = []
     for assessment in profile.needs:
         priority = _assessment_priority(assessment)
@@ -114,6 +122,7 @@ def build_need_backlog(
 
 
 def write_need_backlog(path: Path, items: list[dict[str, Any]]) -> None:
+    """Write need backlog helper."""
     path.parent.mkdir(parents=True, exist_ok=True)
     with open(path, "w", encoding="utf-8") as fh:
         for item in items:
@@ -155,6 +164,7 @@ def evaluate_benchmark_suite(
     *,
     scholar_graph: ScholarKnowledgeGraph | None = None,
 ) -> dict[str, Any]:
+    """Evaluate benchmark suite helper."""
     scenario_results: list[dict[str, Any]] = []
     summary = {
         "scenarios": len(suite.scenarios),

@@ -453,6 +453,7 @@ class GoldenRecord:
 
 @dataclass(frozen=True, slots=True)
 class GoldenRecordRef:
+    """Golden record ref data model."""
     method_fqn: str
     input_hash: str
     backend_platform: str

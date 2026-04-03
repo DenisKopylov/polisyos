@@ -170,15 +170,18 @@ def _ice_estimate(
     thr_val = float(regime_params.get("threshold_value", 0.0))
     scheduled_actions = regime_params.get("scheduled_actions")
 
+    # Pre-cache all history matrices — avoids 3× redundant O(n·T·p) builds per period
+    H_cache = [_build_history_matrix(A_seq, L_seq, t) for t in range(n_periods)]
+
     # Step 1: fit Q_T = E[Y | H_{T-1}, A_{T-1}]
-    H_last = _build_history_matrix(A_seq, L_seq, n_periods - 1)
+    H_last = H_cache[n_periods - 1]
     X_last = np.hstack([H_last, A_seq[:, n_periods - 1 : n_periods]])
     q_model = _fit_outcome_model(X_last, Y)
     pseudo_Y = Y.copy().astype(float)
 
     # Step 2: backward iteration t = T-2, ..., 0
     for t in range(n_periods - 2, -1, -1):
-        H_t = _build_history_matrix(A_seq, L_seq, t)
+        H_t = H_cache[t]
         L_t = L_seq[:, t, :]
         a_regime = _apply_regime(
             H_t,
@@ -192,7 +195,7 @@ def _ice_estimate(
 
         # Predict Q_{t+1}(H_{t+1}, d*(H_{t+1})) using current pseudo_Y model
         # but apply regime at period t+1
-        H_next = _build_history_matrix(A_seq, L_seq, t + 1)
+        H_next = H_cache[t + 1]
         L_next = L_seq[:, t + 1, :] if t + 1 < n_periods else L_seq[:, -1, :]
         a_next = _apply_regime(
             H_next,
@@ -203,9 +206,7 @@ def _ice_estimate(
             time_index=t + 1,
             scheduled_actions=scheduled_actions,
         )
-        X_next_regime = np.hstack(
-            [_build_history_matrix(A_seq, L_seq, t + 1), a_next.reshape(-1, 1)]
-        )
+        X_next_regime = np.hstack([H_next, a_next.reshape(-1, 1)])
         pseudo_Y = q_model.predict(X_next_regime)
 
         # Fit new model for Q_t on OBSERVED treatment A_t (not regime)
@@ -213,7 +214,7 @@ def _ice_estimate(
         q_model = _fit_outcome_model(X_t, pseudo_Y)
 
     # Step 3: final estimate — apply regime at t=0
-    H0 = _build_history_matrix(A_seq, L_seq, 0)
+    H0 = H_cache[0]
     L0 = L_seq[:, 0, :]
     a0 = _apply_regime(
         H0,
@@ -273,42 +274,39 @@ def _parametric_mc_estimate(
     out_model = _fit_outcome_model(X_out, Y)
     out_resid_std = float(np.std(Y - out_model.predict(X_out)) + 1e-8)
 
-    # Monte Carlo simulation
-    # Draw L_0 from empirical distribution
-    mc_outcomes = np.empty(n_mc)
-    for b in range(n_mc):
-        # Sample a random unit's L_0 as starting point
-        unit_idx = rng.integers(0, n_units)
-        L_sim = np.zeros((1, n_periods, n_cov))
-        A_sim = np.zeros((1, n_periods))
-        L_sim[0, 0, :] = L_seq[unit_idx, 0, :]
+    # Monte Carlo simulation — vectorized over all n_mc paths simultaneously.
+    # Replaces O(n_mc × n_periods × n_cov) single-row predicts with
+    # O(n_periods × n_cov) batch predicts of shape (n_mc,).
+    unit_idxs = rng.integers(0, n_units, size=n_mc)
+    L_sim = np.zeros((n_mc, n_periods, n_cov))
+    A_sim = np.zeros((n_mc, n_periods))
+    L_sim[:, 0, :] = L_seq[unit_idxs, 0, :]
 
-        for t in range(n_periods):
-            H_t = _build_history_matrix(A_sim, L_sim, t)
-            L_t = L_sim[0, t, :].reshape(1, -1)
-            a_t = _apply_regime(
-                H_t,
-                L_t,
-                rule,
-                thr_cov,
-                thr_val,
-                time_index=t,
-                scheduled_actions=scheduled_actions,
-            )
-            A_sim[0, t] = a_t[0]
+    for t in range(n_periods):
+        H_t = _build_history_matrix(A_sim, L_sim, t)   # (n_mc, features)
+        L_t = L_sim[:, t, :]
+        a_t = _apply_regime(
+            H_t,
+            L_t,
+            rule,
+            thr_cov,
+            thr_val,
+            time_index=t,
+            scheduled_actions=scheduled_actions,
+        )
+        A_sim[:, t] = a_t
 
-            if t < n_periods - 1:
-                X_cov_sim = np.hstack([H_t, a_t.reshape(-1, 1)])
-                for j in range(n_cov):
-                    mean_j = cov_models[t][j].predict(X_cov_sim)[0]
-                    L_sim[0, t + 1, j] = mean_j + rng.normal(
-                        0, cov_residual_stds[t][j]
-                    )
+        if t < n_periods - 1:
+            X_cov_sim = np.hstack([H_t, a_t.reshape(-1, 1)])
+            for j in range(n_cov):
+                mean_j = cov_models[t][j].predict(X_cov_sim)   # (n_mc,) batch
+                noise = rng.normal(0, cov_residual_stds[t][j], size=n_mc)
+                L_sim[:, t + 1, j] = mean_j + noise
 
-        H_final = _build_history_matrix(A_sim, L_sim, n_periods - 1)
-        X_out_sim = np.hstack([H_final, A_sim[:, n_periods - 1 : n_periods]])
-        y_sim = out_model.predict(X_out_sim)[0]
-        mc_outcomes[b] = y_sim + rng.normal(0, out_resid_std)
+    H_final = _build_history_matrix(A_sim, L_sim, n_periods - 1)
+    X_out_sim = np.hstack([H_final, A_sim[:, n_periods - 1 : n_periods]])
+    y_sim = out_model.predict(X_out_sim)                         # (n_mc,) batch
+    mc_outcomes = y_sim + rng.normal(0, out_resid_std, size=n_mc)
 
     return float(np.mean(mc_outcomes))
 

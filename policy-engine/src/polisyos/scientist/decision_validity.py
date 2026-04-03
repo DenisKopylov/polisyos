@@ -1,3 +1,4 @@
+"""Public scientist decision validity module API."""
 from __future__ import annotations
 
 import json
@@ -74,6 +75,7 @@ class _DecisionDependencyIndex(BaseModel):
 
 
 class DecisionValidityStateStore:
+    """Decision validity state store implementation."""
     def __init__(self, cas: FileSystemCAS | Path) -> None:
         root_path = cas.root if isinstance(cas, FileSystemCAS) else cas
         self._base = root_path / "decision_validity"
@@ -165,6 +167,7 @@ class DecisionValidityStateStore:
 
 
 class DecisionValidityService:
+    """Decision validity service implementation."""
     def __init__(
         self,
         store: FileSystemCAS,

@@ -1,3 +1,4 @@
+"""Public audit safe tar module API."""
 from __future__ import annotations
 
 import shutil

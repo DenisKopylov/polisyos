@@ -1,3 +1,4 @@
+"""Public causal protocols module API."""
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, ClassVar, Mapping, Protocol, runtime_checkable
@@ -1018,6 +1019,7 @@ class RDDObservationalData(BaseModel):
 
 @runtime_checkable
 class CausalEstimator(Protocol):
+    """Causal estimator implementation."""
     signature: ClassVar[MethodSignature]
     metadata: ClassVar[MethodMetadata]
 
@@ -1138,6 +1140,7 @@ class NCMQueryData(BaseModel):
 
 
 def envelope_from_report(report: CausalEffectReport) -> "UncertaintyEnvelope | None":
+    """Envelope from report helper."""
     return report.to_uncertainty_envelope()
 
 

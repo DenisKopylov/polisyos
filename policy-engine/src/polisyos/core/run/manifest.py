@@ -1,3 +1,4 @@
+"""Public run manifest module API."""
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -9,10 +10,12 @@ from ..artifacts.manifest import ArtifactRef, EnvInfo, ProducerInfo
 
 
 def utc_now() -> datetime:
+    """Utc now helper."""
     return datetime.now(timezone.utc).replace(microsecond=0)
 
 
 class RunManifest(BaseModel):
+    """Run manifest data model."""
     model_config = ConfigDict(extra="forbid")
 
     run_id: str

@@ -1,3 +1,4 @@
+"""Public security sbom module API."""
 from __future__ import annotations
 
 import json
@@ -15,11 +16,13 @@ from polisyos.core.observability import get_metrics
 
 
 class SBOMFormat(str, Enum):
+    """SBOM format public type."""
     CYCLONEDX_JSON = "cyclonedx-json"
     SPDX_JSON = "spdx-json"
 
 
 class VulnerabilitySeverity(str, Enum):
+    """Vulnerability severity public type."""
     CRITICAL = "critical"
     HIGH = "high"
     MEDIUM = "medium"
@@ -29,6 +32,7 @@ class VulnerabilitySeverity(str, Enum):
 
 
 class VulnerabilityRecord(BaseModel):
+    """Vulnerability record data model."""
     model_config = ConfigDict(extra="forbid")
 
     cve_id: str
@@ -41,6 +45,7 @@ class VulnerabilityRecord(BaseModel):
 
 
 class SBOMMetadata(BaseModel):
+    """SBOM metadata data model."""
     model_config = ConfigDict(extra="forbid")
 
     format: SBOMFormat = SBOMFormat.CYCLONEDX_JSON
@@ -53,6 +58,7 @@ class SBOMMetadata(BaseModel):
 
 
 class SBOMVerificationResult(BaseModel):
+    """SBOM verification result data model."""
     model_config = ConfigDict(extra="forbid")
 
     allowed: bool
@@ -223,6 +229,7 @@ class SBOMGenerator:
 
 
 class SBOMVerifier:
+    """SBOM verifier public type."""
     def __init__(
         self,
         *,

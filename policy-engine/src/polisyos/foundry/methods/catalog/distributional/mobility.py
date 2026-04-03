@@ -1,3 +1,4 @@
+"""Public distributional mobility module API."""
 from __future__ import annotations
 
 from typing import Any, ClassVar, Mapping
@@ -52,6 +53,7 @@ def _values_payload(state: Any, *, key: str = "values") -> np.ndarray:
     tags={"distributional", "mobility", "transition", "cross-section"},
 )
 class MobilityMatrixEstimator:
+    """Mobility matrix estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -152,6 +154,7 @@ class MobilityMatrixEstimator:
     tags={"distributional", "mobility", "intergenerational", "ige", "cross-section"},
 )
 class IntergenerationalElasticityEstimator:
+    """Intergenerational elasticity estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 

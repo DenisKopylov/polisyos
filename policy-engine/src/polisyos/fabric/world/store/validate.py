@@ -1,3 +1,4 @@
+"""Public store validate module API."""
 from __future__ import annotations
 
 import re
@@ -50,6 +51,7 @@ def _enum_value(value) -> str:
 
 
 def validate_doc_meta_ids(meta: DocMeta) -> None:
+    """Validate doc meta ids."""
     expected_source = doc_source_id(
         canonical_url=meta.canonical_url,
         official_id=meta.official_id,
@@ -66,6 +68,7 @@ def validate_doc_meta_ids(meta: DocMeta) -> None:
 
 
 def validate_doc_fragment_ids(fragment: DocFragment) -> None:
+    """Validate doc fragment ids."""
     expected_fragment = doc_fragment_id(
         doc_version_id=fragment.doc_version_id,
         locator=fragment.locator,
@@ -78,18 +81,21 @@ def validate_doc_fragment_ids(fragment: DocFragment) -> None:
 
 
 def validate_claim_id(claim: Claim) -> None:
+    """Validate claim id."""
     expected = claim_id_from_payload(claim_payload=claim.model_dump())
     if claim.claim_id != expected:
         raise WorldIDError(f"claim_id mismatch: {claim.claim_id} != {expected}")
 
 
 def validate_world_event_id(event: WorldEvent) -> None:
+    """Validate world event id."""
     expected = world_event_id_from_payload(event_payload=event.model_dump())
     if event.event_id != expected:
         raise WorldIDError(f"event_id mismatch: {event.event_id} != {expected}")
 
 
 def validate_conflict_set_id(conflict_set: ConflictSet) -> None:
+    """Validate conflict set id."""
     expected = conflict_set_id_from_key(conflict_key=conflict_set.conflict_key)
     if conflict_set.conflict_set_id != expected:
         raise WorldIDError(
@@ -99,6 +105,7 @@ def validate_conflict_set_id(conflict_set: ConflictSet) -> None:
 
 
 def validate_trust_assessment_id(assessment: TrustAssessment) -> None:
+    """Validate trust assessment id."""
     payload = assessment.model_dump()
     payload.pop("schema_version", None)
     payload.pop("trust_assessment_id", None)
@@ -111,6 +118,7 @@ def validate_trust_assessment_id(assessment: TrustAssessment) -> None:
 
 
 def validate_quality_report_id(report: QualityReport) -> None:
+    """Validate quality report id."""
     payload = report.model_dump()
     payload.pop("schema_version", None)
     payload.pop("quality_report_id", None)
@@ -122,6 +130,7 @@ def validate_quality_report_id(report: QualityReport) -> None:
 
 
 def validate_fact_is_world_abi(fact: Fact, *, strict_edge_kinds: bool = False) -> None:
+    """Validate fact is world abi."""
     if _ID_RE.fullmatch(fact.subject_id) is None:
         raise WorldFactError(f"subject_id '{fact.subject_id}' does not match {ID_PATTERN}")
     if _ID_RE.fullmatch(fact.predicate_id) is None:
@@ -169,6 +178,7 @@ def validate_fact_is_world_abi(fact: Fact, *, strict_edge_kinds: bool = False) -
 
 
 def validate_world_facts(facts: list[Fact]) -> None:
+    """Validate world facts."""
     for fact in facts:
         validate_fact_is_world_abi(fact)
 

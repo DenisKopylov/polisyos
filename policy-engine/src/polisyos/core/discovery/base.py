@@ -1,3 +1,4 @@
+"""Public discovery base module API."""
 from __future__ import annotations
 
 import importlib.util
@@ -18,6 +19,7 @@ E = TypeVar("E")
 
 
 class DuplicatePolicy(str, Enum):
+    """Duplicate policy data model."""
     WARN = "warn"
     ERROR = "error"
     IGNORE = "ignore"
@@ -25,6 +27,7 @@ class DuplicatePolicy(str, Enum):
 
 @dataclass(slots=True)
 class DiscoveryError:
+    """Discovery error exception."""
     source: str
     item: str | None
     error_type: str
@@ -34,12 +37,14 @@ class DiscoveryError:
 
 
 class DiscoverySource(Protocol[T]):
+    """Discovery source public type."""
     def discover(self) -> Iterator[T]:
         ...
 
 
 @dataclass(slots=True)
 class SourceBatch(Generic[T, E]):
+    """Source batch public type."""
     source: DiscoverySource[T] | Any
     items: list[T] = field(default_factory=list)
     errors: list[E] = field(default_factory=list)
@@ -125,6 +130,7 @@ def discovery_module_name(
     algorithm: str = "sha1",
     digest_length: int = 12,
 ) -> str:
+    """Discovery module name helper."""
     digest = truncated_hash(str(path.resolve()), algorithm=algorithm, length=digest_length)
     stem = _safe_identifier(path.stem)
     if stem:
@@ -133,6 +139,7 @@ def discovery_module_name(
 
 
 def load_module_from_file(path: Path, *, module_name: str) -> ModuleType:
+    """Load module from file."""
     spec = importlib.util.spec_from_file_location(module_name, path)
     if spec is None or spec.loader is None:
         raise ImportError(f"failed to create import spec for {path}")
@@ -148,6 +155,7 @@ def load_module_from_file(path: Path, *, module_name: str) -> ModuleType:
 
 
 def format_traceback() -> str:
+    """Format traceback helper."""
     return traceback_lib.format_exc()
 
 

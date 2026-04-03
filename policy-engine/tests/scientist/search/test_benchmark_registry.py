@@ -207,3 +207,40 @@ def test_benchmark_registry_resolve_family_bundle_dedupes_phase_d4_suites(tmp_pa
 
     assert raw_refs == [strategic_new, multiplicity, strategic_old]
     assert bundle.rotating_challenge_evaluation_refs == [strategic_new, multiplicity]
+
+
+def test_benchmark_registry_records_extended_contour_metadata(tmp_path) -> None:
+    registry = BenchmarkRegistry(tmp_path / "benchmarks")
+    ref = _ref("contour")
+
+    registry.record(
+        "hidden_holdout",
+        ref,
+        run_id="run-b",
+        family="proof_closure",
+        suite_id="proof_closure_hidden_release",
+        validation_contour="academic",
+        visibility="hidden_release",
+        holdout_family="proof_closure",
+        benchmark_revision="2.0",
+        comparator_profile="suite_scoped",
+    )
+
+    resolved = registry.latest(
+        "hidden_holdout",
+        run_id="run-b",
+        family="proof_closure",
+        validation_contour="academic",
+        visibility="hidden_release",
+        holdout_family="proof_closure",
+        benchmark_revision="2.0",
+        comparator_profile="suite_scoped",
+    )
+    snapshot = registry.snapshot()
+
+    assert resolved == ref
+    assert snapshot.entries[0].validation_contour == "academic"
+    assert snapshot.entries[0].visibility == "hidden_release"
+    assert snapshot.entries[0].holdout_family == "proof_closure"
+    assert snapshot.entries[0].benchmark_revision == "2.0"
+    assert snapshot.entries[0].comparator_profile == "suite_scoped"

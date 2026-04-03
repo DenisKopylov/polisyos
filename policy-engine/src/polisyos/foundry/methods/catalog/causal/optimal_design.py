@@ -705,7 +705,7 @@ def d_optimal_design(
 @foundry_method(
     namespace="causal.design",
     version="1.0.0",
-    tags={"causal", "design", "o_set", "henckel_maathuis", "optimal_experiment"},
+    tags={"causal", "design", "o_set", "henckel_maathuis", "optimal_experiment", "cross-section"},
 )
 class CausalExperimentDesigner:
     """Optimal experimental design for causal inference (Phase 9).

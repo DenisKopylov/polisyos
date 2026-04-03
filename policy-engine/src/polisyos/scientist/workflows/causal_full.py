@@ -1,9 +1,18 @@
+"""Workflow spec for the full Scientist causal orchestration DAG."""
+
 from __future__ import annotations
 
 from polisyos.scientist.engine.workflow_spec import NodeInvocation, WorkflowSpec
 
 
 def causal_full_workflow_spec() -> WorkflowSpec:
+    """Build the canonical end-to-end causal workflow.
+
+    The workflow links literature-prior assembly, graph reconciliation,
+    readiness checks, Foundry compilation, simulation, causal evaluation, and
+    governance into one reproducible DAG used by ``run_experiment``.
+    """
+
     return WorkflowSpec(
         workflow_id="scientist_causal_full",
         error_policy="continue",
@@ -75,6 +84,11 @@ def causal_full_workflow_spec() -> WorkflowSpec:
                 depends_on=["compile_foundry", "reconcile_causal_graph"],
             ),
             NodeInvocation(
+                alias="run_causal_readiness",
+                node_id="scientist.node_run_causal_readiness@1.0.0",
+                depends_on=["compile_cross_graph_evidence", "reconcile_causal_graph"],
+            ),
+            NodeInvocation(
                 alias="resolve_parameters",
                 node_id="scientist.node_resolve_parameters@1.0.0",
                 depends_on=[
@@ -138,6 +152,7 @@ def causal_full_workflow_spec() -> WorkflowSpec:
                     "run_distributional_analysis",
                     "run_causal_evaluation",
                     "run_transportability",
+                    "run_causal_readiness",
                 ],
             ),
             NodeInvocation(
@@ -151,6 +166,7 @@ def causal_full_workflow_spec() -> WorkflowSpec:
                     "run_abm_consistency",
                     "reconcile_causal_graph",
                     "run_transportability",
+                    "run_causal_readiness",
                     "run_normative_arbitration",
                 ],
             ),
@@ -169,6 +185,7 @@ def causal_full_workflow_spec() -> WorkflowSpec:
             "Phase 9 full workflow includes literature prior build + graph reconciliation.",
             "scientist_default remains unchanged for backward compatibility.",
             "Cross-graph evidence profile is compiled before parameter resolution and governance.",
+            "Causal readiness checks run after graph/evidence assembly and feed downstream governance.",
             "Reconciliation diagnostics and needs_expert_review are propagated via state.params.",
         ],
     )

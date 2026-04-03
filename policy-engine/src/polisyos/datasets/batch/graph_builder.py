@@ -241,6 +241,7 @@ _GEO_HINTS = ("country", "geo", "region", "territory", "geography", "area")
 
 @dataclass
 class GraphStats:
+    """Graph stats public type."""
     datasets: int = 0
     distributions: int = 0
     metric_bindings: int = 0
@@ -686,6 +687,7 @@ def build_indexes(db_path: Path) -> None:
 
 
 def run_graph_load(config: DatasetBatchConfig) -> GraphStats:
+    """Run graph load."""
     started_at = datetime.now(UTC).isoformat()
 
     def _iter_records() -> Iterable[DatasetRecord]:
@@ -724,6 +726,7 @@ def run_graph_load(config: DatasetBatchConfig) -> GraphStats:
 
 
 def run_graph_index(config: DatasetBatchConfig) -> None:
+    """Run graph index."""
     started_at = datetime.now(UTC).isoformat()
     build_indexes(config.db_path)
     write_stage_manifest(

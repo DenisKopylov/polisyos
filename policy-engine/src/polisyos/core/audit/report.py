@@ -1,3 +1,4 @@
+"""Public audit report module API."""
 from __future__ import annotations
 
 from typing import Iterable
@@ -6,6 +7,7 @@ from .models import StepResult, StepStatus, VerificationIssue, VerificationRepor
 
 
 def render_markdown(report: VerificationReport) -> str:
+    """Render markdown helper."""
     status = "✅ PASS" if report.overall_status == "PASS" else "❌ FAIL"
     lines: list[str] = [
         "# Policy OS Audit Verification Report",

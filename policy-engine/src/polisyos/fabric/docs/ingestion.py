@@ -1,3 +1,4 @@
+"""Public docs ingestion module API."""
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -69,6 +70,7 @@ def ingest_doc_bytes(
     options: DocIngestOptions | None = None,
     segment_name: str | None = None,
 ) -> DocIngestResult:
+    """Ingest doc bytes helper."""
     opts = options or DocIngestOptions()
 
     if opts.enforce_max_bytes is not None and len(raw_bytes) > opts.enforce_max_bytes:

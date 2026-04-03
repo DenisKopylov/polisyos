@@ -16,16 +16,19 @@ _UUID7_COUNTER = 0
 
 
 class CellTier(StrEnum):
+    """Cell tier public type."""
     DEDICATED = "dedicated"
     SHARED = "shared"
 
 
 class IsolationLevel(StrEnum):
+    """Isolation level public type."""
     NAMESPACE = "namespace"
     VCLUSTER = "vcluster"
 
 
 class DatabaseBackendKind(StrEnum):
+    """Database backend kind public type."""
     DUCKDB = "duckdb"
     POSTGRES = "postgres"
 
@@ -58,6 +61,7 @@ def _generate_uuid7() -> str:
 
 
 class CellSpec(BaseModel):
+    """Cell spec data model."""
     model_config = ConfigDict(frozen=True, extra="forbid", str_strip_whitespace=True)
 
     cell_id: str = Field(default_factory=_generate_uuid7)
@@ -109,6 +113,7 @@ class CellSpec(BaseModel):
 
 
 class TenantSpec(BaseModel):
+    """Tenant spec data model."""
     model_config = ConfigDict(frozen=True, extra="forbid", str_strip_whitespace=True)
 
     tenant_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
@@ -125,6 +130,7 @@ class TenantSpec(BaseModel):
 
 
 class CellAssignment(BaseModel):
+    """Cell assignment public type."""
     model_config = ConfigDict(frozen=True, extra="forbid")
 
     tenant_id: str

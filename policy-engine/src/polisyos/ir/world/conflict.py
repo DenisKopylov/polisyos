@@ -1,3 +1,4 @@
+"""Public world conflict module API."""
 from __future__ import annotations
 
 from decimal import Decimal, InvalidOperation
@@ -25,6 +26,7 @@ DecimalZeroToOne = Annotated[Decimal, BeforeValidator(reject_float), Field(ge=0,
 
 
 class ConflictKind(str, Enum):
+    """Conflict kind public type."""
     VALUE_MISMATCH = "value_mismatch"
     UNIT_MISMATCH = "unit_mismatch"
     DEFINITION_MISMATCH = "definition_mismatch"
@@ -49,6 +51,7 @@ def _validate_decimal_string(value: str) -> str:
 
 
 class ConflictSetResolution(KernelModel):
+    """Conflict set resolution public type."""
     winner_claim_id: WorldID
     policy_id: WorldID
     confidence: DecimalZeroToOne
@@ -57,6 +60,7 @@ class ConflictSetResolution(KernelModel):
 
 
 class ConflictSet(KernelModel):
+    """Conflict set public type."""
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     conflict_set_id: WorldID
     conflict_key: str = Field(..., pattern=SHA256_HEX_PATTERN)
@@ -89,6 +93,7 @@ class ConflictSet(KernelModel):
 
 
 class ConflictResolutionCandidate(KernelModel):
+    """Conflict resolution candidate public type."""
     claim_id: WorldID
     score_total: str = Field(..., pattern=DECIMAL_STRING_PATTERN)
     score_breakdown: Annotated[
@@ -111,6 +116,7 @@ class ConflictResolutionCandidate(KernelModel):
 
 
 class ConflictResolutionInputs(KernelModel):
+    """Conflict resolution inputs public type."""
     claim_ids: list[WorldID] = Field(default_factory=list)
     doc_version_ids: list[WorldID] = Field(default_factory=list)
     trust_assessment_ids: list[WorldID] = Field(default_factory=list)
@@ -122,6 +128,7 @@ class ConflictResolutionInputs(KernelModel):
 
 
 class ConflictResolution(KernelModel):
+    """Conflict resolution public type."""
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     conflict_set_id: WorldID
     policy_id: WorldID

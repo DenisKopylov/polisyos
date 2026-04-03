@@ -1,3 +1,4 @@
+"""Public causal full transport bridge module API."""
 from __future__ import annotations
 
 import importlib
@@ -9,6 +10,7 @@ _VALID_SYMBOLIC_BACKEND_MODES: frozenset[str] = frozenset({"auto", "y0", "r", "f
 
 @dataclass(frozen=True)
 class SymbolicBackendResolution:
+    """Symbolic backend resolution public type."""
     requested: str
     selected: str | None
     order: tuple[str, ...]
@@ -17,6 +19,7 @@ class SymbolicBackendResolution:
 
 @dataclass(frozen=True)
 class NormalizedTransportFormula:
+    """Normalized transport formula public type."""
     formula_str: str
     stratification_variables: tuple[str, ...]
     target_quantities: tuple[str, ...]
@@ -24,6 +27,7 @@ class NormalizedTransportFormula:
 
 
 def normalize_symbolic_backend_mode(raw: object) -> str:
+    """Normalize symbolic backend mode helper."""
     token = str(raw or "auto").strip().lower()
     if token not in _VALID_SYMBOLIC_BACKEND_MODES:
         return "auto"
@@ -31,6 +35,7 @@ def normalize_symbolic_backend_mode(raw: object) -> str:
 
 
 def resolve_symbolic_backend(mode: object) -> SymbolicBackendResolution:
+    """Resolve symbolic backend."""
     normalized = normalize_symbolic_backend_mode(mode)
     order = _backend_order(normalized)
     unavailable_reasons: list[str] = []
@@ -54,6 +59,7 @@ def resolve_symbolic_backend(mode: object) -> SymbolicBackendResolution:
 
 
 def probe_backend_availability(backend: str) -> tuple[bool, str | None]:
+    """Probe backend availability helper."""
     token = str(backend).strip().lower()
     if token == "y0":
         return _probe_y0()
@@ -63,6 +69,7 @@ def probe_backend_availability(backend: str) -> tuple[bool, str | None]:
 
 
 def normalize_transport_formula(formula: str) -> NormalizedTransportFormula:
+    """Normalize transport formula helper."""
     normalized = _normalize_formula_str(formula)
     return NormalizedTransportFormula(
         formula_str=normalized,

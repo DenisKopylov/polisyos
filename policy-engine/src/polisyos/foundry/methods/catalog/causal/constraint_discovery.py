@@ -1,3 +1,4 @@
+"""Public causal constraint discovery module API."""
 from __future__ import annotations
 
 import math
@@ -955,6 +956,67 @@ def _build_algebraic_metadata_summary(
     }
 
 
+def _stamp_algebraic_constraint_audit(
+    report: CausalDiscoveryReport,
+    *,
+    data: np.ndarray,
+    variable_names: list[str],
+    significance_level: float,
+    seed: int,
+    algebraic_blocks: list[AlgebraicBlockSpec] | None = None,
+    degraded_reason: str | None = None,
+) -> CausalDiscoveryReport:
+    graph = _inject_algebraic_blocks_metadata(
+        report.graph,
+        algebraic_blocks=list(algebraic_blocks or ()),
+    )
+    updated_report = report.model_copy(update={"graph": graph})
+
+    algebraic_report: AlgebraicConstraintReport
+    degraded = degraded_reason
+    if degraded is None and bool(updated_report.metadata.get("fallback")):
+        degraded = "algebraic_audit_degraded:discovery_fallback"
+
+    if degraded is not None:
+        algebraic_report = AlgebraicConstraintReport(
+            severity="warning",
+            warnings=[degraded],
+        )
+    else:
+        try:
+            algebraic_report = _run_algebraic_constraint_audit(
+                graph=graph,
+                data=data,
+                variable_names=variable_names,
+                significance_level=significance_level,
+                seed=seed,
+            )
+        except Exception as exc:
+            warning = f"algebraic_audit_failed:{type(exc).__name__}:{exc}"
+            algebraic_report = AlgebraicConstraintReport(
+                severity="warning",
+                warnings=[warning],
+            )
+            updated_report = updated_report.model_copy(
+                update={"warnings": [*updated_report.warnings, warning]}
+            )
+
+    metadata = {
+        **dict(updated_report.metadata),
+        "algebraic_constraints_summary": _build_algebraic_metadata_summary(algebraic_report),
+        "algebraic_constraint_severity": algebraic_report.severity,
+        "algebraic_constraint_families_run": [
+            family.value for family in algebraic_report.families_run
+        ],
+    }
+    return updated_report.model_copy(
+        update={
+            "algebraic_constraints": algebraic_report,
+            "metadata": metadata,
+        }
+    )
+
+
 def _run_algebraic_constraint_audit(
     *,
     graph: CausalGraphModel,
@@ -1610,44 +1672,31 @@ def _run_constraint_discovery(
 
         dagma_params = dict(params)
         dagma_params["timeout_seconds"] = max(1.0, deadline - time.perf_counter())
+        dagma_params["algebraic_blocks"] = [block.model_dump(mode="json") for block in algebraic_blocks]
         dagma_output = run_dagma_discovery(state=tab_data, params=dagma_params)
         dagma_report_raw = dagma_output["report"]
-        if isinstance(dagma_report_raw, CausalDiscoveryReport):
-            dagma_report = dagma_report_raw
-        else:
-            dagma_report = CausalDiscoveryReport.model_validate(dagma_report_raw)
-        dagma_metadata = dict(dagma_report.metadata)
-        dagma_failed = bool(dagma_metadata.get("fallback"))
-        if not dagma_failed:
-            report = dagma_report.model_copy(
-                update={
-                    "metadata": {
-                        **dagma_metadata,
-                        **ci_backend_metadata(ci_backend),
-                        "scale_backend_requested": scale_backend.requested,
-                        "scale_backend_used": "dagma",
-                        "scale_backend_fallback_reason": scale_backend.fallback_reason,
-                        "trigger_algorithm": algorithm,
-                    }
+        dagma_report = (
+            dagma_report_raw
+            if isinstance(dagma_report_raw, CausalDiscoveryReport)
+            else CausalDiscoveryReport.model_validate(dagma_report_raw)
+        )
+        dagma_report = dagma_report.model_copy(
+            update={
+                "metadata": {
+                    **dict(dagma_report.metadata),
+                    **ci_backend_metadata(ci_backend),
+                    "scale_backend_requested": scale_backend.requested,
+                    "scale_backend_used": "dagma",
+                    "scale_backend_fallback_reason": scale_backend.fallback_reason,
+                    "trigger_algorithm": algorithm,
                 }
-            )
-            return {"report": report, "__determinism_tier__": DeterminismTier.STATISTICAL}
+            }
+        )
+        dagma_failed = bool(dagma_report.metadata.get("fallback"))
+        if not dagma_failed or scale_backend.requested == "dagma":
+            return {"report": dagma_report, "__determinism_tier__": DeterminismTier.STATISTICAL}
 
         fallback_reason = "dagma_auto_fallback_to_classic"
-        if scale_backend.requested == "dagma":
-            report = dagma_report.model_copy(
-                update={
-                    "metadata": {
-                        **dagma_metadata,
-                        **ci_backend_metadata(ci_backend),
-                        "scale_backend_requested": scale_backend.requested,
-                        "scale_backend_used": "dagma",
-                        "scale_backend_fallback_reason": dagma_metadata.get("fallback_reason"),
-                        "trigger_algorithm": algorithm,
-                    }
-                }
-            )
-            return {"report": report, "__determinism_tier__": DeterminismTier.STATISTICAL}
         warnings.append(fallback_reason)
         scale_backend = _ScaleBackendSelection(
             requested=scale_backend.requested,
@@ -1675,15 +1724,22 @@ def _run_constraint_discovery(
     if base_result.error is not None or base_result.adjacency is None:
         if base_result.error is not None:
             warnings.append(base_result.error)
-        report = _fallback_report(
-            state=tab_data,
-            algorithm=algorithm,
+        report = _stamp_algebraic_constraint_audit(
+            _fallback_report(
+                state=tab_data,
+                algorithm=algorithm,
+                significance_level=significance_level,
+                warnings=warnings,
+                elapsed_seconds=float(time.perf_counter() - started),
+                params=params,
+                ci_backend=ci_backend,
+                scale_backend=scale_backend,
+            ),
+            data=tab_data.data,
+            variable_names=tab_data.variable_names,
             significance_level=significance_level,
-            warnings=warnings,
-            elapsed_seconds=float(time.perf_counter() - started),
-            params=params,
-            ci_backend=ci_backend,
-            scale_backend=scale_backend,
+            seed=seed,
+            algebraic_blocks=algebraic_blocks,
         )
         return {"report": report, "__determinism_tier__": DeterminismTier.STATISTICAL}
 
@@ -1702,15 +1758,22 @@ def _run_constraint_discovery(
         warnings.append(
             f"{_method_name_for_algorithm(algorithm).upper()} graph conversion failed: {exc}"
         )
-        report = _fallback_report(
-            state=tab_data,
-            algorithm=algorithm,
+        report = _stamp_algebraic_constraint_audit(
+            _fallback_report(
+                state=tab_data,
+                algorithm=algorithm,
+                significance_level=significance_level,
+                warnings=warnings,
+                elapsed_seconds=float(time.perf_counter() - started),
+                params=params,
+                ci_backend=ci_backend,
+                scale_backend=scale_backend,
+            ),
+            data=tab_data.data,
+            variable_names=tab_data.variable_names,
             significance_level=significance_level,
-            warnings=warnings,
-            elapsed_seconds=float(time.perf_counter() - started),
-            params=params,
-            ci_backend=ci_backend,
-            scale_backend=scale_backend,
+            seed=seed,
+            algebraic_blocks=algebraic_blocks,
         )
         return {"report": report, "__determinism_tier__": DeterminismTier.STATISTICAL}
 
@@ -1782,58 +1845,34 @@ def _run_constraint_discovery(
         else:
             bootstrap_stability = {key: 0.0 for key in base_edge_keys}
 
-    algebraic_report: AlgebraicConstraintReport | None = None
-    try:
-        algebraic_report = _run_algebraic_constraint_audit(
+    report = _stamp_algebraic_constraint_audit(
+        CausalDiscoveryReport(
+            method=_method_name_for_algorithm(algorithm),
             graph=graph,
-            data=tab_data.data,
-            variable_names=tab_data.variable_names,
+            resolved_graph=resolved_graph,
+            bootstrap_stability=bootstrap_stability,
+            n_bootstrap=completed_bootstrap,
             significance_level=significance_level,
-            seed=seed,
-        )
-    except Exception as exc:
-        warning = f"algebraic_audit_failed:{type(exc).__name__}:{exc}"
-        warnings.append(warning)
-        algebraic_report = AlgebraicConstraintReport(
-            severity="info",
-            warnings=[warning],
-        )
-
-    report = CausalDiscoveryReport(
-        method=_method_name_for_algorithm(algorithm),
-        graph=graph,
-        resolved_graph=resolved_graph,
-        bootstrap_stability=bootstrap_stability,
-        n_bootstrap=completed_bootstrap,
+            computation_time_seconds=float(time.perf_counter() - started),
+            warnings=warnings,
+            metadata={
+                **dict(base_result.metadata),
+                "requested_n_bootstrap": n_bootstrap_requested,
+                "timeout_seconds": timeout_seconds,
+                **ci_backend_metadata(ci_backend),
+                "ci_backend_runtime": (
+                    "jax_partial_corr" if ci_backend.used == "jax" else "causallearn"
+                ),
+                "scale_backend_requested": scale_backend.requested,
+                "scale_backend_used": scale_backend.used,
+                "scale_backend_fallback_reason": scale_backend.fallback_reason,
+            },
+        ),
+        data=tab_data.data,
+        variable_names=tab_data.variable_names,
         significance_level=significance_level,
-        computation_time_seconds=float(time.perf_counter() - started),
-        warnings=warnings,
-        algebraic_constraints=algebraic_report,
-        metadata={
-            **dict(base_result.metadata),
-            "requested_n_bootstrap": n_bootstrap_requested,
-            "timeout_seconds": timeout_seconds,
-            **ci_backend_metadata(ci_backend),
-            "ci_backend_runtime": (
-                "jax_partial_corr" if ci_backend.used == "jax" else "causallearn"
-            ),
-            "scale_backend_requested": scale_backend.requested,
-            "scale_backend_used": scale_backend.used,
-            "scale_backend_fallback_reason": scale_backend.fallback_reason,
-            "algebraic_constraints_summary": (
-                _build_algebraic_metadata_summary(algebraic_report)
-                if algebraic_report is not None
-                else {}
-            ),
-            "algebraic_constraint_severity": (
-                algebraic_report.severity if algebraic_report is not None else "info"
-            ),
-            "algebraic_constraint_families_run": (
-                [family.value for family in algebraic_report.families_run]
-                if algebraic_report is not None
-                else []
-            ),
-        },
+        seed=seed,
+        algebraic_blocks=algebraic_blocks,
     )
     return {"report": report, "__determinism_tier__": DeterminismTier.STATISTICAL}
 
@@ -1844,6 +1883,7 @@ def _run_constraint_discovery(
     tags={"causal", "discovery", "constraint-based", "pc"},
 )
 class PCDiscovery:
+    """PC discovery public type."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
 
     signature: ClassVar[MethodSignature] = MethodSignature(
@@ -1897,6 +1937,9 @@ class PCDiscovery:
             "ci_test_validity": "Selected CI test assumptions hold for input data.",
         },
         when_to_use="Causal structure learning from observational data; recover Markov equivalence class under faithfulness",
+        citations=(
+            "Spirtes, P., Glymour, C. & Scheines, R. (2000). Causation, Prediction, and Search. MIT Press.",
+        ),
         when_not_to_use="Strong selection bias; many latent confounders; very high-dimensional with small N",
         typical_min_obs=200,
         output_interpretation="CPDAG (PC) or PAG (FCI) encoding causal structure. Directed edges = identified directions. Undirected = observationally equivalent.",
@@ -1913,6 +1956,7 @@ class PCDiscovery:
     tags={"causal", "discovery", "constraint-based", "fci"},
 )
 class FCIDiscovery:
+    """FCI discovery public type."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
 
     signature: ClassVar[MethodSignature] = MethodSignature(
@@ -1965,6 +2009,10 @@ class FCIDiscovery:
             "ci_test_validity": "Selected CI test assumptions hold for input data.",
         },
         when_to_use="Causal structure learning from observational data; recover Markov equivalence class under faithfulness",
+        citations=(
+            "Spirtes, P., Glymour, C. & Scheines, R. (2000). Causation, Prediction, and Search. MIT Press.",
+            "Colombo, D. et al. (2012). Learning high-dimensional directed acyclic graphs with latent and selection variables. Annals of Statistics, 40(1), 294-321.",
+        ),
         when_not_to_use="Strong selection bias; many latent confounders; very high-dimensional with small N",
         typical_min_obs=200,
         output_interpretation="CPDAG (PC) or PAG (FCI) encoding causal structure. Directed edges = identified directions. Undirected = observationally equivalent.",
@@ -1981,6 +2029,7 @@ class FCIDiscovery:
     tags={"causal", "discovery", "score-based", "ges"},
 )
 class GESDiscovery:
+    """GES discovery public type."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
 
     signature: ClassVar[MethodSignature] = MethodSignature(
@@ -2032,6 +2081,9 @@ class GESDiscovery:
             "causal_sufficiency": "No severe hidden confounding for CPDAG interpretation.",
         },
         when_to_use="Causal structure learning from observational data; recover Markov equivalence class under faithfulness",
+        citations=(
+            "Chickering, D. (2002). Optimal structure identification with greedy search. JMLR, 3, 507-554.",
+        ),
         when_not_to_use="Strong selection bias; many latent confounders; very high-dimensional with small N",
         typical_min_obs=200,
         output_interpretation="CPDAG (PC) or PAG (FCI) encoding causal structure. Directed edges = identified directions. Undirected = observationally equivalent.",

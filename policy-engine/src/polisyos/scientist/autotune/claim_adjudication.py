@@ -1,3 +1,4 @@
+"""Public autotune claim adjudication module API."""
 from __future__ import annotations
 
 import json
@@ -48,10 +49,12 @@ STRONG_DESIGN_FAMILIES = {
 
 
 class ClaimConsensusRule(str, Enum):
+    """Claim consensus rule data model."""
     MAJORITY_OR_HIGH_CONFIDENCE = "majority_or_high_confidence"
 
 
 class ClaimAdjudicationSearchConfig(MutationArtifact):
+    """Claim adjudication search config data model."""
     model_config = ConfigDict(extra="forbid")
 
     loop_id: str = CLAIM_ADJUDICATION_LOOP_ID
@@ -75,10 +78,12 @@ class ClaimAdjudicationSearchConfig(MutationArtifact):
 
 
 def build_baseline_claim_adjudication_config(_context: dict[str, Any] | None = None) -> ClaimAdjudicationSearchConfig:
+    """Build baseline claim adjudication config."""
     return ClaimAdjudicationSearchConfig()
 
 
 def default_claim_gold_suite() -> BenchmarkSuite:
+    """Default claim gold suite helper."""
     return BenchmarkSuite(
         suite_id="claim_gold",
         suite_version="1.0",
@@ -90,6 +95,7 @@ def default_claim_gold_suite() -> BenchmarkSuite:
 
 
 def default_claim_adjudication_promotion_policy() -> PromotionPolicy:
+    """Default claim adjudication promotion policy helper."""
     return PromotionPolicy(
         loop_id=CLAIM_ADJUDICATION_LOOP_ID,
         primary_metric="precision_publishable",
@@ -106,6 +112,7 @@ def default_claim_adjudication_promotion_policy() -> PromotionPolicy:
 
 
 def select_prompt_variant(config: ClaimAdjudicationSearchConfig, pass_index: int) -> str:
+    """Select prompt variant helper."""
     variants = config.prompt_variants or list(CLAIM_ADJUDICATION_PROMPT_VARIANTS)
     return variants[pass_index % len(variants)]
 
@@ -114,6 +121,7 @@ def aggregate_claim_rows(
     rows: list[ClaimAdjudicationResult],
     config: ClaimAdjudicationSearchConfig,
 ) -> ClaimAdjudicationResult:
+    """Aggregate claim rows helper."""
     total = len(rows)
     claim_id = rows[0].claim_id
     openalex_id = rows[0].openalex_id
@@ -213,11 +221,13 @@ def load_claim_adjudication_config(
     context: dict[str, Any] | None = None,
     loader: ChampionBackedRuntimeLoader[ClaimAdjudicationSearchConfig] | None = None,
 ) -> ClaimAdjudicationSearchConfig:
+    """Load claim adjudication config."""
     active_loader = loader or ClaimAdjudicationRuntimeLoader()
     return active_loader.load(context)
 
 
 class ClaimGoldEvaluator(BenchmarkedEvaluator):
+    """Claim gold evaluator public type."""
     def __init__(
         self,
         *,
@@ -372,6 +382,7 @@ class ClaimGoldEvaluator(BenchmarkedEvaluator):
 
 
 class ClaimAdjudicationRuntimeLoader(ChampionBackedRuntimeLoader[ClaimAdjudicationSearchConfig]):
+    """Claim adjudication runtime loader implementation."""
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(
             loop_id=CLAIM_ADJUDICATION_LOOP_ID,
@@ -388,6 +399,7 @@ def claim_adjudication_search_loop_spec(
     store: Any | None = None,
     registry: ChampionRegistry | None = None,
 ) -> SearchLoopSpec:
+    """Claim adjudication search loop spec helper."""
     return SearchLoopSpec(
         loop_id=CLAIM_ADJUDICATION_LOOP_ID,
         mutation_codec=PydanticMutationCodec(ClaimAdjudicationSearchConfig),

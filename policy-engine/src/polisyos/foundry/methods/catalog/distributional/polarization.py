@@ -1,3 +1,4 @@
+"""Public distributional polarization module API."""
 from __future__ import annotations
 
 from typing import Any, ClassVar, Mapping
@@ -52,6 +53,7 @@ def _values_payload(state: Any, *, key: str = "values") -> np.ndarray:
     tags={"distributional", "polarization", "esteban-ray", "cross-section"},
 )
 class EstebanRayEstimator:
+    """Esteban ray estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -137,6 +139,7 @@ class EstebanRayEstimator:
     tags={"distributional", "polarization", "duclos-esteban-ray", "cross-section"},
 )
 class DuclosEstebanRayEstimator:
+    """Duclos esteban ray estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 

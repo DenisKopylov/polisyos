@@ -1,3 +1,4 @@
+"""Public backends simple v 1 module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -120,6 +121,7 @@ def _convert_unit(*, value: Decimal, from_unit: str, to_unit: str) -> Decimal | 
 
 @dataclass(frozen=True)
 class RuleFinding:
+    """Rule finding public type."""
     rule_id: str
     status: FindingStatus
     severity: FindingSeverity
@@ -136,6 +138,7 @@ def evaluate_rule_simple_v1(
     observation: RuleObservation,
     strict: bool,
 ) -> tuple[RuleFinding, list[dict[str, Any]]]:
+    """Evaluate rule simple v 1 helper."""
     norm_citations = _sorted_norm_citations(rule)
     evidence_refs = _evidence_refs(observation)
 

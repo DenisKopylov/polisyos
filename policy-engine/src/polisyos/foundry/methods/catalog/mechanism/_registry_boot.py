@@ -1,3 +1,4 @@
+"""Public mechanism registry boot module API."""
 from __future__ import annotations
 
 from polisyos.foundry.methods.catalog.mechanism.runtime import (
@@ -10,6 +11,7 @@ from polisyos.foundry.methods.catalog.mechanism.runtime import (
 
 
 def register_mechanism_methods() -> tuple[type, ...]:
+    """Register mechanism methods."""
     return (
         AdaptiveAgentMechanismMethod,
         TaxSubsidyMechanismMethod,

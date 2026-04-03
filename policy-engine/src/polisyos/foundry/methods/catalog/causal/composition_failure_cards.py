@@ -1,3 +1,4 @@
+"""Public causal composition failure cards module API."""
 from __future__ import annotations
 
 from collections.abc import Sequence
@@ -22,6 +23,7 @@ _COMPOSITION_FAILURE_CARD_BUNDLE_SCHEMA_VERSION = "1.0"
 
 
 class CompositionFailureCardBundle(BaseModel):
+    """Composition failure card bundle data model."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -35,6 +37,7 @@ def build_composition_failure_cards(
     interface_mapping: InterfaceMapping,
     composition_certificate: CompositionCertificate,
 ) -> list[TypedFailureCard]:
+    """Build composition failure cards."""
     cards: list[TypedFailureCard] = []
     blocking_reasons = [str(reason) for reason in composition_certificate.blocking_reasons]
     lowered_reasons = [reason.lower() for reason in blocking_reasons]
@@ -175,6 +178,7 @@ def persist_composition_failure_card_bundle(
     schema_name: str = _COMPOSITION_FAILURE_CARD_BUNDLE_SCHEMA_NAME,
     schema_version: str = _COMPOSITION_FAILURE_CARD_BUNDLE_SCHEMA_VERSION,
 ) -> CompositionFailureCardBundleRef:
+    """Persist composition failure card bundle helper."""
     ref = put_json_artifact(
         store,
         bundle.model_dump(mode="json"),
@@ -191,6 +195,7 @@ def load_composition_failure_card_bundle(
     store: ArtifactStore,
     ref: CompositionFailureCardBundleRef,
 ) -> CompositionFailureCardBundle:
+    """Load composition failure card bundle."""
     payload = get_json_artifact(store, ref.artifact_id)
     return CompositionFailureCardBundle.model_validate(payload)
 

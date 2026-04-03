@@ -1,3 +1,4 @@
+"""Public backends numpy runner module API."""
 from __future__ import annotations
 
 import json
@@ -34,6 +35,7 @@ def _resolve_params(signature: MethodSignature, params: Mapping[str, Any]) -> di
 
 
 class NumpyRunner(MethodRunner):
+    """Numpy runner public type."""
     @property
     def supported_backends(self) -> frozenset[ComputeBackend]:
         return frozenset({ComputeBackend.NUMPY})

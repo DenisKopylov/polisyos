@@ -1,3 +1,4 @@
+"""Public ml regression module API."""
 from __future__ import annotations
 
 from typing import Any, ClassVar, Mapping
@@ -95,6 +96,7 @@ def _build_prediction_result(
     tags={"ml", "regression", "elastic-net"},
 )
 class ElasticNetEstimator:
+    """Elastic net estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("scikit-learn", "numpy")
 
@@ -132,6 +134,9 @@ class ElasticNetEstimator:
         description="Elastic Net regression with cross-validated regularization.",
         tags=frozenset({"ml", "regression", "elastic-net"}),
         when_to_use="Sparse linear regression; variable selection under multicollinearity; regularized coefficient estimates",
+        citations=(
+            "Zou, H. & Hastie, T. (2005). Regularization and variable selection via the elastic net. Journal of the Royal Statistical Society B, 67(2), 301-320.",
+        ),
         when_not_to_use="Nonlinear relationships; very large feature spaces with complex interactions (use tree methods)",
         output_interpretation="Coefficients with magnitude indicating importance. Alpha and l1_ratio selected by CV. Zero coefficients = excluded variables.",
         typical_min_obs=50,
@@ -178,6 +183,7 @@ class ElasticNetEstimator:
     tags={"ml", "regression", "random-forest"},
 )
 class RandomForestEstimator:
+    """Random forest estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("scikit-learn", "numpy")
 
@@ -214,6 +220,9 @@ class RandomForestEstimator:
         description="Random forest regression baseline with feature importance.",
         tags=frozenset({"ml", "regression", "random-forest"}),
         when_to_use="Nonlinear regression/classification; variable importance; robust to outliers and irrelevant features",
+        citations=(
+            "Breiman, L. (2001). Random forests. Machine Learning, 45(1), 5-32.",
+        ),
         when_not_to_use="Extrapolation beyond training data range; need highly interpretable linear coefficients",
         output_interpretation="Feature importances (Gini/permutation). OOB error as unbiased generalization estimate.",
         typical_min_obs=100,
@@ -264,6 +273,7 @@ class RandomForestEstimator:
     tags={"ml", "regression", "gradient-boosting"},
 )
 class GradientBoostingEstimator:
+    """Gradient boosting estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("scikit-learn", "numpy")
 
@@ -301,6 +311,9 @@ class GradientBoostingEstimator:
         description="Gradient boosting regression baseline for tabular prediction.",
         tags=frozenset({"ml", "regression", "gradient-boosting"}),
         when_to_use="Tabular data; often best single model; handles missing values natively",
+        citations=(
+            "Friedman, J. (2001). Greedy function approximation: A gradient boosting machine. Annals of Statistics, 29(5), 1189-1232.",
+        ),
         when_not_to_use="Small datasets (<100 obs) where overfitting is likely; need fast inference",
         output_interpretation="SHAP values for feature attribution. Partial dependence plots for marginal effects.",
         typical_min_obs=100,

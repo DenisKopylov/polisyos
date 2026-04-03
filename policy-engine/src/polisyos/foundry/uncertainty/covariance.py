@@ -1,3 +1,4 @@
+"""Public uncertainty covariance module API."""
 from __future__ import annotations
 
 from typing import Mapping
@@ -8,6 +9,7 @@ from polisyos.ir.analytics.uncertainty import DistributionFamily, UncertaintyEnv
 
 
 def extract_std(env: UncertaintyEnvelope) -> float:
+    """Extract std helper."""
     lo, hi = env.confidence_interval
     width = max(float(hi - lo), 0.0)
     level = env.confidence_level
@@ -31,6 +33,7 @@ def build_covariance_matrix(
     use_full_covariance: bool,
     jitter: float,
 ) -> jnp.ndarray:
+    """Build covariance matrix."""
     stds = jnp.asarray(
         [extract_std(input_envelopes[name]) for name in param_names],
         dtype=jnp.float32,

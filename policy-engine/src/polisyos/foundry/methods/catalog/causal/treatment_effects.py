@@ -1,3 +1,4 @@
+"""Public causal treatment effects module API."""
 from __future__ import annotations
 
 from typing import Any, ClassVar, Mapping
@@ -67,6 +68,7 @@ def _logistic_propensity(X: np.ndarray, t: np.ndarray, max_iter: int = 50) -> np
     tags={"causal", "treatment-effects", "aipw", "doubly-robust"},
 )
 class AIPWEstimator:
+    """AIPW estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -137,6 +139,7 @@ class AIPWEstimator:
     tags={"causal", "treatment-effects", "tmle"},
 )
 class TMLEEstimator:
+    """TMLE estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -201,6 +204,7 @@ class TMLEEstimator:
     tags={"causal", "treatment-effects", "ipw"},
 )
 class IPWEstimator:
+    """IPW estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -278,6 +282,7 @@ class IPWEstimator:
     tags={"causal", "treatment-effects", "propensity-matching"},
 )
 class PropensityScoreMatchingEstimator:
+    """Propensity score matching estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -370,6 +375,7 @@ class PropensityScoreMatchingEstimator:
     tags={"causal", "treatment-effects", "entropy-balancing"},
 )
 class EntropyBalancingEstimator:
+    """Entropy balancing estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -479,6 +485,7 @@ class EntropyBalancingEstimator:
     tags={"causal", "treatment-effects", "cbps"},
 )
 class CBPSEstimator:
+    """CBPS estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 

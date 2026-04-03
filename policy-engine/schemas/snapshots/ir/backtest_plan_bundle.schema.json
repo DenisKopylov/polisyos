@@ -1,0 +1,66 @@
+{
+  "$defs": {
+    "ContractCompatibilityTarget": {
+      "additionalProperties": false,
+      "properties": {
+        "contract_fqn": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Contract Fqn",
+          "type": "string"
+        },
+        "contract_id": {
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Contract Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "contract_id",
+        "contract_fqn"
+      ],
+      "title": "ContractCompatibilityTarget",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "artifact_name": {
+      "const": "backtest_plan_bundle.json",
+      "default": "backtest_plan_bundle.json",
+      "title": "Artifact Name",
+      "type": "string"
+    },
+    "contract_target": {
+      "$ref": "#/$defs/ContractCompatibilityTarget"
+    },
+    "holdout_windows": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Holdout Windows",
+      "type": "array"
+    },
+    "required_fields": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Required Fields",
+      "type": "array"
+    },
+    "schema_version": {
+      "default": "1.0",
+      "pattern": "^\\d+\\.\\d+$",
+      "title": "Schema Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "contract_target",
+    "required_fields"
+  ],
+  "title": "BacktestPlanBundle",
+  "type": "object"
+}

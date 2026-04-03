@@ -1,3 +1,4 @@
+"""Public builtins set state module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -28,6 +29,7 @@ _ALLOWED_TYPES = (str, int, bool, Decimal)
 
 @dataclass(frozen=True)
 class SetStateNode:
+    """Set state node implementation."""
     params: dict[str, JsonScalar] | None = None
 
     @property

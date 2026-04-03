@@ -1,3 +1,5 @@
+"""Shared HTTP runtime used by production Fabric connectors."""
+
 from __future__ import annotations
 
 import json
@@ -40,6 +42,12 @@ DataT = TypeVar("DataT")
 
 @dataclass(frozen=True, slots=True)
 class HTTPResilienceProfile:
+    """Retry, rate-limit, and circuit-breaker defaults for HTTP connectors.
+
+    The profile captures source-specific resilience defaults that sit on top of
+    per-connection overrides from ``ConnectionConfig``.
+    """
+
     max_attempts: int = 3
     base_delay: float = 1.0
     backoff_factor: float = 2.0
@@ -51,7 +59,12 @@ class HTTPResilienceProfile:
 
 
 class HTTPConnectorBase(BaseConnector[DataT], Generic[DataT]):
-    """Shared runtime for HTTP/JSON connector implementations."""
+    """Shared runtime for HTTP/JSON connector implementations.
+
+    Provides authenticated request execution, resilient retry / rate-limit
+    handling, session lifecycle management, and normalized ``FetchResult``
+    construction for concrete source connectors.
+    """
 
     _BASE_URL: ClassVar[str] = ""
     resilience_profile: ClassVar[HTTPResilienceProfile] = HTTPResilienceProfile()

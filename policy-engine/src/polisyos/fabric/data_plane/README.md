@@ -1,59 +1,37 @@
-# Data Plane
+# Data Plane (`polisyos.fabric.data_plane`)
 
-`polisyos.fabric.data_plane` — orchestration-слой над ingestion: execution modes, cursor lifecycle, record/replay, snapshot production и semantic diff для revised historical sources.
+`data_plane` - orchestration layer for ingestion modes, cursor lifecycle, record/replay
+and snapshot production.
 
-## Назначение
+## Role in System
 
-Data Plane управляет способом выполнения ingestion, не меняя контракт `SourceConnector`.
+- **Depends on:** `polisyos.fabric.ingestion`, connector/runtime artifacts
+- **Used by:** batch ingestion, replay tooling and historical regression checks
+- Leaves source contracts unchanged and controls how ingestion is executed.
 
-```text
-connector manifest
-  -> run_orchestrated_ingestion / run_*_mode
-  -> evidence + optional DataSnapshot
-  -> cursor/session artifacts + regression checks
-```
+## Key Concepts
 
-## Основные модули
+- **Execution modes** - batch incremental, record, replay and streaming-windowed runs.
+- **Cursor state** - cursor persistence and resume support.
+- **Semantic diff** - compares historical rows across schema evolution.
+- **Snapshot production** - builds data snapshots from already stored CAS artifacts.
 
-- `orchestrator.py`
-  `run_orchestrated_ingestion(...)`: решает double-fetch (snapshot собирается из уже сохраненных CAS-артефактов).
-- `modes.py`
-  - `run_batch_incremental(...)`
-  - `run_record_mode(...)`
-  - `run_replay_mode(...)`
-  - `run_streaming_windowed(...)`
-- `cursor_store.py`
-  CAS + lightweight индекс `cursor_index.json`.
-- `watermark.py`
-  Политики watermark (`Timestamp`, `ETag`, `Revision`, `Offset`) и mapping по семействам коннекторов.
-- `replay_store.py`
-  `RecordSession`/`ReplayStore` для record/replay fixtures.
-- `regression.py`
-  deterministic compare record/replay результатов.
-- `semantic_diff.py`
-  `compare_historical_rows(...)`: schema evolution + row-level semantic diff для revised historical snapshots.
+## Public API
 
-## Возвращаемые результаты
+| Type/Function | Description |
+|---|---|
+| `run_orchestrated_ingestion()` | Main orchestration entrypoint. |
+| `run_batch_incremental()` | Batch ingestion mode. |
+| `run_record_mode()` | Record-mode ingestion with replay artifacts. |
+| `run_replay_mode()` | Replay a recorded ingestion session. |
+| `run_streaming_windowed()` | Windowed streaming ingestion mode. |
+| `compare_historical_rows()` | Computes semantic diff for historical data. |
+| `persist_historical_semantic_diff_report()` | Persists semantic diff reports. |
 
-Базовый тип: `IngestionResult`:
+→ Full reference: [docs/reference/fabric/index.md](../../../../docs/reference/fabric/index.md)
 
-- `evidence_bundle_ref`
-- `data_snapshot_ref`
-- `datasets_fetched`
-- `warnings`
-- `cursor_ref`
-- `mode_effective`
+## Current State
 
-Специальный случай: `run_record_mode(...)` возвращает `(IngestionResult, record_ref_hex)`.
-
-Semantic diff path возвращает `HistoricalSemanticDiffReport`:
-
-- сначала использует `DataSchema.primary_key`;
-- затем fallback на `time_dimension + geo_dimension + semantic CODE/INDEX/IDENTIFIER`;
-- если grain невыводим, помечает отчёт `manual_review_required` и не делает auto-recalibration.
-
-## Связи
-
-- upstream: `fabric.ingestion`.
-- replay/runtime: `fabric.connectors.testing.simulator` (`APISimulator`).
-- контракты: `polisyos.core.contracts.cursor`, `polisyos.core.contracts.fabric`.
+- Last updated: 2026-04-03
+- Files: 8 Python files
+- Exports: 2

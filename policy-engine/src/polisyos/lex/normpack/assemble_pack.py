@@ -1,3 +1,4 @@
+"""Public normpack assemble pack module API."""
 from __future__ import annotations
 
 import re
@@ -532,6 +533,7 @@ def claims_to_norm_rules(
     trust_by_target: dict[str, TrustAssessment],
     extractor_id_by_claim: dict[str, str],
 ) -> list[NormRule]:
+    """Claims to norm rules helper."""
     sortable: list[tuple[str, str, str, NormRule]] = []
 
     for claim_id in sorted(set(canonical_claim_ids)):
@@ -621,6 +623,7 @@ def persist_norm_pack(
     conflict_resolution_artifact_ids: list[str],
     trust_assessment_artifact_ids: list[str],
 ) -> str:
+    """Persist norm pack helper."""
     inputs: list[InputRef] = []
     seen: set[tuple[str, str]] = set()
 
@@ -661,6 +664,7 @@ def emit_norm_pack_world_facts(
     *,
     norm_pack_artifact_id: str,
 ) -> tuple[str, list[Any]]:
+    """Emit norm pack world facts helper."""
     norm_pack_world_id = artifact_id_to_world_id(
         prefix="artifact",
         artifact_id=norm_pack_artifact_id,
@@ -697,6 +701,7 @@ def emit_norm_pack_assemble_event(
     segment_name: str | None,
     counts: dict[str, int],
 ) -> tuple[str, str, Any]:
+    """Emit norm pack assemble event helper."""
     inputs: list[WorldObjectRef] = []
     for doc in sorted(selected_doc_versions, key=lambda row: row.doc_version_id):
         inputs.append(WorldObjectRef(world_id=doc.doc_version_id))
@@ -760,6 +765,7 @@ def assemble_norm_pack(
     db: SimulationDB | None = None,
     segment_name: str | None = None,
 ) -> NormPackBuildResult:
+    """Assemble norm pack helper."""
     normalized_request, jurisdiction_norm, as_of_norm, domain_norm = _normalize_request(request)
     run_suffix = datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S%f")
 

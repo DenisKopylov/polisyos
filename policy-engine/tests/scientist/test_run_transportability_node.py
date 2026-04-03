@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+import importlib.util
 import logging
 
 import pytest
+
+_Y0_INSTALLED = importlib.util.find_spec("y0") is not None
 
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.registry import build_default_registry_bundle
@@ -223,6 +226,7 @@ def test_resolution_loop_hard_legal_constraint_sets_infeasible(
     assert result.hard_legal_constraints
 
 
+@pytest.mark.skipif(_Y0_INSTALLED, reason="y0 is installed — symbolic identification succeeds; test verifies bounds fallback when unavailable")
 def test_resolution_loop_data_gap_and_convergence(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

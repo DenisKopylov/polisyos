@@ -1,3 +1,4 @@
+"""Public engine registry module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -21,6 +22,7 @@ from polisyos.scientist.engine.protocol import Node, NodeSpec
 
 @dataclass(slots=True)
 class NodeBootstrapReport:
+    """Node bootstrap report data model."""
     registered: list[str] = field(default_factory=list)
     duplicates: list[str] = field(default_factory=list)
     errors: list[str] = field(default_factory=list)

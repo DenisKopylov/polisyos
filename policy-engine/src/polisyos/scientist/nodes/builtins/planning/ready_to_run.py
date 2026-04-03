@@ -1,3 +1,4 @@
+"""Public planning ready to run module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -28,6 +29,7 @@ _SPEC = NodeSpec(
 
 @dataclass(frozen=True)
 class ReadyToRunNode:
+    """Ready to run node implementation."""
     @property
     def spec(self) -> NodeSpec:
         return _SPEC

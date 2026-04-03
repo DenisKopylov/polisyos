@@ -1,3 +1,4 @@
+"""Public forecasting registry boot module API."""
 from __future__ import annotations
 
 from typing import Sequence
@@ -16,6 +17,7 @@ from .univariate import (
 
 
 def register_forecasting_methods() -> Sequence[type]:
+    """Register forecasting methods."""
     return (
         ExponentialSmoothingEstimator,
         ThetaMethodEstimator,

@@ -1,3 +1,4 @@
+"""Public contracts decision validity module API."""
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -12,6 +13,7 @@ def _utc_now() -> datetime:
 
 
 class DecisionValidityStatus(str, Enum):
+    """Decision validity status public type."""
     ACTIVE = "active"
     WARNING = "warning"
     STALE = "stale"
@@ -21,6 +23,7 @@ class DecisionValidityStatus(str, Enum):
 
 
 class DecisionDependencyKind(str, Enum):
+    """Decision dependency kind public type."""
     NORM_PACK = "norm_pack"
     LEGAL_REPORT = "legal_report"
     NORM_REFERENCE = "norm_reference"
@@ -39,6 +42,7 @@ class DecisionDependencyKind(str, Enum):
 
 
 class DecisionTriggerType(str, Enum):
+    """Decision trigger type public type."""
     LAW_CHANGE = "law_change"
     DATASET_SUPERSEDED = "dataset_superseded"
     HISTORICAL_SEMANTIC_REVISION = "historical_semantic_revision"
@@ -53,6 +57,7 @@ class DecisionTriggerType(str, Enum):
 
 
 class DecisionDependencyRef(BaseModel):
+    """Decision dependency ref data model."""
     model_config = ConfigDict(extra="forbid")
 
     kind: DecisionDependencyKind
@@ -63,6 +68,7 @@ class DecisionDependencyRef(BaseModel):
 
 
 class DecisionBasisSection(BaseModel):
+    """Decision basis section public type."""
     model_config = ConfigDict(extra="forbid")
 
     dependencies: list[DecisionDependencyRef] = Field(default_factory=list)
@@ -70,6 +76,7 @@ class DecisionBasisSection(BaseModel):
 
 
 class DecisionTriggerSpec(BaseModel):
+    """Decision trigger spec data model."""
     model_config = ConfigDict(extra="forbid")
 
     trigger_type: DecisionTriggerType
@@ -79,6 +86,7 @@ class DecisionTriggerSpec(BaseModel):
 
 
 class DecisionTriggerRecord(BaseModel):
+    """Decision trigger record data model."""
     model_config = ConfigDict(extra="forbid")
 
     trigger_type: DecisionTriggerType
@@ -90,6 +98,7 @@ class DecisionTriggerRecord(BaseModel):
 
 
 class DecisionValidityEnvelope(BaseModel):
+    """Decision validity envelope data model."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field(default="1.0", pattern=r"^\d+\.\d+$")
@@ -119,6 +128,7 @@ class DecisionValidityEnvelope(BaseModel):
 
 
 class DecisionValidityEvaluation(BaseModel):
+    """Decision validity evaluation public type."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field(default="1.0", pattern=r"^\d+\.\d+$")
@@ -140,6 +150,7 @@ DecisionLifecycleJobKind = Literal["evaluation", "scheduled_monitoring"]
 
 
 class DecisionDependencyEvent(BaseModel):
+    """Decision dependency event data model."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field(default="1.0", pattern=r"^\d+\.\d+$")
@@ -156,6 +167,7 @@ class DecisionDependencyEvent(BaseModel):
 
 
 class DecisionValidityTransition(BaseModel):
+    """Decision validity transition public type."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field(default="1.0", pattern=r"^\d+\.\d+$")
@@ -172,6 +184,7 @@ class DecisionValidityTransition(BaseModel):
 
 
 class DecisionLifecycleJob(BaseModel):
+    """Decision lifecycle job public type."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field(default="1.0", pattern=r"^\d+\.\d+$")

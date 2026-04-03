@@ -1,0 +1,91 @@
+{
+  "family": "proof_closure",
+  "visibility": "public",
+  "revision": "2.1",
+  "cases": [
+    {
+      "case_id": "proof_closure::identified_frontdoor",
+      "case_class": "identified",
+      "inputs_ref": "benchmark://capability_symbolic_nonid/frontdoor_identified_positive_control",
+      "oracle_ref": "oracle://proof_closure/identified_frontdoor",
+      "baseline_overlap": ["y0"],
+      "gates": {
+        "claim_eligible": true,
+        "unsupported_is_valid": false
+      },
+      "tags": ["identified", "frontdoor", "proof_bundle"],
+      "expected_outcome": "ProofBundle",
+      "proof_replay_success": true,
+      "bounds_valid": true,
+      "safe_abstention": true,
+      "unsafe_without_gate": false,
+      "y0_case": {
+        "treatment": "X",
+        "outcome": "Y",
+        "nodes": ["X", "M", "Y"],
+        "directed": [["X", "M"], ["M", "Y"]],
+        "bidirected": [["X", "Y"]],
+        "expected_identifiable": true
+      }
+    },
+    {
+      "case_id": "proof_closure::constructive_negative_certificate",
+      "case_class": "negative_certificate",
+      "inputs_ref": "benchmark://capability_symbolic_nonid/engine_bow_arc_negative_certificate",
+      "oracle_ref": "oracle://proof_closure/constructive_negative_certificate",
+      "baseline_overlap": ["y0"],
+      "gates": {
+        "claim_eligible": true,
+        "unsupported_is_valid": false
+      },
+      "tags": ["hedge", "negative_certificate"],
+      "expected_outcome": "NegativeCertificate",
+      "proof_replay_success": true,
+      "bounds_valid": true,
+      "safe_abstention": true,
+      "unsafe_without_gate": false,
+      "y0_case": {
+        "treatment": "X",
+        "outcome": "Y",
+        "nodes": ["X", "Y"],
+        "directed": [["X", "Y"]],
+        "bidirected": [["X", "Y"]],
+        "expected_identifiable": false
+      }
+    },
+    {
+      "case_id": "proof_closure::partial_bounds_fallback",
+      "case_class": "bounded",
+      "inputs_ref": "benchmark://capability_nontransportability_bounds/nontransportable_bounds",
+      "oracle_ref": "oracle://proof_closure/partial_bounds_fallback",
+      "baseline_overlap": [],
+      "gates": {
+        "claim_eligible": true,
+        "unsupported_is_valid": false
+      },
+      "tags": ["bounds_bundle", "transport"],
+      "expected_outcome": "BoundsBundle",
+      "proof_replay_success": true,
+      "bounds_valid": true,
+      "safe_abstention": true,
+      "unsafe_without_gate": false
+    },
+    {
+      "case_id": "proof_closure::unsupported_research_query",
+      "case_class": "unsupported",
+      "inputs_ref": "fixture://proof_closure/unsupported_research_query",
+      "oracle_ref": "oracle://proof_closure/unsupported_research_query",
+      "baseline_overlap": [],
+      "gates": {
+        "claim_eligible": true,
+        "unsupported_is_valid": true
+      },
+      "tags": ["unsupported", "safe_abstention"],
+      "expected_outcome": "unknown",
+      "proof_replay_success": true,
+      "bounds_valid": true,
+      "safe_abstention": true,
+      "unsafe_without_gate": true
+    }
+  ]
+}

@@ -1269,6 +1269,7 @@ class GonkaChatClient:
 
 @dataclass
 class ExtractorStats:
+    """Extractor stats public type."""
     total_seen: int = 0
     skipped: int = 0
     screening_rejected: int = 0
@@ -1285,6 +1286,7 @@ class ExtractorStats:
 
 
 class PolicyArticleExtractor:
+    """Policy article extractor public type."""
     def __init__(
         self,
         *,

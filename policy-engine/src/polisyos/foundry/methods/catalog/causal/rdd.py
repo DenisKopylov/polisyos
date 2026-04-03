@@ -1,3 +1,4 @@
+"""Public causal rdd module API."""
 from __future__ import annotations
 
 import math
@@ -127,6 +128,7 @@ def _manipulation_test(x_centered: np.ndarray, bandwidth: float) -> DiagnosticTe
     tags={"causal", "quasi-experimental", "regression-discontinuity"},
 )
 class RegressionDiscontinuity:
+    """Regression discontinuity public type."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
 
     signature: ClassVar[MethodSignature] = MethodSignature(

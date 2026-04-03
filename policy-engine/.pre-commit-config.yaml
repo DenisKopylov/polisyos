@@ -39,3 +39,17 @@ repos:
         files: '^src/polisyos/(ir|fabric/world|core/canon|core/artifacts)/.*\.py$'
         pass_filenames: false
         require_serial: true
+
+  - repo: https://github.com/econchick/interrogate
+    rev: 1.7.0
+    hooks:
+      - id: interrogate
+        args:
+          - --fail-under=80
+          - --ignore-init-module
+          - --ignore-init-method
+          - --ignore-magic
+          - --ignore-private
+          - --ignore-semiprivate
+          - -v
+        files: ^src/polisyos/(ir|lex|fabric)/

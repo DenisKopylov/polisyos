@@ -1,3 +1,4 @@
+"""Public scientist replay backend module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -46,6 +47,7 @@ from polisyos.scientist.workflows.builder import run_selected_workflow
 
 @dataclass
 class ReplayBackendResult:
+    """Replay backend result data model."""
     success: bool
     run_id: str
     strategy: ReplayStrategy
@@ -67,6 +69,7 @@ def replay_packet(
     verification_config: VerificationConfig | None = None,
     force_strategy: ReplayStrategy | None = None,
 ) -> ReplayBackendResult:
+    """Replay packet helper."""
     config = verification_config or VerificationConfig()
     plan = build_replay_plan(store, packet_ref)
     strategy = force_strategy or plan.strategy

@@ -1,3 +1,4 @@
+"""Public artifacts signing module API."""
 from __future__ import annotations
 
 import json
@@ -52,6 +53,7 @@ class KeyLoadingError(SigningError):
 
 
 class SignatureVerificationStatus(str, Enum):
+    """Signature verification status public type."""
     VALID = "valid"
     UNSIGNED = "unsigned"
     INVALID = "invalid"
@@ -278,14 +280,17 @@ def compute_key_id(public_key: Ed25519PublicKey) -> str:
 
 
 def hash_bytes(data: bytes) -> str:
+    """Hash bytes helper."""
     return content_hash(data)
 
 
 def canonical_statement_bytes(statement: SignatureStatement) -> bytes:
+    """Canonical statement bytes helper."""
     return to_canonical_bytes(statement.model_dump(mode="python", by_alias=True, exclude_none=True))
 
 
 def safe_short_key_id(key_id: str | None) -> str:
+    """Safe short key ID helper."""
     if key_id is None:
         return "<none>"
     if len(key_id) <= 18:
@@ -659,6 +664,7 @@ def load_signer_from_config(
     *,
     password: bytes | None = None,
 ) -> Ed25519Signer:
+    """Load signer from config."""
     return Ed25519Signer.from_env_or_file(
         private_key_env=config.private_key_env,
         private_key_file_env=config.private_key_file_env,
@@ -668,6 +674,7 @@ def load_signer_from_config(
 
 
 def build_verifier_from_config(config: SigningConfig) -> Ed25519Verifier:
+    """Build verifier from config."""
     verifier = Ed25519Verifier(strict_identity=config.strict_identity)
     verifier.load_trust_dir(config.trust_dir)
     verifier.load_revoked_dir(config.revoked_dir)

@@ -1,3 +1,4 @@
+"""Public ir artifacts package API."""
 from .contracts import (
     ArtifactID,
     ArtifactStore,

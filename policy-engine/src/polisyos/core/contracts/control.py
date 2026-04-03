@@ -53,12 +53,14 @@ class DataSourceBinding(BaseModel):
 
 
 class PolicyFlags(BaseModel):
+    """Policy flags public type."""
     model_config = ConfigDict(extra="forbid")
 
     allow_mock_fallback: bool = False
 
 
 class DecisionValidityEventRequest(BaseModel):
+    """Decision validity event request data model."""
     model_config = ConfigDict(extra="forbid")
 
     trigger_type: DecisionTriggerType
@@ -72,6 +74,7 @@ class DecisionValidityEventRequest(BaseModel):
 
 
 class DecisionValidityEventResponse(BaseModel):
+    """Decision validity event response data model."""
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -83,6 +86,7 @@ class DecisionValidityEventResponse(BaseModel):
 
 
 class DecisionValidityPendingReview(BaseModel):
+    """Decision validity pending review public type."""
     model_config = ConfigDict(extra="forbid")
 
     event_id: str
@@ -92,6 +96,7 @@ class DecisionValidityPendingReview(BaseModel):
 
 
 class DecisionValidityLifecycleSummary(BaseModel):
+    """Decision validity lifecycle summary data model."""
     model_config = ConfigDict(extra="forbid")
 
     events: list[DecisionDependencyEvent] = Field(default_factory=list)
@@ -103,6 +108,7 @@ class DecisionValidityLifecycleSummary(BaseModel):
 
 
 class DecisionValiditySummaryResponse(BaseModel):
+    """Decision validity summary response data model."""
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -182,6 +188,7 @@ class NaturalLanguageRunRequest(BaseModel):
 
 
 class RunLaunchResponse(BaseModel):
+    """Run launch response data model."""
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -198,6 +205,7 @@ class RunLaunchResponse(BaseModel):
 
 
 class DatasetFetchSpecRequest(BaseModel):
+    """Dataset fetch spec request data model."""
     model_config = ConfigDict(extra="forbid")
 
     connector_id: str
@@ -233,6 +241,7 @@ class IngestRequest(BaseModel):
 
 
 class IngestResponse(BaseModel):
+    """Ingest response data model."""
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -254,6 +263,7 @@ class IngestResponse(BaseModel):
 
 
 class DataNeed(BaseModel):
+    """Data need public type."""
     model_config = ConfigDict(extra="forbid")
 
     metric: str = Field(..., min_length=1, max_length=256)
@@ -266,6 +276,7 @@ class DataNeed(BaseModel):
 
 
 class MetricCandidate(BaseModel):
+    """Metric candidate public type."""
     model_config = ConfigDict(extra="forbid")
 
     candidate_id: str = Field(..., min_length=1)
@@ -286,6 +297,7 @@ class MetricCandidate(BaseModel):
 
 
 class DiscoveryCandidate(BaseModel):
+    """Discovery candidate public type."""
     model_config = ConfigDict(extra="forbid")
 
     candidate_id: str
@@ -305,6 +317,7 @@ class DiscoveryCandidate(BaseModel):
 
 
 class FetchPlanFallback(BaseModel):
+    """Fetch plan fallback public type."""
     model_config = ConfigDict(extra="forbid")
 
     connector_id: str
@@ -314,6 +327,7 @@ class FetchPlanFallback(BaseModel):
 
 
 class FetchPlan(BaseModel):
+    """Fetch plan data model."""
     model_config = ConfigDict(extra="forbid")
 
     plan_id: str = Field(..., min_length=1)
@@ -334,6 +348,7 @@ class FetchPlan(BaseModel):
 
 
 class FetchPreview(BaseModel):
+    """Fetch preview public type."""
     model_config = ConfigDict(extra="forbid", populate_by_name=True)
 
     status: PreviewStatus = "ok"
@@ -351,6 +366,7 @@ class FetchPreview(BaseModel):
 
 
 class DataContextMetric(BaseModel):
+    """Data context metric public type."""
     model_config = ConfigDict(extra="forbid")
 
     metric_id: str
@@ -364,6 +380,7 @@ class DataContextMetric(BaseModel):
 
 
 class DataContext(BaseModel):
+    """Data context public type."""
     model_config = ConfigDict(extra="forbid")
 
     metrics: list[DataContextMetric] = Field(default_factory=list)
@@ -373,6 +390,7 @@ class DataContext(BaseModel):
 
 
 class PromotionCandidate(BaseModel):
+    """Promotion candidate public type."""
     model_config = ConfigDict(extra="forbid")
 
     promotion_id: str
@@ -389,6 +407,7 @@ class PromotionCandidate(BaseModel):
 
 
 class IndexStats(BaseModel):
+    """Index stats public type."""
     model_config = ConfigDict(extra="forbid")
 
     index_docs_total: int = Field(default=0, ge=0)
@@ -400,6 +419,7 @@ class IndexStats(BaseModel):
 
 
 class DataResolveRequest(BaseModel):
+    """Data resolve request data model."""
     model_config = ConfigDict(extra="forbid")
 
     data_needs: list[DataNeed] = Field(..., min_length=1)
@@ -408,6 +428,7 @@ class DataResolveRequest(BaseModel):
 
 
 class DataResolveResponse(BaseModel):
+    """Data resolve response data model."""
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -418,6 +439,7 @@ class DataResolveResponse(BaseModel):
 
 
 class DataDiscoverRequest(BaseModel):
+    """Data discover request data model."""
     model_config = ConfigDict(extra="forbid")
 
     data_needs: list[DataNeed] = Field(..., min_length=1)
@@ -429,6 +451,7 @@ class DataDiscoverRequest(BaseModel):
 
 
 class DataDiscoverResponse(BaseModel):
+    """Data discover response data model."""
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -439,6 +462,7 @@ class DataDiscoverResponse(BaseModel):
 
 
 class DataPreviewRequest(BaseModel):
+    """Data preview request data model."""
     model_config = ConfigDict(extra="forbid")
 
     fetch_plan: FetchPlan
@@ -446,6 +470,7 @@ class DataPreviewRequest(BaseModel):
 
 
 class DataPreviewResponse(BaseModel):
+    """Data preview response data model."""
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -453,6 +478,7 @@ class DataPreviewResponse(BaseModel):
 
 
 class DataCatalogSearchResponse(BaseModel):
+    """Data catalog search response data model."""
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -462,6 +488,7 @@ class DataCatalogSearchResponse(BaseModel):
 
 
 class IndexStatsResponse(BaseModel):
+    """Index stats response data model."""
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -469,6 +496,7 @@ class IndexStatsResponse(BaseModel):
 
 
 class PromotionCandidatesResponse(BaseModel):
+    """Promotion candidates response data model."""
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -476,12 +504,14 @@ class PromotionCandidatesResponse(BaseModel):
 
 
 class PromotionDecisionRequest(BaseModel):
+    """Promotion decision request data model."""
     model_config = ConfigDict(extra="forbid")
 
     reason: str | None = None
 
 
 class PromotionDecisionResponse(BaseModel):
+    """Promotion decision response data model."""
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -497,6 +527,7 @@ class PromotionDecisionResponse(BaseModel):
 
 
 class ConnectorInfo(BaseModel):
+    """Connector info data model."""
     model_config = ConfigDict(extra="forbid")
 
     connector_id: str
@@ -509,6 +540,7 @@ class ConnectorInfo(BaseModel):
 
 
 class ConnectorsListResponse(BaseModel):
+    """Connectors list response data model."""
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -521,6 +553,7 @@ class ConnectorsListResponse(BaseModel):
 
 
 class SourceProfileInfo(BaseModel):
+    """Source profile info data model."""
     model_config = ConfigDict(extra="forbid")
 
     profile_id: str
@@ -536,6 +569,7 @@ class SourceProfileInfo(BaseModel):
 
 
 class SourceProfilesListResponse(BaseModel):
+    """Source profiles list response data model."""
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -548,6 +582,7 @@ class SourceProfilesListResponse(BaseModel):
 
 
 class ModelProfileInfo(BaseModel):
+    """Model profile info data model."""
     model_config = ConfigDict(extra="forbid")
 
     profile_id: str
@@ -564,6 +599,7 @@ class ModelProfileInfo(BaseModel):
 
 
 class ModelProfilesListResponse(BaseModel):
+    """Model profiles list response data model."""
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -576,6 +612,7 @@ class ModelProfilesListResponse(BaseModel):
 
 
 class BindingProfileInfo(BaseModel):
+    """Binding profile info data model."""
     model_config = ConfigDict(extra="forbid")
 
     profile_id: str
@@ -589,6 +626,7 @@ class BindingProfileInfo(BaseModel):
 
 
 class BindingProfilesListResponse(BaseModel):
+    """Binding profiles list response data model."""
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -601,6 +639,7 @@ class BindingProfilesListResponse(BaseModel):
 
 
 class CacheEntryInfo(BaseModel):
+    """Cache entry info data model."""
     model_config = ConfigDict(extra="forbid")
 
     cache_key: str
@@ -613,6 +652,7 @@ class CacheEntryInfo(BaseModel):
 
 
 class CacheStatusResponse(BaseModel):
+    """Cache status response data model."""
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -630,6 +670,7 @@ IngestRequest.model_rebuild()
 
 
 class CapabilityFeatureInfo(BaseModel):
+    """Capability feature info data model."""
     model_config = ConfigDict(extra="forbid")
 
     key: str
@@ -642,6 +683,7 @@ class CapabilityFeatureInfo(BaseModel):
 
 
 class CapabilityManifestResponse(BaseModel):
+    """Capability manifest response data model."""
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -663,6 +705,7 @@ class CapabilityManifestResponse(BaseModel):
 
 
 class ControlJobResponse(BaseModel):
+    """Control job response data model."""
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -682,6 +725,7 @@ class ControlJobResponse(BaseModel):
 
 
 class ControlWorkerLeaseInfo(BaseModel):
+    """Control worker lease info data model."""
     model_config = ConfigDict(extra="forbid")
 
     worker_id: str
@@ -696,6 +740,7 @@ class ControlWorkerLeaseInfo(BaseModel):
 
 
 class ControlWorkersResponse(BaseModel):
+    """Control workers response data model."""
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -704,6 +749,7 @@ class ControlWorkersResponse(BaseModel):
 
 
 class ControlOutboxEventInfo(BaseModel):
+    """Control outbox event info data model."""
     model_config = ConfigDict(extra="forbid")
 
     event_id: str
@@ -720,6 +766,7 @@ class ControlOutboxEventInfo(BaseModel):
 
 
 class ControlOutboxEventsResponse(BaseModel):
+    """Control outbox events response data model."""
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -764,6 +811,7 @@ class LexTriggerRequest(BaseModel):
 
 
 class LexTriggerResponse(BaseModel):
+    """Lex trigger response data model."""
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -775,6 +823,7 @@ class LexTriggerResponse(BaseModel):
 
 
 class LexPipelineStatusResponse(BaseModel):
+    """Lex pipeline status response data model."""
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -785,6 +834,7 @@ class LexPipelineStatusResponse(BaseModel):
 
 
 class LexGraphStatsResponse(BaseModel):
+    """Lex graph stats response data model."""
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -807,6 +857,7 @@ class LexSearchRequest(BaseModel):
 
 
 class LexSearchResultItem(BaseModel):
+    """Lex search result item public type."""
     model_config = ConfigDict(extra="forbid")
 
     fact_id: str
@@ -829,6 +880,7 @@ class LexSearchResultItem(BaseModel):
 
 
 class LexSearchResponse(BaseModel):
+    """Lex search response data model."""
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta

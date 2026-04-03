@@ -31,13 +31,6 @@ from polisyos.scientist.search.compliance_audit import (
     ComplianceAuditEntry,
     scientist_blueprint_compliance_audit,
 )
-from polisyos.scientist.search.contracts import (
-    CandidateProposal,
-    EvaluationBundle,
-    OrchestratorFunnelService,
-    SearchService,
-    TellResult,
-)
 from polisyos.scientist.search.diversity import (
     DiversityTracker,
     ExclusionListBuilder,
@@ -80,15 +73,6 @@ from polisyos.scientist.search.objective import (
     ObjectiveValue,
     OptimizationDirection,
 )
-from polisyos.scientist.search.portfolio import (
-    PortfolioCombination,
-    PortfolioEvaluationResult,
-    PortfolioSearchMode,
-    PortfolioSearchSpace,
-    PortfolioSweep,
-    PortfolioSweepConfig,
-    PortfolioSweepReport,
-)
 from polisyos.scientist.search.sensitivity_adapter import SensitivityAwareCandidateGenerator
 from polisyos.scientist.search.sentinels import (
     SENTINEL_METADATA_KEY,
@@ -112,18 +96,6 @@ from polisyos.scientist.search.stages import (
     ExpensiveStage,
     SearchStage,
     StageResult,
-)
-from polisyos.scientist.search.voi_scheduler import (
-    ComputeEconomicsDecision,
-    ParetoSnapshot,
-    PredictiveVOIScheduler,
-    PromotionObservation,
-    SchedulingDecision,
-    SimpleVOIScheduler,
-    VOIModelSnapshot,
-    VOIModelStatus,
-    VOIObservation,
-    VOITrainingConfig,
 )
 from polisyos.scientist.search.stopping import (
     CompositeStoppingCriterion,
@@ -334,6 +306,30 @@ except Exception:  # pragma: no cover - optional dependency path
 
 def __getattr__(name: str):
     if name in {
+        "CandidateProposal",
+        "EvaluationBundle",
+        "OrchestratorFunnelService",
+        "SearchService",
+        "TellResult",
+    }:
+        module = importlib.import_module("polisyos.scientist.search.contracts")
+        value = getattr(module, name)
+        globals()[name] = value
+        return value
+    if name in {
+        "PortfolioCombination",
+        "PortfolioEvaluationResult",
+        "PortfolioSearchMode",
+        "PortfolioSearchSpace",
+        "PortfolioSweep",
+        "PortfolioSweepConfig",
+        "PortfolioSweepReport",
+    }:
+        module = importlib.import_module("polisyos.scientist.search.portfolio")
+        value = getattr(module, name)
+        globals()[name] = value
+        return value
+    if name in {
         "PromotionEvidenceBundle",
         "load_promotion_evidence_bundle",
         "persist_promotion_evidence_bundle",
@@ -351,5 +347,21 @@ def __getattr__(name: str):
             else "polisyos.scientist.search.latent_governance"
         )
         module = importlib.import_module(module_name)
+        value = getattr(module, name)
+        globals()[name] = value
+        return value
+    if name in {
+        "ComputeEconomicsDecision",
+        "ParetoSnapshot",
+        "PredictiveVOIScheduler",
+        "PromotionObservation",
+        "SchedulingDecision",
+        "SimpleVOIScheduler",
+        "VOIModelSnapshot",
+        "VOIModelStatus",
+        "VOIObservation",
+        "VOITrainingConfig",
+    }:
+        module = importlib.import_module("polisyos.scientist.search.voi_scheduler")
         return getattr(module, name)
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

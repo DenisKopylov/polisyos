@@ -406,6 +406,7 @@ def create_mock_draft(
     narrative: str = "Mock policy to reduce poverty through targeted subsidies",
     interventions: list[dict[str, Any]] | None = None,
 ) -> DraftResult:
+    """Create mock draft."""
     import uuid
 
     return DraftResult(

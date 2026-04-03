@@ -48,7 +48,22 @@ _MAX_LIMIT = 50000
 
 
 class SocrataConnector(HTTPConnectorBase[pd.DataFrame]):
-    """Socrata Open Data API (SODA) connector."""
+    """Connector for Socrata / SODA open-data portals.
+
+    Fetches records from portal-specific Socrata endpoints with support for
+    row limits, paging, and optional app-token authentication.
+
+    Data source:
+        Socrata-compatible portals such as NYC and Chicago
+    Protocol:
+        SODA / REST JSON
+    Auth:
+        App token or none, depending on profile
+    Async support:
+        Standard async HTTP execution only
+    Profile:
+        Any ``connector_family='socrata'`` profile
+    """
 
     namespace: ClassVar[str] = "socrata"
     short_id: ClassVar[str] = "soda"

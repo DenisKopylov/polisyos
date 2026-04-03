@@ -1,0 +1,20 @@
+{
+  "enum": [
+    "budget_flows",
+    "construction_capital_formation",
+    "distress_enforcement",
+    "education_human_capital_supply",
+    "firm_fundamentals",
+    "household_distribution",
+    "labor_market",
+    "logistics_friction",
+    "macro_state",
+    "procurement_flows",
+    "public_service_domain_flows",
+    "spatial_raster_exogenous",
+    "trade_exposure"
+  ],
+  "title": "ObservationFamily",
+  "type": "string",
+  "x-fqn": "polisyos.ir.observation.contracts.ObservationFamily"
+}

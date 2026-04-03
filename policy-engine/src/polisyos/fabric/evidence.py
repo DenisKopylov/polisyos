@@ -1,3 +1,4 @@
+"""Public fabric evidence module API."""
 from __future__ import annotations
 
 import json
@@ -24,6 +25,7 @@ def build_evidence_bundle(
     provenance_ref: ProvenanceCoreRef | None = None,
     quality_indicators: dict[str, QualityIndicators] | None = None,
 ) -> EvidenceBundle:
+    """Build evidence bundle."""
     prov_model = None
     if provenance_ref is not None:
         prov_model = ProvenanceCoreRefModel(

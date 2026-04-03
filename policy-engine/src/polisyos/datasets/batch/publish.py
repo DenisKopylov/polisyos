@@ -38,6 +38,7 @@ def _write_consumer_readiness_manifest(config: DatasetBatchConfig) -> tuple[Path
     qc_payload = _load_json(config.qc_report_path)
     benchmark_payload = _load_json(config.benchmark_report_path)
     benchmark_metrics = benchmark_payload.get("metrics") if isinstance(benchmark_payload.get("metrics"), dict) else {}
+    evaluation_mode = str(benchmark_payload.get("evaluation_mode") or "full-ready").strip() or "full-ready"
     qc_passed = bool(qc_payload.get("passed")) if qc_payload else False
     thresholds = readiness_thresholds_for_profile(config.run_profile)
     source_preflight_payload = benchmark_payload.get("source_preflight") if isinstance(benchmark_payload.get("source_preflight"), dict) else {}
@@ -59,6 +60,13 @@ def _write_consumer_readiness_manifest(config: DatasetBatchConfig) -> tuple[Path
             f"({', '.join(missing_blocking_statuses)})"
         )
 
+    bulk_equivalence_mismatch_rate = float(
+        benchmark_metrics.get("benchmark_bulk_equivalence_mismatch_rate", 0.0) or 0.0
+    )
+    bulk_equivalence_blocking_sources_total = int(
+        benchmark_metrics.get("benchmark_bulk_equivalence_blocking_sources_total", 0) or 0
+    )
+
     readiness = {
         "qc_ready": qc_passed,
         "benchmark_ready": bool(benchmark_metrics),
@@ -72,8 +80,14 @@ def _write_consumer_readiness_manifest(config: DatasetBatchConfig) -> tuple[Path
         >= thresholds["benchmark_foundry_fitness_pct"],
         "source_preflight_ready": float(benchmark_metrics.get("benchmark_source_preflight_ready_pct", 0.0) or 0.0)
         >= thresholds["benchmark_source_preflight_ready_pct"],
+        "evaluation_ready": evaluation_mode in {"core-ready", "full-ready"},
+        "equivalence_ready": (
+            bulk_equivalence_mismatch_rate <= 2.0
+            and bulk_equivalence_blocking_sources_total <= 0
+        ),
     }
     readiness["consumer_ready"] = all(readiness.values())
+    readiness["full_publish_ready"] = readiness["consumer_ready"] and evaluation_mode == "full-ready"
 
     table_counts = {
         "datasets": _table_count(config.db_path, "ds_datasets"),
@@ -101,6 +115,14 @@ def _write_consumer_readiness_manifest(config: DatasetBatchConfig) -> tuple[Path
         "promoted_sources": list(config.promoted_sources),
         "run_profile": config.run_profile,
         "blocking_source_statuses": blocking_source_statuses,
+        "evaluation_mode": evaluation_mode,
+        "publish_mode": (
+            "full-ready"
+            if readiness["full_publish_ready"]
+            else ("core-ready" if readiness["consumer_ready"] else "blocked")
+        ),
+        "bulk_equivalence_mismatch_rate": bulk_equivalence_mismatch_rate,
+        "bulk_equivalence_blocking_sources_total": bulk_equivalence_blocking_sources_total,
     }
     config.consumer_readiness_path.parent.mkdir(parents=True, exist_ok=True)
     with open(config.consumer_readiness_path, "w", encoding="utf-8") as fh:
@@ -171,6 +193,7 @@ def run_publish(config: DatasetBatchConfig) -> Path:
                 for key, value in (metrics.get("rest_bytes_by_source") or {}).items()
             }
     benchmark_payload = _load_json(config.benchmark_report_path)
+    evaluation_mode = str(benchmark_payload.get("evaluation_mode") or "full-ready").strip() or "full-ready"
     source_preflight_payload = benchmark_payload.get("source_preflight") if isinstance(benchmark_payload.get("source_preflight"), dict) else {}
     source_cases = source_preflight_payload.get("sources") if isinstance(source_preflight_payload.get("sources"), list) else []
     blocking_source_statuses = {
@@ -197,6 +220,8 @@ def run_publish(config: DatasetBatchConfig) -> Path:
             "consumer_readiness_manifest": str(consumer_readiness_path),
             "benchmark_report": str(config.benchmark_report_path) if config.benchmark_report_path.exists() else "",
             "consumer_ready": readiness["consumer_ready"],
+            "full_publish_ready": readiness["full_publish_ready"],
+            "evaluation_mode": evaluation_mode,
         },
     )
 

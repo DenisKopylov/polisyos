@@ -1,0 +1,52 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "artifact_name": {
+      "const": "leontief_io_bundle_v1.json",
+      "default": "leontief_io_bundle_v1.json",
+      "title": "Artifact Name",
+      "type": "string"
+    },
+    "optimization_target": {
+      "default": "optimization.io_leontief",
+      "minLength": 1,
+      "title": "Optimization Target",
+      "type": "string"
+    },
+    "regions": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Regions",
+      "type": "array"
+    },
+    "required_tables": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Required Tables",
+      "type": "array"
+    },
+    "schema_version": {
+      "default": "1.0",
+      "pattern": "^\\d+\\.\\d+$",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "sectors": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Sectors",
+      "type": "array"
+    }
+  },
+  "required": [
+    "regions",
+    "sectors"
+  ],
+  "title": "LeontiefIOBundle",
+  "type": "object"
+}

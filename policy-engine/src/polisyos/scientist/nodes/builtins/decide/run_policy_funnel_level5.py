@@ -1,3 +1,4 @@
+"""Public decide run policy funnel level 5 module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -58,6 +59,7 @@ _SPEC = NodeSpec(
 
 @dataclass(frozen=True)
 class RunPolicyFunnelLevel5Node:
+    """Run policy funnel level 5 node implementation."""
     @property
     def spec(self) -> NodeSpec:
         return _SPEC

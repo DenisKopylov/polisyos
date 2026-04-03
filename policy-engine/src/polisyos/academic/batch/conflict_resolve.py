@@ -108,6 +108,7 @@ def _resolution_for_rows(rows: list[dict[str, Any]]) -> dict[str, Any]:
 
 
 def run_conflict_resolve(config: AcademicBatchConfig) -> dict[str, int]:
+    """Run conflict resolve."""
     started_at = datetime.now(UTC).isoformat()
     claim_rows = _claim_rows(config)
     adjudications = _adjudication_map(config.claim_adjudications_path)

@@ -40,7 +40,7 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          pip install -e ".[dev,test]"
+          pip install -e ".[dev,test,causal-discovery]"
           pip install pytest-benchmark
 
       - name: Configure JAX for CPU
@@ -123,7 +123,7 @@ jobs:
           cache: 'pip'
 
       - name: Install Dependencies
-        run: pip install -e ".[dev,test]"
+        run: pip install -e ".[dev,test,causal-discovery]"
 
       - name: Configure JAX
         run: |

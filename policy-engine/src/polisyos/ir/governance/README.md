@@ -1,59 +1,43 @@
-# ir.governance
+# Governance (`polisyos.ir.governance`)
 
-`ir.governance` определяет governance-контракты Trinity: постановку задачи (`Why`), спецификацию интервенций (`What`), селекторы, расписание и gate-события.
+`polisyos.ir.governance` задает policy-facing контракты Trinity: постановку
+задачи, спецификацию интервенций, selector expressions, schedule semantics и
+gate events. После последних расширений модуль также несет temporal intervention
+surface и observation-aware metadata, необходимые для causal readiness и
+strategic-response workflows.
 
-## Роль в Trinity
+## Роль в системе
 
-```text
-ProblemFrame (Why)
-       +
-PolicySpec (What)
-       +
-ModelSpec (How, в ../model_spec.py)
-       =
-TrinityBundle
-```
+- **Зависит от:** `polisyos.ir.kernel`, `polisyos.ir.observation.contracts`
+- **Используется в:** `polisyos.ir.trinity`, `polisyos.ir.linker`, `polisyos.scientist.governance`, `polisyos.core.governance`
+- Governance contracts задают `Why` и `What` части Trinity; `How` остается в `polisyos.ir.model_spec`.
 
-См. также: [`../trinity/README.md`](../trinity/README.md)
+## Ключевые концепции
 
-## Состав
+- **Problem framing** — `ProblemFrame` хранит objectives, KPI, constraints и stakeholders.
+- **Policy interventions** — `PolicySpec` описывает interventions, bindings и tunable params.
+- **Temporal sequencing** — `TemporalInterventionSequence` и `TemporalInterventionStep` моделируют staged policy rollouts.
+- **Observation-aware metadata** — `InterventionSpec` теперь несет `identification_mode`, `strategic_response_expected` и transmission channels.
+- **Selector AST** — policy targeting задается через `SelectorPredicate`, `SelectorAll`, `SelectorAny`, `SelectorNot`.
+- **Gate protocol** — `GateRequest`, `GateDecision` и `GateEvent` стандартизируют governance decisions.
 
-| Файл | Назначение |
+## Public API
+
+| Type/Function | Description |
 |---|---|
-| `problem_frame.py` | `ProblemFrame`, objectives/KPI/success criteria/constraints/stakeholders |
-| `policy_spec.py` | `PolicySpec`, interventions, mechanism bindings, tunable parameters |
-| `selector_expr.py` | AST селекторов (`predicate`, `all_of`, `any_of`, `not`) |
-| `schedule.py` | `ScheduleSpec`, `schedule_range()` |
-| `gate.py` | `GateRequest`, `GateDecision`, `GateEvent`, `GateVerdict/Priority/EventType` |
-| `validation.py` | отчёты и диффы по pydantic validation errors |
+| `ProblemFrame` | Контракт постановки policy problem и success criteria |
+| `PolicySpec` | Спецификация активных interventions и их bindings |
+| `InterventionSpec` | Один intervention с policy metadata, targeting и measurement expectations |
+| `TemporalInterventionSequence` | Упорядоченная последовательность temporal intervention steps |
+| `ScheduleSpec` | Step-based activation window для interventions |
+| `GateRequest`, `GateDecision`, `GateEvent` | Typed governance gate protocol |
+| `ValidationIssue`, `ValidationReport` | Validation diagnostics для governance payloads |
 
-## Ключевые ограничения
+Full reference: [docs/reference/ir/](../../../../docs/reference/ir/index.md)
 
-- `ProblemFrame`:
-  - уникальность `objective_id`, `kpi_id`, `criterion_id`, `constraint_id`, `stakeholder_id`;
-  - `success_criteria.kpi_id` должен ссылаться на существующий KPI;
-  - в `hard_constraints` разрешены только `constraint_type=HARD`, в `soft_constraints` только `SOFT`.
-- `PolicySpec`:
-  - уникальность `intervention_id`, `binding_id`, `param_id`;
-  - `MechanismBinding.intervention_ids` и `ParameterSpec.intervention_id` должны ссылаться на существующие interventions.
-- Selector AST:
-  - лимиты сложности: `MAX_SELECTOR_DEPTH=10`, `MAX_SELECTOR_NODES=50`;
-  - `SelectorPredicate` отдельно валидирует семантику операторов (`in`, `between`, `contains`).
-- `ScheduleSpec`:
-  - требуется `end_step` или `duration_steps`;
-  - при одновременной передаче обоих значений проверяется согласованность диапазона.
+## Текущее состояние
 
-## Где используется
-
-| Директория | Использование |
-|---|---|
-| `ir/trinity` | включает `ProblemFrame` и `PolicySpec` в `TrinityBundle` |
-| `ir/linker` | валидирует interventions/constraints/selectors/schedules |
-| `scientist/governance` | preflight, gate-протокол и audit trail |
-| `core/governance` | policy/legal passes и совместимые контракты |
-
-## Быстрый импорт
-
-```python
-from polisyos.ir.governance import ProblemFrame, PolicySpec, GateRequest
-```
+- Последнее обновление: 2026-04-03
+- Files: 8 Python files
+- Exports: package facade from 6 governance modules
+- Recent delta: `policy_spec.py` расширен temporal intervention sequence и observation/strategic-response metadata для interventions

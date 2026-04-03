@@ -154,6 +154,7 @@ class DataCharacterizer:
 
 @dataclasses.dataclass(frozen=True)
 class DiscoveryAlgorithmSpec:
+    """Discovery algorithm spec data model."""
     name: str    # "pc" | "fci" | "ges" | "dagma" | "pcmci"
     weight: float
     required: bool
@@ -257,6 +258,7 @@ def _run_single_algorithm(
                 state=tab_state,
                 params={
                     "significance_level": significance_level,
+                    "algebraic_blocks": params.get("algebraic_blocks", []),
                     "n_bootstrap": n_bootstrap,
                     "timeout_seconds": timeout_seconds,
                 },
@@ -265,7 +267,7 @@ def _run_single_algorithm(
 
     except Exception as exc:  # noqa: BLE001
         # Return a minimal fallback report so the pipeline can continue
-        return CausalDiscoveryReport(
+        fallback_report = CausalDiscoveryReport(
             method=algo,
             graph=CausalGraphModel(
                 graph_type=GraphType.PAG,
@@ -275,6 +277,22 @@ def _run_single_algorithm(
             ),
             warnings=[f"algorithm_failed: {algo}: {exc!r}"],
         )
+        if not bool(params.get("is_time_series", False)):
+            from polisyos.foundry.methods.catalog.causal.constraint_discovery import (
+                _stamp_algebraic_constraint_audit,
+                _validate_algebraic_blocks,
+            )
+
+            fallback_report = _stamp_algebraic_constraint_audit(
+                fallback_report,
+                data=np.asarray(state.data),
+                variable_names=list(state.variable_names),
+                significance_level=float(params.get("significance_level", 0.05) or 0.05),
+                seed=int(params.get("__seed__", 0) or 0),
+                algebraic_blocks=_validate_algebraic_blocks(params.get("algebraic_blocks")),
+                degraded_reason="algebraic_audit_degraded:algorithm_failed_before_audit",
+            )
+        return fallback_report
 
     return None
 
@@ -1040,6 +1058,7 @@ class UnifiedCausalDiscovery:
             ParameterSpec(name="n_bootstrap", default=50),
             ParameterSpec(name="force_algorithms", default=None),
             ParameterSpec(name="min_presence_score", default=0.3),
+            ParameterSpec(name="algebraic_blocks", default=None),
             ParameterSpec(name="ci_backend", default="auto"),
             ParameterSpec(name="timeout_seconds", default=120),
             ParameterSpec(name="is_time_series", default=False),
@@ -1066,6 +1085,10 @@ class UnifiedCausalDiscovery:
             "markov": "Causal Markov condition holds.",
             "acyclicity": "Acyclicity (or lagged acyclicity for time-series).",
         },
+        citations=(
+            "Spirtes, P., Glymour, C. & Scheines, R. (2000). Causation, Prediction, and Search. MIT Press.",
+            "Chickering, D. (2002). Optimal structure identification with greedy search. JMLR, 3, 507-554.",
+        ),
         when_to_use=(
             "Use when you want a single PAG that pools evidence from multiple discovery "
             "algorithms. Particularly useful when you are uncertain which algorithm is "
@@ -1077,6 +1100,11 @@ class UnifiedCausalDiscovery:
             "prefer calling that algorithm directly to avoid unnecessary computation."
         ),
         typical_min_obs=200,
+        output_interpretation=(
+            "Returns a weighted PAG (partial ancestral graph) with bootstrap stability "
+            "scores on each edge mark.  Edges with stability > 0.5 are robust across "
+            "algorithms.  Feed the PAG to id_algorithm() for causal identification."
+        ),
     )
 
     @staticmethod

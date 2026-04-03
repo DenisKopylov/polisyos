@@ -1,3 +1,4 @@
+"""Public slsa config module API."""
 from __future__ import annotations
 
 import os
@@ -10,6 +11,7 @@ from polisyos.common.env_parsing import parse_bool, parse_float, parse_int
 
 
 class SlsaMode(str, Enum):
+    """Slsa mode public type."""
     OFF = "off"
     LOCAL = "local"
     PRIVATE = "private"
@@ -17,6 +19,7 @@ class SlsaMode(str, Enum):
 
 
 class SlsaPolicy(str, Enum):
+    """Slsa policy data model."""
     BEST_EFFORT = "best_effort"
     REQUIRED = "required"
 

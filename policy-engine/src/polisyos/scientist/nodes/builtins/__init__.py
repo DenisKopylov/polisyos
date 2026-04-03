@@ -1,3 +1,4 @@
+"""Public nodes builtins package API."""
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
@@ -15,7 +16,10 @@ __all__ = [
     "CompileFoundryNode",
     "RunSimulationNode",
     "BuildLiteraturePriorNode",
+    "CounterfactualIdentificationGateNode",
     "ReconcileCausalGraphNode",
+    "RunCausalReadinessNode",
+    "RunCausalContractExecutionNode",
     "ResolveParametersNode",
     "RunABMConsistencyCheckNode",
     "RunCausalEnsembleNode",
@@ -32,6 +36,7 @@ __all__ = [
     "BuildExecutionPlanNode",
     "BuildMethodCatalogSnapshotNode",
     "CompileCrossGraphEvidenceNode",
+    "RunHierarchicalPolicySearchNode",
     "AssembleLegalCandidatePackNode",
     "ExpandLegalSourcePackNode",
     "RunSourceVerificationNode",
@@ -51,11 +56,21 @@ __all__ = [
 
 
 def builtin_nodes() -> list["Node"]:
+    """Builtin nodes helper."""
     from polisyos.scientist.nodes.builtins.causal.build_literature_prior import (
         BuildLiteraturePriorNode,
     )
+    from polisyos.scientist.nodes.builtins.causal.counterfactual_identification_gate import (
+        CounterfactualIdentificationGateNode,
+    )
     from polisyos.scientist.nodes.builtins.causal.reconcile_causal_graph import (
         ReconcileCausalGraphNode,
+    )
+    from polisyos.scientist.nodes.builtins.causal.run_causal_readiness import (
+        RunCausalReadinessNode,
+    )
+    from polisyos.scientist.nodes.builtins.causal.run_causal_contract_execution import (
+        RunCausalContractExecutionNode,
     )
     from polisyos.scientist.nodes.builtins.causal.resolve_parameters import (
         ResolveParametersNode,
@@ -116,6 +131,9 @@ def builtin_nodes() -> list["Node"]:
     from polisyos.scientist.nodes.builtins.planning.compile_cross_graph_evidence import (
         CompileCrossGraphEvidenceNode,
     )
+    from polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search import (
+        RunHierarchicalPolicySearchNode,
+    )
     from polisyos.scientist.nodes.builtins.planning.draft_policy_options import (
         DraftPolicyOptionsNode,
     )
@@ -166,9 +184,13 @@ def builtin_nodes() -> list["Node"]:
         FormalizeVerifiedPolicyNode(),
         CompileFoundryNode(),
         CompileCrossGraphEvidenceNode(),
+        RunHierarchicalPolicySearchNode(),
         RunSimulationNode(),
         BuildLiteraturePriorNode(),
+        CounterfactualIdentificationGateNode(),
         ReconcileCausalGraphNode(),
+        RunCausalReadinessNode(),
+        RunCausalContractExecutionNode(),
         ResolveParametersNode(),
         RunABMConsistencyCheckNode(),
         RunCausalQueriesNode(),
@@ -237,12 +259,30 @@ def __getattr__(name: str) -> Any:
         )
 
         return BuildLiteraturePriorNode
+    if name == "CounterfactualIdentificationGateNode":
+        from polisyos.scientist.nodes.builtins.causal.counterfactual_identification_gate import (
+            CounterfactualIdentificationGateNode,
+        )
+
+        return CounterfactualIdentificationGateNode
     if name == "ReconcileCausalGraphNode":
         from polisyos.scientist.nodes.builtins.causal.reconcile_causal_graph import (
             ReconcileCausalGraphNode,
         )
 
         return ReconcileCausalGraphNode
+    if name == "RunCausalReadinessNode":
+        from polisyos.scientist.nodes.builtins.causal.run_causal_readiness import (
+            RunCausalReadinessNode,
+        )
+
+        return RunCausalReadinessNode
+    if name == "RunCausalContractExecutionNode":
+        from polisyos.scientist.nodes.builtins.causal.run_causal_contract_execution import (
+            RunCausalContractExecutionNode,
+        )
+
+        return RunCausalContractExecutionNode
     if name == "ResolveParametersNode":
         from polisyos.scientist.nodes.builtins.causal.resolve_parameters import (
             ResolveParametersNode,
@@ -329,6 +369,12 @@ def __getattr__(name: str) -> Any:
         )
 
         return CompileCrossGraphEvidenceNode
+    if name == "RunHierarchicalPolicySearchNode":
+        from polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search import (
+            RunHierarchicalPolicySearchNode,
+        )
+
+        return RunHierarchicalPolicySearchNode
     if name == "ExpandLegalSourcePackNode":
         from polisyos.scientist.nodes.builtins.planning.expand_legal_source_pack import (
             ExpandLegalSourcePackNode,

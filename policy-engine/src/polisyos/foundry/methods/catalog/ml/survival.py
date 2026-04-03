@@ -1,3 +1,4 @@
+"""Public ml survival module API."""
 from __future__ import annotations
 
 from typing import Any, ClassVar, Mapping
@@ -41,6 +42,7 @@ def _survival_payload(state: Any) -> dict[str, Any]:
     tags={"ml", "survival", "cox"},
 )
 class SurvivalAnalysisEstimator:
+    """Survival analysis estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("lifelines", "pandas", "numpy")
 
@@ -83,6 +85,9 @@ class SurvivalAnalysisEstimator:
         description="Cox proportional hazards survival analysis for time-to-event outcomes.",
         tags=frozenset({"ml", "survival", "cox"}),
         when_to_use="Time-to-event outcome with censoring; proportional hazards model; survival analysis",
+        citations=(
+            "Cox, D. (1972). Regression models and life-tables. Journal of the Royal Statistical Society B, 34(2), 187-220.",
+        ),
         when_not_to_use="Proportional hazards assumption violated; very short follow-up; no censoring present",
         output_interpretation="Hazard ratios: HR=1.5 means 50% higher instantaneous event risk. Test PH assumption (Schoenfeld residuals).",
         typical_min_obs=50,

@@ -1,3 +1,4 @@
+"""Public agent sim population executor module API."""
 from __future__ import annotations
 
 from typing import Any, Iterable
@@ -40,6 +41,7 @@ def lifecycle_step(
     gift_mech: GiftTransferMechanism | None,
     fidelity: FidelityLevel,
 ) -> tuple[GlobalState, dict[str, jnp.ndarray], jnp.ndarray]:
+    """Lifecycle step helper."""
     keys = jax.random.split(rng_key, 5)
     all_metrics: dict[str, jnp.ndarray] = {}
 
@@ -82,6 +84,7 @@ def lifecycle_step(
 
 
 class PopulationAwareExecutor(GraphAwareExecutor):
+    """Population aware executor implementation."""
     def __init__(
         self,
         mechanisms: Iterable[Mechanism],

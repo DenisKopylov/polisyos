@@ -1,3 +1,4 @@
+"""Public ir portfolio module API."""
 from __future__ import annotations
 
 from enum import Enum
@@ -16,6 +17,8 @@ from polisyos.ir.types import TranslatableString
 
 
 class InteractionType(str, Enum):
+    """Qualitative label for how two policies interact in a portfolio."""
+
     SYNERGY = "synergy"
     NEUTRAL = "neutral"
     CANNIBALIZATION = "cannibalization"

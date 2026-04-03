@@ -1,3 +1,4 @@
+"""Public agent sim actor critic module API."""
 from __future__ import annotations
 
 from typing import Callable
@@ -9,6 +10,7 @@ import jax.numpy as jnp
 
 
 class NormalizedMLP(eqx.Module):
+    """Normalized MLP public type."""
     layers: tuple[eqx.nn.Linear, ...]
     norms: tuple[eqx.nn.LayerNorm, ...]
     activation: Callable[[jnp.ndarray], jnp.ndarray] = eqx.field(static=True)
@@ -31,6 +33,7 @@ class NormalizedMLP(eqx.Module):
 
 
 class ValueNetwork(eqx.Module):
+    """Value network public type."""
     trunk: NormalizedMLP
     head: eqx.nn.Linear
 
@@ -59,6 +62,7 @@ class ValueNetwork(eqx.Module):
 
 
 class AdvantageNetwork(eqx.Module):
+    """Advantage network public type."""
     trunk: NormalizedMLP
     value_head: eqx.nn.Linear
     advantage_head: eqx.nn.Linear
@@ -96,6 +100,7 @@ class AdvantageNetwork(eqx.Module):
 
 
 class ActorCritic(eqx.Module):
+    """Actor critic public type."""
     shared: NormalizedMLP
     actor_hidden: eqx.nn.Linear
     actor_norm: eqx.nn.LayerNorm
@@ -220,6 +225,7 @@ def sample_actions(
     *,
     action_type: str = "continuous",
 ) -> jnp.ndarray:
+    """Sample actions helper."""
     if action_type == "continuous":
         noise = jax.random.normal(rng_key, shape=distribution["mean"].shape)
         return distribution["mean"] + distribution["std"] * noise
@@ -232,6 +238,7 @@ def compute_log_prob(
     *,
     action_type: str = "continuous",
 ) -> jnp.ndarray:
+    """Compute log prob helper."""
     if action_type == "continuous":
         mean = distribution["mean"]
         std = distribution["std"]
@@ -253,6 +260,7 @@ def compute_entropy(
     *,
     action_type: str = "continuous",
 ) -> jnp.ndarray:
+    """Compute entropy helper."""
     if action_type == "continuous":
         log_std = distribution["log_std"]
         return 0.5 * jnp.sum(1.0 + jnp.log(2.0 * jnp.pi) + 2.0 * log_std, axis=-1)

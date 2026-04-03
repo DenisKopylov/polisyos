@@ -18,6 +18,7 @@ logger = get_logger(__name__)
 
 @dataclass(order=True)
 class PrefetchJob:
+    """Prefetch job public type."""
     sort_key: tuple[int, float] = field(init=False, repr=False)
     dataset_id: str
     connector_id: str

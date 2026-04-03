@@ -357,6 +357,7 @@ def validate_method_class(cls: type, run_smoke_test: bool = True) -> ValidationR
 
 
 def main() -> None:
+    """Main helper."""
     import argparse
     import json
     import sys

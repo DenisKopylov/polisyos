@@ -1,3 +1,4 @@
+"""Public foundry runtime package API."""
 from __future__ import annotations
 
 import threading

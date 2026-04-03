@@ -1,11 +1,15 @@
 from __future__ import annotations
 
+import importlib.util
+
 import pytest
 
 from polisyos.core.contracts.execution_plan import ExecutionPlan, MethodDagNode
 from polisyos.foundry.methods.catalog.causal import ensure_causal_methods_registered
 from polisyos.foundry.methods.catalog_snapshot import build_method_catalog_snapshot
 from polisyos.scientist.llm_cycle import evaluate_iteration, preflight_execution_plan
+
+_Y0_INSTALLED = importlib.util.find_spec("y0") is not None
 
 
 def test_preflight_returns_structured_diagnostics_for_cycle_and_missing_methods() -> None:
@@ -34,6 +38,7 @@ def test_preflight_returns_structured_diagnostics_for_cycle_and_missing_methods(
     assert "method_dag.cycle_detected" in codes
 
 
+@pytest.mark.skipif(_Y0_INSTALLED, reason="y0 is installed — symbolic_identify is available, test verifies unavailable scenario")
 def test_preflight_blocks_unavailable_symbolic_transport_method() -> None:
     ensure_causal_methods_registered()
     snapshot = build_method_catalog_snapshot(run_id="R_preflight")

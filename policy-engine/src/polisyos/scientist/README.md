@@ -1,173 +1,43 @@
 # Scientist (`polisyos.scientist`)
 
-`scientist` — orchestration-слой Policy Engine для запуска policy-экспериментов и сборки воспроизводимого результата поверх `ir`, `foundry`, `fabric`, `lex`, `scholar`, `core`.
-
-Документ отражает текущее состояние кода на **2026-03-11**.
+`scientist` — orchestration-слой PolicyOS, который собирает workflow, запускает
+policy-эксперименты, управляет governance/human-gate контуром и публикует
+воспроизводимый результат поверх `ir`, `foundry`, `fabric`, `lex`, `scholar`
+и `core`.
 
 ## Роль в системе
 
-`scientist` отвечает за:
-- сборку и исполнение workflow DAG;
-- координацию этапов data -> planning/preflight -> compile -> simulate -> governance -> decision;
-- сериализацию run-артефактов и run-отчетов;
-- воспроизводимость (`idempotency`, `checkpoint`, `resume`, `replay`).
+- **Зависит от:** `core`, `ir`, `foundry`, `fabric`, `lex`, `scholar`
+- **Используется в:** CLI, runtime control/debug flows, replay tooling, policy-design flows
+- `scientist` не реализует доменную математику сам: он оркестрирует state, nodes,
+  adapters, governance и публикацию итогового decision surface.
 
-`scientist` не реализует доменную математику/хранилища сам:
-- доменный execute/compile: `foundry`;
-- данные и retrieval: `fabric`;
-- канонические IR-контракты: `ir`;
-- юридический домен: `lex`.
+## Ключевые концепции
 
-## Публичные точки входа
+- **WorkflowSpec + NodeRegistry** — канонический способ собрать исполнимый DAG.
+- **ExperimentState** — строгий run-state с checkpoint/resume и trace-friendly индексами.
+- **Builtin nodes** — стандартные data/planning/compile/causal/simulate/governance/decide этапы.
+- **Causal readiness/execution** — новый контур readiness-проверок и contract execution
+  для proxy, transportability, strategic response и counterfactual задач.
+- **Governance runtime** — validation passes, human gate, calibration/backtest/stress readouts.
+- **Optional surfaces** — `agent`, `search`, `policy_design`, `backtesting`, `orchestrator`.
 
-- `polisyos.scientist.run_experiment(state=None)` — стандартный entrypoint.
-- `polisyos.scientist.workflows.run_default_workflow(...)` — запуск `scientist_default`.
-- `polisyos.scientist.workflows.run_causal_full_workflow(...)` — запуск `scientist_causal_full`.
-- `polisyos.scientist.workflows.run_selected_workflow(...)` — общий launcher с auto-selection `scientist_default` vs `scientist_causal_full`.
-- `polisyos.scientist.engine.resume_from_checkpoint(...)` — resume по checkpoint.
+## Public API
 
-`run_experiment()`:
-- валидирует вход как `ExperimentState` (`extra="forbid"`);
-- генерирует `run_id`, если пустой;
-- отклоняет неизвестные top-level ключи при mapping-входе;
-- auto-select-ит workflow через общий selector;
-- возвращает финальный `ExperimentState` в виде `dict`.
+- `run_experiment(...)` — стандартный entrypoint Scientist.
+- `ExperimentState` — основной state-контракт workflow-раннера.
+- `workflows.*` — запуск и выбор `scientist_default`, `scientist_causal_full`,
+  `scientist_discovery`, `scientist_policy_design`.
+- `engine.*` — executor, registry, checkpoint, idempotency и runner backends.
+- `governance.*` — pre/post-flight API и calibration/stress/backtest readouts.
+- `causal.*` — runners для readiness и bounds execution.
 
-## Актуальные workflow спецификации
+Подробности: [Reference →](../../../docs/reference/scientist/index.md)
 
-### `scientist_default`
+## Текущее состояние
 
-Spec: `workflows/default.py`.
-
-```text
-start
-├─ build_data_snapshot -> bind_foundry_inputs -> run_data_plane_gate
-├─ build_execution_plan -> build_method_catalog_snapshot -> run_preflight -> ready_to_run
-└─ link_trinity
-
-compile_foundry (depends: link_trinity + run_data_plane_gate + ready_to_run)
-└─ resolve_parameters (depends: compile_foundry + bind_foundry_inputs + run_data_plane_gate)
-   └─ run_simulation
-      ├─ run_distributional_analysis
-      └─ propagate_uncertainty
-
-run_causal_evaluation (depends: build_data_snapshot)
-run_governance (depends: propagate_uncertainty + run_distributional_analysis + run_causal_evaluation)
-run_evaluator (depends: run_governance)
-build_decision_packet (depends: run_governance + run_causal_evaluation + run_evaluator)
-```
-
-Ключевые свойства:
-- `error_policy="continue"`: независимые ветки продолжаются, зависимые ноды skip при upstream fail;
-- preflight-пайплайн обязателен перед compile;
-- `run_evaluator` всегда участвует в default-пути.
-
-### `scientist_causal_full`
-
-Spec: `workflows/causal_full.py`.
-
-Добавляет causal-ветку:
-- `build_literature_prior`
-- `reconcile_causal_graph`
-- `run_causal_queries`
-- `run_causal_ensemble`
-- `run_abm_consistency`
-- `run_transportability`
-
-Используется как standard path для serious external-evidence / transport-required runs.
-
-Auto-escalation в `scientist_causal_full` срабатывает, если:
-- `params.transport_required == true`;
-- одновременно заданы `source_context` и `target_context`, и они не совпадают;
-- causal source metadata маркирует evidence как external;
-- run запрашивает cross-context causal reuse через cross-graph / knowledge-backed inputs.
-
-В auto-escalated runs:
-- `run_transportability` обязателен до governance;
-- `allow_degraded_transport` по умолчанию `false`;
-- capability/runtime posture сохраняется в state params и decision/governance surfaces.
-
-## Минимальный входной контракт
-
-`ExperimentState` требует:
-- обязательно `inputs.trinity_bundle_ref`;
-- минимум один источник данных:
-  - `inputs.data_snapshot_ref`, или
-  - `inputs.input_bindings_ref`, или
-  - `inputs.data_view_request_ref`.
-
-`inputs.registry_bundle_ref` можно не передавать: workflow соберет его автоматически.
-
-## Causal runtime posture
-
-- `build_method_catalog_snapshot` теперь одновременно фиксирует `MethodCatalogSnapshot` и `CausalCapabilityContract`.
-- Preflight использует snapshot + capability hash, чтобы reject-ить планы, которым нужны недоступные symbolic transport features.
-- Decision/governance/debug surfaces теперь получают transport summary c:
-  - `status`
-  - `transport_mode`
-  - `identification_engine`
-  - `capability_hash`
-  - `degradation_policy`
-
-## Архитектура директории
-
-```text
-scientist/
-├── api.py, __init__.py          # публичный facade
-├── workflows/                   # workflow specs + запуск + context/registry wiring
-├── engine/                      # executor, state, protocol, idempotency, checkpoint/resume
-├── nodes/                       # builtin DAG-ноды (data/planning/compile/causal/simulate/governance/decide)
-├── adapters/                    # bridges к foundry/fabric
-├── compute/                     # method/legacy execution jobs
-├── governance/                  # validation passes/pipeline + governance report
-├── kernel/                      # phase FSM, budgets, human gate protocol
-├── llm_cycle.py                 # execution-plan/preflight/evaluator/reproducibility helpers
-├── replay_backend.py            # replay (foundry/scientist) + verification
-├── llm/                         # gateway-first LLM client + model profile registry
-├── agent/                       # PI/Drafter/Formalizer/Critic + multipass/reflexion
-├── search/                      # search loop + strategies
-├── doe/                         # sensitivity/adversarial design + analysis
-├── backtesting/                 # historical validation + trust scoring
-└── orchestrator/                # decision-card summary layer
-```
-
-## Связи с соседними пакетами
-
-Исходящие зависимости (`scientist -> ...`):
-- `core`: CAS/artifacts, run-context, observability, components discovery, security hooks;
-- `ir`: trinity/gate/analytics контракты;
-- `foundry`: compile/execute и method-инфраструктура;
-- `fabric`: data snapshot flows;
-- `lex`: legal/governance контракты и проверки;
-- `scholar`: optional knowledge enrichment artifacts;
-- `runtime.replay`: completeness/verification.
-
-Входящие зависимости (`... -> scientist`):
-- CLI (`core/components/_cli_scientist.py`, `_cli_replay.py`);
-- runtime/debug tooling, читающие trace/node events.
-
-## Воспроизводимость и эксплуатация
-
-- Idempotency key: `run_id + node_id + snapshot(state_reads) + bind params`.
-- Checkpoint: `scientist.checkpoint` + `.polisyos/runs/<run_id>/checkpoint_head.json`.
-- Run lock: `.polisyos/runs/<run_id>/run.lock`.
-- Resume: fingerprint workflow сверяется с checkpoint metadata.
-- Replay backend: стратегии `foundry` и `scientist`, env diff, verification.
-- Security bridge: TEE attestation/SBOM как derived artifacts через adapter.
-
-## Поддиректории с отдельной документацией
-
-- `adapters/README.md`
-- `agent/README.md`
-- `backtesting/README.md`
-- `compute/README.md`
-- `doe/README.md`
-- `engine/README.md`
-- `governance/README.md`
-- `kernel/README.md`
-- `llm/README.md`
-- `nodes/README.md`
-- `orchestrator/README.md`
-- `search/README.md`
-- `search/strategies/README.md`
-- `workflows/README.md`
+- Последнее обновление: 2026-04-03
+- Python modules: 401
+- Root exports: 4 (`ExperimentState`, `get_metrics`, `get_tracer`, `run_experiment`)
+- Крупные недавние изменения: новый `causal/`, расширение `governance/`,
+  новые builtin causal nodes и C6c policy-design path

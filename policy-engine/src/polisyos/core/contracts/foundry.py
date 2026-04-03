@@ -1,3 +1,4 @@
+"""Public contracts foundry module API."""
 from __future__ import annotations
 
 from decimal import Decimal
@@ -12,56 +13,67 @@ from .uncertainty import UncertaintyEnvelopeRef
 
 
 class ProgramGraphRef(ArtifactRef):
+    """Program graph ref data model."""
     kind: Literal["foundry.program_graph"] = "foundry.program_graph"
     media_type: Literal["application/json"] = "application/json"
 
 
 class LoweredIRRef(ArtifactRef):
+    """Lowered IR ref data model."""
     kind: Literal["foundry.lowered_ir"] = "foundry.lowered_ir"
     media_type: Literal["application/json"] = "application/json"
 
 
 class ExecPlanRef(ArtifactRef):
+    """Exec plan ref data model."""
     kind: Literal["foundry.exec_plan"] = "foundry.exec_plan"
     media_type: Literal["application/json"] = "application/json"
 
 
 class StateSnapshotRef(ArtifactRef):
+    """State snapshot ref data model."""
     kind: Literal["foundry.state_snapshot"] = "foundry.state_snapshot"
     media_type: Literal["application/json"] = "application/json"
 
 
 class FoundryInputBindingsRef(ArtifactRef):
+    """Foundry input bindings ref data model."""
     kind: Literal["foundry.input_bindings"] = "foundry.input_bindings"
     media_type: Literal["application/json"] = "application/json"
 
 
 class FoundryInputBindingReportRef(ArtifactRef):
+    """Foundry input binding report ref data model."""
     kind: Literal["foundry.input_binding_report"] = "foundry.input_binding_report"
     media_type: Literal["application/json"] = "application/json"
 
 
 class TreasurySeedRef(ArtifactRef):
+    """Treasury seed ref data model."""
     kind: Literal["foundry.treasury_seed"] = "foundry.treasury_seed"
     media_type: Literal["application/json"] = "application/json"
 
 
 class ExecConfigRef(ArtifactRef):
+    """Exec config ref data model."""
     kind: Literal["foundry.exec_config"] = "foundry.exec_config"
     media_type: Literal["application/json"] = "application/json"
 
 
 class MethodArtifactRef(ArtifactRef):
+    """Method artifact ref data model."""
     kind: Literal["foundry.method_artifact"] = "foundry.method_artifact"
     media_type: Literal["application/json"] = "application/json"
 
 
 class ChainArtifactRef(ArtifactRef):
+    """Chain artifact ref data model."""
     kind: Literal["foundry.chain_artifact"] = "foundry.chain_artifact"
     media_type: Literal["application/json"] = "application/json"
 
 
 class ExecutionEvidenceRef(ArtifactRef):
+    """Execution evidence ref data model."""
     kind: Literal["foundry.execution_evidence"] = "foundry.execution_evidence"
     media_type: Literal["application/json"] = "application/json"
 
@@ -86,41 +98,49 @@ class AgentPolicyRef(ArtifactRef):
 
 
 class StateDeltaRef(ArtifactRef):
+    """State delta ref data model."""
     kind: Literal["foundry.state_delta"] = "foundry.state_delta"
     media_type: Literal["application/json"] = "application/json"
 
 
 class MetricsRef(ArtifactRef):
+    """Metrics ref data model."""
     kind: Literal["foundry.metrics"] = "foundry.metrics"
     media_type: Literal["application/json"] = "application/json"
 
 
 class ConstraintReportRef(ArtifactRef):
+    """Constraint report ref data model."""
     kind: Literal["foundry.constraint_report"] = "foundry.constraint_report"
     media_type: Literal["application/json"] = "application/json"
 
 
 class CalibrationReportRef(ArtifactRef):
+    """Calibration report ref data model."""
     kind: Literal["foundry.calibration_report"] = "foundry.calibration_report"
     media_type: Literal["application/json"] = "application/json"
 
 
 class ParameterOverrideBundleRef(ArtifactRef):
+    """Parameter override bundle ref data model."""
     kind: Literal["foundry.parameter_override_bundle"] = "foundry.parameter_override_bundle"
     media_type: Literal["application/json"] = "application/json"
 
 
 class TraceSliceRef(ArtifactRef):
+    """Trace slice ref data model."""
     kind: Literal["foundry.trace_slice"] = "foundry.trace_slice"
     media_type: Literal["application/jsonl"] = "application/jsonl"
 
 
 class SimulationResultRef(ArtifactRef):
+    """Simulation result ref data model."""
     kind: Literal["foundry.simulation_result"] = "foundry.simulation_result"
     media_type: Literal["application/json"] = "application/json"
 
 
 class ProgramNode(BaseModel):
+    """Program node implementation."""
     model_config = ConfigDict(extra="forbid")
 
     node_id: str
@@ -146,6 +166,7 @@ class ProgramNode(BaseModel):
 
 
 class ProgramOp(BaseModel):
+    """Program op public type."""
     model_config = ConfigDict(extra="forbid")
 
     op_kind: Literal[
@@ -164,6 +185,7 @@ ProgramNode.model_rebuild()
 
 
 class ProgramEdge(BaseModel):
+    """Program edge public type."""
     model_config = ConfigDict(extra="forbid")
 
     src: str
@@ -172,6 +194,7 @@ class ProgramEdge(BaseModel):
 
 
 class ProgramGraph(BaseModel):
+    """Program graph public type."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("0.2", pattern=r"^\d+\.\d+$")
@@ -184,6 +207,7 @@ class ProgramGraph(BaseModel):
 
 
 class LoweredMechanism(BaseModel):
+    """Lowered mechanism public type."""
     model_config = ConfigDict(extra="forbid")
 
     binding_id: str
@@ -201,6 +225,7 @@ class LoweredMechanism(BaseModel):
 
 
 class LoweredConstraint(BaseModel):
+    """Lowered constraint public type."""
     model_config = ConfigDict(extra="forbid")
 
     constraint_id: str
@@ -232,6 +257,7 @@ class CompositeConstraint(BaseModel):
 
 
 class LoweredIR(BaseModel):
+    """Lowered IR public type."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("0.2", pattern=r"^\d+\.\d+$")
@@ -248,6 +274,7 @@ class LoweredIR(BaseModel):
 
 
 class ExecPlan(BaseModel):
+    """Exec plan data model."""
     model_config = ConfigDict(extra="forbid")
 
     program_ref: ProgramGraphRef
@@ -287,6 +314,7 @@ class ExecPlan(BaseModel):
 
 
 class FoundryValidationFlags(BaseModel):
+    """Foundry validation flags public type."""
     model_config = ConfigDict(extra="forbid")
 
     strict_schema: bool = True
@@ -297,6 +325,7 @@ class FoundryValidationFlags(BaseModel):
 
 
 class FoundryCompileConfig(BaseModel):
+    """Foundry compile config data model."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -319,6 +348,7 @@ class FoundryCompileConfig(BaseModel):
 
 
 class CompileRequest(BaseModel):
+    """Compile request data model."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -334,6 +364,7 @@ class CompileRequest(BaseModel):
 
 
 class DerivedArtifact(BaseModel):
+    """Derived artifact public type."""
     model_config = ConfigDict(extra="forbid")
 
     role: str
@@ -341,6 +372,7 @@ class DerivedArtifact(BaseModel):
 
 
 class CompileResult(BaseModel):
+    """Compile result data model."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -354,6 +386,7 @@ class CompileResult(BaseModel):
 
 
 class FoundryExecConfig(BaseModel):
+    """Foundry exec config data model."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -365,6 +398,7 @@ class FoundryExecConfig(BaseModel):
 
 
 class FoundryInputBindingTransform(BaseModel):
+    """Foundry input binding transform public type."""
     model_config = ConfigDict(extra="forbid")
 
     op: Literal[
@@ -383,6 +417,7 @@ class FoundryInputBindingTransform(BaseModel):
 
 
 class FoundryInputBindingRule(BaseModel):
+    """Foundry input binding rule data model."""
     model_config = ConfigDict(extra="forbid")
 
     binding_id: str
@@ -395,6 +430,7 @@ class FoundryInputBindingRule(BaseModel):
 
 
 class FoundryInputBindings(BaseModel):
+    """Foundry input bindings public type."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -407,6 +443,7 @@ class FoundryInputBindings(BaseModel):
 
 
 class ParameterOverrideBundle(BaseModel):
+    """Parameter override bundle data model."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -416,6 +453,7 @@ class ParameterOverrideBundle(BaseModel):
 
 
 class ExecuteRequest(BaseModel):
+    """Execute request data model."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -430,6 +468,7 @@ class ExecuteRequest(BaseModel):
 
 
 class ExecuteResult(BaseModel):
+    """Execute result data model."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -441,6 +480,7 @@ class ExecuteResult(BaseModel):
 
 
 class StateSnapshot(BaseModel):
+    """State snapshot data model."""
     model_config = ConfigDict(extra="forbid")
 
     state_ref: ArtifactRef
@@ -450,6 +490,7 @@ class StateSnapshot(BaseModel):
 
 
 class TreasurySeed(BaseModel):
+    """Treasury seed public type."""
     model_config = ConfigDict(extra="forbid")
 
     seed: int
@@ -458,6 +499,7 @@ class TreasurySeed(BaseModel):
 
 
 class ExecConfig(BaseModel):
+    """Exec config data model."""
     model_config = ConfigDict(extra="forbid")
 
     mode: Literal["dev", "perf", "audit"] = "dev"
@@ -467,6 +509,7 @@ class ExecConfig(BaseModel):
 
 
 class PatchOp(BaseModel):
+    """Patch op public type."""
     model_config = ConfigDict(extra="forbid")
 
     slot_id: str
@@ -478,6 +521,7 @@ class PatchOp(BaseModel):
 
 
 class UpdateOp(BaseModel):
+    """Update op public type."""
     model_config = ConfigDict(extra="forbid")
 
     slot_id: str
@@ -491,6 +535,7 @@ class UpdateOp(BaseModel):
 
 
 class PatchMeta(BaseModel):
+    """Patch meta public type."""
     model_config = ConfigDict(extra="forbid")
 
     source_node_id: str | None = None
@@ -502,6 +547,7 @@ class PatchMeta(BaseModel):
 
 
 class Patch(BaseModel):
+    """Patch public type."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -511,6 +557,7 @@ class Patch(BaseModel):
 
 
 class PatchSet(BaseModel):
+    """Patch set public type."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -519,6 +566,7 @@ class PatchSet(BaseModel):
 
 
 class StateDelta(BaseModel):
+    """State delta public type."""
     model_config = ConfigDict(extra="forbid")
 
     base_ref: StateSnapshotRef | None = None
@@ -528,6 +576,7 @@ class StateDelta(BaseModel):
 
 
 class Metrics(BaseModel):
+    """Metrics data model."""
     model_config = ConfigDict(extra="forbid")
 
     values: dict[str, int | str] = Field(default_factory=dict)
@@ -535,6 +584,7 @@ class Metrics(BaseModel):
 
 
 class ConstraintViolation(BaseModel):
+    """Constraint violation public type."""
     model_config = ConfigDict(extra="forbid")
 
     constraint_id: str
@@ -549,6 +599,7 @@ class ConstraintViolation(BaseModel):
 
 
 class ConstraintReport(BaseModel):
+    """Constraint report data model."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -562,6 +613,7 @@ class ConstraintReport(BaseModel):
 
 
 class SimulationResult(BaseModel):
+    """Simulation result data model."""
     model_config = ConfigDict(extra="forbid")
 
     exec_plan_ref: ExecPlanRef

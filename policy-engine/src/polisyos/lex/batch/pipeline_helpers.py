@@ -17,6 +17,7 @@ from polisyos.lex.batch.doc_family import infer_doc_type_category
 from polisyos.lex.batch.pipeline_types import SPODocRoutingPlan, SPOLLMSettings, StructureQualityStats
 from polisyos.lex.batch.progress import ProgressTracker
 from polisyos.lex.batch.provisions_io import read_provisions, write_provisions
+from polisyos.lex.batch.temporal_resolver import resolve_document_temporal
 
 if TYPE_CHECKING:
     from polisyos.lex.batch.structurer import ProvisionSpan
@@ -243,7 +244,12 @@ def _should_route_llm_gap_fill(
         reasons.append("sanction_low_det")
     if subtype == "tariff_threshold_row" and det_count <= 1:
         reasons.append("tariff_threshold_low_det")
-    if span.audit_miss_prone and det_count <= 1 and (family_match or subtype_match):
+    _GAP_FILL_AUDIT_MISS_SUBTYPES = {"sanction_clause", "tariff_threshold_row"}
+    if (
+        span.audit_miss_prone
+        and det_count <= 1
+        and subtype in _GAP_FILL_AUDIT_MISS_SUBTYPES
+    ):
         reasons.append("audit_miss_prone_low_det")
     if tail_hit:
         reasons.append("tail_marker")
@@ -690,6 +696,16 @@ def _chunked(items: list[T], size: int) -> list[list[T]]:
 
 
 def _as_doc_meta(doc: NPADocument) -> dict:
+    temporal = resolve_document_temporal(
+        {
+            "date_acc": doc.card.date_acc,
+            "reestr_date": doc.card.reestr_date,
+            "status": doc.card.status,
+            "publication": list(doc.card.publication),
+            "reg_date": doc.card.reg_date,
+        },
+        text=doc.text,
+    )
     return {
         "reestr_code": doc.card.reestr_code,
         "name": doc.card.name,
@@ -703,8 +719,11 @@ def _as_doc_meta(doc: NPADocument) -> dict:
         "status": doc.card.status,
         "publisher": list(doc.card.publisher),
         "number": doc.card.number,
+        "publication": list(doc.card.publication),
         "reg_date": doc.card.reg_date,
         "reg_number": doc.card.reg_number,
+        "published_at": temporal.published_at,
+        "temporal": temporal.to_metadata(),
     }
 
 

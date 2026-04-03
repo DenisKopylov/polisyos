@@ -1,3 +1,4 @@
+"""Public analytics data views module API."""
 from __future__ import annotations
 
 from enum import Enum
@@ -7,18 +8,24 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 class DataViewType(str, Enum):
+    """Logical shape of a runtime data view request."""
+
     PANEL = "panel"
     SNAPSHOT = "snapshot"
     NETWORK = "network"
 
 
 class AccessTier(str, Enum):
+    """Access-sensitivity tier required to materialize a data view."""
+
     PUBLIC = "public"
     INTERNAL = "internal"
     SENSITIVE = "sensitive"
 
 
 class DataFilter(BaseModel):
+    """Predicate applied while slicing a materialized data view."""
+
     column: str
     op: str = Field(..., pattern=r"^(==|!=|>|<|>=|<=)$")
     value: str | int | float | bool
@@ -27,6 +34,8 @@ class DataFilter(BaseModel):
 
 
 class DataViewRequest(BaseModel):
+    """Request for a panel, snapshot, or network view over execution data."""
+
     request_id: str
     run_id: str
     view_type: DataViewType

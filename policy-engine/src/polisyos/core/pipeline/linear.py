@@ -1,3 +1,4 @@
+"""Public pipeline linear module API."""
 from __future__ import annotations
 
 from collections.abc import Callable, Iterable, Sequence

@@ -1,3 +1,4 @@
+"""Public claims canonicalize module API."""
 from __future__ import annotations
 
 import re
@@ -27,6 +28,7 @@ _UNIT_ALIASES: dict[str, str] = {
 
 
 def canonicalize_id(raw: str) -> str | None:
+    """Canonicalize ID helper."""
     value = raw.strip().lower()
     value = value.replace("/", "_")
     value = re.sub(r"\s+", "_", value)
@@ -45,6 +47,7 @@ def canonicalize_id(raw: str) -> str | None:
 
 
 def canonical_unit(raw_unit: str) -> str | None:
+    """Canonical unit helper."""
     value = raw_unit.strip().lower()
     if not value:
         return None
@@ -55,6 +58,7 @@ def canonical_unit(raw_unit: str) -> str | None:
 
 
 def parse_decimal_value_text(value_text: str) -> Decimal | None:
+    """Parse decimal value text helper."""
     value = value_text.strip()
     if "," in value and "." not in value:
         value = value.replace(",", ".")
@@ -67,6 +71,7 @@ def parse_decimal_value_text(value_text: str) -> Decimal | None:
 
 
 def canonical_decimal_text(value: Decimal) -> str:
+    """Canonical decimal text helper."""
     rendered = format(value, "f")
     if "." in rendered:
         rendered = rendered.rstrip("0").rstrip(".")

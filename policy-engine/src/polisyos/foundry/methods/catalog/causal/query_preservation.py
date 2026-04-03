@@ -1,3 +1,4 @@
+"""Public causal query preservation module API."""
 from __future__ import annotations
 
 import hashlib
@@ -38,6 +39,7 @@ class _GraphicalObligation:
 
 @dataclass(frozen=True)
 class GraphicalObligationTrace:
+    """Graphical obligation trace public type."""
     kind: str
     treatment: str
     outcome: str
@@ -48,6 +50,7 @@ class GraphicalObligationTrace:
 
 @dataclass(frozen=True)
 class QueryPreservationTrace:
+    """Query preservation trace public type."""
     fingerprint: str
     status: QueryPreservationStatus
     reason_code: str
@@ -68,6 +71,7 @@ def check_query_preservation(
     interface_mapping: InterfaceMapping,
     composition_certificate: CompositionCertificate,
 ) -> QueryPreservationStatus:
+    """Check query preservation helper."""
     evaluation = _evaluate_query_preservation(
         query,
         composed_graph=composed_graph,
@@ -88,6 +92,7 @@ def check_query_preservation_batch(
     interface_mapping: InterfaceMapping,
     composition_certificate: CompositionCertificate,
 ) -> dict[str, QueryPreservationStatus]:
+    """Check query preservation batch helper."""
     evaluations = evaluate_query_preservation_batch(
         queries,
         composed_graph=composed_graph,
@@ -111,6 +116,7 @@ def evaluate_query_preservation(
     interface_mapping: InterfaceMapping,
     composition_certificate: CompositionCertificate,
 ) -> QueryPreservationTrace:
+    """Evaluate query preservation helper."""
     return _evaluate_query_preservation(
         query,
         composed_graph=composed_graph,
@@ -130,6 +136,7 @@ def evaluate_query_preservation_batch(
     interface_mapping: InterfaceMapping,
     composition_certificate: CompositionCertificate,
 ) -> dict[str, QueryPreservationTrace]:
+    """Evaluate query preservation batch helper."""
     evaluations = [
         _evaluate_query_preservation(
             query,
@@ -156,6 +163,7 @@ def update_query_preservation_cache(
     fragment_graphs: Mapping[str, CausalGraphModel] | None,
     interface_mapping: InterfaceMapping,
 ) -> tuple[CompositionCertificate, dict[str, QueryPreservationStatus]]:
+    """Update query preservation cache helper."""
     checked = dict(composition_certificate.checked_queries)
     evaluations = list(
         evaluate_query_preservation_batch(

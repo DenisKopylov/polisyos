@@ -156,6 +156,7 @@ def build_replay_verification_report(
     run_id: str,
     replay_bundle_ref: ArtifactRef,
 ) -> ReplayVerificationReport:
+    """Build replay verification report."""
     measurement = measure_replayable_audit_bundle(store, replay_bundle_ref)
     return ReplayVerificationReport(
         run_id=run_id,
@@ -175,6 +176,7 @@ def persist_replay_verification_report(
     *,
     inputs: list[InputRef] | None = None,
 ) -> ArtifactRef:
+    """Persist replay verification report helper."""
     return store.put_json(
         payload,
         PutOptions(
@@ -194,6 +196,7 @@ def load_replay_verification_report(
     store: FileSystemCAS,
     ref: ArtifactRef,
 ) -> ReplayVerificationReport:
+    """Load replay verification report."""
     payload = from_canonical_bytes(store.get_bytes(ref.artifact_id))
     return ReplayVerificationReport.model_validate(payload)
 
@@ -207,6 +210,7 @@ def verify_and_persist_replay_bundle(
     evaluation_ref: ArtifactRef | None = None,
     registry: ReplayRegistry | None = None,
 ) -> ArtifactRef:
+    """Verify and persist replay bundle helper."""
     report = build_replay_verification_report(
         store,
         run_id=run_id,

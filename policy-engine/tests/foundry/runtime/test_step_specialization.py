@@ -192,3 +192,15 @@ def test_run_scan_propagates_monotone_time_index():
     traces = run_scan(base_state, controls_seq, key, static_bundle=bundle)
 
     assert jnp.array_equal(traces["t"], jnp.array([0, 1, 2], dtype=jnp.int32))
+
+
+def test_run_scan_accepts_states_with_cell_blocks():
+    """run_scan() should not crash when runtime state carries optional cell blocks."""
+    base_state = GlobalState.empty(n_agents=2, n_firms=1, n_cells=3, n_household_cells=2)
+    key = jax.random.PRNGKey(17)
+    controls_seq = jnp.zeros((2, 1))
+    bundle = _make_bundle(_AddIncomeMechanism(delta=1.0))
+
+    traces = run_scan(base_state, controls_seq, key, static_bundle=bundle)
+
+    assert jnp.array_equal(traces["t"], jnp.array([0, 1], dtype=jnp.int32))

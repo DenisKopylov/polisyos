@@ -31,6 +31,7 @@ from polisyos.scientist.search.uncertainty import UncertaintyType
 
 
 class ConstraintFinding(BaseModel):
+    """Constraint finding public type."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     finding_id: str = Field(default_factory=lambda: f"finding_{uuid4().hex[:10]}")
@@ -45,6 +46,7 @@ class ConstraintFinding(BaseModel):
 
 
 class ConstraintTrace(BaseModel):
+    """Constraint trace public type."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     trace_type: str = Field(min_length=1)
@@ -54,6 +56,7 @@ class ConstraintTrace(BaseModel):
 
 
 class ConstraintCritique(BaseModel):
+    """Constraint critique public type."""
     model_config = ConfigDict(extra="forbid")
 
     candidate_id: str = Field(min_length=1)
@@ -77,6 +80,7 @@ class ConstraintCritique(BaseModel):
 
 
 class ConstraintCriticInput(BaseModel):
+    """Constraint critic input public type."""
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
 
     candidate: PolicyCandidateSchema
@@ -333,6 +337,7 @@ class ConstraintCritic:
 
 
 def critique_to_failure_cards(critique: ConstraintCritique) -> list[TypedFailureCard]:
+    """Critique to failure cards helper."""
     cards: list[TypedFailureCard] = []
     for finding in critique.findings:
         severity = {
@@ -361,6 +366,7 @@ def critique_to_lesson_cards(
     candidate_hash: str,
     source_run_id: str,
 ) -> list[LessonCard]:
+    """Critique to lesson cards helper."""
     return [
         lesson_from_failure_card(
             card,
@@ -376,6 +382,7 @@ def critique_to_lesson_cards(
 
 
 def trace_to_mutation_hints(trace: ConstraintTrace) -> list[str]:
+    """Trace to mutation hints helper."""
     return list(trace.mutation_hints)
 
 

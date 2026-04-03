@@ -1,3 +1,4 @@
+"""Public ir migrations package API."""
 from __future__ import annotations
 
 import re
@@ -13,6 +14,7 @@ _VERSION_RE = re.compile(r"^(?P<major>\d+)\.(?P<minor>\d+)$")
 
 
 def parse_version(version: str) -> tuple[int, int]:
+    """Parse version helper."""
     match = _VERSION_RE.match(version)
     if not match:
         raise ValueError(f"Invalid schema version '{version}'. Expected MAJOR.MINOR.")
@@ -20,6 +22,7 @@ def parse_version(version: str) -> tuple[int, int]:
 
 
 def is_major_bump(from_version: str, to_version: str) -> bool:
+    """Return whether is major bump."""
     from_major, _ = parse_version(from_version)
     to_major, _ = parse_version(to_version)
     return to_major != from_major

@@ -1,0 +1,94 @@
+{
+  "$defs": {
+    "ContractCompatibilityTarget": {
+      "additionalProperties": false,
+      "properties": {
+        "contract_fqn": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Contract Fqn",
+          "type": "string"
+        },
+        "contract_id": {
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Contract Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "contract_id",
+        "contract_fqn"
+      ],
+      "title": "ContractCompatibilityTarget",
+      "type": "object"
+    },
+    "ObservationFamily": {
+      "enum": [
+        "budget_flows",
+        "procurement_flows",
+        "macro_state",
+        "firm_fundamentals",
+        "trade_exposure",
+        "labor_market",
+        "household_distribution",
+        "distress_enforcement",
+        "spatial_raster_exogenous",
+        "public_service_domain_flows",
+        "education_human_capital_supply",
+        "construction_capital_formation",
+        "logistics_friction"
+      ],
+      "title": "ObservationFamily",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "artifact_name": {
+      "const": "microsim_survey_contract_v1.json",
+      "default": "microsim_survey_contract_v1.json",
+      "title": "Artifact Name",
+      "type": "string"
+    },
+    "contract_target": {
+      "$ref": "#/$defs/ContractCompatibilityTarget"
+    },
+    "notes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Notes",
+      "type": "array"
+    },
+    "observation_families": {
+      "items": {
+        "$ref": "#/$defs/ObservationFamily"
+      },
+      "minItems": 1,
+      "title": "Observation Families",
+      "type": "array"
+    },
+    "required_fields": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Required Fields",
+      "type": "array"
+    },
+    "schema_version": {
+      "default": "1.0",
+      "pattern": "^\\d+\\.\\d+$",
+      "title": "Schema Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "contract_target",
+    "required_fields",
+    "observation_families"
+  ],
+  "title": "MicrosimSurveyContractBundle",
+  "type": "object"
+}

@@ -1,3 +1,4 @@
+"""Public compile formalize verified policy module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -45,6 +46,7 @@ _SPEC = NodeSpec(
 
 @dataclass(frozen=True)
 class FormalizeVerifiedPolicyNode:
+    """Formalize verified policy node implementation."""
     @property
     def spec(self) -> NodeSpec:
         return _SPEC

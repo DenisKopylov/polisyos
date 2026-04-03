@@ -27,8 +27,18 @@ from polisyos.core.contracts.scientist import (
     RefutationReportRef,
     ReproducibilityReportRef,
 )
-from polisyos.ir.analytics.causal_discovery import DataCharacteristics
+from polisyos.ir.analytics.causal_discovery import (
+    CausalDiscoveryReport,
+    DataCharacteristics,
+    LatentAssumptionCard,
+    LatentDiscoveryBundle,
+    LatentTrustLevel,
+    load_causal_discovery_report,
+    persist_causal_discovery_report,
+)
+from polisyos.ir.artifacts import InputRef as IRInputRef
 from polisyos.ir.analytics.causal_queries import CausalQuery
+from polisyos.ir.refs import CausalDiscoveryReportRef
 from polisyos.scientist.discovery.active import (
     ActiveDisambiguationConfig,
     ActiveDisambiguationPlan,
@@ -51,6 +61,7 @@ from polisyos.scientist.discovery.priors import (
 )
 from polisyos.scientist.discovery.schema import (
     GraphHypothesis,
+    load_graph_hypothesis,
     persist_graph_hypothesis,
 )
 from polisyos.scientist.discovery.stability import (
@@ -92,6 +103,7 @@ DISCOVERY_ARTIFACT_BUNDLE_SCHEMA_NAME = "polisyos.scientist.discovery.DiscoveryA
 
 
 class SeedVariationStatus(str, Enum):
+    """Seed variation status public type."""
     MEASURED = "measured"
     ESTIMATED = "estimated"
     NOT_RUN = "not_run"
@@ -194,10 +206,14 @@ class DiscoveryAuditBundle(ArtifactMinimalityMixin):
     )
     run_id: str = Field(default="discovery", min_length=1)
     source_refs: dict[str, ArtifactRef] = Field(default_factory=dict)
+    discovery_report_refs_by_hypothesis: dict[str, CausalDiscoveryReportRef] = Field(
+        default_factory=dict
+    )
     portfolio_config: dict[str, Any] = Field(default_factory=dict)
     method_params_by_hypothesis: dict[str, dict[str, Any]] = Field(default_factory=dict)
     skipped_families: dict[str, str] = Field(default_factory=dict)
     warnings: list[str] = Field(default_factory=list)
+    latent_discovery_summary: dict[str, Any] = Field(default_factory=dict)
     upstream_audit_refs: list[ArtifactRef] = Field(default_factory=list)
     actionable_side_information_refs: list[ArtifactRef] = Field(default_factory=list)
     output_refs: dict[str, ArtifactRef] = Field(default_factory=dict)
@@ -284,11 +300,19 @@ class DiscoveryArtifactBuilder:
         task_profile = self._build_task_profile(source)
         task_profile_ref = persist_discovery_task_profile(store, task_profile, inputs=inputs)
 
+        prepared_hypotheses, discovery_report_refs = self._prepare_hypotheses(
+            store,
+            source,
+            inputs=inputs,
+        )
         hypothesis_refs = [
             persist_graph_hypothesis(store, hypothesis, inputs=inputs)
-            for hypothesis in source.hypotheses
+            for hypothesis in prepared_hypotheses
         ]
-        hypothesis_set = self._build_hypothesis_set(source, hypothesis_refs)
+        hypothesis_set = self._build_hypothesis_set(
+            source.model_copy(update={"hypotheses": prepared_hypotheses}),
+            hypothesis_refs,
+        )
         hypothesis_set_ref = persist_graph_hypothesis_set(store, hypothesis_set, inputs=inputs)
 
         edge_confidence_matrix_ref = persist_edge_confidence_matrix(
@@ -336,7 +360,7 @@ class DiscoveryArtifactBuilder:
         )
 
         audit_bundle = self._build_audit_bundle(
-            source,
+            source.model_copy(update={"hypotheses": prepared_hypotheses}),
             refs={
                 "discovery_task_profile_ref": task_profile_ref,
                 "prior_knowledge_bundle_ref": prior_knowledge_bundle_ref,
@@ -350,6 +374,7 @@ class DiscoveryArtifactBuilder:
                 "graph_prior_bundle_ref": graph_prior_bundle_ref,
             },
             worker_bundle=worker_bundle,
+            discovery_report_refs=discovery_report_refs,
             upstream_audit_refs=upstream_audit_refs,
             actionable_side_information_refs=actionable_side_information_refs,
         )
@@ -391,6 +416,44 @@ class DiscoveryArtifactBuilder:
             notes=list(source.notes),
             metadata=dict(source.metadata),
         )
+
+    def _prepare_hypotheses(
+        self,
+        store: FileSystemCAS,
+        source: DiscoveryArtifactBuildInput,
+        *,
+        inputs: list[InputRef],
+    ) -> tuple[list[GraphHypothesis], dict[str, CausalDiscoveryReportRef]]:
+        ir_inputs = [
+            IRInputRef(artifact_id=input_ref.artifact_id, role=input_ref.role)
+            for input_ref in inputs
+        ]
+        if source.portfolio_result is None:
+            return list(source.hypotheses), {
+                hypothesis.hypothesis_id: hypothesis.source_discovery_report_ref
+                for hypothesis in source.hypotheses
+                if hypothesis.source_discovery_report_ref is not None
+            }
+
+        report_refs: dict[str, CausalDiscoveryReportRef] = {}
+        hypothesis_updates: dict[str, GraphHypothesis] = {}
+        for candidate in source.portfolio_result.candidates:
+            ref = persist_causal_discovery_report(
+                store,
+                candidate.source_report,
+                inputs=ir_inputs,
+            )
+            hypothesis = candidate.hypothesis.model_copy(
+                update={"source_discovery_report_ref": ref}
+            )
+            report_refs[hypothesis.hypothesis_id] = ref
+            hypothesis_updates[hypothesis.hypothesis_id] = hypothesis
+
+        prepared = [
+            hypothesis_updates.get(hypothesis.hypothesis_id, hypothesis)
+            for hypothesis in source.hypotheses
+        ]
+        return prepared, report_refs
 
     def _build_hypothesis_set(
         self,
@@ -596,6 +659,7 @@ class DiscoveryArtifactBuilder:
         *,
         refs: dict[str, ArtifactRef],
         worker_bundle: DiscoveryWorkerBundle,
+        discovery_report_refs: dict[str, CausalDiscoveryReportRef],
         upstream_audit_refs: list[ArtifactRef],
         actionable_side_information_refs: list[ArtifactRef],
     ) -> DiscoveryAuditBundle:
@@ -607,6 +671,7 @@ class DiscoveryArtifactBuilder:
         return DiscoveryAuditBundle(
             run_id=source.run_id,
             source_refs=dict(source.source_refs),
+            discovery_report_refs_by_hypothesis=dict(discovery_report_refs),
             portfolio_config=(
                 source.portfolio_config.model_dump(mode="json")
                 if source.portfolio_config is not None
@@ -624,6 +689,13 @@ class DiscoveryArtifactBuilder:
                 *source.graph_prior_bundle.warnings,
                 *source.prior_knowledge_bundle.warnings,
             ],
+            latent_discovery_summary=_summarize_latent_discovery_hypotheses(
+                source.hypotheses,
+                ranking_order=[
+                    score.hypothesis_id for score in source.downstream_utility_report.scores
+                ],
+                shortlist=list(source.downstream_utility_report.recommended_shortlist),
+            ),
             upstream_audit_refs=upstream_audit_refs,
             actionable_side_information_refs=actionable_side_information_refs,
             output_refs=refs,
@@ -642,6 +714,7 @@ def persist_discovery_task_profile(
     *,
     inputs: list[InputRef] | None = None,
 ) -> DiscoveryTaskProfileRef:
+    """Persist discovery task profile helper."""
     return _put_model(
         store,
         payload,
@@ -656,6 +729,7 @@ def load_discovery_task_profile(
     store: FileSystemCAS,
     ref: DiscoveryTaskProfileRef,
 ) -> DiscoveryTaskProfile:
+    """Load discovery task profile."""
     return _load_model(store, ref, DiscoveryTaskProfile)
 
 
@@ -665,6 +739,7 @@ def persist_graph_hypothesis_set(
     *,
     inputs: list[InputRef] | None = None,
 ) -> GraphHypothesisSetRef:
+    """Persist graph hypothesis set helper."""
     return _put_model(
         store,
         payload,
@@ -679,6 +754,7 @@ def load_graph_hypothesis_set(
     store: FileSystemCAS,
     ref: GraphHypothesisSetRef,
 ) -> GraphHypothesisSet:
+    """Load graph hypothesis set."""
     return _load_model(store, ref, GraphHypothesisSet)
 
 
@@ -688,6 +764,7 @@ def persist_refutation_report(
     *,
     inputs: list[InputRef] | None = None,
 ) -> RefutationReportRef:
+    """Persist refutation report helper."""
     return _put_model(
         store,
         payload,
@@ -702,6 +779,7 @@ def load_refutation_report(
     store: FileSystemCAS,
     ref: RefutationReportRef,
 ) -> RefutationReport:
+    """Load refutation report."""
     return _load_model(store, ref, RefutationReport)
 
 
@@ -711,6 +789,7 @@ def persist_reproducibility_report(
     *,
     inputs: list[InputRef] | None = None,
 ) -> ReproducibilityReportRef:
+    """Persist reproducibility report helper."""
     return _put_model(
         store,
         payload,
@@ -725,6 +804,7 @@ def load_reproducibility_report(
     store: FileSystemCAS,
     ref: ReproducibilityReportRef,
 ) -> ReproducibilityReport:
+    """Load reproducibility report."""
     return _load_model(store, ref, ReproducibilityReport)
 
 
@@ -734,6 +814,7 @@ def persist_active_disambiguation_plan(
     *,
     inputs: list[InputRef] | None = None,
 ) -> ActiveDisambiguationPlanRef:
+    """Persist active disambiguation plan helper."""
     return _put_model(
         store,
         payload,
@@ -748,6 +829,7 @@ def load_active_disambiguation_plan(
     store: FileSystemCAS,
     ref: ActiveDisambiguationPlanRef,
 ) -> ActiveDisambiguationPlan:
+    """Load active disambiguation plan."""
     return _load_model(store, ref, ActiveDisambiguationPlan)
 
 
@@ -757,6 +839,7 @@ def persist_discovery_audit_bundle(
     *,
     inputs: list[InputRef] | None = None,
 ) -> DiscoveryAuditBundleRef:
+    """Persist discovery audit bundle helper."""
     return _put_model(
         store,
         payload,
@@ -771,6 +854,7 @@ def load_discovery_audit_bundle(
     store: FileSystemCAS,
     ref: DiscoveryAuditBundleRef,
 ) -> DiscoveryAuditBundle:
+    """Load discovery audit bundle."""
     return _load_model(store, ref, DiscoveryAuditBundle)
 
 
@@ -780,6 +864,7 @@ def persist_discovery_artifact_bundle(
     *,
     inputs: list[InputRef] | None = None,
 ) -> DiscoveryArtifactBundleRef:
+    """Persist discovery artifact bundle helper."""
     return _put_model(
         store,
         payload,
@@ -794,6 +879,7 @@ def load_discovery_artifact_bundle(
     store: FileSystemCAS,
     ref: DiscoveryArtifactBundleRef,
 ) -> DiscoveryArtifactBundle:
+    """Load discovery artifact bundle."""
     return _load_model(store, ref, DiscoveryArtifactBundle)
 
 
@@ -865,6 +951,228 @@ def _dedupe_artifact_refs(items: list[ArtifactRef]) -> list[ArtifactRef]:
     return output
 
 
+def _dedupe_preserve_order(items: list[str]) -> list[str]:
+    output: list[str] = []
+    seen: set[str] = set()
+    for item in items:
+        text = str(item).strip()
+        if not text or text in seen:
+            continue
+        seen.add(text)
+        output.append(text)
+    return output
+
+
+def _ordered_hypothesis_ids(
+    hypotheses: list[GraphHypothesis],
+    *,
+    ranking_order: list[str],
+    shortlist: list[str],
+) -> list[str]:
+    ordered_ids = list(shortlist) if shortlist else list(ranking_order)
+    known_ids = {hypothesis.hypothesis_id for hypothesis in hypotheses}
+    output: list[str] = []
+    seen: set[str] = set()
+    for hypothesis_id in ordered_ids:
+        if hypothesis_id in known_ids and hypothesis_id not in seen:
+            seen.add(hypothesis_id)
+            output.append(hypothesis_id)
+    for hypothesis in hypotheses:
+        if hypothesis.hypothesis_id not in seen:
+            seen.add(hypothesis.hypothesis_id)
+            output.append(hypothesis.hypothesis_id)
+    return output
+
+
+def _merge_proxy_boundary_payloads(values: list[dict[str, Any]]) -> dict[str, Any]:
+    boundary_notes: list[str] = []
+    no_promotion_reasons: list[str] = []
+    metadata: dict[str, Any] = {}
+    for value in values:
+        for note in list(value.get("boundary_notes", []) or []):
+            note_text = str(note).strip()
+            if note_text and note_text not in boundary_notes:
+                boundary_notes.append(note_text)
+        for reason in list(value.get("no_promotion_reasons", []) or []):
+            reason_text = str(reason).strip()
+            if reason_text and reason_text not in no_promotion_reasons:
+                no_promotion_reasons.append(reason_text)
+        for key, payload in value.items():
+            if key in {"boundary_notes", "no_promotion_reasons"}:
+                continue
+            metadata.setdefault(str(key), payload)
+    merged: dict[str, Any] = dict(metadata)
+    if boundary_notes:
+        merged["boundary_notes"] = boundary_notes
+    if no_promotion_reasons:
+        merged["no_promotion_reasons"] = no_promotion_reasons
+    return merged
+
+
+def merge_latent_discovery_hypotheses(
+    hypotheses: list[GraphHypothesis],
+    *,
+    ranking_order: list[str],
+    shortlist: list[str],
+) -> LatentDiscoveryBundle | None:
+    """Merge latent discovery hypotheses helper."""
+    order = _ordered_hypothesis_ids(
+        hypotheses,
+        ranking_order=ranking_order,
+        shortlist=shortlist,
+    )
+    by_id = {hypothesis.hypothesis_id: hypothesis for hypothesis in hypotheses}
+    selected: list[tuple[str, LatentDiscoveryBundle]] = []
+    for hypothesis_id in order:
+        hypothesis = by_id[hypothesis_id]
+        if hypothesis.latent_discovery is not None:
+            selected.append((hypothesis_id, hypothesis.latent_discovery))
+    if not selected:
+        return None
+
+    proposed_latent_nodes: list[str] = []
+    inducing_environments: list[str] = []
+    identification_conditions: list[str] = []
+    falsification_tests: list[str] = []
+    no_promotion_reasons: list[str] = []
+    source_hypothesis_ids: list[str] = []
+    assumption_cards: list[LatentAssumptionCard] = []
+    proxy_boundary_payloads: list[dict[str, Any]] = []
+    seen_assumptions: set[str] = set()
+    trust_rank = {
+        LatentTrustLevel.RESEARCH: 0,
+        LatentTrustLevel.CONDITIONAL: 1,
+        LatentTrustLevel.VALIDATED: 2,
+    }
+    trust_level = LatentTrustLevel.VALIDATED
+
+    for hypothesis_id, bundle in selected:
+        source_hypothesis_ids.append(hypothesis_id)
+        if trust_rank[bundle.trust_level] < trust_rank[trust_level]:
+            trust_level = bundle.trust_level
+        for value in bundle.proposed_latent_nodes:
+            text = str(value).strip()
+            if text and text not in proposed_latent_nodes:
+                proposed_latent_nodes.append(text)
+        for value in bundle.inducing_environments:
+            text = str(value).strip()
+            if text and text not in inducing_environments:
+                inducing_environments.append(text)
+        for value in bundle.identification_conditions:
+            text = str(value).strip()
+            if text and text not in identification_conditions:
+                identification_conditions.append(text)
+        for value in bundle.falsification_tests:
+            text = str(value).strip()
+            if text and text not in falsification_tests:
+                falsification_tests.append(text)
+        for value in bundle.no_promotion_reasons:
+            text = str(value).strip()
+            if text and text not in no_promotion_reasons:
+                no_promotion_reasons.append(text)
+        for card in bundle.assumption_cards:
+            key = card.assumption_id or card.title
+            if key in seen_assumptions:
+                continue
+            seen_assumptions.add(key)
+            assumption_cards.append(card)
+        proxy_boundary = bundle.metadata.get("proxy_boundary")
+        if isinstance(proxy_boundary, dict):
+            proxy_boundary_payloads.append(dict(proxy_boundary))
+
+    metadata: dict[str, Any] = {
+        "source_hypothesis_ids": source_hypothesis_ids,
+        "merged_from": "discovery_artifact_bundle",
+    }
+    if proxy_boundary_payloads:
+        metadata["proxy_boundary"] = _merge_proxy_boundary_payloads(proxy_boundary_payloads)
+
+    return LatentDiscoveryBundle(
+        proposed_latent_nodes=proposed_latent_nodes,
+        inducing_environments=inducing_environments,
+        identification_conditions=identification_conditions,
+        falsification_tests=falsification_tests,
+        trust_level=trust_level,
+        assumption_cards=assumption_cards,
+        readiness_cap="proof_only",
+        human_gate_required=True,
+        promotion_allowed=False,
+        no_promotion_reasons=_dedupe_preserve_order(
+            [*no_promotion_reasons, "latent_discovery_proof_only"]
+        ),
+        not_for_decision_support=True,
+        metadata=metadata,
+    )
+
+
+def _summarize_latent_discovery_hypotheses(
+    hypotheses: list[GraphHypothesis],
+    *,
+    ranking_order: list[str],
+    shortlist: list[str],
+) -> dict[str, Any]:
+    merged = merge_latent_discovery_hypotheses(
+        hypotheses,
+        ranking_order=ranking_order,
+        shortlist=shortlist,
+    )
+    if merged is None:
+        return {}
+    return {
+        "source_hypothesis_ids": list(merged.metadata.get("source_hypothesis_ids", []) or []),
+        "proposed_latent_nodes": list(merged.proposed_latent_nodes),
+        "inducing_environments": list(merged.inducing_environments),
+        "trust_level": merged.trust_level.value,
+        "readiness_cap": merged.readiness_cap,
+        "promotion_allowed": merged.promotion_allowed,
+        "human_gate_required": merged.human_gate_required,
+    }
+
+
+def load_graph_hypotheses_for_bundle(
+    store: FileSystemCAS,
+    bundle: DiscoveryArtifactBundle,
+) -> list[GraphHypothesis]:
+    """Load graph hypotheses for bundle."""
+    hypothesis_set = load_graph_hypothesis_set(store, bundle.graph_hypothesis_set_ref)
+    return [
+        load_graph_hypothesis(store, ref)
+        for ref in hypothesis_set.graph_hypothesis_refs
+    ]
+
+
+def load_source_discovery_reports_for_bundle(
+    store: FileSystemCAS,
+    bundle: DiscoveryArtifactBundle,
+) -> dict[str, CausalDiscoveryReport]:
+    """Load source discovery reports for bundle."""
+    audit_bundle = load_discovery_audit_bundle(store, bundle.discovery_audit_bundle_ref)
+    ref_map = dict(audit_bundle.discovery_report_refs_by_hypothesis)
+    if not ref_map:
+        for hypothesis in load_graph_hypotheses_for_bundle(store, bundle):
+            if hypothesis.source_discovery_report_ref is not None:
+                ref_map[hypothesis.hypothesis_id] = hypothesis.source_discovery_report_ref
+    reports: dict[str, CausalDiscoveryReport] = {}
+    for hypothesis_id, ref in ref_map.items():
+        reports[hypothesis_id] = load_causal_discovery_report(store, ref)
+    return reports
+
+
+def load_merged_latent_discovery_bundle(
+    store: FileSystemCAS,
+    bundle: DiscoveryArtifactBundle,
+) -> LatentDiscoveryBundle | None:
+    """Load merged latent discovery bundle."""
+    hypotheses = load_graph_hypotheses_for_bundle(store, bundle)
+    hypothesis_set = load_graph_hypothesis_set(store, bundle.graph_hypothesis_set_ref)
+    utility_report = load_downstream_utility_report(store, bundle.downstream_utility_report_ref)
+    return merge_latent_discovery_hypotheses(
+        hypotheses,
+        ranking_order=list(hypothesis_set.ranking_order),
+        shortlist=list(utility_report.recommended_shortlist),
+    )
+
+
 def _mean_or_none(values: list[float]) -> float | None:
     if not values:
         return None
@@ -920,11 +1228,15 @@ __all__ = [
     "load_discovery_task_profile",
     "load_downstream_utility_report",
     "load_edge_confidence_matrix",
+    "load_graph_hypotheses_for_bundle",
     "load_graph_hypothesis_set",
+    "load_merged_latent_discovery_bundle",
     "load_graph_prior_bundle",
     "load_prior_knowledge_bundle",
+    "load_source_discovery_reports_for_bundle",
     "load_refutation_report",
     "load_reproducibility_report",
+    "merge_latent_discovery_hypotheses",
     "persist_active_disambiguation_plan",
     "persist_discovery_artifact_bundle",
     "persist_discovery_audit_bundle",

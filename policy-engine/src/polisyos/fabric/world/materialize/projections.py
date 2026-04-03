@@ -1,3 +1,4 @@
+"""Public materialize projections module API."""
 from __future__ import annotations
 
 import uuid
@@ -31,6 +32,7 @@ from .errors import WorldArtifactReadError, WorldMergeConflict
 
 @dataclass
 class ProjectionUpdateStats:
+    """Projection update stats public type."""
     doc_versions: int = 0
     doc_sources: int = 0
     doc_fragments: int = 0
@@ -571,6 +573,7 @@ def update_projections(
     *,
     touched_node_ids: Sequence[str],
 ) -> ProjectionUpdateStats:
+    """Update projections helper."""
     stats = ProjectionUpdateStats()
     if not touched_node_ids:
         return stats

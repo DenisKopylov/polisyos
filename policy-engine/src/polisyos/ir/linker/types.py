@@ -1,3 +1,4 @@
+"""Public linker types module API."""
 from __future__ import annotations
 
 from polisyos.ir.analytics.applicability import IdSelector, NormApplicability

@@ -1,0 +1,15 @@
+[
+  {
+    "knob_id": "proc_threshold_knob",
+    "param_id": "proc_threshold_knob",
+    "param_path": "params.threshold",
+    "default_value": 500000,
+    "min_value": 100000,
+    "max_value": 1000000,
+    "tunable": true,
+    "sensitivity_priority": 3,
+    "notes": [
+      "Procurement threshold fixture knob."
+    ]
+  }
+]

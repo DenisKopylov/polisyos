@@ -1,3 +1,4 @@
+"""Public sources who module API."""
 from __future__ import annotations
 
 import json
@@ -32,9 +33,40 @@ _WHO_FIELDS = (
     "updated_at",
 )
 
+_WHO_SELECT_FIELDS = (
+    "IndicatorCode",
+    "SpatialDim",
+    "TimeDim",
+    "TimeDimensionValue",
+    "NumericValue",
+    "Value",
+    "Dim1Type",
+    "Dim1",
+    "Dim2Type",
+    "Dim2",
+    "Dim3Type",
+    "Dim3",
+    "Date",
+)
+
 
 class WHOConnector(HTTPConnectorBase[pd.DataFrame]):
-    """Production connector for WHO GHO indicator observations."""
+    """Connector for WHO Global Health Observatory indicator observations.
+
+    Fetches public health indicators and dimensions from the WHO GHO API using
+    grouped HTTP requests and Fabric normalization semantics.
+
+    Data source:
+        https://www.who.int/data/gho
+    Protocol:
+        REST JSON / OData-like API
+    Auth:
+        None
+    Async support:
+        Standard async HTTP execution only
+    Profile:
+        ``who_gho``
+    """
 
     namespace: ClassVar[str] = "who"
     short_id: ClassVar[str] = "indicators"
@@ -213,6 +245,7 @@ class WHOConnector(HTTPConnectorBase[pd.DataFrame]):
         params: dict[str, str] = {}
         if clauses:
             params["$filter"] = " and ".join(clauses)
+        params["$select"] = ",".join(_WHO_SELECT_FIELDS)
         return params
 
     @staticmethod

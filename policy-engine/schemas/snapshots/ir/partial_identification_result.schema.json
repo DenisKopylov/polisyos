@@ -3,8 +3,19 @@
     "BoundMethod": {
       "enum": [
         "manski_bounds",
+        "transport_bounds",
         "iv_bounds",
-        "monotone_treatment"
+        "monotone_treatment",
+        "lp_balke_pearl",
+        "imbens_manski_ci",
+        "mtr_bounds",
+        "miv_bounds",
+        "mts_bounds",
+        "general_lp_bounds",
+        "copula_bounds",
+        "tan_bounds",
+        "intersection_bounds",
+        "rosenbaum_sharp"
       ],
       "title": "BoundMethod",
       "type": "string"
@@ -32,11 +43,55 @@
       "title": "Bound Width",
       "type": "number"
     },
+    "bounds_type": {
+      "default": "manski",
+      "enum": [
+        "sharp_lp",
+        "relaxed_polynomial",
+        "manski"
+      ],
+      "title": "Bounds Type",
+      "type": "string"
+    },
+    "chart_type": {
+      "default": "interval",
+      "title": "Chart Type",
+      "type": "string"
+    },
     "confidence": {
       "maximum": 1.0,
       "minimum": 0.0,
       "title": "Confidence",
       "type": "number"
+    },
+    "discretization_converged": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Discretization Converged"
+    },
+    "discretization_method": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Discretization Method"
+    },
+    "display_label": {
+      "default": "",
+      "title": "Display Label",
+      "type": "string"
     },
     "informativeness_threshold": {
       "default": 0.5,
@@ -54,6 +109,37 @@
     },
     "method": {
       "$ref": "#/$defs/BoundMethod"
+    },
+    "n_bins_final": {
+      "anyOf": [
+        {
+          "minimum": 1,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "N Bins Final"
+    },
+    "n_refinement_steps": {
+      "default": 0,
+      "minimum": 0,
+      "title": "N Refinement Steps",
+      "type": "integer"
+    },
+    "relaxation_gap": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Relaxation Gap"
     },
     "schema_version": {
       "default": "1.0",

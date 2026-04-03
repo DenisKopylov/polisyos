@@ -1,3 +1,4 @@
+"""Public ir citations module API."""
 from __future__ import annotations
 
 from enum import Enum
@@ -17,6 +18,7 @@ SCHEMA_VERSION_PATTERN = r"^\d+\.\d+$"
 
 
 class AnchorKind(str, Enum):
+    """Anchor kind public type."""
     ARTICLE = "article"
     SECTION = "section"
     CLAUSE = "clause"

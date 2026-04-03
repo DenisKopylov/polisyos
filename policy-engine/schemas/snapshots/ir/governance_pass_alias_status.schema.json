@@ -1,0 +1,9 @@
+{
+  "enum": [
+    "deferred",
+    "runtime"
+  ],
+  "title": "GovernancePassAliasStatus",
+  "type": "string",
+  "x-fqn": "polisyos.ir.observation.governance.GovernancePassAliasStatus"
+}

@@ -9,6 +9,7 @@ from __future__ import annotations
 import re
 from decimal import Decimal, InvalidOperation
 
+from polisyos.lex.batch.quality_filters import is_calendar_year_token
 from polisyos.lex.knowledge.types import ThresholdAtom
 
 _CORE_NORM_TYPES = {
@@ -435,7 +436,10 @@ _ACTION_SYNONYMS: dict[str, str] = {
     "restores_name": "amends",
 }
 
-_PERCENT_RE = re.compile(r"(?P<value>\d+(?:[\.,]\d+)?)\s*%")
+_PERCENT_RE = re.compile(
+    r"(?P<value>\d+(?:[\.,]\d+)?)\s*(?:%|відсотк(?:ів|и|а|ом|ами)?)",
+    re.IGNORECASE,
+)
 _YEAR_RE = re.compile(r"(?P<value>\d+)\s*(?:рок(?:и|ів|у)?|years?)", re.IGNORECASE)
 _GENERIC_THRESHOLD_RE = re.compile(
     r"(?P<lemma>не\s+менш(?:е| як)|не\s+більш(?:е| як)|не\s+нижче|не\s+вище)?\s*"
@@ -585,6 +589,8 @@ def extract_thresholds_from_text(text: str, *, applies_to: str = "") -> list[Thr
 
     for match in _YEAR_RE.finditer(text):
         value_raw = match.group("value")
+        if is_calendar_year_token(value_raw, surrounding_text=text):
+            continue
         value_decimal = _decimal_text(value_raw)
         thresholds.append(
             ThresholdAtom(

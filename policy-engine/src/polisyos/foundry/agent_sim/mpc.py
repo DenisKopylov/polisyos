@@ -1,3 +1,4 @@
+"""Public agent sim mpc module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -14,6 +15,7 @@ from polisyos.foundry.agent_sim.temporal import build_temporal_observations
 
 @dataclass(frozen=True)
 class MPCPlanner:
+    """MPC planner public type."""
     simulator: PureExecutor
     horizon: int = 8
     n_samples: int = 32
@@ -83,6 +85,7 @@ class MPCPlanner:
 
 @dataclass(frozen=True)
 class HybridPlanner:
+    """Hybrid planner public type."""
     actor_critic: ActorCritic
     mpc_planner: MPCPlanner
     mpc_threshold: float = 0.1

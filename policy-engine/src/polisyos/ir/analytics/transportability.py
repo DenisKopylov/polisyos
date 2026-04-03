@@ -1,3 +1,4 @@
+"""Public analytics transportability module API."""
 from __future__ import annotations
 
 from enum import Enum
@@ -61,12 +62,14 @@ THRESHOLD_FOR_S_NODE = 0.2
 
 
 class SNodeOrigin(str, Enum):
+    """S node origin public type."""
     CONTEXT_DELTA = "context_delta"
     LEGAL = "legal"
     DATA_MISMATCH = "data_mismatch"
 
 
 class SNodeRole(str, Enum):
+    """S node role public type."""
     PRE_TREATMENT_COVARIATE = "pre_treatment_covariate"
     MEDIATOR = "mediator"
     COLLIDER = "collider"
@@ -74,6 +77,7 @@ class SNodeRole(str, Enum):
 
 
 class SNode(BaseModel):
+    """S node implementation."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     target_variable: str
@@ -88,6 +92,7 @@ class SNode(BaseModel):
 
 
 class SelectionDiagram(BaseModel):
+    """Selection diagram public type."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     base_graph: CausalGraphModel
@@ -336,6 +341,7 @@ class MultiSourceSelectionDiagram(BaseModel):
 
 
 class StratificationVariable(BaseModel):
+    """Stratification variable public type."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     name: str
@@ -345,6 +351,7 @@ class StratificationVariable(BaseModel):
 
 
 class TransportFormula(BaseModel):
+    """Transport formula public type."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     formula_str: str
@@ -359,6 +366,7 @@ class TransportFormula(BaseModel):
 
 
 class TransportabilityStatus(str, Enum):
+    """Transportability status public type."""
     IDENTIFIED = "identified"
     PARTIALLY_IDENTIFIED = "partially_identified"
     BOUNDED_NON_IDENTIFIED = "bounded_non_identified"
@@ -366,6 +374,7 @@ class TransportabilityStatus(str, Enum):
 
 
 class TransportMode(str, Enum):
+    """Transport mode public type."""
     DIRECT = "direct"
     TRANSPORT_FORMULA = "transport_formula"
     BOUNDS_ONLY = "bounds_only"
@@ -373,6 +382,7 @@ class TransportMode(str, Enum):
 
 
 class DataGap(BaseModel):
+    """Data gap public type."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     required_variable: str
@@ -554,6 +564,7 @@ def build_selection_diagram(
     target_context: ContextProfile,
     causal_graph: CausalGraphModel,
 ) -> SelectionDiagram:
+    """Build selection diagram."""
     graph_variables = set(causal_graph.nodes)
     s_nodes: list[SNode] = []
 
@@ -619,6 +630,7 @@ def persist_transportability_result(
     schema_name: str = "ir.transportability_result",
     schema_version: str = "1.0",
 ) -> TransportabilityResultRef:
+    """Persist transportability result helper."""
     ref = put_json_artifact(
         store,
         result.model_dump(mode="json"),
@@ -635,6 +647,7 @@ def load_transportability_result(
     store: ArtifactStore,
     ref: TransportabilityResultRef,
 ) -> TransportabilityResult:
+    """Load transportability result."""
     payload = get_json_artifact(store, ref.artifact_id)
     return TransportabilityResult.model_validate(payload)
 

@@ -46,6 +46,19 @@ def _factor_output_slots() -> frozenset[SlotSpec]:
     })
 
 
+def _resolve_exog(state: Any) -> Any:
+    if isinstance(state, Mapping):
+        for key in ("exog", "features", "X"):
+            if key in state and state[key] is not None:
+                return state[key]
+        return None
+    for key in ("exog", "features", "X"):
+        value = getattr(state, key, None)
+        if value is not None:
+            return value
+    return None
+
+
 # ---------------------------------------------------------------------------
 # PrincipalComponentsEstimator
 # ---------------------------------------------------------------------------
@@ -106,6 +119,9 @@ class PrincipalComponentsEstimator:
         ),
         tags=frozenset({"econometrics", "factor-model", "pca", "dimensionality-reduction"}),
         when_to_use="Summarize many correlated macro/financial variables into few factors; dimensionality reduction",
+        citations=(
+            "Stock, J. & Watson, M. (2002). Forecasting using principal components from a large number of predictors. Journal of the American Statistical Association, 97(460), 1167-1179.",
+        ),
         output_interpretation="Factor loadings + scores. Scree plot for factor number selection. % variance explained.",
     )
 
@@ -117,11 +133,7 @@ class PrincipalComponentsEstimator:
 
     @staticmethod
     def pure_step(state: Any, params: Mapping[str, Any]) -> dict[str, Any]:
-        if isinstance(state, Mapping):
-            exog = state.get("exog") or state.get("features") or state.get("X")
-        else:
-            exog = getattr(state, "exog", None)
-
+        exog = _resolve_exog(state)
         X = np.asarray(exog, dtype=float)
         if X.ndim != 2:
             raise ValueError("exog must be a 2D array (n_obs, n_vars)")
@@ -161,36 +173,43 @@ class PrincipalComponentsEstimator:
         communalities = np.sum(loadings ** 2, axis=1)
 
         result = EconometricResult(
-            method="principal_components",
+            method_name="principal_components",
             n_obs=n_obs,
-            converged=True,
-            params={"n_factors": n_factors, "rotation": rotation},
-            point_estimates={},
+            params={"n_factors": float(n_factors)},
             std_errors={},
-            t_statistics={},
+            t_stats={},
             p_values={},
             diagnostics={
                 "eigenvalues": eigenvalues[:n_factors].tolist(),
                 "explained_variance_ratio": explained_var_ratio[:n_factors].tolist(),
                 "total_explained": float(np.sum(explained_var_ratio[:n_factors])),
                 "communalities_mean": float(np.mean(communalities)),
+                "standardized": standardize,
+            },
+            model_info={
+                "library": "numpy",
+                "estimator": "PCA",
+                "rotation": rotation,
             },
         )
 
         from polisyos.ir.analytics.uncertainty import (
+            DistributionFamily,
             IntervalSemantics,
             PropagationMethod,
             UncertaintyEnvelope,
             UncertaintySource,
         )
         envelope = UncertaintyEnvelope(
-            method=PropagationMethod.ANALYTIC,
-            source=UncertaintySource.SAMPLING,
-            semantics=IntervalSemantics.CONFIDENCE,
-            central=float(np.sum(explained_var_ratio[:n_factors])),
-            lower=0.0,
-            upper=1.0,
-            mass=0.95,
+            point_estimate=float(np.sum(explained_var_ratio[:n_factors])),
+            confidence_interval=(0.0, 1.0),
+            confidence_level=0.95,
+            distribution_family=DistributionFamily.UNKNOWN,
+            source=UncertaintySource.CALIBRATION,
+            propagation_method=PropagationMethod.ANALYTICAL,
+            interval_semantics=IntervalSemantics.CONFIDENCE_INTERVAL,
+            sample_size=n_obs,
+            metadata={"econometric_method": "principal_components", "rotation": rotation},
         )
 
         return {
@@ -294,6 +313,10 @@ class DynamicFactorModelEstimator:
         ),
         tags=frozenset({"econometrics", "factor-model", "dynamic", "time-series", "em"}),
         when_to_use="Extract common factors from large panel time series; DFM for macroeconomic forecasting",
+        citations=(
+            "Stock, J. & Watson, M. (2011). Dynamic factor models. In Oxford Handbook of Economic Forecasting.",
+            "Forni, M. et al. (2000). The generalized dynamic-factor model: Identification and estimation. Review of Economics and Statistics, 82(4), 540-554.",
+        ),
         typical_min_obs=100,
         output_interpretation="Common factor time series. Factor loadings show variable contributions. GDP forecast with DFM.",
     )
@@ -306,11 +329,7 @@ class DynamicFactorModelEstimator:
 
     @staticmethod
     def pure_step(state: Any, params: Mapping[str, Any]) -> dict[str, Any]:
-        if isinstance(state, Mapping):
-            exog = state.get("exog") or state.get("features") or state.get("X")
-        else:
-            exog = getattr(state, "exog", None)
-
+        exog = _resolve_exog(state)
         X = np.asarray(exog, dtype=float)
         if X.ndim != 2:
             raise ValueError("exog must be 2D (n_time, n_vars)")
@@ -398,44 +417,64 @@ class DynamicFactorModelEstimator:
                 break
 
         converged = len(log_likelihoods) > 1 and abs(log_likelihoods[-1] - log_likelihoods[-2]) < tol
+        factor_variances = np.var(F, axis=0, ddof=1) if T > 1 else np.var(F, axis=0)
+        total_factor_variance = float(np.sum(factor_variances))
+        explained_var_ratio = factor_variances / max(total_factor_variance, 1e-10)
 
         result = EconometricResult(
-            method="dynamic_factor_model",
+            method_name="dynamic_factor_model",
             n_obs=T,
-            converged=converged,
-            params={"n_factors": n_factors, "n_iter": len(log_likelihoods)},
-            point_estimates={},
+            params={
+                "n_factors": float(n_factors),
+                "n_iter": float(len(log_likelihoods)),
+                "tol": float(tol),
+            },
             std_errors={},
-            t_statistics={},
+            t_stats={},
             p_values={},
             diagnostics={
                 "final_log_likelihood": log_likelihoods[-1] if log_likelihoods else float("nan"),
                 "n_iter": len(log_likelihoods),
                 "n_factors": n_factors,
+                "converged": converged,
+                "explained_variance_ratio": explained_var_ratio.tolist(),
+            },
+            model_info={
+                "library": "numpy",
+                "estimator": "DynamicFactorModel",
+                "max_iter": max_iter,
             },
         )
 
         from polisyos.ir.analytics.uncertainty import (
+            DistributionFamily,
             IntervalSemantics,
             PropagationMethod,
             UncertaintyEnvelope,
             UncertaintySource,
         )
         envelope = UncertaintyEnvelope(
-            method=PropagationMethod.ANALYTIC,
-            source=UncertaintySource.EPISTEMIC,
-            semantics=IntervalSemantics.CONFIDENCE,
-            central=float(log_likelihoods[-1]) if log_likelihoods else 0.0,
-            lower=0.0,
-            upper=0.0,
-            mass=0.95,
+            point_estimate=float(log_likelihoods[-1]) if log_likelihoods else 0.0,
+            confidence_interval=(
+                float(min(log_likelihoods)) if log_likelihoods else 0.0,
+                float(max(log_likelihoods)) if log_likelihoods else 0.0,
+            ),
+            confidence_level=0.95,
+            distribution_family=DistributionFamily.UNKNOWN,
+            source=UncertaintySource.CALIBRATION,
+            propagation_method=PropagationMethod.ANALYTICAL,
+            interval_semantics=IntervalSemantics.CONFIDENCE_INTERVAL,
+            sample_size=T,
+            metadata={"econometric_method": "dynamic_factor_model", "converged": converged},
         )
 
         return {
             "result": result,
             "factor_loadings": Lambda,
             "factor_scores": F,
+            "explained_var_ratio": explained_var_ratio.tolist(),
             "log_likelihoods": log_likelihoods,
             "converged": converged,
+            "n_factors_extracted": n_factors,
             "uncertainty_envelope": envelope,
         }

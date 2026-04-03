@@ -1,3 +1,4 @@
+"""Public sources world bank module API."""
 from __future__ import annotations
 
 import time
@@ -33,7 +34,22 @@ from polisyos.ir.connectors import (
 
 
 class WorldBankConnector(HTTPConnectorBase[pd.DataFrame]):
-    """Production connector for World Bank Indicators API v2."""
+    """Connector for World Bank WDI indicator retrieval.
+
+    Fetches country and aggregate indicators from the World Bank v2 API with
+    grouped series requests and profile-driven rate limiting.
+
+    Data source:
+        https://api.worldbank.org/v2
+    Protocol:
+        REST JSON
+    Auth:
+        None
+    Async support:
+        No dedicated async bulk API; standard async HTTP execution only
+    Profile:
+        ``worldbank_wdi``
+    """
 
     namespace: ClassVar[str] = "worldbank"
     short_id: ClassVar[str] = "wdi"

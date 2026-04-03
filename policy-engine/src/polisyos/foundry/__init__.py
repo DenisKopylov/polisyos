@@ -1,12 +1,14 @@
+"""Public foundry package API."""
 from __future__ import annotations
 
 import importlib
 from typing import Any
 
-__all__ = ["compile", "execute"]
+__all__ = ["compile", "compile_program", "execute"]
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "compile": ("polisyos.foundry.compile.api", "compile"),
+    "compile_program": ("polisyos.foundry.compile.api", "compile"),
     "execute": ("polisyos.foundry.execute.api", "execute"),
 }
 

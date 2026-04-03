@@ -13,6 +13,7 @@ from polisyos.academic.openalex.topic_catalog import TopicEntry
 
 @dataclass(frozen=True)
 class SelectedTopicWork:
+    """Selected topic work public type."""
     run_id: str
     topic_id: str
     topic_display_name: str

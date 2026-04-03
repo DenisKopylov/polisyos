@@ -196,6 +196,7 @@ _SOURCE_QUERY_HINTS: dict[str, tuple[str, ...]] = {
 
 @dataclass(frozen=True)
 class SearchFilters:
+    """Search filters public type."""
     sources: tuple[str, ...] = ()
     formats: tuple[str, ...] = ()
     countries: tuple[str, ...] = ()
@@ -208,6 +209,7 @@ class SearchFilters:
 
 @dataclass(frozen=True)
 class QueryMetrics:
+    """Query metrics data model."""
     query: str
     vector_search_ms: float = 0.0
     text_search_ms: float = 0.0

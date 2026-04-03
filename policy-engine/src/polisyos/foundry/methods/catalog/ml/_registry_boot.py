@@ -1,3 +1,4 @@
+"""Public ml registry boot module API."""
 from __future__ import annotations
 
 from typing import Sequence
@@ -16,6 +17,7 @@ from .uncertainty import ConformalPredictionEstimator
 
 
 def register_ml_methods() -> Sequence[type]:
+    """Register ml methods."""
     return (
         ElasticNetEstimator,
         RandomForestEstimator,

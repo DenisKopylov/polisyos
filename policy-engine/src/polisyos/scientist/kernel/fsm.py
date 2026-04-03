@@ -1,3 +1,4 @@
+"""Public kernel fsm module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -6,6 +7,7 @@ from typing import Dict, Optional, Set
 
 
 class Phase(str, Enum):
+    """Phase public type."""
     INTAKE = "INTAKE"
     FRAME = "FRAME"
     PREFLIGHT_GOV = "PREFLIGHT_GOV"
@@ -80,6 +82,7 @@ class ReflexionGuard:
 
 @dataclass
 class KernelState:
+    """Kernel state data model."""
     phase: Phase = Phase.INTAKE
     reflexion_guard: Optional[ReflexionGuard] = None
 
@@ -96,6 +99,7 @@ class KernelState:
 
 
 class TransitionEvent(str, Enum):
+    """Transition event data model."""
     VALIDATION_PASSED = "validation_passed"
     VALIDATION_FAILED = "validation_failed"
     COMPILATION_PASSED = "compilation_passed"

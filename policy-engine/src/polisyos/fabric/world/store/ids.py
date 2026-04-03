@@ -1,3 +1,4 @@
+"""Public store ids module API."""
 from __future__ import annotations
 
 import re
@@ -19,12 +20,14 @@ _ARTIFACT_RE = re.compile(ARTIFACT_ID_PATTERN)
 
 
 def ensure_world_id(value: str, *, field: str = "id") -> str:
+    """Ensure world ID helper."""
     if _ID_RE.fullmatch(value) is None:
         raise WorldIDError(f"{field} '{value}' does not match {ID_PATTERN}")
     return value
 
 
 def ensure_artifact_id(value: str, *, field: str = "artifact_id") -> str:
+    """Ensure artifact ID helper."""
     if _ARTIFACT_RE.fullmatch(value) is None:
         raise WorldIDError(f"{field} '{value}' does not match {ARTIFACT_ID_PATTERN}")
     return value

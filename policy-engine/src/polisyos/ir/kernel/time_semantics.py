@@ -1,3 +1,4 @@
+"""Public kernel time semantics module API."""
 from __future__ import annotations
 
 import calendar
@@ -21,6 +22,7 @@ def _add_months(value: date, months: int) -> date:
 
 
 class TimeSemantics(KernelModel):
+    """Time semantics public type."""
     frequency: TimeFrequency
     start_date: str
     step_count: int | None = Field(None, ge=1)

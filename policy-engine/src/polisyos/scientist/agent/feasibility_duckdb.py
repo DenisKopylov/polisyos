@@ -19,6 +19,7 @@ from polisyos.scientist.agent.feasibility import BudgetImpactResult, PopulationQ
 
 @dataclass(frozen=True, slots=True)
 class DuckDBProbeConfig:
+    """Duck DB probe config data model."""
     table_name: str = "agents_snapshot"
     run_id: str | None = None
     step: int | None = None

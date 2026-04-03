@@ -64,7 +64,8 @@ def _seed_benchmark_db(db_path) -> None:
             CREATE TABLE lex_amendments (
                 amendment_id VARCHAR,
                 amending_doc_id VARCHAR,
-                amended_doc_id VARCHAR
+                amended_doc_id VARCHAR,
+                target_resolution_expected BOOLEAN
             )
             """
         )
@@ -264,10 +265,11 @@ def _seed_benchmark_db(db_path) -> None:
             ],
         )
         con.executemany(
-            "INSERT INTO lex_amendments VALUES (?, ?, ?)",
+            "INSERT INTO lex_amendments VALUES (?, ?, ?, ?)",
             [
-                ("amd_1", "doc_amend", "doc_license"),
-                ("amd_2", "doc_amend_2", "doc_reporting"),
+                ("amd_1", "doc_amend", "doc_license", True),
+                ("amd_2", "doc_amend_2", "doc_reporting", True),
+                ("amd_3", "doc_amend_multi", "", False),
             ],
         )
         con.executemany(
@@ -275,6 +277,7 @@ def _seed_benchmark_db(db_path) -> None:
             [
                 ("doc_amend", "Про внесення змін до Закону України про ліцензування", "Закон"),
                 ("doc_amend_2", "Про внесення змін до Постанови про звітність", "Постанова"),
+                ("doc_amend_multi", "Про внесення змін до деяких законодавчих актів України", "Закон"),
             ],
         )
         con.executemany(
@@ -311,6 +314,8 @@ def test_run_benchmark_writes_report_and_metrics(tmp_path) -> None:
     assert outcome.metrics["benchmark_reference_resolution_ready_pct"] == 100.0
     assert outcome.metrics["benchmark_amendment_extraction_ready_pct"] == 100.0
     assert outcome.metrics["benchmark_amendment_target_resolution_pct"] == 100.0
+    assert outcome.metrics["benchmark_amendment_target_row_resolution_pct"] == 100.0
+    assert outcome.metrics["benchmark_single_target_amendment_docs_total"] == 2
     assert outcome.metrics["benchmark_hallucination_clean_pct"] == 100.0
     assert outcome.metrics["benchmark_consistency_resolution_ready_pct"] == 80.0
 
@@ -319,5 +324,8 @@ def test_run_benchmark_writes_report_and_metrics(tmp_path) -> None:
     assert payload["sections"]["search"]["cases"]
     assert payload["sections"]["quality_capabilities"]["sections"]["entity_resolution"]["entities_total"] == 4
     assert payload["sections"]["quality_capabilities"]["sections"]["reference_resolution"]["references_total"] == 6
-    assert payload["sections"]["quality_capabilities"]["sections"]["amendments"]["amendments_total"] == 2
+    assert payload["sections"]["quality_capabilities"]["sections"]["amendments"]["amendments_total"] == 3
+    assert payload["sections"]["quality_capabilities"]["sections"]["amendments"]["amendment_target_expected_total"] == 2
+    assert payload["sections"]["quality_capabilities"]["sections"]["amendments"]["single_target_amendment_docs_total"] == 2
+    assert payload["sections"]["quality_capabilities"]["sections"]["amendments"]["resolved_single_target_amendment_docs_total"] == 2
     assert payload["sections"]["quality_capabilities"]["sections"]["consistency"]["issues_total"] == 5

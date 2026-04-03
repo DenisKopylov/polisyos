@@ -1,3 +1,4 @@
+"""Public distributional metrics module API."""
 from __future__ import annotations
 
 from typing import Any, ClassVar, Mapping
@@ -53,6 +54,7 @@ def _distributional_output_slot() -> frozenset[SlotSpec]:
     tags={"distributional", "inequality", "lorenz", "cross-section"},
 )
 class LorenzCurveEstimator:
+    """Lorenz curve estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -112,6 +114,7 @@ class LorenzCurveEstimator:
     tags={"distributional", "inequality", "atkinson", "cross-section"},
 )
 class AtkinsonIndexEstimator:
+    """Atkinson index estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -170,6 +173,7 @@ class AtkinsonIndexEstimator:
     tags={"distributional", "inequality", "generalized-entropy", "cross-section"},
 )
 class GeneralizedEntropyEstimator:
+    """Generalized entropy estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -221,6 +225,7 @@ class GeneralizedEntropyEstimator:
     tags={"distributional", "poverty", "fgt", "cross-section"},
 )
 class FGTPovertyEstimator:
+    """FGT poverty estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 

@@ -1,3 +1,4 @@
+"""Public autotune registry module API."""
 from __future__ import annotations
 
 import json

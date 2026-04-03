@@ -1,3 +1,4 @@
+"""Public ir kernel package API."""
 from .base import ID_PATTERN, SLOT_ID_PATTERN, KernelModel
 from .constraints import DEFAULT_CONSTRAINT_REGISTRY, ConstraintRegistry, ConstraintSpec
 from .mechanisms import (

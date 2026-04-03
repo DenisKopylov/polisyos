@@ -1,9 +1,18 @@
+"""Workflow spec for verified policy-design orchestration."""
+
 from __future__ import annotations
 
 from polisyos.scientist.engine.workflow_spec import NodeInvocation, WorkflowSpec
 
 
 def policy_design_workflow_spec() -> WorkflowSpec:
+    """Build the Scientist policy-design workflow with C6c extensions.
+
+    Adds legal-source verification, hierarchical policy search, causal
+    readiness, and counterfactual gating before simulation so that the chosen
+    policy candidate is both executable and governance-ready.
+    """
+
     return WorkflowSpec(
         workflow_id="scientist_policy_design",
         error_policy="continue",
@@ -24,6 +33,16 @@ def policy_design_workflow_spec() -> WorkflowSpec:
                 depends_on=["start"],
             ),
             NodeInvocation(
+                alias="build_literature_prior",
+                node_id="scientist.node_build_literature_prior@1.0.0",
+                depends_on=["start"],
+            ),
+            NodeInvocation(
+                alias="reconcile_causal_graph",
+                node_id="scientist.node_reconcile_causal_graph@1.0.0",
+                depends_on=["build_literature_prior"],
+            ),
+            NodeInvocation(
                 alias="build_execution_plan",
                 node_id="scientist.node_build_execution_plan@1.0.0",
                 depends_on=["start"],
@@ -39,14 +58,9 @@ def policy_design_workflow_spec() -> WorkflowSpec:
                 depends_on=["build_execution_plan", "build_method_catalog_snapshot"],
             ),
             NodeInvocation(
-                alias="compile_cross_graph_evidence",
-                node_id="scientist.node_compile_cross_graph_evidence@1.0.0",
-                depends_on=["plan_policy_request"],
-            ),
-            NodeInvocation(
                 alias="assemble_legal_candidate_pack",
                 node_id="scientist.node_assemble_legal_candidate_pack@1.0.0",
-                depends_on=["plan_policy_request", "compile_cross_graph_evidence"],
+                depends_on=["plan_policy_request"],
             ),
             NodeInvocation(
                 alias="expand_legal_source_pack",
@@ -84,9 +98,33 @@ def policy_design_workflow_spec() -> WorkflowSpec:
                 depends_on=["bind_foundry_inputs"],
             ),
             NodeInvocation(
+                alias="run_hierarchical_policy_search",
+                node_id="scientist.node_run_hierarchical_policy_search@1.0.0",
+                depends_on=[
+                    "formalize_verified_policy",
+                    "run_data_plane_gate",
+                    "run_preflight",
+                    "reconcile_causal_graph",
+                ],
+            ),
+            NodeInvocation(
                 alias="compile_foundry",
                 node_id="scientist.node_compile_foundry@1.0.0",
-                depends_on=["formalize_verified_policy", "run_data_plane_gate", "run_preflight"],
+                depends_on=[
+                    "run_hierarchical_policy_search",
+                    "run_data_plane_gate",
+                    "run_preflight",
+                ],
+            ),
+            NodeInvocation(
+                alias="compile_cross_graph_evidence",
+                node_id="scientist.node_compile_cross_graph_evidence@1.0.0",
+                depends_on=["run_hierarchical_policy_search", "reconcile_causal_graph"],
+            ),
+            NodeInvocation(
+                alias="run_causal_readiness",
+                node_id="scientist.node_run_causal_readiness@1.0.0",
+                depends_on=["compile_cross_graph_evidence", "reconcile_causal_graph"],
             ),
             NodeInvocation(
                 alias="resolve_parameters",
@@ -96,7 +134,13 @@ def policy_design_workflow_spec() -> WorkflowSpec:
                     "compile_cross_graph_evidence",
                     "bind_foundry_inputs",
                     "run_data_plane_gate",
+                    "reconcile_causal_graph",
                 ],
+            ),
+            NodeInvocation(
+                alias="counterfactual_identification_gate",
+                node_id="scientist.node_counterfactual_identification_gate@1.0.0",
+                depends_on=["run_causal_readiness", "resolve_parameters"],
             ),
             NodeInvocation(
                 alias="run_simulation",
@@ -106,6 +150,7 @@ def policy_design_workflow_spec() -> WorkflowSpec:
                     "bind_foundry_inputs",
                     "run_data_plane_gate",
                     "resolve_parameters",
+                    "counterfactual_identification_gate",
                 ],
             ),
             NodeInvocation(
@@ -136,6 +181,7 @@ def policy_design_workflow_spec() -> WorkflowSpec:
                     "propagate_uncertainty",
                     "run_distributional_analysis",
                     "run_causal_evaluation",
+                    "run_causal_readiness",
                 ],
             ),
             NodeInvocation(
@@ -147,6 +193,7 @@ def policy_design_workflow_spec() -> WorkflowSpec:
                     "run_distributional_analysis",
                     "run_causal_evaluation",
                     "run_normative_arbitration",
+                    "run_causal_readiness",
                 ],
             ),
             NodeInvocation(
@@ -203,6 +250,7 @@ def policy_design_workflow_spec() -> WorkflowSpec:
         ],
         notes=[
             "Policy-design workflow adds a typed policy output bundle before the decision packet.",
+            "C6c adds hierarchical policy search, causal readiness, and counterfactual gating before simulation.",
             "Existing scientist_default and scientist_policy_verified workflows remain unchanged.",
         ],
     )

@@ -1,68 +1,40 @@
-# corpus
+# Corpus (`polisyos.lex.corpus`)
 
-`polisyos.lex.corpus` готовит юридический корпус в CAS/fact log для downstream-подсистем `lex.normpack` и `lex.legal_evaluation`.
+`polisyos.lex.corpus` подготавливает юридический корпус для downstream legal
+pipelines: ingest документов, extraction структуры и version-aware индексы,
+через которые `normpack` и `legal_evaluation` получают активную редакцию
+документа вместо ad-hoc выбора по дате или id.
 
-## Роль
+## Роль в системе
 
-Подсистема отвечает за:
-- ingest правового документа и обогащение `DocMeta.props.lex`;
-- выделение юридической структуры (provisions/fragments);
-- построение индексов версий для выбора активной редакции документа.
+- **Зависит от:** `polisyos.fabric.docs`, `polisyos.fabric.world`, `polisyos.core.artifacts`, `polisyos.ir.world`
+- **Используется в:** `polisyos.lex.normpack`, `polisyos.lex.legal_evaluation`, intervention and provenance flows
+- Пакет формирует canonical corpus artifacts: provision index, version index и document source props.
 
-## Поток
+## Ключевые концепции
 
-```text
-raw bytes
-  -> ingest_legal_doc_bytes
-  -> (optional) normalize/structure/chunk via fabric.docs
-  -> build_legal_structure
-  -> build_version_index
-  -> resolve_active_version (on demand)
-```
+- **Ingest wrapper** — `ingest_legal_doc_bytes()` обогащает `DocMeta.props.lex`, фиксирует pipeline metadata и пишет world events.
+- **Structure extraction** — `build_legal_structure()` строит hierarchy `article -> part -> point -> subpoint` и публикует `ProvisionIndexV1`.
+- **Temporal versioning** — `build_version_index()` и `resolve_active_version()` используют `effective window`, а не fallback на произвольную опубликованную версию.
+- **Index artifacts** — `ProvisionIndexV1`, `VersionIndexV1` и `DocSourcePropsV1` остаются CAS-friendly surface между ingest и normpack.
+- **Quality issues** — duplicate articles, non-monotonic numbering и missing structure остаются явными quality markers, а не скрытыми heuristic rewrites.
 
-## Ключевые модули
+## Public API
 
-### `ingest.py`
+| Type/Function | Description |
+|---|---|
+| `ingest_legal_doc_bytes()` | Ingest legal document bytes and enrich Lex corpus metadata |
+| `build_legal_structure()` | Extract legal structure and persist `ProvisionIndexV1` |
+| `build_version_index()` | Build `VersionIndexV1` and `DocSourcePropsV1` from fact-log evidence |
+| `resolve_active_version()` | Resolve the active document version using temporal envelopes |
+| `ProvisionIndexV1`, `VersionIndexV1`, `DocSourcePropsV1` | Persistent corpus index artifacts |
+| `load_*()` / `persist_*()` helpers | CAS persistence helpers for corpus indexes |
 
-- Обертка над `fabric.docs` ingest pipeline.
-- Обновляет `DocMeta.props.lex` (`schema_version`, `corpus`, jurisdiction/language/date поля, `ingest.pipeline`).
-- Поддерживает merge-политику: `merge_lex` или `overwrite_lex`.
-- Пишет world facts/events и возвращает `LexIngestResult`.
+Full reference: [docs/reference/lex/](../../../../docs/reference/lex/index.md)
 
-### `structure.py`
+## Current State
 
-- Требует `DocMeta.normalized_ref`, иначе `LexNotReadyError`.
-- Ruleset-ы: `UA`, `RU`, `EN`.
-- Извлекает иерархию `article -> part -> point -> subpoint` (параграфы опциональны).
-- Пишет `DocFragment`, `ProvisionIndexV1` (`lex.corpus.provision_index`) и обновляет `DocMeta.lex` ссылкой `provision_index_ref`.
-
-Типовые quality issues:
-- `no_articles_detected`
-- `duplicate_article_number:*`
-- `non_monotonic_articles`
-
-### `versioning.py`
-
-`build_version_index`:
-- читает `DOC_HAS_VERSION` и `WORLD_ARTIFACT_ID` из fact log;
-- собирает `VersionIndexV1` (`lex.corpus.version_index`);
-- пишет `DocSourcePropsV1` (`lex.corpus.doc_source_props`) и pointer-факты.
-
-`resolve_active_version`:
-- primary path: через `version_index_ref`;
-- selection: `effective window -> published_at -> deterministic id fallback`;
-- при отсутствии pointer возвращает `LexNotReadyError`.
-
-### `index.py`
-
-Типы и persist/load helpers для:
-- `ProvisionIndexV1`
-- `VersionIndexV1`
-- `DocSourcePropsV1`
-
-## Связи
-
-- `polisyos.fabric.docs` и `polisyos.fabric.world` — ingest/provenance.
-- `polisyos.core.artifacts` — CAS persistence.
-- `polisyos.ir.world` / `polisyos.ir.citations` — доменные модели.
-- Upstream для `policy-engine/src/polisyos/lex/normpack`.
+- Last updated: 2026-04-03
+- Files: 5 Python files
+- Exports: 15 symbols in `__init__.py`
+- Notable delta: `versioning.py` now requires resolved temporal envelopes and no longer silently falls back to `published_at`

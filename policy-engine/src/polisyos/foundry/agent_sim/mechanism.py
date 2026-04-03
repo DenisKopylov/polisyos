@@ -1,3 +1,4 @@
+"""Public agent sim mechanism module API."""
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
@@ -11,6 +12,7 @@ from polisyos.foundry.contracts.fidelity import FidelityLevel
 
 
 class MechanismSpec(NamedTuple):
+    """Mechanism spec data model."""
     name: str
     reads: frozenset[str]
     writes: frozenset[str]
@@ -19,6 +21,7 @@ class MechanismSpec(NamedTuple):
 
 
 class Mechanism(ABC):
+    """Mechanism public type."""
     @property
     @abstractmethod
     def spec(self) -> MechanismSpec:

@@ -1,3 +1,4 @@
+"""Public passes refutation pass module API."""
 from __future__ import annotations
 
 from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
@@ -30,6 +31,7 @@ _DOWHY_METHODS: frozenset[CausalMethod] = frozenset(
 
 
 class RefutationPass(ValidatorPass):
+    """Refutation pass implementation."""
     @property
     def pass_id(self) -> str:
         return "refutation"

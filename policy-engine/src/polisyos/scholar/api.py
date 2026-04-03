@@ -1,3 +1,4 @@
+"""Public scholar api module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -21,6 +22,7 @@ def enrich_topic(
     db: Any | None = None,
     policy: ScholarPolicy | None = None,
 ) -> EnrichResultV1:
+    """Enrich topic helper."""
     return _enrich_topic(
         cas=cas,
         fact_log_root=fact_log_root,
@@ -33,6 +35,7 @@ def enrich_topic(
 
 @dataclass(frozen=True)
 class ScholarService:
+    """Scholar service implementation."""
     fact_log_root: Path
     storage: StoragePort | None = None
     db: Any | None = None

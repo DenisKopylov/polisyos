@@ -1,69 +1,45 @@
-# Connectors
+# Connectors (`polisyos.fabric.connectors`)
 
-`polisyos.fabric.connectors` — подсистема подключения внешних источников и исполнения `fetch` с окружением надежности, валидации и композиции данных.
+`connectors` - protocol foundation and runtime registry for fetching external data
+sources with reliability, validation, cache and profile-driven execution policy.
 
-## Роль в Fabric
+## Role in System
 
-```text
-ConnectorRegistry
-  -> SourceConnector.fetch/list_datasets/fetch_stream
-  -> FetchResult
-  -> (cache/resilience/contracts/quality/transform/federation)
-```
+- **Depends on:** `polisyos.ir.connectors`, `polisyos.core.components`
+- **Used by:** `fabric.ingestion`, `fabric._connector_bridge`, `fabric.retrieval`
+- Owns the fetch surface for external APIs and the policy layer that chooses how sources should run.
 
-Основные потребители:
+## Key Concepts
 
-- [ingestion.py](/Users/deniskopylov/polisyos/policy-engine/src/polisyos/fabric/ingestion.py)
-- [_connector_bridge.py](/Users/deniskopylov/polisyos/policy-engine/src/polisyos/fabric/_connector_bridge.py)
-- [retrieval/executor.py](/Users/deniskopylov/polisyos/policy-engine/src/polisyos/fabric/retrieval/executor.py)
-- [retrieval/explore_lane.py](/Users/deniskopylov/polisyos/policy-engine/src/polisyos/fabric/retrieval/explore_lane.py)
-- [data_plane/modes.py](/Users/deniskopylov/polisyos/policy-engine/src/polisyos/fabric/data_plane/modes.py)
+- **Protocol core** - `SourceConnector`, `BaseConnector`, request/result and health types.
+- **Registry and discovery** - runtime registration, entry-point discovery and connection pooling.
+- **Reliability layers** - cache, resilience, validation and capability checks.
+- **Profiles** - `SourceProfile` and `SourceExecutionPolicy` normalize source behavior.
+- **Production sources** - `sources/__init__.py` exports 14 production connectors plus HTTP helpers.
+- **Built-in profiles** - `profiles/builtin_profiles.py` currently contains 32 profile definitions.
+- **Async-aware fetch** - recent source updates expand async fetch and SDMX-style paths.
 
-## Архитектура
+## Public API
 
-- `base.py`, `capabilities.py`, `types/` — protocol `SourceConnector`, capability checks, unified connector types/coercion/units/temporal.
-- `registry.py` + `registry_core*.py` + `_registry_*` — runtime registry и lifecycle.
-- `discovery.py` — discovery built-in modules, entry points и explicit modules/paths (dev-gated).
-- `pool.py` — connection pooling.
-- `profiles/` и `bindings/` — singleton registries reusable профилей подключения и binding-профилей.
-- `contracts/` — schema contracts, inference, evolution и validation middleware.
-- `cache/` — CAS-backed cache store, policies, invalidation, prefetch, proxy.
-- `resilience/` — retry, circuit breaker, rate limiting, fallback wrappers.
-- `quality/` — freshness/completeness/consistency, quality reports.
-- `transform/` — tabular pipeline (normalizer/filter/imputer/aggregator/validator).
-- `federation/` — planner/ranker/resolver/composer для multi-source composition + audit merge logs.
-- `components.py` и `components_bridge.py` — интеграция коннекторов в `polisyos.core.components`.
+| Type/Function | Description |
+|---|---|
+| `SourceConnector` | Base fetch protocol for data sources. |
+| `BaseConnector` | Common implementation base. |
+| `FetchRequest` | Fetch request model. |
+| `FetchResult` | Fetch result model. |
+| `ConnectorRegistry` | Registry for connector implementations. |
+| `discover_connectors()` | Discovers built-in and explicit connectors. |
+| `SourceProfile` | Reusable source endpoint configuration. |
+| `SourceExecutionPolicy` | Normalized runtime policy derived from a profile. |
+| `resolve_connection_config()` | Converts a profile into connector connection config. |
+| `resolve_execution_policy()` | Converts a `SourceProfile` into runtime policy. |
 
-## Текущие production connectors (`sources/`)
+→ Full reference: [docs/reference/fabric/index.md](../../../../docs/reference/fabric/index.md)
 
-- `WorldBankConnector`
-- `WVSConnector`
-- `EurostatConnector`
-- `UKONSConnector`
-- `SDMXSourceConnector`
-- `CKANCatalogConnector`
-- `CKANResourceConnector`
-- `SocrataConnector`
-- `OpendatasoftConnector`
-- `RestJsonConnector`
-- `SPARQLConnector`
+## Current State
 
-Reference adapters (для шаблонных интеграций) находятся в `reference/`.
-
-## Execution-paths
-
-- Ingestion path: `run_connectors_ingestion(...)`.
-- Bridge path: `fabric_get_data(...)`.
-- Retrieval path: `FetchExecutor.execute(...)`, `ExploreLaneDiscovery.discover(...)`.
-- Streaming path: `fetch_stream(...)` используется `data_plane.run_streaming_windowed(...)`.
-
-## Тестирование и replay
-
-- `testing/simulator.py` (`APISimulator`) — HTTP record/replay.
-- Интегрировано с `fabric.data_plane` режимами `record` и `replay`.
-
-## Связи
-
-- `polisyos.ir.connectors` — канонические `FetchRequest/FetchResult`, capabilities, metadata.
-- `fabric.catalog` + `fabric.retrieval` — планирование и разрешение источников.
-- `fabric.evidence` / `fabric.provenance` — provenance/evidence след данных.
+- Last updated: 2026-04-03
+- Files: 125 Python files
+- Exports: 110
+- Production connectors: 14
+- Built-in profiles: 32

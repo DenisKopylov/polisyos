@@ -1,3 +1,4 @@
+"""Public claims persist module API."""
 from __future__ import annotations
 
 from pathlib import Path
@@ -23,6 +24,7 @@ from .errors import ClaimValidationError
 
 
 def load_json_artifact(cas: FileSystemCAS, artifact_id: str) -> dict:
+    """Load json artifact."""
     try:
         aid = ArtifactID.model_validate(artifact_id)
         payload = from_canonical_bytes(cas.get_bytes(aid))
@@ -34,6 +36,7 @@ def load_json_artifact(cas: FileSystemCAS, artifact_id: str) -> dict:
 
 
 def load_doc_meta(cas: FileSystemCAS, artifact_id: str) -> DocMeta:
+    """Load doc meta."""
     payload = load_json_artifact(cas, artifact_id)
     meta = DocMeta.model_validate(payload)
     validate_doc_meta_ids(meta)
@@ -41,6 +44,7 @@ def load_doc_meta(cas: FileSystemCAS, artifact_id: str) -> DocMeta:
 
 
 def load_claim(cas: FileSystemCAS, artifact_id: str) -> Claim:
+    """Load claim."""
     payload = load_json_artifact(cas, artifact_id)
     claim = Claim.model_validate(payload)
     validate_claim_id(claim)
@@ -51,6 +55,7 @@ def claim_artifact_ids_by_claim_id(
     cas: FileSystemCAS,
     claim_set_artifact_ids: list[str],
 ) -> dict[str, str]:
+    """Claim artifact ids by claim ID helper."""
     mapping: dict[str, str] = {}
     for artifact_id in sorted(set(claim_set_artifact_ids)):
         payload = load_json_artifact(cas, artifact_id)
@@ -79,6 +84,7 @@ def persist_claim_set(
     schema_version: str,
     inputs: list[tuple[str, str]] | None = None,
 ) -> str:
+    """Persist claim set helper."""
     input_refs: list[InputRef] = []
     for role, artifact_id in inputs or []:
         input_refs.append(
@@ -97,6 +103,7 @@ def persist_claim_set(
 
 
 def manifest_artifact_ref(cas: FileSystemCAS, artifact_id: str) -> ArtifactRef:
+    """Manifest artifact ref helper."""
     aid = ArtifactID.model_validate(artifact_id)
     manifest = cas.get_manifest(aid)
     return ArtifactRef(
@@ -115,6 +122,7 @@ def persist_claims_evidence_bundle(
     schema_name: str,
     schema_version: str,
 ) -> str:
+    """Persist claims evidence bundle helper."""
     unique_sources = sorted(set(source_artifact_ids))
     sources = [manifest_artifact_ref(cas, artifact_id) for artifact_id in unique_sources]
     bundle = build_evidence_bundle(
@@ -142,6 +150,7 @@ def write_claims_world_segment(
     fact_log_root: Path,
     segment_name: str,
 ) -> FactSegmentManifest:
+    """Write claims world segment helper."""
     manifest = write_world_fact_segment(
         facts,
         fact_log_root=fact_log_root,
@@ -152,6 +161,7 @@ def write_claims_world_segment(
 
 
 def canonical_json_text(value: object) -> str:
+    """Canonical json text helper."""
     return to_canonical_bytes(value).decode("utf-8")
 
 

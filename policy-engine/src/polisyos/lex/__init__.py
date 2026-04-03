@@ -1,3 +1,4 @@
+"""Public lex package API."""
 from __future__ import annotations
 
 import importlib
@@ -23,6 +24,8 @@ __all__ = [
     "LexVersionIndexOptions",
     "LexVersionIndexResult",
     "LexVersioningError",
+    "LexInterventionCompiler",
+    "LexProvisionDirective",
     "NormPackBuildRequest",
     "NormPackBuildResult",
     "NormPackBudgets",
@@ -38,6 +41,20 @@ __all__ = [
     "AffectedKPI",
     "diff_norm_packs",
     "LegalKnowledgeGraph",
+    "InterventionKnobDictionaryEntry",
+    "HierarchicalPolicySearchAdapter",
+    "HierarchicalPolicySearchPlan",
+    "InterventionKnobSpec",
+    "LexInterventionMapEntry",
+    "StrategicResponseRegistryEntry",
+    "StrategicResponseSpecRegistry",
+    "LexPolicyBundleInput",
+    "TemporalInterventionSequenceCompiler",
+    "TemporalInterventionSequenceCompileResult",
+    "TemporalInterventionSequencer",
+    "TemporalInterventionStepInput",
+    "LexProvisionMappingRegistry",
+    "ProvisionProgramCrosswalkEntry",
     "WorldEventRefLike",
     "assemble_norm_pack",
     "build_legal_structure",
@@ -85,6 +102,62 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "WorldEventRefLike": ("polisyos.lex.types", "WorldEventRefLike"),
     # knowledge
     "LegalKnowledgeGraph": ("polisyos.lex.knowledge.search", "LegalKnowledgeGraph"),
+    # interventions
+    "HierarchicalPolicySearchAdapter": (
+        "polisyos.lex.interventions",
+        "HierarchicalPolicySearchAdapter",
+    ),
+    "HierarchicalPolicySearchPlan": (
+        "polisyos.lex.interventions",
+        "HierarchicalPolicySearchPlan",
+    ),
+    "InterventionKnobDictionaryEntry": (
+        "polisyos.lex.intervention_artifacts",
+        "InterventionKnobDictionaryEntry",
+    ),
+    "InterventionKnobSpec": ("polisyos.lex.interventions", "InterventionKnobSpec"),
+    "LexInterventionMapEntry": (
+        "polisyos.lex.intervention_artifacts",
+        "LexInterventionMapEntry",
+    ),
+    "LexInterventionCompiler": ("polisyos.lex.interventions", "LexInterventionCompiler"),
+    "LexPolicyBundleInput": (
+        "polisyos.lex.intervention_artifacts",
+        "LexPolicyBundleInput",
+    ),
+    "LexProvisionDirective": ("polisyos.lex.interventions", "LexProvisionDirective"),
+    "LexProvisionMappingRegistry": (
+        "polisyos.lex.intervention_artifacts",
+        "LexProvisionMappingRegistry",
+    ),
+    "ProvisionProgramCrosswalkEntry": (
+        "polisyos.lex.intervention_artifacts",
+        "ProvisionProgramCrosswalkEntry",
+    ),
+    "StrategicResponseRegistryEntry": (
+        "polisyos.lex.interventions",
+        "StrategicResponseRegistryEntry",
+    ),
+    "StrategicResponseSpecRegistry": (
+        "polisyos.lex.interventions",
+        "StrategicResponseSpecRegistry",
+    ),
+    "TemporalInterventionSequenceCompiler": (
+        "polisyos.lex.interventions",
+        "TemporalInterventionSequenceCompiler",
+    ),
+    "TemporalInterventionSequenceCompileResult": (
+        "polisyos.lex.interventions",
+        "TemporalInterventionSequenceCompileResult",
+    ),
+    "TemporalInterventionSequencer": (
+        "polisyos.lex.interventions",
+        "TemporalInterventionSequencer",
+    ),
+    "TemporalInterventionStepInput": (
+        "polisyos.lex.interventions",
+        "TemporalInterventionStepInput",
+    ),
     # simulator
     "AffectedKPI": ("polisyos.lex.simulator", "AffectedKPI"),
     "ComplianceDelta": ("polisyos.lex.simulator", "ComplianceDelta"),

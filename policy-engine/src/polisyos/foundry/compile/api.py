@@ -1,3 +1,4 @@
+"""Public compile api module API."""
 from __future__ import annotations
 
 from polisyos.core.artifacts.manifest import InputRef
@@ -7,6 +8,13 @@ from polisyos.core.contracts.foundry import CompileRequest, CompileResult
 
 
 def compile(store: FileSystemCAS, request: CompileRequest) -> CompileResult:
+    """Compile a Trinity bundle into a Foundry execution plan.
+
+    The current public surface accepts only Trinity-backed compile requests and
+    returns a structured `CompileResult`, including a failure report when
+    compilation cannot complete.
+    """
+
     try:
         _resolve_compiler(request)
         from .trinity_compiler import compile_trinity

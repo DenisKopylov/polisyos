@@ -9,6 +9,7 @@ from typing import Protocol
 
 @dataclass(frozen=True)
 class StructurePatterns:
+    """Structure patterns public type."""
     article_re: re.Pattern[str]
     part_re: re.Pattern[str] | None
     point_res: tuple[re.Pattern[str], ...]
@@ -19,6 +20,7 @@ class StructurePatterns:
 
 @dataclass(frozen=True)
 class NormativeSignalPatterns:
+    """Normative signal patterns public type."""
     obligation_re: re.Pattern[str]
     prohibition_re: re.Pattern[str]
     permission_re: re.Pattern[str]
@@ -30,6 +32,7 @@ class NormativeSignalPatterns:
 
 
 class JurisdictionPlugin(Protocol):
+    """Jurisdiction plugin public type."""
     @property
     def jurisdiction_code(self) -> str: ...
 

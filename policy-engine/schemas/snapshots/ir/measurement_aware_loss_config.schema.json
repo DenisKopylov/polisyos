@@ -1,0 +1,50 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "censoring_discount": {
+      "default": 0.5,
+      "minimum": 0.0,
+      "title": "Censoring Discount",
+      "type": "number"
+    },
+    "lag_half_life_days": {
+      "default": 30,
+      "minimum": 1,
+      "title": "Lag Half Life Days",
+      "type": "integer"
+    },
+    "notes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Notes",
+      "type": "array"
+    },
+    "regime_boundary_discount": {
+      "default": 0.75,
+      "minimum": 0.0,
+      "title": "Regime Boundary Discount",
+      "type": "number"
+    },
+    "schema_version": {
+      "default": "1.0",
+      "pattern": "^\\d+\\.\\d+$",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "shock_discount": {
+      "default": 0.75,
+      "minimum": 0.0,
+      "title": "Shock Discount",
+      "type": "number"
+    },
+    "weak_anchor_floor": {
+      "default": 0.1,
+      "minimum": 0.0,
+      "title": "Weak Anchor Floor",
+      "type": "number"
+    }
+  },
+  "title": "MeasurementAwareLossConfig",
+  "type": "object"
+}

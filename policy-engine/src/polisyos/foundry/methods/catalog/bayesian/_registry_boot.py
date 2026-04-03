@@ -1,3 +1,4 @@
+"""Public bayesian registry boot module API."""
 from __future__ import annotations
 
 from typing import Sequence
@@ -16,6 +17,7 @@ from .variational import BBVIEstimator, MeanFieldVIEstimator
 
 
 def register_bayesian_methods() -> Sequence[type]:
+    """Register bayesian methods."""
     return (
         BayesianLinearRegressionEstimator,
         BayesianAutoregressionEstimator,

@@ -12,6 +12,7 @@ from polisyos.lex.batch.jurisdictions.protocol import (
 
 
 class EUJurisdiction(JurisdictionPlugin):
+    """EU jurisdiction public type."""
     @property
     def jurisdiction_code(self) -> str:
         return "EU"

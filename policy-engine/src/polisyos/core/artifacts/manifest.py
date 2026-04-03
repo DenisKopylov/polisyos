@@ -1,3 +1,4 @@
+"""Public artifacts manifest module API."""
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -10,16 +11,19 @@ from .ids import ArtifactID
 
 
 def utc_now() -> datetime:
+    """Utc now helper."""
     return datetime.now(timezone.utc).replace(microsecond=0)
 
 
 class SchemaInfo(BaseModel):
+    """Schema info data model."""
     model_config = ConfigDict(extra="forbid")
     name: str
     version: str
 
 
 class CanonInfo(BaseModel):
+    """Canon info data model."""
     model_config = ConfigDict(extra="forbid")
     name: str = "polisyos.canon.json"
     version: str = "0.1.0"
@@ -51,12 +55,14 @@ class CanonInfo(BaseModel):
 
 
 class GitInfo(BaseModel):
+    """Git info data model."""
     model_config = ConfigDict(extra="forbid")
     commit: str
     dirty: bool = False
 
 
 class ProducerInfo(BaseModel):
+    """Producer info data model."""
     model_config = ConfigDict(extra="forbid")
     component: ComponentId | str
     version: str
@@ -76,6 +82,7 @@ class ProducerInfo(BaseModel):
 
 
 class EnvInfo(BaseModel):
+    """Env info data model."""
     model_config = ConfigDict(extra="forbid")
     python: str
     platform: str
@@ -83,6 +90,7 @@ class EnvInfo(BaseModel):
 
 
 class WarningRecord(BaseModel):
+    """Warning record data model."""
     model_config = ConfigDict(extra="forbid")
     code: str
     msg: str
@@ -90,18 +98,21 @@ class WarningRecord(BaseModel):
 
 
 class IntegrityInfo(BaseModel):
+    """Integrity info data model."""
     model_config = ConfigDict(extra="forbid")
     sha256: str
     optional: dict[str, str] | None = None
 
 
 class InputRef(BaseModel):
+    """Input ref data model."""
     model_config = ConfigDict(extra="forbid")
     artifact_id: ArtifactID
     role: str
 
 
 class ArtifactRef(BaseModel):
+    """Artifact ref data model."""
     model_config = ConfigDict(extra="forbid")
     artifact_id: ArtifactID
     kind: str
@@ -109,6 +120,7 @@ class ArtifactRef(BaseModel):
 
 
 class ArtifactManifest(BaseModel):
+    """Artifact manifest data model."""
     model_config = ConfigDict(extra="forbid", populate_by_name=True)
 
     artifact_id: ArtifactID

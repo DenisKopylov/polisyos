@@ -1,3 +1,4 @@
+"""Public econometrics diagnostics module API."""
 from __future__ import annotations
 
 import uuid
@@ -79,6 +80,7 @@ def _build_diag_result(
     tags={"econometrics", "diagnostics", "hausman"},
 )
 class HausmanTestEstimator:
+    """Hausman test estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("linearmodels", "pandas", "scipy", "numpy")
 
@@ -108,6 +110,9 @@ class HausmanTestEstimator:
         description="Hausman specification test between FE and RE panel estimators.",
         tags=frozenset({"econometrics", "diagnostics", "hausman"}),
         when_to_use="Panel data; test whether random effects are consistent (i.e., correlated with regressors)",
+        citations=(
+            "Hausman, J. (1978). Specification tests in econometrics. Econometrica, 46(6), 1251-1271.",
+        ),
         typical_min_obs=50,
         output_interpretation="Reject H0 → FE preferred (RE inconsistent). Fail to reject → RE efficient. Chi-sq statistic with df = number of common coefficients.",
     )
@@ -159,6 +164,7 @@ class HausmanTestEstimator:
     tags={"econometrics", "diagnostics", "weak-iv"},
 )
 class WeakIVTestEstimator:
+    """Weak IV test estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("statsmodels", "numpy")
 
@@ -187,6 +193,10 @@ class WeakIVTestEstimator:
         description="First-stage weak instrument diagnostic using an F-stat threshold.",
         tags=frozenset({"econometrics", "diagnostics", "weak-iv"}),
         when_to_use="IV/2SLS estimation; check whether instruments are sufficiently correlated with endogenous regressors",
+        citations=(
+            "Stock, J. & Yogo, M. (2005). Testing for weak instruments in linear IV regression. In Identification and Inference for Econometric Models, Cambridge University Press.",
+            "Staiger, D. & Stock, J. (1997). Instrumental variables regression with weak instruments. Econometrica, 65(3), 557-586.",
+        ),
         typical_min_obs=100,
         output_interpretation="F-stat >= 10 (Staiger-Stock rule of thumb) indicates strong instruments. Low F-stat → weak IV bias toward OLS.",
     )
@@ -232,6 +242,7 @@ class WeakIVTestEstimator:
     tags={"econometrics", "diagnostics", "sargan-hansen"},
 )
 class SarganHansenEstimator:
+    """Sargan hansen estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("linearmodels", "numpy")
 
@@ -260,6 +271,10 @@ class SarganHansenEstimator:
         description="Overidentifying restrictions test using Sargan-Hansen/J-statistic.",
         tags=frozenset({"econometrics", "diagnostics", "sargan-hansen"}),
         when_to_use="Overidentified IV models (more instruments than endogenous variables); test instrument exogeneity jointly",
+        citations=(
+            "Hansen, L. (1982). Large sample properties of generalized method of moments estimators. Econometrica, 50(4), 1029-1054.",
+            "Sargan, J. (1958). The estimation of economic relationships using instrumental variables. Econometrica, 26(3), 393-415.",
+        ),
         typical_min_obs=100,
         output_interpretation="Fail to reject H0 → instruments pass overidentification test. Reject → at least one instrument correlated with error.",
     )
@@ -304,6 +319,7 @@ class SarganHansenEstimator:
     tags={"econometrics", "diagnostics", "cointegration"},
 )
 class CointegrationTestEstimator:
+    """Cointegration test estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("statsmodels", "numpy")
 
@@ -330,6 +346,10 @@ class CointegrationTestEstimator:
         description="Engle-Granger cointegration diagnostic.",
         tags=frozenset({"econometrics", "diagnostics", "cointegration"}),
         when_to_use="Test for long-run equilibrium relationship between two I(1) time series before fitting VECM",
+        citations=(
+            "Engle, R. & Granger, C. (1987). Co-integration and error correction: Representation, estimation, and testing. Econometrica, 55(2), 251-276.",
+            "Johansen, S. (1991). Estimation and hypothesis testing of cointegration vectors in Gaussian vector autoregressive models. Econometrica, 59(6), 1551-1580.",
+        ),
         typical_min_obs=100,
         output_interpretation="Reject H0 → series are cointegrated (residuals stationary). Use VECM. Fail to reject → model in differences (VAR).",
     )
@@ -376,6 +396,7 @@ class CointegrationTestEstimator:
     tags={"econometrics", "diagnostics", "forecast-backtest"},
 )
 class ForecastBacktestEstimator:
+    """Forecast backtest estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("statsmodels", "numpy")
 
@@ -405,6 +426,9 @@ class ForecastBacktestEstimator:
         description="Rolling holdout forecast backtest for ARIMA/VAR style models.",
         tags=frozenset({"econometrics", "diagnostics", "forecast-backtest"}),
         when_to_use="Evaluate out-of-sample forecast accuracy of time series models using rolling holdout windows",
+        citations=(
+            "Tashman, L. (2000). Out-of-sample tests of forecasting accuracy: An analysis and review. International Journal of Forecasting, 16(4), 437-450.",
+        ),
         typical_min_obs=50,
         output_interpretation="RMSE and MAE over holdout period. Lower values = better forecast accuracy. Compare across models.",
     )

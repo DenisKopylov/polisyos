@@ -1,3 +1,4 @@
+"""Public agent sim graph observations module API."""
 from __future__ import annotations
 
 import jax.numpy as jnp
@@ -14,6 +15,7 @@ def build_graph_enhanced_observations(
     horizon: int | None = None,
     include_expectations: bool = True,
 ) -> jnp.ndarray:
+    """Build graph enhanced observations."""
     agents = state.agents
     edges = state.graph.edges
     n_agents = agents.wealth.shape[0]

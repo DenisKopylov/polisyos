@@ -1,3 +1,4 @@
+"""Public components discovery module API."""
 from __future__ import annotations
 
 import os
@@ -48,6 +49,7 @@ DISCOVERY_MODULE_PREFIX = "_polisyos_components_scan_"
 
 @dataclass(slots=True, frozen=True)
 class DiscoverySourceInfo:
+    """Discovery source info data model."""
     source_type: str
     location: str
     group: str | None = None
@@ -56,6 +58,7 @@ class DiscoverySourceInfo:
 
 @dataclass(slots=True)
 class DiscoveredComponent:
+    """Discovered component public type."""
     metadata: Any
     component: Component
     source: DiscoverySourceInfo
@@ -63,6 +66,7 @@ class DiscoveredComponent:
 
 @dataclass(slots=True)
 class DiscoveryDuplicate:
+    """Discovery duplicate public type."""
     component_id: str
     kept_source: DiscoverySourceInfo
     dropped_source: DiscoverySourceInfo
@@ -71,6 +75,7 @@ class DiscoveryDuplicate:
 
 @dataclass(slots=True)
 class DiscoveryError:
+    """Discovery error exception."""
     source: str
     item: str | None
     error_type: str
@@ -80,11 +85,13 @@ class DiscoveryError:
 
 @dataclass(slots=True)
 class DiscoveryPrecedencePolicy:
+    """Discovery precedence policy data model."""
     dev_scan_wins_over_entry_points: bool = True
 
 
 @dataclass(slots=True)
 class DiscoveryReport:
+    """Discovery report data model."""
     components: list[DiscoveredComponent] = field(default_factory=list)
     duplicates: list[DiscoveryDuplicate] = field(default_factory=list)
     errors: list[DiscoveryError] = field(default_factory=list)
@@ -140,6 +147,7 @@ def discover_components(
     precedence: DiscoveryPrecedencePolicy | None = None,
     duplicate_policy: DuplicatePolicy = DuplicatePolicy.WARN,
 ) -> DiscoveryReport:
+    """Discover components helper."""
     report = DiscoveryReport()
     precedence_policy = precedence or DiscoveryPrecedencePolicy()
     selected_groups = list(DEFAULT_ENTRY_POINT_GROUPS if groups is None else groups)

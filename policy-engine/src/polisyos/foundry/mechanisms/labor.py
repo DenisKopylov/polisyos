@@ -1,3 +1,4 @@
+"""Public mechanisms labor module API."""
 from __future__ import annotations
 
 from typing import Any
@@ -11,6 +12,7 @@ from polisyos.foundry.contracts.state import GlobalState
 
 
 class LaborMarketMechanism(ComplexMechanism):
+    """Labor market mechanism public type."""
     employment_threshold: jnp.ndarray
 
     def __init__(

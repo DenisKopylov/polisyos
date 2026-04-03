@@ -1,3 +1,4 @@
+"""Public docs structure module API."""
 from __future__ import annotations
 
 import re
@@ -154,6 +155,7 @@ def structure_doc(
     options: DocStructureOptions | None = None,
     segment_name: str | None = None,
 ) -> DocStructureResult:
+    """Structure doc helper."""
     opts = options or DocStructureOptions()
 
     meta = _load_doc_meta(cas, doc_meta_artifact_id)

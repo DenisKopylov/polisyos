@@ -1,3 +1,4 @@
+"""Public validation scoring module API."""
 from __future__ import annotations
 
 import math
@@ -29,6 +30,7 @@ def _result_slot() -> frozenset[SlotSpec]:
     tags={"validation", "probabilistic", "scoring", "tabular"},
 )
 class ProbabilisticScoringEstimator:
+    """Probabilistic scoring estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 

@@ -1,3 +1,4 @@
+"""Public decide run policy translation module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -65,6 +66,7 @@ _SPEC = NodeSpec(
 
 @dataclass(frozen=True)
 class RunPolicyTranslationNode:
+    """Run policy translation node implementation."""
     @property
     def spec(self) -> NodeSpec:
         return _SPEC

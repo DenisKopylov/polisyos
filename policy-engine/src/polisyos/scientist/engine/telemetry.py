@@ -1,3 +1,4 @@
+"""Public engine telemetry module API."""
 from __future__ import annotations
 
 from contextlib import nullcontext
@@ -19,6 +20,7 @@ def start_node_span(tracer: Any | None, attributes: dict[str, Any]) -> Any:
 
 
 def set_span_attribute(span: Any, key: str, value: Any) -> None:
+    """Set span attribute helper."""
     if span is None:
         return
     setter = getattr(span, "set_attribute", None)
@@ -30,6 +32,7 @@ def set_span_attribute(span: Any, key: str, value: Any) -> None:
 
 
 def add_span_events(span: Any, events: Iterable[NodeEvent]) -> None:
+    """Add span events helper."""
     if span is None:
         return
     add_event = getattr(span, "add_event", None)

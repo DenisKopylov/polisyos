@@ -187,6 +187,25 @@ class TestPolicyDesignWorkflowSpec:
         assert "run_policy_funnel_level5" not in aliases
         assert "run_policy_promotion" not in aliases
 
+    def test_includes_c6c_nodes(self):
+        aliases = _aliases(policy_design_workflow_spec())
+        for expected in (
+            "build_literature_prior",
+            "reconcile_causal_graph",
+            "run_hierarchical_policy_search",
+            "run_causal_readiness",
+            "counterfactual_identification_gate",
+        ):
+            assert expected in aliases
+
+    def test_c6c_ordering_guards(self):
+        graph = _dep_graph(policy_design_workflow_spec())
+
+        assert "run_hierarchical_policy_search" in graph["compile_foundry"]
+        assert "compile_cross_graph_evidence" in graph["run_causal_readiness"]
+        assert "run_causal_readiness" in graph["counterfactual_identification_gate"]
+        assert "counterfactual_identification_gate" in graph["run_simulation"]
+
 
 # ---------------------------------------------------------------------------
 # Discovery workflow

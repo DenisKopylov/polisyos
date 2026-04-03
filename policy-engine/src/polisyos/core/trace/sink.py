@@ -1,3 +1,4 @@
+"""Public trace sink module API."""
 from __future__ import annotations
 
 from pathlib import Path
@@ -7,11 +8,13 @@ from .record import TraceRecord
 
 
 class TraceSink(Protocol):
+    """Trace sink public type."""
     def emit(self, rec: TraceRecord) -> None:
         ...
 
 
 class JsonlTraceSink:
+    """Jsonl trace sink public type."""
     def __init__(self, path: Path):
         self.path = path
         self.path.parent.mkdir(parents=True, exist_ok=True)

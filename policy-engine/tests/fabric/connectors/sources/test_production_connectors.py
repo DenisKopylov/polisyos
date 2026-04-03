@@ -160,10 +160,16 @@ def test_world_bank_fetch_batches_multiple_indicators_and_incremental_params(mon
 def test_eurostat_fetch_with_mock_http(monkeypatch) -> None:
     connector = EurostatConnector()
     payload = {
-        "id": ["geo", "time"],
-        "size": [1, 2],
+        "id": ["geo", "unit", "time"],
+        "size": [1, 1, 2],
         "dimension": {
-            "geo": {"category": {"index": {"DE": 0}, "label": {"DE": "DE"}}},
+            "geo": {"category": {"index": {"DE": 0}, "label": {"DE": "Germany"}}},
+            "unit": {
+                "category": {
+                    "index": {"PC_GDP": 0},
+                    "label": {"PC_GDP": "Percentage of gross domestic product (GDP)"},
+                }
+            },
             "time": {
                 "category": {
                     "index": {"2021": 0, "2022": 1},
@@ -201,6 +207,10 @@ def test_eurostat_fetch_with_mock_http(monkeypatch) -> None:
     assert result.fetch_duration_ms > 0.0
     assert result.quality_flags == frozenset()
     assert set(result.data["time_period"].tolist()) == {"2021", "2022"}
+    assert set(result.data["unit"].tolist()) == {"PC_GDP"}
+    dimensions = [json.loads(value) for value in result.data["dimensions_json"].tolist()]
+    assert {item["geo"] for item in dimensions} == {"DE"}
+    assert {item["unit"] for item in dimensions} == {"PC_GDP"}
 
 
 def test_eurostat_uses_since_and_until_time_period_params(monkeypatch) -> None:

@@ -1,3 +1,4 @@
+"""Public legal evaluation transport constraints module API."""
 from __future__ import annotations
 
 import re
@@ -14,6 +15,7 @@ _DURATION_RE = re.compile(r"(?P<value>\d+)\s*(?P<unit>m|mo|mon|month|months|y|yr
 
 
 class ConstraintSeverity(str, Enum):
+    """Constraint severity public type."""
     SOFT = "soft"
     HARD = "hard"
 
@@ -33,6 +35,7 @@ class LegalConstraint(BaseModel):
 
 
 class LegalToDAGMappingType(str, Enum):
+    """Legal to DAG mapping type public type."""
     EFFECT_MODIFIER = "effect_modifier"
     MECHANISM_NODE = "mechanism_node"
     INTERVENTION_REDEF = "intervention_redef"

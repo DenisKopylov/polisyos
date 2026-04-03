@@ -1,3 +1,4 @@
+"""Public planning build method catalog snapshot module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -45,6 +46,7 @@ _SPEC = NodeSpec(
 
 @dataclass(frozen=True)
 class BuildMethodCatalogSnapshotNode:
+    """Build method catalog snapshot node implementation."""
     @property
     def spec(self) -> NodeSpec:
         return _SPEC

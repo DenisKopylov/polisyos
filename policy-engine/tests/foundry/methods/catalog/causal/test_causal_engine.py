@@ -69,6 +69,33 @@ def _artifact_ref(ch: str, *, kind: str) -> ArtifactRefModel:
     )
 
 
+def _tabular_direct_wrapper_data(
+    *,
+    treatment_key: str,
+    outcome_key: str,
+) -> dict[str, np.ndarray]:
+    treatment = np.array([0, 1, 0, 1, 0, 1, 0, 1], dtype=int)
+    covariates = np.array(
+        [
+            [-1.0, 0.2],
+            [-0.6, 0.0],
+            [-0.2, 0.1],
+            [0.1, -0.1],
+            [0.4, 0.3],
+            [0.7, -0.2],
+            [1.0, 0.4],
+            [1.3, -0.3],
+        ],
+        dtype=float,
+    )
+    outcome = 0.5 + 1.2 * treatment + 0.4 * covariates[:, 0]
+    return {
+        treatment_key: treatment,
+        outcome_key: outcome,
+        "covariates": covariates,
+    }
+
+
 class TestCausalEngineIdentify:
     def setup_method(self):
         self.engine = CausalEngine(registry=None, knowledge_base=None)
@@ -475,6 +502,15 @@ class TestCausalEngineTemporal:
             lambda engine: lambda: engine.dynamic_causal_effect(data={}, method="ice_g"),
         ),
         (
+            "temporal_causal_effect",
+            lambda engine: lambda: engine.temporal_causal_effect(
+                data={},
+                query=TestCausalEngineTemporal._query(intervention_ref=None),
+                intervention=TestCausalEngineTemporal._intervention(),
+                method="linear_sde",
+            ),
+        ),
+        (
             "mediation_analysis",
             lambda engine: lambda: engine.mediation_analysis(
                 data={},
@@ -513,3 +549,121 @@ def test_direct_estimation_wrappers_block_on_missing_readiness(label, callable_f
 
     assert exc_info.value.report.decision == "unknown", label
     assert exc_info.value.report.can_run_estimation is False, label
+
+
+def test_dynamic_causal_effect_runs_with_verified_readiness(monkeypatch):
+    from polisyos.foundry.methods.catalog.causal.g_computation import ICEGFormula
+    from polisyos.ir.analytics.dynamic_regime import GComputationResult
+
+    engine = CausalEngine(registry=None, knowledge_base=None)
+
+    def _fake_pure_step(state, params):
+        return {
+            "g_result": GComputationResult(
+                counterfactual_mean=1.25,
+                confidence_interval=(0.9, 1.6),
+                confidence_level=0.95,
+                standard_error=0.1,
+                regime=str(params.get("regime", "always_treat")),
+                n_units=220,
+                n_periods=3,
+                method="ice_g",
+            )
+        }
+
+    monkeypatch.setattr(ICEGFormula, "pure_step", staticmethod(_fake_pure_step))
+
+    result = engine.dynamic_causal_effect(
+        data=TestCausalEngineTemporal._dynamic_data(),
+        method="ice_g",
+    )
+
+    assert result.method == "ice_g"
+    assert result.counterfactual_mean == pytest.approx(1.25)
+
+
+def test_mediation_analysis_runs_with_verified_readiness(monkeypatch):
+    from polisyos.foundry.methods.catalog.causal.mediation import NaturalEffectEstimator
+
+    engine = CausalEngine(registry=None, knowledge_base=None)
+    data = _tabular_direct_wrapper_data(treatment_key="X", outcome_key="Y")
+    data["M"] = np.asarray([0.1, 0.4, 0.2, 0.6, 0.3, 0.7, 0.5, 0.8], dtype=float)
+
+    def _fake_pure_step(state, params):
+        assert params["treatment_variable"] == "X"
+        return {
+            "mediation_result": {
+                "natural_direct_effect": 0.7,
+                "natural_indirect_effect": 0.3,
+            }
+        }
+
+    monkeypatch.setattr(NaturalEffectEstimator, "pure_step", staticmethod(_fake_pure_step))
+
+    result = engine.mediation_analysis(
+        data=data,
+        treatment="X",
+        outcome="Y",
+        mediators=["M"],
+        method="linear",
+    )
+
+    assert result["natural_direct_effect"] == pytest.approx(0.7)
+    assert result["natural_indirect_effect"] == pytest.approx(0.3)
+
+
+def test_interference_effect_runs_with_verified_readiness(monkeypatch):
+    from polisyos.foundry.methods.catalog.causal.interference import NetworkAIPWEstimator
+
+    engine = CausalEngine(registry=None, knowledge_base=None)
+    data = _tabular_direct_wrapper_data(treatment_key="T", outcome_key="Y")
+    data["adjacency_matrix"] = np.eye(len(data["T"]), dtype=float)
+
+    def _fake_pure_step(state, params):
+        assert params["treatment_variable"] == "T"
+        return {
+            "result": {
+                "average_direct_effect": 0.8,
+                "average_spillover_effect": 0.2,
+            }
+        }
+
+    monkeypatch.setattr(NetworkAIPWEstimator, "pure_step", staticmethod(_fake_pure_step))
+
+    result = engine.interference_effect(
+        data=data,
+        treatment="T",
+        outcome="Y",
+        method="network_aipw",
+    )
+
+    assert result["average_direct_effect"] == pytest.approx(0.8)
+    assert result["average_spillover_effect"] == pytest.approx(0.2)
+
+
+def test_fairness_audit_runs_with_verified_readiness(monkeypatch):
+    from polisyos.foundry.methods.catalog.causal.fairness import TVFairnessDecomposer
+
+    engine = CausalEngine(registry=None, knowledge_base=None)
+    data = _tabular_direct_wrapper_data(treatment_key="A", outcome_key="Y")
+
+    def _fake_pure_step(state, params):
+        assert params["protected_variable"] == "A"
+        return {
+            "fairness_report": {
+                "total_disparity": 0.9,
+                "explained_share": 0.4,
+            }
+        }
+
+    monkeypatch.setattr(TVFairnessDecomposer, "pure_step", staticmethod(_fake_pure_step))
+
+    result = engine.fairness_audit(
+        data=data,
+        protected="A",
+        outcome="Y",
+        method="tv_decomposition",
+    )
+
+    assert result["total_disparity"] == pytest.approx(0.9)
+    assert result["explained_share"] == pytest.approx(0.4)

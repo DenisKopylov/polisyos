@@ -187,6 +187,47 @@ def test_lex_resolve_active_version_is_deterministic(tmp_path: Path) -> None:
     assert active_2025.selected_doc_version_id == active_2025_repeat.selected_doc_version_id
 
 
+def test_lex_resolve_active_version_does_not_fallback_to_published_at_only(tmp_path: Path) -> None:
+    cas = FileSystemCAS(tmp_path / "cas")
+
+    source = LegalDocSource(
+        official_id="UA:LAW-PUBLISHED-ONLY",
+        canonical_url=None,
+        license="public",
+        jurisdiction="UA",
+        language="uk",
+        source_type="legal_manual_seed",
+        source_url="https://zakon.example/act",
+        published_at_iso="2024-01-01",
+        effective_from_iso=None,
+        effective_to_iso=None,
+    )
+
+    ingest = ingest_legal_doc_bytes(
+        cas=cas,
+        fact_log_root=tmp_path,
+        source=source,
+        raw_bytes=b"published-only version",
+        mime="text/plain",
+        options=None,
+    )
+
+    build_version_index(
+        cas=cas,
+        fact_log_root=tmp_path,
+        doc_source_id=ingest.doc_source_id,
+    )
+
+    resolved = resolve_active_version(
+        cas=cas,
+        doc_source_id=ingest.doc_source_id,
+        as_of_iso="2024-06-01",
+    )
+
+    assert resolved.selected_doc_version_id is None
+    assert "no_resolved_temporal_candidate" in resolved.explanation
+
+
 def test_lex_phase16_end_to_end_with_duckdb(tmp_path: Path) -> None:
     cas = FileSystemCAS(tmp_path / "cas")
     db = SimulationDB(db_path=str(tmp_path / "sim.duckdb"))

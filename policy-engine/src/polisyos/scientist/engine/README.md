@@ -1,46 +1,39 @@
-# Engine Layer (`polisyos.scientist.engine`)
+# Engine (`polisyos.scientist.engine`)
 
-`engine` — ядро выполнения workflow в `scientist`: строгий state, DAG executor, registry, idempotency, checkpoint/resume.
+`engine` — workflow runtime Scientist: state model, DAG execution, checkpoint/resume,
+idempotency, runner backends, fan-out/subworkflow utilities и trace metadata.
 
-## Что делает
+## Роль в системе
 
-- валидирует `WorkflowSpec` (уникальные aliases, зависимости, required binds);
-- выполняет ноды в topological order;
-- пишет run-артефакты (`scientist.workflow_spec`, `scientist.experiment_state`, `scientist.workflow_report`);
-- кэширует успешные `NodeOutcome` по idempotency key;
-- создает checkpoint после успешных нод и поддерживает resume.
+- **Зависит от:** `core.artifacts`, `core.observability`, builtin node protocols
+- **Используется в:** `scientist.api`, `scientist.workflows`, replay/resume flows
+- Пакет задает execution semantics для всего Scientist orchestration stack.
 
-## Ключевые файлы
+## Ключевые концепции
 
-- `state.py` — `ExperimentState` (`schema_version=1.2`, `extra="forbid"`).
-- `protocol.py` — `Node`, `NodeSpec`, `NodeOutcome`, `NodeError`.
-- `workflow_spec.py` — `WorkflowSpec`, `NodeInvocation`, `error_policy`.
-- `registry.py` — `NodeRegistry`, `discover_nodes()`.
-- `executor.py` — `WorkflowExecutor.execute()`.
-- `idempotency.py` — `compute_idempotency_key()`, `NodeResultCache`.
-- `checkpoint.py` — `CASCheckpointHook`, `resume_from_checkpoint()`, `acquire_run_lock()`.
-- `iteration_state_machine.py` — переходы iteration lifecycle для evaluator контура.
-- `builtins/` — engine-level ноды `noop`, `set_state`, `emit_artifact`.
+- **ExperimentState** — строгая модель run-state.
+- **WorkflowSpec / NodeInvocation** — декларативное описание DAG.
+- **WorkflowExecutor** — основной runtime executor, plus async and remote variants.
+- **Checkpoint + run lock** — safe resume и workflow fingerprint validation.
+- **Idempotency** — state-slice based cache contract для node outcomes.
+- **Runner backends** — local, fallback, temporal, ray and related orchestration helpers.
 
-## Публичный API
+## Public API
 
-Через `polisyos.scientist.engine` доступны:
-- модели/протоколы (`ExperimentState`, `WorkflowSpec`, `NodeSpec`, `NodeOutcome`, ...);
-- `WorkflowExecutor`;
-- checkpoint/idempotency API (`resume_from_checkpoint`, `compute_idempotency_key`, ...).
+- `ExperimentState`, `WorkflowSpec`, `NodeInvocation`
+- `Node`, `NodeSpec`, `NodeOutcome`, `NodeError`, `NodeStatus`
+- `WorkflowExecutor`, `AsyncWorkflowExecutor`
+- `resume_from_checkpoint(...)`, `acquire_run_lock(...)`,
+  `compute_idempotency_key(...)`, `discover_nodes(...)`
+- Runner/config surfaces: `WorkflowRunnerBackend`, `WorkflowRunnerConfig`,
+  `build_workflow_runner(...)`
 
-## Особенности
+Подробности: [Reference →](../../../../docs/reference/scientist/index.md)
 
-- `error_policy`: `fail_fast` или `continue`.
-- при `continue` зависимые ноды skip, независимые ветки продолжают выполнение.
-- idempotency scope: `run_id + node_id + state_reads + bind params`.
-- кэш отключен для `noop/set_state/emit_artifact/enrich_knowledge`.
-- cache может восстановиться из run trace и из checkpoint `cache_entry_refs`.
-- checkpoint policy: `off | strict | best_effort`.
-- run lock файл: `.polisyos/runs/<run_id>/run.lock`.
+## Текущее состояние
 
-## Связи
-
-- `workflows/` строит context/registry и запускает executor.
-- `nodes/` поставляет бизнес-ноды.
-- `core/` дает CAS, run context, discovery и observability.
+- Последнее обновление: 2026-04-03
+- Python modules: 52
+- Exports: 89
+- README расширен, чтобы отражать checkpoint/idempotency/runner surface,
+  а не только базовый executor

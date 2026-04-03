@@ -1,87 +1,37 @@
-# Core — инфраструктурный слой PolisyOS
+# Core (`polisyos.core`)
 
-`polisyos.core` — общий инфраструктурный слой для доменных подсистем (`fabric`, `foundry`, `scientist`, `lex`, `runtime`, `scholar`, `packs`).
+`polisyos.core` is the shared infrastructure layer for the rest of PolicyOS. It hosts the
+cross-module ABI, content-addressable storage, component discovery/bootstrap, telemetry,
+security, registry building, and a few small runtime utilities that many domains reuse.
 
-Он концентрирует:
-- типизированные межмодульные контракты;
-- CAS/lineage/run lifecycle;
-- component discovery/bootstrap;
-- наблюдаемость, безопасность и устойчивость исполнения.
+`polisyos.ir` remains the canonical schema/ref layer. `core` depends on `ir`, but not the other
+way around.
 
-`polisyos.ir` остается отдельным слоем схем и canonical refs: `core` зависит от `ir`, но не наоборот.
+## Role in System
 
-## Архитектурная карта
+- **Depends on:** `polisyos.ir` for canonical refs and schema-shaped payloads.
+- **Used by:** `fabric`, `foundry`, `scientist`, `lex`, `runtime`, `scholar`, and bootstrap tooling.
+- **Boundary function:** keeps shared infrastructure out of domain packages so the ABI stays stable.
 
-```text
-core/
-├── artifacts/      # CAS, manifests, signatures, environment, dependency graph
-├── audit/          # экспорт и офлайн-верификация audit package
-├── backends/       # generic backend dispatcher
-├── cache/          # in-memory LRU/TTL cache primitives
-├── canon/          # canonical JSON и хеширование
-├── compiler/       # compile/link report artifacts
-├── components/     # component model, discovery, bootstrap, CLI wiring
-├── contracts/      # typed ABI: refs + DTO между подсистемами
-├── discovery/      # generic discovery orchestration primitives
-├── errors/         # базовая ошибка и категории
-├── evaluation/     # weighted scoring + threshold mapping
-├── governance/     # validation profiles + legal/safety passes
-├── llm/            # traced LLM facade (response/cost/retry)
-├── observability/  # tracing, metrics, logs, propagation, pricing
-├── pipeline/       # linear + DAG pipeline primitives
-├── registry/       # registry bundle build/load + generic registries
-├── resilience/     # retry policy с backoff/jitter
-├── run/            # RunContext и RunManifest lifecycle
-├── security/       # tenant isolation, authz, audit chain, TEE, SBOM, SLSA
-└── trace/          # TraceRecord + sinks (jsonl/composite)
-```
+## Key Concepts
 
-## Роль в системе
+- **Contracts first** - `core.contracts` defines the typed ABI surface for runtime, control, and artifact refs.
+- **CAS and provenance** - `core.artifacts`, `core.trace`, and `core.audit` keep runs reproducible and inspectable.
+- **Plugin bootstrap** - `core.components`, `core.discovery`, and `core.registry` wire component discovery into runtime registries.
+- **NFR primitives** - `core.observability`, `core.security`, `core.resilience`, and `core.pipeline` provide common runtime guarantees.
+- **LLM wrapper** - `core.llm` gives a traced, metered, retry-aware client facade for higher-level modules.
+- **Validation profiles** - `core.governance` centralizes shared pass selection and policy strictness.
 
-- `ABI plane`: `core.contracts` фиксирует стабильные границы между модулями.
-- `Data/provenance plane`: `artifacts`, `run`, `trace`, `audit` обеспечивают воспроизводимость.
-- `Plugin plane`: `components`, `discovery`, `registry` соединяют плагины с runtime.
-- `NFR plane`: `security`, `observability`, `resilience`, `pipeline` дают единые runtime-гарантии.
+## Public API
 
-## Ключевые потоки
+`polisyos.core` exports 15 lazy submodules:
+`artifacts`, `backends`, `cache`, `canon`, `components`, `contracts`, `discovery`,
+`evaluation`, `errors`, `llm`, `observability`, `pipeline`, `registry`, `resilience`, `run`.
 
-1. Discovery и bootstrap компонентов:
-   `components.discover_components` -> `build_components_index` -> `bootstrap_plugin_registries`.
-2. Run lifecycle:
-   `run.RunContext.start` -> trace события (`trace.jsonl`) -> `RunManifest` в CAS.
-3. Governance validation:
-   `governance.ValidationProfile` + набор pass'ов (`safety`, `legal`, ...).
-4. Проверяемая поставка:
-   `audit.AuditPackageAssembler` / `audit.AuditPackageVerifier` + `artifacts.signing` + `security.slsa`.
+Direct subpackages remain part of the package surface:
+`audit`, `compiler`, `governance`, `security`, `trace`.
 
-## Публичные точки входа
-
-Через lazy-facade `polisyos.core` экспортируются:
-- `artifacts`, `backends`, `cache`, `canon`, `components`, `contracts`, `discovery`
-- `evaluation`, `errors`, `llm`, `observability`, `pipeline`, `resilience`, `registry`, `run`
-
-Импортируются напрямую (вне lazy facade):
-- `polisyos.core.audit`
-- `polisyos.core.compiler`
-- `polisyos.core.governance`
-- `polisyos.core.security`
-- `polisyos.core.trace`
-
-## Связь с соседними директориями
-
-| Директория | Как использует `core` |
-|---|---|
-| `fabric/` | `contracts.fabric`, CAS (`artifacts`), component discovery, provenance |
-| `foundry/` | compile/execute contracts, registry bundles, tracing/metrics |
-| `scientist/` | run lifecycle, governance passes, LLM facade, execution contracts |
-| `lex/` | legal contracts, legal/safety passes, norm pack/provider bootstrap |
-| `runtime/` | runtime API contracts, security routing/authz, observability hooks |
-| `scholar/` | scholar contracts, CAS bundles, freshness and enrichment telemetry |
-| `packs/` | component metadata/capabilities и IR fragments |
-| `ir/` | canonical refs/schemas для контрактов и registry payloads |
-
-## README подсистем
-
+Reference docs:
 - [artifacts/README.md](artifacts/README.md)
 - [audit/README.md](audit/README.md)
 - [cache/README.md](cache/README.md)
@@ -93,8 +43,8 @@ core/
 - [registry/README.md](registry/README.md)
 - [security/README.md](security/README.md)
 
-## Границы ответственности
+## Current State
 
-- В `core` попадает только функциональность, которую используют минимум две подсистемы.
-- Доменная логика остается в `fabric`/`foundry`/`scientist`/`lex`/`scholar`.
-- Новый межмодульный интерфейс сначала фиксируется в `core.contracts`, затем внедряется в доменный модуль.
+- Last updated: 2026-04-03
+- Lazy exports: 15 submodules
+- Recent ABI drift: `core.contracts.scientist` gained `CalibrationValidationBundleRef`, and `core.governance.ValidationProfile` now includes `strategic_response` in `mvp` and `strict`.

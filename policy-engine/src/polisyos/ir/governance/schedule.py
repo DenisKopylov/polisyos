@@ -1,3 +1,4 @@
+"""Public governance schedule module API."""
 from __future__ import annotations
 
 from pydantic import Field, model_validator
@@ -6,6 +7,7 @@ from polisyos.ir.kernel.base import KernelModel
 
 
 class ScheduleSpec(KernelModel):
+    """Schedule spec data model."""
     start_step: int = Field(..., ge=0)
     end_step: int | None = Field(None, ge=0)
     duration_steps: int | None = Field(None, ge=1)
@@ -24,6 +26,7 @@ class ScheduleSpec(KernelModel):
 
 
 def schedule_range(schedule: ScheduleSpec) -> tuple[int, int]:
+    """Schedule range helper."""
     start = schedule.start_step
     if schedule.end_step is None:
         end = start + int(schedule.duration_steps or 0) - 1

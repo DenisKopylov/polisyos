@@ -1,51 +1,37 @@
-# Observability — telemetry слой core
+# Observability (`polisyos.core.observability`)
 
-`core.observability` объединяет tracing, metrics, structured logging, context propagation, determinism и LLM pricing.
+`core.observability` is the telemetry layer shared by the rest of PolicyOS. It bundles tracing,
+metrics, structured logging, context propagation, determinism helpers, and LLM pricing support.
 
-Ключевая особенность: graceful degradation. Если OTel SDK недоступен, API остается рабочим через noop-реализации.
+The package is designed to degrade gracefully: if the OTel SDK is unavailable, the public API
+still works through noop implementations.
 
-## Состав
+## Role in System
 
-```text
-observability/
-├── config.py         # OTelConfig + env-based settings
-├── tracer.py         # tracer/sampler/context helpers
-├── decorators.py     # @traced / @traced_method
-├── metrics.py        # facade -> metrics_parts
-├── metrics_parts.py  # MetricsRegistry + domain record_* methods
-├── logs.py           # structured logs + trace correlation
-├── propagation.py    # trace context propagation (headers/threads/async)
-├── determinism.py    # DeterminismTier parsing
-└── pricing.py        # model pricing table + estimate_llm_cost_usd
-```
+- **Depends on:** the standard runtime stack plus optional OTel packages.
+- **Used by:** `core.llm`, `core.security`, `foundry`, `scientist`, `runtime`, and any code that needs shared telemetry.
+- **Boundary function:** gives the rest of the codebase one telemetry model instead of many small wrappers.
 
-## Быстрый сценарий
+## Key Concepts
 
-```python
-from polisyos.core.observability import get_metrics, traced
+- **Tracer facade** - `tracer.py` centralizes span creation and sampling helpers.
+- **Decorators** - `traced` and `traced_method` make instrumentation easy to apply.
+- **Metrics registry** - `metrics_parts.py` carries the real registry and domain recording helpers.
+- **Structured logging** - `logs.py` keeps trace correlation in log output.
+- **Propagation** - `propagation.py` handles header/thread/async context transfer.
+- **Pricing and determinism** - `pricing.py` and `determinism.py` keep execution metadata consistent.
 
-@traced(phase="EXECUTE", node="simulate")
-def run_step() -> None:
-    with get_metrics().time_simulation({"node": "simulate"}):
-        pass
-```
+## Public API
 
-## Важные env-параметры
+- `get_metrics`
+- `traced`
+- `traced_method`
+- `OTelConfig`
+- `DeterminismTier`
+- `estimate_llm_cost_usd`
 
-- `POLISYOS_OTEL_ENABLED`
-- `POLISYOS_HPC_OBSERVABILITY_ENABLED`
-- `OTEL_EXPORTER_OTLP_ENDPOINT`
-- `OTEL_EXPORTER_OTLP_PROTOCOL`
-- `POLISYOS_OTEL_CONSOLE_EXPORT`
-- `POLISYOS_METRICS_PORT`
-- `POLISYOS_TRACE_SAMPLING_RATIO`
-- `POLISYOS_ALWAYS_SAMPLE_ERRORS`
-- `POLISYOS_DETERMINISM_TIER`
-- `POLISYOS_LLM_DEFAULT_INPUT_USD` / `POLISYOS_LLM_DEFAULT_OUTPUT_USD`
+## Current State
 
-## Интеграции
-
-- `core.llm`: LLM call metrics/traces/cost
-- `core.resilience`: retry telemetry
-- `core.security`: authz/audit/TEE/SBOM security metrics
-- `foundry`/`scientist`/`runtime`: execution traces и SLO/operational метрики
+- Last updated: 2026-04-03
+- The tree now includes `_metrics_helpers.py` and `_metrics_registry_base.py` alongside the main metrics facade.
+- Core callers still get graceful degradation when optional tracing dependencies are absent.

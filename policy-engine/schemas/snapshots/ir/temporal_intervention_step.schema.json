@@ -1,0 +1,41 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "effective_date": {
+      "description": "ISO-like YYYY-MM or YYYY-MM-DD activation marker for the step.",
+      "pattern": "^\\d{4}-\\d{2}(-\\d{2})?$",
+      "title": "Effective Date",
+      "type": "string"
+    },
+    "intervention_id": {
+      "pattern": "^[a-z][a-z0-9_]*$",
+      "title": "Intervention Id",
+      "type": "string"
+    },
+    "notes": {
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 20,
+      "title": "Notes",
+      "type": "array"
+    },
+    "parameter_overrides": {
+      "additionalProperties": true,
+      "title": "Parameter Overrides",
+      "type": "object"
+    },
+    "step_id": {
+      "pattern": "^[a-z][a-z0-9_]*$",
+      "title": "Step Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "step_id",
+    "effective_date",
+    "intervention_id"
+  ],
+  "title": "TemporalInterventionStep",
+  "type": "object"
+}

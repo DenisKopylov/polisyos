@@ -27,6 +27,7 @@ def run(
     license_name: str,
     cas_root: Path | None = Path(".polisyos"),
 ) -> EvidenceBundleRef | None:
+    """Run helper."""
     return run_connectors_ingestion(
         connector_manifest=connector_manifest,
         source=source,

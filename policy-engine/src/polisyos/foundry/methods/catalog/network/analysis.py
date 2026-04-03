@@ -1,3 +1,4 @@
+"""Public network analysis module API."""
 from __future__ import annotations
 
 from typing import Any, ClassVar, Mapping
@@ -75,6 +76,7 @@ def _symmetrize(adjacency: np.ndarray) -> np.ndarray:
     tags={"network", "community-detection"},
 )
 class CommunityDetectionEstimator:
+    """Community detection estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("scikit-learn", "numpy")
 
@@ -101,6 +103,9 @@ class CommunityDetectionEstimator:
         description="Spectral community detection on a weighted adjacency matrix.",
         tags=frozenset({"network", "community-detection"}),
         when_to_use="Identify cohesive subgroups; detect clusters in social/trade networks",
+        citations=(
+            "Newman, M. (2006). Modularity and community structure in networks. PNAS, 103(23), 8577-8582.",
+        ),
         when_not_to_use="No clear community structure; number of communities k is fully unknown and elbow is flat",
         output_interpretation="Community assignments. Modularity Q: >0.3 = meaningful community structure.",
     )
@@ -150,6 +155,7 @@ class CommunityDetectionEstimator:
     tags={"network", "input-output-network"},
 )
 class InputOutputNetworkEstimator:
+    """Input output network estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -176,6 +182,10 @@ class InputOutputNetworkEstimator:
         description="Network linkage analysis using a Leontief-like inverse over the adjacency matrix.",
         tags=frozenset({"network", "input-output-network"}),
         when_to_use="Identify influential nodes; policy diffusion through economic input-output networks; forward/backward linkage analysis",
+        citations=(
+            "Leontief, W. (1986). Input-Output Economics. Oxford University Press.",
+            "Acemoglu, D. et al. (2012). The network origins of aggregate fluctuations. Econometrica, 80(5), 1977-2016.",
+        ),
         when_not_to_use="Non-economic networks; adjacency matrix is not interpretable as flow/share matrix",
         output_interpretation="Centrality scores per node. High betweenness = bottleneck. Backward/forward linkages from Leontief inverse.",
     )
@@ -214,6 +224,7 @@ class InputOutputNetworkEstimator:
     tags={"network", "diffusion"},
 )
 class NetworkDiffusionEstimator:
+    """Network diffusion estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -245,6 +256,10 @@ class NetworkDiffusionEstimator:
         description="DeGroot-style network diffusion from initial node states.",
         tags=frozenset({"network", "diffusion"}),
         when_to_use="Spread of behavior, information, or beliefs on network; opinion dynamics; DeGroot learning model",
+        citations=(
+            "DeGroot, M. (1974). Reaching a consensus. Journal of the American Statistical Association, 69(345), 118-121.",
+            "Jackson, M. (2008). Social and Economic Networks. Princeton University Press.",
+        ),
         when_not_to_use="Non-network processes; need stochastic contagion (use SIS/SIR); no adjacency structure",
         output_interpretation="Final node states after diffusion. Trajectory shows convergence path. Consensus = all nodes reach same state.",
     )
@@ -285,6 +300,7 @@ class NetworkDiffusionEstimator:
     tags={"network", "contagion-model"},
 )
 class ContagionModelEstimator:
+    """Contagion model estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -317,6 +333,10 @@ class ContagionModelEstimator:
         description="Discrete-time SIS/SIR contagion model on a weighted network.",
         tags=frozenset({"network", "contagion-model"}),
         when_to_use="Spread of behavior, disease, or information on network; threshold models",
+        citations=(
+            "Kermack, W. & McKendrick, A. (1927). A contribution to the mathematical theory of epidemics. Proceedings of the Royal Society A, 115(772), 700-721.",
+            "Pastor-Satorras, R. & Vespignani, A. (2001). Epidemic spreading in scale-free networks. Physical Review Letters, 86(14), 3200.",
+        ),
         when_not_to_use="Non-network contagion; homogeneous mixing sufficient (use compartmental ODE); no adjacency data",
         output_interpretation="Cascade size and timing. R0>1 = systemic spread. Identification of superspreaders.",
     )
@@ -374,6 +394,7 @@ class ContagionModelEstimator:
     tags={"network", "multiplex-network"},
 )
 class MultiplexNetworkEstimator:
+    """Multiplex network estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -405,6 +426,9 @@ class MultiplexNetworkEstimator:
         description="Multiplex network analytics over several adjacency layers.",
         tags=frozenset({"network", "multiplex-network"}),
         when_to_use="Networks with multiple relationship types (trade, social, information); multilayer network analysis",
+        citations=(
+            "Kivela, M. et al. (2014). Multilayer networks. Journal of Complex Networks, 2(3), 203-271.",
+        ),
         when_not_to_use="Single-layer network; layers are not meaningfully distinct; no inter-layer coupling",
         output_interpretation="Aggregate centrality across layers. Interlayer difference = divergence across network types. Dominant eigenvector = cross-layer influential nodes.",
     )

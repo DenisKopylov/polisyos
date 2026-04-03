@@ -360,6 +360,7 @@ def persist_policy_candidate_schema(
     *,
     inputs: list[InputRef] | None = None,
 ) -> ArtifactRef:
+    """Persist policy candidate schema helper."""
     return store.put_json(
         candidate,
         PutOptions(
@@ -379,6 +380,7 @@ def load_policy_candidate_schema(
     store: FileSystemCAS,
     ref: ArtifactRef,
 ) -> PolicyCandidateSchema:
+    """Load policy candidate schema."""
     payload = from_canonical_bytes(store.get_bytes(ref.artifact_id))
     return PolicyCandidateSchema.model_validate(payload)
 

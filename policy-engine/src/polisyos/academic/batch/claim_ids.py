@@ -14,6 +14,7 @@ def stable_claim_id(
     direction: str = "",
     supporting_span_ids: tuple[str, ...] | list[str] | None = None,
 ) -> str:
+    """Stable claim ID helper."""
     span_signature = tuple(sorted({str(item).strip().lower() for item in (supporting_span_ids or []) if str(item).strip()}))
     legacy_text_alias = str(claim_text).strip().lower()[:64] if not span_signature else ""
     payload = "|".join(

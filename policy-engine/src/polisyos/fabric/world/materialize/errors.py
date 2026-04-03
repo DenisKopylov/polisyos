@@ -1,3 +1,4 @@
+"""Public materialize errors module API."""
 from __future__ import annotations
 
 from polisyos.core.errors import ErrorCategory, PolicyOSError

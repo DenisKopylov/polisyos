@@ -1,3 +1,4 @@
+"""Public validation diagnostics module API."""
 from __future__ import annotations
 
 from typing import Any, ClassVar, Mapping
@@ -29,6 +30,7 @@ def _result_slot() -> frozenset[SlotSpec]:
     tags={"validation", "model", "cross-validation", "tabular"},
 )
 class CrossValidationEstimator:
+    """Cross validation estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -91,6 +93,7 @@ class CrossValidationEstimator:
     tags={"validation", "model", "walk-forward", "time-series", "tabular"},
 )
 class WalkForwardEstimator:
+    """Walk forward estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -170,6 +173,7 @@ class WalkForwardEstimator:
     tags={"validation", "calibration", "diagnostic", "tabular"},
 )
 class CalibrationDiagnosticEstimator:
+    """Calibration diagnostic estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 

@@ -1,0 +1,91 @@
+{
+  "$defs": {
+    "ContractCompatibilityTarget": {
+      "additionalProperties": false,
+      "properties": {
+        "contract_fqn": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Contract Fqn",
+          "type": "string"
+        },
+        "contract_id": {
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Contract Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "contract_id",
+        "contract_fqn"
+      ],
+      "title": "ContractCompatibilityTarget",
+      "type": "object"
+    },
+    "MultiplexGraphLayerId": {
+      "enum": [
+        "budget",
+        "procurement",
+        "trade",
+        "distress",
+        "public_service"
+      ],
+      "title": "MultiplexGraphLayerId",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "alignment_keys": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Alignment Keys",
+      "type": "array"
+    },
+    "artifact_name": {
+      "const": "network_contract_bundle_v1.json",
+      "default": "network_contract_bundle_v1.json",
+      "title": "Artifact Name",
+      "type": "string"
+    },
+    "contract_targets": {
+      "items": {
+        "$ref": "#/$defs/ContractCompatibilityTarget"
+      },
+      "minItems": 1,
+      "title": "Contract Targets",
+      "type": "array"
+    },
+    "graph_layers": {
+      "items": {
+        "$ref": "#/$defs/MultiplexGraphLayerId"
+      },
+      "minItems": 1,
+      "title": "Graph Layers",
+      "type": "array"
+    },
+    "schema_version": {
+      "default": "1.0",
+      "pattern": "^\\d+\\.\\d+$",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "source_artifacts": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Source Artifacts",
+      "type": "array"
+    }
+  },
+  "required": [
+    "contract_targets",
+    "graph_layers",
+    "source_artifacts"
+  ],
+  "title": "NetworkContractBundle",
+  "type": "object"
+}

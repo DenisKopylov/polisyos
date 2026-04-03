@@ -1,22 +1,34 @@
-# Kernel Layer (`polisyos.scientist.kernel`)
+# Kernel (`polisyos.scientist.kernel`)
 
-`kernel` — утилиты оркестрации: phase FSM, бюджеты и typed human gate protocol.
+`kernel` содержит lightweight orchestration primitives Scientist: phase FSM,
+budget models и typed human-gate protocol, который связывает runtime governance
+с canonical gate artifacts.
 
-## Состав
+## Роль в системе
 
-- `fsm.py` — `Phase`, `ALLOWED_TRANSITIONS`, `KernelState`, `ReflexionGuard`.
-- `guards.py` — `advance_phase()` и `require_artifacts()`.
-- `budgets.py` — модели бюджетов (`ComputeBudget`, `EvidenceBudget`, `LegitimacyBudget`, `ComplexityBudget`).
-- `gate_protocol.py` — `HumanGateProtocol` (создание/фиксация gate request/decision в CAS + trace events).
+- **Зависит от:** `ir.governance.gate`
+- **Используется в:** `scientist.governance`, builtin governance nodes, orchestration guards
+- Пакет небольшой, но критичен для phase transitions и human-review lifecycle.
 
-## Что важно знать
+## Ключевые концепции
 
-- FSM поддерживает не только линейный путь (`INTAKE -> ... -> ARCHIVE`), но и search/reflexion фазы.
-- `engine` сам по себе не продвигает фазу автоматически; переходы применяются через state/guards на уровне нод и orchestration-логики.
-- `scientist.node_run_governance` использует `HumanGateProtocol` для typed gate артефактов (`ir.gate_request`, `ir.gate_decision`).
+- **Phase FSM** — допустимые переходы orchestration phases.
+- **KernelState** — minimal phase-state carrier.
+- **Guards** — helpers для phase advance и artifact requirements.
+- **HumanGateProtocol** — typed request/decision persistence path для human review.
+- **Budget models** — compute/evidence/legitimacy/complexity envelopes для orchestration.
 
-## Связи
+## Public API
 
-- `governance` — gate decisions и escalation flow.
-- `engine` — хранит phase/budget значения в `ExperimentState.params`.
-- `ir.governance.gate` — canonical контракты GateContext/GateRequest/GateDecision.
+- `Phase`, `KernelState`, `ALLOWED_TRANSITIONS`
+- `advance_phase(...)`
+- `gate_protocol.py` and `budgets.py` provide the supporting human-gate and budget models
+
+Подробности: [Reference →](../../../../docs/reference/scientist/index.md)
+
+## Текущее состояние
+
+- Последнее обновление: 2026-04-03
+- Python modules: 5
+- Public surface: imported symbols in `__init__.py` plus `gate_protocol.py`/`budgets.py`
+- README расширен: раньше пакет был описан слишком минимально относительно его runtime роли

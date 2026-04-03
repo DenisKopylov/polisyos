@@ -23,6 +23,7 @@ _logger = logging.getLogger(__name__)
 
 
 class ScaleDirection(str, Enum):
+    """Scale direction public type."""
     UP = "up"
     DOWN = "down"
     NONE = "none"

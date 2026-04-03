@@ -1,3 +1,4 @@
+"""Public normpack extract norm claims module API."""
 from __future__ import annotations
 
 import re
@@ -48,6 +49,7 @@ _ID_RE = re.compile(ID_PATTERN)
 
 @dataclass(frozen=True)
 class ProvisionSelection:
+    """Provision selection public type."""
     fragment_id: str
     doc_source_id: str
     doc_version_id: str
@@ -63,6 +65,7 @@ class ProvisionSelection:
 
 @dataclass(frozen=True)
 class NormClaimExtractResult:
+    """Norm claim extract result data model."""
     raw_claim_set_artifact_ids: list[str]
     raw_claim_ids: list[str]
     normalized_claim_set_artifact_ids: list[str]
@@ -253,6 +256,7 @@ def extract_norm_claims(
     normalize_claim_sets: bool = True,
     segment_name: str | None = None,
 ) -> NormClaimExtractResult:
+    """Extract norm claims helper."""
     if max_claims is not None and max_claims < 0:
         raise ValueError("max_claims must be >= 0")
 

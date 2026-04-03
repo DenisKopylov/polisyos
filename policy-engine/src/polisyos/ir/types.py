@@ -1,3 +1,4 @@
+"""Public ir types module API."""
 from enum import Enum
 from typing import Optional
 

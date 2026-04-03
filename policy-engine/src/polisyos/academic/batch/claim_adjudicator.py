@@ -183,31 +183,56 @@ def _claim_id_for(result: ArticleExtractionResult, claim: CausalClaim) -> str:
     )
 
 
+_DESIGN_TIER: dict[DesignFamily, int] = {
+    # Tier 1: Strong causal identification
+    DesignFamily.RCT: 1, DesignFamily.IV: 1, DesignFamily.DID: 1,
+    DesignFamily.RDD: 1, DesignFamily.SYNTHETIC_CONTROL: 1,
+    # Tier 2: Quasi-causal
+    DesignFamily.PANEL_FE: 2, DesignFamily.EVENT_STUDY: 2,
+    DesignFamily.QUASI_EXPERIMENTAL_OTHER: 2,
+    DesignFamily.QUASI_EXPERIMENTAL_DID: 2, DesignFamily.QUASI_EXPERIMENTAL_RDD: 2,
+    # Tier 3: Empirical without identification
+    DesignFamily.OLS: 3, DesignFamily.OLS_CROSS_SECTIONAL: 3,
+    DesignFamily.STRUCTURAL_MODEL: 3, DesignFamily.TIME_SERIES_COINTEGRATION: 3,
+    # Tier 4: Synthesis / aggregation
+    DesignFamily.META_ANALYSIS: 4, DesignFamily.REVIEW: 4,
+    DesignFamily.REVIEW_NARRATIVE: 4, DesignFamily.REVIEW_META_ANALYSIS: 4,
+    # Tier 5: No identification
+    DesignFamily.THEORETICAL: 5, DesignFamily.UNCLEAR: 5,
+}
+_TIER_VALIDITY_BASE = {1: 0.65, 2: 0.50, 3: 0.40, 4: 0.55, 5: 0.25}
+_TIER_CREDIBILITY = {
+    1: CausalCredibility.MODERATE, 2: CausalCredibility.MODERATE,
+    3: CausalCredibility.WEAK, 4: CausalCredibility.MODERATE,
+    5: CausalCredibility.WEAK,
+}
+
+
 def _fallback_adjudication(result: ArticleExtractionResult, claim: CausalClaim) -> ClaimAdjudicationResult:
     claim_id = _claim_id_for(result, claim)
     source_basis = claim.source_basis if isinstance(claim.source_basis, SourceBasis) else result.source_basis
-    publishable = bool(
-        claim.design_family_hint in {DesignFamily.RCT, DesignFamily.IV, DesignFamily.DID, DesignFamily.RDD, DesignFamily.SYNTHETIC_CONTROL}
-        and claim.supporting_spans
-    )
+
+    tier = _DESIGN_TIER.get(claim.design_family_hint, 5)
+    span_count = len(claim.supporting_spans)
+    is_explicit = claim.claim_explicitness.value == "explicit"
+
+    validity = min(1.0, _TIER_VALIDITY_BASE[tier] + min(0.15, 0.05 * max(0, span_count - 1)) + (0.05 if is_explicit else 0.0))
+    publishable = bool(span_count > 0 and (tier <= 2 or (tier == 4 and is_explicit)))
+
     return ClaimAdjudicationResult(
         claim_id=claim_id,
         openalex_id=result.openalex_id,
         cause_variable=claim.cause_variable,
         effect_variable=claim.effect_variable,
         source_basis=source_basis,
-        paper_asserts_causality_score=0.55 if claim.claim_explicitness.value == "explicit" else 0.35,
-        claim_type=ClaimType.CAUSAL_ASSERTION if claim.claim_explicitness.value == "explicit" else ClaimType.ASSOCIATION,
+        paper_asserts_causality_score=0.55 if is_explicit else 0.35,
+        claim_type=ClaimType.CAUSAL_ASSERTION if is_explicit else ClaimType.ASSOCIATION,
         design_family=claim.design_family_hint,
-        causal_credibility=(
-            CausalCredibility.MODERATE
-            if publishable
-            else CausalCredibility.WEAK
-        ),
-        risk_of_bias=RiskOfBias.UNCLEAR,
-        support_status=SupportStatus.SUPPORTED if claim.supporting_spans else SupportStatus.INSUFFICIENT,
-        claim_validity_score=0.55 if publishable else 0.25,
-        adjudication_confidence=0.45,
+        causal_credibility=_TIER_CREDIBILITY[tier],
+        risk_of_bias=RiskOfBias.MODERATE if tier <= 2 else RiskOfBias.UNCLEAR,
+        support_status=SupportStatus.SUPPORTED if span_count > 0 else SupportStatus.INSUFFICIENT,
+        claim_validity_score=validity,
+        adjudication_confidence=min(0.75, 0.35 + 0.05 * min(span_count, 4)),
         publishable_edge=publishable,
         adjudication_notes="fallback_adjudication_without_llm",
     )
@@ -336,8 +361,73 @@ Method spans:
     return ClaimAdjudicationResult.model_validate(payload)
 
 
+async def _adjudicate_with_pool(
+    *,
+    pool: Any,
+    model: str,
+    result: ArticleExtractionResult,
+    claim: CausalClaim,
+    pass_index: int,
+    search_config: ClaimAdjudicationSearchConfig,
+) -> ClaimAdjudicationResult:
+    variant = select_prompt_variant(search_config, pass_index)
+    source_basis = claim.source_basis.value if claim.source_basis else result.source_basis.value
+    supporting = [span.model_dump(mode="json") for span in claim.supporting_spans]
+    method_spans = [span.model_dump(mode="json") for span in claim.method_spans]
+    prompt = f"""
+Adjudicate a single extracted literature claim for causal validity.
+Return strict JSON only:
+{CLAIM_ADJUDICATION_SCHEMA_HINT}
+
+Rules:
+- Distinguish between the paper asserting causality and the graph treating it as a credible causal edge.
+- Be conservative.
+- panel FE, OLS, generic regression, and ML prediction are not strong causal evidence by themselves.
+- abstract_only claims with weak designs (OLS, panel_FE) should almost never be publishable.
+- abstract_only claims with strong designs (RCT, IV, DiD, RDD) CAN be publishable if the abstract clearly describes the identification strategy.
+- If design evidence is missing, prefer weak or unclear.
+- Use the effect_size and confidence_interval below (if available) to assess whether the claim is quantitatively grounded. A precise numeric effect with CI is more credible than a vague directional claim.
+
+Calibration note:
+{variant}
+
+Paper:
+title: {result.title}
+methodology: {result.methodology}
+methodology_enum: {result.methodology_enum.value}
+source_basis: {source_basis}
+text_quality: {result.text_quality.value}
+
+Claim:
+claim_text: {claim.claim_text}
+cause_variable: {claim.cause_variable}
+effect_variable: {claim.effect_variable}
+direction: {claim.direction.value}
+claim_explicitness: {claim.claim_explicitness.value}
+design_family_hint: {claim.design_family_hint.value}
+effect_size: {claim.effect_size if claim.effect_size is not None else "[not provided]"}
+scope_conditions: {json.dumps(claim.scope_conditions or [], ensure_ascii=False)}
+
+Supporting spans:
+{json.dumps(supporting, ensure_ascii=False)}
+
+Method spans:
+{json.dumps(method_spans, ensure_ascii=False)}
+""".strip()
+    response = await pool.chat_json(model=model, prompt=prompt, temperature=0.0)
+    payload = _normalize_adjudication_payload(
+        result=result,
+        claim=claim,
+        parsed=response.parsed,
+        pass_index=pass_index,
+        total_passes=1,
+    )
+    return ClaimAdjudicationResult.model_validate(payload)
+
+
 async def run_claim_adjudicate(config: AcademicBatchConfig) -> dict[str, int | float]:
-    from polisyos.academic.batch.article_extractor import GonkaChatClient
+    """Run claim adjudicate."""
+    from polisyos.academic.batch.resolve_extract import GonkaMultiKeyPool
 
     started_at = datetime.now(UTC).isoformat()
     search_config = load_claim_adjudication_config(context={"academic_config": config})
@@ -357,37 +447,31 @@ async def run_claim_adjudicate(config: AcademicBatchConfig) -> dict[str, int | f
     llm_calls = 0
     deterministic_fallbacks = 0
 
-    if not config.gonka_api_key:
+    if not config.gonka_api_keys:
         for result in rows:
             for claim in result.causal_claims:
                 fallback = _fallback_adjudication(result, claim)
                 pass_rows.append({**fallback.model_dump(mode="json"), "pass_index": 0})
                 deterministic_fallbacks += 1
     else:
-        client = GonkaChatClient(
-            api_key=config.gonka_api_key,
-            base_url=config.gonka_base_url,
-            max_concurrent=config.article_max_concurrent_llm,
-            rate_limit_rps=config.article_rate_limit_rps,
-            max_retries=config.article_max_retries,
-            timeout_seconds=120,
-        )
-        async with client:
-            tasks: list[asyncio.Task[tuple[int, ClaimAdjudicationResult]]] = []
+        async with GonkaMultiKeyPool(config) as pool:
+            sem = asyncio.Semaphore(config.article_max_concurrent_llm)
 
             async def _run_one(pass_index: int, result: ArticleExtractionResult, claim: CausalClaim) -> tuple[int, ClaimAdjudicationResult]:
                 if not claim.supporting_spans:
                     return pass_index, _fallback_adjudication(result, claim)
-                adjudication = await _adjudicate_with_llm(
-                    client=client,
-                    model=config.article_extraction_model,
-                    result=result,
-                    claim=claim,
-                    pass_index=pass_index,
-                    search_config=search_config,
-                )
+                async with sem:
+                    adjudication = await _adjudicate_with_pool(
+                        pool=pool,
+                        model=config.article_extraction_model,
+                        result=result,
+                        claim=claim,
+                        pass_index=pass_index,
+                        search_config=search_config,
+                    )
                 return pass_index, adjudication
 
+            tasks: list[asyncio.Task[tuple[int, ClaimAdjudicationResult]]] = []
             for result in rows:
                 for claim in result.causal_claims:
                     for pass_index in range(max(1, int(search_config.passes))):
@@ -425,6 +509,7 @@ async def run_claim_adjudicate(config: AcademicBatchConfig) -> dict[str, int | f
 
 
 def run_consensus_aggregate(config: AcademicBatchConfig) -> dict[str, int | float]:
+    """Run consensus aggregate."""
     started_at = datetime.now(UTC).isoformat()
     search_config = load_claim_adjudication_config(context={"academic_config": config})
     grouped: dict[str, list[ClaimAdjudicationResult]] = defaultdict(list)

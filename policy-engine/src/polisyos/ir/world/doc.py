@@ -1,3 +1,4 @@
+"""Public world doc module API."""
 from __future__ import annotations
 
 from datetime import datetime
@@ -18,6 +19,7 @@ SCHEMA_VERSION_PATTERN = r"^\d+\.\d+$"
 
 
 class DocMeta(KernelModel):
+    """Doc meta public type."""
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     doc_source_id: str = Field(..., pattern=ID_PATTERN)
     doc_version_id: str = Field(..., pattern=ID_PATTERN)
@@ -44,6 +46,7 @@ class DocMeta(KernelModel):
 
 
 class DocFragment(KernelModel):
+    """Doc fragment public type."""
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     fragment_id: str = Field(..., pattern=ID_PATTERN)
     doc_version_id: str = Field(..., pattern=ID_PATTERN)

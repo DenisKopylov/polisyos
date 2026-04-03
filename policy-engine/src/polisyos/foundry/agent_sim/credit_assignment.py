@@ -1,3 +1,4 @@
+"""Public agent sim credit assignment module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -11,6 +12,7 @@ from polisyos.foundry.agent_sim.state import GlobalState
 
 
 class CreditMode(str, Enum):
+    """Credit mode public type."""
     INDIVIDUAL = "individual"
     SHARED = "shared"
     COUNTERFACTUAL = "counterfactual"
@@ -20,6 +22,7 @@ class CreditMode(str, Enum):
 
 @dataclass(frozen=True)
 class CreditConfig:
+    """Credit config data model."""
     mode: CreditMode = CreditMode.INDIVIDUAL
     counterfactual_baseline: str = "mean"
     mean_field_temperature: float = 1.0
@@ -34,6 +37,7 @@ def compute_credit_assignment(
     *,
     rng_key: jax.Array | None = None,
 ) -> jnp.ndarray:
+    """Compute credit assignment helper."""
     active = next_state.agents.active
     active_f = active.astype(jnp.float32)
     n_active = jnp.sum(active_f)
@@ -138,6 +142,7 @@ def _shapley_approx_credit(
 
 
 class CentralizedCritic:
+    """Centralized critic public type."""
     @staticmethod
     def build_global_observations(state: GlobalState) -> jnp.ndarray:
         agents = state.agents

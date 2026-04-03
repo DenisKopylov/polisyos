@@ -335,6 +335,10 @@ class TwinNetworkQuery:
                 "both interventions are ATOMIC do(X=x)."
             ),
         },
+        citations=(
+            "Balke, A. & Pearl, J. (1994). Counterfactual probabilities: Computational methods, bounds and applications. Proceedings of UAI.",
+            "Pearl, J. (2009). Causality: Models, Reasoning, and Inference. Cambridge University Press.",
+        ),
         when_to_use=(
             "After fitting an SCM with HybridSCMFit; computing individual treatment "
             "effects, ITE variance, or counterfactual outcomes for a specific unit."

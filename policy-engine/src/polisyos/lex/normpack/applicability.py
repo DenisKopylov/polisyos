@@ -1,3 +1,4 @@
+"""Public normpack applicability module API."""
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -17,6 +18,7 @@ def _iso_utc(value: datetime | None) -> str | None:
 
 
 def build_norm_applicability(*, claim: Claim, jurisdiction_norm: str) -> NormApplicability:
+    """Build norm applicability."""
     valid_from = _iso_utc(claim.valid_from)
     valid_to = _iso_utc(claim.valid_to)
     return NormApplicability(
@@ -26,6 +28,7 @@ def build_norm_applicability(*, claim: Claim, jurisdiction_norm: str) -> NormApp
 
 
 def applicability_key(applicability: NormApplicability) -> str:
+    """Applicability key helper."""
     payload = applicability.model_dump(mode="python")
     digest = content_hash(to_canonical_bytes(payload))
     return digest[:32]
@@ -37,6 +40,7 @@ def applies_to_context(
     jurisdiction_norm: str,
     as_of_iso: str,
 ) -> bool:
+    """Applies to context helper."""
     jurisdiction_any = applicability.jurisdiction.any_of
     if jurisdiction_any and jurisdiction_norm not in jurisdiction_any:
         return False

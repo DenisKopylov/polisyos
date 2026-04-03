@@ -1,3 +1,4 @@
+"""Public scientist adapters package API."""
 from __future__ import annotations
 
 __all__ = ["DefaultFabricPort", "DefaultFoundryPort"]

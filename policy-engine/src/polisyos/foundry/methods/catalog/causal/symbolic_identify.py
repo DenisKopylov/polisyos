@@ -1,3 +1,4 @@
+"""Public causal symbolic identify module API."""
 from __future__ import annotations
 
 from collections.abc import Mapping
@@ -85,6 +86,7 @@ def _edge_direction(edge: CausalEdge) -> tuple[str, str] | None:
 
 
 def convert_graph_to_symbolic_repr(graph: CausalGraphModel) -> dict[str, Any]:
+    """Convert graph to symbolic repr helper."""
     directed = sorted(_directed_edges(graph))
     bidirected: list[tuple[str, str]] = []
     directed_set = set(directed)
@@ -285,6 +287,7 @@ def _state_payload(
     tags={"causal", "transportability", "symbolic", "y0"},
 )
 class SymbolicIdentify:
+    """Symbolic identify public type."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STRICT_CPU
 
     signature: ClassVar[MethodSignature] = MethodSignature(
@@ -335,6 +338,10 @@ class SymbolicIdentify:
             ),
         },
         when_to_use="Symbolic causal identification of transportability query P*(Y|do(X)); use when y0/R symbolic backend is available",
+        citations=(
+            "Bareinboim, E. & Pearl, J. (2016). Causal inference and the data-fusion problem. PNAS, 113(27), 7345-7352.",
+            "Tikka, S. & Karvanen, J. (2017). Identifying causal effects with the R package causaleffect. Journal of Statistical Software, 76(12).",
+        ),
         when_not_to_use="No symbolic backend available and simplified transport sufficient; query is purely observational",
         output_interpretation="TransportabilityResult: IDENTIFIED = effect is transportable with given formula. UNSUPPORTED = cannot transport without additional data. Confidence reflects context distance penalty.",
     )
@@ -607,6 +614,9 @@ class SymbolicIdentifyV2:
             "fallback": "Non-DAG inputs fall back to solve_transportability() v1 solver.",
             "hedge": "Non-identifiable cases return HedgeCertificate (formal witness).",
         },
+        citations=(
+            "Bareinboim, E. & Pearl, J. (2016). Causal inference and the data-fusion problem. PNAS, 113(27), 7345-7352.",
+        ),
         when_to_use=(
             "Formal causal identification of P*(Y|do(X)) with structured EstimandAST output; "
             "use when you need the estimand in compiled form for the EstimandCompiler."

@@ -1,3 +1,4 @@
+"""Public analytics strategic module API."""
 from __future__ import annotations
 
 import itertools
@@ -123,12 +124,14 @@ def decode_action_profile(
 
 
 class StrategicEquilibriumConcept(str, Enum):
+    """Strategic equilibrium concept public type."""
     NASH = "nash"
     STACKELBERG = "stackelberg"
     BEST_RESPONSE_FIXED_POINT = "best_response_fixed_point"
 
 
 class StrategicFallbackMode(str, Enum):
+    """Strategic fallback mode public type."""
     EXACT_EQUILIBRIUM = "exact_equilibrium"
     STRATEGIC_BOUNDS = "strategic_bounds"
     MACRO_ABSTRACTED = "macro_abstracted"
@@ -467,6 +470,95 @@ class StrategicResponseBundle(BaseModel):
         return self
 
 
+def persist_strategic_solve_artifacts(
+    store: ArtifactStore,
+    *,
+    causal_component_ref: ArtifactRefModel,
+    result: Any,
+    equilibrium_concept: StrategicEquilibriumConcept | None,
+    baseline_policy_value: float | None = None,
+    inputs: list[InputRef] | None = None,
+    metadata: dict[str, Any] | None = None,
+) -> tuple[StrategicResponseBundle, StrategicResponseBundleRef]:
+    """Persist strategic solve artifacts helper."""
+    from polisyos.foundry.methods.catalog.causal.strategic import build_strategic_response_bundle
+
+    bundle_metadata = {
+        **dict(getattr(result, "closure_summary", {}) or {}),
+        **dict(metadata or {}),
+    }
+    closure_summary = StrategicClosureSummary(
+        fallback_mode=result.fallback_mode,
+        equilibrium_concept=equilibrium_concept,
+        equilibrium_selection_dependence=result.equilibrium_selection_dependence,
+        profile_count=int(result.closure_summary.get("profile_count") or 0),
+        equilibrium_count=int(
+            result.closure_summary.get("equilibrium_count") or len(result.equilibrium_profiles)
+        ),
+        blocked_reason=result.blocked_reason,
+        warnings=tuple(str(item) for item in result.warnings),
+        metadata=bundle_metadata,
+    )
+    strategic_closure_ref = persist_strategic_closure_summary(store, closure_summary, inputs=inputs)
+    equilibrium_set_ref = persist_equilibrium_set_summary(
+        store,
+        EquilibriumSetSummary(
+            equilibrium_profiles=tuple(dict(profile) for profile in result.equilibrium_profiles),
+            equilibrium_count=len(result.equilibrium_profiles),
+            multiplicity_note=result.multiplicity_note,
+            metadata=bundle_metadata,
+        ),
+        inputs=inputs,
+    )
+    selected_equilibrium_ref = None
+    if result.selected_equilibrium is not None:
+        selected_equilibrium_ref = persist_equilibrium_selection_summary(
+            store,
+            EquilibriumSelectionSummary(
+                selected_equilibrium=dict(result.selected_equilibrium),
+                equilibrium_selection_dependence=result.equilibrium_selection_dependence,
+                metadata=bundle_metadata,
+            ),
+            inputs=inputs,
+        )
+    performative_shift_ref = None
+    if result.performative_shift is not None:
+        performative_shift_ref = persist_performative_shift_summary(
+            store,
+            PerformativeShiftSummary(
+                performative_shift=float(result.performative_shift),
+                baseline_policy_value=baseline_policy_value,
+                post_adaptation_policy_value=result.post_adaptation_policy_value,
+                metadata=bundle_metadata,
+            ),
+            inputs=inputs,
+        )
+    post_adaptation_policy_value_ref = persist_post_adaptation_policy_value_summary(
+        store,
+        PostAdaptationPolicyValueSummary(
+            fallback_mode=result.fallback_mode,
+            baseline_policy_value=baseline_policy_value,
+            point_value=result.post_adaptation_policy_value if result.bounds is None else None,
+            lower_bound=None if result.bounds is None else float(result.bounds[0]),
+            upper_bound=None if result.bounds is None else float(result.bounds[1]),
+            blocked_reason=result.blocked_reason,
+            metadata=bundle_metadata,
+        ),
+        inputs=inputs,
+    )
+    bundle = build_strategic_response_bundle(
+        causal_component_ref=causal_component_ref,
+        strategic_closure_ref=strategic_closure_ref,
+        equilibrium_set_ref=equilibrium_set_ref,
+        post_adaptation_policy_value_ref=post_adaptation_policy_value_ref,
+        selected_equilibrium_ref=selected_equilibrium_ref,
+        performative_shift_ref=performative_shift_ref,
+        result=result,
+    ).model_copy(update={"metadata": bundle_metadata})
+    bundle_ref = persist_strategic_response_bundle(store, bundle, inputs=inputs)
+    return bundle, bundle_ref
+
+
 def persist_strategic_payoff_table(
     store: ArtifactStore,
     table: FiniteStrategicPayoffTable,
@@ -475,6 +567,7 @@ def persist_strategic_payoff_table(
     schema_name: str = _STRATEGIC_PAYOFF_TABLE_SCHEMA_NAME,
     schema_version: str = _STRATEGIC_PAYOFF_TABLE_SCHEMA_VERSION,
 ) -> StrategicPayoffTableRef:
+    """Persist strategic payoff table helper."""
     ref = put_json_artifact(
         store,
         table.model_dump(mode="json"),
@@ -491,6 +584,7 @@ def load_strategic_payoff_table(
     store: ArtifactStore,
     ref: StrategicPayoffTableRef,
 ) -> FiniteStrategicPayoffTable:
+    """Load strategic payoff table."""
     payload = get_json_artifact(store, ref.artifact_id)
     return FiniteStrategicPayoffTable.model_validate(payload)
 
@@ -503,6 +597,7 @@ def persist_strategic_scm(
     schema_name: str = _STRATEGIC_SCM_SCHEMA_NAME,
     schema_version: str = _STRATEGIC_SCM_SCHEMA_VERSION,
 ) -> StrategicSCMRef:
+    """Persist strategic scm helper."""
     ref = put_json_artifact(
         store,
         contract.model_dump(mode="json"),
@@ -519,6 +614,7 @@ def load_strategic_scm(
     store: ArtifactStore,
     ref: StrategicSCMRef,
 ) -> StrategicSCM:
+    """Load strategic scm."""
     payload = get_json_artifact(store, ref.artifact_id)
     return StrategicSCM.model_validate(payload)
 
@@ -531,6 +627,7 @@ def persist_strategic_response_bundle(
     schema_name: str = _STRATEGIC_RESPONSE_BUNDLE_SCHEMA_NAME,
     schema_version: str = _STRATEGIC_RESPONSE_BUNDLE_SCHEMA_VERSION,
 ) -> StrategicResponseBundleRef:
+    """Persist strategic response bundle helper."""
     ref = put_json_artifact(
         store,
         bundle.model_dump(mode="json"),
@@ -547,6 +644,7 @@ def load_strategic_response_bundle(
     store: ArtifactStore,
     ref: StrategicResponseBundleRef,
 ) -> StrategicResponseBundle:
+    """Load strategic response bundle."""
     payload = get_json_artifact(store, ref.artifact_id)
     return StrategicResponseBundle.model_validate(payload)
 
@@ -557,6 +655,7 @@ def persist_strategic_closure_summary(
     *,
     inputs: list[InputRef] | None = None,
 ) -> ArtifactRefModel:
+    """Persist strategic closure summary helper."""
     return _persist_strategic_leaf(
         store,
         summary,
@@ -571,6 +670,7 @@ def load_strategic_closure_summary(
     store: ArtifactStore,
     ref: ArtifactRefModel,
 ) -> StrategicClosureSummary:
+    """Load strategic closure summary."""
     return StrategicClosureSummary.model_validate(
         _load_strategic_leaf(store, ref, StrategicClosureSummary)
     )
@@ -582,6 +682,7 @@ def persist_equilibrium_set_summary(
     *,
     inputs: list[InputRef] | None = None,
 ) -> ArtifactRefModel:
+    """Persist equilibrium set summary helper."""
     return _persist_strategic_leaf(
         store,
         summary,
@@ -596,6 +697,7 @@ def load_equilibrium_set_summary(
     store: ArtifactStore,
     ref: ArtifactRefModel,
 ) -> EquilibriumSetSummary:
+    """Load equilibrium set summary."""
     return EquilibriumSetSummary.model_validate(
         _load_strategic_leaf(store, ref, EquilibriumSetSummary)
     )
@@ -607,6 +709,7 @@ def persist_equilibrium_selection_summary(
     *,
     inputs: list[InputRef] | None = None,
 ) -> ArtifactRefModel:
+    """Persist equilibrium selection summary helper."""
     return _persist_strategic_leaf(
         store,
         summary,
@@ -621,6 +724,7 @@ def load_equilibrium_selection_summary(
     store: ArtifactStore,
     ref: ArtifactRefModel,
 ) -> EquilibriumSelectionSummary:
+    """Load equilibrium selection summary."""
     return EquilibriumSelectionSummary.model_validate(
         _load_strategic_leaf(store, ref, EquilibriumSelectionSummary)
     )
@@ -632,6 +736,7 @@ def persist_performative_shift_summary(
     *,
     inputs: list[InputRef] | None = None,
 ) -> ArtifactRefModel:
+    """Persist performative shift summary helper."""
     return _persist_strategic_leaf(
         store,
         summary,
@@ -646,6 +751,7 @@ def load_performative_shift_summary(
     store: ArtifactStore,
     ref: ArtifactRefModel,
 ) -> PerformativeShiftSummary:
+    """Load performative shift summary."""
     return PerformativeShiftSummary.model_validate(
         _load_strategic_leaf(store, ref, PerformativeShiftSummary)
     )
@@ -657,6 +763,7 @@ def persist_post_adaptation_policy_value_summary(
     *,
     inputs: list[InputRef] | None = None,
 ) -> ArtifactRefModel:
+    """Persist post adaptation policy value summary helper."""
     return _persist_strategic_leaf(
         store,
         summary,
@@ -671,6 +778,7 @@ def load_post_adaptation_policy_value_summary(
     store: ArtifactStore,
     ref: ArtifactRefModel,
 ) -> PostAdaptationPolicyValueSummary:
+    """Load post adaptation policy value summary."""
     return PostAdaptationPolicyValueSummary.model_validate(
         _load_strategic_leaf(store, ref, PostAdaptationPolicyValueSummary)
     )
@@ -703,6 +811,7 @@ __all__ = [
     "persist_post_adaptation_policy_value_summary",
     "persist_strategic_closure_summary",
     "persist_strategic_payoff_table",
+    "persist_strategic_solve_artifacts",
     "persist_strategic_response_bundle",
     "persist_strategic_scm",
 ]

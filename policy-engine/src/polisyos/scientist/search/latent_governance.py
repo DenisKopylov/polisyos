@@ -31,6 +31,7 @@ class LatentGovernanceAssessment(BaseModel):
 def assess_latent_governance(
     bundle: LatentDiscoveryBundle | None,
 ) -> LatentGovernanceAssessment | None:
+    """Assess latent governance helper."""
     if bundle is None:
         return None
 
@@ -39,6 +40,8 @@ def assess_latent_governance(
         missing_requirements.append("proposed_latent_nodes_missing")
     if not bundle.inducing_environments:
         missing_requirements.append("inducing_environments_missing")
+    if not bundle.identification_conditions:
+        missing_requirements.append("identification_conditions_missing")
     if not bundle.assumption_cards:
         missing_requirements.append("assumption_cards_missing")
     if not bundle.falsification_tests:
@@ -56,6 +59,10 @@ def assess_latent_governance(
         [
             *(card.description for card in bundle.assumption_cards),
             *(f"latent_environment_assumption:{value}" for value in bundle.inducing_environments),
+            *(
+                f"latent_identification_condition:{value}"
+                for value in bundle.identification_conditions
+            ),
             *_proxy_boundary_notes(bundle.metadata),
         ]
     )
@@ -89,6 +96,7 @@ def assess_latent_governance(
 def latent_governance_metadata(
     bundle: LatentDiscoveryBundle | None,
 ) -> dict[str, Any] | None:
+    """Latent governance metadata helper."""
     assessment = assess_latent_governance(bundle)
     if assessment is None:
         return None

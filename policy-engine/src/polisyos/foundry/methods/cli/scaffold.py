@@ -336,6 +336,7 @@ def scaffold_method(
 
 
 def main() -> None:
+    """Main helper."""
     import argparse
 
     parser = argparse.ArgumentParser(

@@ -1,3 +1,4 @@
+"""Public decide build policy output bundle module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -14,9 +15,13 @@ from polisyos.scientist.doe.stress_report import StressTestReport
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.governance.calibration_validation import (
+    load_calibration_validation_bundle,
+)
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_ENVELOPE_REF,
+    ARTIFACT_CALIBRATION_VALIDATION_BUNDLE_REF,
     ARTIFACT_CHAMPION_POLICY_DOSSIER_REF,
     ARTIFACT_CONSTRAINT_SATISFACTION_REPORT_REF,
     ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF,
@@ -100,6 +105,7 @@ _SPEC = NodeSpec(
 
 @dataclass(frozen=True)
 class BuildPolicyOutputBundleNode:
+    """Build policy output bundle node implementation."""
     @property
     def spec(self) -> NodeSpec:
         return _SPEC
@@ -176,6 +182,15 @@ class BuildPolicyOutputBundleNode:
             stress_test_report = StressTestReport.model_validate(
                 from_canonical_bytes(ctx.store.get_bytes(stress_test_ref.artifact_id))
             )
+        calibration_validation_bundle = None
+        calibration_validation_ref = state.artifacts_index.get(
+            ARTIFACT_CALIBRATION_VALIDATION_BUNDLE_REF
+        )
+        if calibration_validation_ref is not None:
+            calibration_validation_bundle = load_calibration_validation_bundle(
+                ctx.store,
+                calibration_validation_ref,
+            )
 
         uncertainty_envelope = None
         if (ref := state.artifacts_index.get(ARTIFACT_CAUSAL_ENVELOPE_REF)) is not None:
@@ -202,6 +217,8 @@ class BuildPolicyOutputBundleNode:
             uncertainty_envelope=uncertainty_envelope,
             stress_test_report=stress_test_report,
             stress_test_report_ref=stress_test_ref,
+            calibration_validation_bundle=calibration_validation_bundle,
+            calibration_validation_bundle_ref=calibration_validation_ref,
             policy_brief=policy_brief,
             translator_compliance=translator_compliance,
             constraint_findings=_string_list(state.params.get("constraint_findings")),

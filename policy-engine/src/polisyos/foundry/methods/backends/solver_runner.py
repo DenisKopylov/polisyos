@@ -1,3 +1,4 @@
+"""Public backends solver runner module API."""
 from __future__ import annotations
 
 import json
@@ -41,6 +42,7 @@ def _assert_canonicalizable(payload: Any, *, label: str) -> None:
 
 
 class SolverRunner(MethodRunner):
+    """Solver runner public type."""
     @property
     def supported_backends(self) -> frozenset[ComputeBackend]:
         return frozenset({ComputeBackend.SOLVER})

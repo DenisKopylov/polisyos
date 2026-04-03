@@ -1,3 +1,4 @@
+"""Public governance preflight module API."""
 from __future__ import annotations
 
 from pathlib import Path
@@ -18,6 +19,7 @@ logger = get_logger(__name__)
 
 
 def build_default_pipeline() -> ValidationPipeline:
+    """Build default pipeline."""
     return build_governance_pipeline()
 
 

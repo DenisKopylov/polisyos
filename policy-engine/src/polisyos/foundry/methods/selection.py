@@ -1,3 +1,4 @@
+"""Public methods selection module API."""
 from __future__ import annotations
 
 from collections import defaultdict
@@ -57,6 +58,7 @@ class DataCharacteristics:
 
 @dataclass(frozen=True, slots=True)
 class MethodSelectionCriteria:
+    """Method selection criteria public type."""
     preferred_kind: str | None = None
     preferred_family: str | None = None
     preferred_variant: str | None = None
@@ -99,6 +101,7 @@ def rank_method_catalog_entries(
     runtime_predictor: RuntimePredictor | None = None,
     runtime_budget_ms: float | None = None,
 ) -> list[MethodCatalogEntry]:
+    """Rank method catalog entries helper."""
     if history is None and runtime_predictor is None:
         default_history = get_global_selection_history()
         if len(default_history) > 0:
@@ -151,6 +154,7 @@ def suggest_alternative_methods(
     target_fqn: str | None = None,
     limit: int = 3,
 ) -> list[MethodCatalogEntry]:
+    """Suggest alternative methods helper."""
     resolved_target = target_entry
     if resolved_target is None and target_fqn:
         resolved_target = next((entry for entry in catalog.entries if entry.fqn == target_fqn), None)
@@ -193,6 +197,7 @@ def suggest_alternative_methods(
 
 
 def method_selection_payload(entries: Sequence[MethodCatalogEntry]) -> list[dict[str, object]]:
+    """Method selection payload helper."""
     payload: list[dict[str, object]] = []
     for entry in entries:
         item: dict[str, object] = {
@@ -242,6 +247,7 @@ def suggest_adapter_methods(
     registry: MethodRegistry | None = None,
     exclude_fqns: Sequence[str] = (),
 ) -> list[MethodCatalogEntry]:
+    """Suggest adapter methods helper."""
     reg = registry or MethodRegistry.get_instance()
     source_sig = source_signature or _signature_for_fqn(reg, source_fqn)
     target_sig = target_signature or _signature_for_fqn(reg, target_fqn)
@@ -289,6 +295,7 @@ def suggest_plan_node_alternatives(
     limit: int = 3,
     registry: MethodRegistry | None = None,
 ) -> list[MethodCatalogEntry]:
+    """Suggest plan node alternatives helper."""
     candidate_limit = max(int(limit) * 8, 24)
     candidates = suggest_alternative_methods(
         catalog,
@@ -338,6 +345,7 @@ def authoring_catalog_payload(
     limit_families: int = 12,
     per_family: int = 2,
 ) -> dict[str, Any]:
+    """Authoring catalog payload helper."""
     ranked = rank_method_catalog_entries(
         catalog.entries,
         MethodSelectionCriteria(runnable_only=True),

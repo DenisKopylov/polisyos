@@ -1,3 +1,4 @@
+"""Public services feedback module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -23,6 +24,7 @@ from .run_index import IndexedRunRecord, RunIndexService
 
 @dataclass(frozen=True)
 class PreparedReissue:
+    """Prepared reissue public type."""
     reissued_run_id: str
     state_payload: dict[str, Any]
     monitoring_report_ref: str | None
@@ -31,6 +33,7 @@ class PreparedReissue:
 
 
 class FeedbackService:
+    """Feedback service implementation."""
     def __init__(self, *, store: FileSystemCAS, run_index: RunIndexService) -> None:
         self._store = store
         self._run_index = run_index

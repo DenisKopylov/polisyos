@@ -1,3 +1,4 @@
+"""Public services lineage module API."""
 from __future__ import annotations
 
 from polisyos.core.artifacts.graph import NodeStatus, resolve_dependency_graph
@@ -11,6 +12,7 @@ from polisyos.core.contracts.runtime import (
 
 
 class LineageService:
+    """Lineage service implementation."""
     def __init__(
         self,
         *,

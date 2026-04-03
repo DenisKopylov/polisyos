@@ -516,6 +516,7 @@ def create_mock_problem_frame(
     domain: str = "economic",
     problem_statement: str = "Reduce poverty by implementing targeted social programs",
 ) -> ProblemFrame:
+    """Create mock problem frame."""
     return ProblemFrame(
         frame_id=frame_id or f"pf_{uuid.uuid4().hex[:8]}",
         domain=domain,

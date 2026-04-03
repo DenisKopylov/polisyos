@@ -33,6 +33,7 @@ def _stable_candidate_hash(candidate: dict[str, Any]) -> str:
 
 
 class SentinelKind(str, Enum):
+    """Sentinel kind public type."""
     CALIBRATION = "calibration"
     REGRESSION = "regression"
 
@@ -121,11 +122,13 @@ class SentinelObservation(BaseModel):
 
 
 def extract_sentinel_metadata(candidate: dict[str, Any]) -> dict[str, Any] | None:
+    """Extract sentinel metadata helper."""
     raw = candidate.get(SENTINEL_METADATA_KEY)
     return raw if isinstance(raw, dict) else None
 
 
 def strip_internal_candidate_metadata(candidate: dict[str, Any]) -> dict[str, Any]:
+    """Strip internal candidate metadata helper."""
     return {
         key: value
         for key, value in candidate.items()
@@ -139,6 +142,7 @@ def persist_sentinel_set(
     *,
     inputs: list[InputRef] | None = None,
 ) -> ArtifactRef:
+    """Persist sentinel set helper."""
     return store.put_json(
         sentinel_set,
         PutOptions(
@@ -152,6 +156,7 @@ def persist_sentinel_set(
 
 
 def load_sentinel_set(store: FileSystemCAS, ref: ArtifactRef | str) -> SentinelSet:
+    """Load sentinel set."""
     artifact_id = ref.artifact_id if isinstance(ref, ArtifactRef) else ref
     return SentinelSet.model_validate(from_canonical_bytes(store.get_bytes(artifact_id)))
 

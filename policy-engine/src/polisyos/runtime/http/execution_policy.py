@@ -1,3 +1,4 @@
+"""Public http execution policy module API."""
 from __future__ import annotations
 
 import hashlib
@@ -26,23 +27,27 @@ def _env_flag(name: str) -> bool:
 
 
 class ExecutionProfileError(ValueError):
+    """Execution profile error exception."""
     def __init__(self, code: str, message: str) -> None:
         super().__init__(message)
         self.code = code
 
 
 class PolicyFlagForbiddenError(PermissionError):
+    """Policy flag forbidden error exception."""
     def __init__(self, code: str, message: str) -> None:
         super().__init__(message)
         self.code = code
 
 
 class RuntimeBootstrapError(RuntimeError):
+    """Runtime bootstrap error exception."""
     pass
 
 
 @dataclass(frozen=True)
 class RuntimePrincipal:
+    """Runtime principal public type."""
     subject: str = "anonymous"
     tenant_id: str | None = None
     roles: frozenset[str] = frozenset()
@@ -66,6 +71,7 @@ class RuntimePrincipal:
 
 @dataclass(frozen=True)
 class ResolvedExecutionPolicy:
+    """Resolved execution policy data model."""
     default_profile: ExecutionProfile
     requested_profile: ExecutionProfile | None
     effective_profile: ExecutionProfile
@@ -87,6 +93,7 @@ class ResolvedExecutionPolicy:
 
 
 class RuntimeExecutionPolicyResolver:
+    """Runtime execution policy resolver implementation."""
     def __init__(
         self,
         *,
@@ -296,6 +303,7 @@ def build_capability_manifest_payload(
     payload_ref: str | None,
     observed_fallbacks: list[str] | None = None,
 ) -> dict[str, Any]:
+    """Build capability manifest payload."""
     return {
         "schema_version": "1.0",
         "created_at": datetime.now(timezone.utc).replace(microsecond=0).isoformat(),

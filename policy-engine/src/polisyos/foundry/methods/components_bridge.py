@@ -1,3 +1,4 @@
+"""Public methods components bridge module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -13,12 +14,14 @@ FOUNDRY_METHODS_API_VERSION = "3.5.0"
 
 @dataclass(slots=True)
 class ComponentsBridgeError:
+    """Components bridge error exception."""
     component_id: str
     message: str
 
 
 @dataclass(slots=True)
 class ComponentsBridgeReport:
+    """Components bridge report data model."""
     registered: list[str] = field(default_factory=list)
     duplicates: list[str] = field(default_factory=list)
     errors: list[ComponentsBridgeError] = field(default_factory=list)
@@ -31,6 +34,7 @@ def bootstrap_method_registry_from_components(
     resolution_policy: ResolutionPolicy = ResolutionPolicy.LATEST,
     allow_dev_overrides: bool = True,
 ) -> ComponentsBridgeReport:
+    """Bootstrap method registry from components helper."""
     method_registry = registry or MethodRegistry.get_instance()
     method_registry.set_default_policy(resolution_policy)
 

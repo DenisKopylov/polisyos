@@ -100,6 +100,8 @@ class RuleBackend(Protocol):
 
 
 class FoundryRefs(BaseModel):
+    """Optional Foundry artifacts that contextualize a Lex evaluation request."""
+
     model_config = ConfigDict(extra="forbid")
 
     exec_plan_ref: ExecPlanRef | None = None
@@ -130,26 +132,34 @@ class LegalContext(BaseModel):
 
 
 class LegalReportRef(ArtifactRef):
+    """Artifact reference for a persisted Lex legality report."""
+
     kind: Literal["lex.legal_report"] = "lex.legal_report"
     media_type: Literal["application/json"] = "application/json"
 
 
 class ChangeProposalRef(ArtifactRef):
+    """Artifact reference for a persisted Lex change-proposal bundle."""
+
     kind: Literal["lex.change_proposal"] = "lex.change_proposal"
     media_type: Literal["application/json"] = "application/json"
 
 
 class NormDiffRef(ArtifactRef):
+    """Norm diff ref data model."""
     kind: Literal["lex.norm_diff"] = "lex.norm_diff"
     media_type: Literal["application/json"] = "application/json"
 
 
 class NormImpactReportRef(ArtifactRef):
+    """Norm impact report ref data model."""
     kind: Literal["lex.norm_impact_report"] = "lex.norm_impact_report"
     media_type: Literal["application/json"] = "application/json"
 
 
 class LegalEvaluationRequest(BaseModel):
+    """Stable input contract for legality evaluation against a simulation result."""
+
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -168,6 +178,7 @@ class LegalEvaluationRequest(BaseModel):
 
 
 class LegalReport(BaseModel):
+    """Legal report data model."""
     model_config = ConfigDict(extra="forbid")
 
     context: LegalContext
@@ -177,6 +188,7 @@ class LegalReport(BaseModel):
 
 
 class ChangeProposal(BaseModel):
+    """Change proposal public type."""
     model_config = ConfigDict(extra="forbid")
 
     context: LegalContext | None = None

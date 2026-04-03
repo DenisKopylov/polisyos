@@ -1,3 +1,4 @@
+"""Public world trust module API."""
 from __future__ import annotations
 
 from decimal import Decimal
@@ -16,12 +17,14 @@ DecimalZeroToOne = Annotated[Decimal, BeforeValidator(reject_float), Field(ge=0,
 
 
 class TrustTier(str, Enum):
+    """Trust tier public type."""
     HIGH = "high"
     MEDIUM = "medium"
     LOW = "low"
 
 
 class TrustAssessment(KernelModel):
+    """Trust assessment public type."""
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     trust_assessment_id: str = Field(..., pattern=ID_PATTERN)
     policy_id: str = Field(..., pattern=ID_PATTERN)

@@ -1,93 +1,41 @@
-# ir.world
+# World (`polisyos.ir.world`)
 
-`ir.world` — канонические контракты world-graph слоя: документы, claims, конфликты, provenance-события, trust и quality отчёты.
+`polisyos.ir.world` описывает канонические world-graph contracts: документы,
+claims, provenance events, conflict sets, trust assessments и quality reports.
+Это IR boundary для knowledge/world pipelines; хранение и querying остаются в
+`fabric`, а `world` фиксирует типы и deterministic identifiers.
 
-Это контрактный слой. Хранение и запросы выполняются в `fabric`.
+## Роль в системе
 
-## Роль в архитектуре
+- **Зависит от:** `polisyos.ir.artifacts`, canonical ID helpers внутри `polisyos.ir`
+- **Используется в:** `polisyos.fabric.claims`, `polisyos.fabric.world`, `polisyos.lex`, `polisyos.scholar`, `polisyos.scientist`
+- World contracts стандартизируют evidence graph, который затем потребляют trust/conflict and analysis pipelines.
 
-```text
-fabric claims/world pipelines
-            │
-            ▼
-      ir.world contracts
-            │
-            ├─► lex (norm pipelines)
-            ├─► scholar (knowledge artifacts)
-            └─► scientist (analysis/trust consumers)
-```
+## Ключевые концепции
 
-Контекст IR: [`../README.md`](../README.md)
+- **World ABI** — `NodeKind`, `EdgeKind` и reserved prefixes задают графовую совместимость.
+- **Document and claim contracts** — `DocMeta`, `DocFragment`, `Claim` формируют базовые evidence units.
+- **Conflict resolution** — `ConflictSet` и related resolution models нормализуют competing claims.
+- **Provenance events** — `WorldEvent`, `ProvAgent`, `ProvActivity` описывают lineage изменений.
+- **Trust and quality** — отдельные contracts фиксируют scored assessments и issue ordering.
+- **Deterministic IDs** — `ids.py` вычисляет stable identifiers из canonical payload.
 
-## Состав
+## Public API
 
-| Файл | Что содержит |
+| Type/Function | Description |
 |---|---|
-| `abi.py` | `NodeKind`, `EdgeKind`, `RESERVED_WORLD_PREFIXES_V1` |
-| `doc.py` | `DocMeta`, `DocFragment` |
-| `claim.py` | `Claim`, `ClaimSourceKind` |
-| `conflict.py` | `ConflictSet`, `ConflictResolution*` |
-| `event.py` | `WorldEvent`, `ProvAgent`, `ProvActivity`, `WorldObjectRef` |
-| `trust.py` | `TrustAssessment`, `TrustTier` |
-| `quality.py` | `QualityReport`, `QualityIssue`, deterministic issue ordering |
-| `ids.py` | deterministic ID builders на canonical hash |
-| `predicates.py` | world predicate constants + `rel()` |
+| `DocMeta`, `DocFragment` | Контракты документа и его canonical fragments |
+| `Claim`, `ClaimSourceKind` | Evidence claim и тип источника |
+| `ConflictSet`, `ConflictSetResolution` | Canonical representation claim conflicts |
+| `WorldEvent`, `WorldObjectRef` | Provenance events и ссылки на world objects |
+| `TrustAssessment`, `QualityReport` | Trust/quality evaluation contracts |
+| `claim_id_from_payload()`, `world_event_id_from_payload()` | Deterministic ID builders для core world entities |
 
-## Ключевые инварианты
+Full reference: [docs/reference/ir/](../../../../docs/reference/ir/index.md)
 
-- Deterministic world IDs: `<prefix>.sha256_<hex64>`.
-- `DocMeta`: ровно одно из `canonical_url` или `official_id`.
-- `Claim`:
-  - обязателен `subject_id` или `subject_text`;
-  - для `source_kind=doc` обязательны `citations`;
-  - для остальных источников обязательны `source_artifacts`.
-- `ConflictSet.member_claim_ids` должен быть отсортирован и уникален.
-- `ConflictResolution.candidates` должен быть отсортирован по `score_total desc`, затем `claim_id asc`; победитель — первый элемент.
-- `WorldObjectRef` требует хотя бы один идентификатор: `world_id` или `artifact_id`.
-- `TrustAssessment` и `QualityReport` проверяют собственный ID через canonical payload.
-- `QualityReport.issues` должен быть детерминированно отсортирован.
+## Текущее состояние
 
-## Детерминированные ID-функции
-
-- `doc_source_id()`
-- `doc_version_id_from_raw_artifact()`
-- `doc_fragment_id()`
-- `claim_id_from_payload()`
-- `world_event_id_from_payload()`
-- `conflict_set_id_from_key()`
-- `trust_assessment_id_from_payload()`
-- `quality_report_id_from_payload()`
-
-## Связи с другими директориями
-
-| Директория | Использование |
-|---|---|
-| `fabric/claims` | extraction/normalize/conflicts/persist/world-events |
-| `fabric/world` | materialization/query/storage |
-| `lex/` | document structuring + world predicates/ids |
-| `scholar/` | trust/event контракты в orchestration |
-| `core/contracts` | shared schema compatibility |
-
-## Минимальный пример
-
-```python
-from polisyos.ir.world.ids import claim_id_from_payload
-
-claim_id = claim_id_from_payload(
-    claim_payload={
-        "predicate_id": "inflation_rate",
-        "subject_text": "ua",
-        "value_text": "12.5",
-        "source_kind": "dataset",
-        "source_artifacts": ["sha256:" + "a" * 64],
-    }
-)
-```
-
-## Проверки
-
-```bash
-pytest /Users/deniskopylov/polisyos/policy-engine/tests/contract/test_world_abi_contract.py
-pytest /Users/deniskopylov/polisyos/policy-engine/tests/fabric/test_world_store.py
-pytest /Users/deniskopylov/polisyos/policy-engine/tests/fabric/test_world_materialization.py
-```
+- Последнее обновление: 2026-04-03
+- Files: 11 Python files
+- Exports: 43 public names in `__init__.py`
+- Delta status: кодовая поверхность стабильна; README обновлен, чтобы точнее зафиксировать current world ABI and deterministic ID surface

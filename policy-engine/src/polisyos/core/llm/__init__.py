@@ -1,3 +1,4 @@
+"""Public core llm package API."""
 from .cost import estimate_cost, estimate_cost_from_text, estimate_cost_from_tokens
 from .protocols import LLMClientProtocol
 from .response import LLMResponseData, extract_llm_response_data

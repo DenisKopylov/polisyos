@@ -1,3 +1,4 @@
+"""Public corpus ingest module API."""
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -116,6 +117,7 @@ def ingest_legal_doc_bytes(
     options: LexIngestOptions | None = None,
     segment_name: str | None = None,
 ) -> LexIngestResult:
+    """Ingest legal doc bytes helper."""
     opts = options or LexIngestOptions()
 
     try:

@@ -133,6 +133,9 @@ class MeanFieldVIEstimator:
         ),
         tags=frozenset({"bayesian", "variational-inference", "mean-field", "regression"}),
         when_to_use="Approximate Bayesian inference in large models where MCMC is too slow; scalable inference",
+        citations=(
+            "Blei, D., Kucukelbir, A. & McAuliffe, J. (2017). Variational inference: A review for statisticians. Journal of the American Statistical Association, 112(518), 859-877.",
+        ),
         when_not_to_use="Posterior is highly multimodal; mean-field assumption is too restrictive for the application",
         typical_min_obs=500,
         output_interpretation="ELBO (Evidence Lower BOund) as convergence diagnostic. Variational posterior approximates true posterior. Check against MCMC on small sample.",

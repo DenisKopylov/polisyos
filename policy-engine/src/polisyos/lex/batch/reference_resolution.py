@@ -35,6 +35,7 @@ def resolve_references(
     output_dir: Path,
     doc_metadata: dict[str, dict],
 ) -> dict[str, int]:
+    """Resolve references."""
     output_dir.mkdir(parents=True, exist_ok=True)
     doc_index = build_doc_resolution_index(doc_metadata)
     stats = {"rows_total": 0, "rows_written": 0, "rows_resolved": 0, "rows_partial": 0}

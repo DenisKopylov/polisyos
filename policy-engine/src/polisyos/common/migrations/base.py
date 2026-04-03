@@ -1,3 +1,4 @@
+"""Public migrations base module API."""
 from __future__ import annotations
 
 from typing import Callable, Dict, Tuple
@@ -8,6 +9,7 @@ _MIGRATIONS: Dict[str, Dict[str, Tuple[str, MigrationFn]]] = {}
 
 
 def register_migration(artifact: str, from_version: str, to_version: str):
+    """Register migration."""
     def decorator(fn: MigrationFn) -> MigrationFn:
         _MIGRATIONS.setdefault(artifact, {})[from_version] = (to_version, fn)
         return fn
@@ -16,6 +18,7 @@ def register_migration(artifact: str, from_version: str, to_version: str):
 
 
 def migrate_artifact(data: dict, artifact: str, target_version: str) -> dict:
+    """Migrate artifact helper."""
     if "schema_version" not in data:
         raise ValueError(f"Missing schema_version for artifact '{artifact}'")
     current_version = data["schema_version"]

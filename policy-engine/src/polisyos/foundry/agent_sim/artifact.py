@@ -1,3 +1,4 @@
+"""Public agent sim artifact module API."""
 from __future__ import annotations
 
 """

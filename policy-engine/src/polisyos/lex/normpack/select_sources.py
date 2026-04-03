@@ -1,3 +1,4 @@
+"""Public normpack select sources module API."""
 from __future__ import annotations
 
 from datetime import date
@@ -46,6 +47,7 @@ def _is_lex_corpus_doc(cas: FileSystemCAS, artifact_id: str) -> bool:
 
 
 def normalize_as_of(as_of: str) -> str:
+    """Normalize as of helper."""
     parsed = parse_iso_date(as_of)
     if parsed is None:
         raise LexValidationError(f"invalid as_of ISO value: {as_of}")
@@ -58,6 +60,7 @@ def select_doc_sources(
     fact_log_root: Path,
     request: NormPackBuildRequest,
 ) -> list[str]:
+    """Select doc sources helper."""
     if request.doc_source_ids is not None:
         selected = sorted(set(request.doc_source_ids))
     else:
@@ -149,9 +152,10 @@ def _fallback_select_active_version(
         lex_props = meta.props.get("lex") if isinstance(meta.props, dict) else None
         if not isinstance(lex_props, dict):
             lex_props = {}
-        effective_from_raw = lex_props.get("effective_from")
-        effective_to_raw = lex_props.get("effective_to")
-        published_at_raw = lex_props.get("published_at")
+        temporal_props = lex_props.get("temporal") if isinstance(lex_props.get("temporal"), dict) else {}
+        effective_from_raw = temporal_props.get("effective_from") or lex_props.get("effective_from")
+        effective_to_raw = temporal_props.get("effective_to") or lex_props.get("effective_to")
+        published_at_raw = temporal_props.get("published_at") or lex_props.get("published_at")
 
         effective_from = parse_iso_date(
             effective_from_raw if isinstance(effective_from_raw, str) else None
@@ -201,41 +205,7 @@ def _fallback_select_active_version(
             "doc_version_id": str(selected["doc_version_id"]),
             "doc_meta_artifact_id": str(selected["doc_meta_artifact_id"]),
         }, explanations
-
-    published_candidates = [
-        row
-        for row in candidates
-        if row["published_at"] is not None and row["published_at"] <= as_of_date
-    ]
-    explanations.append(f"fallback_published_candidates={len(published_candidates)}")
-    if published_candidates:
-        selected = sorted(
-            published_candidates,
-            key=lambda row: (
-                -_date_ord(row["published_at"]),
-                str(row["doc_version_id"]),
-            ),
-        )[0]
-        explanations.append("selected via published_at fallback")
-        return {
-            "doc_version_id": str(selected["doc_version_id"]),
-            "doc_meta_artifact_id": str(selected["doc_meta_artifact_id"]),
-        }, explanations
-
-    if candidates:
-        selected = max(
-            candidates,
-            key=lambda row: (
-                str(row["doc_meta_artifact_id"]),
-                str(row["doc_version_id"]),
-            ),
-        )
-        explanations.append("selected via deterministic id fallback")
-        return {
-            "doc_version_id": str(selected["doc_version_id"]),
-            "doc_meta_artifact_id": str(selected["doc_meta_artifact_id"]),
-        }, explanations
-
+    explanations.append("fallback_no_resolved_temporal_candidate")
     explanations.append("no fallback candidates")
     return None, explanations
 
@@ -273,6 +243,7 @@ def select_active_doc_versions(
     as_of_norm: str,
     doc_source_ids: list[str],
 ) -> tuple[list[SelectedDocVersion], list[str]]:
+    """Select active doc versions helper."""
     selected: list[SelectedDocVersion] = []
     warnings: list[str] = []
     facts = _load_world_facts(fact_log_root)

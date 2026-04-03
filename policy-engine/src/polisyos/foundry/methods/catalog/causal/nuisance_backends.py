@@ -1,3 +1,4 @@
+"""Public causal nuisance backends module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -36,16 +37,19 @@ except Exception:  # pragma: no cover - optional dependency
 
 @dataclass(frozen=True)
 class BackendSelection:
+    """Backend selection public type."""
     name: str
     model: Any
     stabilizer: Any | None = None
 
 
 def backend_name() -> str:
+    """Backend name helper."""
     return "lightgbm" if LGBMClassifier is not None and LGBMRegressor is not None else "hist_gradient_boosting"
 
 
 def make_propensity_backend(seed: int, family: str) -> BackendSelection:
+    """Make propensity backend helper."""
     family = family.strip().lower()
     if family == "lightweight":
         return BackendSelection(name="logistic", model=LogisticRegression(max_iter=2000, C=1.0))
@@ -80,6 +84,7 @@ def make_propensity_backend(seed: int, family: str) -> BackendSelection:
 
 
 def make_outcome_backends(seed: int, family: str) -> BackendSelection:
+    """Make outcome backends helper."""
     family = family.strip().lower()
     if family == "lightweight":
         stabilizer = LinearRegression()
@@ -115,6 +120,7 @@ def make_outcome_backends(seed: int, family: str) -> BackendSelection:
 
 
 def make_tau_backends(seed: int, family: str) -> list[Any]:
+    """Make tau backends helper."""
     family = family.strip().lower()
     if family == "lightweight":
         return [LinearRegression()]
@@ -144,6 +150,7 @@ def deterministic_repeat_seeds(
     n_repeats: int,
     manifest: tuple[int, ...] = (),
 ) -> tuple[int, ...]:
+    """Deterministic repeat seeds helper."""
     if manifest:
         seeds = tuple(int(seed) for seed in manifest[:n_repeats])
         if len(seeds) < n_repeats:
@@ -162,6 +169,7 @@ def build_split_manifest(
     base_seed: int,
     seed_manifest: tuple[int, ...] = (),
 ) -> tuple[tuple[tuple[np.ndarray, np.ndarray], ...], tuple[int, ...]]:
+    """Build split manifest."""
     treatment = np.asarray(treatment, dtype=float).reshape(-1)
     n_obs = int(treatment.shape[0])
     if n_obs == 0:

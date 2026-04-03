@@ -616,6 +616,7 @@ _VAR_SPLIT_RE = re.compile(r"[^a-z0-9]+")
 
 @dataclass
 class ResolveExtractStats:
+    """Resolve extract stats public type."""
     records: int = 0
     fulltext_resolved: int = 0
     abstract_only: int = 0
@@ -658,6 +659,7 @@ class ResolveExtractStats:
 
 @dataclass
 class WorkItem:
+    """Work item public type."""
     work: dict[str, Any]
     work_id: str
     topic_id: str
@@ -669,6 +671,7 @@ class WorkItem:
 
 @dataclass
 class EligibleItem:
+    """Eligible item public type."""
     work_item: WorkItem
     text: str
     source_kind: str
@@ -681,6 +684,7 @@ class EligibleItem:
 
 @dataclass(frozen=True)
 class EligibilityDecision:
+    """Eligibility decision public type."""
     llm_eligible: bool
     context_eligible: bool
     rejection_reasons: list[str]
@@ -688,6 +692,7 @@ class EligibilityDecision:
 
 @dataclass
 class ProviderResponse:
+    """Provider response data model."""
     parsed: dict[str, Any]
     usage: dict[str, Any]
     http_status: int
@@ -837,6 +842,7 @@ class _ProviderClient:
 
 
 class GonkaMultiKeyPool:
+    """Gonka multi key pool public type."""
     def __init__(self, config: AcademicBatchConfig) -> None:
         self._clients = [
             _ProviderClient(
@@ -2551,6 +2557,103 @@ def _percentile(values: list[float], q: float) -> float:
     return ordered[idx]
 
 
+class _LazyJsonlDict:
+    """Memory-efficient JSONL lookup: builds an in-memory offset index
+    (key → byte offset) but reads the actual record from disk on demand.
+
+    Supports ``__contains__``, ``get``, ``__setitem__``, ``__getitem__``
+    and ``pop`` so it can be used as a drop-in replacement for
+    ``dict[str, dict[str, Any]]`` in the resolve_extract pipeline.
+    """
+
+    def __init__(self, path: Path, *, key: str = "work_id") -> None:
+        self._path = path
+        self._key = key
+        self._index: dict[str, int] = {}          # key → byte offset
+        self._overrides: dict[str, dict[str, Any]] = {}  # runtime writes
+        self._deleted: set[str] = set()
+        if path.exists():
+            self._build_index()
+
+    def _build_index(self) -> None:
+        with open(self._path, "rb") as fh:
+            while True:
+                offset = fh.tell()
+                raw = fh.readline()
+                if not raw:
+                    break
+                line = raw.strip()
+                if not line:
+                    continue
+                try:
+                    payload = json.loads(line)
+                except (json.JSONDecodeError, UnicodeDecodeError):
+                    continue
+                if not isinstance(payload, dict):
+                    continue
+                row_key = str(payload.get(self._key) or "").strip()
+                if row_key:
+                    self._index[row_key] = offset
+
+    def _read_at(self, offset: int) -> dict[str, Any]:
+        with open(self._path, "rb") as fh:
+            fh.seek(offset)
+            raw = fh.readline()
+        return json.loads(raw)
+
+    def __contains__(self, key: object) -> bool:
+        if key in self._deleted:
+            return False
+        return key in self._overrides or key in self._index
+
+    def get(self, key: str, default: Any = None) -> Any:
+        if key in self._deleted:
+            return default
+        if key in self._overrides:
+            return self._overrides[key]
+        offset = self._index.get(key)
+        if offset is None:
+            return default
+        try:
+            return self._read_at(offset)
+        except Exception:
+            return default
+
+    def __getitem__(self, key: str) -> dict[str, Any]:
+        result = self.get(key)
+        if result is None:
+            raise KeyError(key)
+        return result
+
+    def __setitem__(self, key: str, value: dict[str, Any]) -> None:
+        self._overrides[key] = value
+        self._deleted.discard(key)
+
+    def pop(self, key: str, *args: Any) -> Any:
+        self._deleted.add(key)
+        if key in self._overrides:
+            return self._overrides.pop(key)
+        offset = self._index.get(key)
+        if offset is not None:
+            try:
+                return self._read_at(offset)
+            except Exception:
+                pass
+        if args:
+            return args[0]
+        raise KeyError(key)
+
+    def values(self) -> list[dict[str, Any]]:
+        """Not used in hot path; provided for compatibility."""
+        result: list[dict[str, Any]] = []
+        for k in self._index:
+            if k not in self._deleted:
+                v = self.get(k)
+                if v is not None:
+                    result.append(v)
+        return result
+
+
 def _load_jsonl_keyed(path: Path, *, key: str = "work_id") -> dict[str, dict[str, Any]]:
     rows: dict[str, dict[str, Any]] = {}
     if not path.exists():
@@ -2567,6 +2670,12 @@ def _load_jsonl_keyed(path: Path, *, key: str = "work_id") -> dict[str, dict[str
             if row_key:
                 rows[row_key] = payload
     return rows
+
+
+def _load_jsonl_lazy(path: Path, *, key: str = "work_id") -> _LazyJsonlDict:
+    """Memory-efficient alternative to ``_load_jsonl_keyed`` — builds
+    an offset index instead of loading all records into RAM."""
+    return _LazyJsonlDict(path, key=key)
 
 
 def _load_jsonl_grouped(path: Path, *, key: str = "work_id") -> dict[str, list[dict[str, Any]]]:
@@ -2657,7 +2766,7 @@ def _with_work_id(work_id: str, rows: Any) -> list[dict[str, Any]]:
 def _apply_doc_ready_payload(
     *,
     payload: dict[str, Any],
-    precomputed_fulltext: dict[str, dict[str, Any]],
+    precomputed_fulltext: dict[str, dict[str, Any]] | _LazyJsonlDict,
     substrate_rows: dict[str, dict[str, Any]],
     substrate_sections: dict[str, list[dict[str, Any]]],
     substrate_references: dict[str, list[dict[str, Any]]],
@@ -2778,7 +2887,7 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
         config.resolved_fulltext_cache_path,
         ttl_days=config.fulltext_cache_ttl_days,
     )
-    precomputed_fulltext = _load_jsonl_keyed(config.fulltext_resolved_path, key="work_id")
+    precomputed_fulltext = _load_jsonl_lazy(config.fulltext_resolved_path, key="work_id")
     substrate_rows = _load_jsonl_keyed(config.doc_substrate_path, key="work_id")
     substrate_sections = _load_jsonl_grouped(config.doc_sections_path, key="work_id")
     substrate_references = _load_jsonl_grouped(config.doc_references_path, key="work_id")
@@ -2790,41 +2899,45 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
     topic_inflight: dict[str, int] = defaultdict(int)
     topic_seen: set[str] = set()
 
-    with open(selected_rows_path, "r", encoding="utf-8") as fh:
-        selected_rows = [json.loads(line) for line in fh if line.strip()]
-
     merged_rows: dict[str, dict[str, Any]] = {}
-    for index, row in enumerate(selected_rows, start=1):
-        if not isinstance(row, dict):
-            continue
-        work = row.get("work") if isinstance(row.get("work"), dict) else {}
-        if not isinstance(work, dict):
-            continue
-        work_id = str(row.get("work_id") or work.get("id") or "").strip()
-        if not work_id:
-            continue
-        merged = merged_rows.get(work_id)
-        if merged is None:
-            merged_rows[work_id] = {
-                "work": work,
-                "topic_id": _topic_id_for_row(row),
-                "topic_ids": _topic_ids_for_row(row),
-                "topic_display_names": _topic_names_for_row(row),
-                "selected_rank": index,
-            }
-        else:
-            if bool(work.get("has_fulltext")) and not bool(merged["work"].get("has_fulltext")):
-                merged["work"] = work
-            merged["selected_rank"] = min(int(merged["selected_rank"]), index)
-            for topic_id in _topic_ids_for_row(row):
-                if topic_id not in merged["topic_ids"]:
-                    merged["topic_ids"].append(topic_id)
-            for topic_name in _topic_names_for_row(row):
-                if topic_name not in merged["topic_display_names"]:
-                    merged["topic_display_names"].append(topic_name)
-            if _topic_id_for_row(row) and _topic_id_for_row(row) not in merged["topic_ids"]:
-                merged["topic_ids"].append(_topic_id_for_row(row))
-        topic_seen.add(_topic_id_for_row(row))
+    index = 0
+    with open(selected_rows_path, "r", encoding="utf-8") as fh:
+        for line in fh:
+            line = line.strip()
+            if not line:
+                continue
+            index += 1
+            row = json.loads(line)
+            if not isinstance(row, dict):
+                continue
+            work = row.get("work") if isinstance(row.get("work"), dict) else {}
+            if not isinstance(work, dict):
+                continue
+            work_id = str(row.get("work_id") or work.get("id") or "").strip()
+            if not work_id:
+                continue
+            merged = merged_rows.get(work_id)
+            if merged is None:
+                merged_rows[work_id] = {
+                    "work": work,
+                    "topic_id": _topic_id_for_row(row),
+                    "topic_ids": _topic_ids_for_row(row),
+                    "topic_display_names": _topic_names_for_row(row),
+                    "selected_rank": index,
+                }
+            else:
+                if bool(work.get("has_fulltext")) and not bool(merged["work"].get("has_fulltext")):
+                    merged["work"] = work
+                merged["selected_rank"] = min(int(merged["selected_rank"]), index)
+                for topic_id in _topic_ids_for_row(row):
+                    if topic_id not in merged["topic_ids"]:
+                        merged["topic_ids"].append(topic_id)
+                for topic_name in _topic_names_for_row(row):
+                    if topic_name not in merged["topic_display_names"]:
+                        merged["topic_display_names"].append(topic_name)
+                if _topic_id_for_row(row) and _topic_id_for_row(row) not in merged["topic_ids"]:
+                    merged["topic_ids"].append(_topic_id_for_row(row))
+            topic_seen.add(_topic_id_for_row(row))
 
     work_items: list[WorkItem] = []
     for work_id, merged in merged_rows.items():
@@ -2841,7 +2954,6 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
             )
         )
 
-    del selected_rows
     del merged_rows
     gc.collect()
     work_items.sort(key=lambda item: (-item.prefetch_priority, item.selected_rank, item.work_id))
@@ -3281,6 +3393,10 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
             round(aggregate_rps, 3),
         )
         _dispatched = 0
+        _bounce_counts: dict[str, int] = {}
+        _bounce_log_interval = 2000
+        _bounce_log_counter = 0
+        _BOUNCE_LIMIT = 200
         while True:
             if fetch_done.is_set() and eligible_queue.empty() and all(v == 0 for v in topic_inflight.values()):
                 for _ in range(llm_workers_count):
@@ -3300,13 +3416,34 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
                     topic_id=topic_id,
                     rejection_reasons=["topic_budget_filled"],
                 )
+                _bounce_counts.pop(eligible_item.work_item.work_id, None)
                 eligible_queue.task_done()
                 continue
+            _bk = eligible_item.work_item.work_id
+            _bounce_counts[_bk] = _bounce_counts.get(_bk, 0) + 1
             if topic_success[topic_id] + topic_inflight[topic_id] >= config.article_target_fulltext_per_topic:
-                eligible_queue.task_done()
-                await asyncio.sleep(0.05)
-                await eligible_queue.put((priority, eligible_item.work_item.selected_rank, eligible_item))
-                continue
+                if _bounce_counts[_bk] < _BOUNCE_LIMIT:
+                    _bounce_log_counter += 1
+                    if _bounce_log_counter % _bounce_log_interval == 1:
+                        logger.info(
+                            "LLM dispatcher: bounce backpressure — {} items bouncing, topic {} inflight={}",
+                            len(_bounce_counts),
+                            topic_id,
+                            topic_inflight[topic_id],
+                        )
+                    eligible_queue.task_done()
+                    await asyncio.sleep(0.05)
+                    await eligible_queue.put((priority, eligible_item.work_item.selected_rank, eligible_item))
+                    continue
+                logger.warning(
+                    "LLM dispatcher: bounce limit ({}) reached for {}, forcing dispatch (topic={}, inflight={}, success={})",
+                    _BOUNCE_LIMIT,
+                    _bk,
+                    topic_id,
+                    topic_inflight[topic_id],
+                    topic_success[topic_id],
+                )
+                del _bounce_counts[_bk]
             topic_inflight[topic_id] += 1
             await _persist_progress(
                 eligible_item.work_item.work_id,
@@ -4045,6 +4182,7 @@ async def _run_targeted_extraction_pass(config: AcademicBatchConfig) -> dict[str
 
 
 async def run_resolve_extract(config: AcademicBatchConfig) -> dict[str, float | int]:
+    """Run resolve extract."""
     started_at = datetime.now(UTC).isoformat()
     max_followup_passes = max(0, int(config.article_retryable_followup_passes))
     followup_delay_seconds = max(0.0, float(config.article_retryable_followup_delay_seconds))

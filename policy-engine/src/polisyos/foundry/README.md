@@ -1,152 +1,38 @@
 # Foundry (`polisyos.foundry`)
 
-Foundry — вычислительный слой Policy Engine: компиляция Trinity-политик, исполнение графа механизмов и выпуск артефактов симуляции в CAS.
+Foundry - вычислительный слой PolicyOS для Trinity compile/execute, registry-driven
+method execution, calibration, uncertainty propagation и agent-based simulation.
 
-Актуально по коду на 2026-03-03.
+## Role in System
 
-## Роль в системе
+- **Depends on:** `polisyos.core`, `polisyos.ir`
+- **Used by:** `polisyos.scientist`, `polisyos.foundry.plugins`
+- Собирает declarative IR в исполняемый runtime-контур с CAS-артефактами, snapshot-ами
+  и строгими guardrails.
 
-Foundry связывает декларативный IR и исполняемый runtime-контур:
+## Key Concepts
 
-```text
-ir.trinity_bundle + core.registry_bundle
-          |
-          v
-   foundry.compile
-          |
-          v
-program_graph + exec_plan (+ slot_layout, treasury_plan)
-          |
-          v
-foundry.data_plane (input bindings + bound state snapshot)
-          |
-          v
-  foundry.execute
-          |
-          v
-state_delta + metrics + state_snapshot + simulation_result
-```
+- **Trinity-only execution** - Foundry компилирует и исполняет только `ir.trinity_bundle`.
+- **Input bindings** - `data_plane` материализует `FoundryInputBindings` и bound state snapshot.
+- **Contracts and state** - `contracts/` задает shared state/machine contracts для runtime.
+- **Method catalog** - `methods/` и `methods/catalog/` обеспечивают typed method ABI и dispatch.
+- **Micro simulation** - `agent_sim/`, `plugins/` и `wiring/` поддерживают ABM/RL сценарии.
+- **Calibration and uncertainty** - `calibration/` и `uncertainty/` работают поверх execution outputs.
 
-## Границы ответственности
+## Public API
 
-### Foundry отвечает за
+| Type/Function | Description |
+|---|---|
+| `compile()` | Компилирует Trinity IR в `ProgramGraph` и `ExecPlan`. |
+| `execute()` | Исполняет подготовленный Foundry run и пишет результат в артефакты. |
+| `build_input_bindings()` | Строит `FoundryInputBindings` из data snapshot и registry bundle. |
+| `execute_program_graph()` | Выполняет ProgramGraph с patch-first semantics. |
+| `apply_state_delta_and_snapshot()` | Применяет delta и materializes state snapshot. |
 
-- компиляцию `ir.trinity_bundle` в `ProgramGraph` и `ExecPlan`;
-- patch-first исполнение механизмов и merge по правилам слотов;
-- compile/runtime guardrails: link/conflict/cost/constraints;
-- выпуск артефактов (`state_delta`, `metrics`, `state_snapshot`, `simulation_result`);
-- прикладные подсистемы: `methods`, `calibration`, `uncertainty`, `agent_sim`, `plugins`.
+→ Full reference: [docs/reference/foundry/index.md](../../../docs/reference/foundry/index.md)
 
-### Foundry не отвечает за
+## Current State
 
-- workflow-оркестрацию и пайплайны экспериментов (`polisyos.scientist`);
-- долгосрочное хранение внешних бизнес-данных вне артефактного слоя;
-- продуктовый UX/API поверх научных сценариев.
-
-## Основной pipeline
-
-1. `compile/` (`compile.api.compile`)
-- Поддерживается только `policy_ref.kind == "ir.trinity_bundle"`.
-- Выполняется `link_trinity`, сборка `ProgramGraph`, затем `ExecPlan`.
-- Добавляются производные артефакты: `slot_layout`, `treasury_plan`.
-- Перед выпуском результата выполняются compile-time conflict check и optional cost gating.
-
-2. `data_plane/` (`build_input_bindings`)
-- Из `DataSnapshot` и `RegistryBundle` строится `foundry.input_bindings`.
-- Материализуется `bound_state_snapshot_ref` для фактического исполнения.
-- Поддерживаются auto-rules биндинга по доступным путям payload.
-
-3. `execute/` (`execute.api.execute`)
-- Источник состояния берется из `input_bindings_ref`.
-- Запускается `execute_program_graph`, затем применяется `state_delta`.
-- Формируется `simulation_result` + ссылки на метрики/constraint report/environment manifest.
-
-4. `executor.py` и `_executor_*`
-- Для Trinity-графа используется op-контур: `make_mask -> apply_mechanism -> merge_state -> check_constraints`.
-- Для `method`-узлов включается dispatch через `foundry.methods.backends`.
-- Ошибки method-узлов фиксируются как события и не валят весь прогон автоматически.
-
-## Карта директорий
-
-### Ядро исполнения
-
-- `compile/`, `execute/`, `executor.py`, `_executor_*.py`: фасады compile/execute и оркестрация ProgramGraph.
-- `data_plane/`: преобразование входных data snapshots в bound Foundry state.
-- `merge_engine.py`, `patch_vm.py`, `constraints_engine.py`, `conflict_checker.py`, `cost_model.py`: merge и guardrails.
-- `registry.py`, `mechanisms/`, `agents.py`, `queue.py`, `specs.py`: runtime bridge для механизмов и встроенные реализации; descriptor-слой собирается из `mechanism.runtime.*` методов, а не из отдельной hardcoded-карты.
-
-### Прикладные подсистемы
-
-- `methods/`: typed method ABI, registry/discovery, DAG composition, backend dispatch.
-- `calibration/`: подстройка trainable-параметров по целевым рядам.
-- `uncertainty/`: propagation неопределенности (delta/monte-carlo).
-- `agent_sim/`: низкоуровневая ABM/RL подсистема; canonical planning/runtime surface идет через `simulation.*` methods, а direct API остается для training-heavy и research сценариев.
-- `plugins/`: plugin-слой поверх `agent_sim` для multi-domain симуляций.
-- `analysis/`: пост-метрики распределительных эффектов.
-
-### Служебные зоны
-
-- `runtime/`: JIT-aware instrumentation и runtime helpers.
-- `contracts/`, `layout.py`, `trace.py`, `utils.py`: контракты и утилиты.
-- `domain/`: заготовки доменной schema-слойки (минимальный объём).
-- `engine/`: сейчас фактически пустой каталог (технический резерв).
-
-## Встроенный реестр механизмов
-
-`registry.MECHANISM_REGISTRY` теперь является compatibility-view поверх unified method catalog и резолвит runtime descriptors из `mechanism.runtime.*`:
-
-- `adaptive_agent`
-- `tax_subsidy`
-- `income_tax`
-- `labor_market`
-- `queue`
-
-## Ключевые инварианты
-
-- Patch-first: механизмы эмитят патчи, а не мутируют состояние напрямую.
-- Merge-rule driven: итоговое значение слота определяется registry-правилом merge.
-- Artifact-first: ключевые шаги пайплайна сохраняют CAS-артефакты.
-- Determinism-first: seed-driven execution + (опционально) environment fingerprint.
-- Public API lazy-export: пакет `polisyos.foundry` экспортирует `compile` и `execute`.
-
-## Связь с другими директориями
-
-Foundry зависит от:
-
-- `polisyos/core/*` (artifacts, compiler report, contracts, registry, observability);
-- `polisyos/ir/*` (trinity/linker/kernel/analytics contracts).
-
-Foundry используется в:
-
-- `polisyos/scientist/adapters/foundry_bridge.py`;
-- `polisyos/scientist/nodes/builtins/*` (bind inputs, run simulation, uncertainty, method catalog);
-- `polisyos/scientist/compute/runner.py`;
-- `polisyos/packs/roads/foundry_methods.py`.
-
-## Текущее состояние и ограничения
-
-- `compile` остается Trinity-only.
-- `constraints_engine.py` пока placeholder; рабочая проверка ограничений живет в `_executor_ops.check_constraints`.
-- `runtime.step()` и scan-утилиты в `runtime/` — вспомогательный контур, не основной production executor.
-- `domain/` и `engine/` пока не являются основным execution path Foundry.
-
-## README поддиректорий
-
-- `agent_sim/README.md`
-- `calibration/README.md`
-- `methods/README.md`
-- `methods/catalog/README.md`
-- `methods/catalog/AUTHORING.md`
-- `methods/catalog/NAMING.md`
-- `methods/catalog/MIGRATION_V2.md`
-- `methods/catalog/causal/README.md`
-- `plugins/README.md`
-- `uncertainty/README.md`
-
-## Быстрый API-ориентир
-
-- `polisyos.foundry.compile(store, request)`
-- `polisyos.foundry.execute(store, request)`
-- `polisyos.foundry.data_plane.build_input_bindings(...)`
-- `polisyos.foundry.executor.execute_program_graph(...)`
-- `polisyos.foundry.executor.apply_state_delta_and_snapshot(...)`
+- Last updated: 2026-04-03
+- Files: 395 Python files
+- Exports: 2

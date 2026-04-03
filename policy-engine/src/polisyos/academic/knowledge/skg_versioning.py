@@ -22,6 +22,7 @@ logger = get_logger(__name__)
 
 @dataclass(frozen=True)
 class RetractionReport:
+    """Retraction report data model."""
     affected_edges: list[str]
     removed_edges: list[str]
 

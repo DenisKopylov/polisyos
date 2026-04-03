@@ -560,6 +560,7 @@ def persist_negative_certificate(
     schema_name: str = "ir.negative_certificate",
     schema_version: str = "1.0",
 ) -> NegativeCertificateRef:
+    """Persist negative certificate helper."""
     ref = put_json_artifact(
         store,
         certificate.model_dump(mode="json"),
@@ -576,6 +577,7 @@ def load_negative_certificate(
     store: ArtifactStore,
     ref: NegativeCertificateRef,
 ) -> NegativeCertificate:
+    """Load negative certificate."""
     payload = get_json_artifact(store, ref.artifact_id)
     return NegativeCertificate.model_validate(payload)
 

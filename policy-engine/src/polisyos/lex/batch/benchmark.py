@@ -14,6 +14,7 @@ from polisyos.batch_common.manifest import write_stage_manifest
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.fabric.claims.persist import load_json_artifact
 from polisyos.lex.api import assemble_norm_pack, evaluate_transport_constraints
+from polisyos.lex.batch.amendment_metrics import collect_amendment_quality_metrics
 from polisyos.lex.batch.config import BatchConfig
 from polisyos.lex.knowledge.search import LegalKnowledgeGraph
 from polisyos.lex.types import NormPackBuildRequest
@@ -28,6 +29,7 @@ READINESS_THRESHOLDS: dict[str, float] = {
     "benchmark_amendment_extraction_ready_pct": 60.0,
     "benchmark_amendment_target_resolution_pct": 70.0,
     "benchmark_hallucination_blocking_clean_pct": 97.0,
+    "benchmark_temporal_current_safety_pct": 100.0,
     "benchmark_consistency_resolution_ready_pct": 80.0,
 }
 ADVISORY_THRESHOLDS: dict[str, float] = {
@@ -41,9 +43,10 @@ _READINESS_TOTALS: dict[str, str] = {
     "benchmark_normpack_ready_pct": "benchmark_normpack_cases_total",
     "benchmark_reference_resolution_ready_pct": "benchmark_reference_resolution_cases_total",
     "benchmark_amendment_extraction_ready_pct": "benchmark_amendment_docs_total",
-    "benchmark_amendment_target_resolution_pct": "benchmark_amendment_cases_total",
+    "benchmark_amendment_target_resolution_pct": "benchmark_single_target_amendment_docs_total",
     "benchmark_hallucination_clean_pct": "benchmark_hallucination_cases_total",
     "benchmark_hallucination_blocking_clean_pct": "benchmark_hallucination_cases_total",
+    "benchmark_temporal_current_safety_pct": "benchmark_temporal_current_safety_cases_total",
     "benchmark_consistency_resolution_ready_pct": "benchmark_consistency_cases_total",
 }
 _BLOCKING_HALLUCINATION_FLAGS = ("phantom_number", "phantom_article_reference")
@@ -58,6 +61,7 @@ _POLICY_CASES: tuple[tuple[str, dict[str, Any]], ...] = (
 
 @dataclass(frozen=True)
 class LegalSearchBenchmarkCase:
+    """Legal search benchmark case public type."""
     case_id: str
     query: str
     expected_actions: tuple[str, ...] = ()
@@ -67,6 +71,7 @@ class LegalSearchBenchmarkCase:
 
 @dataclass(frozen=True)
 class BenchmarkOutcome:
+    """Benchmark outcome public type."""
     report_path: Path
     metrics: dict[str, float | int]
     passed: bool
@@ -533,6 +538,11 @@ def _run_quality_capability_benchmark(
         "benchmark_hallucination_cases_total": 0,
         "benchmark_hallucination_clean_pct": 0.0,
         "benchmark_hallucination_blocking_clean_pct": 0.0,
+        "benchmark_temporal_docs_total": 0,
+        "benchmark_doc_temporal_resolved_pct": 0.0,
+        "benchmark_fact_temporal_resolved_pct": 0.0,
+        "benchmark_temporal_current_safety_cases_total": 0,
+        "benchmark_temporal_current_safety_pct": 0.0,
         "benchmark_consistency_cases_total": 0,
         "benchmark_consistency_resolution_ready_pct": 0.0,
         "benchmark_high_confidence_norm_cases_total": 0,
@@ -586,56 +596,123 @@ def _run_quality_capability_benchmark(
                 "resolution_ready_pct": metrics["benchmark_reference_resolution_ready_pct"],
             }
 
-        if _table_exists(con, "lex_amendments"):
-            amendments_total = int(con.execute("SELECT COUNT(*) FROM lex_amendments").fetchone()[0])
-            amendments_with_target = int(
-                con.execute(
-                    """
-                    SELECT COUNT(*)
-                    FROM lex_amendments
-                    WHERE TRIM(COALESCE(amended_doc_id, '')) != ''
-                    """
-                ).fetchone()[0]
+        amendment_metrics = collect_amendment_quality_metrics(con)
+        if amendment_metrics.available:
+            metrics["benchmark_amendment_docs_total"] = amendment_metrics.amendment_candidate_docs
+            metrics["benchmark_amendment_cases_total"] = amendment_metrics.amendment_target_expected_total
+            metrics["benchmark_single_target_amendment_docs_total"] = (
+                amendment_metrics.expected_single_target_amendment_docs_total
             )
-            amendment_docs_extracted = int(
-                con.execute("SELECT COUNT(DISTINCT amending_doc_id) FROM lex_amendments").fetchone()[0]
-            )
-            amendment_candidate_docs = 0
-            if _table_exists(con, "lex_doc_versions"):
-                amendment_candidate_docs = int(
-                    con.execute(
-                        """
-                        SELECT COUNT(DISTINCT doc_id)
-                        FROM lex_doc_versions
-                        WHERE lower(COALESCE(doc_name, '') || ' ' || COALESCE(doc_type, '')) LIKE '%внесення змін%'
-                           OR lower(COALESCE(doc_name, '') || ' ' || COALESCE(doc_type, '')) LIKE '%зміни до%'
-                           OR lower(COALESCE(doc_name, '') || ' ' || COALESCE(doc_type, '')) LIKE '%доповнен%'
-                           OR lower(COALESCE(doc_name, '') || ' ' || COALESCE(doc_type, '')) LIKE '%змін%'
-                        """
-                    ).fetchone()[0]
-                )
-            metrics["benchmark_amendment_docs_total"] = amendment_candidate_docs
-            metrics["benchmark_amendment_cases_total"] = amendments_total
             metrics["benchmark_amendment_extraction_ready_pct"] = round(
-                _pct(amendment_docs_extracted, amendment_candidate_docs),
+                amendment_metrics.amendment_extraction_coverage_pct,
                 3,
             )
             metrics["benchmark_amendment_target_resolution_pct"] = round(
-                _pct(amendments_with_target, amendments_total),
+                amendment_metrics.amendment_target_resolution_pct,
+                3,
+            )
+            metrics["benchmark_amendment_target_row_resolution_pct"] = round(
+                amendment_metrics.amendment_target_row_resolution_pct,
+                3,
+            )
+            metrics["benchmark_single_target_title_resolution_pct"] = round(
+                amendment_metrics.single_target_title_resolution_pct,
                 3,
             )
             payload["sections"]["amendments"] = {
-                "amendment_docs_total": amendment_candidate_docs,
-                "amendment_docs_extracted": amendment_docs_extracted,
-                "amendments_total": amendments_total,
-                "amendments_with_target": amendments_with_target,
+                "amendment_docs_total": amendment_metrics.amendment_candidate_docs,
+                "amendment_docs_extracted": amendment_metrics.amendment_docs_extracted,
+                "amendments_total": amendment_metrics.amendments_total,
+                "amendments_with_target": amendment_metrics.amendments_with_target_total,
+                "amendment_target_expected_total": amendment_metrics.amendment_target_expected_total,
+                "amendment_target_row_resolution_pct": metrics["benchmark_amendment_target_row_resolution_pct"],
+                "single_target_amendment_docs_total": amendment_metrics.expected_single_target_amendment_docs_total,
+                "resolved_single_target_amendment_docs_total": amendment_metrics.resolved_single_target_amendment_docs_total,
+                "single_target_title_docs_total": amendment_metrics.single_target_title_docs_total,
+                "resolved_single_target_title_docs_total": amendment_metrics.resolved_single_target_title_docs_total,
+                "single_target_title_resolution_pct": metrics["benchmark_single_target_title_resolution_pct"],
+                "amendment_title_unresolved_docs_total": amendment_metrics.amendment_title_unresolved_docs_total,
+                "multi_target_title_docs_total": amendment_metrics.multi_target_title_docs_total,
                 "extraction_ready_pct": metrics["benchmark_amendment_extraction_ready_pct"],
                 "target_resolution_pct": metrics["benchmark_amendment_target_resolution_pct"],
+            }
+
+        if _table_exists(con, "lex_doc_temporal"):
+            doc_temporal_total = int(con.execute("SELECT COUNT(*) FROM lex_doc_temporal").fetchone()[0])
+            doc_temporal_resolved = int(
+                con.execute(
+                    """
+                    SELECT COUNT(*) FROM lex_doc_temporal
+                    WHERE LOWER(COALESCE(temporal_resolution_status, 'unknown')) = 'resolved'
+                    """
+                ).fetchone()[0]
+            )
+            metrics["benchmark_temporal_docs_total"] = doc_temporal_total
+            metrics["benchmark_doc_temporal_resolved_pct"] = round(
+                _pct(doc_temporal_resolved, doc_temporal_total),
+                3,
+            )
+            payload["sections"]["doc_temporal"] = {
+                "docs_total": doc_temporal_total,
+                "resolved_docs": doc_temporal_resolved,
+                "doc_temporal_resolved_pct": metrics["benchmark_doc_temporal_resolved_pct"],
             }
 
         normative_table, normative_where = _normative_fact_table(con)
         if normative_table:
             normative_total = int(con.execute(f"SELECT COUNT(*) FROM {normative_table}{normative_where}").fetchone()[0])
+            if _column_exists(con, normative_table, "temporal_resolution_status"):
+                fact_temporal_resolved = int(
+                    con.execute(
+                        f"""
+                        SELECT COUNT(*) FROM {normative_table}
+                        {normative_where}
+                        {" AND " if normative_where else " WHERE "}
+                        LOWER(COALESCE(temporal_resolution_status, 'unknown')) = 'resolved'
+                        """
+                    ).fetchone()[0]
+                )
+                unsafe_current_rows = int(
+                    con.execute(
+                        f"""
+                        SELECT COUNT(*) FROM {normative_table}
+                        {normative_where}
+                        {" AND " if normative_where else " WHERE "}
+                        LOWER(COALESCE(doc_status, '')) IN ('втратив чинність', 'втратив чинність частково', 'не набрав чинності', 'дію призупинено')
+                          AND LOWER(COALESCE(temporal_resolution_status, 'unknown')) = 'resolved'
+                          AND COALESCE(effective_from, '') <> ''
+                          AND effective_from <= CAST(CURRENT_DATE AS VARCHAR)
+                          AND (COALESCE(effective_to, '') = '' OR CAST(CURRENT_DATE AS VARCHAR) <= effective_to)
+                        """
+                    ).fetchone()[0]
+                )
+                blocked_temporal_rows = int(
+                    con.execute(
+                        f"""
+                        SELECT COUNT(*) FROM {normative_table}
+                        {normative_where}
+                        {" AND " if normative_where else " WHERE "}
+                        LOWER(COALESCE(doc_status, '')) IN ('втратив чинність', 'втратив чинність частково', 'не набрав чинності', 'дію призупинено')
+                        """
+                    ).fetchone()[0]
+                )
+                metrics["benchmark_fact_temporal_resolved_pct"] = round(
+                    _pct(fact_temporal_resolved, normative_total),
+                    3,
+                )
+                metrics["benchmark_temporal_current_safety_cases_total"] = blocked_temporal_rows
+                metrics["benchmark_temporal_current_safety_pct"] = round(
+                    100.0 - _pct(unsafe_current_rows, blocked_temporal_rows),
+                    3,
+                )
+                payload["sections"]["fact_temporal"] = {
+                    "facts_total": normative_total,
+                    "resolved_facts": fact_temporal_resolved,
+                    "fact_temporal_resolved_pct": metrics["benchmark_fact_temporal_resolved_pct"],
+                    "blocked_temporal_rows": blocked_temporal_rows,
+                    "unsafe_current_rows": unsafe_current_rows,
+                    "temporal_current_safety_pct": metrics["benchmark_temporal_current_safety_pct"],
+                }
             if _table_exists(con, "lex_high_confidence_norms"):
                 high_conf_total = int(con.execute("SELECT COUNT(*) FROM lex_high_confidence_norms").fetchone()[0])
                 metrics["benchmark_high_confidence_norm_cases_total"] = normative_total

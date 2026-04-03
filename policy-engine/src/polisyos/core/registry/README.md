@@ -1,46 +1,29 @@
-# Registry — registries и bundle artifacts
+# Registry (`polisyos.core.registry`)
 
-`core.registry` объединяет:
-- in-memory registry primitives (`BaseRegistry`, `GenericRegistry`)
-- сборку/загрузку CAS bundle (`core.registry_bundle`) для детерминированного runtime
+`core.registry` collects the in-memory registry primitives and the CAS-backed registry bundle
+builders/loaders used by deterministic runtime paths.
 
-## Состав
+## Role in System
 
-```text
-registry/
-├── base.py                    # BaseRegistry + duplicate lifecycle hooks
-├── generic.py                 # GenericRegistry + secondary indices + snapshots
-├── builder.py                 # build_registry_bundle(), build_default_registry_bundle()
-├── builder_from_fragments.py  # compose из component IR fragments
-└── loader.py                  # load_registry_bundle*() + materialized content
-```
+- **Depends on:** `core.artifacts` for CAS-backed storage and `core.components` for fragment discovery.
+- **Used by:** `foundry`, `scientist`, `runtime`, `governance`, and bootstrap code that needs typed registries.
+- **Boundary function:** keeps registry assembly and materialization consistent across the stack.
 
-## Основные сценарии
+## Key Concepts
 
-1. Базовый bundle из default IR:
-   `build_default_registry_bundle(store)`
-2. Bundle из компонентов:
-   `build_registry_bundle_from_components(...)` -> bundle ref + compose report (`core.registry_compose_report`)
-3. Загрузка в runtime:
-   `load_registry_bundle_content(store, ref)` -> typed registries
+- **Registry primitives** - `BaseRegistry` and `GenericRegistry` provide the in-memory model.
+- **Bundle builders** - `build_registry_bundle` and `build_default_registry_bundle` materialize registries into CAS.
+- **Fragment composition** - `builder_from_fragments.py` composes bundles from component IR fragments.
+- **Bundle loading** - `loader.py` reads the materialized runtime registries back out of CAS.
 
-## Что входит в bundle
-
-Обязательные реестры:
-- `slot`, `merge`, `mechanism`, `constraint`
-
-Опциональные:
-- `selector_field`, `metric`, `units`, `trust`, `predicate`, `privacy`
-
-## Интеграции
-
-- `components`: source of `ComponentKind.IR_FRAGMENT`
-- `artifacts`: CAS storage и typed refs
-- `ir`: default registries + compose models
-- `governance`/`foundry`/`scientist`/`runtime`: потребители runtime registries
-
-## Публичный API
+## Public API
 
 - primitives: `BaseRegistry`, `DuplicateDecision`, `GenericRegistry`, `GenericRegistrySnapshot`
 - builders: `build_registry_bundle`, `build_default_registry_bundle`, `build_registry_bundle_from_components`, `FragmentPrecedencePolicy`
 - loaders: `load_registry_bundle`, `load_registry_bundle_payload`, `load_registry_bundle_content`, `RegistryBundleContent`
+
+## Current State
+
+- Last updated: 2026-04-03
+- The package tree still centers on `base.py`, `generic.py`, `builder.py`, `builder_from_fragments.py`, and `loader.py`.
+- Registry bundles remain the handoff layer between component discovery and runtime registries.

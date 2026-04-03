@@ -1,3 +1,4 @@
+"""Public artifacts graph module API."""
 from __future__ import annotations
 
 from collections import deque
@@ -10,6 +11,7 @@ from .store import FileSystemCAS
 
 
 class NodeStatus(str, Enum):
+    """Node status public type."""
     PRESENT = "present"
     MISSING = "missing"
     MISSING_BLOB = "missing_blob"
@@ -20,6 +22,7 @@ class NodeStatus(str, Enum):
 
 @dataclass(frozen=True)
 class DependencyEdge:
+    """Dependency edge public type."""
     parent_id: ArtifactID
     child_id: ArtifactID
     role: str
@@ -27,6 +30,7 @@ class DependencyEdge:
 
 @dataclass
 class DependencyNode:
+    """Dependency node implementation."""
     artifact_id: ArtifactID
     role: str | None = None
     kind: str | None = None
@@ -42,6 +46,7 @@ class DependencyNode:
 
 @dataclass
 class DependencyGraph:
+    """Dependency graph public type."""
     root_id: ArtifactID
     nodes: dict[str, DependencyNode] = field(default_factory=dict)
     edges: list[DependencyEdge] = field(default_factory=list)

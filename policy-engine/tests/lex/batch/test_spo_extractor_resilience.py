@@ -5,7 +5,11 @@ import json
 from contextlib import contextmanager
 from pathlib import Path
 
-from polisyos.lex.batch.spo_extractor import _group_request_items, extract_spo_for_documents
+from polisyos.lex.batch.spo_extractor import (
+    _extract_one_provision_light,
+    _group_request_items,
+    extract_spo_for_documents,
+)
 from polisyos.lex.batch.structurer import ProvisionSpan
 from polisyos.lex.batch.xml_parser import NPACard, NPADocument
 from polisyos.lex.knowledge.types import SPOCandidate, SPOExtractionResult
@@ -13,6 +17,33 @@ from polisyos.lex.knowledge.types import SPOCandidate, SPOExtractionResult
 
 class _FakeClient:
     model_id = "fake/model"
+
+    async def chat_completion(self, *_args, **_kwargs):  # noqa: ANN002, ANN003
+        return {
+            "choices": [
+                {
+                    "message": {
+                        "content": json.dumps(
+                            {
+                                "statements": [
+                                    {
+                                        "subject_uk": "Орган",
+                                        "predicate": "requires",
+                                        "object_uk": "подати звіт",
+                                        "norm_type": "obligation",
+                                        "fact_text": "Орган зобов'язаний подати звіт.",
+                                        "source_quote_uk": "Орган зобов'язаний подати звіт.",
+                                        "confidence": 0.84,
+                                    }
+                                ]
+                            },
+                            ensure_ascii=False,
+                        )
+                    }
+                }
+            ],
+            "usage": {"prompt_tokens": 10, "completion_tokens": 5},
+        }
 
 
 def _doc(doc_id: str, text: str) -> NPADocument:
@@ -90,6 +121,17 @@ def test_group_request_items_adaptive_downshift_reduces_medium_long_batches() ->
 
     assert [len(group) for group in baseline_groups] == [5]
     assert [len(group) for group in adaptive_groups] == [4, 1]
+
+
+def test_extract_one_provision_light_imports_canonicalizers() -> None:
+    doc = _doc("doc-light", "Орган зобов'язаний подати звіт.")
+    span = _span("art:1", "Орган зобов'язаний подати звіт.")
+
+    result = asyncio.run(_extract_one_provision_light(_FakeClient(), doc, span))
+
+    assert result.doc_id == doc.card.doc_id
+    assert len(result.statements) == 1
+    assert result.statements[0].predicate == "requires"
 
 
 def test_extract_spo_for_documents_uses_timeout_fallback(monkeypatch, tmp_path: Path) -> None:

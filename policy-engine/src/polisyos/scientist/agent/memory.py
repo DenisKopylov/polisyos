@@ -11,6 +11,7 @@ from typing import Any
 
 
 class TurnRole(str, Enum):
+    """Turn role public type."""
     USER = "user"
     PI = "pi"
     DRAFTER = "drafter"
@@ -22,6 +23,7 @@ class TurnRole(str, Enum):
 
 @dataclass
 class MemoryTurn:
+    """Memory turn public type."""
     role: TurnRole
     content: str
     timestamp: datetime = field(default_factory=datetime.utcnow)
@@ -30,6 +32,7 @@ class MemoryTurn:
 
 @dataclass
 class Attempt:
+    """Attempt public type."""
     attempt_number: int
     draft_summary: str
     ir_summary: str

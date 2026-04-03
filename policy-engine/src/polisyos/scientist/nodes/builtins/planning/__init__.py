@@ -1,3 +1,4 @@
+"""Public builtins planning package API."""
 from __future__ import annotations
 
 from polisyos.scientist.nodes.builtins.planning.build_execution_plan import BuildExecutionPlanNode
@@ -15,6 +16,9 @@ from polisyos.scientist.nodes.builtins.planning.expand_legal_source_pack import 
 )
 from polisyos.scientist.nodes.builtins.planning.plan_policy_request import PlanPolicyRequestNode
 from polisyos.scientist.nodes.builtins.planning.ready_to_run import ReadyToRunNode
+from polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search import (
+    RunHierarchicalPolicySearchNode,
+)
 from polisyos.scientist.nodes.builtins.planning.run_source_gap_review import (
     RunSourceGapReviewNode,
 )
@@ -39,5 +43,6 @@ __all__ = [
     "DraftPolicyOptionsNode",
     "RunPreflightNode",
     "ReadyToRunNode",
+    "RunHierarchicalPolicySearchNode",
     "RunEvaluatorNode",
 ]

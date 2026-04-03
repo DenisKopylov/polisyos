@@ -567,12 +567,14 @@ def _build_parser() -> argparse.ArgumentParser:
 
 
 def json_dumps_pretty(payload: dict) -> str:
+    """Json dumps pretty helper."""
     import json
 
     return json.dumps(payload, ensure_ascii=False, indent=2)
 
 
 def main() -> None:
+    """Main helper."""
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
     parser = _build_parser()
     args = parser.parse_args()

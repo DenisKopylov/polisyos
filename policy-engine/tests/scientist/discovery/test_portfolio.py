@@ -124,6 +124,56 @@ def test_cross_sectional_portfolio_runs_constraint_score_and_functional_methods(
     assert result.candidates[-1].hypothesis.algorithm_family is DiscoveryAlgorithmFamily.FUNCTIONAL
 
 
+def test_cross_sectional_portfolio_forwards_algebraic_blocks_to_auditable_methods(
+    monkeypatch,
+) -> None:
+    seen_params: dict[DiscoveryMethod, dict[str, object]] = {}
+
+    def fake_run(state, method, params):
+        normalized = DiscoveryMethod(method)
+        seen_params[normalized] = dict(params)
+        return _report_for_method(normalized)
+
+    monkeypatch.setattr(portfolio_module, "run_discovery_method", fake_run)
+    monkeypatch.setattr(
+        portfolio_module,
+        "_characterize_data",
+        lambda state, config: _characteristics(DataType.CROSS_SECTIONAL),
+    )
+
+    algebraic_blocks = [
+        {
+            "block_id": "factor_1",
+            "family": "tetrad",
+            "variables": ["X", "Y", "Z", "W"],
+        }
+    ]
+    expected_blocks = [
+        {
+            "block_id": "factor_1",
+            "family": "tetrad",
+            "variables": ["X", "Y", "Z", "W"],
+            "quadruples": [],
+            "expected_rank": None,
+            "max_residual_energy": None,
+        }
+    ]
+    runner = GraphDiscoveryPortfolioRunner(
+        config=PortfolioRunnerConfig(random_seed=11, algebraic_blocks=algebraic_blocks)
+    )
+    runner.run(_tabular_state())
+
+    for method in (
+        DiscoveryMethod.PC,
+        DiscoveryMethod.FCI,
+        DiscoveryMethod.GES,
+        DiscoveryMethod.DAGMA,
+    ):
+        assert seen_params[method]["algebraic_blocks"] == expected_blocks
+    assert "algebraic_blocks" not in seen_params[DiscoveryMethod.ANM]
+    assert "algebraic_blocks" not in seen_params[DiscoveryMethod.PAIRWISE_HEURISTIC]
+
+
 def test_time_series_portfolio_routes_only_to_pcmci_plus(monkeypatch) -> None:
     called_methods: list[DiscoveryMethod] = []
 

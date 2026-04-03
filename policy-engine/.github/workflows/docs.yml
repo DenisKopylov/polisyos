@@ -1,0 +1,23 @@
+name: Documentation
+
+on:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install mkdocs-material "mkdocstrings[python]"
+      - run: mkdocs build --strict
+
+  linkcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: lycheeverse/lychee-action@v2
+        with:
+          args: "docs/ README.md CONTRIBUTING.md --exclude-path docs/archive"

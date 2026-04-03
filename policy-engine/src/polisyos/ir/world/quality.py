@@ -1,3 +1,4 @@
+"""Public world quality module API."""
 from __future__ import annotations
 
 from enum import Enum
@@ -14,18 +15,21 @@ SCHEMA_VERSION_PATTERN = r"^\d+\.\d+$"
 
 
 class QualityScope(str, Enum):
+    """Quality scope public type."""
     DOCS_PIPELINE = "docs_pipeline"
     CLAIMS_PIPELINE = "claims_pipeline"
     CONFLICT_RESOLUTION = "conflict_resolution"
 
 
 class QualityIssueSeverity(str, Enum):
+    """Quality issue severity public type."""
     INFO = "info"
     WARN = "warn"
     ERROR = "error"
 
 
 class QualityIssue(KernelModel):
+    """Quality issue data model."""
     code: str
     severity: QualityIssueSeverity
     msg: str
@@ -35,6 +39,7 @@ class QualityIssue(KernelModel):
 
 
 class QualityReport(KernelModel):
+    """Quality report data model."""
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     quality_report_id: str = Field(..., pattern=ID_PATTERN)
     scope: QualityScope

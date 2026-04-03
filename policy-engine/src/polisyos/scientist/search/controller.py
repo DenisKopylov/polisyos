@@ -1,3 +1,4 @@
+"""Public search controller module API."""
 from __future__ import annotations
 
 import os

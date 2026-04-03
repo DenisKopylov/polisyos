@@ -7,6 +7,7 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True, slots=True)
 class CountryMapping:
+    """Country mapping public type."""
     iso2: str
     iso3: str
     numeric: str
@@ -85,10 +86,12 @@ COUNTRY_SCOPES: dict[str, tuple[str, ...]] = {
 
 
 def all_country_codes() -> tuple[str, ...]:
+    """All country codes helper."""
     return tuple(_BY_ISO2.keys())
 
 
 def country_scope_members(scope: str) -> tuple[str, ...]:
+    """Country scope members helper."""
     normalized = str(scope or "").strip().lower()
     if not normalized:
         return COUNTRY_SCOPES["regional_extended"]
@@ -98,6 +101,7 @@ def country_scope_members(scope: str) -> tuple[str, ...]:
 
 
 def normalize_country_code(raw: object) -> str:
+    """Normalize country code helper."""
     if raw is None:
         return ""
     text = str(raw).strip().upper()
@@ -115,6 +119,7 @@ def normalize_country_code(raw: object) -> str:
 
 
 def iso2_to_iso3(code: str) -> str:
+    """Iso 2 to iso 3 helper."""
     normalized = normalize_country_code(code)
     if not normalized:
         return str(code or "").strip().upper()
@@ -122,6 +127,7 @@ def iso2_to_iso3(code: str) -> str:
 
 
 def iso2_to_numeric(code: str) -> str:
+    """Iso 2 to numeric helper."""
     normalized = normalize_country_code(code)
     if not normalized:
         return str(code or "").strip().upper()
@@ -129,6 +135,7 @@ def iso2_to_numeric(code: str) -> str:
 
 
 def country_region(code: str) -> str:
+    """Country region helper."""
     normalized = normalize_country_code(code)
     if not normalized:
         return ""

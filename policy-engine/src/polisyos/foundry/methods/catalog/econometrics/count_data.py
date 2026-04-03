@@ -1,3 +1,4 @@
+"""Public econometrics count data module API."""
 from __future__ import annotations
 
 from typing import Any, ClassVar, Mapping
@@ -29,6 +30,7 @@ def _result_slot() -> frozenset[SlotSpec]:
     tags={"econometrics", "count", "poisson", "cross-section"},
 )
 class PoissonRegressionEstimator:
+    """Poisson regression estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -108,6 +110,7 @@ class PoissonRegressionEstimator:
     tags={"econometrics", "count", "negative-binomial", "cross-section"},
 )
 class NegativeBinomialEstimator:
+    """Negative binomial estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -188,6 +191,7 @@ class NegativeBinomialEstimator:
     tags={"econometrics", "count", "zero-inflated", "poisson", "cross-section"},
 )
 class ZeroInflatedPoissonEstimator:
+    """Zero inflated poisson estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 

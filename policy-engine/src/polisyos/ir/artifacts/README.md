@@ -1,27 +1,40 @@
-# ir.artifacts
+# Artifacts (`polisyos.ir.artifacts`)
 
-`ir.artifacts` — единый контрактный слой для CAS I/O в `ir`.
+`polisyos.ir.artifacts` задает минимальный CAS I/O protocol для всего IR слоя.
+Здесь нет доменной логики конкретных артефактов: пакет описывает `ArtifactID`,
+store contract, schema metadata и helpers, через которые `analytics`,
+`observation` и typed refs сохраняют и загружают canonical payloads.
 
-## Что здесь
+## Роль в системе
 
-| Файл | Назначение |
+- **Зависит от:** `polisyos.ir.canon`
+- **Используется в:** `polisyos.ir.analytics`, `polisyos.ir.observation`, `polisyos.ir.refs`, `polisyos.core`, `polisyos.fabric`
+- Этот пакет является тонкой границей между domain models и реальными CAS backends.
+
+## Ключевые концепции
+
+- **Artifact identity** — `ArtifactID` фиксирует canonical `sha256:<hex>` identifier.
+- **Store protocol** — `ArtifactStore` определяет минимальный JSON/bytes contract для persistence.
+- **Schema metadata** — `SchemaInfo`, `CanonInfo` и `PutOptions` описывают сохраненный payload.
+- **Lineage normalization** — input refs и artifact refs нормализуются до записи.
+- **Shared helpers** — analytics и observation bundles используют один и тот же `put_json_artifact()` / `get_json_artifact()` surface.
+
+## Public API
+
+| Type/Function | Description |
 |---|---|
-| `contracts.py` | `ArtifactID`, `InputRef`, `SchemaInfo`, `PutOptions`, `ArtifactStore` protocol |
-| `io.py` | `put_json_artifact()`, `get_json_artifact()`, normalize helpers |
-| `__init__.py` | публичный экспорт контрактов и I/O функций |
+| `ArtifactID` | Валидируемый canonical artifact identifier |
+| `ArtifactStore` | Protocol для CAS backends |
+| `PutOptions`, `StorePutOptions` | Метаданные записи, schema info и lineage inputs |
+| `normalize_artifact_ref()`, `normalize_input_refs()` | Нормализуют typed refs перед persistence |
+| `put_json_artifact()` | Сохраняет canonical JSON artifact и возвращает standardized ref payload |
+| `get_json_artifact()` | Загружает artifact bytes и декодирует их в JSON object |
 
-## Ключевые детали
+Full reference: [docs/reference/ir/](../../../../docs/reference/ir/index.md)
 
-- `ArtifactID` строго валидируется как `sha256:<64 lowercase hex>`.
-- `ArtifactStore` ожидает методы `put_json(obj, opts, canon_spec)` и `get_bytes(artifact_id)`.
-- `put_json_artifact()`:
-  - нормализует input refs;
-  - прикладывает schema/canon metadata;
-  - возвращает стандартизированный artifact ref (`artifact_id`, `kind`, `media_type`).
-- `get_json_artifact()` восстанавливает объект через canonical decode (`from_canonical_bytes`).
+## Текущее состояние
 
-## Где используется
-
-- `ir.analytics.*` persist/load функции.
-- `ir.refs` typed references к артефактам.
-- `fabric` и `core` компоненты, работающие с CAS-артефактами.
+- Последнее обновление: 2026-04-03
+- Files: 4 Python files
+- Exports: 12 public names in `__init__.py`
+- Current usage: общий I/O слой для analytics artifacts, observation bundles и typed `ir.refs`

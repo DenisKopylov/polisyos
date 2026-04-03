@@ -1,3 +1,4 @@
+"""Public core pipeline package API."""
 from __future__ import annotations
 
 from .base import (

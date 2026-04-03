@@ -17,7 +17,7 @@ def _load_script_module(path: Path, module_name: str):
 
 def test_worker_start_delay_seconds_ramps_linearly() -> None:
     module = _load_script_module(
-        Path("/Users/deniskopylov/polisyos/policy-engine/scripts/benchmark_lex_llm_steady_state.py"),
+        Path(__file__).parent.parent.parent.parent / "scripts" / "benchmark_lex_llm_steady_state.py",
         "lex_llm_benchmark_script_test",
     )
 
@@ -28,7 +28,7 @@ def test_worker_start_delay_seconds_ramps_linearly() -> None:
 
 def test_active_window_summary_uses_request_start_times() -> None:
     module = _load_script_module(
-        Path("/Users/deniskopylov/polisyos/policy-engine/scripts/benchmark_lex_llm_steady_state.py"),
+        Path(__file__).parent.parent.parent.parent / "scripts" / "benchmark_lex_llm_steady_state.py",
         "lex_llm_benchmark_script_summary_test",
     )
     rows = [
@@ -96,7 +96,7 @@ def test_active_window_summary_uses_request_start_times() -> None:
 
 def test_benchmark_grouping_uses_adaptive_batch_downshift() -> None:
     module = _load_script_module(
-        Path("/Users/deniskopylov/polisyos/policy-engine/scripts/benchmark_lex_llm_steady_state.py"),
+        Path(__file__).parent.parent.parent.parent / "scripts" / "benchmark_lex_llm_steady_state.py",
         "lex_llm_benchmark_script_grouping_test",
     )
     items = [

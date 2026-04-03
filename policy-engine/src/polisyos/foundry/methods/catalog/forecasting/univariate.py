@@ -1,3 +1,4 @@
+"""Public forecasting univariate module API."""
 from __future__ import annotations
 
 from typing import Any, ClassVar, Mapping
@@ -51,6 +52,7 @@ def _holt_linear(series: np.ndarray, *, alpha: float, beta: float) -> tuple[floa
     tags={"forecasting", "time-series", "exponential-smoothing"},
 )
 class ExponentialSmoothingEstimator:
+    """Exponential smoothing estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -107,6 +109,7 @@ class ExponentialSmoothingEstimator:
     tags={"forecasting", "time-series", "theta"},
 )
 class ThetaMethodEstimator:
+    """Theta method estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -166,6 +169,7 @@ class ThetaMethodEstimator:
     tags={"forecasting", "ensemble", "time-series"},
 )
 class ForecastEnsembleEstimator:
+    """Forecast ensemble estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -218,6 +222,7 @@ class ForecastEnsembleEstimator:
     tags={"forecasting", "hierarchical", "reconciliation", "time-series"},
 )
 class BottomUpReconciliationEstimator:
+    """Bottom up reconciliation estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 

@@ -60,6 +60,7 @@ def persist_funnel_calibration_report(
     *,
     inputs: list[InputRef] | None = None,
 ) -> ArtifactRef:
+    """Persist funnel calibration report helper."""
     return store.put_json(
         report,
         PutOptions(
@@ -244,6 +245,7 @@ def load_funnel_calibration_report(
     store: FileSystemCAS,
     ref: ArtifactRef | str,
 ) -> FunnelCalibrationReport:
+    """Load funnel calibration report."""
     artifact_id = ref.artifact_id if isinstance(ref, ArtifactRef) else ref
     return FunnelCalibrationReport.model_validate(
         from_canonical_bytes(store.get_bytes(artifact_id))

@@ -1,3 +1,4 @@
+"""Public lex corpus package API."""
 from __future__ import annotations
 
 from .index import (

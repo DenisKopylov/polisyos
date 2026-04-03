@@ -1,0 +1,265 @@
+site_name: PolicyOS Documentation
+site_description: AI-driven Policy Simulation System using JAX and Unified Data Fabric
+site_url: https://deniskopylov.github.io/polisyos/
+repo_url: https://github.com/DenisKopylov/polisyos
+
+theme:
+  name: material
+  language: en
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.sections
+    - navigation.expand
+    - navigation.indexes
+    - navigation.top
+    - search.highlight
+    - search.suggest
+    - content.code.copy
+    - content.tabs.link
+    - toc.follow
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [src]
+          options:
+            docstring_style: google
+            show_if_no_docstring: false
+            members_order: source
+            show_root_heading: true
+            show_source: true
+            merge_init_into_class: true
+            heading_level: 2
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - attr_list
+  - md_in_html
+  - toc:
+      permalink: true
+
+exclude_docs: |
+  archive/**
+  CAUSAL_ENGINE_ARCHITECTURE.md
+  DOCUMENTATION_SOTA_PLAN.md
+  IMPLEMENTATION_GUIDE.md
+  LEX_PRODUCTION_140K_RUNBOOK.md
+  RESEARCH_TRACK_HANDOFF_TEMPLATE.md
+  SYSTEM_PIPELINE_ARCHITECTURE.md
+  benchmarks/**
+  migration/**
+  quality/**
+
+nav:
+  - Home: index.md
+  - Style Guide: style-guide.md
+
+  - Tutorials:
+      - tutorials/index.md
+      - Getting Started: tutorials/getting-started.md
+      - First Policy Analysis: tutorials/first-policy-analysis.md
+
+  - How-to Guides:
+      - how-to/index.md
+      - Installation: how-to/install.md
+      - Add Data Source: how-to/add-data-source.md
+      - Connector Contributing: connectors/CONTRIBUTING.md
+      - Deploy Runtime: how-to/deploy-runtime.md
+      - Run Benchmarks: how-to/run-benchmarks.md
+      - Run Causal Analysis: how-to/run-causal-analysis.md
+      - Write Governance Pass: how-to/write-governance-pass.md
+
+  - Reference:
+      - reference/index.md
+      - IR:
+          - reference/ir/index.md
+          - reference/ir/governance.md
+          - reference/ir/analytics.md
+          - reference/ir/observation.md
+          - reference/ir/problem-framing.md
+      - Foundry:
+          - reference/foundry/index.md
+          - reference/foundry/compile-execute.md
+          - reference/foundry/calibration.md
+          - reference/foundry/methods-catalog.md
+          - reference/foundry/agent-sim.md
+          - reference/foundry/state.md
+      - Scientist:
+          - reference/scientist/index.md
+          - reference/scientist/workflows.md
+          - reference/scientist/governance-passes.md
+          - reference/scientist/nodes.md
+          - reference/scientist/causal.md
+          - reference/scientist/calibration-governance.md
+      - Lex:
+          - reference/lex/index.md
+          - reference/lex/batch-pipeline.md
+          - reference/lex/knowledge.md
+          - reference/lex/normpack.md
+          - reference/lex/interventions.md
+      - Fabric:
+          - reference/fabric/index.md
+          - reference/fabric/connectors.md
+          - reference/fabric/profiles.md
+          - reference/fabric/data-plane.md
+      - REST API:
+          - reference/api/index.md
+          - reference/api/runs.md
+          - reference/api/control.md
+          - reference/api/artifacts.md
+      - CLI: reference/cli.md
+      - Schemas: reference/schemas.md
+      - Configuration: reference/configuration.md
+
+  - Explanation:
+      - explanation/index.md
+      - Architecture: explanation/architecture.md
+      - Trinity: explanation/trinity.md
+      - Causal Engine: explanation/causal-engine.md
+      - Governance Model: explanation/governance-model.md
+      - Data Fabric: explanation/data-fabric.md
+      - Lex Pipeline: explanation/lex-pipeline.md
+      - Observation Contracts: explanation/observation-contracts.md
+      - Security Model: explanation/security-model.md
+      - Key Rotation: key-rotation.md
+      - FedRAMP Gap Analysis: fedramp/gap-analysis.md
+      - Freeze Policy: explanation/freeze-policy.md
+
+  - Contracts:
+      - Trinity: contracts/TRINITY.md
+      - Merge Semantics: contracts/MERGE_SEMANTICS.md
+      - IR Norms Citations Linker: contracts/E1_3_IR_NORMS_CITATIONS_LINKER.md
+      - Core CAS Canon Contracts Components: contracts/E1_4_CORE_CAS_CANON_CONTRACTS_COMPONENTS.md
+      - Foundry Pure Compute Split Compilers: contracts/E1_5_FOUNDRY_PURE_COMPUTE_SPLIT_COMPILERS.md
+      - Scientist Engine Skeleton Node Protocol: contracts/E1_6_SCIENTIST_ENGINE_SKELETON_NODE_PROTOCOL.md
+      - IR World ABI V1: contracts/E2_1_IR_WORLD_ABI_V1_0_IDS_PREDICATES_CONTRACTS.md
+      - Fabric World Store Emit Facts World Event: contracts/E2_2_FABRIC_WORLD_STORE_EMIT_FACTS_WORLD_EVENT.md
+      - Fabric World DuckDB Materialization V1: contracts/E2_3_FABRIC_WORLD_DUCKDB_MATERIALIZATION_V1_0.md
+      - Fabric Docs Pipeline V1: contracts/E2_5_FABRIC_DOCS_PIPELINE_V1_0.md
+      - Fabric Claims Pipeline V1: contracts/E2_6_FABRIC_CLAIMS_PIPELINE_V1_0.md
+      - Lex Corpus MVP V1: contracts/E2_8_LEX_CORPUS_MVP_V1_0.md
+      - Lex NormPack Assembly V1: contracts/E2_9_LEX_NORMPACK_ASSEMBLY_V1_0.md
+      - Lex Legal Evaluation V1: contracts/E2_10_LEX_LEGAL_EVALUATION_V1_0.md
+
+  - ADRs:
+      - adr/index.md
+      - adr/0001-remove-legacy-foundry-engine.md
+      - adr/0002-scientist-flow-nodes-only.md
+      - adr/0003-ir-v1-deprecate-remove.md
+      - adr/0004-architecture-boundaries-import-gate.md
+      - adr/0005-abi-schema-gate-versioning.md
+      - adr/0006-slo-definitions.md
+      - adr/0007-human-gate-protocol.md
+      - adr/0008-scientist-node-idempotency-contract.md
+      - adr/0009-decision-packet-replay-protocol.md
+      - adr/0010-cas-artifact-signing-ed25519.md
+      - adr/0011-scientist-checkpoint-resume.md
+      - adr/0012-uncertainty-envelope-ir-contract.md
+      - adr/0013-uncertainty-propagation-pipeline.md
+      - adr/0015-knowledge-bundle-freshness-protocol.md
+      - adr/0018-causal-estimator-protocol.md
+      - adr/0019-lex-norm-impact-analysis.md
+      - adr/0020-robustness-sensitivity-stress.md
+      - adr/0021-connector-schema-contracts-and-storage-port.md
+      - adr/0022-policy-portfolio-ir-extension.md
+      - adr/0023-cell-based-tenant-isolation.md
+      - adr/0025-scm-structural-causal-model-vs-synthetic-control.md
+      - adr/0026-notears-excluded-from-default-discovery.md
+      - adr/0027-dowhy-primary-graph-identify-estimate.md
+      - adr/0028-refutation-mandatory-for-observational-estimates.md
+      - adr/0029-e-value-ate-rr-conversion-strategy.md
+      - adr/0030-causal-graph-model-ir-artifact.md
+      - adr/0031-block-bootstrap-for-time-series-stability.md
+      - adr/0032-llm-as-context-interpreter-not-structure-source.md
+      - adr/0033-json-serializable-mechanism-families-only.md
+      - adr/0034-simplified-tr-backdoor-only.md
+      - adr/0035-two-step-screening-haiku-sonnet.md
+      - adr/0036-variable-canonizer-hierarchical-names.md
+      - adr/0037-law-l-edges-without-evidence-support.md
+      - adr/0038-law-t-transportability-required.md
+      - adr/0039-context-profile-distance-inference-level.md
+      - adr/0040-max-transport-confidence-evidence-weight.md
+      - adr/0041-confidence-aggregation-quality-score-replication-bonus.md
+      - adr/0042-duckdb-for-skg-storage.md
+      - adr/0043-skg-versioning-retraction-handling.md
+      - adr/0044-literature-first-single-reconciliation-strategy.md
+      - adr/0045-causal-edge-combined-confidence-formula-superseded.md
+      - adr/0046-three-graph-closure-transportability.md
+      - adr/0047-graph-federation-cross-references.md
+      - adr/0048-transportability-resolution-loop-max-3-rounds.md
+      - adr/0049-constraint-severity-hard-blocks-transport.md
+      - adr/0050-context-dependent-proxy-penalties.md
+      - adr/0051-legal-to-dag-mapping-types.md
+      - adr/0052-data-gap-first-class-object.md
+      - adr/0053-architecture-freeze-contracts.md
+      - adr/0054-skg-on-academic-module.md
+      - adr/0055-dataset-graph-on-datasets-module.md
+      - adr/0056-wgi-wdi-fabric-connector-wvs-new.md
+      - adr/0057-legal-bridge-via-lex-api.md
+      - adr/0058-compatibility-policy-additive-changes-only.md
+      - adr/0059-scientist-causal-full-parallel-workflow.md
+      - adr/0060-migration-budget-one-controlled-switch.md
+      - adr/0061-import-gate-ci-contract.md
+      - adr/0062-knowledge-snapshot-id-mandatory-input-ref.md
+      - adr/0063-mediator-conditional-covariate-marginal.md
+      - adr/0064-compute-combined-confidence-noisy-or.md
+      - adr/0065-cycle-breaking-time-lag-conversion.md
+      - adr/0066-pag-dag-projection-u-dummy-nodes.md
+      - adr/0067-multiplicative-confidence-penalties.md
+      - adr/0068-wvs-wave-temporal-matching.md
+      - adr/0069-collider-check-s-node-elimination.md
+      - adr/0070-bidirectional-edge-u-node-backdoor-invalid.md
+      - adr/0071-intervention-spec-soft-stochastic.md
+      - adr/0072-phase-12b-via-y0-causaleffect.md
+      - adr/0073-rustworkx-instead-of-networkx.md
+      - adr/0074-numpyro-bayesian-scm.md
+      - adr/0075-econml-cate-heterogeneous-effects.md
+      - adr/0076-kuzudb-causal-graph-queries.md
+      - adr/0077-rustworkx-tight-loop-algorithms.md
+      - adr/0078-phase-8-split-8a-8b.md
+      - adr/0079-hybrid-scm-mechanism-source.md
+      - adr/0080-tech-consolidation-stack.md
+      - adr/0081-break-cycles-time-aware.md
+      - adr/0082-abm-bridge-adaptive-tolerance.md
+      - adr/0083-resolution-loop-proxy-depth-guard.md
+      - adr/0084-formal-grammar-canonical-variable-names.md
+      - adr/0085-pag-identification-conservative-policy.md
+      - adr/0086-sutva-assumption-check-pass.md
+      - adr/0087-llm-prior-calibration-ceiling.md
+      - adr/0088-three-layer-conflict-separation-hodge.md
+      - adr/0089-pre-implementation-survey-tr-scope.md
+      - adr/0090-formal-proxy-validity-conditions.md
+      - adr/0091-partial-identification-manski-bounds.md
+      - adr/0092-harmonic-mean-confidence-composition.md
+      - adr/0093-dynamic-transportability-time-stationarity.md
+      - adr/0094-confidence-ordinal-quality-score.md
+      - adr/0095-canonical-scm-test-fixtures.md
+      - adr/ADR-004-policy-surface-removal.md

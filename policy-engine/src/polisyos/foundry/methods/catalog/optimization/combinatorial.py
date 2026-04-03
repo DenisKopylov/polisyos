@@ -1,3 +1,4 @@
+"""Public optimization combinatorial module API."""
 from __future__ import annotations
 
 from typing import Any, ClassVar, Mapping
@@ -29,6 +30,7 @@ def _result_slot() -> frozenset[SlotSpec]:
     tags={"optimization", "combinatorial", "knapsack"},
 )
 class KnapsackEstimator:
+    """Knapsack estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STRICT_CPU
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -61,6 +63,9 @@ class KnapsackEstimator:
         determinism_tier=DeterminismTier.STRICT_CPU,
         required_deps=("numpy",),
         when_to_use="Binary project/intervention selection under a budget; portfolio selection with indivisible items",
+        citations=(
+            "Nemhauser, G. & Wolsey, L. (1988). Integer and Combinatorial Optimization. Wiley.",
+        ),
         when_not_to_use="Items are continuously divisible; multiple resource constraints require MILP",
         output_interpretation="Selected item indices + total value and weight. Greedy fallback used for very large capacity instances.",
     )
@@ -141,6 +146,7 @@ class KnapsackEstimator:
     tags={"optimization", "combinatorial", "vehicle-routing"},
 )
 class VehicleRoutingEstimator:
+    """Vehicle routing estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 

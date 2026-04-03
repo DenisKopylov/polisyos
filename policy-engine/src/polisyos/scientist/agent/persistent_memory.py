@@ -37,6 +37,7 @@ __all__ = [
 
 
 class MemoryKind(str, Enum):
+    """Memory kind public type."""
     EPISODIC = "episodic"
     SEMANTIC = "semantic"
 

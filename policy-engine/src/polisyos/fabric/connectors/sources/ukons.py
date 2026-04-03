@@ -1,3 +1,4 @@
+"""Public sources ukons module API."""
 from __future__ import annotations
 
 import json
@@ -28,7 +29,22 @@ from polisyos.ir.connectors import (
 
 
 class UKONSConnector(HTTPConnectorBase[pd.DataFrame]):
-    """Connector for UK ONS API v1."""
+    """Connector for UK Office for National Statistics dataset APIs.
+
+    Retrieves dataset observations and metadata from the public ONS API with
+    support for catalog browsing and schema introspection.
+
+    Data source:
+        https://www.ons.gov.uk
+    Protocol:
+        REST JSON
+    Auth:
+        None
+    Async support:
+        Standard async HTTP execution only
+    Profile:
+        ``ukons_public``
+    """
 
     namespace: ClassVar[str] = "ukons"
     short_id: ClassVar[str] = "datasets"

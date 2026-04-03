@@ -1,73 +1,42 @@
 # Calibration (`polisyos.foundry.calibration`)
 
-`calibration` — подсистема data-driven калибровки trainable параметров Foundry-моделей по эмпирическим целям.
+`calibration` - subsystem for fitting Foundry model parameters to empirical targets,
+with optional measurement-aware weighting and uncertainty support.
 
-Актуально по коду на 2026-03-03.
+## Role in System
 
-## Роль в системе
+- **Depends on:** `polisyos.foundry.contracts`, `polisyos.foundry.data_plane`, `polisyos.ir.observation`
+- **Used by:** calibration workflows, scientist-driven policy tuning, post-fit uncertainty analysis
+- Runs on top of compiled `ProgramGraph` / `ExecPlan` and produces calibrated parameter bundles and reports.
 
-Калибровка работает поверх уже построенных `ProgramGraph` и `ExecPlan`, подбирая параметры механизмов так, чтобы симуляция лучше совпадала с target-данными.
+## Key Concepts
 
-## Pipeline
+- **Pure execution loop** - `pure_executor.py` runs calibration without CAS IO in the inner loop.
+- **Target alignment** - `preflight.py` prepares, fetches and aligns target series.
+- **Loss shaping** - `loss.py` handles weighted target losses and reductions.
+- **Measurement-aware extension** - `measurement.py` adds observation bundles and trust/coverage/censoring weights.
+- **Auxiliary penalties** - `auxiliary.py` adds interference-aware loss components.
+- **Uncertainty outputs** - Hessian/Laplace and envelope conversion remain part of the fit surface.
 
-```text
-CalibrationConfig + ProgramGraph/ExecPlan + base_state + registries
-        |
-        v
-preflight (fetch/align targets)
-        |
-        v
-compile_program -> StaticBundle (pure execution)
-        |
-        v
-to_unconstrained / bijectors / trainable groups
-        |
-        v
-optimization loop (optax, penalties, GradNorm, early stop)
-        |
-        v
-optional Hessian/Laplace uncertainty
-        |
-        v
-CalibrationReport (+ optional uncertainty envelopes)
-```
+## Public API
 
-## Ключевые модули
+| Type/Function | Description |
+|---|---|
+| `Calibrator` | Runs the optimization loop and collects diagnostics. |
+| `CalibratorInputs` | Bundles graph, registries, targets and optional measurement bundle inputs. |
+| `CalibrationReport` | Persisted calibration result with metrics, history and fit quality. |
+| `CalibrationTargetBundle` | Runtime-aligned bundle of observation-plane targets. |
+| `MeasurementAwareTarget` | Describes a single measurement-aware calibration target. |
+| `MeasurementAwareLossConfig` | Controls censoring, lag and regime discounts. |
+| `compute_effective_weight()` | Computes trust/coverage/censoring-aware target weights. |
+| `DefaultMeasurementAwareLossAdapter` | Default adapter over the measurement-aware loss surface. |
+| `AuxLossComponent` | Protocol for auxiliary loss components. |
+| `InterferenceLossComponent` | Interference-aware penalty component. |
 
-- `calibrator.py`: `Calibrator.run()`, оптимизационный цикл и сбор диагностик/метрик.
-- `pure_executor.py`: `compile_program`, `run_pure_scan`, управление trainable handles без CAS IO в loop.
-- `preflight.py`: fetch/normalize/align целевых рядов, ресемплинг и согласование временной оси.
-- `loss.py`: target losses, веса, относительная нормализация и aggregation.
-- `bijectors.py`: constrained/unconstrained преобразования параметров.
-- `report.py`: `CalibrationReport` и CAS persistence (`put_calibration_report`).
-- `uncertainty_adapter.py`: конвертация Hessian/Laplace результата в `UncertaintyEnvelope`.
+→ Full reference: [docs/reference/foundry/index.md](../../../../docs/reference/foundry/index.md)
 
-## Входы и выходы
+## Current State
 
-Входы (`CalibratorInputs`):
-
-- `CalibrationConfig`, `ProgramGraph`, `ExecPlan`, `base_state`;
-- registries (`mechanism`, `slot`, `merge`, optional selector/constraint);
-- `parameter_loader` и источник target-данных (UDF engine или custom fetcher).
-
-Выход:
-
-- `CalibrationReport` с параметрами, history loss/grad, fit quality и diagnostics;
-- при успешной Hessian-оценке: covariance/correlation/std и derived uncertainty envelopes.
-
-## Связь с другими директориями
-
-`calibration` зависит от:
-
-- `foundry/registry`, `foundry/merge_engine`, `foundry/contracts/state`;
-- `core/artifacts/*`, `core/observability/*`, `core/contracts/foundry`;
-- `ir/analytics/calibration`, `ir/analytics/uncertainty`, `ir/analytics/data_views`.
-
-Используется в сценариях подстройки policy-параметров и uncertainty-оценки после симуляции.
-
-## Текущее состояние и ограничения
-
-- Базовый оптимизатор: `optax.adam` (с optional gradient clipping chain).
-- Корректность зависит от дифференцируемости execution path и согласованных shape-ов.
-- Hessian/Laplace шаг может быть пропущен при плохой обусловленности или слишком большом числе параметров.
-- При включенном constraint penalty обязателен валидный `constraint_registry` и значения ограничений.
+- Last updated: 2026-04-03
+- Files: 13 Python files
+- Exports: 37

@@ -1,3 +1,4 @@
+"""Public foundry data plane package API."""
 from __future__ import annotations
 
 from .bindings import (

@@ -3,6 +3,17 @@
 /data/
 policy-engine/data/
 
+# local OS/editor/runtime artifacts
+.DS_Store
+.benchmarks/
+.cursor/plans/
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+__pycache__/
+*.py[cod]
+
 # CSV files
 *.csv
 
@@ -20,6 +31,11 @@ scm-implementation-spec-v3.md
 
 # exported design renders
 output/playwright/
+/output/
+
+# local run/test scratch artifacts
+/tmp/
+/runs/
 
 # local Claude desktop state
 .claude/settings*.json

@@ -1,3 +1,4 @@
+"""Public components capabilities module API."""
 from __future__ import annotations
 
 from enum import IntFlag, auto
@@ -31,6 +32,7 @@ Capabilities = Capability
 
 
 def capabilities_from_flags(*flags: Capability) -> Capability:
+    """Capabilities from flags helper."""
     caps = Capability(0)
     for flag in flags:
         caps |= flag
@@ -38,4 +40,5 @@ def capabilities_from_flags(*flags: Capability) -> Capability:
 
 
 def flags_from_capabilities(caps: Capability) -> list[Capability]:
+    """Flags from capabilities helper."""
     return [flag for flag in Capability if flag in caps]

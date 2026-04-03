@@ -1,3 +1,4 @@
+"""Public compile compile foundry module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass, field, replace
@@ -64,6 +65,7 @@ _SPEC = NodeSpec(
 
 @dataclass(frozen=True)
 class CompileFoundryNode:
+    """Compile foundry node implementation."""
     compile_config: FoundryCompileConfig = field(default_factory=FoundryCompileConfig)
     validation_flags: FoundryValidationFlags = field(default_factory=FoundryValidationFlags)
 

@@ -1,3 +1,4 @@
+"""Public ir world package API."""
 from __future__ import annotations
 
 from polisyos.ir.world.abi import RESERVED_WORLD_PREFIXES_V1, EdgeKind, NodeKind

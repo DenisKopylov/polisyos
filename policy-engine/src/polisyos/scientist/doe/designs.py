@@ -1,3 +1,4 @@
+"""Public doe designs module API."""
 from __future__ import annotations
 
 from enum import Enum
@@ -6,24 +7,28 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 class ScenarioSweep(BaseModel):
+    """Scenario sweep public type."""
     model_config = ConfigDict(extra="forbid")
 
     scenarios: list[dict] = Field(default_factory=list)
 
 
 class AblationPlan(BaseModel):
+    """Ablation plan data model."""
     model_config = ConfigDict(extra="forbid")
 
     targets: list[str] = Field(default_factory=list)
 
 
 class SensitivityMethod(str, Enum):
+    """Sensitivity method public type."""
     MORRIS = "morris"
     SOBOL = "sobol"
     FAST = "fast"
 
 
 class ParameterDist(str, Enum):
+    """Parameter dist public type."""
     UNIFORM = "uniform"
     NORMAL = "normal"
     LOGNORMAL = "lognormal"
@@ -31,12 +36,14 @@ class ParameterDist(str, Enum):
 
 
 class RunFailurePolicy(str, Enum):
+    """Run failure policy data model."""
     FAIL_FAST = "fail_fast"
     DROP_FAILED = "drop_failed"
     IMPUTE_BASELINE = "impute_baseline"
 
 
 class ParameterSpec(BaseModel):
+    """Parameter spec data model."""
     model_config = ConfigDict(extra="forbid")
 
     name: str
@@ -63,6 +70,7 @@ class ParameterSpec(BaseModel):
 
 
 class SensitivityPlan(BaseModel):
+    """Sensitivity plan data model."""
     model_config = ConfigDict(extra="forbid")
 
     # Legacy field preserved for backward compatibility.
@@ -125,6 +133,7 @@ class SensitivityPlan(BaseModel):
 
 
 class SensitivityResult(BaseModel):
+    """Sensitivity result data model."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = "1.0"
@@ -150,12 +159,14 @@ class SensitivityResult(BaseModel):
 
 
 class AdversarialStrategy(str, Enum):
+    """Adversarial strategy data model."""
     SEARCH_LOOP = "search_loop"
     GRID_EXTREME = "grid_extreme"
     RANDOM_TAIL = "random_tail"
 
 
 class AdversarialPlan(BaseModel):
+    """Adversarial plan data model."""
     model_config = ConfigDict(extra="forbid")
 
     parameter_specs: list[ParameterSpec] = Field(default_factory=list)

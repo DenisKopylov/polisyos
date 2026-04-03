@@ -1,3 +1,4 @@
+"""Public kernel values module API."""
 from __future__ import annotations
 
 from decimal import Decimal
@@ -13,12 +14,14 @@ ParamValue = Annotated[Any, BeforeValidator(reject_floats_deep)]
 
 
 class MoneyValue(KernelModel):
+    """Money value public type."""
     amount: DecimalValue
     currency: str = Field(..., pattern=r"^[A-Z]{3}$")
     nominal_year: int | None = Field(None, ge=1900, le=2100)
 
 
 class RateValue(KernelModel):
+    """Rate value public type."""
     value: DecimalValue
     base: Literal["ratio", "percent"] = "ratio"
 
@@ -37,10 +40,12 @@ class RateValue(KernelModel):
 
 
 class CountValue(KernelModel):
+    """Count value public type."""
     value: int = Field(..., ge=0)
     label: str | None = Field(None, max_length=64)
 
 
 class DurationValue(KernelModel):
+    """Duration value public type."""
     value: int = Field(..., ge=0)
     unit: Literal["step", "day", "month", "quarter", "year"] = "step"

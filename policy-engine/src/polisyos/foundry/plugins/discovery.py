@@ -1,3 +1,4 @@
+"""Public plugins discovery module API."""
 from __future__ import annotations
 
 import importlib
@@ -125,6 +126,7 @@ def auto_register_plugins(
     registry: PluginRegistry | None = None,
     search_paths: Sequence[str | Path] | None = None,
 ) -> list[str]:
+    """Auto register plugins helper."""
     if registry is None:
         registry = get_registry()
 
@@ -153,6 +155,7 @@ def create_simple_plugin(
     objectives: dict,
     **kwargs,
 ) -> DomainPlugin:
+    """Create simple plugin."""
     from polisyos.foundry.plugins.core import PluginCapability, PluginMetadata
 
     class SimplePlugin(DomainPlugin):

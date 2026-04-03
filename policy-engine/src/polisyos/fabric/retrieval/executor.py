@@ -25,6 +25,7 @@ logger = get_logger(__name__)
 
 @dataclass(frozen=True)
 class ExecutePlanResult:
+    """Execute plan result data model."""
     preview: FetchPreview
     metric: DataContextMetric | None
     used_plan: FetchPlan

@@ -13,7 +13,11 @@ import sys
 from pathlib import Path
 from typing import Any, Callable
 
-from benchmarks.comparators.stack import REQUIRED_ACCEPTANCE_COMPARATORS, OPTIONAL_LEGACY_COMPARATORS
+from benchmarks.comparators.stack import (
+    OPTIONAL_LEGACY_COMPARATORS,
+    REQUIRED_ACCEPTANCE_COMPARATORS,
+    all_comparator_distribution_names,
+)
 
 WORKFLOW_LEVELS = (
     "expressible",
@@ -57,15 +61,23 @@ def build_preflight(
     batch_id: str | None = None,
     run_id: str | None = None,
     estimator_profile: str | None = None,
+    validation_contour: str | None = None,
+    visibility: str | None = None,
+    comparator_profile: str | None = None,
+    required_comparators: list[str] | None = None,
 ) -> dict[str, Any]:
     preflight = {
         "run_id": run_id or os.environ.get("BENCH_RUN_ID"),
         "mode": mode,
         "benchmark_tier": benchmark_tier or os.environ.get("BENCH_TIER", "local_evidence"),
+        "validation_contour": validation_contour or os.environ.get("BENCH_VALIDATION_CONTOUR", "legacy"),
+        "visibility": visibility or os.environ.get("BENCH_VISIBILITY", "public"),
         "data_source": data_source,
         "dataset_family": dataset_family,
         "batch_id": batch_id,
         "estimator_profile": estimator_profile or os.environ.get("BENCH_ESTIMATOR_PROFILE", "default"),
+        "comparator_profile": comparator_profile or os.environ.get("BENCH_COMPARATOR_PROFILE"),
+        "required_comparators": list(required_comparators or []),
         "dependency_status": dependency_status or {},
         "comparator_status": comparator_status or {},
         "degraded_reasons": degraded_reasons or [],
@@ -119,6 +131,17 @@ def build_report_payload(
     prioritization_metrics: dict[str, Any] | None = None,
     dataset_group_summaries: dict[str, Any] | None = None,
     blockers: list[str] | None = None,
+    validation_contour: str | None = None,
+    visibility: str | None = None,
+    epistemic_metrics: dict[str, Any] | None = None,
+    governance_metrics: dict[str, Any] | None = None,
+    certificate_metrics: dict[str, Any] | None = None,
+    lineage_metrics: dict[str, Any] | None = None,
+    comparator_matrix: dict[str, Any] | None = None,
+    comparator_runs: dict[str, Any] | None = None,
+    ablation_matrix: dict[str, Any] | None = None,
+    leaderboard_tables: dict[str, Any] | None = None,
+    release_gate_results: dict[str, Any] | None = None,
     case_details_builder: Callable[[Any], dict[str, Any]] | None = None,
     extra: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
@@ -162,6 +185,8 @@ def build_report_payload(
         "run_id": preflight.get("run_id"),
         "mode": mode,
         "benchmark_tier": preflight.get("benchmark_tier", "local_evidence"),
+        "validation_contour": validation_contour or preflight.get("validation_contour", "legacy"),
+        "visibility": visibility or preflight.get("visibility", "public"),
         "core_circuits": [c.value for c in report.circuits],
         "sub_circuit": sub_circuit,
         "data_source": preflight.get("data_source"),
@@ -190,6 +215,15 @@ def build_report_payload(
         "calibration_metrics": dataclasses_to_dict(calibration_metrics or {}),
         "prioritization_metrics": dataclasses_to_dict(prioritization_metrics or {}),
         "dataset_group_summaries": dataclasses_to_dict(dataset_group_summaries or {}),
+        "epistemic_metrics": dataclasses_to_dict(epistemic_metrics or {}),
+        "governance_metrics": dataclasses_to_dict(governance_metrics or {}),
+        "certificate_metrics": dataclasses_to_dict(certificate_metrics or {}),
+        "lineage_metrics": dataclasses_to_dict(lineage_metrics or {}),
+        "comparator_matrix": dataclasses_to_dict(comparator_matrix or {}),
+        "comparator_runs": dataclasses_to_dict(comparator_runs or {}),
+        "ablation_matrix": dataclasses_to_dict(ablation_matrix or {}),
+        "leaderboard_tables": dataclasses_to_dict(leaderboard_tables or {}),
+        "release_gate_results": dataclasses_to_dict(release_gate_results or {}),
         "benchmark_family": benchmark_family,
         "proof_class": proof_class or "standard",
         "claim_profile_targets": list(claim_profile_targets or []),
@@ -386,6 +420,7 @@ def _benchmark_env_spec() -> str | None:
 
 def _installed_comparator_versions() -> dict[str, str | None]:
     packages = {
+        **all_comparator_distribution_names(),
         **dict(REQUIRED_ACCEPTANCE_COMPARATORS),
         **dict(OPTIONAL_LEGACY_COMPARATORS),
     }

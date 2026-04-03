@@ -1,3 +1,4 @@
+"""Public survey registry boot module API."""
 from __future__ import annotations
 
 from typing import Sequence
@@ -13,6 +14,7 @@ from .weighting import (
 
 
 def register_survey_methods() -> Sequence[type]:
+    """Register survey methods."""
     return (
         HorvitzThompsonEstimator,
         RakingEstimator,

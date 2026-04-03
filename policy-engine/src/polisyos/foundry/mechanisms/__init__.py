@@ -1,3 +1,4 @@
+"""Public foundry mechanisms package API."""
 from polisyos.foundry.mechanisms.fiscal import (
     IncomeTax,
     TaxSubsidy,

@@ -1,3 +1,4 @@
+"""Public bayesian protocols module API."""
 from __future__ import annotations
 
 from typing import Any, ClassVar, Mapping
@@ -15,6 +16,7 @@ from polisyos.ir.analytics.uncertainty import (
 
 
 class PosteriorResult(BaseModel):
+    """Posterior result data model."""
     contract_id: ClassVar[str] = "foundry.bayesian.posterior_result.v1"
     model_config = ConfigDict(extra="forbid", frozen=True, arbitrary_types_allowed=True)
 
@@ -61,6 +63,7 @@ class PosteriorResult(BaseModel):
 
 
 def credible_interval(samples: np.ndarray, *, credible_mass: float) -> tuple[float, float]:
+    """Credible interval helper."""
     arr = np.asarray(samples, dtype=float)
     try:
         import arviz as az
@@ -80,6 +83,7 @@ def summarize_posterior_samples(
     *,
     credible_mass: float,
 ) -> tuple[dict[str, float], dict[str, float], dict[str, tuple[float, float]]]:
+    """Summarize posterior samples helper."""
     means: dict[str, float] = {}
     stds: dict[str, float] = {}
     intervals: dict[str, tuple[float, float]] = {}
@@ -108,6 +112,7 @@ def metropolis_sample(
     num_samples: int,
     num_chains: int,
 ) -> tuple[np.ndarray, float]:
+    """Metropolis sample helper."""
     initial = np.asarray(initial_state, dtype=float)
     scale = np.broadcast_to(np.asarray(proposal_scale, dtype=float), initial.shape)
     draws: list[np.ndarray] = []

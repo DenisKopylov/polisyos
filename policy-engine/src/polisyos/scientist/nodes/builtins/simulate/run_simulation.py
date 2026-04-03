@@ -1,3 +1,4 @@
+"""Public simulate run simulation module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass, field, replace
@@ -15,24 +16,43 @@ from polisyos.core.contracts.foundry import (
     SimulationResult,
 )
 from polisyos.core.observability import get_metrics
+from polisyos.foundry.methods.catalog.causal.strategic import evaluate_strategic_hook
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
 from polisyos.scientist.nodes.builtins import errors as node_errors
+from polisyos.scientist.nodes.builtins.c6c_runtime_support import (
+    build_runtime_abstraction_metadata,
+    load_runtime_abstraction_certificate,
+    maybe_materialize_policy_override_bundle,
+    persist_runtime_strategic_artifacts,
+    resolve_baseline_policy_value,
+)
+from polisyos.scientist.nodes.builtins.decide.policy_runtime_support import (
+    ensure_policy_candidate_ref,
+    load_simulation_metrics,
+)
 from polisyos.scientist.nodes.builtins.state_keys import (
+    ARTIFACT_ABSTRACTION_CERTIFICATE_REF,
     ARTIFACT_CONSTRAINT_REPORT_REF,
     ARTIFACT_ENVIRONMENT_MANIFEST_REF,
     ARTIFACT_EXEC_PLAN_REF,
+    ARTIFACT_LOWERED_IR_REF,
     ARTIFACT_METRICS_REF,
+    ARTIFACT_PROGRAM_GRAPH_REF,
     ARTIFACT_SBOM_REF,
     ARTIFACT_SIMULATION_RESULT_REF,
     ARTIFACT_STATE_DELTA_REF,
     ARTIFACT_STATE_SNAPSHOT_REF,
+    ARTIFACT_STRATEGIC_RESPONSE_BUNDLE_REF,
+    ARTIFACT_STRATEGIC_SCM_REF,
     ARTIFACT_TEE_ATTESTATION_REF,
     INPUT_INPUT_BINDINGS_REF,
     INPUT_PARAMETER_OVERRIDE_BUNDLE_REF,
     INPUT_REGISTRY_BUNDLE_REF,
+    INPUT_TRINITY_BUNDLE_REF,
 )
+from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
 
 logger = get_logger(__name__)
 
@@ -50,12 +70,22 @@ _SPEC = NodeSpec(
     metadata=_METADATA,
     state_reads=[
         f"artifacts_index.{ARTIFACT_EXEC_PLAN_REF}",
+        f"artifacts_index.{ARTIFACT_LOWERED_IR_REF}",
+        f"artifacts_index.{ARTIFACT_PROGRAM_GRAPH_REF}",
+        f"artifacts_index.{ARTIFACT_ABSTRACTION_CERTIFICATE_REF}",
         f"inputs.{INPUT_INPUT_BINDINGS_REF}",
         f"inputs.{INPUT_PARAMETER_OVERRIDE_BUNDLE_REF}",
         f"inputs.{INPUT_REGISTRY_BUNDLE_REF}",
+        f"inputs.{INPUT_TRINITY_BUNDLE_REF}",
+        "params.policy_candidate_schema",
+        "params.lex_policy_bundle_input",
         "params.simulation_method",
+        "params.strategic_scm",
+        "params.strategic_payoff_tables",
+        "params.macro_strategic_payoff_tables",
     ],
     state_writes=[
+        f"inputs.{INPUT_PARAMETER_OVERRIDE_BUNDLE_REF}",
         f"artifacts_index.{ARTIFACT_SIMULATION_RESULT_REF}",
         f"artifacts_index.{ARTIFACT_METRICS_REF}",
         f"artifacts_index.{ARTIFACT_STATE_DELTA_REF}",
@@ -64,6 +94,10 @@ _SPEC = NodeSpec(
         f"artifacts_index.{ARTIFACT_ENVIRONMENT_MANIFEST_REF}",
         f"artifacts_index.{ARTIFACT_TEE_ATTESTATION_REF}",
         f"artifacts_index.{ARTIFACT_SBOM_REF}",
+        f"artifacts_index.{ARTIFACT_STRATEGIC_SCM_REF}",
+        f"artifacts_index.{ARTIFACT_STRATEGIC_RESPONSE_BUNDLE_REF}",
+        "params.strategic_response",
+        "params.strategic_response_source",
     ],
     produces=[
         ARTIFACT_SIMULATION_RESULT_REF,
@@ -74,12 +108,15 @@ _SPEC = NodeSpec(
         ARTIFACT_ENVIRONMENT_MANIFEST_REF,
         ARTIFACT_TEE_ATTESTATION_REF,
         ARTIFACT_SBOM_REF,
+        ARTIFACT_STRATEGIC_SCM_REF,
+        ARTIFACT_STRATEGIC_RESPONSE_BUNDLE_REF,
     ],
 )
 
 
 @dataclass(frozen=True)
 class RunSimulationNode:
+    """Run simulation node implementation."""
     exec_config: FoundryExecConfig = field(default_factory=FoundryExecConfig)
 
     @property
@@ -98,6 +135,8 @@ class RunSimulationNode:
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
         metrics = get_metrics()
         method = str(state.params.get("simulation_method", "foundry.execute"))
+        new_state = state.model_copy(deep=True)
+        materialized_artifacts = []
 
         if ctx.foundry is None:
             error = NodeError(
@@ -107,7 +146,20 @@ class RunSimulationNode:
             metrics.record_slo_simulation_run("error", method=method)
             return NodeOutcome(status="fail", state=state, error=error)
 
-        exec_plan_ref = state.artifacts_index.get(ARTIFACT_EXEC_PLAN_REF)
+        try:
+            materialized = maybe_materialize_policy_override_bundle(ctx, new_state)
+        except ValueError as exc:
+            error = NodeError(
+                code=node_errors.ERROR_INVALID_STATE,
+                message=f"Failed to materialize policy override bundle: {exc}",
+            )
+            metrics.record_slo_simulation_run("error", method=method)
+            return NodeOutcome(status="fail", state=new_state, error=error)
+        if materialized.bundle_ref is not None:
+            new_state.inputs[INPUT_PARAMETER_OVERRIDE_BUNDLE_REF] = materialized.bundle_ref
+            materialized_artifacts.append(materialized.bundle_ref)
+
+        exec_plan_ref = new_state.artifacts_index.get(ARTIFACT_EXEC_PLAN_REF)
         if exec_plan_ref is None:
             error = NodeError(
                 code=node_errors.ERROR_MISSING_INPUT,
@@ -115,9 +167,9 @@ class RunSimulationNode:
                 details={"required": ARTIFACT_EXEC_PLAN_REF},
             )
             metrics.record_slo_simulation_run("error", method=method)
-            return NodeOutcome(status="fail", state=state, error=error)
+            return NodeOutcome(status="fail", state=new_state, error=error)
 
-        input_bindings_ref = state.inputs.get(INPUT_INPUT_BINDINGS_REF)
+        input_bindings_ref = new_state.inputs.get(INPUT_INPUT_BINDINGS_REF)
         if input_bindings_ref is None:
             error = NodeError(
                 code=node_errors.ERROR_MISSING_INPUT,
@@ -127,10 +179,10 @@ class RunSimulationNode:
                 details={"required": [INPUT_INPUT_BINDINGS_REF]},
             )
             metrics.record_slo_simulation_run("error", method=method)
-            return NodeOutcome(status="fail", state=state, error=error)
+            return NodeOutcome(status="fail", state=new_state, error=error)
 
-        registry_ref = state.inputs.get(INPUT_REGISTRY_BUNDLE_REF)
-        parameter_override_bundle_ref = state.inputs.get(INPUT_PARAMETER_OVERRIDE_BUNDLE_REF)
+        registry_ref = new_state.inputs.get(INPUT_REGISTRY_BUNDLE_REF)
+        parameter_override_bundle_ref = new_state.inputs.get(INPUT_PARAMETER_OVERRIDE_BUNDLE_REF)
 
         request = ExecuteRequest(
             exec_plan_ref=ExecPlanRef.model_validate(exec_plan_ref.model_dump(mode="json")),
@@ -150,8 +202,8 @@ class RunSimulationNode:
 
         result = ctx.foundry.execute(ctx.store, request)
 
-        new_state = state.model_copy(deep=True)
-        artifacts = []
+        artifacts = list(materialized_artifacts)
+        simulation_payload: dict[str, Any] | None = None
 
         if result.simulation_result_ref is not None:
             new_state.artifacts_index[ARTIFACT_SIMULATION_RESULT_REF] = result.simulation_result_ref
@@ -161,6 +213,8 @@ class RunSimulationNode:
                 payload = from_canonical_bytes(
                     ctx.store.get_bytes(result.simulation_result_ref.artifact_id)
                 )
+                if isinstance(payload, dict):
+                    simulation_payload = dict(payload)
                 sim_result = SimulationResult.model_validate(payload)
                 if sim_result.state_snapshot_ref is not None:
                     new_state.artifacts_index[ARTIFACT_STATE_SNAPSHOT_REF] = (
@@ -212,7 +266,87 @@ class RunSimulationNode:
             metrics.record_slo_simulation_run("nan", method=method)
         else:
             metrics.record_slo_simulation_run("ok", method=method)
-        return NodeOutcome(status="ok", state=new_state, artifacts=artifacts)
+
+        strategic_events: list[NodeEvent] = []
+        if new_state.params.get("strategic_scm") is not None:
+            hook_params = dict(new_state.params)
+            abstraction_certificate = load_runtime_abstraction_certificate(
+                ctx,
+                new_state.artifacts_index,
+            )
+            if abstraction_certificate is not None:
+                hook_params["abstraction_certificate"] = abstraction_certificate
+            hook_summary, hook_warnings, _ = evaluate_strategic_hook(
+                params=hook_params,
+                baseline_policy_value=resolve_baseline_policy_value(
+                    load_simulation_metrics(ctx, new_state) or simulation_payload
+                ),
+            )
+            for warning in hook_warnings:
+                strategic_events.append(
+                    NodeEvent(
+                        level="warn",
+                        message=f"Strategic hook warning: {warning}",
+                    )
+                )
+
+            candidate_ref = None
+            candidate = _coerce_policy_candidate(new_state.params.get("policy_candidate_schema"))
+            if candidate is not None:
+                candidate_ref = ensure_policy_candidate_ref(
+                    ctx,
+                    new_state,
+                    candidate,
+                    None,
+                )
+            evidence_ref = (
+                new_state.artifacts_index.get(ARTIFACT_METRICS_REF)
+                or new_state.artifacts_index.get(ARTIFACT_SIMULATION_RESULT_REF)
+            )
+            strategic_output = persist_runtime_strategic_artifacts(
+                ctx,
+                new_state,
+                artifacts_index=dict(new_state.artifacts_index),
+                candidate_ref=candidate_ref,
+                evidence_ref=evidence_ref,
+                evidence_role="metrics" if evidence_ref == new_state.artifacts_index.get(ARTIFACT_METRICS_REF) else "simulation_result",
+                baseline_payload=load_simulation_metrics(ctx, new_state) or simulation_payload,
+            )
+            if strategic_output.strategic_scm_ref is not None:
+                new_state.artifacts_index[ARTIFACT_STRATEGIC_SCM_REF] = (
+                    strategic_output.strategic_scm_ref
+                )
+                artifacts.append(strategic_output.strategic_scm_ref)
+            if strategic_output.strategic_response_bundle_ref is not None:
+                new_state.artifacts_index[ARTIFACT_STRATEGIC_RESPONSE_BUNDLE_REF] = (
+                    strategic_output.strategic_response_bundle_ref
+                )
+                artifacts.append(strategic_output.strategic_response_bundle_ref)
+            final_summary = strategic_output.strategic_response_summary or hook_summary
+            if final_summary is not None:
+                final_summary = {
+                    **dict(final_summary),
+                    **build_runtime_abstraction_metadata(
+                        ctx,
+                        artifacts_index=new_state.artifacts_index,
+                    ),
+                }
+                new_state.params["strategic_response"] = final_summary
+                new_state.params["strategic_response_source"] = "run_simulation"
+            for warning in strategic_output.warnings:
+                strategic_events.append(
+                    NodeEvent(
+                        level="warn",
+                        message=f"Strategic runtime warning: {warning}",
+                    )
+                )
+
+        return NodeOutcome(
+            status="ok",
+            state=new_state,
+            artifacts=artifacts,
+            events=strategic_events,
+        )
 
 
 def _has_nan_signal(result: Any) -> bool:
@@ -222,3 +356,14 @@ def _has_nan_signal(result: Any) -> bool:
             if isinstance(note, str) and "nan" in note.lower():
                 return True
     return False
+
+
+def _coerce_policy_candidate(payload: Any) -> PolicyCandidateSchema | None:
+    if isinstance(payload, PolicyCandidateSchema):
+        return payload
+    if payload is None:
+        return None
+    try:
+        return PolicyCandidateSchema.model_validate(payload)
+    except Exception:
+        return None

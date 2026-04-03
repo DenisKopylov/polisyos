@@ -1,3 +1,4 @@
+"""Public catalog survey package API."""
 from __future__ import annotations
 
 from polisyos.foundry.methods.exceptions import MethodAlreadyRegisteredError
@@ -15,6 +16,7 @@ from .weighting import (
 
 
 def ensure_survey_methods_registered(registry: MethodRegistry | None = None) -> None:
+    """Ensure survey methods registered helper."""
     reg = registry if registry is not None else MethodRegistry.get_instance()
     for method_class in register_survey_methods():
         try:

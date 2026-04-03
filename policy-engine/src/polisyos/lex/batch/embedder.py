@@ -19,6 +19,7 @@ logger = get_logger(__name__)
 
 @dataclass
 class EmbeddingStats:
+    """Embedding stats public type."""
     entities_embedded: int = 0
     facts_embedded: int = 0
     provisions_embedded: int = 0
@@ -311,6 +312,7 @@ def build_embeddings_and_index(
     backend=None,
     chunk_size: int = 2000,
 ) -> EmbeddingStats:
+    """Build embeddings and index."""
     return build_local_embeddings_and_indexes(
         db_path=db_path,
         output_dir=output_dir,

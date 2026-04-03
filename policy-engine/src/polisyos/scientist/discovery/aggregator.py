@@ -227,6 +227,7 @@ def persist_edge_confidence_matrix(
     *,
     inputs: list[InputRef] | None = None,
 ) -> EdgeConfidenceMatrixRef:
+    """Persist edge confidence matrix helper."""
     ref = store.put_json(
         matrix,
         PutOptions(
@@ -247,6 +248,7 @@ def load_edge_confidence_matrix(
     store: FileSystemCAS,
     ref: EdgeConfidenceMatrixRef,
 ) -> EdgeConfidenceMatrix:
+    """Load edge confidence matrix."""
     payload = from_canonical_bytes(store.get_bytes(ref.artifact_id))
     return EdgeConfidenceMatrix.model_validate(payload)
 

@@ -1,3 +1,4 @@
+"""Public causal structural time series module API."""
 from __future__ import annotations
 
 import math
@@ -316,6 +317,7 @@ def build_solver_diagnostics(
     control_count: int,
     band_source: str,
 ) -> dict[str, Any]:
+    """Build solver diagnostics."""
     dt = float(plan.step_size)
     stability_margin = abs(1.0 + drift * dt)
     return {
@@ -618,6 +620,7 @@ def estimate_structural_time_series_trajectory(
     tags={"causal", "structural-time-series", "bsts-approximation", "causal-impact"},
 )
 class StructuralTimeSeries:
+    """Structural time series public type."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
 
     signature: ClassVar[MethodSignature] = MethodSignature(

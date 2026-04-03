@@ -1,3 +1,4 @@
+"""Public core artifacts package API."""
 from .graph import (
     DependencyEdge,
     DependencyGraph,

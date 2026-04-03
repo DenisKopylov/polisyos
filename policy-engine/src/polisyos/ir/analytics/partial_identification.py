@@ -14,6 +14,7 @@ from polisyos.ir.refs import BoundsBundleRef
 
 
 class BoundMethod(str, Enum):
+    """Bound method public type."""
     MANSKI = "manski_bounds"
     TRANSPORT_BOUNDS = "transport_bounds"
     IV_BOUNDS = "iv_bounds"
@@ -319,6 +320,7 @@ def persist_bounds_bundle(
     schema_name: str = "ir.bounds_bundle",
     schema_version: str = "1.0",
 ) -> BoundsBundleRef:
+    """Persist bounds bundle helper."""
     ref = put_json_artifact(
         store,
         bundle.model_dump(mode="json"),
@@ -335,6 +337,7 @@ def load_bounds_bundle(
     store: ArtifactStore,
     ref: BoundsBundleRef,
 ) -> BoundsBundle:
+    """Load bounds bundle."""
     payload = get_json_artifact(store, ref.artifact_id)
     return BoundsBundle.model_validate(payload)
 

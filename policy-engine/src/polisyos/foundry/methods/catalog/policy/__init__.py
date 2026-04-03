@@ -1,3 +1,4 @@
+"""Public catalog policy package API."""
 from __future__ import annotations
 
 from polisyos.foundry.methods.exceptions import MethodAlreadyRegisteredError
@@ -25,6 +26,7 @@ from .welfare import (
 
 
 def ensure_policy_methods_registered(registry: MethodRegistry | None = None) -> None:
+    """Ensure policy methods registered helper."""
     reg = registry if registry is not None else MethodRegistry.get_instance()
     for method_class in register_policy_methods():
         try:

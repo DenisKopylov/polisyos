@@ -680,7 +680,7 @@ def test_run_article_extract_stage_coerces_relaxed_payloads(monkeypatch, tmp_pat
     assert payload["sample_size"] == 7
     assert payload["extraction_confidence"] == 0.85
     assert len(payload["empirical_parameters"]) == 2
-    assert payload["empirical_parameters"][0]["name"] == "tax_progressivity"
+    assert payload["empirical_parameters"][0]["name"] == "fiscal.tax_progressivity"
     assert payload["empirical_parameters"][0]["display_name"] == "tax progressivity"
     assert payload["empirical_parameters"][1]["value_qualitative"] == "high"
     assert payload["causal_claims"][0]["effect_size"] is None

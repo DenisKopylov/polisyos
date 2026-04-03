@@ -43,7 +43,22 @@ from polisyos.ir.connectors import (
 
 
 class OpendatasoftConnector(HTTPConnectorBase[pd.DataFrame]):
-    """Opendatasoft Explore API v2.1 connector."""
+    """Connector for Opendatasoft Explore API datasets.
+
+    Retrieves tabular datasets from Opendatasoft hubs with profile-driven
+    authentication and filter normalization.
+
+    Data source:
+        Opendatasoft portals
+    Protocol:
+        Explore API v2.1 / REST JSON
+    Auth:
+        API key or none, depending on profile
+    Async support:
+        Standard async HTTP execution only
+    Profile:
+        Any ``connector_family='opendatasoft'`` profile
+    """
 
     namespace: ClassVar[str] = "opendatasoft"
     short_id: ClassVar[str] = "ods"

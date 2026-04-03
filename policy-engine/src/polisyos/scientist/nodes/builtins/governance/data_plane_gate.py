@@ -1,3 +1,4 @@
+"""Public governance data plane gate module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -63,6 +64,7 @@ _SPEC = NodeSpec(
 
 @dataclass(frozen=True)
 class DataPlaneGateNode:
+    """Data plane gate node implementation."""
     @property
     def spec(self) -> NodeSpec:
         return _SPEC

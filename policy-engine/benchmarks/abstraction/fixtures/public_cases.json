@@ -1,0 +1,39 @@
+{
+  "family": "abstraction_exactness",
+  "visibility": "public",
+  "revision": "2.1",
+  "cases": [
+    {
+      "case_id": "abstraction_exactness::exact_map_public",
+      "case_class": "exact_map",
+      "inputs_ref": "fixture://abstraction_exactness/exact_map_public",
+      "oracle_ref": "oracle://abstraction_exactness/exact_map_public",
+      "baseline_overlap": [],
+      "gates": {
+        "claim_eligible": true
+      },
+      "tags": ["exact_map", "finite_state"],
+      "expected_metrics": {
+        "micro_macro_exact_match_rate": 1.0,
+        "certificate_validity_rate": 1.0,
+        "leakage_detection_rate": 1.0
+      }
+    },
+    {
+      "case_id": "abstraction_exactness::leakage_public",
+      "case_class": "leakage_detection",
+      "inputs_ref": "fixture://abstraction_exactness/leakage_public",
+      "oracle_ref": "oracle://abstraction_exactness/leakage_public",
+      "baseline_overlap": [],
+      "gates": {
+        "claim_eligible": true
+      },
+      "tags": ["leakage", "certificate"],
+      "expected_metrics": {
+        "micro_macro_exact_match_rate": 1.0,
+        "certificate_validity_rate": 1.0,
+        "leakage_detection_rate": 1.0
+      }
+    }
+  ]
+}

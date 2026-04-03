@@ -1,3 +1,4 @@
+"""Public claims extraction module API."""
 from __future__ import annotations
 
 import re
@@ -257,6 +258,7 @@ def extract_claims_from_doc(
     options: ClaimExtractOptions | None = None,
     segment_name: str | None = None,
 ) -> ClaimExtractResult:
+    """Extract claims from doc helper."""
     opts = options or ClaimExtractOptions()
 
     if opts.max_chunks is not None and opts.max_chunks < 0:

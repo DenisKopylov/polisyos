@@ -1,3 +1,4 @@
+"""Public security tee module API."""
 from __future__ import annotations
 
 import json
@@ -14,12 +15,14 @@ from polisyos.core.canon import content_hash, truncated_hash
 
 
 class TEEPlatform(str, Enum):
+    """TEE platform public type."""
     SEV_SNP = "sev-snp"
     TDX = "tdx"
     NITRO = "nitro"
 
 
 class AttestationStatus(str, Enum):
+    """Attestation status public type."""
     VERIFIED = "verified"
     FAILED = "failed"
     SKIPPED = "skipped"
@@ -58,6 +61,7 @@ class AttestationReport(BaseModel):
 
 
 class AttestationPolicy(BaseModel):
+    """Attestation policy data model."""
     model_config = ConfigDict(extra="forbid")
 
     enabled: bool = True
@@ -82,6 +86,7 @@ class AttestationPolicy(BaseModel):
 
 
 class AttestationResult(BaseModel):
+    """Attestation result data model."""
     model_config = ConfigDict(extra="forbid")
 
     status: AttestationStatus
@@ -101,6 +106,7 @@ class AttestationResult(BaseModel):
 
 @runtime_checkable
 class AttestationVerifier(Protocol):
+    """Attestation verifier public type."""
     @abstractmethod
     def fetch_report(
         self,
@@ -272,6 +278,7 @@ def create_verifier(
     platform: TEEPlatform = TEEPlatform.SEV_SNP,
     report_path: Path | None = None,
 ) -> AttestationVerifier:
+    """Create verifier."""
     if not enabled:
         return NoOpVerifier()
     if platform == TEEPlatform.SEV_SNP:

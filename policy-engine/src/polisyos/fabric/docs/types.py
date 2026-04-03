@@ -1,3 +1,4 @@
+"""Public docs types module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -11,6 +12,7 @@ from .errors import DocValidationError
 
 @dataclass(frozen=True)
 class DocSourceSpec:
+    """Doc source spec data model."""
     canonical_url: str | None = None
     official_id: str | None = None
     source_locator: str | None = None
@@ -39,6 +41,7 @@ class DocSourceSpec:
 
 @dataclass(frozen=True)
 class DocIngestOptions:
+    """Doc ingest options data model."""
     raw_kind: str = "fabric.doc.raw"
     enforce_max_bytes: int | None = None
     agent_id: str = "prov.agent.fabric_docs"
@@ -47,6 +50,7 @@ class DocIngestOptions:
 
 @dataclass(frozen=True)
 class DocNormalizeOptions:
+    """Doc normalize options data model."""
     normalized_kind: str = "fabric.doc.normalized"
     encoding_order: list[str] = field(default_factory=lambda: ["utf-8", "utf-8-sig", "latin-1"])
     errors: str = "strict"
@@ -58,6 +62,7 @@ class DocNormalizeOptions:
 
 @dataclass(frozen=True)
 class DocStructureOptions:
+    """Doc structure options data model."""
     structure_kind: str = "fabric.doc.structure"
     algorithm: Literal["anchors_v1"] = "anchors_v1"
     max_heading_len: int = 160
@@ -67,6 +72,7 @@ class DocStructureOptions:
 
 @dataclass(frozen=True)
 class DocChunkOptions:
+    """Doc chunk options data model."""
     chunks_kind: str = "fabric.doc.chunks"
     algorithm: Literal["char_chunks_v1"] = "char_chunks_v1"
     chunk_size_chars: int = 2000
@@ -77,6 +83,7 @@ class DocChunkOptions:
 
 @dataclass(frozen=True)
 class DocIngestResult:
+    """Doc ingest result data model."""
     doc_source_id: str
     doc_version_id: str
     raw_ref: str
@@ -91,6 +98,7 @@ class DocIngestResult:
 
 @dataclass(frozen=True)
 class DocNormalizeResult:
+    """Doc normalize result data model."""
     doc_source_id: str
     doc_version_id: str
     raw_ref: str
@@ -105,6 +113,7 @@ class DocNormalizeResult:
 
 @dataclass(frozen=True)
 class DocStructureResult:
+    """Doc structure result data model."""
     doc_source_id: str
     doc_version_id: str
     raw_ref: str
@@ -120,6 +129,7 @@ class DocStructureResult:
 
 @dataclass(frozen=True)
 class DocChunkResult:
+    """Doc chunk result data model."""
     doc_source_id: str
     doc_version_id: str
     raw_ref: str

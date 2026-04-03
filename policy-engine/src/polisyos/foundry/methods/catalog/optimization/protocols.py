@@ -1,3 +1,4 @@
+"""Public optimization protocols module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -186,12 +187,14 @@ class IOModelResult:
 
 @runtime_checkable
 class OptimizationMethod(Protocol):
+    """Optimization method public type."""
     def solve(self, problem: OptimizationProblem) -> OptimizationResult:
         ...
 
 
 @runtime_checkable
 class InputOutputMethod(Protocol):
+    """Input output method public type."""
     def solve(
         self,
         technical_coefficients: Any,
@@ -202,6 +205,7 @@ class InputOutputMethod(Protocol):
 
 
 def parse_optimization_problem(state: Any) -> OptimizationProblem:
+    """Parse optimization problem helper."""
     if isinstance(state, OptimizationProblem):
         return state
     if isinstance(state, Mapping):
@@ -217,6 +221,7 @@ def emit_optimization_metrics(
     status: SolverStatus,
     duration_seconds: float,
 ) -> None:
+    """Emit optimization metrics helper."""
     metrics = get_metrics()
     helper = getattr(metrics, "record_optimization_solve", None)
     if callable(helper):

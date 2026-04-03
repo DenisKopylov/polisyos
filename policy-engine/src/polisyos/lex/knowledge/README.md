@@ -1,59 +1,38 @@
-# knowledge
+# Knowledge (`polisyos.lex.knowledge`)
 
-`polisyos.lex.knowledge` — read-only API к legal knowledge graph, построенному в `lex.batch`.
+`polisyos.lex.knowledge` дает read-only surface над legal knowledge graph,
+построенным в `lex.batch`: typed entity/fact/provision models, DuckDB-backed
+search store и high-level retrieval API для downstream legal, policy и search
+flows.
 
-## Роль
+## Роль в системе
 
-Подсистема предоставляет единый доступ к:
-- vector search по entities/facts/provisions;
-- text и structured search по фактам;
-- graph traversal между юридическими сущностями.
+- **Зависит от:** batch-generated DuckDB/HNSW artifacts, `polisyos.lex.batch`
+- **Используется в:** `polisyos.lex`, `polisyos.lex.legal_evaluation`, downstream search and retrieval tooling
+- Пакет изолирует query logic от batch-пайплайна и от прямой работы с DuckDB/HNSW файлами.
 
-## Архитектура
+## Ключевые концепции
 
-```text
-DuckDB (lex_knowledge_graph.duckdb)
-  + HNSW/NPZ indexes
-      -> LegalKnowledgeStore (store.py)
-          -> LegalKnowledgeGraph (search.py)
-```
+- **Typed graph models** — `LegalEntity`, `LegalFact`, `LegalProvision` и search result models нормализуют retrieval output.
+- **Read-only store** — `LegalKnowledgeStore` открывает DuckDB в `read_only=True` и лениво подключает optional vector indexes.
+- **Hybrid retrieval** — text, structured и vector search могут комбинироваться через `LegalKnowledgeGraph`.
+- **Graph traversal** — API умеет искать related entities и нормы, а не только keyword matches.
+- **Graceful degradation** — при отсутствии embeddings `hybrid_search()` и vector paths деградируют до text/structured search.
 
-## Ключевые модули
+## Public API
 
-### `types.py`
+| Type/Function | Description |
+|---|---|
+| `LegalKnowledgeGraph` | High-level read-only API over the legal knowledge graph |
+| `LegalEntity`, `LegalFact`, `LegalProvision` | Canonical graph record types |
+| `LegalSearchResult`, `LegalFactResult`, `LegalProvisionResult` | Typed result envelopes for retrieval |
+| `SPOCandidate`, `SPOExtractionResult` | Typed SPO-layer payloads reused by search and audits |
 
-Доменные модели extraction output, графовых строк и search results:
-- `SPOCandidate`, `SPOExtractionResult`
-- `LegalEntity`, `LegalFact`, `LegalProvision`
-- `LegalSearchResult`, `LegalFactResult`, `LegalProvisionResult`
+Full reference: [docs/reference/lex/](../../../../docs/reference/lex/index.md)
 
-### `store.py`
+## Current State
 
-`LegalKnowledgeStore`:
-- открывает DuckDB в `read_only=True`;
-- лениво загружает HNSW (`entities`, `facts`, `provisions`);
-- выполняет vector/text/structured запросы;
-- поддерживает graph traversal (`find_related_entities`).
-
-### `search.py`
-
-`LegalKnowledgeGraph` — high-level API:
-- `search_entities`, `search_facts`, `search_provisions`
-- `text_search`, `hybrid_search`
-- `search_facts_by_action`, `search_facts_with_threshold`
-- `get_norms_for_entity`, `find_related_entities`
-
-Если задан `openai_api_key`, query embeddings строятся через OpenAI (`text-embedding-3-large` по умолчанию).
-
-## Эксплуатационные заметки
-
-- Обязателен `lex_knowledge_graph.duckdb`.
-- HNSW/NPZ индексы опциональны: без них vector search вернет пустые списки, text/structured search останется рабочим.
-- `hybrid_search` без embeddings автоматически деградирует в text-only.
-- Для закрытия ресурса используйте `LegalKnowledgeGraph.close()`.
-
-## Связи
-
-- Upstream: `policy-engine/src/polisyos/lex/batch`.
-- Re-export: `LegalKnowledgeGraph` доступен через `polisyos.lex`.
-- Этот же DuckDB может использоваться мостом transport constraints (`lex.legal_evaluation.transport_constraints`).
+- Last updated: 2026-04-03
+- Files: 4 Python files
+- Exports: 9 lazy exports in `__init__.py`
+- Notable delta: store/search/types now cover expanded fact/entity search surface and richer traversal helpers

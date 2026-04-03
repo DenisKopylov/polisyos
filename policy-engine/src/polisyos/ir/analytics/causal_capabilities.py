@@ -1,3 +1,4 @@
+"""Public analytics causal capabilities module API."""
 from __future__ import annotations
 
 from enum import Enum
@@ -10,6 +11,7 @@ from polisyos.ir.refs import CausalCapabilityContractRef
 
 
 class CausalBackendId(str, Enum):
+    """Causal backend ID public type."""
     Y0 = "y0"
     R_CAUSALEFFECT = "r_causaleffect"
     SIMPLIFIED_LEGACY = "simplified_legacy"
@@ -17,6 +19,7 @@ class CausalBackendId(str, Enum):
 
 
 class CausalIdentificationFamily(str, Enum):
+    """Causal identification family public type."""
     DIRECT = "direct"
     FRONTDOOR = "frontdoor"
     DO_CALCULUS_RULE2 = "do_calculus_rule2"
@@ -26,6 +29,7 @@ class CausalIdentificationFamily(str, Enum):
 
 
 class CausalBackendCapability(BaseModel):
+    """Causal backend capability public type."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     backend_id: CausalBackendId
@@ -36,6 +40,7 @@ class CausalBackendCapability(BaseModel):
 
 
 class CausalCapabilityContract(BaseModel):
+    """Causal capability contract data model."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -65,6 +70,7 @@ def persist_causal_capability_contract(
     schema_name: str = "ir.causal_capability_contract",
     schema_version: str = "1.0",
 ) -> CausalCapabilityContractRef:
+    """Persist causal capability contract helper."""
     ref = put_json_artifact(
         store,
         contract.model_dump(mode="json"),
@@ -81,6 +87,7 @@ def load_causal_capability_contract(
     store: ArtifactStore,
     ref: CausalCapabilityContractRef,
 ) -> CausalCapabilityContract:
+    """Load causal capability contract."""
     payload = get_json_artifact(store, ref.artifact_id)
     return CausalCapabilityContract.model_validate(payload)
 

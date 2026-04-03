@@ -1,3 +1,4 @@
+"""Public run context module API."""
 from __future__ import annotations
 
 import os
@@ -20,11 +21,13 @@ logger = get_logger(__name__)
 
 
 def new_run_id() -> str:
+    """New run ID helper."""
     return "R_" + secrets.token_hex(8)
 
 
 @dataclass
 class RunContext:
+    """Run context public type."""
     store: ArtifactStore
     trace: TraceSink
     run_manifest: RunManifest

@@ -1,3 +1,4 @@
+"""Public analytics hte module API."""
 from __future__ import annotations
 
 import math
@@ -12,6 +13,8 @@ from polisyos.ir.refs import HTEResultRef, PolicyRecommendationRef
 
 
 class SubgroupEffect(BaseModel):
+    """Estimated conditional treatment effect for one labeled subgroup."""
+
     model_config = ConfigDict(extra="forbid")
 
     subgroup_id: str = Field(min_length=1)
@@ -42,6 +45,8 @@ class SubgroupEffect(BaseModel):
 
 
 class FeatureImportance(BaseModel):
+    """Ranking signal for a feature used in heterogeneous-effect modeling."""
+
     model_config = ConfigDict(extra="forbid")
 
     feature_name: str = Field(min_length=1)
@@ -58,6 +63,8 @@ class FeatureImportance(BaseModel):
 
 
 class HTEResult(BaseModel):
+    """Canonical artifact for heterogeneous treatment effect estimation."""
+
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -118,6 +125,8 @@ class HTEResult(BaseModel):
 
 
 class TargetingRule(BaseModel):
+    """Operational rule for targeting treatment to high-value units."""
+
     model_config = ConfigDict(extra="forbid")
 
     rule_id: str = Field(min_length=1)
@@ -140,6 +149,8 @@ class TargetingRule(BaseModel):
 
 
 class PolicyRecommendation(BaseModel):
+    """Budget-aware targeting recommendation derived from an HTE result."""
+
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -182,6 +193,7 @@ def persist_hte_result(
     schema_name: str = "ir.hte_result",
     schema_version: str = "1.0",
 ) -> HTEResultRef:
+    """Persist hte result helper."""
     ref = put_json_artifact(
         store,
         result.model_dump(mode="json"),
@@ -195,6 +207,7 @@ def persist_hte_result(
 
 
 def load_hte_result(store: ArtifactStore, ref: HTEResultRef) -> HTEResult:
+    """Load hte result."""
     payload = get_json_artifact(store, ref.artifact_id)
     return HTEResult.model_validate(payload)
 
@@ -207,6 +220,7 @@ def persist_policy_recommendation(
     schema_name: str = "ir.policy_recommendation",
     schema_version: str = "1.0",
 ) -> PolicyRecommendationRef:
+    """Persist policy recommendation helper."""
     ref = put_json_artifact(
         store,
         recommendation.model_dump(mode="json"),
@@ -223,6 +237,7 @@ def load_policy_recommendation(
     store: ArtifactStore,
     ref: PolicyRecommendationRef,
 ) -> PolicyRecommendation:
+    """Load policy recommendation."""
     payload = get_json_artifact(store, ref.artifact_id)
     return PolicyRecommendation.model_validate(payload)
 

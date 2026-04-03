@@ -63,6 +63,7 @@ def _split_identifiers(value: str | None) -> tuple[Identifier, ...] | None:
 @total_ordering
 @dataclass(frozen=True, slots=True)
 class SemVer:
+    """Sem ver public type."""
     major: int
     minor: int
     patch: int

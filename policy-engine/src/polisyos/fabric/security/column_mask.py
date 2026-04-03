@@ -7,6 +7,7 @@ import pandas as pd
 
 
 def normalize_allowed_columns(columns: Iterable[str] | None) -> frozenset[str] | None:
+    """Normalize allowed columns helper."""
     if columns is None:
         return None
     normalized = {str(column).strip() for column in columns if str(column).strip()}

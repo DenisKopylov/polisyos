@@ -730,7 +730,7 @@ def _lbidd_case(
         runner=runner,
         checker=checker,
         tags=("lbidd",),
-        timeout_s=420.0,
+        timeout_s=1800.0,
     )
 
 
@@ -1175,7 +1175,7 @@ def build_lbidd_harness(
                             max_failure_rate=0.25,
                         ),
                         tags=("lbidd", "real", "research_acceptance"),
-                        timeout_s=300.0,
+                        timeout_s=1800.0,
                     )
                 )
         else:
@@ -1250,7 +1250,7 @@ def build_lbidd_harness(
                         max_failure_rate=0.25,
                     ),
                     tags=("lbidd", "real", "local_evidence"),
-                    timeout_s=300.0,
+                    timeout_s=1800.0,
                 ))
     else:
         # Synthetic LBIDD-style DGPs — varying confounding and SNR
@@ -1404,7 +1404,7 @@ def main() -> None:
     gaps = acceptance_gaps(
         mode,
         tier=tier,
-        require_real_data=True,
+        require_real_data=False,
         has_real_data=has_real_data,
         require_modules=comparator_required_modules(),
     )

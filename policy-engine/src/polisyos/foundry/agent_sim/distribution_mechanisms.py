@@ -1,3 +1,4 @@
+"""Public agent sim distribution mechanisms module API."""
 from __future__ import annotations
 
 import chex
@@ -11,6 +12,7 @@ from polisyos.foundry.contracts.fidelity import FidelityLevel
 
 
 class DistributionAwareTaxMechanism(Mechanism):
+    """Distribution aware tax mechanism public type."""
     @property
     def spec(self) -> MechanismSpec:
         return MechanismSpec(
@@ -74,6 +76,7 @@ class DistributionAwareTaxMechanism(Mechanism):
 
 
 class TargetedTransferMechanism(Mechanism):
+    """Targeted transfer mechanism public type."""
     @property
     def spec(self) -> MechanismSpec:
         return MechanismSpec(
@@ -141,6 +144,7 @@ class TargetedTransferMechanism(Mechanism):
 
 
 class RelativeConsumptionMechanism(Mechanism):
+    """Relative consumption mechanism public type."""
     @property
     def spec(self) -> MechanismSpec:
         return MechanismSpec(

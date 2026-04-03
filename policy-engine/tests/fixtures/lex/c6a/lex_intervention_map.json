@@ -1,0 +1,30 @@
+[
+  {
+    "provision_ref": "ua.procurement.thresholds.art12",
+    "intervention_kind": "procurement_threshold_change",
+    "identification_mode": "interference_aware",
+    "strategic_response_expected": true,
+    "transmission_channels": [
+      "procurement_channel",
+      "compliance_channel"
+    ],
+    "target_population_type": "public_buyers",
+    "target_sector_ids": [
+      "public_procurement"
+    ],
+    "target_region_ids": [
+      "UA-30"
+    ],
+    "measurement_expectations": {
+      "metric_id": "procurement_threshold_uah",
+      "unit": "UAH"
+    },
+    "knob_ids": [
+      "proc_threshold_knob"
+    ],
+    "confidence_score": 0.92,
+    "notes": [
+      "Fixture intervention mapping for C6a tests."
+    ]
+  }
+]

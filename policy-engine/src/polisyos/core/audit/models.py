@@ -1,3 +1,4 @@
+"""Public audit models module API."""
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field
@@ -8,21 +9,25 @@ from typing import Any, Literal
 
 
 def utc_now() -> datetime:
+    """Utc now helper."""
     return datetime.now(timezone.utc).replace(microsecond=0)
 
 
 class ExportProfile(str, Enum):
+    """Export profile data model."""
     FULL = "full"
     MANIFESTS_ONLY = "manifests_only"
 
 
 class SigningPolicy(str, Enum):
+    """Signing policy data model."""
     STRICT = "strict"
     WARN = "warn"
     SKIP = "skip"
 
 
 class StepStatus(str, Enum):
+    """Step status public type."""
     PASS = "PASS"
     FAIL = "FAIL"
     WARN = "WARN"
@@ -31,6 +36,7 @@ class StepStatus(str, Enum):
 
 @dataclass(frozen=True)
 class ExportOptions:
+    """Export options data model."""
     exclude_kinds: frozenset[str] = frozenset()
     profile: ExportProfile = ExportProfile.FULL
     include_visualization: bool = True
@@ -43,6 +49,7 @@ class ExportOptions:
 
 @dataclass(frozen=True)
 class AuditExportResult:
+    """Audit export result data model."""
     archive_path: Path
     run_id: str
     artifacts_exported: int
@@ -58,6 +65,7 @@ class AuditExportResult:
 
 @dataclass(frozen=True)
 class VerificationIssue:
+    """Verification issue data model."""
     code: str
     message: str
     path: str | None = None
@@ -67,6 +75,7 @@ class VerificationIssue:
 
 @dataclass
 class StepResult:
+    """Step result data model."""
     step_name: str
     status: StepStatus = StepStatus.SKIP
     checks_passed: int = 0
@@ -78,6 +87,7 @@ class StepResult:
 
 @dataclass
 class VerificationReport:
+    """Verification report data model."""
     package_path: str
     run_id: str | None = None
     verified_at: datetime = field(default_factory=utc_now)

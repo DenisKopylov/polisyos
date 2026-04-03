@@ -1,3 +1,4 @@
+"""Public core audit package API."""
 from polisyos.core.audit.assembler import AuditPackageAssembler
 from polisyos.core.audit.models import (
     AuditExportResult,

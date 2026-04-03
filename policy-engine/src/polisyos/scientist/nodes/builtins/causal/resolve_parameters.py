@@ -1,3 +1,4 @@
+"""Public causal resolve parameters module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -67,6 +68,12 @@ _SPEC = NodeSpec(
 
 @dataclass(frozen=True)
 class ResolveParametersNode:
+    """Resolve context-adaptive parameters from SKG and graph evidence.
+
+    Converts workflow state into ``ContextAdaptiveParameterBundle`` plus runtime
+    uncertainty payloads that Foundry simulation can consume directly.
+    """
+
     @property
     def spec(self) -> NodeSpec:
         return _SPEC

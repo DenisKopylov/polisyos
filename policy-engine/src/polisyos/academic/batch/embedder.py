@@ -79,6 +79,7 @@ def build_hnsw_index(
 
 
 def run_embed(config: AcademicBatchConfig, *, thermal: bool = False) -> int:
+    """Run embed."""
     started_at = datetime.now(UTC).isoformat()
     pause_s = 0.5 if thermal else 0.0
     count = build_hnsw_index(

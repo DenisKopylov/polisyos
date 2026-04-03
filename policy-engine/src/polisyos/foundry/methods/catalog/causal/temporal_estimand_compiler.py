@@ -1,3 +1,4 @@
+"""Public causal temporal estimand compiler module API."""
 from __future__ import annotations
 
 import math
@@ -21,22 +22,26 @@ from polisyos.ir.analytics.dynamic_regime import (
 
 
 class TemporalBackendTarget(str, Enum):
+    """Temporal backend target public type."""
     LINEAR_SDE = "linear_sde"
     ODE = "ode"
     DISCRETE_FALLBACK = "discrete_fallback"
 
 
 class TemporalComparatorSemantics(str, Enum):
+    """Temporal comparator semantics public type."""
     UNTREATED_COUNTERFACTUAL = "untreated_counterfactual"
     NEVER_TREAT_BASELINE = "never_treat_baseline"
 
 
 class TemporalFallbackMode(str, Enum):
+    """Temporal fallback mode public type."""
     NONE = "none"
     DISCRETE_TIME = "discrete_time"
 
 
 class TemporalDataContract(str, Enum):
+    """Temporal data contract data model."""
     PANEL_OBSERVATIONAL = "panel_observational_data"
     DYNAMIC_TREATMENT = "dynamic_treatment_data"
 

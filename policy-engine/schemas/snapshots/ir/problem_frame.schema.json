@@ -28,10 +28,10 @@
               "enum": [
                 "<",
                 "<=",
-                ">",
-                ">=",
                 "==",
-                "!="
+                "!=",
+                ">=",
+                ">"
               ],
               "type": "string"
             },
@@ -351,6 +351,113 @@
       "title": "MoneyValue",
       "type": "object"
     },
+    "NormativeArbitrationPolicy": {
+      "description": "Supported formal arbitration policies.",
+      "enum": [
+        "lexicographic_rights",
+        "weighted_welfare",
+        "max_min_harm",
+        "pareto_filter"
+      ],
+      "title": "NormativeArbitrationPolicy",
+      "type": "string"
+    },
+    "NormativeComparisonMode": {
+      "description": "Supported comparison modes for arbitration.",
+      "enum": [
+        "proposal_vs_baseline"
+      ],
+      "title": "NormativeComparisonMode",
+      "type": "string"
+    },
+    "NormativeComparisonTarget": {
+      "description": "Which quantity a right condition evaluates.",
+      "enum": [
+        "proposal",
+        "baseline",
+        "delta"
+      ],
+      "title": "NormativeComparisonTarget",
+      "type": "string"
+    },
+    "NormativeFrame": {
+      "additionalProperties": false,
+      "description": "Formal value-conflict model used by normative arbitration.",
+      "properties": {
+        "comparison_mode": {
+          "$ref": "#/$defs/NormativeComparisonMode",
+          "default": "proposal_vs_baseline"
+        },
+        "default_policy": {
+          "$ref": "#/$defs/NormativeArbitrationPolicy",
+          "default": "lexicographic_rights"
+        },
+        "enabled_policies": {
+          "items": {
+            "$ref": "#/$defs/NormativeArbitrationPolicy"
+          },
+          "maxItems": 4,
+          "title": "Enabled Policies",
+          "type": "array"
+        },
+        "hard_constraint_refs": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 50,
+          "title": "Hard Constraint Refs",
+          "type": "array"
+        },
+        "notes": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 20,
+          "title": "Notes",
+          "type": "array"
+        },
+        "rights_catalog": {
+          "items": {
+            "$ref": "#/$defs/StakeholderRightSpec"
+          },
+          "maxItems": 500,
+          "title": "Rights Catalog",
+          "type": "array"
+        },
+        "stakeholder_bindings": {
+          "items": {
+            "$ref": "#/$defs/StakeholderOutcomeBinding"
+          },
+          "maxItems": 500,
+          "title": "Stakeholder Bindings",
+          "type": "array"
+        },
+        "utility_terms": {
+          "items": {
+            "$ref": "#/$defs/StakeholderUtilityTerm"
+          },
+          "maxItems": 500,
+          "title": "Utility Terms",
+          "type": "array"
+        }
+      },
+      "title": "NormativeFrame",
+      "type": "object"
+    },
+    "NormativeOutcomeChannel": {
+      "description": "Canonical channels that can feed normative utilities/rights.",
+      "enum": [
+        "simulation_metric",
+        "distributional_net_impact",
+        "distributional_losers_share",
+        "distributional_winners_share",
+        "distributional_overall_gini_delta",
+        "uncertainty_ci_width_ratio",
+        "synthesized"
+      ],
+      "title": "NormativeOutcomeChannel",
+      "type": "string"
+    },
     "ObjectiveSpec": {
       "additionalProperties": false,
       "description": "Formal objective specification linking to metrics.\n\nPreserves compatibility with existing ObjectiveSpec in surface.py.",
@@ -474,6 +581,148 @@
       "title": "RateValue",
       "type": "object"
     },
+    "StakeholderOutcomeBinding": {
+      "additionalProperties": false,
+      "description": "Map a stakeholder to a concrete outcome channel and key.",
+      "properties": {
+        "binding_id": {
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "title": "Binding Id",
+          "type": "string"
+        },
+        "channel": {
+          "$ref": "#/$defs/NormativeOutcomeChannel"
+        },
+        "notes": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 10,
+          "title": "Notes",
+          "type": "array"
+        },
+        "outcome_key": {
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Outcome Key",
+          "type": "string"
+        },
+        "stakeholder_id": {
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "title": "Stakeholder Id",
+          "type": "string"
+        },
+        "weight": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            }
+          ],
+          "default": "1",
+          "ge": 0,
+          "title": "Weight"
+        }
+      },
+      "required": [
+        "binding_id",
+        "stakeholder_id",
+        "channel",
+        "outcome_key"
+      ],
+      "title": "StakeholderOutcomeBinding",
+      "type": "object"
+    },
+    "StakeholderRightSpec": {
+      "additionalProperties": false,
+      "description": "Explicit normative right attached to a stakeholder.",
+      "properties": {
+        "binding_ref": {
+          "anyOf": [
+            {
+              "pattern": "^[a-z][a-z0-9_]*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Binding Ref"
+        },
+        "compare_to": {
+          "$ref": "#/$defs/NormativeComparisonTarget",
+          "default": "delta"
+        },
+        "hard": {
+          "default": true,
+          "title": "Hard",
+          "type": "boolean"
+        },
+        "notes": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 10,
+          "title": "Notes",
+          "type": "array"
+        },
+        "operator": {
+          "enum": [
+            "<",
+            "<=",
+            "==",
+            "!=",
+            ">=",
+            ">"
+          ],
+          "title": "Operator",
+          "type": "string"
+        },
+        "right_id": {
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "title": "Right Id",
+          "type": "string"
+        },
+        "stakeholder_id": {
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "title": "Stakeholder Id",
+          "type": "string"
+        },
+        "threshold": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "type": "boolean"
+            }
+          ],
+          "title": "Threshold"
+        }
+      },
+      "required": [
+        "right_id",
+        "stakeholder_id",
+        "operator",
+        "threshold"
+      ],
+      "title": "StakeholderRightSpec",
+      "type": "object"
+    },
     "StakeholderSpec": {
       "additionalProperties": false,
       "description": "Stakeholder affected by the policy problem.\n\nCaptures who is impacted and how.",
@@ -561,6 +810,75 @@
         "entity_type"
       ],
       "title": "StakeholderSpec",
+      "type": "object"
+    },
+    "StakeholderUtilityTerm": {
+      "additionalProperties": false,
+      "description": "Explicit utility term for stakeholder welfare aggregation.",
+      "properties": {
+        "binding_refs": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 10,
+          "title": "Binding Refs",
+          "type": "array"
+        },
+        "coefficient": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            }
+          ],
+          "default": "1",
+          "title": "Coefficient"
+        },
+        "direction": {
+          "$ref": "#/$defs/UtilityDirection",
+          "default": "maximize"
+        },
+        "notes": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 10,
+          "title": "Notes",
+          "type": "array"
+        },
+        "stakeholder_id": {
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "title": "Stakeholder Id",
+          "type": "string"
+        },
+        "term_id": {
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "title": "Term Id",
+          "type": "string"
+        },
+        "welfare_weight": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            }
+          ],
+          "default": "1",
+          "ge": 0,
+          "title": "Welfare Weight"
+        }
+      },
+      "required": [
+        "term_id",
+        "stakeholder_id"
+      ],
+      "title": "StakeholderUtilityTerm",
       "type": "object"
     },
     "SuccessCriterion": {
@@ -691,6 +1009,15 @@
       ],
       "title": "TranslatableString",
       "type": "object"
+    },
+    "UtilityDirection": {
+      "description": "Utility aggregation direction for a stakeholder term.",
+      "enum": [
+        "maximize",
+        "minimize"
+      ],
+      "title": "UtilityDirection",
+      "type": "string"
     }
   },
   "additionalProperties": false,
@@ -739,6 +1066,18 @@
       "default": null,
       "description": "Human-readable problem description",
       "title": "Narrative"
+    },
+    "normative_frame": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/NormativeFrame"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Optional formal normative arbitration model"
     },
     "notes": {
       "items": {

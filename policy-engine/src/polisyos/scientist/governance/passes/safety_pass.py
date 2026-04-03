@@ -1,3 +1,4 @@
+"""Public passes safety pass module API."""
 from __future__ import annotations
 
 import warnings

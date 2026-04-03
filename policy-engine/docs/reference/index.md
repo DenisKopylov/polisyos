@@ -1,0 +1,23 @@
+# Reference
+Related explanation: [Architecture](../explanation/architecture.md).
+
+> Полная справка по API, типам, эндпоинтам и конфигурации PolicyOS.
+
+## Modules
+
+| Module | Exports | Description |
+|--------|---------|-------------|
+| [IR](ir/index.md) | 160 types | Canonical contract layer — schemas for policies, analytics, observations |
+| [Foundry](foundry/index.md) | 2 functions | Computation engine — `compile()` and `execute()` |
+| [Scientist](scientist/index.md) | 4 exports | Orchestration — workflows, governance passes, experiment state |
+| [Lex](lex/index.md) | 58 types | Legal text processing — norm packs, interventions, knowledge |
+| [Fabric](fabric/index.md) | 9 connectors | Data fabric — connectors, profiles, world queries |
+
+## Other
+
+| Page | Description |
+|------|-------------|
+| [REST API](api/index.md) | 43 HTTP endpoints — runs, control plane, artifacts |
+| [CLI](cli.md) | 4 command-line tools — polisy, polisyos, polisyos-foundry, polisyos-causal-capabilities |
+| [Schemas](schemas.md) | 87 JSON schemas with ABI versioning |
+| [Configuration](configuration.md) | pyproject.toml groups, environment variables, profiles |

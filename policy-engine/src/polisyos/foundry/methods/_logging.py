@@ -86,6 +86,27 @@ except ImportError:
     _STRUCTLOG_AVAILABLE = False
 
 
+class _StructlogAdapter:
+    """Thin wrapper that satisfies the FoundryLogger Protocol at runtime."""
+
+    __slots__ = ("_proxy",)
+
+    def __init__(self, proxy: Any) -> None:
+        self._proxy = proxy
+
+    def debug(self, event: str, **kwargs: Any) -> None:
+        self._proxy.debug(event, **kwargs)
+
+    def info(self, event: str, **kwargs: Any) -> None:
+        self._proxy.info(event, **kwargs)
+
+    def warning(self, event: str, **kwargs: Any) -> None:
+        self._proxy.warning(event, **kwargs)
+
+    def error(self, event: str, **kwargs: Any) -> None:
+        self._proxy.error(event, **kwargs)
+
+
 def get_foundry_logger(name: str) -> FoundryLogger:
     """
     Return a structured logger for the given *name*.
@@ -100,7 +121,7 @@ def get_foundry_logger(name: str) -> FoundryLogger:
         A :class:`FoundryLogger`-compatible logger.
     """
     if _STRUCTLOG_AVAILABLE:
-        return _structlog.get_logger(name)  # type: ignore[return-value]
+        return _StructlogAdapter(_structlog.get_logger(name))
     return _StdlibLoggerShim(name)
 
 

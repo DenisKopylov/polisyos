@@ -1,3 +1,4 @@
+"""Public catalog sensitivity package API."""
 from __future__ import annotations
 
 from polisyos.foundry.methods.exceptions import MethodAlreadyRegisteredError
@@ -14,6 +15,7 @@ from .specification import SpecificationCurveEstimator
 
 
 def ensure_sensitivity_methods_registered(registry: MethodRegistry | None = None) -> None:
+    """Ensure sensitivity methods registered helper."""
     reg = registry if registry is not None else MethodRegistry.get_instance()
     for method_class in register_sensitivity_methods():
         try:

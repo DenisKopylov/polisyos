@@ -1,3 +1,4 @@
+"""Public pii detector module API."""
 from __future__ import annotations
 
 import re
@@ -51,6 +52,7 @@ _REGEX_RULES: tuple[tuple[PIIEntityType, re.Pattern[str], float], ...] = (
 
 
 class PresidioConfig(BaseModel):
+    """Presidio config data model."""
     model_config = ConfigDict(extra="forbid")
 
     languages: list[str] = Field(default_factory=lambda: ["en"])

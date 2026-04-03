@@ -254,6 +254,7 @@ def persist_promotion_evidence_bundle(
     *,
     inputs: list[InputRef] | None = None,
 ) -> ArtifactRef:
+    """Persist promotion evidence bundle helper."""
     return store.put_json(
         bundle,
         PutOptions(
@@ -273,6 +274,7 @@ def load_promotion_evidence_bundle(
     store: FileSystemCAS,
     ref: ArtifactRef,
 ) -> PromotionEvidenceBundle:
+    """Load promotion evidence bundle."""
     payload = from_canonical_bytes(store.get_bytes(ref.artifact_id))
     return PromotionEvidenceBundle.model_validate(payload)
 

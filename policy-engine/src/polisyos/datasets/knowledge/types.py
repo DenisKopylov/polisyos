@@ -263,6 +263,7 @@ class DatasetMatch(BaseModel):
 
 
 class DistributionType(str, Enum):
+    """Distribution type public type."""
     POINT = "point"
     EMPIRICAL = "empirical"
     KDE = "kde"

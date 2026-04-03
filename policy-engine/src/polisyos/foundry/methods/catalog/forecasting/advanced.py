@@ -1,3 +1,4 @@
+"""Public forecasting advanced module API."""
 from __future__ import annotations
 
 from typing import Any, ClassVar, Mapping
@@ -29,6 +30,7 @@ def _result_slot() -> frozenset[SlotSpec]:
     tags={"forecasting", "decomposition", "stl", "time-series"},
 )
 class STLDecompositionEstimator:
+    """STL decomposition estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -109,6 +111,7 @@ class STLDecompositionEstimator:
     tags={"forecasting", "multivariate", "vec", "time-series"},
 )
 class VECForecastEstimator:
+    """VEC forecast estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -202,6 +205,7 @@ class VECForecastEstimator:
     tags={"forecasting", "advanced", "prophet", "time-series"},
 )
 class ProphetEstimator:
+    """Prophet estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 

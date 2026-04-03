@@ -1,3 +1,4 @@
+"""Public mechanisms fiscal module API."""
 from typing import Any
 
 import jax
@@ -19,6 +20,7 @@ def _combine_masks(
 
 
 def compute_tax(state: GlobalState, rate: jnp.ndarray) -> jnp.ndarray:
+    """Compute tax helper."""
     tax = state.agents.reported_income * rate
     active_mask = getattr(state.agents, "active", None)
     if active_mask is None:
@@ -27,10 +29,12 @@ def compute_tax(state: GlobalState, rate: jnp.ndarray) -> jnp.ndarray:
 
 
 def compute_income_tax(state: GlobalState, rate: jnp.ndarray) -> jnp.ndarray:
+    """Compute income tax helper."""
     return compute_tax(state, rate)
 
 
 class TaxSubsidy(Mechanism):
+    """Tax subsidy public type."""
     rate: jnp.ndarray  # Изменено на jnp.ndarray для дифференцируемости
     target_sector_mask: jnp.ndarray
 
@@ -76,6 +80,7 @@ class TaxSubsidy(Mechanism):
 
 
 class IncomeTax(Mechanism):
+    """Income tax public type."""
     rate: jnp.ndarray
 
     def __init__(self, rate: float, n_agents: int, **kwargs: Any):

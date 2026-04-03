@@ -1,93 +1,39 @@
-# legal_evaluation
+# Legal Evaluation (`polisyos.lex.legal_evaluation`)
 
-`polisyos.lex.legal_evaluation` оценивает соответствие policy/simulation требованиям `NormPack`, формирует юридический отчет и предложения изменений.
+`polisyos.lex.legal_evaluation` сравнивает policy/simulation output с `NormPack`,
+строит `lex.legal_report`, формирует change proposals и публикует bridge-слой
+между юридическими ограничениями и causal transportability constraints.
 
-## Роль
+## Роль в системе
 
-Подсистема:
-- сопоставляет наблюдаемые значения (metrics/policy params) с нормами `NormPack`;
-- рассчитывает статусы `PASS/FAIL/UNKNOWN/NOT_APPLICABLE`;
-- сохраняет `lex.legal_report` и (при наличии действий) `lex.change_proposal`.
+- **Зависит от:** `polisyos.lex.normpack`, `polisyos.core.contracts.lex`, `polisyos.ir`, `polisyos.fabric.world`
+- **Используется в:** policy validation, governance passes, transportability gating, change-proposal flows
+- Пакет превращает нормы и observed values в explicit compliance verdicts вместо ad-hoc post-hoc reasoning.
 
-## Входы
+## Ключевые концепции
 
-- `LegalEvaluationRequest`
-- `NormPack` (`kind=lex.norm_pack`)
-- `SimulationResult` + `Metrics`
-- policy source: `policy_spec_ref` (`model_spec_ref` optional) или `trinity_bundle_ref` (policy/model refs извлекаются во время нормализации request)
+- **Evaluator registry** — `LexEvaluatorRegistry` поднимает built-in и внешние evaluators по `eval_policy_id`.
+- **Context normalization** — `evaluate_legality_impl()` извлекает policy source, metrics и norm context в единый `LegalContext`.
+- **Rule observations** — `context_builder.py` резолвит observed values из metrics и policy parameters с явными `quality_issues`.
+- **Change proposals** — `propose_changes_impl()` генерирует `policy_patch` или `add_metric` actions для actionable failures.
+- **Transport constraints** — `LegalConstraintBridge` и `is_transport_blocked()` связывают legal limits с causal graph/transportability checks.
 
-## Поток выполнения
+## Public API
 
-```text
-normalize request
-  -> resolve evaluator (registry)
-  -> build LegalContext (policy + simulation + metrics + norm_pack)
-  -> evaluate rules (simple_v1 or plugin backend)
-  -> persist lex.legal_report
-  -> propose_changes_impl
-  -> emit EVALUATE_LEGALITY event
-```
+| Type/Function | Description |
+|---|---|
+| `evaluate_legality_impl()` | Main legality evaluation orchestrator |
+| `propose_changes_impl()` | Generate change proposals from evaluation failures |
+| `LegalConstraintBridge` | Resolve legal constraints for transportability and causal checks |
+| `LegalConstraint`, `LegalConstraintSet` | Typed legal-constraint models |
+| `LegalToDAGMapping`, `LegalToDAGMappingType` | Mapping contracts from legal constraints to DAG semantics |
+| `ConstraintSeverity`, `is_transport_blocked()` | Severity and fast hard-block helpers |
 
-## Ключевые модули
+Full reference: [docs/reference/lex/](../../../../docs/reference/lex/index.md)
 
-### `evaluator_registry.py`
+## Current State
 
-- Реестр `LexEvaluatorRegistry`.
-- Разрешает `eval_policy_id` как полный `component_id`, так и `base_id` (с выбором latest semver).
-- Встроенный evaluator: `lex.eval.simple_v1@1.0.0`.
-- Поддержка внешних evaluators через `polisyos.lex_evaluators`.
-
-### `evaluate.py`
-
-Главный оркестратор:
-- нормализует request (`jurisdiction`, `as_of`, policy source);
-- строит контекст через `LegalContextBuilder`;
-- запускает rule evaluation и агрегирует `counts/compliance_grade`;
-- сохраняет `lex.legal_report`, затем вызывает `propose_changes_impl`.
-
-### `context_builder.py`
-
-Строит `RuleObservation` для каждой нормы.
-
-Порядок поиска observed value:
-- `Metrics.values[predicate_id]`
-- `PolicySpec.parameter -> intervention.param_path`
-- direct key в `intervention.params`
-
-При проблемах пишет `quality_issues` (`missing_observed_value`, `ambiguous_policy_mapping`, и др.).
-
-### `backends/simple_v1.py`
-
-Базовый backend:
-- numeric operators: `<`, `<=`, `=`, `>=`, `>`;
-- boolean/text: `=`;
-- unit conversion: `percent <-> ratio`, `km <-> m`;
-- в `strict=true` неизвестные/неполные случаи чаще переводятся в `FAIL/blocker`.
-
-### `change_proposals.py`
-
-Автогенерация предложений:
-- `policy_patch` (`json_patch_v1`, `replace`) для `FAIL` с числовым порогом;
-- `add_metric` для `missing_observed_value`.
-
-### `transport_constraints.py`
-
-`LegalConstraintBridge` для transportability:
-- извлекает legal constraints по `jurisdiction + policy_domain`;
-- учитывает `retroactive`, `transition_period`, `data_license`;
-- строит `LegalToDAGMapping` для causal graph;
-- helper `is_transport_blocked()` для быстрых HARD-check.
-
-Публичный фасад: `polisyos.lex.api.evaluate_transport_constraints`.
-
-## Выходы
-
-- `lex.legal_report`
-- `lex.change_proposal` (может не создаваться, если действий нет)
-
-## Связи
-
-- Потребляет `NormPack` из `policy-engine/src/polisyos/lex/normpack`.
-- Использует контракты `polisyos.core.contracts.lex`, `trinity`, `foundry`.
-- Пишет semantic facts/events через `polisyos.fabric.world`.
-- Может читать legal KG DuckDB для transport constraints.
+- Last updated: 2026-04-03
+- Files: 8 Python files
+- Exports: 9 symbols in `__init__.py`
+- Notable delta: transport-constraint bridge remains a first-class part of the package surface, not just an internal helper

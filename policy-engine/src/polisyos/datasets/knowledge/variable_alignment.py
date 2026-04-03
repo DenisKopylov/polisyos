@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import re
 from enum import Enum
+from functools import lru_cache
 from pathlib import Path
 from typing import Any, Iterable
 
@@ -12,12 +13,14 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 class AlignmentMethod(str, Enum):
+    """Alignment method public type."""
     EXACT = "exact"
     SEMANTIC = "semantic"
     META_ANALYTIC = "meta_analytic"
 
 
 class VariableAlignment(BaseModel):
+    """Variable alignment public type."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     canonical_var: str
@@ -31,6 +34,7 @@ class VariableAlignment(BaseModel):
 
 
 class VariablePairAlignmentScore(BaseModel):
+    """Variable pair alignment score public type."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     left_variable: str
@@ -46,7 +50,68 @@ class VariablePairAlignmentScore(BaseModel):
 
 
 def default_seed_alignments_path() -> Path:
+    """Default seed alignments path helper."""
     return Path(__file__).resolve().parents[4] / "data" / "dataset_catalog" / "seed_variable_alignments.yaml"
+
+
+_LEGACY_CANONICAL_VAR_ALIASES: dict[str, str] = {
+    "alcohol_consumption": "health.alcohol_consumption",
+    "at_risk_of_poverty": "social.at_risk_of_poverty",
+    "avg_income": "economic.average_income",
+    "fdi_inflows": "economic.fdi_inflows",
+    "gdp": "economic.gdp",
+    "gov_balance": "economic.fiscal_balance",
+    "population": "demographic.population",
+    "r_and_d_spending": "economic.r_and_d_spending",
+    "urbanization_rate": "demographic.urbanization_rate",
+}
+
+
+@lru_cache(maxsize=1)
+def _approved_canonical_registry() -> tuple[frozenset[str], frozenset[str], dict[str, str]]:
+    from polisyos.academic.knowledge.canonical_seed import CANONICAL_VARIABLES
+    from polisyos.academic.knowledge.runtime_canonical_registry import (
+        runtime_approved_synonyms,
+        runtime_canonical_names,
+    )
+
+    seed_names: set[str] = set()
+    for root, children in CANONICAL_VARIABLES.items():
+        seed_names.add(root)
+        for child in children:
+            if child == "_root":
+                continue
+            seed_names.add(f"{root}.{child}")
+
+    runtime_names = runtime_canonical_names()
+    namespace = frozenset(seed_names | runtime_names)
+    return namespace, frozenset(runtime_names), runtime_approved_synonyms()
+
+
+def _normalize_seed_canonical_var(name: str) -> str:
+    clean = str(name or "").strip()
+    if not clean:
+        return ""
+
+    namespace, runtime_names, runtime_synonyms = _approved_canonical_registry()
+    if clean in namespace:
+        return clean
+
+    if clean in _LEGACY_CANONICAL_VAR_ALIASES:
+        return _LEGACY_CANONICAL_VAR_ALIASES[clean]
+
+    lowered = clean.lower()
+    spaced = lowered.replace("_", " ")
+    if lowered in runtime_synonyms:
+        return runtime_synonyms[lowered]
+    if spaced in runtime_synonyms:
+        return runtime_synonyms[spaced]
+
+    suffix_matches = sorted(candidate for candidate in runtime_names if candidate.endswith(f".{clean}"))
+    if len(suffix_matches) == 1:
+        return suffix_matches[0]
+
+    return clean
 
 
 def calibrate_alignment_confidence(alignment: VariableAlignment) -> float:
@@ -77,7 +142,7 @@ def load_seed_alignments(path: Path) -> list[VariableAlignment]:
             continue
         out.append(
             VariableAlignment(
-                canonical_var=str(item.get("canonical_var", "")).strip(),
+                canonical_var=_normalize_seed_canonical_var(str(item.get("canonical_var", "")).strip()),
                 dataset_var=str(item.get("dataset_var", "")).strip(),
                 dataset_id=str(item.get("dataset_id", "")).strip(),
                 method=AlignmentMethod(str(item.get("method", "exact")).strip().lower()),
@@ -101,6 +166,7 @@ def score_variable_pair(
     seed_alignments: Iterable[VariableAlignment] | None = None,
     seed_path: Path | None = None,
 ) -> VariablePairAlignmentScore:
+    """Score variable pair helper."""
     left_clean = str(left_name).strip()
     right_clean = str(right_name).strip()
     if not left_clean or not right_clean:

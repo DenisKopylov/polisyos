@@ -1,55 +1,30 @@
 # Datasets (`polisyos.datasets`)
 
-`polisyos.datasets` — слой построения и чтения каталога статистических датасетов. Он закрывает два контура:
+`polisyos.datasets` is the dataset catalog stack. It owns staged catalog construction, the read-only
+knowledge layer, and the lightweight metric-mapping helper that keeps PolicyOS variable names aligned
+with external data sources.
 
-- batch-построение snapshot-артефактов (raw -> normalized -> merged -> DuckDB -> embeddings);
-- runtime-доступ к каталогу для поиска датасетов и transportability-оценок (`P*(Z)`, proxy fallback).
+## Role in System
 
-## Архитектура директории
+- **Depends on:** `batch_common`, `fabric.connectors`, and the dataset registry/knowledge helpers.
+- **Used by:** `scientist`, `fabric`, and transportability-oriented workflows.
+- **Boundary function:** separates dataset catalog building from catalog querying and selection.
 
-- `batch/`
-  Staged pipeline и CLI для сборки каталога из внешних источников.
-- `knowledge/`
-  Read/query API поверх собранного DuckDB + HNSW индекса и registry-таблиц.
-- `metrics_map.py`
-  Хелпер загрузки `metrics_map.yaml` (hook для маппинга PolicyOS-метрик на этапе normalize).
-- `__init__.py`
-  Пакетная точка входа.
+## Key Concepts
 
-Подробности вынесены в:
+- **Batch build** - raw sources are normalized, merged, embedded, QCed, benchmarked, and published.
+- **Knowledge layer** - read-only search and registry access live in `datasets.knowledge`.
+- **Transportability support** - registry tables and observation alignments feed `P*(Z)`/proxy selection.
+- **Metrics mapping** - `metrics_map.py` links PolicyOS canonical metrics to external dataset names.
+
+## Public API
 
 - `batch/README.md`
 - `knowledge/README.md`
+- `metrics_map.py`
 
-## Сквозной поток данных
+## Current State
 
-1. `batch.harvest` собирает raw payload по источникам и пишет per-source manifest.
-2. `batch.normalize` приводит raw к `DatasetRecord` (DCAT-like) и формирует `normalized/*.jsonl`.
-3. `batch.merge_dedup` объединяет данные и удаляет дубликаты по `dedup_key`.
-4. `batch.graph_load` загружает `ds_datasets`/`ds_distributions` в DuckDB.
-5. `batch.graph_index` строит вторичные индексы.
-6. `batch.core_sources_ingest` (опционально) заполняет registry/alignments/observations для transportability.
-7. `batch.embed` строит `SentenceTransformer` embeddings и HNSW index.
-8. `batch.qc` выполняет проверку качества и пишет `qc_report.json`.
-9. `batch.publish` формирует publish-manifest с SHA256 артефактов.
-
-## Роль в системе
-
-- Для `fabric.retrieval` каталог используется как дополнительный lane резолвинга `DataNeed` (metric -> dataset -> connector).
-- Для `scientist.agent` каталог используется как tool для dataset discovery и валидации data needs.
-- Для `scientist.nodes...resolve_transport` registry-часть (`DatasetRegistry`, proxy resolver) используется в цикле transportability.
-- Для `ir.analytics` используются типы/модели transportability и confidence-композиции.
-
-## Связи с другими директориями
-
-- `polisyos.batch_common` — filesystem layout, stage manifests, QC/fail-fast, thermal pacing.
-- `polisyos.fabric.connectors` — ingestion `core_sources_ingest` через source profiles и connectors (`WorldBankConnector`, `WVSConnector`).
-- `polisyos.fabric.retrieval` — catalog-assisted resolve (`find_by_polisyos_metric`, `get_connector_params`).
-- `polisyos.scientist.agent` — typed toolkit API для dataset search.
-- `polisyos.scientist.nodes.builtins.causal.resolve_transport` — вычисления `P*(Z)` и proxy fallback.
-
-## Важные текущие особенности
-
-- По умолчанию `run` в batch включает все стадии, кроме `core_sources_ingest`.
-- Артефакты пишутся под `snapshot_root/datasets`, а не в `src/polisyos/datasets`.
-- Маппинг на PolicyOS-метрики в normalize предусмотрен интерфейсно, но в стандартном CLI не передается отдельным флагом.
+- Last updated: 2026-04-03
+- The batch stack now carries observation-mode settings, richer benchmark metrics, and readiness gating tied to core ingest state.
+- `datasets.knowledge.variable_alignment` continues to use the academic runtime canonical registry for name normalization.

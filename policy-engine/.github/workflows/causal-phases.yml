@@ -1,0 +1,45 @@
+name: Causal Phase Validation
+
+on:
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - "src/polisyos/foundry/methods/catalog/causal/**"
+      - "src/polisyos/ir/analytics/**"
+      - "src/polisyos/scientist/**"
+      - "tests/foundry/methods/catalog/causal/**"
+      - "tests/ir/analytics/**"
+      - "tests/scientist/**"
+      - "install.sh"
+      - "pyproject.toml"
+      - "tools/validation/run_causal_phase_validation.sh"
+      - ".github/workflows/causal-phases.yml"
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  causal-phase-validation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -e ".[dev,test,runtime-http,causal-discovery]"
+
+      - name: Run causal phase validation
+        run: bash tools/validation/run_causal_phase_validation.sh "$RUNNER_TEMP/causal-phase-validation"
+
+      - name: Upload validation artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: causal-phase-validation
+          path: ${{ runner.temp }}/causal-phase-validation

@@ -1,3 +1,4 @@
+"""Public observability determinism module API."""
 from __future__ import annotations
 
 import os
@@ -43,6 +44,7 @@ class DeterminismTier(str, Enum):
 
 
 def parse_determinism_tier(value: str | None) -> DeterminismTier | None:
+    """Parse determinism tier helper."""
     if not value:
         return None
     normalized = value.strip().lower()

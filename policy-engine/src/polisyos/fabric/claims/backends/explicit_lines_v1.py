@@ -1,3 +1,4 @@
+"""Public backends explicit lines v 1 module API."""
 from __future__ import annotations
 
 import re
@@ -50,6 +51,7 @@ def extract(
     normalized_text: str,
     options: ClaimExtractOptions,
 ) -> list[ClaimCandidate]:
+    """Extract helper."""
     del options  # deterministic backend has no tunables yet
     chunk_text = normalized_text[ctx.offset_start : ctx.offset_end]
     out: list[ClaimCandidate] = []

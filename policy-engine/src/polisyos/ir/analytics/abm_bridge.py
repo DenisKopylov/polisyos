@@ -1,3 +1,4 @@
+"""Public analytics abm bridge module API."""
 from __future__ import annotations
 
 import math
@@ -21,6 +22,7 @@ class AlignmentStatus(str, Enum):
 
 
 class AggregationFunction(str, Enum):
+    """Aggregation function public type."""
     MEAN = "mean"
     MEDIAN = "median"
     GINI = "gini"
@@ -29,6 +31,7 @@ class AggregationFunction(str, Enum):
 
 
 class ToleranceMethod(str, Enum):
+    """Tolerance method public type."""
     ADAPTIVE = "adaptive"
     FIXED = "fixed"
 
@@ -141,6 +144,7 @@ def persist_abm_alignment_report(
     schema_name: str = "ir.abm_alignment_report",
     schema_version: str = "1.0",
 ) -> ABMAlignmentReportRef:
+    """Persist abm alignment report helper."""
     ref = put_json_artifact(
         store,
         report.model_dump(mode="json"),
@@ -157,6 +161,7 @@ def load_abm_alignment_report(
     store: ArtifactStore,
     ref: ABMAlignmentReportRef,
 ) -> ABMAlignmentReport:
+    """Load abm alignment report."""
     payload = get_json_artifact(store, ref.artifact_id)
     return ABMAlignmentReport.model_validate(payload)
 

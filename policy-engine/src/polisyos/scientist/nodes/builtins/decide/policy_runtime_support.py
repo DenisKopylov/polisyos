@@ -1,3 +1,4 @@
+"""Public decide policy runtime support module API."""
 from __future__ import annotations
 
 import hashlib
@@ -5,7 +6,7 @@ import json
 from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Protocol
+from typing import Any, Literal, Protocol
 
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
@@ -18,6 +19,7 @@ from polisyos.ir.analytics.cross_graph import (
     TransportStatus,
     load_cross_graph_evidence_profile,
 )
+from polisyos.ir.analytics.causal_discovery import LatentDiscoveryBundle
 from polisyos.ir.analytics.distributional import DistributionalReport, load_distributional_report
 from polisyos.ir.analytics.uncertainty import load_uncertainty_envelope
 from polisyos.scientist.autotune.models import (
@@ -29,7 +31,10 @@ from polisyos.scientist.autotune.models import (
 from polisyos.scientist.autotune.registry import ChampionRegistry
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.state import ExperimentState
-from polisyos.scientist.discovery.output import load_discovery_artifact_bundle
+from polisyos.scientist.discovery.output import (
+    load_discovery_artifact_bundle,
+    load_merged_latent_discovery_bundle,
+)
 from polisyos.scientist.discovery.priors import (
     PriorKnowledgeBundle,
     load_prior_knowledge_bundle,
@@ -73,6 +78,7 @@ from polisyos.scientist.replay.verification import (
 
 @dataclass(frozen=True)
 class PolicyRuntimeProvenance:
+    """Policy runtime provenance public type."""
     backend_kind: str
     fidelity_mode: str
     promotable_source: bool
@@ -83,6 +89,7 @@ class PolicyRuntimeProvenance:
 
 @dataclass(frozen=True)
 class PolicyRuntimeEvaluationArtifact:
+    """Policy runtime evaluation artifact public type."""
     simulation_metrics: dict[str, float]
     simulation_results: dict[str, Any]
     evaluation_vector: PolicyEvaluationVector
@@ -90,7 +97,32 @@ class PolicyRuntimeEvaluationArtifact:
     provenance: PolicyRuntimeProvenance
 
 
+@dataclass(frozen=True)
+class LatentDiscoveryBundleResolution:
+    """Latent discovery bundle resolution public type."""
+    bundle: LatentDiscoveryBundle | None
+    status: Literal["ok", "missing", "unreadable"] = "missing"
+    source_bundle_ref: DiscoveryArtifactBundleRef | None = None
+    error_code: str | None = None
+    error_message: str | None = None
+
+    def error_payload(self) -> dict[str, Any] | None:
+        if self.status != "unreadable":
+            return None
+        payload: dict[str, Any] = {
+            "status": self.status,
+            "error_code": self.error_code or "latent_discovery_bundle_unreadable",
+            "error_message": (
+                self.error_message or "latent discovery bundle could not be loaded"
+            ),
+        }
+        if self.source_bundle_ref is not None:
+            payload["source_bundle_ref"] = self.source_bundle_ref.model_dump(mode="json")
+        return payload
+
+
 class PolicyEvaluationBackend(Protocol):
+    """Policy evaluation backend implementation."""
     backend_kind: str
 
     def evaluate(
@@ -109,6 +141,7 @@ class PolicyEvaluationBackend(Protocol):
 
 @dataclass(frozen=True)
 class ProductionPolicyEvaluationBackend:
+    """Production policy evaluation backend implementation."""
     backend_kind: str = "production"
 
     def evaluate(
@@ -183,6 +216,7 @@ class ProductionPolicyEvaluationBackend:
 
 @dataclass(frozen=True)
 class SyntheticPolicyEvaluationBackend:
+    """Synthetic policy evaluation backend implementation."""
     backend_kind: str = "synthetic"
 
     def evaluate(
@@ -245,6 +279,7 @@ def ensure_policy_candidate_ref(
     candidate: PolicyCandidateSchema,
     candidate_ref: ArtifactRef | None,
 ) -> ArtifactRef:
+    """Ensure policy candidate ref helper."""
     if candidate_ref is not None and candidate_ref.kind == "scientist.policy_candidate_schema":
         return candidate_ref
     return persist_policy_candidate_schema(
@@ -260,6 +295,7 @@ def resolve_policy_evaluation(
     candidate: PolicyCandidateSchema,
     candidate_ref: ArtifactRef,
 ) -> tuple[PolicyEvaluationVector | None, ArtifactRef | None]:
+    """Resolve policy evaluation."""
     parsed = _parse_policy_evaluation(state.params.get("policy_evaluation"))
     if parsed is None:
         metrics = load_simulation_metrics(ctx, state)
@@ -290,6 +326,7 @@ def persist_policy_evaluation_vector(
     candidate_ref: ArtifactRef,
     evaluation_vector: PolicyEvaluationVector,
 ) -> ArtifactRef:
+    """Persist policy evaluation vector helper."""
     return ctx.store.put_json(
         evaluation_vector,
         PutOptions(
@@ -314,6 +351,7 @@ def build_selection_benchmark_evaluation(
     source: str = "policy_runtime_selection",
     metadata_extension: Mapping[str, Any] | None = None,
 ) -> BenchmarkEvaluation:
+    """Build selection benchmark evaluation."""
     base_score = selection_score(evaluation_vector)
     return BenchmarkEvaluation(
         loop_id=str(state.params.get("policy_loop_id") or state.run_id),
@@ -365,6 +403,7 @@ def build_policy_runtime_evaluation(
     cross_graph_profile: CrossGraphEvidenceProfile | None,
     governance_report: GovernanceReport | None,
 ) -> PolicyRuntimeEvaluationArtifact:
+    """Build policy runtime evaluation."""
     return backend.evaluate(
         candidate,
         fidelity=fidelity,
@@ -385,6 +424,7 @@ def build_policy_simulation_results(
     base_metrics: dict[str, float] | None = None,
     provenance: PolicyRuntimeProvenance | None = None,
 ) -> dict[str, Any]:
+    """Build policy simulation results."""
     metrics = dict(base_metrics or {})
     policy_value = float(metrics.get("policy_value", _channel_higher_is_better(evaluation, "policy_value")))
     employment = float(metrics.get("employment", _channel_higher_is_better(evaluation, "employment")))
@@ -439,6 +479,7 @@ def build_vulnerabilities(
     causal_report: CausalEffectReport | None,
     governance_report: GovernanceReport | None,
 ) -> list[Any]:
+    """Build vulnerabilities."""
     from polisyos.scientist.doe.stress_report import Vulnerability, VulnerabilityType
 
     vulnerabilities: list[Vulnerability] = []
@@ -500,6 +541,7 @@ def build_vulnerabilities(
 
 
 def selection_score(evaluation_vector: PolicyEvaluationVector) -> float:
+    """Selection score helper."""
     if "policy_value" in evaluation_vector.primary:
         return float(evaluation_vector.primary["policy_value"].value)
     if evaluation_vector.primary:
@@ -508,6 +550,7 @@ def selection_score(evaluation_vector: PolicyEvaluationVector) -> float:
 
 
 def load_simulation_metrics(ctx: ExecutionContext, state: ExperimentState) -> dict[str, float]:
+    """Load simulation metrics."""
     metrics_ref = state.artifacts_index.get(ARTIFACT_METRICS_REF)
     if metrics_ref is None:
         return {}
@@ -528,11 +571,13 @@ def load_simulation_metrics(ctx: ExecutionContext, state: ExperimentState) -> di
 
 
 def load_distributional_report_for_state(ctx: ExecutionContext, state: ExperimentState):
+    """Load distributional report for state."""
     ref = state.artifacts_index.get(ARTIFACT_DISTRIBUTIONAL_REPORT_REF)
     return None if ref is None else load_distributional_report(ctx.store, ref)
 
 
 def load_causal_report(ctx: ExecutionContext, state: ExperimentState) -> CausalEffectReport | None:
+    """Load causal report."""
     ref = state.artifacts_index.get(ARTIFACT_CAUSAL_REPORT_REF)
     if ref is None:
         return None
@@ -540,6 +585,7 @@ def load_causal_report(ctx: ExecutionContext, state: ExperimentState) -> CausalE
 
 
 def load_governance_report(ctx: ExecutionContext, state: ExperimentState) -> GovernanceReport | None:
+    """Load governance report."""
     ref = state.reports_index.get(REPORT_GOVERNANCE_REPORT_REF)
     if ref is None:
         return None
@@ -547,6 +593,7 @@ def load_governance_report(ctx: ExecutionContext, state: ExperimentState) -> Gov
 
 
 def load_cross_graph_profile(ctx: ExecutionContext, state: ExperimentState):
+    """Load cross graph profile."""
     ref = state.artifacts_index.get(ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF)
     return None if ref is None else load_cross_graph_evidence_profile(ctx.store, ref)
 
@@ -555,6 +602,7 @@ def load_prior_knowledge_bundle_for_state(
     ctx: ExecutionContext,
     state: ExperimentState,
 ) -> PriorKnowledgeBundle | None:
+    """Load prior knowledge bundle for state."""
     raw_ref = state.inputs.get(INPUT_PRIOR_KNOWLEDGE_BUNDLE_REF) or state.params.get(
         "prior_knowledge_bundle_ref"
     )
@@ -594,7 +642,147 @@ def load_prior_knowledge_bundle_for_state(
         return None
 
 
+def resolve_latent_discovery_bundle_for_state(
+    ctx: ExecutionContext,
+    state: ExperimentState,
+) -> LatentDiscoveryBundleResolution:
+    """Resolve latent discovery bundle for state."""
+    bundle_ref = state.artifacts_index.get(ARTIFACT_DISCOVERY_ARTIFACT_BUNDLE_REF) or state.params.get(
+        "discovery_artifact_bundle_ref"
+    )
+    if bundle_ref is None:
+        return LatentDiscoveryBundleResolution(bundle=None, status="missing")
+    discovery_ref: DiscoveryArtifactBundleRef | None = None
+    try:
+        discovery_ref = (
+            bundle_ref
+            if isinstance(bundle_ref, DiscoveryArtifactBundleRef)
+            else DiscoveryArtifactBundleRef.model_validate(
+                bundle_ref.model_dump(mode="json")
+                if hasattr(bundle_ref, "model_dump")
+                else bundle_ref
+            )
+        )
+        bundle = load_discovery_artifact_bundle(ctx.store, discovery_ref)
+        latent_bundle = load_merged_latent_discovery_bundle(ctx.store, bundle)
+        return LatentDiscoveryBundleResolution(
+            bundle=latent_bundle,
+            status="ok" if latent_bundle is not None else "missing",
+            source_bundle_ref=discovery_ref,
+        )
+    except Exception as exc:
+        return LatentDiscoveryBundleResolution(
+            bundle=None,
+            status="unreadable",
+            source_bundle_ref=discovery_ref,
+            error_code=type(exc).__name__,
+            error_message=str(exc),
+        )
+
+
+def resolve_effective_latent_discovery_bundle_for_state(
+    ctx: ExecutionContext,
+    state: ExperimentState,
+    *,
+    causal_report: CausalEffectReport | None = None,
+) -> LatentDiscoveryBundleResolution:
+    """Resolve effective latent discovery bundle for state."""
+    resolution = resolve_latent_discovery_bundle_for_state(ctx, state)
+    if resolution.status != "ok" or resolution.bundle is None:
+        return resolution
+    return LatentDiscoveryBundleResolution(
+        bundle=_merge_proxy_boundary_into_latent_bundle(
+            resolution.bundle,
+            _proxy_boundary_payload_from_causal_report(causal_report),
+        ),
+        status=resolution.status,
+        source_bundle_ref=resolution.source_bundle_ref,
+        error_code=resolution.error_code,
+        error_message=resolution.error_message,
+    )
+
+
+def load_latent_discovery_bundle_for_state(
+    ctx: ExecutionContext,
+    state: ExperimentState,
+) -> LatentDiscoveryBundle | None:
+    """Load latent discovery bundle for state."""
+    return resolve_latent_discovery_bundle_for_state(ctx, state).bundle
+
+
+def load_effective_latent_discovery_bundle_for_state(
+    ctx: ExecutionContext,
+    state: ExperimentState,
+    *,
+    causal_report: CausalEffectReport | None = None,
+) -> LatentDiscoveryBundle | None:
+    """Load effective latent discovery bundle for state."""
+    return resolve_effective_latent_discovery_bundle_for_state(
+        ctx,
+        state,
+        causal_report=causal_report,
+    ).bundle
+
+
+def _proxy_boundary_payload_from_causal_report(
+    report: CausalEffectReport | None,
+) -> dict[str, Any] | None:
+    if report is None:
+        return None
+    payload = report.metadata.get("proxy_boundary")
+    if not isinstance(payload, dict):
+        return None
+    return dict(payload)
+
+
+def _merge_proxy_boundary_into_latent_bundle(
+    bundle: LatentDiscoveryBundle | None,
+    proxy_boundary_payload: dict[str, Any] | None,
+) -> LatentDiscoveryBundle | None:
+    if bundle is None or not isinstance(proxy_boundary_payload, dict):
+        return bundle
+
+    existing_payload = bundle.metadata.get("proxy_boundary")
+    merged_notes: list[str] = []
+    merged_reasons: list[str] = []
+    merged_payload: dict[str, Any] = {}
+    for payload in (
+        existing_payload if isinstance(existing_payload, dict) else {},
+        proxy_boundary_payload,
+    ):
+        for note in list(payload.get("boundary_notes", []) or []):
+            note_text = str(note).strip()
+            if note_text and note_text not in merged_notes:
+                merged_notes.append(note_text)
+        for reason in list(payload.get("no_promotion_reasons", []) or []):
+            reason_text = str(reason).strip()
+            if reason_text and reason_text not in merged_reasons:
+                merged_reasons.append(reason_text)
+        for key, value in payload.items():
+            if key in {"boundary_notes", "no_promotion_reasons"}:
+                continue
+            merged_payload.setdefault(str(key), value)
+
+    if merged_notes:
+        merged_payload["boundary_notes"] = merged_notes
+    if merged_reasons:
+        merged_payload["no_promotion_reasons"] = merged_reasons
+
+    return bundle.model_copy(
+        update={
+            "metadata": {
+                **dict(bundle.metadata),
+                "proxy_boundary": merged_payload,
+            },
+            "no_promotion_reasons": list(
+                dict.fromkeys([*bundle.no_promotion_reasons, *merged_reasons])
+            ),
+        }
+    )
+
+
 def load_search_uncertainty(ctx: ExecutionContext, state: ExperimentState):
+    """Load search uncertainty."""
     ref = state.artifacts_index.get(ARTIFACT_CAUSAL_ENVELOPE_REF)
     if ref is None:
         return to_search_uncertainty_envelope(None)
@@ -602,6 +790,7 @@ def load_search_uncertainty(ctx: ExecutionContext, state: ExperimentState):
 
 
 def resolve_funnel_outcome(state: ExperimentState) -> FunnelOutcome | None:
+    """Resolve funnel outcome."""
     for key in ("funnel_outcome", "_funnel_outcome"):
         value = state.params.get(key)
         if isinstance(value, FunnelOutcome):
@@ -610,6 +799,7 @@ def resolve_funnel_outcome(state: ExperimentState) -> FunnelOutcome | None:
 
 
 def maybe_artifact_ref(value: Any) -> ArtifactRef | None:
+    """Maybe artifact ref helper."""
     if isinstance(value, ArtifactRef):
         return value
     if isinstance(value, dict):
@@ -624,6 +814,7 @@ def load_benchmark_evaluation(
     ctx: ExecutionContext,
     ref: ArtifactRef,
 ) -> BenchmarkEvaluation:
+    """Load benchmark evaluation."""
     return BenchmarkEvaluation.model_validate(from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id)))
 
 
@@ -631,6 +822,7 @@ def load_governance_report_from_ref(
     ctx: ExecutionContext,
     ref: ArtifactRef,
 ) -> GovernanceReport:
+    """Load governance report from ref."""
     return GovernanceReport.model_validate(from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id)))
 
 
@@ -645,6 +837,7 @@ def run_promotion_with_evidence(
     promotion_context: dict[str, Any] | None = None,
     evaluation_provenance: dict[str, Any] | None = None,
 ) -> PolicyPromotionResult:
+    """Run promotion with evidence."""
     expected_loop_id = str(state.params.get("policy_loop_id") or state.run_id)
     selection_ref = evidence_bundle.selection_evaluation_ref
     if selection_ref is None:
@@ -715,6 +908,12 @@ def run_promotion_with_evidence(
     distributional_report = load_distributional_report_for_state(ctx, state)
     cross_graph_profile = load_cross_graph_profile(ctx, state)
     prior_knowledge_bundle = load_prior_knowledge_bundle_for_state(ctx, state)
+    latent_resolution = resolve_effective_latent_discovery_bundle_for_state(
+        ctx,
+        state,
+        causal_report=causal_report,
+    )
+    latent_discovery_bundle = latent_resolution.bundle
     uncertainty = load_search_uncertainty(ctx, state)
     l2_result = (
         promotion_context.get("_funnel_L2_result")
@@ -792,6 +991,8 @@ def run_promotion_with_evidence(
         cross_graph_profile=cross_graph_profile,
         prior_knowledge_bundle=prior_knowledge_bundle,
         governance_report=governance_report,
+        latent_discovery_bundle=latent_discovery_bundle,
+        latent_discovery_resolution_error=latent_resolution.error_payload(),
         uncertainty_envelope=uncertainty,
         candidate_ref=candidate_ref,
         evaluation_ref=evidence_bundle.evaluation_ref or selection_ref,
@@ -1097,6 +1298,7 @@ def _policy_budget_total(candidate: PolicyCandidateSchema) -> float:
 
 
 __all__ = [
+    "LatentDiscoveryBundleResolution",
     "PolicyEvaluationBackend",
     "PolicyRuntimeEvaluationArtifact",
     "PolicyRuntimeProvenance",
@@ -1111,13 +1313,17 @@ __all__ = [
     "load_causal_report",
     "load_cross_graph_profile",
     "load_distributional_report_for_state",
+    "load_effective_latent_discovery_bundle_for_state",
     "load_governance_report",
     "load_governance_report_from_ref",
+    "load_latent_discovery_bundle_for_state",
     "load_prior_knowledge_bundle_for_state",
     "load_search_uncertainty",
     "maybe_artifact_ref",
     "persist_policy_evaluation_vector",
+    "resolve_effective_latent_discovery_bundle_for_state",
     "resolve_funnel_outcome",
+    "resolve_latent_discovery_bundle_for_state",
     "resolve_policy_evaluation",
     "run_promotion_with_evidence",
     "selection_score",

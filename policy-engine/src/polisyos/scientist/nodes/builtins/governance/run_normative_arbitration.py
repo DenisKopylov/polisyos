@@ -1,3 +1,4 @@
+"""Public governance run normative arbitration module API."""
 from __future__ import annotations
 
 import math
@@ -98,6 +99,7 @@ class _ResolvedNormativeModel:
 
 @dataclass(frozen=True)
 class RunNormativeArbitrationNode:
+    """Run normative arbitration node implementation."""
     @property
     def spec(self) -> NodeSpec:
         return _SPEC

@@ -1,3 +1,4 @@
+"""Public uncertainty analytical module API."""
 from __future__ import annotations
 
 import math
@@ -17,6 +18,7 @@ from .protocol import PropagationResult
 
 
 class AnalyticalPropagator:
+    """Analytical propagator public type."""
     @property
     def method(self) -> PropagationMethod:
         return PropagationMethod.ANALYTICAL

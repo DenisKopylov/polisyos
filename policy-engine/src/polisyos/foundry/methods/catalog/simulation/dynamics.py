@@ -1,3 +1,4 @@
+"""Public simulation dynamics module API."""
 from __future__ import annotations
 
 from typing import Any, ClassVar, Mapping
@@ -135,6 +136,7 @@ def _build_agent_sim_mechanism(name: str, cfg: Mapping[str, Any]) -> Any:
     tags={"simulation", "system-dynamics", "stock-flow", "structural"},
 )
 class StockFlowSystemDynamicsEstimator:
+    """Stock flow system dynamics estimator implementation."""
     method_kind: ClassVar[MethodKind] = MethodKind.SIMULATION
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
@@ -166,6 +168,10 @@ class StockFlowSystemDynamicsEstimator:
         description="Generic stock-and-flow system dynamics simulator over a linear flow matrix.",
         tags=frozenset({"simulation", "system-dynamics", "stock-flow", "structural"}),
         when_to_use="System dynamics with stocks and flows; policy feedback loops; long-run equilibrium",
+        citations=(
+            "Forrester, J. (1961). Industrial Dynamics. MIT Press.",
+            "Sterman, J. (2000). Business Dynamics: Systems Thinking and Modeling for a Complex World. McGraw-Hill.",
+        ),
         output_interpretation="Stock trajectories. Equilibrium = dStock/dt = 0. Time to equilibrium.",
     )
 
@@ -209,6 +215,7 @@ class StockFlowSystemDynamicsEstimator:
     tags={"simulation", "discrete-event", "queue", "structural"},
 )
 class QueueDiscreteEventEstimator:
+    """Queue discrete event estimator implementation."""
     method_kind: ClassVar[MethodKind] = MethodKind.SIMULATION
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("jax",)
@@ -239,6 +246,9 @@ class QueueDiscreteEventEstimator:
         description="Queue simulation using the Foundry discrete-event runtime mechanism.",
         tags=frozenset({"simulation", "discrete-event", "queue", "structural"}),
         when_to_use="Service system modeling; waiting-time analysis; congestion and capacity policy analysis",
+        citations=(
+            "Banks, J. et al. (2005). Discrete-Event System Simulation. Prentice Hall.",
+        ),
         output_interpretation="Final queue length after simulation. Compare to steady-state M/M/1 rho=lambda/mu. Capacity hit = queue grows unbounded.",
     )
 
@@ -277,6 +287,7 @@ class QueueDiscreteEventEstimator:
     tags={"simulation", "compartmental", "sir", "structural"},
 )
 class SIRCompartmentalEstimator:
+    """SIR compartmental estimator implementation."""
     method_kind: ClassVar[MethodKind] = MethodKind.SIMULATION
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
@@ -311,6 +322,9 @@ class SIRCompartmentalEstimator:
         description="Classical SIR compartmental epidemic simulator.",
         tags=frozenset({"simulation", "compartmental", "sir", "structural"}),
         when_to_use="Epidemiological modeling; disease spread simulation; vaccination policy analysis",
+        citations=(
+            "Kermack, W. & McKendrick, A. (1927). A contribution to the mathematical theory of epidemics. Proceedings of the Royal Society A, 115(772), 700-721.",
+        ),
         when_not_to_use="Non-infectious disease; no compartmental structure",
         output_interpretation="Time paths of S/I/R/E compartments. R0>1 = epidemic grows. Peak infection timing and size.",
     )
@@ -353,6 +367,7 @@ class SIRCompartmentalEstimator:
     tags={"simulation", "compartmental", "seir", "structural"},
 )
 class SEIRCompartmentalEstimator:
+    """SEIR compartmental estimator implementation."""
     method_kind: ClassVar[MethodKind] = MethodKind.SIMULATION
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
@@ -389,6 +404,10 @@ class SEIRCompartmentalEstimator:
         description="SEIR compartmental epidemic simulator with exposed compartment.",
         tags=frozenset({"simulation", "compartmental", "seir", "structural"}),
         when_to_use="Epidemiological modeling; disease spread simulation; vaccination policy analysis",
+        citations=(
+            "Kermack, W. & McKendrick, A. (1927). A contribution to the mathematical theory of epidemics. Proceedings of the Royal Society A, 115(772), 700-721.",
+            "Hethcote, H. (2000). The mathematics of infectious diseases. SIAM Review, 42(4), 599-653.",
+        ),
         when_not_to_use="Non-infectious disease; no compartmental structure",
         output_interpretation="Time paths of S/I/R/E compartments. R0>1 = epidemic grows. Peak infection timing and size.",
     )
@@ -433,6 +452,7 @@ class SEIRCompartmentalEstimator:
     tags={"simulation", "agent-based", "agent-sim", "structural"},
 )
 class AgentPopulationSimulationEstimator:
+    """Agent population simulation estimator implementation."""
     method_kind: ClassVar[MethodKind] = MethodKind.SIMULATION
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STRICT_CPU
     runtime_stack: ClassVar[tuple[str, ...]] = ("jax",)
@@ -468,6 +488,9 @@ class AgentPopulationSimulationEstimator:
         description="Run agent_sim population dynamics through the unified MethodRegistry.",
         tags=frozenset({"simulation", "agent-based", "agent-sim", "structural"}),
         when_to_use="Heterogeneous agents with local interactions; emergent phenomena; behavioral heterogeneity",
+        citations=(
+            "Bonabeau, E. (2002). Agent-based modeling: Methods and techniques for simulating human systems. PNAS, 99(suppl 3), 7280-7287.",
+        ),
         when_not_to_use="Need analytical closed-form; computationally infeasible for required population size",
         output_interpretation="Ensemble statistics over simulation runs. Macro patterns emerging from micro rules.",
     )

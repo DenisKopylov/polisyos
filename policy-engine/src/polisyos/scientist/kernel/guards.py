@@ -1,3 +1,4 @@
+"""Public kernel guards module API."""
 from __future__ import annotations
 
 from typing import Iterable
@@ -6,6 +7,7 @@ from polisyos.scientist.kernel.fsm import ALLOWED_TRANSITIONS, Phase
 
 
 def advance_phase(state: dict, next_phase: Phase) -> dict:
+    """Advance phase helper."""
     current = state.get("phase")
     current_phase = Phase(current) if current else Phase.INTAKE
     allowed = ALLOWED_TRANSITIONS.get(current_phase, set())
@@ -16,6 +18,7 @@ def advance_phase(state: dict, next_phase: Phase) -> dict:
 
 
 def require_artifacts(state: dict, required_keys: Iterable[str]) -> dict:
+    """Require artifacts helper."""
     missing = [key for key in required_keys if not state.get(key)]
     if missing:
         raise ValueError(f"Missing required artifacts for phase: {', '.join(missing)}")

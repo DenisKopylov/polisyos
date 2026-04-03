@@ -1,3 +1,4 @@
+"""Public foundry loss module API."""
 # polisyos/foundry/loss.py
 import jax.numpy as jnp
 

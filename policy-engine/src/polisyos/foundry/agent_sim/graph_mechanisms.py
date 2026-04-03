@@ -1,3 +1,4 @@
+"""Public agent sim graph mechanisms module API."""
 from __future__ import annotations
 
 import chex
@@ -12,6 +13,7 @@ from polisyos.foundry.contracts.fidelity import FidelityLevel
 
 
 class SocialInfluenceMechanism(Mechanism):
+    """Social influence mechanism public type."""
     @property
     def spec(self) -> MechanismSpec:
         return MechanismSpec(
@@ -74,6 +76,7 @@ class SocialInfluenceMechanism(Mechanism):
 
 
 class InformationDiffusionMechanism(Mechanism):
+    """Information diffusion mechanism public type."""
     @property
     def spec(self) -> MechanismSpec:
         return MechanismSpec(
@@ -122,6 +125,7 @@ class InformationDiffusionMechanism(Mechanism):
 
 
 class NetworkLendingMechanism(Mechanism):
+    """Network lending mechanism public type."""
     @property
     def spec(self) -> MechanismSpec:
         return MechanismSpec(
@@ -180,6 +184,7 @@ class NetworkLendingMechanism(Mechanism):
 
 
 class LaborNetworkMechanism(Mechanism):
+    """Labor network mechanism public type."""
     @property
     def spec(self) -> MechanismSpec:
         return MechanismSpec(

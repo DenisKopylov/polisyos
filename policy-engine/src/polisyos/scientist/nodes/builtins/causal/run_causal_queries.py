@@ -1,3 +1,4 @@
+"""Public causal run causal queries module API."""
 from __future__ import annotations
 
 from collections.abc import Mapping
@@ -119,6 +120,8 @@ def _append_input_ref(
 
 @dataclass(frozen=True)
 class RunCausalQueriesNode:
+    """Execute the configured causal query against the resolved SCM artifact."""
+
     @property
     def spec(self) -> NodeSpec:
         return _SPEC

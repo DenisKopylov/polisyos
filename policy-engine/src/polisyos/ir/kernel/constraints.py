@@ -1,3 +1,4 @@
+"""Public kernel constraints module API."""
 from __future__ import annotations
 
 from typing import Literal
@@ -8,6 +9,7 @@ from .base import ID_PATTERN, SLOT_ID_PATTERN, KernelModel
 
 
 class ConstraintSpec(KernelModel):
+    """Constraint spec data model."""
     constraint_id: str = Field(..., pattern=ID_PATTERN)
     unit_id: str | None = Field(None, pattern=ID_PATTERN)
     slot_id: str | None = Field(None, pattern=SLOT_ID_PATTERN)
@@ -19,6 +21,7 @@ class ConstraintSpec(KernelModel):
 
 
 class ConstraintRegistry(KernelModel):
+    """Constraint registry implementation."""
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
     constraints: dict[str, ConstraintSpec] = Field(default_factory=dict)
     notes: list[str] = Field(default_factory=list)

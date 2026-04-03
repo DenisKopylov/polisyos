@@ -825,6 +825,7 @@ def _simulation_ready_parameters(
 
 
 def run_resolve_finalize(config: AcademicBatchConfig) -> dict[str, int]:
+    """Run resolve finalize."""
     started_at = datetime.now(UTC).isoformat()
     attempts_by_work = _load_attempts(config.resolve_extract_attempts_path)
     if not attempts_by_work:

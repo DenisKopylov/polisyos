@@ -1,3 +1,4 @@
+"""Public econometrics protocols module API."""
 from __future__ import annotations
 
 from statistics import NormalDist
@@ -331,6 +332,7 @@ class EconometricDiagnosticResult(BaseModel):
 
 @runtime_checkable
 class EconometricEstimator(Protocol):
+    """Econometric estimator implementation."""
     signature: ClassVar[MethodSignature]
     metadata: ClassVar[MethodMetadata]
 

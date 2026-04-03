@@ -1,3 +1,4 @@
+"""Public agent sim temporal module API."""
 from __future__ import annotations
 
 import chex
@@ -9,6 +10,7 @@ from polisyos.foundry.agent_sim.state import GlobalState
 
 @chex.dataclass(frozen=True)
 class TemporalObservation:
+    """Temporal observation public type."""
     current_state: Float[Array, "n_agents state_dim"]
     time_step: Int[Array, ""]
     time_remaining: Int[Array, ""]
@@ -26,6 +28,7 @@ def build_temporal_observations(
     include_expectations: bool = True,
     steps_per_year: int = 12,
 ) -> Float[Array, "n_agents temporal_obs_dim"]:
+    """Build temporal observations."""
     agents = state.agents
     n_agents = agents.wealth.shape[0]
     if horizon is None:
@@ -83,6 +86,7 @@ def build_temporal_mask(
     *,
     include_inactive: bool = False,
 ) -> Bool[Array, "n_agents"]:
+    """Build temporal mask."""
     if include_inactive:
         return jnp.ones_like(state.agents.active, dtype=jnp.bool_)
     return state.agents.active

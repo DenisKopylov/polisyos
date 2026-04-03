@@ -1,3 +1,4 @@
+"""Public decide build decision packet module API."""
 from __future__ import annotations
 
 import json
@@ -67,6 +68,9 @@ from polisyos.scientist.feedback import (
     DecisionFeedbackService,
     build_monitoring_contract_from_packet,
 )
+from polisyos.scientist.governance.calibration_validation import (
+    load_calibration_validation_bundle,
+)
 from polisyos.scientist.governance.report import GovernanceReport
 from polisyos.scientist.policy_verified import (
     load_source_verification_report,
@@ -78,6 +82,7 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_ABSTRACTION_CERTIFICATE_REF,
     ARTIFACT_ABM_ALIGNMENT_REPORT_REF,
     ARTIFACT_BACKTEST_REPORT_REF,
+    ARTIFACT_CALIBRATION_VALIDATION_BUNDLE_REF,
     ARTIFACT_CAUSAL_ENSEMBLE_REF,
     ARTIFACT_CAUSAL_ENVELOPE_REF,
     ARTIFACT_CAUSAL_REPORT_REF,
@@ -158,6 +163,7 @@ _SPEC = NodeSpec(
 
 
 class ReplayReadiness(str, Enum):
+    """Replay readiness public type."""
     COMPLETE = "complete"
     PARTIAL = "partial"
     INCOMPLETE = "incomplete"
@@ -236,6 +242,9 @@ class BuildDecisionPacketNode:
             "hte": _build_hte_section(ctx, state.artifacts_index),
             "targeting": _build_targeting_section(ctx, state.artifacts_index),
             "backtest": backtest_section,
+            "calibration_validation": _build_calibration_validation_section(
+                ctx, state.artifacts_index
+            ),
             "distributional": _build_distributional_section(ctx, state.artifacts_index),
             "econometrics": _build_econometrics_section(ctx, state.artifacts_index),
             "norm_impact": _build_aux_artifact_section(
@@ -537,6 +546,9 @@ def _build_artifacts_section(
         ),
         ARTIFACT_STRESS_TEST_REPORT_REF: _ref_from_dict(
             artifacts_index, ARTIFACT_STRESS_TEST_REPORT_REF
+        ),
+        ARTIFACT_CALIBRATION_VALIDATION_BUNDLE_REF: _ref_from_dict(
+            artifacts_index, ARTIFACT_CALIBRATION_VALIDATION_BUNDLE_REF
         ),
         ARTIFACT_TRANSPORTABILITY_RESULT_REF: _ref_from_dict(
             artifacts_index, ARTIFACT_TRANSPORTABILITY_RESULT_REF
@@ -1010,6 +1022,28 @@ def _build_backtest_section(
         )
     except Exception:
         payload["parse_warning"] = "backtest_report_parse_failed"
+    return payload
+
+
+def _build_calibration_validation_section(
+    ctx: ExecutionContext,
+    artifacts_index: dict[str, ArtifactRef],
+) -> dict[str, object] | None:
+    bundle_ref = artifacts_index.get(ARTIFACT_CALIBRATION_VALIDATION_BUNDLE_REF)
+    if bundle_ref is None:
+        return None
+    payload: dict[str, object] = {"ref": str(bundle_ref.artifact_id)}
+    try:
+        bundle = load_calibration_validation_bundle(ctx.store, bundle_ref)
+        payload.update(
+            {
+                "status": bundle.status,
+                "governance_verdict": bundle.governance_verdict,
+                "summary": bundle.readout_summary(),
+            }
+        )
+    except Exception:
+        payload["parse_warning"] = "calibration_validation_bundle_parse_failed"
     return payload
 
 

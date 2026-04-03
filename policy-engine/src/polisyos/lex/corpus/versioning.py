@@ -1,3 +1,4 @@
+"""Public corpus versioning module API."""
 from __future__ import annotations
 
 from datetime import date, datetime, timezone
@@ -118,6 +119,7 @@ def build_version_index(
     options: LexVersionIndexOptions | None = None,
     segment_name: str | None = None,
 ) -> LexVersionIndexResult:
+    """Build version index."""
     opts = options or LexVersionIndexOptions()
 
     try:
@@ -157,10 +159,12 @@ def build_version_index(
             lex_props = meta.props.get("lex") if isinstance(meta.props, dict) else None
             if not isinstance(lex_props, dict):
                 lex_props = {}
+            temporal_props = lex_props.get("temporal") if isinstance(lex_props.get("temporal"), dict) else {}
 
-            published_at = lex_props.get("published_at")
-            effective_from = lex_props.get("effective_from")
-            effective_to = lex_props.get("effective_to")
+            published_at = temporal_props.get("published_at") or lex_props.get("published_at")
+            effective_from = temporal_props.get("effective_from") or lex_props.get("effective_from")
+            effective_to = temporal_props.get("effective_to") or lex_props.get("effective_to")
+            temporal_resolution_status = str(temporal_props.get("temporal_resolution_status") or "").strip().lower()
 
             if published_at is not None and not isinstance(published_at, str):
                 quality_issues.append(f"invalid_iso:published_at:{doc_version_id}")
@@ -200,15 +204,17 @@ def build_version_index(
                 issue = f"missing_effective_from:{doc_version_id}"
                 quality_issues.append(issue)
                 entry_issues.append(issue)
+            if temporal_resolution_status and temporal_resolution_status != "resolved":
+                issue = f"unresolved_temporal:{doc_version_id}"
+                quality_issues.append(issue)
+                entry_issues.append(issue)
             if published_at is None:
                 issue = f"missing_published_at:{doc_version_id}"
                 quality_issues.append(issue)
                 entry_issues.append(issue)
 
-            if parsed_from is not None:
+            if parsed_from is not None and temporal_resolution_status in {"", "resolved"}:
                 confidence = "1.0"
-            elif parsed_pub is not None:
-                confidence = "0.7"
             else:
                 confidence = "0.3"
 
@@ -369,6 +375,7 @@ def resolve_active_version(
     as_of_iso: str,
     strategy: ActiveVersionStrategy | None = None,
 ) -> ActiveVersionResult:
+    """Resolve active version."""
     strat = strategy or ActiveVersionStrategy()
 
     try:
@@ -490,33 +497,7 @@ def resolve_active_version(
                 "effective_from, published_at, doc_version_id"
             )
         else:
-            published_candidates = [
-                candidate
-                for candidate in candidates
-                if parsed_published_at.get(str(candidate["doc_version_id"])) is not None
-                and parsed_published_at[str(candidate["doc_version_id"])] <= as_of_date
-            ]
-            explanation.append(f"published_candidates={len(published_candidates)}")
-            if published_candidates:
-                selected = max(
-                    published_candidates,
-                    key=lambda candidate: (
-                        parsed_published_at[str(candidate["doc_version_id"])] or date.min,
-                        str(candidate["doc_version_id"]),
-                    ),
-                )
-                explanation.append("selected via published_at fallback")
-            elif candidates:
-                selected = max(
-                    candidates,
-                    key=lambda candidate: (
-                        str(candidate["doc_meta_artifact_id"] or ""),
-                        str(candidate["doc_version_id"]),
-                    ),
-                )
-                explanation.append(
-                    "no temporal metadata matched; fallback to deterministic id order"
-                )
+            explanation.append("no_resolved_temporal_candidate")
 
         return ActiveVersionResult(
             doc_source_id=doc_source_id,

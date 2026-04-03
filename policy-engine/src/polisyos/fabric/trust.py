@@ -1,3 +1,4 @@
+"""Public fabric trust module API."""
 from __future__ import annotations
 
 from decimal import Decimal
@@ -15,6 +16,7 @@ def two_pass_compare(
     *,
     method: str = "two_pass_compare",
 ) -> UncertaintyBounds:
+    """Two pass compare helper."""
     lower = Decimal(str(min(optimistic_value, pessimistic_value)))
     upper = Decimal(str(max(optimistic_value, pessimistic_value)))
     value = (lower + upper) / Decimal("2")
@@ -29,6 +31,7 @@ def two_pass_compare_with_envelope(
     trust_policy_id: str | None = None,
     assume_triangular: bool = False,
 ) -> tuple[UncertaintyBounds, UncertaintyEnvelope]:
+    """Two pass compare with envelope helper."""
     bounds = two_pass_compare(
         optimistic_value=optimistic_value,
         pessimistic_value=pessimistic_value,
@@ -49,6 +52,7 @@ def persist_uncertainty_bounds(
     schema_name: str = "fabric.uncertainty_bounds",
     schema_version: str = "1.0",
 ) -> UncertaintyBoundsRef:
+    """Persist uncertainty bounds helper."""
     ref = store.put_json(
         bounds.model_dump(),
         opts=PutOptions(

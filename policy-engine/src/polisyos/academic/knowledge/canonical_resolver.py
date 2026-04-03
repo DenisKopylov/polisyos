@@ -26,6 +26,7 @@ _PENDING_REVIEW_THRESHOLD = 0.75
 
 @dataclass(frozen=True)
 class ResolutionResult:
+    """Resolution result data model."""
     raw_name: str
     canonical_name: str | None
     method: str
@@ -36,6 +37,7 @@ class ResolutionResult:
 
 @dataclass
 class CanonizationStats:
+    """Canonization stats public type."""
     exact_matches: int = 0
     synonym_matches: int = 0
     hierarchy_matches: int = 0

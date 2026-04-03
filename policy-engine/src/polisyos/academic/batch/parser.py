@@ -170,6 +170,7 @@ _BOUNDARY_PATTERNS: tuple[re.Pattern, ...] = (
 
 
 def extract_sample_size(abstract: str) -> int | None:
+    """Extract sample size helper."""
     if not abstract:
         return None
     for pattern in _SAMPLE_SIZE_PATTERNS:
@@ -337,6 +338,7 @@ def classify_study_design(abstract: str) -> str:
 
 
 def extract_causal_claims(abstract: str) -> list[dict]:
+    """Extract causal claims helper."""
     if not abstract:
         return []
     claims: list[dict] = []
@@ -370,6 +372,7 @@ def extract_causal_claims(abstract: str) -> list[dict]:
 
 
 def extract_boundary_conditions(abstract: str) -> list[dict]:
+    """Extract boundary conditions helper."""
     if not abstract:
         return []
     rows: list[dict] = []
@@ -398,6 +401,7 @@ _HIGH_INCOME_CODES = {
 
 
 def infer_context_profile(work: dict[str, Any], abstract: str) -> dict:
+    """Infer context profile helper."""
     countries: list[str] = []
     authorships = work.get("authorships")
     if isinstance(authorships, list):

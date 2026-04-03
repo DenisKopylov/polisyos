@@ -130,6 +130,7 @@ class HedgeCertificate:
 
 
 class IdentificationStatus(str, Enum):
+    """Identification status public type."""
     IDENTIFIED = "identified"
     HEDGE_FOUND = "hedge_found"       # non-identifiable, certificate returned
     PAG_AMBIGUOUS = "pag_ambiguous"   # PAG input, result depends on orientation
@@ -149,6 +150,7 @@ class IdentificationResult:
     algorithm_version: str = "id_v1"
     proof_steps: list["ProofStep"] = dataclasses.field(default_factory=list)
     query_str: str = ""
+    metadata: dict[str, Any] = dataclasses.field(default_factory=dict)
 
 
 @dataclasses.dataclass(frozen=True)

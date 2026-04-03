@@ -1,0 +1,51 @@
+{
+  "$defs": {
+    "GovernancePassAliasStatus": {
+      "enum": [
+        "runtime",
+        "deferred"
+      ],
+      "title": "GovernancePassAliasStatus",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "canonical_pass_id": {
+      "maxLength": 120,
+      "minLength": 1,
+      "title": "Canonical Pass Id",
+      "type": "string"
+    },
+    "notes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Notes",
+      "type": "array"
+    },
+    "runtime_pass_id": {
+      "anyOf": [
+        {
+          "maxLength": 120,
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Runtime Pass Id"
+    },
+    "status": {
+      "$ref": "#/$defs/GovernancePassAliasStatus"
+    }
+  },
+  "required": [
+    "canonical_pass_id",
+    "status"
+  ],
+  "title": "GovernancePassAlias",
+  "type": "object"
+}

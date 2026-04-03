@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import random
 import urllib.request
+from csv import DictReader
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -130,12 +131,30 @@ def _scalar(con: duckdb.DuckDBPyConnection, sql: str, params: list[object] | Non
     return float(value or 0.0)
 
 
+def _column_expr(columns: set[str], column: str, fallback: str) -> str:
+    return column if column in columns else fallback
+
+
 def _duplicate_ratio(config: DatasetBatchConfig, merged_total: int) -> float:
     if not config.duplicates_report_path.exists() or merged_total <= 0:
         return 0.0
     with open(config.duplicates_report_path, "r", encoding="utf-8") as fh:
         duplicate_rows = sum(1 for index, _line in enumerate(fh) if index > 0)
     return round((100.0 * duplicate_rows) / merged_total, 3)
+
+
+def _duplicate_rows_by_source(config: DatasetBatchConfig) -> dict[str, int]:
+    if not config.duplicates_report_path.exists():
+        return {}
+    counts: dict[str, int] = {}
+    with open(config.duplicates_report_path, "r", encoding="utf-8", newline="") as fh:
+        reader = DictReader(fh)
+        for row in reader:
+            source = str(row.get("source") or "").strip()
+            if not source:
+                continue
+            counts[source] = counts.get(source, 0) + 1
+    return dict(sorted(counts.items(), key=lambda item: (-item[1], item[0]))[:10])
 
 
 def _coverage_heatmap_path(config: DatasetBatchConfig) -> Path:
@@ -191,6 +210,7 @@ def _check_observation_coverage(
     if total_cells <= 0:
         return QCCheck(
             name="observation_coverage_pct",
+            group="empirical-transport-health",
             passed=True,
             value=100.0,
             threshold=60.0,
@@ -209,6 +229,7 @@ def _check_observation_coverage(
     coverage = (100.0 * float(filled or 0)) / float(total_cells)
     return QCCheck(
         name="observation_coverage_pct",
+        group="empirical-transport-health",
         passed=coverage >= 60.0,
         value=round(coverage, 3),
         threshold=60.0,
@@ -237,6 +258,7 @@ def _check_cross_source_consistency(con: duckdb.DuckDBPyConnection) -> QCCheck:
     ).fetchall()
     return QCCheck(
         name="cross_source_value_spread",
+        group="empirical-transport-health",
         passed=len(disagreements) <= 5,
         value=len(disagreements),
         threshold=5,
@@ -249,6 +271,7 @@ def _non_blocking_smoke_check(check: QCCheck, *, message: str) -> QCCheck:
     return QCCheck(
         name=check.name,
         passed=True,
+        group=check.group,
         severity="info",
         value=check.value,
         threshold=check.threshold,
@@ -256,11 +279,35 @@ def _non_blocking_smoke_check(check: QCCheck, *, message: str) -> QCCheck:
     )
 
 
+def _benchmark_metric_group(metric_name: str) -> str:
+    if metric_name in {
+        "benchmark_transport_ready_pct",
+        "benchmark_source_preflight_ready_pct",
+        "benchmark_transport_observation_pct",
+        "benchmark_transport_alignment_pct",
+    }:
+        return "empirical-transport-health"
+    return "catalog-health"
+
+
 def run_qc(config: DatasetBatchConfig, *, fail_fast: bool | None = None) -> QCReport:
+    """Run qc."""
     started_at = datetime.now(UTC).isoformat()
     checks: list[QCCheck] = []
     metrics: dict[str, float | int] = {}
     smoke_like = _is_smoke_like_run(config)
+    benchmark_payload: dict[str, object] = {}
+    benchmark_metrics: dict[str, object] = {}
+    if config.benchmark_report_path.exists():
+        with open(config.benchmark_report_path, "r", encoding="utf-8") as fh:
+            loaded_benchmark = json.load(fh)
+        if isinstance(loaded_benchmark, dict):
+            benchmark_payload = loaded_benchmark
+            if isinstance(loaded_benchmark.get("metrics"), dict):
+                benchmark_metrics = loaded_benchmark.get("metrics") or {}
+    evaluation_mode = str(benchmark_payload.get("evaluation_mode") or "full-eval").strip() or "full-eval"
+    partial_eval = evaluation_mode == "partial-eval"
+    metrics["qc_evaluation_mode"] = evaluation_mode
 
     source_dirs = [p for p in config.raw_dir.iterdir() if p.is_dir()] if config.raw_dir.exists() else []
     manifest_actual_counts: dict[str, int] = {}
@@ -286,6 +333,7 @@ def run_qc(config: DatasetBatchConfig, *, fail_fast: bool | None = None) -> QCRe
     checks.append(
         QCCheck(
             name="manifest_count_parity",
+            group="catalog-health",
             passed=parity_failures == 0,
             threshold=0,
             value=parity_failures,
@@ -316,6 +364,7 @@ def run_qc(config: DatasetBatchConfig, *, fail_fast: bool | None = None) -> QCRe
             checks.append(
                 QCCheck(
                     name=f"rest_history_budget_{source}",
+                    group="catalog-health",
                     passed=False,
                     severity="warning",
                     value=max(actual_rows, payload_bytes),
@@ -357,6 +406,7 @@ def run_qc(config: DatasetBatchConfig, *, fail_fast: bool | None = None) -> QCRe
                 checks.append(
                     QCCheck(
                         name=f"source_anomaly_{source}_zero_after_nonzero",
+                        group="catalog-health",
                         passed=False,
                         severity="critical" if critical_source else "warning",
                         value=actual,
@@ -384,6 +434,7 @@ def run_qc(config: DatasetBatchConfig, *, fail_fast: bool | None = None) -> QCRe
                 checks.append(
                     QCCheck(
                         name=f"source_anomaly_{source}_count_drop_pct",
+                        group="catalog-health",
                         passed=False,
                         severity="warning",
                         value=delta_pct,
@@ -399,6 +450,7 @@ def run_qc(config: DatasetBatchConfig, *, fail_fast: bool | None = None) -> QCRe
                 checks.append(
                     QCCheck(
                         name=f"source_anomaly_{source}_count_spike_pct",
+                        group="catalog-health",
                         passed=False,
                         severity="warning",
                         value=delta_pct,
@@ -417,6 +469,7 @@ def run_qc(config: DatasetBatchConfig, *, fail_fast: bool | None = None) -> QCRe
     checks.append(
         QCCheck(
             name="source_anomalies_total",
+            group="catalog-health",
             passed=anomalies_total == 0,
             severity="warning",
             value=anomalies_total,
@@ -454,9 +507,10 @@ def run_qc(config: DatasetBatchConfig, *, fail_fast: bool | None = None) -> QCRe
     metrics["empty_title_pct"] = round(title_pct, 3)
     metrics["empty_description_pct"] = round(desc_pct, 3)
     metrics["duplicate_ratio_pct"] = _duplicate_ratio(config, merged_total)
+    metrics["duplicate_rows_by_source"] = _duplicate_rows_by_source(config)
 
-    checks.append(QCCheck(name="empty_title_pct", passed=title_pct <= 5.0, value=title_pct, threshold=5.0))
-    checks.append(QCCheck(name="empty_description_pct", passed=desc_pct <= 60.0, value=desc_pct, threshold=60.0))
+    checks.append(QCCheck(name="empty_title_pct", group="catalog-health", passed=title_pct <= 5.0, value=title_pct, threshold=5.0))
+    checks.append(QCCheck(name="empty_description_pct", group="catalog-health", passed=desc_pct <= 60.0, value=desc_pct, threshold=60.0))
 
     reachable = 0
     checked = 0
@@ -484,6 +538,7 @@ def run_qc(config: DatasetBatchConfig, *, fail_fast: bool | None = None) -> QCRe
     checks.append(
         QCCheck(
             name="url_sample_reachability_pct",
+            group="catalog-health",
             passed=reach_pct >= 70.0,
             value=reach_pct,
             threshold=70.0,
@@ -531,23 +586,46 @@ def run_qc(config: DatasetBatchConfig, *, fail_fast: bool | None = None) -> QCRe
             if dataset_columns:
                 dataset_total = _scalar(con, "SELECT count(*) FROM ds_datasets")
                 metrics["dataset_total"] = int(dataset_total)
+                temporal_start_expr = _column_expr(dataset_columns, "coverage_time_start", "''")
+                temporal_end_expr = _column_expr(dataset_columns, "coverage_time_end", "''")
+                if temporal_start_expr == "''" and "temporal_start" in dataset_columns:
+                    temporal_start_expr = "temporal_start"
+                if temporal_end_expr == "''" and "temporal_end" in dataset_columns:
+                    temporal_end_expr = "temporal_end"
                 temporal_pct = _scalar(
                     con,
-                    "SELECT 100.0 * avg(CASE WHEN coalesce(coverage_time_start, temporal_start, '') != '' "
-                    "OR coalesce(coverage_time_end, temporal_end, '') != '' THEN 1 ELSE 0 END) FROM ds_datasets",
+                    "SELECT 100.0 * avg(CASE WHEN coalesce("
+                    f"{temporal_start_expr}, '') != '' "
+                    "OR coalesce("
+                    f"{temporal_end_expr}, '') != '' THEN 1 ELSE 0 END) FROM ds_datasets",
+                )
+                coverage_countries_expr = (
+                    "coalesce(array_length(coverage_countries), 0)"
+                    if "coverage_countries" in dataset_columns
+                    else "0"
+                )
+                coverage_regions_expr = (
+                    "coalesce(array_length(coverage_regions), 0)"
+                    if "coverage_regions" in dataset_columns
+                    else "0"
                 )
                 geo_expr = (
-                    "coalesce(array_length(coverage_countries), 0) > 0 "
-                    "OR coalesce(array_length(coverage_regions), 0) > 0 "
+                    f"{coverage_countries_expr} > 0 "
+                    f"OR {coverage_regions_expr} > 0 "
                     "OR coalesce(spatial, '') != ''"
                 )
                 geographic_pct = _scalar(
                     con,
                     f"SELECT 100.0 * avg(CASE WHEN {geo_expr} THEN 1 ELSE 0 END) FROM ds_datasets",
                 )
+                readiness_expr = (
+                    "coalesce(quality_execution_readiness_score, 0.0)"
+                    if "quality_execution_readiness_score" in dataset_columns
+                    else "0.0"
+                )
                 readiness_avg = _scalar(
                     con,
-                    "SELECT avg(coalesce(quality_execution_readiness_score, 0.0)) FROM ds_datasets",
+                    f"SELECT avg({readiness_expr}) FROM ds_datasets",
                 )
                 metrics["datasets_with_temporal_coverage_pct"] = round(temporal_pct, 3)
                 metrics["datasets_with_geographic_coverage_pct"] = round(geographic_pct, 3)
@@ -608,17 +686,23 @@ def run_qc(config: DatasetBatchConfig, *, fail_fast: bool | None = None) -> QCRe
                         json.dump(heatmap, fh, ensure_ascii=False, indent=2)
                     metrics["coverage_heatmap_path"] = str(heatmap_path)
                     cross_source_check = _check_cross_source_consistency(con)
-                    if smoke_like:
+                    if smoke_like or partial_eval:
                         checks.append(
                             _non_blocking_smoke_check(
                                 coverage_check,
-                                message="Observation coverage recorded for smoke/preflight run but not enforced as blocking gate",
+                                message=(
+                                    "Observation coverage recorded for smoke/preflight/partial-eval run "
+                                    "but not enforced as blocking gate"
+                                ),
                             )
                         )
                         checks.append(
                             _non_blocking_smoke_check(
                                 cross_source_check,
-                                message="Cross-source spread recorded for smoke/preflight run but not enforced as blocking gate",
+                                message=(
+                                    "Cross-source spread recorded for smoke/preflight/partial-eval run "
+                                    "but not enforced as blocking gate"
+                                ),
                             )
                         )
                     else:
@@ -673,6 +757,7 @@ def run_qc(config: DatasetBatchConfig, *, fail_fast: bool | None = None) -> QCRe
                         checks.append(
                             QCCheck(
                                 name=f"{source}_execution_parser_supported_distribution_pct",
+                                group="catalog-health",
                                 passed=parser_source_pct >= 70.0,
                                 value=parser_source_pct,
                                 threshold=70.0,
@@ -682,13 +767,14 @@ def run_qc(config: DatasetBatchConfig, *, fail_fast: bool | None = None) -> QCRe
 
                     readiness_source_avg = _scalar(
                         con,
-                        "SELECT avg(coalesce(quality_execution_readiness_score, 0.0)) "
+                        f"SELECT avg({readiness_expr}) "
                         "FROM ds_datasets WHERE source = ?",
                         [source],
                     )
                     checks.append(
                         QCCheck(
                             name=f"{source}_execution_readiness_score_avg",
+                            group="catalog-health",
                             passed=readiness_source_avg >= 0.55,
                             value=readiness_source_avg,
                             threshold=0.55,
@@ -702,6 +788,7 @@ def run_qc(config: DatasetBatchConfig, *, fail_fast: bool | None = None) -> QCRe
                     checks.append(
                         QCCheck(
                             name=f"promoted_{source}_nonempty",
+                            group="catalog-health",
                             passed=actual > 0,
                             value=actual,
                             threshold=1,
@@ -724,6 +811,7 @@ def run_qc(config: DatasetBatchConfig, *, fail_fast: bool | None = None) -> QCRe
                         checks.append(
                             QCCheck(
                                 name=f"promoted_{source}_parser_supported_distribution_pct",
+                                group="catalog-health",
                                 passed=parser_source_pct >= 80.0,
                                 value=parser_source_pct,
                                 threshold=80.0,
@@ -741,6 +829,7 @@ def run_qc(config: DatasetBatchConfig, *, fail_fast: bool | None = None) -> QCRe
                         checks.append(
                             QCCheck(
                                 name=f"promoted_{source}_metric_binding_pct",
+                                group="catalog-health",
                                 passed=binding_source_pct >= 85.0,
                                 value=binding_source_pct,
                                 threshold=85.0,
@@ -766,6 +855,7 @@ def run_qc(config: DatasetBatchConfig, *, fail_fast: bool | None = None) -> QCRe
                         checks.append(
                             QCCheck(
                                 name=f"promoted_{source}_transport_ready_alignment_pct",
+                                group="catalog-health",
                                 passed=transport_source_pct >= 1.0,
                                 value=transport_source_pct,
                                 threshold=1.0,
@@ -775,10 +865,7 @@ def run_qc(config: DatasetBatchConfig, *, fail_fast: bool | None = None) -> QCRe
         finally:
             con.close()
 
-    if config.benchmark_report_path.exists():
-        with open(config.benchmark_report_path, "r", encoding="utf-8") as fh:
-            benchmark_payload = json.load(fh)
-        benchmark_metrics = benchmark_payload.get("metrics") if isinstance(benchmark_payload, dict) else {}
+    if benchmark_payload:
         if isinstance(benchmark_metrics, dict):
             readiness_thresholds = readiness_thresholds_for_profile(config.run_profile)
             active_thresholds = active_readiness_thresholds_for_profile(config.run_profile)
@@ -793,6 +880,7 @@ def run_qc(config: DatasetBatchConfig, *, fail_fast: bool | None = None) -> QCRe
                 severity = "critical"
                 effective_threshold = threshold
                 message = ""
+                status = ""
                 if (
                     smoke_like
                     and metric_name == "benchmark_search_top5_relevance_pct"
@@ -801,14 +889,26 @@ def run_qc(config: DatasetBatchConfig, *, fail_fast: bool | None = None) -> QCRe
                     severity = "warning"
                     effective_threshold = min(threshold, 50.0)
                     message = "Sampled/text-only run without vector index; search threshold relaxed for smoke QC"
+                if partial_eval and metric_name in {
+                    "benchmark_transport_ready_pct",
+                    "benchmark_source_preflight_ready_pct",
+                }:
+                    severity = "warning"
+                    status = "blocked"
+                    message = (
+                        "Transport benchmark recorded during partial evaluation while core_sources_ingest "
+                        "was still blocked; treat as diagnostic, not as intrinsic catalog failure"
+                    )
                 checks.append(
                     QCCheck(
                         name=metric_name,
+                        group=_benchmark_metric_group(metric_name),
                         passed=value >= effective_threshold,
                         severity=severity,
                         value=value,
                         threshold=effective_threshold,
                         message=message,
+                        status=status,
                     )
                 )
             metrics["benchmark_thresholds"] = readiness_thresholds
@@ -816,6 +916,7 @@ def run_qc(config: DatasetBatchConfig, *, fail_fast: bool | None = None) -> QCRe
         checks.append(
             QCCheck(
                 name="benchmark_report_present",
+                group="catalog-health",
                 passed=False,
                 severity="warning",
                 value=0,
@@ -824,6 +925,10 @@ def run_qc(config: DatasetBatchConfig, *, fail_fast: bool | None = None) -> QCRe
             )
         )
 
+    metrics["qc_check_groups"] = {
+        group: [check.name for check in checks if check.group == group]
+        for group in sorted({check.group for check in checks if check.group})
+    }
     report = QCReport(scope="datasets", checks=checks, metrics=metrics)
     write_qc_report(config.qc_report_path, report)
     write_stage_manifest(

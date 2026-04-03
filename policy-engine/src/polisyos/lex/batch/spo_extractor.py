@@ -18,6 +18,7 @@ from pathlib import Path
 from typing import Any, Callable
 
 from polisyos.common.logger import get_logger
+from polisyos.lex.batch.canonicalizers import canonicalize_action, canonicalize_norm_type
 from polisyos.lex.batch.provisions_io import _shard_prefix
 from polisyos.lex.batch.spo_client import (
     GonkaClient,
@@ -1218,10 +1219,11 @@ async def _run_request_groups(
 
 
 _RETRY_TIMEOUT_MULTIPLIER = 1.5
-"""Give retry attempts 50% more time than the original group timeout.
-Single-item batches are cheaper for the LLM, but the API may still be slow
-under load.  The extra headroom is the main lever for improving the 95%
-retry failure rate observed in production."""
+_RETRY_BACKOFF_BASE_SECONDS = 3.0
+"""Retry config:
+- 50% more time than the original timeout (single-item batches are cheaper).
+- 3s base backoff before first retry, growing per sub-group to let API drain.
+"""
 
 
 async def _retry_timed_out_group(
@@ -1250,7 +1252,12 @@ async def _retry_timed_out_group(
         adaptive_batch_downshift_enabled=adaptive_batch_downshift_enabled,
         adaptive_batch_soft_chars_share=adaptive_batch_soft_chars_share,
     )
-    for retry_group in retry_groups:
+    # Backoff before first retry — let the API drain queued requests
+    await asyncio.sleep(_RETRY_BACKOFF_BASE_SECONDS)
+    for idx, retry_group in enumerate(retry_groups):
+        if idx > 0:
+            # Incremental backoff between sub-groups to avoid re-congesting
+            await asyncio.sleep(_RETRY_BACKOFF_BASE_SECONDS * min(idx, 3))
         retried_results.extend(
             await _extract_provision_group_with_timeout(
                 client,
@@ -1441,11 +1448,15 @@ async def extract_spo_for_documents(
                                     )
                             if fallback_rows:
                                 for doc_id, row in fallback_rows:
+                                    statements = row.get("statements")
+                                    stmt_count = len(statements) if isinstance(statements, list) else 0
                                     if result_sink is not None:
                                         result_sink(row)
-                                    doc_buffers.setdefault(doc_id, []).append(row)
-                                    statements = row.get("statements")
-                                    total_statements += len(statements) if isinstance(statements, list) else 0
+                                    # Skip persisting empty fallback rows — they inflate
+                                    # empty_statement_rows_pct without adding value.
+                                    if stmt_count > 0:
+                                        doc_buffers.setdefault(doc_id, []).append(row)
+                                        total_statements += stmt_count
                                 continue
                             for doc, _ in group:
                                 failed_doc_ids.add(doc.card.doc_id)

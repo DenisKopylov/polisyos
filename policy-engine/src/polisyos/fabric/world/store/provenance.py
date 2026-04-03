@@ -1,9 +1,11 @@
+"""Public store provenance module API."""
 from __future__ import annotations
 
 from polisyos.ir.fact_log import FactProvenance
 
 
 def stable_world_provenance_v1(*, license: str = "internal") -> FactProvenance:
+    """Stable world provenance v 1 helper."""
     return FactProvenance(
         source_id="fabric.world",
         license=license,
@@ -16,6 +18,7 @@ def stable_world_provenance_v1(*, license: str = "internal") -> FactProvenance:
 def event_world_provenance_v1(
     event_id: str, *, license: str = "internal"
 ) -> FactProvenance:
+    """Event world provenance v 1 helper."""
     return FactProvenance(
         source_id="fabric.world.event",
         license=license,

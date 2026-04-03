@@ -143,6 +143,7 @@ def build_spo_user_prompt(
     date_acc: str,
     provision_citation: str,
 ) -> str:
+    """Build spo user prompt."""
     return build_spo_extract_user_prompt(
         provision_text=provision_text,
         doc_title=doc_title,

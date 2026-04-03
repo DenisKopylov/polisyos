@@ -41,6 +41,7 @@ _ALIGNMENT_REPORT_SCHEMA_VERSION = "1.1"
 
 
 class AlignmentCertificateType(str, Enum):
+    """Alignment certificate type public type."""
     EXACT = "exact"
     SCALE_LINK = "scale_link"
     LATENT_LINK_IRT = "latent_link_irt"
@@ -49,6 +50,7 @@ class AlignmentCertificateType(str, Enum):
 
 
 class AlignmentType(str, Enum):
+    """Alignment type public type."""
     EXACT = "exact"
     SCALE_LINKED = "scale_linked"
     PROXY = "proxy"
@@ -57,12 +59,14 @@ class AlignmentType(str, Enum):
 
 
 class AlignmentReviewerState(str, Enum):
+    """Alignment reviewer state data model."""
     AUTOMATED = "automated"
     PENDING_REVIEW = "pending_review"
     HUMAN_VERIFIED = "human_verified"
 
 
 class MeasurementComparabilityGrade(str, Enum):
+    """Measurement comparability grade public type."""
     HIGH = "high"
     MEDIUM = "medium"
     LOW = "low"
@@ -70,17 +74,20 @@ class MeasurementComparabilityGrade(str, Enum):
 
 
 class AlignmentOverallStatus(str, Enum):
+    """Alignment overall status public type."""
     ALIGNED = "aligned"
     PARTIALLY_ALIGNED = "partially_aligned"
     INCOMPATIBLE = "incompatible"
 
 
 class AlignmentReviewStatus(str, Enum):
+    """Alignment review status public type."""
     CLEAR = "clear"
     PENDING_REVIEW = "pending_review"
 
 
 class MetadataCheckStatus(str, Enum):
+    """Metadata check status public type."""
     MATCH = "match"
     COMPATIBLE = "compatible"
     WARNING = "warning"
@@ -155,6 +162,7 @@ class VariableAlignmentCertificate(BaseModel):
 
 
 class VariableMetadataCheck(BaseModel):
+    """Variable metadata check public type."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     key: str = Field(min_length=1)
@@ -205,6 +213,7 @@ def build_alignment_report(
     disconnected_fragment_ids: Sequence[str] | None = None,
     metadata: dict[str, Any] | None = None,
 ) -> AlignmentReport:
+    """Build alignment report."""
     normalized_fragment_ids = _dedupe_strings(fragment_ids)
     normalized_disconnected_ids = _dedupe_strings(disconnected_fragment_ids or [])
     alignment_assumptions: list[str] = []
@@ -273,6 +282,7 @@ def verify_fragment_alignment(
     config: AlignmentVerificationConfig | None = None,
     ontology: Sequence[Any] | None = None,
 ) -> tuple[AlignmentReport, InterfaceMapping]:
+    """Verify fragment alignment helper."""
     return _verify_fragment_bundle_alignment_impl(
         [fragment_a, fragment_b],
         config=config,
@@ -290,6 +300,7 @@ def verify_fragment_bundle_alignment(
     ontology: Sequence[Any] | None = None,
     stitch_pairs: Sequence[tuple[str, str]] | None = None,
 ) -> tuple[AlignmentReport, InterfaceMapping]:
+    """Verify fragment bundle alignment helper."""
     return _verify_fragment_bundle_alignment_impl(
         fragments,
         config=config,
@@ -1855,6 +1866,7 @@ def persist_variable_alignment_certificate(
     schema_name: str = _VARIABLE_ALIGNMENT_CERTIFICATE_SCHEMA_NAME,
     schema_version: str = _VARIABLE_ALIGNMENT_CERTIFICATE_SCHEMA_VERSION,
 ) -> VariableAlignmentCertificateRef:
+    """Persist variable alignment certificate helper."""
     ref = put_json_artifact(
         store,
         certificate.model_dump(mode="json"),
@@ -1871,6 +1883,7 @@ def load_variable_alignment_certificate(
     store: ArtifactStore,
     ref: VariableAlignmentCertificateRef,
 ) -> VariableAlignmentCertificate:
+    """Load variable alignment certificate."""
     payload = get_json_artifact(store, ref.artifact_id)
     return VariableAlignmentCertificate.model_validate(payload)
 
@@ -1883,6 +1896,7 @@ def persist_alignment_report(
     schema_name: str = _ALIGNMENT_REPORT_SCHEMA_NAME,
     schema_version: str = _ALIGNMENT_REPORT_SCHEMA_VERSION,
 ) -> AlignmentReportRef:
+    """Persist alignment report helper."""
     ref = put_json_artifact(
         store,
         report.model_dump(mode="json"),
@@ -1899,6 +1913,7 @@ def load_alignment_report(
     store: ArtifactStore,
     ref: AlignmentReportRef,
 ) -> AlignmentReport:
+    """Load alignment report."""
     payload = get_json_artifact(store, ref.artifact_id)
     return AlignmentReport.model_validate(payload)
 

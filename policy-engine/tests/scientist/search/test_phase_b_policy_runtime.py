@@ -957,6 +957,102 @@ def test_incomplete_latent_bundle_is_rejected_by_governance_judge() -> None:
     )
 
 
+def test_missing_identification_conditions_rejects_latent_bundle() -> None:
+    candidate = _candidate(evidence_depth="replicated")
+    bundle = JudgeInputBundle(
+        candidate=candidate,
+        governance_report={"verdict": "approve", "issues": []},
+        latent_discovery_bundle=_latent_bundle().model_copy(
+            update={"identification_conditions": []}
+        ),
+        uncertainty_envelope=_uncertainty(0.1),
+        candidate_ref=_artifact_ref("a"),
+        evaluation_ref=_artifact_ref("b"),
+        replay_bundle_ref=_artifact_ref("c"),
+        state={
+            "checkpoints": [{"stage": "done", "timestamp": "2026-03-25T10:00:00Z"}],
+            "verified_claims": [{"source_ref": "source:1", "confidence": 0.9}],
+            "data_sources": [{"name": "dataset", "last_updated": "2026-03-01T00:00:00+00:00"}],
+            "knowledge_metadata": {"last_updated": "2026-03-01T00:00:00+00:00"},
+            "audit_lineage_complete": True,
+        },
+    )
+
+    verdict = JudgeStack().evaluate(bundle)
+
+    assert verdict.composite_decision == "reject"
+    latent_failure = next(
+        card
+        for card in verdict.blocking_failures
+        if card.failure_type == "latent_discovery_bundle_incomplete"
+    )
+    assert "identification_conditions" in latent_failure.description
+
+
+def test_unreadable_latent_bundle_resolution_is_rejected_and_caps_readiness(
+    tmp_path,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    registry = ChampionRegistry(root=tmp_path / "search_registry", store=store)
+    coordinator = PolicyPromotionCoordinator(champion_registry=registry, store=store)
+
+    candidate = _candidate(evidence_depth="replicated")
+    candidate_ref = persist_policy_candidate_schema(store, candidate)
+    selection_eval, _ = _benchmark(candidate_ref, holdout_score=0.94)
+    evaluation_ref = persist_benchmark_evaluation(store, selection_eval)
+    replay_ref, replay_verification_ref = _persist_replay_support(
+        store,
+        candidate_ref=candidate_ref,
+        evaluation_ref=evaluation_ref,
+    )
+
+    bundle = coordinator.build_input_bundle(
+        candidate=candidate,
+        benchmark_evaluation=selection_eval,
+        evaluation_vector=_evaluation_vector(candidate),
+        governance_report={"verdict": "approve", "issues": []},
+        latent_discovery_resolution_error={
+            "error_code": "ArtifactNotFound",
+            "error_message": "discovery artifact bundle could not be loaded",
+        },
+        uncertainty_envelope=_uncertainty(0.1),
+        replay_bundle_ref=replay_ref,
+        replay_verification_ref=replay_verification_ref,
+        candidate_ref=candidate_ref,
+        evaluation_ref=evaluation_ref,
+        state={
+            "checkpoints": [{"stage": "done", "timestamp": "2026-03-25T10:00:00Z"}],
+            "verified_claims": [{"source_ref": "source:1", "confidence": 0.9}],
+            "data_sources": [{"name": "dataset", "last_updated": "2026-03-01T00:00:00+00:00"}],
+            "knowledge_metadata": {"last_updated": "2026-03-01T00:00:00+00:00"},
+            "audit_lineage_complete": True,
+        },
+    )
+
+    result = coordinator.coordinate_promotion(
+        loop_id="policy_loop",
+        candidate_ref=candidate_ref,
+        evaluation_ref=evaluation_ref,
+        promotion_policy=PromotionPolicy(loop_id="policy_loop", primary_metric="score"),
+        judge_input=bundle,
+    )
+
+    assert result.judge_verdict.composite_decision == "reject"
+    assert result.promotion_decision.promoted is False
+    assert result.readiness_contract.readiness_level == DecisionReadiness.RESEARCH_ARTIFACT
+    assert result.readiness_contract.metadata["readiness_cap_reason"] == (
+        "latent_discovery_bundle_unreadable"
+    )
+    assert result.readiness_contract.metadata["latent_discovery_resolution_error"] == {
+        "error_code": "ArtifactNotFound",
+        "error_message": "discovery artifact bundle could not be loaded",
+    }
+    assert any(
+        card.failure_type == "latent_discovery_bundle_unreadable"
+        for card in result.judge_verdict.blocking_failures
+    )
+
+
 def test_data_readiness_metadata_uses_ref_and_summary_not_inline_dump(tmp_path) -> None:
     store = FileSystemCAS(tmp_path / "cas")
     registry = ChampionRegistry(root=tmp_path / "search_registry", store=store)

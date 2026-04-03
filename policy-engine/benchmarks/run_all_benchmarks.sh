@@ -12,6 +12,8 @@ JSON_DIR="${BENCH_JSON_DIR:-${SCRIPT_DIR}/_reports}"
 BENCH_MODE="${BENCH_MODE:-smoke}"
 BENCH_TIER="${BENCH_TIER:-}"
 BENCH_PROFILE="${BENCH_PROFILE:-}"
+BENCH_VALIDATION_CONTOUR="${BENCH_VALIDATION_CONTOUR:-}"
+BENCH_VISIBILITY="${BENCH_VISIBILITY:-}"
 FILTER_CIRCUIT="${BENCH_CIRCUIT:-all}"
 RUN_ID="${BENCH_RUN_ID:-bench-$(date -u +%Y%m%dT%H%M%SZ)-$$}"
 ESTIMATOR_PROFILE="${BENCH_ESTIMATOR_PROFILE:-flagship_competitive}"
@@ -46,6 +48,14 @@ while [[ $# -gt 0 ]]; do
             BENCH_PROFILE="$2"
             shift 2
             ;;
+        --contour)
+            BENCH_VALIDATION_CONTOUR="$2"
+            shift 2
+            ;;
+        --visibility)
+            BENCH_VISIBILITY="$2"
+            shift 2
+            ;;
         --run-id)
             RUN_ID="$2"
             shift 2
@@ -66,6 +76,8 @@ export PYTHONPATH="${SRC_DIR}:${REPO_ROOT}:${PYTHONPATH:-}"
 export BENCH_MODE
 export BENCH_RUN_ID="${RUN_ID}"
 export BENCH_ESTIMATOR_PROFILE="${ESTIMATOR_PROFILE}"
+export BENCH_VALIDATION_CONTOUR
+export BENCH_VISIBILITY
 if [[ -z "${BENCH_TIER}" ]]; then
     BENCH_TIER="$(
         BENCH_MODE="${BENCH_MODE}" "${PYTHON}" - <<'PY'
@@ -193,7 +205,13 @@ import os
 from benchmarks.suite_registry import emit_registry_tsv
 
 profile = (os.environ.get("BENCH_PROFILE") or "").strip() or None
-payload = emit_registry_tsv(profile=profile)
+validation_contour = (os.environ.get("BENCH_VALIDATION_CONTOUR") or "").strip() or None
+visibility = (os.environ.get("BENCH_VISIBILITY") or "").strip() or None
+payload = emit_registry_tsv(
+    profile=profile,
+    validation_contour=validation_contour,
+    visibility=visibility,
+)
 if payload:
     print(payload)
 PY
@@ -234,6 +252,8 @@ export BENCH_SUMMARY_FILTER="${FILTER_CIRCUIT}"
 export BENCH_SUMMARY_MODE="${BENCH_MODE}"
 export BENCH_SUMMARY_TIER="${BENCH_TIER:-}"
 export BENCH_SUMMARY_PROFILE="${BENCH_PROFILE:-}"
+export BENCH_SUMMARY_VALIDATION_CONTOUR="${BENCH_VALIDATION_CONTOUR:-}"
+export BENCH_SUMMARY_VISIBILITY="${BENCH_VISIBILITY:-}"
 export BENCH_SUMMARY_RUN_ID="${RUN_ID}"
 export BENCH_SUMMARY_ESTIMATOR_PROFILE="${ESTIMATOR_PROFILE}"
 export BENCH_SUMMARY_MATCHED="${MATCHED}"
@@ -290,6 +310,8 @@ summary = {
     "mode": os.environ["BENCH_SUMMARY_MODE"],
     "tier": os.environ["BENCH_SUMMARY_TIER"],
     "profile": os.environ["BENCH_SUMMARY_PROFILE"],
+    "validation_contour": os.environ["BENCH_SUMMARY_VALIDATION_CONTOUR"],
+    "visibility": os.environ["BENCH_SUMMARY_VISIBILITY"],
     "filter": os.environ["BENCH_SUMMARY_FILTER"],
     "matched": matched,
     "n_total": total,
@@ -341,6 +363,12 @@ if [[ -n "${BENCH_TIER}" ]]; then
 fi
 if [[ -n "${BENCH_PROFILE}" ]]; then
     echo "  Profile        : ${BENCH_PROFILE}"
+fi
+if [[ -n "${BENCH_VALIDATION_CONTOUR}" ]]; then
+    echo "  Contour        : ${BENCH_VALIDATION_CONTOUR}"
+fi
+if [[ -n "${BENCH_VISIBILITY}" ]]; then
+    echo "  Visibility     : ${BENCH_VISIBILITY}"
 fi
 echo "  Circuits run   : ${TOTAL}"
 echo "  Circuits passed: ${PASSED}"

@@ -1,3 +1,4 @@
+"""Public contracts causal module API."""
 from polisyos.ir.refs import (
     AbstractionCertificateRef,
     CausalDiscoveryReportRef,

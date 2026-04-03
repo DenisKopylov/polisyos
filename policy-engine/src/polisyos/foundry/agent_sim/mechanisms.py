@@ -1,3 +1,4 @@
+"""Public agent sim mechanisms module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -14,6 +15,7 @@ from polisyos.foundry.contracts.fidelity import FidelityLevel
 
 @dataclass(frozen=True)
 class TaxationMechanism(Mechanism):
+    """Taxation mechanism public type."""
     progressive_factor: float = 0.1
 
     @property
@@ -54,6 +56,7 @@ class TaxationMechanism(Mechanism):
 
 @dataclass(frozen=True)
 class ConsumptionMechanism(Mechanism):
+    """Consumption mechanism public type."""
     policy: SharedPolicy
     min_consumption: float = 0.01
 

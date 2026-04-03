@@ -1,3 +1,4 @@
+"""Public simulate run distributional analysis module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -110,6 +111,7 @@ class _PersistedScalarArtifacts:
 
 @dataclass(frozen=True)
 class RunDistributionalAnalysisNode:
+    """Run distributional analysis node implementation."""
     @property
     def spec(self) -> NodeSpec:
         return _SPEC

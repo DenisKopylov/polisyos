@@ -1,3 +1,4 @@
+"""Public passes budget pass module API."""
 from __future__ import annotations
 
 from typing import List

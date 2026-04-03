@@ -1,3 +1,4 @@
+"""Public bayesian timeseries module API."""
 from __future__ import annotations
 
 from typing import Any, ClassVar, Mapping
@@ -59,6 +60,7 @@ def _output_slots() -> frozenset[SlotSpec]:
     tags={"bayesian", "sampling", "time-series"},
 )
 class BayesianAutoregressionEstimator:
+    """Bayesian autoregression estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
     optional_deps: ClassVar[tuple[str, ...]] = ("arviz",)
@@ -94,6 +96,10 @@ class BayesianAutoregressionEstimator:
         description="Sampling-based Bayesian autoregression for univariate time series.",
         tags=frozenset({"bayesian", "sampling", "time-series"}),
         when_to_use="Macroeconomic forecasting with priors; univariate time series where uncertainty quantification matters",
+        citations=(
+            "Gelman, A. et al. (2013). Bayesian Data Analysis. 3rd ed. CRC Press.",
+            "West, M. & Harrison, J. (1997). Bayesian Forecasting and Dynamic Models. Springer.",
+        ),
         when_not_to_use="Very long series where MCMC is too slow; multivariate VAR needed",
         typical_min_obs=80,
         output_interpretation="Posterior predictive forecasts with full uncertainty. AR coefficient credible intervals show persistence uncertainty.",

@@ -1,3 +1,4 @@
+"""Public uncertainty aggregator module API."""
 from __future__ import annotations
 
 import math
@@ -17,6 +18,7 @@ from .covariance import extract_std
 
 
 class AggregationStrategy(str, Enum):
+    """Aggregation strategy data model."""
     WIDEST = "widest"
     PRECISION_WEIGHTED = "precision_weighted"
     BAYESIAN_COMBINATION = "bayesian_combination"
@@ -28,6 +30,7 @@ def aggregate_envelopes(
     method: str = "widest",
     confidence_level: float = 0.95,
 ) -> UncertaintyEnvelope:
+    """Aggregate envelopes helper."""
     if not envelopes:
         raise ValueError("Cannot aggregate empty envelope list")
     if len(envelopes) == 1:

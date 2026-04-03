@@ -1,3 +1,4 @@
+"""Public methods io module API."""
 from __future__ import annotations
 
 from typing import Any, Mapping
@@ -35,6 +36,7 @@ def materialize_method_input(
     bound_inputs: Mapping[str, Any],
     fallback_state: Any,
 ) -> Any:
+    """Materialize method input helper."""
     custom = getattr(method_class, "materialize_input", None)
     if callable(custom):
         return custom(bound_inputs, fallback_state)
@@ -59,6 +61,7 @@ def dematerialize_method_output(
     signature: MethodSignature,
     output: Any,
 ) -> dict[str, Any]:
+    """Dematerialize method output helper."""
     expected_slots = sorted(signature.output_slots, key=lambda item: item.name)
     custom = getattr(method_class, "dematerialize_output", None)
     if callable(custom):
@@ -80,6 +83,7 @@ def dematerialize_method_output(
 
 
 def validate_value_for_slot(slot: SlotSpec, value: Any, *, method_fqn: str, label: str) -> None:
+    """Validate value for slot."""
     if slot.contract_id is not None:
         actual_contract: str | None = None
         if isinstance(value, Mapping):

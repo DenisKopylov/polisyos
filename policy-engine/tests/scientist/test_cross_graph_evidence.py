@@ -19,6 +19,11 @@ from polisyos.ir.analytics.cross_graph import (
     TransportStatus,
 )
 from polisyos.ir.analytics.context import ContextProfile
+from polisyos.ir.analytics.literature import (
+    EnvironmentAuditReport,
+    LiteratureCausalPrior,
+    LiteratureEdgePrior,
+)
 from polisyos.ir.analytics.transportability import TransportMode
 from polisyos.ir.governance.problem_frame import ConstraintSpec, ProblemFrame
 from polisyos.ir.governance.policy_spec import PolicySpec
@@ -30,6 +35,8 @@ from polisyos.scientist.cross_graph.compiler import (
     _assess_academic_need,
     extract_evidence_needs,
 )
+from polisyos.scientist.cross_graph.gatherers.academic import AcademicGatherer
+from polisyos.scientist.cross_graph.protocols import GathererResult
 from polisyos.scientist.governance.passes.cross_graph_evidence_pass import CrossGraphEvidencePass
 
 
@@ -76,6 +83,207 @@ def test_cross_graph_need_ids_are_deterministic_and_compiler_falls_back() -> Non
     profile = CrossGraphEvidenceCompiler(CrossGraphEvidenceConfig()).compile(bundle)
     assert profile.summary.total_needs == len(first)
     assert any(diagnostic.code == "cross_graph.ontology.unknown_concept" for diagnostic in profile.diagnostics)
+
+
+def test_cross_graph_compiler_routes_literature_prior_context_through_academic_gatherer(
+    monkeypatch,
+) -> None:
+    bundle = _bundle()
+    literature_prior = LiteratureCausalPrior(
+        environment_audit=EnvironmentAuditReport(
+            status="warning",
+            n_environments=2,
+            ks_passed=False,
+            ks_rejected_variables=[0],
+            warnings=["feature_drift_detected"],
+        ),
+        metadata={"build_status": "ok"},
+    )
+    captured_contexts: list[dict[str, object]] = []
+
+    def _fake_assess(self, need, *, concepts, context):
+        del self, need, concepts
+        captured_contexts.append(dict(context))
+        return GathererResult(
+            status=EvidenceStatus.SUPPORTED.value,
+            confidence=0.9,
+            diagnostics=[],
+            provenance_refs=["study:1"],
+            metadata={"transport_reasons": []},
+        )
+
+    monkeypatch.setattr(AcademicGatherer, "assess", _fake_assess)
+
+    profile = CrossGraphEvidenceCompiler(CrossGraphEvidenceConfig()).compile(
+        bundle,
+        literature_prior=literature_prior,
+        literature_prior_ref="ir:literature_prior:test",
+    )
+
+    assert captured_contexts
+    assert any(
+        context.get("literature_prior_ref") == "ir:literature_prior:test"
+        for context in captured_contexts
+    )
+    assert any(
+        (context.get("environment_audit_summary") or {}).get("status") == "warning"
+        for context in captured_contexts
+    )
+    assert any(
+        diagnostic.code == "cross_graph.academic.literature_prior_context"
+        for diagnostic in profile.diagnostics
+    )
+    assert "environment_audit_status:warning" in profile.notes
+
+
+def test_academic_gatherer_uses_literature_prior_baseline_without_backend() -> None:
+    need = EvidenceNeed(
+        need_id="edge_need:baseline",
+        need_type=EvidenceNeedType.CAUSAL_EDGE_NEED,
+        source_path="causal_graph.edges[0]",
+        cause="tax.audit_rate",
+        effect="tax.compliance",
+    )
+    literature_prior = LiteratureCausalPrior(
+        edges=[
+            LiteratureEdgePrior(
+                src="tax.audit_rate",
+                dst="tax.compliance",
+                confidence=0.72,
+                n_articles=3,
+                article_refs=["oa:1", "oa:2"],
+            )
+        ]
+    )
+
+    result = AcademicGatherer().assess(
+        need,
+        concepts=[],
+        context={"academic_query": None, "literature_prior": literature_prior},
+    )
+
+    assert result.status == EvidenceStatus.MIXED.value
+    assert result.metadata["baseline_support_source"] == "literature_prior"
+    assert result.metadata["literature_prior_confidence"] == 0.72
+    assert result.metadata["literature_prior_article_refs"] == ["oa:1", "oa:2"]
+    assert result.provenance_refs == ["oa:1", "oa:2"]
+
+
+def test_academic_gatherer_does_not_use_edge_prior_for_parameter_needs() -> None:
+    need = EvidenceNeed(
+        need_id="parameter_need:baseline",
+        need_type=EvidenceNeedType.PARAMETER_NEED,
+        source_path="policy_spec.parameters[0]",
+        parameter_name="fiscal_multiplier",
+    )
+    literature_prior = LiteratureCausalPrior(
+        edges=[
+            LiteratureEdgePrior(
+                src="tax.audit_rate",
+                dst="tax.compliance",
+                confidence=0.8,
+                n_articles=4,
+                article_refs=["oa:1"],
+            )
+        ]
+    )
+
+    result = AcademicGatherer().assess(
+        need,
+        concepts=[],
+        context={"academic_query": None, "literature_prior": literature_prior},
+    )
+
+    assert result.status == EvidenceStatus.INSUFFICIENT.value
+    assert result.metadata.get("baseline_support_source") is None
+
+
+def test_academic_gatherer_prior_baseline_only_lifts_insufficient_backend_to_mixed() -> None:
+    class _AcademicResult:
+        def __init__(self) -> None:
+            self.evidence_status = EvidenceStatus.INSUFFICIENT
+            self.transport_confidence = 0.25
+            self.diagnostics = []
+            self.provenance_refs = ["study:legacy"]
+            self.transport_reasons = ["backend_insufficient"]
+
+    need = EvidenceNeed(
+        need_id="edge_need:merge",
+        need_type=EvidenceNeedType.CAUSAL_EDGE_NEED,
+        source_path="causal_graph.edges[0]",
+        cause="tax.audit_rate",
+        effect="tax.compliance",
+    )
+    literature_prior = LiteratureCausalPrior(
+        edges=[
+            LiteratureEdgePrior(
+                src="tax.audit_rate",
+                dst="tax.compliance",
+                confidence=0.7,
+                n_articles=3,
+                article_refs=["oa:1", "oa:2"],
+            )
+        ]
+    )
+
+    result = AcademicGatherer().assess(
+        need,
+        concepts=[],
+        context={
+            "academic_query": object(),
+            "literature_prior": literature_prior,
+            "_assess_academic_need": lambda *args, **kwargs: _AcademicResult(),
+        },
+    )
+
+    assert result.status == EvidenceStatus.MIXED.value
+    assert result.metadata["baseline_support_source"] == "literature_prior"
+    assert "study:legacy" in result.provenance_refs
+    assert "oa:1" in result.provenance_refs
+
+
+def test_environment_audit_warning_adds_advisory_without_changing_prior_backed_status() -> None:
+    need = EvidenceNeed(
+        need_id="edge_need:audit",
+        need_type=EvidenceNeedType.CAUSAL_EDGE_NEED,
+        source_path="causal_graph.edges[0]",
+        cause="tax.audit_rate",
+        effect="tax.compliance",
+    )
+    literature_prior = LiteratureCausalPrior(
+        edges=[
+            LiteratureEdgePrior(
+                src="tax.audit_rate",
+                dst="tax.compliance",
+                confidence=0.72,
+                n_articles=3,
+                article_refs=["oa:1", "oa:2"],
+            )
+        ],
+        environment_audit=EnvironmentAuditReport(
+            status="warning",
+            n_environments=2,
+            ks_passed=False,
+            ks_rejected_variables=[0],
+            warnings=["feature_drift_detected"],
+        ),
+    )
+
+    result = AcademicGatherer().assess(
+        need,
+        concepts=[],
+        context={
+            "academic_query": None,
+            "literature_prior": literature_prior,
+            "environment_audit": literature_prior.environment_audit,
+        },
+    )
+
+    assert result.status == EvidenceStatus.MIXED.value
+    assert any(
+        diagnostic.code == "cross_graph.academic.environment_audit_advisory"
+        for diagnostic in result.diagnostics
+    )
 
 
 def test_cross_graph_governance_pass_blocks_strict_blockers() -> None:

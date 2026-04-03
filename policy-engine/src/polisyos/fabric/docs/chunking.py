@@ -1,3 +1,4 @@
+"""Public docs chunking module API."""
 from __future__ import annotations
 
 import re
@@ -100,6 +101,7 @@ def chunk_doc(
     options: DocChunkOptions | None = None,
     segment_name: str | None = None,
 ) -> DocChunkResult:
+    """Chunk doc helper."""
     opts = options or DocChunkOptions()
 
     meta = _load_doc_meta(cas, doc_meta_artifact_id)

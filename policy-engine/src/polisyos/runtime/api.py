@@ -1,3 +1,4 @@
+"""Public runtime api module API."""
 from __future__ import annotations
 
 import uuid
@@ -49,6 +50,7 @@ def start_run(
     budgets: Optional[Dict[str, float]] = None,
     base_dir: Path = Path("runs"),
 ) -> RunManifest:
+    """Start run helper."""
     run_id = run_id or str(uuid.uuid4())[:8]
     manifest = RunManifest(
         run_id=run_id,
@@ -73,6 +75,7 @@ def log_artifact(
     filename: Optional[str] = None,
     base_dir: Path = Path("runs"),
 ) -> ArtifactRef:
+    """Log artifact helper."""
     run_dir = _run_dir(base_dir, run_id)
     artifact_dir = run_dir / "artifacts" / artifact_type
     artifact_dir.mkdir(parents=True, exist_ok=True)
@@ -122,6 +125,7 @@ def append_audit(
     record: Dict[str, Any],
     base_dir: Path = Path("runs"),
 ) -> None:
+    """Append audit helper."""
     run_dir = _run_dir(base_dir, run_id)
     audit_path = run_dir / "audit.jsonl"
     run_dir.mkdir(parents=True, exist_ok=True)
@@ -147,6 +151,7 @@ def update_budget_usage(
     budget_usage: Dict[str, float],
     base_dir: Path = Path("runs"),
 ) -> None:
+    """Update budget usage helper."""
     manifest = _load_manifest(base_dir, run_id)
     manifest.budget_usage = dict(budget_usage)
     _write_manifest(base_dir, manifest)
@@ -159,6 +164,7 @@ def finalize_run(
     pruning_reason: Optional[Dict[str, Any]] = None,
     base_dir: Path = Path("runs"),
 ) -> None:
+    """Finalize run helper."""
     manifest = _load_manifest(base_dir, run_id)
     manifest.status = status
     manifest.finished_at = datetime.now(timezone.utc).isoformat()

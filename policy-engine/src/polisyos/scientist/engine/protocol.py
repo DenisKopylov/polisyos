@@ -1,3 +1,4 @@
+"""Public engine protocol module API."""
 from __future__ import annotations
 
 from typing import Any, Literal, Protocol, runtime_checkable
@@ -13,6 +14,7 @@ NodeStatus = Literal["ok", "skip", "fail"]
 
 
 class NodeError(BaseModel):
+    """Node error exception."""
     model_config = ConfigDict(extra="forbid")
 
     code: str
@@ -24,6 +26,7 @@ class NodeError(BaseModel):
 
 
 class NodeEvent(BaseModel):
+    """Node event data model."""
     model_config = ConfigDict(extra="forbid")
 
     level: Literal["debug", "info", "warn", "error"] = "info"
@@ -33,6 +36,7 @@ class NodeEvent(BaseModel):
 
 
 class NodeOutcome(BaseModel):
+    """Node outcome public type."""
     model_config = ConfigDict(extra="forbid")
 
     status: NodeStatus
@@ -51,6 +55,7 @@ class NodeOutcome(BaseModel):
 
 
 class NodeSpec(BaseModel):
+    """Node spec data model."""
     model_config = ConfigDict(extra="forbid")
 
     metadata: ComponentMetadata
@@ -61,6 +66,7 @@ class NodeSpec(BaseModel):
 
 @runtime_checkable
 class Node(Protocol):
+    """Node implementation."""
     @property
     def spec(self) -> NodeSpec:  # pragma: no cover - protocol signature
         ...

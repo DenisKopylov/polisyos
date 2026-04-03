@@ -92,6 +92,7 @@ def execute_program_graph(
     parameter_override_bundle_ref: ArtifactRef | None = None,
     strictness: ExecutionStrictness = ExecutionStrictness.FAIL_CLOSED,
 ) -> ExecuteArtifacts:
+    """Execute program graph."""
     env_manifest_ref: EnvironmentManifestRef | None = None
     env_fingerprint: str | None = None
     if capture_env:

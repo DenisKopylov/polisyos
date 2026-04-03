@@ -25,6 +25,7 @@ from polisyos.scientist.search.uncertainty import (
 
 
 class ObjectiveKind(str, Enum):
+    """Objective kind public type."""
     PRIMARY = "primary"
     HARD_CONSTRAINT = "hard_constraint"
     SECONDARY = "secondary"
@@ -32,11 +33,13 @@ class ObjectiveKind(str, Enum):
 
 
 class ObjectiveDirection(str, Enum):
+    """Objective direction public type."""
     MINIMIZE = "minimize"
     MAXIMIZE = "maximize"
 
 
 class ConstraintStatus(str, Enum):
+    """Constraint status public type."""
     FEASIBLE = "feasible"
     NEAR_BINDING = "near_binding"
     VIOLATED = "violated"

@@ -1,5 +1,13 @@
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.ir.analytics.causal_discovery import CausalDiscoveryReport
+from polisyos.ir.analytics.causal_discovery import (
+    AlgebraicConstraintFamily,
+    AlgebraicConstraintReport,
+    CausalDiscoveryReport,
+    ConstraintEvaluationResult,
+    LatentAssumptionCard,
+    LatentDiscoveryBundle,
+    LatentTrustLevel,
+)
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType
 from polisyos.scientist.discovery.schema import (
     ComputeFootprint,
@@ -115,6 +123,50 @@ def test_graph_hypothesis_extracts_failure_reasons_from_report_warnings() -> Non
     assert hypothesis.algorithm_family is DiscoveryAlgorithmFamily.CONSTRAINT_BASED
     assert hypothesis.failure_reasons == ["algorithm_failed:TimeoutError: backend timed out"]
     assert "soft warning that should remain informational" in hypothesis.warnings
+
+
+def test_graph_hypothesis_carries_typed_discovery_payloads_from_report() -> None:
+    report = CausalDiscoveryReport(
+        method="pc",
+        graph=_graph(
+            graph_type=GraphType.DAG,
+            edges=[CausalEdge(src="X", dst="Y", combined_confidence=0.8)],
+            discovery_method="pc",
+        ),
+        algebraic_constraints=AlgebraicConstraintReport(
+            severity="warning",
+            violated_constraints_preview=[
+                ConstraintEvaluationResult(
+                    constraint_id="ci:X_Y",
+                    family=AlgebraicConstraintFamily.CI,
+                    status="violated",
+                    severity="blocker",
+                )
+            ],
+        ),
+        latent_discovery=LatentDiscoveryBundle(
+            proposed_latent_nodes=["U_income"],
+            inducing_environments=["region"],
+            identification_conditions=["proxy_quality"],
+            falsification_tests=["negative_control_outcome"],
+            trust_level=LatentTrustLevel.RESEARCH,
+            assumption_cards=[
+                LatentAssumptionCard(
+                    assumption_id="latent_card",
+                    title="Latent confounding remains research-only",
+                    description="Observed proxies may still mask latent confounding.",
+                )
+            ],
+            no_promotion_reasons=["latent_discovery_proof_only"],
+        ),
+        metadata={"algebraic_constraint_severity": "warning"},
+    )
+
+    hypothesis = graph_hypothesis_from_report(report, hypothesis_id="pc_0")
+
+    assert hypothesis.algebraic_constraints == report.algebraic_constraints
+    assert hypothesis.latent_discovery == report.latent_discovery
+    assert hypothesis.source_discovery_report_ref is None
 
 
 def test_infer_algorithm_family_supports_functional_methods() -> None:

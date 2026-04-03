@@ -1,3 +1,4 @@
+"""Public sensitivity specification module API."""
 from __future__ import annotations
 
 from typing import Any, ClassVar, Mapping
@@ -29,6 +30,7 @@ def _result_slot() -> frozenset[SlotSpec]:
     tags={"sensitivity", "specification", "multiverse", "robustness", "tabular"},
 )
 class SpecificationCurveEstimator:
+    """Specification curve estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -69,6 +71,13 @@ class SpecificationCurveEstimator:
 
     @staticmethod
     def pure_step(state: Mapping[str, Any], params: Mapping[str, Any]) -> dict[str, Any]:
+        if not isinstance(state, Mapping):
+            from polisyos.ir.observation.contract_compilers import SpecificationCurveInput
+
+            if isinstance(state, SpecificationCurveInput):
+                state = state.model_dump(mode="python")
+            else:
+                raise TypeError("state must be a mapping or SpecificationCurveInput")
         estimates = np.asarray(state["estimates"], dtype=float)
         se = np.asarray(state["standard_errors"], dtype=float)
         if estimates.shape != se.shape or estimates.ndim != 1:

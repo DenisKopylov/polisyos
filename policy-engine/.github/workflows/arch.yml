@@ -23,7 +23,7 @@ jobs:
           node-version: "22"
       - name: Install dependencies
         run: |
-          pip install -e ".[dev,test]"
+          pip install -e ".[dev,test,causal-discovery]"
       - name: Install frontend dashboard dependencies
         working-directory: frontend/runtime-dashboard
         run: npm install

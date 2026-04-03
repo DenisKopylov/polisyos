@@ -1,3 +1,4 @@
+"""Public spatial analysis module API."""
 from __future__ import annotations
 
 from typing import Any, ClassVar, Mapping
@@ -92,6 +93,7 @@ def _spatial_weights(data: SpatialData, *, decay: float = 1.0) -> np.ndarray:
     tags={"spatial", "moran-i"},
 )
 class MoranIEstimator:
+    """Moran I estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy", "scipy")
 
@@ -123,6 +125,9 @@ class MoranIEstimator:
         description="Global Moran's I test for spatial autocorrelation.",
         tags=frozenset({"spatial", "moran-i"}),
         when_to_use="Test for spatial clustering; check spatial autocorrelation before regression",
+        citations=(
+            "Moran, P. (1950). Notes on continuous stochastic phenomena. Biometrika, 37(1/2), 17-23.",
+        ),
         when_not_to_use="No spatial weights matrix available; data are not spatially indexed",
         output_interpretation="Moran's I ∈ [-1,1]. I>0 = positive spatial clustering. p-value from permutation test.",
     )
@@ -167,6 +172,7 @@ class MoranIEstimator:
     tags={"spatial", "gwr"},
 )
 class GWREstimator:
+    """GWR estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy", "scipy")
 
@@ -195,6 +201,9 @@ class GWREstimator:
         description="Geographically weighted regression using Gaussian kernel weights.",
         tags=frozenset({"spatial", "gwr"}),
         when_to_use="Regression with spatially varying coefficients; explore local heterogeneity in policy effects",
+        citations=(
+            "Fotheringham, A., Brunsdon, C. & Charlton, M. (2002). Geographically Weighted Regression: The Analysis of Spatially Varying Relationships. Wiley.",
+        ),
         when_not_to_use="Global homogeneous relationships; very small spatial datasets; bandwidth selection is unclear",
         output_interpretation="Local coefficients map showing spatial variation. Compare to global OLS to assess non-stationarity.",
         typical_min_obs=50,
@@ -243,6 +252,7 @@ class GWREstimator:
     tags={"spatial", "spatial-durbin"},
 )
 class SpatialDurbinEstimator:
+    """Spatial durbin estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("statsmodels", "numpy")
 
@@ -272,6 +282,10 @@ class SpatialDurbinEstimator:
         description="Spatial Durbin regression with outcome and feature spatial lags.",
         tags=frozenset({"spatial", "spatial-durbin"}),
         when_to_use="Regression with spatial spillovers; spatial lag model for policy diffusion; SEM for spatial error",
+        citations=(
+            "Anselin, L. (1988). Spatial Econometrics: Methods and Models. Kluwer Academic Publishers.",
+            "LeSage, J. & Pace, R. (2009). Introduction to Spatial Econometrics. CRC Press.",
+        ),
         when_not_to_use="No spatial structure; spatial weights uncertain; pure time-series data",
         output_interpretation="ρ (spatial lag): spillover intensity. Direct + indirect (spillover) effects of each regressor.",
         typical_min_obs=50,
@@ -318,6 +332,7 @@ class SpatialDurbinEstimator:
     tags={"spatial", "gravity-model"},
 )
 class GravityModelEstimator:
+    """Gravity model estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("statsmodels", "numpy", "scipy")
 
@@ -348,6 +363,10 @@ class GravityModelEstimator:
         description="Log-linear gravity model for trade, migration, or commuting flows.",
         tags=frozenset({"spatial", "gravity-model"}),
         when_to_use="Model bilateral flows (trade, migration, commuting) as function of mass and distance",
+        citations=(
+            "Tinbergen, J. (1962). Shaping the World Economy: Suggestions for an International Economic Policy. Twentieth Century Fund.",
+            "Anderson, J. (1979). A theoretical foundation for the gravity equation. American Economic Review, 69(1), 106-116.",
+        ),
         when_not_to_use="Non-bilateral data; zero-inflated flows (use PPML); no distance information available",
         output_interpretation="Distance decay coefficient: elasticity of flow to distance. Origin/destination elasticities: size effects. R² on log scale.",
     )
@@ -405,6 +424,7 @@ class GravityModelEstimator:
     tags={"spatial", "accessibility-index"},
 )
 class AccessibilityIndexEstimator:
+    """Accessibility index estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy", "scipy")
 
@@ -444,6 +464,9 @@ class AccessibilityIndexEstimator:
         description="Gravity-style accessibility index from origins to opportunities.",
         tags=frozenset({"spatial", "accessibility-index"}),
         when_to_use="Measure spatial access to services (hospitals, jobs, schools); equity analysis of facility distribution",
+        citations=(
+            "Hansen, W. (1959). How accessibility shapes land use. Journal of the American Institute of Planners, 25(2), 73-76.",
+        ),
         when_not_to_use="No spatial coordinates; travel cost matrix unavailable; binary reachability sufficient",
         output_interpretation="Accessibility score per origin: higher = better access. Decay parameter controls distance penalty. Useful for spatial equity mapping.",
     )

@@ -24,6 +24,7 @@ logger = get_logger(__name__)
 
 
 class VerificationStatus(str, Enum):
+    """Verification status public type."""
     PASSED = "passed"
     FAILED = "failed"
     ERROR = "error"
@@ -32,6 +33,7 @@ class VerificationStatus(str, Enum):
 
 @dataclass(frozen=True, slots=True)
 class VerificationResult:
+    """Verification result data model."""
     status: VerificationStatus
     passed: bool
     errors: list[str] = field(default_factory=list)
@@ -65,6 +67,7 @@ class VerificationResult:
 
 
 class SandboxConfig(BaseModel):
+    """Sandbox config data model."""
     model_config = ConfigDict(frozen=True, extra="forbid")
 
     timeout_seconds: float = Field(default=5.0, gt=0.0, le=30.0)

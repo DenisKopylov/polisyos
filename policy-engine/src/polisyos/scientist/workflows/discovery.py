@@ -1,9 +1,11 @@
+"""Public workflows discovery module API."""
 from __future__ import annotations
 
 from polisyos.scientist.engine.workflow_spec import NodeInvocation, WorkflowSpec
 
 
 def discovery_workflow_spec() -> WorkflowSpec:
+    """Discovery workflow spec helper."""
     return WorkflowSpec(
         workflow_id="scientist_discovery",
         error_policy="continue",

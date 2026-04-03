@@ -1,7 +1,7 @@
+"""Public causal tmle core module API."""
 from __future__ import annotations
 
 import hashlib
-import os
 import threading
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import asdict, dataclass, field
@@ -55,6 +55,7 @@ except Exception:  # pragma: no cover - fallback covered by tests
 
 @dataclass(frozen=True)
 class ATENuisanceContract:
+    """ATE nuisance contract data model."""
     nuisance_model_family: str = "competitive"
     propensity_backend: str = "lightgbm"
     propensity_backend_candidates: tuple[str, ...] = ()
@@ -166,6 +167,7 @@ class ATENuisanceContract:
 
 @dataclass
 class ATENuisanceBundle:
+    """ATE nuisance bundle data model."""
     propensity: np.ndarray
     mu1: np.ndarray
     mu0: np.ndarray
@@ -238,6 +240,7 @@ class ATENuisanceBundle:
 
 @dataclass
 class ATEFitResult:
+    """ATE fit result data model."""
     ate: float
     standard_error: float
     ci_lower: float
@@ -785,8 +788,8 @@ def _fit_crossfit_nuisance_bundle_uncached(
 
     max_workers = 1
     if contract.parallel_folds and len(tasks) > 1:
-        auto_workers = os.cpu_count() or 1
-        max_workers = min(len(tasks), contract.max_parallel_folds or auto_workers)
+        auto_workers = contract.max_parallel_folds or len(tasks)
+        max_workers = min(len(tasks), auto_workers)
         max_workers = max(1, int(max_workers))
 
     if max_workers > 1:
@@ -868,6 +871,7 @@ def fit_crossfit_nuisance_bundle(
     contract: ATENuisanceContract,
     params: Mapping[str, Any] | None = None,
 ) -> ATENuisanceBundle:
+    """Fit crossfit nuisance bundle helper."""
     precomputed = None if params is None else params.get("__shared_nuisance_bundle")
     if isinstance(precomputed, ATENuisanceBundle):
         return precomputed
@@ -1021,6 +1025,7 @@ def fit_aipw_ate(
     Y: np.ndarray,
     params: Mapping[str, Any] | None = None,
 ) -> tuple[ATEFitResult, ATENuisanceBundle]:
+    """Fit aipw ate helper."""
     contract = ATENuisanceContract.from_params(params)
     nuisance = fit_crossfit_nuisance_bundle(X, T, Y, contract, params)
     e = nuisance.propensity
@@ -1059,6 +1064,7 @@ def fit_tmle_ate(
     Y: np.ndarray,
     params: Mapping[str, Any] | None = None,
 ) -> tuple[ATEFitResult, ATENuisanceBundle]:
+    """Fit tmle ate helper."""
     contract = ATENuisanceContract.from_params(params)
     nuisance = fit_crossfit_nuisance_bundle(X, T, Y, contract, params)
     e = nuisance.propensity
@@ -1129,6 +1135,7 @@ def result_payload(
     result: ATEFitResult,
     nuisance: ATENuisanceBundle,
 ) -> dict[str, Any]:
+    """Result payload helper."""
     contract = nuisance.contract
     payload = {
         "ate": result.ate,

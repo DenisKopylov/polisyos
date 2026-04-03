@@ -1,3 +1,4 @@
+"""Public conflicts score docs module API."""
 from __future__ import annotations
 
 from datetime import timezone
@@ -58,6 +59,7 @@ def score_doc_trust_assessments(
     policy_id: str,
     algorithm_version: str,
 ) -> dict[str, TrustAssessment]:
+    """Score doc trust assessments helper."""
     unique_artifacts = sorted(set(doc_meta_artifact_ids))
     if not unique_artifacts:
         return {}

@@ -1,3 +1,4 @@
+"""Public passes literature gate pass module API."""
 from __future__ import annotations
 
 from polisyos.common.logger import get_logger

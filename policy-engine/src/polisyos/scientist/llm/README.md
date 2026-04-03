@@ -1,38 +1,34 @@
-# LLM Layer (`polisyos.scientist.llm`)
+# LLM (`polisyos.scientist.llm`)
 
-`llm` — gateway-first LLM слой Scientist с trace-совместимым клиентом и registry профилей моделей.
+`llm` — gateway-first LLM runtime Scientist: конфигурирование клиентов, traced
+execution, fallback routing, prompt caching и registry model profiles для control/UI surfaces.
 
-## Роль
+## Роль в системе
 
-- дает легковесный OpenAI-compatible gateway client (`GatewayLLMClient`);
-- оборачивает raw client в traced клиент (`TracedLLMClient` из `core.llm`);
-- читает env-конфиг gateway и создает runtime client фабрикой;
-- хранит список доступных модельных профилей для runtime control/UI.
+- **Зависит от:** `core.llm`, `core.observability`
+- **Используется в:** `scientist.agent`, runtime control flows, multi-model orchestration
+- Пакет изолирует provider/gateway specifics от agent- и workflow-layer кода.
 
-## Ключевые файлы
+## Ключевые концепции
 
-- `gateway_client.py` — async `/chat/completions` клиент + retry/timeout + usage parsing.
-- `factory.py` — `GatewayLLMConfig.from_env()` и `create_traced_gateway_client()`.
-- `traced_client.py` — compatibility bridge к `polisyos.core.llm.traced_client`.
-- `profiles/models.py` — модель `ModelProfile`.
-- `profiles/registry.py` — singleton `ModelProfileRegistry`.
-- `profiles/builtin_profiles.py` — встроенные профили (OpenAI/Anthropic/Gemini/Groq/Gonka через gateway).
+- **GatewayLLMClient** — OpenAI-compatible gateway transport.
+- **GatewayLLMConfig** — env-driven runtime configuration.
+- **TracedLLMClient** — observability-aware wrapper поверх raw client.
+- **Profiles registry** — built-in model profiles for runtime selection/UI.
+- **Fallback router / prompt cache** — supporting runtime resilience and efficiency.
 
-## Runtime env
+## Public API
 
-Основные переменные:
-- `POLISYOS_LLM_GATEWAY_BASE_URL`
-- `POLISYOS_LLM_GATEWAY_API_KEY`
-- `POLISYOS_LLM_GATEWAY_TIMEOUT_S`
-- `POLISYOS_LLM_GATEWAY_MAX_RETRIES`
-- `POLISYOS_LLM_GATEWAY_PROVIDER`
-- `POLISYOS_LLM_CAPTURE_PROMPT`
-- `POLISYOS_LLM_MAX_PROMPT_CAPTURE_CHARS`
+- `GatewayLLMClient`, `GatewayLLMResponse`, `GatewayUsage`
+- `GatewayLLMConfig`
+- `TracedLLMClient`, `LLMClientProtocol`
+- `create_traced_gateway_client(...)`
 
-Если `POLISYOS_LLM_GATEWAY_BASE_URL` не задан, `create_traced_gateway_client()` возвращает `None` (вызывающий код решает fallback).
+Подробности: [Reference →](../../../../docs/reference/scientist/index.md)
 
-## Связи
+## Текущее состояние
 
-- `agent/*` использует traced LLM-клиенты из этого слоя.
-- runtime control API использует model profiles для multi-model запусков.
-- observability/token-cost метрики пишутся через `TracedLLMClient`/`core.observability`.
+- Последнее обновление: 2026-04-03
+- Python modules: 14
+- Exports: 7
+- README теперь отражает profiles/fallback/cache surface, а не только gateway client

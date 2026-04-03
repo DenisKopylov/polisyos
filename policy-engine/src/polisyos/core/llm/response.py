@@ -1,3 +1,4 @@
+"""Public llm response module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -6,6 +7,7 @@ from typing import Any
 
 @dataclass(frozen=True)
 class LLMResponseData:
+    """LLM response data public type."""
     content: str
     prompt_tokens: int
     completion_tokens: int
@@ -19,6 +21,7 @@ class LLMResponseData:
 
 
 def extract_llm_response_data(response: Any) -> LLMResponseData:
+    """Extract llm response data helper."""
     content = response.content if hasattr(response, "content") else str(response)
     prompt_tokens = 0
     completion_tokens = 0

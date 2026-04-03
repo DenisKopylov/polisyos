@@ -1,3 +1,4 @@
+"""Public core discovery package API."""
 from .base import (
     BaseDiscovery,
     DiscoveryError,

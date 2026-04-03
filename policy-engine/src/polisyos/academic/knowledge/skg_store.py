@@ -276,6 +276,7 @@ CITATION_IMPACT_CAP = 1.15
 
 @dataclass(frozen=True)
 class ArticleEvidence:
+    """Article evidence public type."""
     strength: str
     extraction_confidence: float
     publication_year: int | None = None
@@ -287,6 +288,7 @@ class ArticleEvidence:
 
 @dataclass(frozen=True)
 class WeightedDirectionSummary:
+    """Weighted direction summary data model."""
     dominant_direction: str
     agreement_score: float
     is_contested: bool
@@ -395,6 +397,7 @@ def aggregate_edge_confidence(articles: Iterable[ArticleEvidence | tuple[Any, ..
 def weighted_direction_summary(
     direction_evidence: dict[str, Iterable[ArticleEvidence | tuple[Any, ...]]],
 ) -> WeightedDirectionSummary:
+    """Weighted direction summary helper."""
     direction_weights: dict[str, float] = {}
     dissent_strength = EvidenceStrength.UNKNOWN.value
     dissent_year: int | None = None
@@ -442,6 +445,7 @@ def weighted_direction_summary(
 
 
 def ensure_skg_schema(con: duckdb.DuckDBPyConnection) -> None:
+    """Ensure skg schema helper."""
     for stmt in SKG_DDL.strip().split(";"):
         sql = stmt.strip()
         if sql:
@@ -471,6 +475,7 @@ def ensure_skg_schema(con: duckdb.DuckDBPyConnection) -> None:
 
 
 def next_skg_version(con: duckdb.DuckDBPyConnection, *, description: str = "") -> int:
+    """Next skg version helper."""
     ensure_skg_schema(con)
     row = con.execute("SELECT COALESCE(MAX(version_id), 0) + 1 FROM ac_skg_versions").fetchone()
     version_id = int(row[0]) if row else 1
@@ -492,6 +497,7 @@ def finalize_skg_version(
     n_edges: int,
     n_variables: int,
 ) -> None:
+    """Finalize skg version helper."""
     ensure_skg_schema(con)
     con.execute(
         """
@@ -504,6 +510,7 @@ def finalize_skg_version(
 
 
 def hash_edge_id(src: str, dst: str, direction: str) -> str:
+    """Hash edge ID helper."""
     import hashlib
 
     payload = f"{src}|{dst}|{direction}".encode("utf-8")
@@ -511,6 +518,7 @@ def hash_edge_id(src: str, dst: str, direction: str) -> str:
 
 
 def hash_param_id(canonical_name: str, openalex_id: str) -> str:
+    """Hash param ID helper."""
     import hashlib
 
     payload = f"{canonical_name}|{openalex_id}".encode("utf-8")
@@ -518,6 +526,7 @@ def hash_param_id(canonical_name: str, openalex_id: str) -> str:
 
 
 def hash_contested_edge_id(src_family: str, dst_family: str) -> str:
+    """Hash contested edge ID helper."""
     import hashlib
 
     payload = f"contested|{src_family}|{dst_family}".encode("utf-8")
@@ -525,6 +534,7 @@ def hash_contested_edge_id(src_family: str, dst_family: str) -> str:
 
 
 def hash_context_attr_id(canonical_name: str, openalex_id: str, country_code: str) -> str:
+    """Hash context attr ID helper."""
     import hashlib
 
     payload = f"ctx_attr|{canonical_name}|{openalex_id}|{country_code}".encode("utf-8")
@@ -532,6 +542,7 @@ def hash_context_attr_id(canonical_name: str, openalex_id: str, country_code: st
 
 
 def hash_moderation_edge_id(base_cause: str, base_effect: str, moderator: str) -> str:
+    """Hash moderation edge ID helper."""
     import hashlib
 
     payload = f"mod_edge|{base_cause}|{base_effect}|{moderator}".encode("utf-8")
@@ -539,6 +550,7 @@ def hash_moderation_edge_id(base_cause: str, base_effect: str, moderator: str) -
 
 
 def hash_transport_score_id(edge_id: str, target_context_id: str) -> str:
+    """Hash transport score ID helper."""
     import hashlib
 
     payload = f"transport|{edge_id}|{target_context_id}".encode("utf-8")
@@ -546,6 +558,7 @@ def hash_transport_score_id(edge_id: str, target_context_id: str) -> str:
 
 
 def hash_context_profile_id(context_id: str, time_period: str) -> str:
+    """Hash context profile ID helper."""
     import hashlib
 
     payload = f"ctx_prof|{context_id}|{time_period}".encode("utf-8")
@@ -553,12 +566,14 @@ def hash_context_profile_id(context_id: str, time_period: str) -> str:
 
 
 def parent_canonical_name(canonical_name: str) -> str | None:
+    """Parent canonical name helper."""
     if "." not in canonical_name:
         return None
     return canonical_name.rsplit(".", 1)[0]
 
 
 def edge_strength_rank(strength: str) -> int:
+    """Edge strength rank helper."""
     ranking = {
         EvidenceStrength.RCT.value: 8,
         EvidenceStrength.META_ANALYSIS.value: 7,
@@ -575,6 +590,7 @@ def edge_strength_rank(strength: str) -> int:
 
 
 def strongest_strength(values: Iterable[str]) -> str:
+    """Strongest strength helper."""
     best = EvidenceStrength.UNKNOWN.value
     best_rank = -1
     for value in values:
@@ -586,6 +602,7 @@ def strongest_strength(values: Iterable[str]) -> str:
 
 
 def normalize_strength(value: Any) -> str:
+    """Normalize strength helper."""
     text = str(value or "").strip().lower()
     if text in EVIDENCE_WEIGHTS:
         return text

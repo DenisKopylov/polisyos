@@ -1,0 +1,15 @@
+{
+  "enum": [
+    "agent",
+    "cell",
+    "firm",
+    "global",
+    "household",
+    "household_cell",
+    "region",
+    "sector"
+  ],
+  "title": "EntityScope",
+  "type": "string",
+  "x-fqn": "polisyos.ir.observation.contracts.EntityScope"
+}

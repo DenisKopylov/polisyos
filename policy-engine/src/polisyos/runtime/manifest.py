@@ -1,3 +1,4 @@
+"""Public runtime manifest module API."""
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -9,6 +10,7 @@ from polisyos.core.contracts.foundry import EnvironmentManifestRef
 
 
 class ArtifactRef(BaseModel):
+    """Artifact ref data model."""
     artifact_type: str
     path: Optional[str] = None
     relative_path: Optional[str] = None
@@ -21,6 +23,7 @@ class ArtifactRef(BaseModel):
 
 
 class RunManifest(BaseModel):
+    """Run manifest data model."""
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
     run_id: str
     parent_run_id: Optional[str] = None

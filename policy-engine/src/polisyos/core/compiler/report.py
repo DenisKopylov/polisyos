@@ -1,3 +1,4 @@
+"""Public compiler report module API."""
 from __future__ import annotations
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -8,6 +9,7 @@ from polisyos.ir.linker import LinkReport
 
 
 class CompileReport(BaseModel):
+    """Compile report data model."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -27,6 +29,7 @@ class CompileReport(BaseModel):
 def put_link_report(
     store: FileSystemCAS, report: LinkReport, *, inputs: list[InputRef] | None = None
 ) -> ArtifactRef:
+    """Put link report helper."""
     return store.put_json(
         report,
         PutOptions(
@@ -41,6 +44,7 @@ def put_link_report(
 def put_compile_report(
     store: FileSystemCAS, report: CompileReport, *, inputs: list[InputRef] | None = None
 ) -> ArtifactRef:
+    """Put compile report helper."""
     return store.put_json(
         report,
         PutOptions(

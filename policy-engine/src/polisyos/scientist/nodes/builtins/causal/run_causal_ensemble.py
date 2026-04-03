@@ -1,3 +1,4 @@
+"""Public causal run causal ensemble module API."""
 from __future__ import annotations
 
 import hashlib
@@ -417,6 +418,13 @@ def _build_consensus_graph(
 
 @dataclass(frozen=True)
 class RunCausalEnsembleNode:
+    """Run a shared causal query across an ensemble of structural models.
+
+    The node resolves ensemble members, executes the common query for each
+    candidate SCM, and persists both the ensemble artifact and an aggregated
+    uncertainty envelope for downstream governance.
+    """
+
     @property
     def spec(self) -> NodeSpec:
         return _SPEC

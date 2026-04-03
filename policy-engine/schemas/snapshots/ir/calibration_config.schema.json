@@ -253,6 +253,42 @@
       "title": "HessianConfig",
       "type": "object"
     },
+    "MultiStartConfig": {
+      "additionalProperties": false,
+      "description": "Configuration for multi-start optimization.",
+      "properties": {
+        "condition_threshold": {
+          "default": 100000000.0,
+          "description": "Max acceptable Hessian condition number for best_loss selection.",
+          "exclusiveMinimum": 0.0,
+          "title": "Condition Threshold",
+          "type": "number"
+        },
+        "n_starts": {
+          "default": 5,
+          "description": "Number of optimization starts.",
+          "minimum": 1,
+          "title": "N Starts",
+          "type": "integer"
+        },
+        "perturbation_scale": {
+          "default": 0.1,
+          "description": "Scale for initial parameter perturbation.",
+          "exclusiveMinimum": 0.0,
+          "title": "Perturbation Scale",
+          "type": "number"
+        },
+        "selection": {
+          "default": "best_loss",
+          "description": "Selection criterion: best_loss or best_identifiability.",
+          "pattern": "^(best_loss|best_identifiability)$",
+          "title": "Selection",
+          "type": "string"
+        }
+      },
+      "title": "MultiStartConfig",
+      "type": "object"
+    },
     "PriorLossConfig": {
       "additionalProperties": false,
       "description": "\u041d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0438 Gaussian priors \u043f\u043e trainable \u043f\u0430\u0440\u0430\u043c\u0435\u0442\u0440\u0430\u043c.",
@@ -561,6 +597,18 @@
       "minimum": 1,
       "title": "Max Steps",
       "type": "integer"
+    },
+    "multi_start": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/MultiStartConfig"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Multi-start optimization config; None = single run."
     },
     "prior_loss": {
       "$ref": "#/$defs/PriorLossConfig"

@@ -193,6 +193,7 @@ def _build_parser() -> argparse.ArgumentParser:
 # ---------------------------------------------------------------------------
 
 def main(argv: Sequence[str] | None = None) -> int:
+    """Main helper."""
     parser = _build_parser()
     args = parser.parse_args(argv)
 

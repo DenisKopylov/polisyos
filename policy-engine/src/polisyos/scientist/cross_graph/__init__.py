@@ -1,3 +1,4 @@
+"""Public scientist cross graph package API."""
 from polisyos.scientist.cross_graph.compiler import (
     CrossGraphEvidenceCompiler,
     CrossGraphEvidenceConfig,

@@ -1,3 +1,4 @@
+"""Public services control worker module API."""
 from __future__ import annotations
 
 import threading
@@ -16,6 +17,7 @@ JobHandler = Callable[[ControlJobRecord], None]
 
 
 class ControlWorker:
+    """Control worker public type."""
     def __init__(
         self,
         *,

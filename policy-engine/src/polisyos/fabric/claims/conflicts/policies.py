@@ -1,3 +1,4 @@
+"""Public conflicts policies module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -8,6 +9,7 @@ from polisyos.fabric.claims.errors import ClaimValidationError
 
 @dataclass(frozen=True)
 class ConflictPolicy:
+    """Conflict policy data model."""
     policy_id: str
     policy_version: str
     tolerance: Decimal
@@ -70,6 +72,7 @@ _POLICIES: dict[str, ConflictPolicy] = {
 
 
 def get_conflict_policy(policy_id: str) -> ConflictPolicy:
+    """Return conflict policy."""
     policy = _POLICIES.get(policy_id)
     if policy is None:
         supported = ", ".join(sorted(_POLICIES))

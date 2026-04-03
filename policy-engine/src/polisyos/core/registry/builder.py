@@ -1,3 +1,4 @@
+"""Public registry builder module API."""
 from __future__ import annotations
 
 from typing import Any
@@ -64,6 +65,7 @@ def build_registry_bundle(
     predicate_registry: BaseModel | dict[str, Any] | None = None,
     privacy_registry: BaseModel | dict[str, Any] | None = None,
 ) -> RegistryBundle:
+    """Build registry bundle."""
     slot_ref = _put_registry(
         store,
         obj=slot_registry,
@@ -191,6 +193,7 @@ def build_registry_bundle(
 
 
 def build_default_registry_bundle(store: FileSystemCAS) -> RegistryBundle:
+    """Build default registry bundle."""
     return build_registry_bundle(
         store,
         slot_registry=DEFAULT_SLOT_REGISTRY,

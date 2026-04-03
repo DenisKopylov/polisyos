@@ -1,3 +1,4 @@
+"""Public orchestrator bundle module API."""
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -40,6 +41,7 @@ def compute_bundle_id(
     claim_ids: list[str],
     policy_ids_used: dict[str, str],
 ) -> str:
+    """Compute bundle ID helper."""
     payload = {
         "intent_core": intent_core,
         "doc_version_ids": sorted(set(doc_version_ids)),
@@ -70,6 +72,7 @@ def build_knowledge_bundle_payload(
     summary: dict[str, int | str | bool],
     freshness: FreshnessMetadata | None = None,
 ) -> KnowledgeBundlePayloadV1:
+    """Build knowledge bundle payload."""
     sorted_trust_artifacts = {
         key: trust_assessment_artifact_ids_by_id[key]
         for key in sorted(trust_assessment_artifact_ids_by_id)
@@ -117,6 +120,7 @@ def persist_bundle_and_event(
     segment_name: str | None = None,
     persist_report: bool = True,
 ) -> tuple[KnowledgeBundleRef, EnrichmentReportV1, EnrichmentReportRef | None]:
+    """Persist bundle and event helper."""
     bundle_ref = cas.put_json(
         bundle_payload.model_dump(mode="python"),
         opts=PutOptions(

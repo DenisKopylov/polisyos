@@ -1,3 +1,4 @@
+"""Public scholar orchestrator package API."""
 from __future__ import annotations
 
 from .bundle import (

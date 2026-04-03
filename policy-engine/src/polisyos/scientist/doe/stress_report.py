@@ -1,3 +1,4 @@
+"""Public doe stress report module API."""
 from __future__ import annotations
 
 from enum import Enum
@@ -6,6 +7,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 class VulnerabilityType(str, Enum):
+    """Vulnerability type public type."""
     CONSTRAINT_VIOLATION = "constraint_violation"
     NUMERICAL_INSTABILITY = "numerical_instability"
     OBJECTIVE_COLLAPSE = "objective_collapse"
@@ -17,6 +19,7 @@ class VulnerabilityType(str, Enum):
 
 
 class Vulnerability(BaseModel):
+    """Vulnerability public type."""
     model_config = ConfigDict(extra="forbid")
 
     vulnerability_id: str
@@ -31,6 +34,7 @@ class Vulnerability(BaseModel):
 
 
 class StressTestReport(BaseModel):
+    """Stress test report data model."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = "1.0"

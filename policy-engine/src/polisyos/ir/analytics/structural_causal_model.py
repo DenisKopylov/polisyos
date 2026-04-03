@@ -1,3 +1,4 @@
+"""Public analytics structural causal model module API."""
 from __future__ import annotations
 
 import json
@@ -37,6 +38,8 @@ def _ensure_json_serializable(field_name: str, value: Any) -> Any:
 
 
 class MechanismFamily(str, Enum):
+    """Allowed mechanism families for SCM node equations."""
+
     LINEAR = "linear"
     ADDITIVE_NOISE = "additive_noise"
     POST_NONLINEAR = "post_nonlinear"
@@ -46,6 +49,8 @@ class MechanismFamily(str, Enum):
 
 
 class MechanismSource(str, Enum):
+    """Where a node mechanism was sourced from."""
+
     DATA_FITTED = "data_fitted"
     LITERATURE_PRIOR = "literature_prior"
     HYBRID = "hybrid"
@@ -53,6 +58,8 @@ class MechanismSource(str, Enum):
 
 
 class NodeMechanism(BaseModel):
+    """Structural equation metadata for one variable in an SCM."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     variable: str
@@ -88,6 +95,8 @@ class NodeMechanism(BaseModel):
 
 
 class StructuralCausalModelSpec(BaseModel):
+    """Serializable structural causal model with graph and node mechanisms."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     schema_version: str = "1.0"
@@ -124,6 +133,7 @@ def persist_structural_causal_model_spec(
     schema_name: str = "ir.structural_causal_model_spec",
     schema_version: str = "1.0",
 ) -> StructuralCausalModelSpecRef:
+    """Persist structural causal model spec helper."""
     ref = put_json_artifact(
         store,
         scm_spec.model_dump(mode="json"),
@@ -140,6 +150,7 @@ def load_structural_causal_model_spec(
     store: ArtifactStore,
     ref: StructuralCausalModelSpecRef,
 ) -> StructuralCausalModelSpec:
+    """Load structural causal model spec."""
     payload = get_json_artifact(store, ref.artifact_id)
     return StructuralCausalModelSpec.model_validate(payload)
 

@@ -1,0 +1,226 @@
+"""Public causal counterfactual identification gate module API."""
+from __future__ import annotations
+
+from dataclasses import dataclass
+from typing import Any, Mapping
+
+from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+from polisyos.ir.observation.causal_readiness import (
+    CausalReadinessBundle,
+    CounterfactualCheckEntry,
+    load_causal_readiness_bundle,
+)
+from polisyos.ir.refs import CausalReadinessBundleRef
+from polisyos.scientist.engine.context import ExecutionContext
+from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
+from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.nodes.builtins import errors as node_errors
+from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_CAUSAL_READINESS_BUNDLE_REF
+
+_METADATA = ComponentMetadata(
+    component_id=ComponentId.parse(
+        "scientist.node_counterfactual_identification_gate@1.0.0"
+    ),
+    kind=ComponentKind.SCIENTIST_NODE,
+    abi_targets={"world_abi": "1.x"},
+    display_name="Counterfactual Identification Gate",
+    description="Block simulation when required counterfactual queries are not identified.",
+    tags=["builtin", "causal", "counterfactual", "gate", "c6c"],
+    capabilities=Capability.SCIENTIST_NODE,
+)
+
+_SPEC = NodeSpec(
+    metadata=_METADATA,
+    state_reads=[
+        f"artifacts_index.{ARTIFACT_CAUSAL_READINESS_BUNDLE_REF}",
+        "params.required_counterfactual_query_ids",
+    ],
+    state_writes=[
+        "params.counterfactual_gate_blocked",
+        "params.counterfactual_gate_summary",
+    ],
+    produces=[],
+)
+
+
+@dataclass(frozen=True)
+class CounterfactualGateDecision:
+    """Normalized gate decision derived from readiness-bundle query results."""
+
+    blocked: bool
+    summary: dict[str, Any]
+
+
+@dataclass(frozen=True)
+class CounterfactualIdentificationGateNode:
+    """Stop simulation when required counterfactual queries are not identified."""
+
+    @property
+    def spec(self) -> NodeSpec:
+        return _SPEC
+
+    def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
+        decision = evaluate_counterfactual_gate(ctx, state)
+        new_state = state.model_copy(deep=True)
+        new_state.params["counterfactual_gate_blocked"] = decision.blocked
+        new_state.params["counterfactual_gate_summary"] = dict(decision.summary)
+        if not decision.blocked:
+            return NodeOutcome(
+                status="ok",
+                state=new_state,
+                events=[
+                    NodeEvent(
+                        level="info",
+                        message="Counterfactual identification gate passed.",
+                    )
+                ],
+            )
+        return NodeOutcome(
+            status="fail",
+            state=new_state,
+            error=NodeError(
+                code=node_errors.ERROR_COUNTERFACTUAL_GATE_BLOCKED,
+                message="Counterfactual identification gate blocked simulation.",
+                details=dict(decision.summary),
+            ),
+            events=[
+                NodeEvent(
+                    level="warn",
+                    code=node_errors.ERROR_COUNTERFACTUAL_GATE_BLOCKED,
+                    message="Counterfactual identification gate blocked simulation.",
+                    attrs={
+                        "query_id": str(decision.summary.get("query_id") or ""),
+                    },
+                )
+            ],
+        )
+
+
+def evaluate_counterfactual_gate(
+    ctx: ExecutionContext,
+    state: ExperimentState,
+) -> CounterfactualGateDecision:
+    """Evaluate the counterfactual gate using readiness artifacts in state."""
+
+    readiness_ref = state.artifacts_index.get(ARTIFACT_CAUSAL_READINESS_BUNDLE_REF)
+    required_query_ids = _required_query_ids(state.params)
+    if readiness_ref is None:
+        return CounterfactualGateDecision(
+            blocked=False,
+            summary={
+                "status": "skipped",
+                "blocked": False,
+                "reason": "causal_readiness_bundle_missing",
+                "required_query_ids": required_query_ids,
+            },
+        )
+    try:
+        bundle = load_causal_readiness_bundle(
+            ctx.store,
+            CausalReadinessBundleRef.model_validate(readiness_ref.model_dump(mode="json")),
+        )
+    except Exception as exc:
+        return CounterfactualGateDecision(
+            blocked=True,
+            summary={
+                "status": "invalid",
+                "blocked": True,
+                "query_id": None,
+                "normalized_reason": f"causal_readiness_bundle_unreadable:{exc}",
+                "required_query_ids": required_query_ids,
+            },
+        )
+    return evaluate_counterfactual_readiness_bundle(
+        bundle,
+        required_query_ids=required_query_ids,
+    )
+
+
+def evaluate_counterfactual_readiness_bundle(
+    bundle: CausalReadinessBundle,
+    *,
+    required_query_ids: tuple[str, ...] = (),
+) -> CounterfactualGateDecision:
+    """Assess whether a readiness bundle clears required counterfactual queries."""
+
+    results = list(bundle.counterfactual_results)
+    if required_query_ids:
+        results = [item for item in results if item.query_id in set(required_query_ids)]
+    if not results:
+        return CounterfactualGateDecision(
+            blocked=False,
+            summary={
+                "status": "skipped",
+                "blocked": False,
+                "reason": "no_counterfactual_queries",
+                "required_query_ids": list(required_query_ids),
+            },
+        )
+
+    failing = [
+        item
+        for item in results
+        if not _is_identified_counterfactual(item)
+    ]
+    if not failing:
+        return CounterfactualGateDecision(
+            blocked=False,
+            summary={
+                "status": "pass",
+                "blocked": False,
+                "required_query_ids": [item.query_id for item in results],
+                "checked_query_count": len(results),
+            },
+        )
+
+    primary = failing[0]
+    return CounterfactualGateDecision(
+        blocked=True,
+        summary={
+            "status": "blocked",
+            "blocked": True,
+            "query_id": primary.query_id,
+            "algorithm_version": primary.algorithm_version,
+            "normalized_reason": primary.normalized_reason,
+            "required_query_ids": [item.query_id for item in results],
+            "failing_queries": [
+                _counterfactual_failure_payload(item) for item in failing
+            ],
+        },
+    )
+
+
+def _required_query_ids(params: Mapping[str, Any]) -> tuple[str, ...]:
+    raw = params.get("required_counterfactual_query_ids")
+    if not isinstance(raw, list):
+        return ()
+    values = [str(item).strip() for item in raw if str(item).strip()]
+    return tuple(sorted(set(values)))
+
+
+def _is_identified_counterfactual(entry: CounterfactualCheckEntry) -> bool:
+    status = str(entry.status).strip().lower()
+    if status == "identified":
+        return True
+    if "conflict" in status:
+        return False
+    return False
+
+
+def _counterfactual_failure_payload(
+    entry: CounterfactualCheckEntry,
+) -> dict[str, Any]:
+    return {
+        "query_id": entry.query_id,
+        "status": entry.status,
+        "algorithm_version": entry.algorithm_version,
+        "normalized_reason": entry.normalized_reason,
+    }
+
+
+__all__ = [
+    "CounterfactualGateDecision",
+    "CounterfactualIdentificationGateNode",
+    "evaluate_counterfactual_gate",
+    "evaluate_counterfactual_readiness_bundle",
+]

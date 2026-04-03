@@ -1,3 +1,4 @@
+"""Public economics state module API."""
 from __future__ import annotations
 
 import chex

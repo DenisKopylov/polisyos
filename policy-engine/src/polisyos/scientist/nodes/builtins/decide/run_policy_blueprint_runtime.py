@@ -1,3 +1,4 @@
+"""Public decide run policy blueprint runtime module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -47,6 +48,15 @@ from polisyos.scientist.evidence_sources import (
     normalize_evidence_sources_config,
 )
 from polisyos.scientist.nodes.builtins.decide.build_policy_output_bundle import _is_policy_mode
+from polisyos.scientist.nodes.builtins.c6c_runtime_support import (
+    StrategicRuntimeOutput as _SharedStrategicRuntimeOutput,
+    build_blocked_strategic_summary as _shared_build_blocked_strategic_summary,
+    build_runtime_abstraction_metadata as _shared_build_runtime_abstraction_metadata,
+    load_runtime_abstraction_certificate as _shared_load_runtime_abstraction_certificate,
+    persist_runtime_strategic_artifacts as _shared_persist_runtime_strategic_artifacts,
+    resolve_baseline_policy_value as _shared_selection_baseline_policy_value,
+    resolve_existing_strategic_output as _shared_resolve_existing_strategic_output,
+)
 from polisyos.scientist.nodes.builtins.decide.policy_runtime_support import (
     ProductionPolicyEvaluationBackend,
     build_policy_runtime_evaluation,
@@ -272,6 +282,7 @@ class _PolicyRuntimeWorkflowEngine(WorkflowEngine):
 
 @dataclass(frozen=True)
 class RunPolicyBlueprintRuntimeNode:
+    """Run policy blueprint runtime node implementation."""
     @property
     def spec(self) -> NodeSpec:
         return _SPEC
@@ -330,14 +341,16 @@ class RunPolicyBlueprintRuntimeNode:
             evaluation_vector=selection_vector,
         )
         runtime_artifacts_index = dict(state.artifacts_index)
-        strategic_output = _persist_runtime_strategic_artifacts(
-            ctx,
-            state,
-            candidate_ref=candidate_ref,
-            selection_vector_ref=selection_vector_ref,
-            selection_artifact=selection_artifact,
-            artifacts_index=runtime_artifacts_index,
-        )
+        strategic_output = _resolve_existing_strategic_output(state)
+        if strategic_output is None:
+            strategic_output = _persist_runtime_strategic_artifacts(
+                ctx,
+                state,
+                candidate_ref=candidate_ref,
+                selection_vector_ref=selection_vector_ref,
+                selection_artifact=selection_artifact,
+                artifacts_index=runtime_artifacts_index,
+            )
         if strategic_output.strategic_scm_ref is not None:
             runtime_artifacts_index[ARTIFACT_STRATEGIC_SCM_REF] = strategic_output.strategic_scm_ref
         if strategic_output.strategic_response_bundle_ref is not None:
@@ -791,6 +804,7 @@ class RunPolicyBlueprintRuntimeNode:
         ]
         if strategic_output.strategic_response_summary is not None:
             new_state.params["strategic_response"] = dict(strategic_output.strategic_response_summary)
+            new_state.params.setdefault("strategic_response_source", "policy_runtime")
         new_state.artifacts_index[ARTIFACT_PROMOTION_EVIDENCE_BUNDLE_REF] = evidence_ref
         if platform_meta_ref is not None:
             new_state.artifacts_index[ARTIFACT_PLATFORM_META_EVALUATION_REPORT_REF] = platform_meta_ref
@@ -1002,6 +1016,36 @@ def _persist_runtime_strategic_artifacts(
                 refs=contract.macro_utility_refs,
                 raw_tables=macro_payoff_tables,
             )
+        blocked_reason = _strategic_payoff_ref_block_reason(
+            utility_ref_status=utility_ref_status,
+            macro_ref_status=macro_ref_status,
+        )
+        if blocked_reason is not None:
+            strategic_scm_ref = ArtifactRef.model_validate(
+                persist_strategic_scm(ctx.store, contract, inputs=inputs).model_dump(mode="json")
+            )
+            return _StrategicRuntimeOutput(
+                strategic_scm_ref=strategic_scm_ref,
+                strategic_response_summary=_build_blocked_strategic_summary(
+                    blocked_reason=blocked_reason,
+                    strategic_scm_ref=strategic_scm_ref,
+                ),
+                warnings=(f"strategic_runtime_blocked:{blocked_reason}",),
+            )
+        causal_report_ref = artifacts_index.get(ARTIFACT_CAUSAL_REPORT_REF)
+        if causal_report_ref is None:
+            blocked_reason = "missing_causal_report_for_strategic_decomposition"
+            strategic_scm_ref = ArtifactRef.model_validate(
+                persist_strategic_scm(ctx.store, contract, inputs=inputs).model_dump(mode="json")
+            )
+            return _StrategicRuntimeOutput(
+                strategic_scm_ref=strategic_scm_ref,
+                strategic_response_summary=_build_blocked_strategic_summary(
+                    blocked_reason=blocked_reason,
+                    strategic_scm_ref=strategic_scm_ref,
+                ),
+                warnings=(f"strategic_runtime_blocked:{blocked_reason}",),
+            )
         persisted_utility_refs = _persist_runtime_payoff_tables(
             ctx,
             tables=payoff_tables,
@@ -1025,27 +1069,6 @@ def _persist_runtime_strategic_artifacts(
         strategic_scm_ref = ArtifactRef.model_validate(
             persist_strategic_scm(ctx.store, normalized_contract, inputs=inputs).model_dump(mode="json")
         )
-        if utility_ref_status is False or macro_ref_status is False:
-            blocked_reason = "strategic_contract_payoff_ref_mismatch"
-            return _StrategicRuntimeOutput(
-                strategic_scm_ref=strategic_scm_ref,
-                strategic_response_summary=_build_blocked_strategic_summary(
-                    blocked_reason=blocked_reason,
-                    strategic_scm_ref=strategic_scm_ref,
-                ),
-                warnings=(f"strategic_runtime_blocked:{blocked_reason}",),
-            )
-        causal_report_ref = artifacts_index.get(ARTIFACT_CAUSAL_REPORT_REF)
-        if causal_report_ref is None:
-            blocked_reason = "missing_causal_report_for_strategic_decomposition"
-            return _StrategicRuntimeOutput(
-                strategic_scm_ref=strategic_scm_ref,
-                strategic_response_summary=_build_blocked_strategic_summary(
-                    blocked_reason=blocked_reason,
-                    strategic_scm_ref=strategic_scm_ref,
-                ),
-                warnings=(f"strategic_runtime_blocked:{blocked_reason}",),
-            )
         abstraction_certificate = _load_runtime_abstraction_certificate(ctx, artifacts_index)
         baseline_policy_value = _selection_baseline_policy_value(selection_artifact)
         result = solve_strategic_response(
@@ -1235,22 +1258,38 @@ def _payoff_table_signature(table: FiniteStrategicPayoffTable) -> dict[str, Any]
     }
 
 
+def _strategic_payoff_ref_block_reason(
+    *,
+    utility_ref_status: str,
+    macro_ref_status: str | None,
+) -> str | None:
+    statuses = (utility_ref_status, macro_ref_status)
+    if "unreadable_ref" in statuses:
+        return "strategic_contract_payoff_ref_unreadable"
+    if "mismatch" in statuses:
+        return "strategic_contract_payoff_ref_mismatch"
+    return None
+
+
 def _compare_existing_payoff_refs(
     ctx: ExecutionContext,
     *,
     refs: dict[str, ArtifactRefModel],
     raw_tables: dict[str, FiniteStrategicPayoffTable],
-) -> bool | None:
+) -> str:
     loaded_tables: dict[str, FiniteStrategicPayoffTable] = {}
     try:
         for agent, ref in refs.items():
             loaded_tables[agent] = load_strategic_payoff_table(ctx.store, ref)
     except Exception:
-        return None
-    return all(
+        return "unreadable_ref"
+    if set(loaded_tables) != set(raw_tables):
+        return "mismatch"
+    matches = all(
         _payoff_table_signature(loaded_tables[agent]) == _payoff_table_signature(raw_tables[agent])
         for agent in raw_tables
     )
+    return "match" if matches else "mismatch"
 
 
 def _build_blocked_strategic_summary(
@@ -1315,6 +1354,34 @@ def _build_runtime_abstraction_metadata(
         if certificate is not None:
             metadata["abstraction_preservation_type"] = certificate.preservation_type.value
     return metadata
+
+
+_StrategicRuntimeOutput = _SharedStrategicRuntimeOutput
+_build_blocked_strategic_summary = _shared_build_blocked_strategic_summary
+_selection_baseline_policy_value = _shared_selection_baseline_policy_value
+_load_runtime_abstraction_certificate = _shared_load_runtime_abstraction_certificate
+_build_runtime_abstraction_metadata = _shared_build_runtime_abstraction_metadata
+_resolve_existing_strategic_output = _shared_resolve_existing_strategic_output
+
+
+def _persist_runtime_strategic_artifacts(
+    ctx: ExecutionContext,
+    state: ExperimentState,
+    *,
+    candidate_ref: ArtifactRef,
+    selection_vector_ref: ArtifactRef,
+    selection_artifact,
+    artifacts_index: dict[str, ArtifactRef],
+) -> _SharedStrategicRuntimeOutput:
+    return _shared_persist_runtime_strategic_artifacts(
+        ctx,
+        state,
+        artifacts_index=artifacts_index,
+        candidate_ref=candidate_ref,
+        evidence_ref=selection_vector_ref,
+        evidence_role="policy_evaluation",
+        baseline_payload=selection_artifact,
+    )
 
 
 def _ensure_platform_meta_report(

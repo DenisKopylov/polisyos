@@ -1,3 +1,4 @@
+"""Public autotune cheap stage module API."""
 from __future__ import annotations
 
 import json
@@ -27,6 +28,7 @@ CHEAP_STAGE_LOOP_ID = "cheap_stage"
 
 
 class CheapStageTuningConfig(MutationArtifact):
+    """Cheap stage tuning config data model."""
     model_config = ConfigDict(extra="forbid")
 
     loop_id: str = CHEAP_STAGE_LOOP_ID
@@ -34,10 +36,12 @@ class CheapStageTuningConfig(MutationArtifact):
 
 
 def build_baseline_cheap_stage_config(_context: dict[str, Any] | None = None) -> CheapStageTuningConfig:
+    """Build baseline cheap stage config."""
     return CheapStageTuningConfig()
 
 
 def default_cheap_stage_policy() -> PromotionPolicy:
+    """Default cheap stage policy helper."""
     return PromotionPolicy(
         loop_id=CHEAP_STAGE_LOOP_ID,
         primary_metric="false_positive_rate",
@@ -58,6 +62,7 @@ def load_cheap_stage_config(
     context: dict[str, Any] | None = None,
     loader: ChampionBackedRuntimeLoader[CheapStageTuningConfig] | None = None,
 ) -> CheapStageTuningConfig:
+    """Load cheap stage config."""
     active_loader = loader or CheapStageRuntimeLoader()
     return active_loader.load(context)
 
@@ -68,12 +73,14 @@ def resolve_cheap_stage_threshold(
     context: dict[str, Any] | None = None,
     loader: ChampionBackedRuntimeLoader[CheapStageTuningConfig] | None = None,
 ) -> float:
+    """Resolve cheap stage threshold."""
     if threshold is not None:
         return float(threshold)
     return float(load_cheap_stage_config(context=context, loader=loader).threshold)
 
 
 class CheapStageBenchmarkEvaluator(BenchmarkedEvaluator):
+    """Cheap stage benchmark evaluator public type."""
     def __init__(
         self,
         *,
@@ -168,6 +175,7 @@ class CheapStageBenchmarkEvaluator(BenchmarkedEvaluator):
 
 
 class CheapStageRuntimeLoader(ChampionBackedRuntimeLoader[CheapStageTuningConfig]):
+    """Cheap stage runtime loader implementation."""
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(
             loop_id=CHEAP_STAGE_LOOP_ID,
@@ -186,6 +194,7 @@ def write_correlation_dataset(
     suite_version: str = "1.0",
     holdout_fraction: float = 0.2,
 ) -> BenchmarkSuite:
+    """Write correlation dataset helper."""
     root = (output_dir or (default_cas_root() / "autotune" / CHEAP_STAGE_LOOP_ID / datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ"))).resolve()
     root.mkdir(parents=True, exist_ok=True)
     dataset_path = root / "correlation_records.jsonl"
@@ -221,6 +230,7 @@ def cheap_stage_search_loop_spec(
     store: Any | None = None,
     registry: ChampionRegistry | None = None,
 ) -> SearchLoopSpec:
+    """Cheap stage search loop spec helper."""
     return SearchLoopSpec(
         loop_id=CHEAP_STAGE_LOOP_ID,
         mutation_codec=PydanticMutationCodec(CheapStageTuningConfig),

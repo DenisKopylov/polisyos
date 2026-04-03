@@ -1,3 +1,4 @@
+"""Public kernel slots module API."""
 from __future__ import annotations
 
 from enum import Enum
@@ -11,19 +12,23 @@ from .units import UnitRef
 
 
 class SlotKind(str, Enum):
+    """Slot kind public type."""
     STOCK = "stock"
     FLOW = "flow"
     PARAMETER = "parameter"
 
 
 class SlotScope(str, Enum):
+    """Slot scope public type."""
     GLOBAL = "global"
     PER_AGENT = "per_agent"
     PER_FIRM = "per_firm"
+    PER_CELL = "per_cell"
     PER_ENTITY = "per_entity"
 
 
 class SlotValueType(str, Enum):
+    """Slot value type public type."""
     BOOL = "bool"
     INT = "int"
     DECIMAL = "decimal"
@@ -70,6 +75,7 @@ class SlotSpec(KernelModel):
 
 
 class SlotRegistry(KernelModel):
+    """Slot registry implementation."""
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
     slots: dict[str, SlotSpec] = Field(default_factory=dict)
     notes: list[str] = Field(default_factory=list)
@@ -150,6 +156,16 @@ DEFAULT_SLOT_REGISTRY = SlotRegistry(
             description="Agent employment flag",
             reset_rule="carry",
         ),
+        "agents.household_cell_id": SlotSpec(
+            slot_id="agents.household_cell_id",
+            scope=SlotScope.PER_AGENT,
+            value_type=SlotValueType.INT,
+            kind=SlotKind.STOCK,
+            merge_rule=MergeRuleRef(rule_id="override"),
+            state_path="agents.household_cell_id",
+            description="Household cell identifier for each agent",
+            reset_rule="carry",
+        ),
         "agents.skill_level": SlotSpec(
             slot_id="agents.skill_level",
             scope=SlotScope.PER_AGENT,
@@ -180,6 +196,46 @@ DEFAULT_SLOT_REGISTRY = SlotRegistry(
             description="Firm labor count",
             reset_rule="carry",
         ),
+        "firms.active": SlotSpec(
+            slot_id="firms.active",
+            scope=SlotScope.PER_FIRM,
+            value_type=SlotValueType.BOOL,
+            kind=SlotKind.STOCK,
+            merge_rule=MergeRuleRef(rule_id="override"),
+            state_path="firms.active",
+            description="Firm active flag",
+            reset_rule="carry",
+        ),
+        "firms.firm_id": SlotSpec(
+            slot_id="firms.firm_id",
+            scope=SlotScope.PER_FIRM,
+            value_type=SlotValueType.INT,
+            kind=SlotKind.STOCK,
+            merge_rule=MergeRuleRef(rule_id="override"),
+            state_path="firms.firm_id",
+            description="Firm identifier",
+            reset_rule="carry",
+        ),
+        "firms.cell_id": SlotSpec(
+            slot_id="firms.cell_id",
+            scope=SlotScope.PER_FIRM,
+            value_type=SlotValueType.INT,
+            kind=SlotKind.STOCK,
+            merge_rule=MergeRuleRef(rule_id="override"),
+            state_path="firms.cell_id",
+            description="Firm cell identifier",
+            reset_rule="carry",
+        ),
+        "firms.firm_type_id": SlotSpec(
+            slot_id="firms.firm_type_id",
+            scope=SlotScope.PER_FIRM,
+            value_type=SlotValueType.INT,
+            kind=SlotKind.STOCK,
+            merge_rule=MergeRuleRef(rule_id="override"),
+            state_path="firms.firm_type_id",
+            description="Firm type identifier",
+            reset_rule="carry",
+        ),
         "firms.wage_offer": SlotSpec(
             slot_id="firms.wage_offer",
             scope=SlotScope.PER_FIRM,
@@ -188,6 +244,156 @@ DEFAULT_SLOT_REGISTRY = SlotRegistry(
             merge_rule=MergeRuleRef(rule_id="override"),
             state_path="firms.wage_offer",
             description="Firm wage offer",
+            reset_rule="carry",
+        ),
+        "cells.active": SlotSpec(
+            slot_id="cells.active",
+            scope=SlotScope.PER_CELL,
+            value_type=SlotValueType.BOOL,
+            kind=SlotKind.STOCK,
+            merge_rule=MergeRuleRef(rule_id="override"),
+            state_path="cells.active",
+            description="Cell activity flag",
+            reset_rule="carry",
+        ),
+        "cells.region_code": SlotSpec(
+            slot_id="cells.region_code",
+            scope=SlotScope.PER_CELL,
+            value_type=SlotValueType.INT,
+            kind=SlotKind.STOCK,
+            merge_rule=MergeRuleRef(rule_id="override"),
+            state_path="cells.region_code",
+            description="Region identifier for each cell",
+            reset_rule="carry",
+        ),
+        "cells.sector_id": SlotSpec(
+            slot_id="cells.sector_id",
+            scope=SlotScope.PER_CELL,
+            value_type=SlotValueType.INT,
+            kind=SlotKind.STOCK,
+            merge_rule=MergeRuleRef(rule_id="override"),
+            state_path="cells.sector_id",
+            description="Sector identifier for each cell",
+            reset_rule="carry",
+        ),
+        "cells.population": SlotSpec(
+            slot_id="cells.population",
+            scope=SlotScope.PER_CELL,
+            value_type=SlotValueType.DECIMAL,
+            kind=SlotKind.STOCK,
+            merge_rule=MergeRuleRef(rule_id="override"),
+            state_path="cells.population",
+            description="Cell population",
+            reset_rule="carry",
+        ),
+        "cells.firm_count": SlotSpec(
+            slot_id="cells.firm_count",
+            scope=SlotScope.PER_CELL,
+            value_type=SlotValueType.DECIMAL,
+            kind=SlotKind.STOCK,
+            merge_rule=MergeRuleRef(rule_id="override"),
+            state_path="cells.firm_count",
+            description="Cell firm count",
+            reset_rule="carry",
+        ),
+        "cells.employment": SlotSpec(
+            slot_id="cells.employment",
+            scope=SlotScope.PER_CELL,
+            value_type=SlotValueType.DECIMAL,
+            kind=SlotKind.STOCK,
+            merge_rule=MergeRuleRef(rule_id="override"),
+            state_path="cells.employment",
+            description="Cell employment level",
+            reset_rule="carry",
+        ),
+        "cells.output": SlotSpec(
+            slot_id="cells.output",
+            scope=SlotScope.PER_CELL,
+            value_type=SlotValueType.DECIMAL,
+            kind=SlotKind.STOCK,
+            merge_rule=MergeRuleRef(rule_id="override"),
+            state_path="cells.output",
+            description="Cell output proxy",
+            reset_rule="carry",
+        ),
+        "cells.distress_score": SlotSpec(
+            slot_id="cells.distress_score",
+            scope=SlotScope.PER_CELL,
+            value_type=SlotValueType.DECIMAL,
+            kind=SlotKind.STOCK,
+            merge_rule=MergeRuleRef(rule_id="override"),
+            state_path="cells.distress_score",
+            description="Cell distress score",
+            reset_rule="carry",
+        ),
+        "cells.public_service_index": SlotSpec(
+            slot_id="cells.public_service_index",
+            scope=SlotScope.PER_CELL,
+            value_type=SlotValueType.DECIMAL,
+            kind=SlotKind.STOCK,
+            merge_rule=MergeRuleRef(rule_id="override"),
+            state_path="cells.public_service_index",
+            description="Cell public service index",
+            reset_rule="carry",
+        ),
+        "household_cells.active": SlotSpec(
+            slot_id="household_cells.active",
+            scope=SlotScope.PER_CELL,
+            value_type=SlotValueType.BOOL,
+            kind=SlotKind.STOCK,
+            merge_rule=MergeRuleRef(rule_id="override"),
+            state_path="household_cells.active",
+            description="Household-cell activity flag",
+            reset_rule="carry",
+        ),
+        "household_cells.cell_id": SlotSpec(
+            slot_id="household_cells.cell_id",
+            scope=SlotScope.PER_CELL,
+            value_type=SlotValueType.INT,
+            kind=SlotKind.STOCK,
+            merge_rule=MergeRuleRef(rule_id="override"),
+            state_path="household_cells.cell_id",
+            description="Parent cell identifier for household aggregation cells",
+            reset_rule="carry",
+        ),
+        "household_cells.household_count": SlotSpec(
+            slot_id="household_cells.household_count",
+            scope=SlotScope.PER_CELL,
+            value_type=SlotValueType.DECIMAL,
+            kind=SlotKind.STOCK,
+            merge_rule=MergeRuleRef(rule_id="override"),
+            state_path="household_cells.household_count",
+            description="Household count per household cell",
+            reset_rule="carry",
+        ),
+        "household_cells.disposable_income": SlotSpec(
+            slot_id="household_cells.disposable_income",
+            scope=SlotScope.PER_CELL,
+            value_type=SlotValueType.DECIMAL,
+            kind=SlotKind.STOCK,
+            merge_rule=MergeRuleRef(rule_id="override"),
+            state_path="household_cells.disposable_income",
+            description="Disposable income per household cell",
+            reset_rule="carry",
+        ),
+        "household_cells.poverty_rate": SlotSpec(
+            slot_id="household_cells.poverty_rate",
+            scope=SlotScope.PER_CELL,
+            value_type=SlotValueType.DECIMAL,
+            kind=SlotKind.STOCK,
+            merge_rule=MergeRuleRef(rule_id="override"),
+            state_path="household_cells.poverty_rate",
+            description="Poverty rate per household cell",
+            reset_rule="carry",
+        ),
+        "household_cells.transfer_intensity": SlotSpec(
+            slot_id="household_cells.transfer_intensity",
+            scope=SlotScope.PER_CELL,
+            value_type=SlotValueType.DECIMAL,
+            kind=SlotKind.STOCK,
+            merge_rule=MergeRuleRef(rule_id="override"),
+            state_path="household_cells.transfer_intensity",
+            description="Transfer intensity per household cell",
             reset_rule="carry",
         ),
     }

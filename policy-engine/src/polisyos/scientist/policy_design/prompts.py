@@ -6,6 +6,7 @@ from typing import Any
 
 
 def get_policy_translator_prompt() -> str:
+    """Return policy translator prompt."""
     return (
         "You are a policy translation worker. "
         "Return only valid JSON. Do not add markdown. "
@@ -16,6 +17,7 @@ def get_policy_translator_prompt() -> str:
 
 
 def build_policy_translator_user_payload(payload: dict[str, Any]) -> str:
+    """Build policy translator user payload."""
     return _stable_json_payload(
         {
             "task": "Generate a policy brief JSON object that preserves technical truth.",
@@ -38,6 +40,7 @@ def build_policy_translator_user_payload(payload: dict[str, Any]) -> str:
 
 
 def get_policy_adversary_prompt() -> str:
+    """Return policy adversary prompt."""
     return (
         "You are a bounded scenario adversary for policy robustness analysis. "
         "Return only valid JSON. Propose compact high-value adversarial scenarios. "
@@ -46,6 +49,7 @@ def get_policy_adversary_prompt() -> str:
 
 
 def build_policy_adversary_user_payload(payload: dict[str, Any]) -> str:
+    """Build policy adversary user payload."""
     return _stable_json_payload(
         {
             "task": "Propose adversarial scenarios as JSON.",

@@ -1,57 +1,29 @@
-# Scholar Discover
+# Scholar Discover (`polisyos.scholar.discover`)
 
-`discover` отвечает за нормализацию источников и acquire для внешних входов Scholar.
+`polisyos.scholar.discover` normalizes scholar seed sources and acquires their payloads. It keeps the
+input side of the scholar pipeline deterministic before document processing and claim extraction begin.
 
-## Состав
+## Role in System
 
-- `manual.py`:
-  - каноникализация/валидация `SourceSpec`
-  - построение identity key
-  - сортировка, дедуп и ограничение `max_docs`
-- `http_fetch.py`:
-  - fetch `url` источников через `urllib`
-  - контроль timeout/user-agent/max_bytes
-- `local_files.py`:
-  - чтение `local_file`
-  - mime resolution по расширению или `mime_hint`
+- **Depends on:** `core.contracts.scholar` and the scholar orchestration layer.
+- **Used by:** `scholar.orchestrator` during the discover/acquire phase.
+- **Boundary function:** makes source normalization and acquisition logic reusable and testable.
 
-## Нормализация источников (`manual.py`)
+## Key Concepts
 
-- `url`:
-  - canonical URL: lower-case scheme/host
-  - удаление fragment
-  - сортировка query параметров
-  - default ports (`:80`, `:443`) исключаются из канонической формы
-- `local_file`:
-  - путь приводится к абсолютному (`expanduser().resolve()`)
-  - `source_locator` синхронизируется с каноническим путем
-- `bytes`:
-  - `source_locator = bytes.sha256_<content_hash>`
+- **Source normalization** - `manual.py` canonicalizes URLs, local files, and identity keys.
+- **HTTP acquire** - `http_fetch.py` fetches remote content with size/time limits.
+- **Local file acquire** - `local_files.py` reads file-based sources and resolves mime types.
 
-Дедуп выполняется по `source_identity_key`:
-`canonical_url` -> `official_id` -> `source_locator`.
+## Public API
 
-## Acquire поведение
+- `fetch_url`
+- `read_local_file`
+- `normalize_seed_sources`
+- `source_identity_key`
 
-`http_fetch.fetch_url()`:
-- использует `source.url` (или `canonical_url`) как request URL;
-- определяет `mime` из `Content-Type` с fallback на `mime_hint`;
-- возвращает `AcquireResult` с `DocSourceSpec`;
-- преобразует `HTTPError/URLError` в `ScholarAcquireError`.
+## Current State
 
-`local_files.read_local_file()`:
-- проверяет, что путь существует и это файл;
-- контролирует `max_bytes`;
-- поддерживает встроенные mime:
-  - `.txt -> text/plain`
-  - `.html/.htm -> text/html`
-- для других расширений требует `mime_hint`, иначе `ScholarAcquireError`.
-
-Примечание:
-- обработка источника `kind="bytes"` выполняется в `orchestrator/enrich.py` (`_acquire_bytes`).
-
-## Ошибки и контракты
-
-- Ошибки discover/acquire маппятся в `ScholarValidationError`, `ScholarDiscoverError`, `ScholarAcquireError`.
-- Граница типов: вход/выход идут через `core.contracts.scholar.SourceSpec` и `scholar.types.AcquireResult`.
-
+- Last updated: 2026-04-03
+- The package still supports `url`, `local_file`, and `bytes` source kinds through the discover/acquire boundary.
+- Source deduplication continues to prefer canonical URL, then official id, then source locator.

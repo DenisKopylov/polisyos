@@ -12,6 +12,7 @@ from pydantic import Field, model_validator
 
 # Import selector types from surface.py (to be moved later or re-exported)
 from polisyos.ir.governance.schedule import ScheduleSpec
+from polisyos.ir.observation.contracts import IdentificationMode, StrategicResponseChannel
 from polisyos.ir.governance.selector_expr import (
     SelectorAll,
     SelectorAny,
@@ -71,7 +72,60 @@ class InterventionSpec(KernelModel):
         None, description="Execution priority (lower = earlier)"
     )
     enabled: bool = Field(True, description="Whether intervention is active")
+    lex_provision_ref: str | None = Field(
+        None,
+        max_length=200,
+        description="Reference to the legal provision or lex artifact driving the intervention.",
+    )
+    target_population_type: str | None = Field(
+        None,
+        max_length=120,
+        description="Population semantics used for policy targeting and evaluation.",
+    )
+    target_sector_ids: list[str] = Field(default_factory=list)
+    target_region_ids: list[str] = Field(default_factory=list)
+    measurement_expectations: dict[str, Any] = Field(default_factory=dict)
+    identification_mode: IdentificationMode | None = None
+    strategic_response_expected: bool = False
+    transmission_channels: list[StrategicResponseChannel] = Field(default_factory=list)
     notes: list[str] = Field(default_factory=list, max_length=10)
+
+
+class TemporalInterventionStep(KernelModel):
+    """One dated step inside a temporal intervention sequence."""
+
+    step_id: str = Field(..., pattern=ID_PATTERN)
+    effective_date: str = Field(
+        ...,
+        pattern=r"^\d{4}-\d{2}(-\d{2})?$",
+        description="ISO-like YYYY-MM or YYYY-MM-DD activation marker for the step.",
+    )
+    intervention_id: str = Field(..., pattern=ID_PATTERN)
+    parameter_overrides: dict[str, ParamValue] = Field(default_factory=dict)
+    notes: list[str] = Field(default_factory=list, max_length=20)
+
+
+class TemporalInterventionSequence(KernelModel):
+    """Ordered sequence of intervention activations for dynamic treatment regimes."""
+
+    schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
+    sequence_id: str = Field(..., pattern=ID_PATTERN)
+    dynamic_intervention_id: str = Field(..., pattern=ID_PATTERN)
+    identification_mode: IdentificationMode = IdentificationMode.SEQUENTIAL
+    strategic_response_expected: bool = False
+    transmission_channels: list[StrategicResponseChannel] = Field(default_factory=list)
+    steps: list[TemporalInterventionStep] = Field(..., min_length=1, max_length=128)
+    notes: list[str] = Field(default_factory=list, max_length=20)
+
+    @model_validator(mode="after")
+    def validate_temporal_sequence(self) -> "TemporalInterventionSequence":
+        step_ids = [step.step_id for step in self.steps]
+        if len(step_ids) != len(set(step_ids)):
+            raise ValueError("duplicate temporal intervention step_id")
+        effective_dates = [step.effective_date for step in self.steps]
+        if effective_dates != sorted(effective_dates):
+            raise ValueError("temporal intervention steps must be ordered by effective_date")
+        return self
 
 
 class ParameterSpec(KernelModel):

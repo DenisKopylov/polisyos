@@ -41,6 +41,23 @@ def test_seed_alignments_use_exact_method_only_for_seed_table() -> None:
     assert AlignmentMethod.SEMANTIC in methods or AlignmentMethod.META_ANALYTIC in methods
 
 
+def test_load_seed_alignments_normalizes_legacy_canonical_names() -> None:
+    path = (
+        Path(__file__).resolve().parents[3]
+        / "data"
+        / "dataset_catalog"
+        / "seed_variable_alignments.yaml"
+    )
+    alignments = load_seed_alignments(path)
+    by_dataset_var = {item.dataset_var: item.canonical_var for item in alignments}
+
+    assert by_dataset_var["NY.GDP.MKTP.CD"] == "economic.gdp"
+    assert by_dataset_var["SP.POP.TOTL"] == "demographic.population"
+    assert by_dataset_var["SH.TBS.INCD"] == "health.tuberculosis_incidence"
+    assert by_dataset_var["GC.BAL.CASH.GD.ZS"] == "economic.fiscal_balance"
+    assert by_dataset_var["ilc_peps01n"] == "social.at_risk_of_poverty"
+
+
 def test_semantic_alignment_returns_ranked_matches() -> None:
     matches = align_semantic(
         canonical_var="social_trust",

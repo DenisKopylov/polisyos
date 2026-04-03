@@ -1,3 +1,4 @@
+"""Public causal capabilities module API."""
 from __future__ import annotations
 
 import hashlib
@@ -24,6 +25,7 @@ _FULL_FAMILIES: tuple[CausalIdentificationFamily, ...] = (
 
 
 def build_causal_capability_contract() -> CausalCapabilityContract:
+    """Build causal capability contract."""
     y0_ok, y0_reason = probe_backend_availability("y0")
     r_ok, r_reason = probe_backend_availability("r")
 
@@ -110,6 +112,7 @@ def build_causal_capability_contract() -> CausalCapabilityContract:
 
 
 def project_capability_features(contract: CausalCapabilityContract) -> list[dict[str, object]]:
+    """Project capability features helper."""
     features: list[dict[str, object]] = []
     for backend in contract.backends:
         features.append(
@@ -142,6 +145,7 @@ def project_capability_features(contract: CausalCapabilityContract) -> list[dict
 
 
 def main() -> int:
+    """Main helper."""
     contract = build_causal_capability_contract()
     sys.stdout.write(json.dumps(contract.model_dump(mode="json"), indent=2, sort_keys=True) + "\n")
     return 0

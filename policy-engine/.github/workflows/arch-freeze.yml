@@ -25,7 +25,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install -e ".[dev,test]"
+          pip install -e ".[dev,test,causal-discovery]"
 
       - name: Connector hardening lint
         run: |

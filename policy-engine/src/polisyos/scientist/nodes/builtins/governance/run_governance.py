@@ -1,3 +1,4 @@
+"""Public governance run governance module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass, replace
@@ -832,10 +833,13 @@ def _run_governance_checks(
     pii_scan_results = _extract_pii_scan_results(ctx, state)
     pass_state = {
         "artifacts_index": state.artifacts_index,
+        "params": state.params,
         "_store": ctx.store,
         "tenant_tier": str(state.params.get("tenant_tier", "shared")),
         "pii_scan_results": pii_scan_results,
         "query_treatment": state.params.get("query_treatment"),
+        "strategic_response": state.params.get("strategic_response"),
+        "strategic_response_required": state.params.get("strategic_scm") is not None,
         "causal_graph_ref": state.artifacts_index.get(
             "causal_graph_ref",
             state.params.get("causal_graph_ref"),

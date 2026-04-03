@@ -14,6 +14,7 @@ from polisyos.foundry.methods.catalog.causal.protocols import (
     TimeSeriesCausalData,
 )
 from polisyos.ir.analytics.causal_discovery import (
+    AlgebraicBlockSpec,
     CausalDiscoveryReport,
     DataCharacteristics,
 )
@@ -37,6 +38,7 @@ class PortfolioRunnerConfig(BaseModel):
     max_lag: int = Field(default=5, ge=1)
     random_seed: int = 0
     n_bootstrap: int = Field(default=0, ge=0)
+    algebraic_blocks: list[AlgebraicBlockSpec] = Field(default_factory=list)
     method_params: dict[str, dict[str, Any]] = Field(default_factory=dict)
 
     def params_for(
@@ -55,6 +57,15 @@ class PortfolioRunnerConfig(BaseModel):
             params["max_lag"] = self.max_lag
         if method in {DiscoveryMethod.PC, DiscoveryMethod.FCI, DiscoveryMethod.GES}:
             params.setdefault("discovery_scale_backend", "classic")
+        if method in {
+            DiscoveryMethod.PC,
+            DiscoveryMethod.FCI,
+            DiscoveryMethod.GES,
+            DiscoveryMethod.DAGMA,
+        } and self.algebraic_blocks:
+            params["algebraic_blocks"] = [
+                block.model_dump(mode="json") for block in self.algebraic_blocks
+            ]
         if method in {DiscoveryMethod.ANM, DiscoveryMethod.PAIRWISE_HEURISTIC}:
             params.setdefault("functional_strength_threshold", 0.20)
             params.setdefault("functional_max_edges", 8)

@@ -1,3 +1,4 @@
+"""Public analytics normative arbitration module API."""
 from __future__ import annotations
 
 import math
@@ -13,23 +14,27 @@ from polisyos.ir.refs import NormativeArbitrationResultRef
 
 
 class ArbitrationOption(str, Enum):
+    """Arbitration option public type."""
     BASELINE = "baseline"
     PROPOSAL = "proposal"
     INDETERMINATE = "indeterminate"
 
 
 class NormativeModelCompleteness(str, Enum):
+    """Normative model completeness public type."""
     COMPLETE = "complete"
     PARTIAL = "partial"
 
 
 class NormativeAuditStatus(str, Enum):
+    """Normative audit status public type."""
     SATISFIED = "satisfied"
     VIOLATED = "violated"
     UNEVALUATED = "unevaluated"
 
 
 class OptionOutcomeMatrix(BaseModel):
+    """Option outcome matrix data model."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     option: ArbitrationOption
@@ -45,6 +50,7 @@ class OptionOutcomeMatrix(BaseModel):
 
 
 class StakeholderUtilitySummary(BaseModel):
+    """Stakeholder utility summary data model."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     stakeholder_id: str
@@ -68,6 +74,7 @@ class StakeholderUtilitySummary(BaseModel):
 
 
 class RightsAuditEntry(BaseModel):
+    """Rights audit entry data model."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     right_id: str
@@ -82,6 +89,7 @@ class RightsAuditEntry(BaseModel):
 
 
 class HardConstraintAuditEntry(BaseModel):
+    """Hard constraint audit entry data model."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     constraint_id: str
@@ -94,6 +102,7 @@ class HardConstraintAuditEntry(BaseModel):
 
 
 class PolicyOutcome(BaseModel):
+    """Policy outcome public type."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     policy: NormativeArbitrationPolicy
@@ -105,6 +114,7 @@ class PolicyOutcome(BaseModel):
 
 
 class ResidualDissent(BaseModel):
+    """Residual dissent public type."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     policy: NormativeArbitrationPolicy
@@ -113,6 +123,7 @@ class ResidualDissent(BaseModel):
 
 
 class NormativeProvenance(BaseModel):
+    """Normative provenance public type."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     trinity_bundle_ref: str | None = None
@@ -124,6 +135,7 @@ class NormativeProvenance(BaseModel):
 
 
 class TradeoffCertificate(BaseModel):
+    """Tradeoff certificate public type."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     selected_policy: NormativeArbitrationPolicy
@@ -137,6 +149,7 @@ class TradeoffCertificate(BaseModel):
 
 
 class NormativeArbitrationResult(BaseModel):
+    """Normative arbitration result data model."""
     model_config = ConfigDict(
         extra="forbid",
         frozen=True,
@@ -183,6 +196,7 @@ def persist_normative_arbitration_result(
     schema_name: str = "ir.normative_arbitration_result",
     schema_version: str = "1.0",
 ) -> NormativeArbitrationResultRef:
+    """Persist normative arbitration result helper."""
     ref = put_json_artifact(
         store,
         result.model_dump(mode="json"),
@@ -199,6 +213,7 @@ def load_normative_arbitration_result(
     store: ArtifactStore,
     ref: NormativeArbitrationResultRef,
 ) -> NormativeArbitrationResult:
+    """Load normative arbitration result."""
     payload = get_json_artifact(store, ref.artifact_id)
     return NormativeArbitrationResult.model_validate(payload)
 

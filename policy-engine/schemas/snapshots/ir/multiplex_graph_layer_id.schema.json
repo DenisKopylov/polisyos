@@ -1,0 +1,12 @@
+{
+  "enum": [
+    "budget",
+    "distress",
+    "procurement",
+    "public_service",
+    "trade"
+  ],
+  "title": "MultiplexGraphLayerId",
+  "type": "string",
+  "x-fqn": "polisyos.ir.observation.contracts.MultiplexGraphLayerId"
+}

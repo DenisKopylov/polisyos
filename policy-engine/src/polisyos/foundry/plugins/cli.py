@@ -1,3 +1,4 @@
+"""Public plugins cli module API."""
 from __future__ import annotations
 
 import argparse
@@ -19,6 +20,7 @@ def _error(message: str) -> None:
 
 
 def main() -> None:
+    """Main helper."""
     parser = argparse.ArgumentParser(
         description="PolisyOS Policy Simulation Framework",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -62,6 +64,7 @@ def main() -> None:
 
 
 def cmd_list_plugins(args) -> None:
+    """Cmd list plugins helper."""
     registry = get_registry()
     auto_register_plugins(registry)
 
@@ -80,6 +83,7 @@ def cmd_list_plugins(args) -> None:
 
 
 def cmd_run_simulation(args) -> None:
+    """Cmd run simulation helper."""
     sim = PolisySimulator()
 
     if args.config:
@@ -108,6 +112,7 @@ def cmd_run_simulation(args) -> None:
 
 
 def cmd_train(args) -> None:
+    """Cmd train helper."""
     sim = PolisySimulator()
 
     if args.config:
@@ -131,6 +136,7 @@ def cmd_train(args) -> None:
 
 
 def cmd_analyze(args) -> None:
+    """Cmd analyze helper."""
     if not args.result_path.exists():
         _error(f"Error: {args.result_path} not found")
         sys.exit(1)
@@ -146,6 +152,7 @@ def cmd_analyze(args) -> None:
 
 
 def load_config(path: Path) -> dict:
+    """Load config."""
     if path.suffix in (".yaml", ".yml"):
         try:
             import yaml
@@ -158,6 +165,7 @@ def load_config(path: Path) -> dict:
 
 
 def save_results(result, path: Path) -> None:
+    """Save results helper."""
     data = {
         "n_steps": result.n_steps,
         "objectives": {k: float(v) for k, v in result.objectives.items()},

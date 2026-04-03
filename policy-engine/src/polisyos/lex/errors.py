@@ -1,3 +1,4 @@
+"""Public lex errors module API."""
 from __future__ import annotations
 
 from typing import Any
@@ -31,27 +32,39 @@ class LexError(PolicyOSError):
 
 
 class LexValidationError(LexError):
+    """Validation failure raised by schema or semantic guards in Lex."""
+
     default_stage = "validation"
     default_category = ErrorCategory.VALIDATION
 
 
 class LexIngestError(LexError):
+    """Failure raised while ingesting raw legal source material."""
+
     default_stage = "ingest"
 
 
 class LexStructureError(LexError):
+    """Failure raised while structuring provisions from legal text."""
+
     default_stage = "structure"
 
 
 class LexVersioningError(LexError):
+    """Failure raised while indexing or resolving document versions."""
+
     default_stage = "versioning"
 
 
 class LexIndexError(LexError):
+    """Failure raised by Lex search or indexing subsystems."""
+
     default_stage = "index"
 
 
 class LexNotReadyError(LexError):
+    """Failure raised when required Lex assets are missing or incomplete."""
+
     default_stage = "not_ready"
 
 

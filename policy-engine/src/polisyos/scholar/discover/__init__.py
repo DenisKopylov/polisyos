@@ -1,3 +1,4 @@
+"""Public scholar discover package API."""
 from __future__ import annotations
 
 from .http_fetch import fetch_url

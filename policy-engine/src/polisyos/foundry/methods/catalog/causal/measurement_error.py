@@ -133,6 +133,15 @@ def identify_with_proxy(
         f"proxy_map={proxy_map}, measurement_model={measurement_model!r})"
     )
 
+    def _proxy_boundary_metadata(*, proxy_explanation_ruled_out: bool) -> dict[str, Any]:
+        return {
+            "proxy_boundary": latent_proxy_boundary_notes(
+                proxy_map=proxy_map,
+                measurement_model=measurement_model,
+                proxy_explanation_ruled_out=proxy_explanation_ruled_out,
+            )
+        }
+
     all_nodes = set(graph.nodes)
     latent_vars = set(proxy_map.keys())
     proxy_vars = set(proxy_map.values())
@@ -152,6 +161,7 @@ def identify_with_proxy(
             required_distributions=[],
             algorithm_version="proxy_id_v1",
             proof_steps=_steps,
+            metadata=_proxy_boundary_metadata(proxy_explanation_ruled_out=False),
         )
 
     # Condition (a): proxy validity check C* ⊥ Y | (C, X)
@@ -198,6 +208,7 @@ def identify_with_proxy(
             required_distributions=[],
             algorithm_version="proxy_id_v1",
             proof_steps=_steps,
+            metadata=_proxy_boundary_metadata(proxy_explanation_ruled_out=False),
         )
 
     # Condition (b): measurement model availability
@@ -214,6 +225,7 @@ def identify_with_proxy(
             required_distributions=[],
             algorithm_version="proxy_id_v1",
             proof_steps=_steps,
+            metadata=_proxy_boundary_metadata(proxy_explanation_ruled_out=False),
         )
 
     # Identification succeeds — build proxy-adjusted estimand
@@ -283,6 +295,7 @@ def identify_with_proxy(
         required_distributions=required_dists,
         algorithm_version="proxy_id_v1",
         proof_steps=_steps,
+        metadata=_proxy_boundary_metadata(proxy_explanation_ruled_out=True),
     )
 
 

@@ -1,3 +1,4 @@
+"""Public security audit models module API."""
 from __future__ import annotations
 
 import uuid
@@ -12,6 +13,7 @@ from polisyos.core.canon.canon_json import to_canonical_bytes
 
 
 class AuditEventType(str, Enum):
+    """Audit event type public type."""
     TRACE_RECORD = "TRACE_RECORD"
     AUDIT_ACTION = "AUDIT_ACTION"
     GOVERNANCE_DECISION = "GOVERNANCE_DECISION"
@@ -28,6 +30,7 @@ class AuditEventType(str, Enum):
 
 
 class AuditActor(BaseModel):
+    """Audit actor public type."""
     model_config = ConfigDict(extra="forbid")
 
     identity: str = ""
@@ -37,6 +40,7 @@ class AuditActor(BaseModel):
 
 
 class AuditResource(BaseModel):
+    """Audit resource public type."""
     model_config = ConfigDict(extra="forbid")
 
     type: str = ""
@@ -45,6 +49,7 @@ class AuditResource(BaseModel):
 
 
 class AuditCorrelation(BaseModel):
+    """Audit correlation public type."""
     model_config = ConfigDict(extra="forbid")
 
     run_id: str = ""

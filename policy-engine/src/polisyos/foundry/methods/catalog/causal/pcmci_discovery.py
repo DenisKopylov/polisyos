@@ -1,3 +1,4 @@
+"""Public causal pcmci discovery module API."""
 from __future__ import annotations
 
 import multiprocessing as mp
@@ -444,6 +445,7 @@ def _fallback_report(
     tags={"causal", "discovery", "time-series", "pcmci"},
 )
 class PCMCIDiscovery:
+    """PCMCI discovery public type."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
 
     signature: ClassVar[MethodSignature] = MethodSignature(

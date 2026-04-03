@@ -1,3 +1,4 @@
+"""Public discover manual module API."""
 from __future__ import annotations
 
 from pathlib import Path
@@ -51,6 +52,7 @@ def _canonicalize_url(raw_url: str) -> str:
 
 
 def source_identity_key(source: SourceSpec) -> str:
+    """Source identity key helper."""
     return source.canonical_url or source.official_id or source.source_locator or ""
 
 
@@ -127,6 +129,7 @@ def _normalize_single_source(source: SourceSpec) -> SourceSpec:
 def normalize_seed_sources(
     seed_sources: list[SourceSpec], *, max_docs: int | None = None
 ) -> list[SourceSpec]:
+    """Normalize seed sources helper."""
     if max_docs is not None and max_docs <= 0:
         raise ScholarValidationError(
             "max_docs must be > 0",

@@ -1,3 +1,4 @@
+"""Public storage port module API."""
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence

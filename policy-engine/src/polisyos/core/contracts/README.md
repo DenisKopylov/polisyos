@@ -1,42 +1,38 @@
-# Contracts — typed ABI между подсистемами
+# Contracts (`polisyos.core.contracts`)
 
-`core.contracts` фиксирует межмодульные типы обмена:
-- typed `ArtifactRef` (kind/media_type)
-- DTO для runtime/control API
-- модели lineage/provenance
+`core.contracts` is the typed ABI layer of PolicyOS. It defines the shared refs, request/response
+models, and provenance payloads that let `fabric`, `foundry`, `scientist`, `lex`, `runtime`, and
+`scholar` talk to each other without ad hoc JSON shapes.
 
-Это canonical точка согласования между `fabric`, `foundry`, `scientist`, `lex`, `runtime`, `scholar`.
+## Role in System
 
-## Структура контрактов
+- **Depends on:** `core.artifacts` for CAS-backed `ArtifactRef` and `polisyos.ir.refs` for canonical analytics refs.
+- **Used by:** runtime HTTP routes, control-plane orchestration, domain pipelines, and audit/provenance tooling.
+- **Boundary function:** prevents each domain package from inventing its own incompatible payload schema.
 
-| Группа | Файлы |
-|---|---|
-| Data-plane refs | `fabric.py`, `foundry.py`, `scientist.py`, `scholar.py`, `trinity.py`, `compiler.py`, `lex.py`, `execution_plan.py` |
-| Runtime/control API | `runtime.py`, `control.py`, `cursor.py` |
-| Provenance | `provenance.py` |
-| Compatibility facades на `polisyos.ir.refs` | `backtest.py`, `causal.py`, `distributional.py`, `hte.py`, `uncertainty.py` |
+## Key Concepts
 
-## Принцип typed ref
+- **Typed refs** - every artifact family uses explicit `kind` and `media_type` checks.
+- **Runtime/control DTOs** - HTTP and orchestration payloads live here so routes stay thin.
+- **Compatibility facades** - analytics refs that migrated into `polisyos.ir.refs` still have stable re-export paths here.
+- **Provenance payloads** - shared entity/agent/activity records keep audit and lineage data consistent.
+- **Execution planning** - `execution_plan.py` carries preflight, evaluator, and reproducibility artifacts.
+- **Scientist artifacts** - scientist-specific refs include decision, checkpoint, sensitivity, stress, and calibration validation bundles.
 
-```python
-class FabricResultRef(ArtifactRef):
-    kind: Literal["fabric.result_bundle"] = "fabric.result_bundle"
-    media_type: Literal["application/json"] = "application/json"
-```
+## Public API
 
-Что это дает:
-- строгую валидацию kind/media-type на границе модулей;
-- совместимость с CAS manifest (`core.artifacts.manifest.ArtifactRef`);
-- более безопасные migration-переходы в data-plane.
+Main ref families:
+- `fabric.py`, `foundry.py`, `scientist.py`, `scholar.py`
+- `trinity.py`, `compiler.py`, `lex.py`, `execution_plan.py`
+- `runtime.py`, `control.py`, `cursor.py`
+- `provenance.py`
+- compatibility facades: `backtest.py`, `causal.py`, `distributional.py`, `hte.py`, `uncertainty.py`
 
-## Что важно после миграций
+Notable current exports include `ExecutionPlanRef`, `PreflightReportRef`, `RunDetailsResponse`,
+`DecisionValidityEnvelope`, `ProvenanceCoreRef`, and `CalibrationValidationBundleRef`.
 
-- Аналитические refs (`BacktestReportRef`, causal/distributional/hte/uncertainty refs) canonical в `polisyos.ir.refs`; в `core.contracts` оставлены совместимые re-export фасады.
-- Runtime API модели централизованы в `runtime.py`, чтобы `runtime/http` и внешние клиенты использовали единый типовой слой.
-- Планирование исполнения и preflight артефакты зафиксированы в `execution_plan.py` (`ExecutionPlanRef`, `PreflightReportRef`, `EvaluatorReportRef`, ...).
+## Current State
 
-## Правила эволюции
-
-- Не менять `kind/media_type` существующего ref без migration window.
-- Новый межмодульный артефакт: сначала typed ref в `core/contracts`, затем producer/consumer в доменном модуле.
-- Если canonical ref уже в `polisyos.ir.refs`, в `core/contracts` добавляется только фасад для обратной совместимости.
+- Last updated: 2026-04-03
+- The scientist contract family gained `CalibrationValidationBundleRef`.
+- `core.contracts` still acts as the stable import surface for runtime/control payloads while analytics refs continue to be re-exported for compatibility.

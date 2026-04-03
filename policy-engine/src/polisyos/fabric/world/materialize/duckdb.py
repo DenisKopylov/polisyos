@@ -1,3 +1,4 @@
+"""Public materialize duckdb module API."""
 from __future__ import annotations
 
 import uuid
@@ -39,6 +40,7 @@ logger = get_logger(__name__)
 
 @dataclass
 class WorldMaterializeSegmentStats:
+    """World materialize segment stats public type."""
     segment_id: str
     segment_sha256: str
     row_count: int
@@ -50,6 +52,7 @@ class WorldMaterializeSegmentStats:
 
 @dataclass
 class WorldMaterializeStats:
+    """World materialize stats public type."""
     segments_total: int
     segments_applied: int
     segments_skipped: int
@@ -61,6 +64,7 @@ class WorldMaterializeStats:
 
 
 def ensure_world_schema(db: SimulationDB, *, ddl_path: Path | None = None) -> None:
+    """Ensure world schema helper."""
     if ddl_path is None:
         ddl_path = Path(__file__).resolve().parents[1] / "ddl" / "duckdb_world.sql"
     ddl_path = Path(ddl_path)
@@ -137,6 +141,7 @@ def ensure_world_materialized(
     cas: FileSystemCAS,
     fact_manifests: Iterable[FactSegmentManifest],
 ) -> WorldMaterializeStats:
+    """Ensure world materialized helper."""
     manifests = list(fact_manifests)
     ensure_world_schema(db)
     stats = WorldMaterializeStats(
@@ -174,6 +179,7 @@ def materialize_world_duckdb_from_fact_log(
     db: SimulationDB,
     cas: FileSystemCAS,
 ) -> WorldMaterializeStats:
+    """Materialize world duckdb from fact log helper."""
     manifests = load_world_fact_manifests(fact_log_root)
     return ensure_world_materialized(db, cas, manifests)
 
@@ -183,6 +189,7 @@ def apply_world_segment(
     cas: FileSystemCAS,
     manifest: FactSegmentManifest,
 ) -> WorldMaterializeSegmentStats:
+    """Apply world segment helper."""
     segment_path = Path(manifest.path)
     if not segment_path.exists():
         raise WorldMaterializationError(f"missing world segment: {segment_path}")

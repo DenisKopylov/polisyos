@@ -1,3 +1,4 @@
+"""Public governance legal check module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -124,6 +125,7 @@ def _skip_legal_check(
 
 @dataclass(frozen=True)
 class LegalCheckNode:
+    """Legal check node implementation."""
     @property
     def spec(self) -> NodeSpec:
         return _SPEC

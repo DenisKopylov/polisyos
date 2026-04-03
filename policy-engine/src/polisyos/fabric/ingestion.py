@@ -1,3 +1,4 @@
+"""Public fabric ingestion module API."""
 from __future__ import annotations
 
 import json
@@ -43,6 +44,7 @@ logger = get_logger(__name__)
 
 
 class DatasetFetchSpec(BaseModel):
+    """Dataset fetch spec data model."""
     model_config = ConfigDict(extra="allow")
 
     connector_id: str
@@ -55,6 +57,7 @@ class DatasetFetchSpec(BaseModel):
 
 
 class ConnectorManifestSpec(BaseModel):
+    """Connector manifest spec data model."""
     model_config = ConfigDict(extra="allow")
 
     datasets: list[DatasetFetchSpec] = Field(default_factory=list)

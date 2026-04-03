@@ -1,3 +1,4 @@
+"""Public uncertainty delta module API."""
 from __future__ import annotations
 
 from statistics import NormalDist
@@ -20,6 +21,7 @@ from .protocol import PropagationResult
 
 
 class DeltaMethodPropagator:
+    """Delta method propagator public type."""
     def __init__(self, config: PropagationConfig | None = None) -> None:
         self._config = config or PropagationConfig()
 

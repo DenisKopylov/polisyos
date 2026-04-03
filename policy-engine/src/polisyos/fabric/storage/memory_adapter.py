@@ -1,3 +1,4 @@
+"""Public storage memory adapter module API."""
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence

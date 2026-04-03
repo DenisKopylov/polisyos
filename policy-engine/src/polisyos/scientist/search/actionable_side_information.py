@@ -53,6 +53,7 @@ def persist_actionable_side_information(
     *,
     inputs: list[InputRef] | None = None,
 ) -> ArtifactRef:
+    """Persist actionable side information helper."""
     return store.put_json(
         artifact,
         PutOptions(
@@ -72,6 +73,7 @@ def load_actionable_side_information(
     store: FileSystemCAS,
     ref: ArtifactRef | str,
 ) -> ActionableSideInformation:
+    """Load actionable side information."""
     artifact_id = ref.artifact_id if isinstance(ref, ArtifactRef) else ref
     payload = from_canonical_bytes(store.get_bytes(artifact_id))
     return ActionableSideInformation.model_validate(payload)

@@ -1,3 +1,4 @@
+"""Public core canon package API."""
 from .canon_json import (
     CanonSpec,
     CanonViolation,

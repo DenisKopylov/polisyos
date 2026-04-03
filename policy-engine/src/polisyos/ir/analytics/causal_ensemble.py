@@ -1,3 +1,4 @@
+"""Public analytics causal ensemble module API."""
 from __future__ import annotations
 
 import math
@@ -19,6 +20,8 @@ from polisyos.ir.refs import CausalModelEnsembleRef
 
 
 class EnsembleMember(BaseModel):
+    """One graph candidate inside a structural-uncertainty ensemble."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     graph_ref: str = Field(min_length=1)
@@ -119,6 +122,7 @@ def persist_causal_model_ensemble(
     schema_name: str = "ir.causal_model_ensemble",
     schema_version: str = "1.0",
 ) -> CausalModelEnsembleRef:
+    """Persist causal model ensemble helper."""
     ref = put_json_artifact(
         store,
         ensemble.model_dump(mode="json"),
@@ -135,6 +139,7 @@ def load_causal_model_ensemble(
     store: ArtifactStore,
     ref: CausalModelEnsembleRef,
 ) -> CausalModelEnsemble:
+    """Load causal model ensemble."""
     payload = get_json_artifact(store, ref.artifact_id)
     return CausalModelEnsemble.model_validate(payload)
 

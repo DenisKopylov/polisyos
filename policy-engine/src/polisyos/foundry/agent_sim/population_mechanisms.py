@@ -1,3 +1,4 @@
+"""Public agent sim population mechanisms module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -21,6 +22,7 @@ from polisyos.foundry.contracts.fidelity import FidelityLevel
 
 @dataclass(frozen=True)
 class AgingMechanism(Mechanism):
+    """Aging mechanism public type."""
     steps_per_year: int = 12
     retirement_age: int = 65
     fertility_start: int = 20
@@ -82,6 +84,7 @@ class AgingMechanism(Mechanism):
 
 @dataclass(frozen=True)
 class BirthMechanism(Mechanism):
+    """Birth mechanism public type."""
     max_births_per_step: int = 100
     steps_per_year: int = 12
     config: PopulationConfig = PopulationConfig()
@@ -150,6 +153,7 @@ class BirthMechanism(Mechanism):
 
 @dataclass(frozen=True)
 class DeathMechanism(Mechanism):
+    """Death mechanism public type."""
     base_mortality_rate: float = 0.001
     age_mortality_factor: float = 0.0001
     wealth_mortality_factor: float = -0.0001
@@ -204,6 +208,7 @@ class DeathMechanism(Mechanism):
 
 @dataclass(frozen=True)
 class MigrationMechanism(Mechanism):
+    """Migration mechanism public type."""
     immigration_rate: float = 0.001
     emigration_rate: float = 0.0005
     emigration_wealth_factor: float = -0.1
@@ -282,6 +287,7 @@ class MigrationMechanism(Mechanism):
 
 @dataclass(frozen=True)
 class InheritanceMechanism:
+    """Inheritance mechanism public type."""
     config: InheritanceConfig = InheritanceConfig()
 
     def apply(
@@ -334,6 +340,7 @@ class InheritanceMechanism:
 
 @dataclass(frozen=True)
 class GiftTransferMechanism(Mechanism):
+    """Gift transfer mechanism public type."""
     transfer_probability: float = 0.01
     transfer_fraction: float = 0.05
     min_parent_age: int = 50 * 12

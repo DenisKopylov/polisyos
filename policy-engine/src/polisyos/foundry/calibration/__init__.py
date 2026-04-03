@@ -1,9 +1,11 @@
+"""Public foundry calibration package API."""
 from .identifiability import (
     IdentifiabilityReport,
     IdentifiabilityStatus,
     ParamIdentifiability,
     diagnose_identifiability,
 )
+from .auxiliary import AuxLossComponent, InterferenceLossComponent
 from .report import (
     CalibrationFitMetrics,
     CalibrationFitQuality,
@@ -12,6 +14,15 @@ from .report import (
     CalibrationUncertainty,
     put_calibration_config,
     put_calibration_report,
+)
+from .measurement import (
+    CalibrationTargetBundle,
+    CalibrationTargetBundleManifest,
+    DefaultMeasurementAwareLossAdapter,
+    MeasurementAwareLossAdapter,
+    MeasurementAwareLossConfig,
+    MeasurementAwareTarget,
+    compute_effective_weight,
 )
 from .uncertainty_adapter import envelope_from_calibration_param, envelopes_from_calibration
 
@@ -28,7 +39,7 @@ try:  # pragma: no cover - optional JAX dependency
     from .hessian import HessianResult, compute_hessian
     from .multi_start import MultiStartResult, SingleRunResult
     from .pure_executor import StaticBundle, compile_program, run_pure_scan
-except ModuleNotFoundError:  # pragma: no cover
+except (ModuleNotFoundError, SyntaxError, IndentationError):  # pragma: no cover
     Calibrator = None  # type: ignore[assignment]
     CalibratorInputs = None  # type: ignore[assignment]
     StaticBundle = None  # type: ignore[assignment]
@@ -62,8 +73,17 @@ __all__ = [
     "put_calibration_report",
     "HessianResult",
     "compute_hessian",
+    "CalibrationTargetBundleManifest",
+    "CalibrationTargetBundle",
+    "AuxLossComponent",
+    "DefaultMeasurementAwareLossAdapter",
     "IdentifiabilityReport",
     "IdentifiabilityStatus",
+    "InterferenceLossComponent",
+    "MeasurementAwareLossAdapter",
+    "MeasurementAwareLossConfig",
+    "MeasurementAwareTarget",
+    "compute_effective_weight",
     "ParamIdentifiability",
     "diagnose_identifiability",
     "MultiStartResult",

@@ -1,3 +1,4 @@
+"""Public http routes package API."""
 from polisyos.runtime.http.routes.artifacts import router as artifacts_router
 from polisyos.runtime.http.routes.debug import router as debug_router
 from polisyos.runtime.http.routes.health import router as health_router

@@ -1,3 +1,4 @@
+"""Public cache protocol module API."""
 from __future__ import annotations
 
 from collections.abc import Hashable

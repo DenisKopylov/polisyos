@@ -1,5 +1,7 @@
+"""Public sources unesco uis module API."""
 from __future__ import annotations
 
+import asyncio
 import json
 import time
 from datetime import datetime, timezone
@@ -31,12 +33,28 @@ _UIS_FIELDS = (
 
 
 class UNESCOUISConnector(HTTPConnectorBase[pd.DataFrame]):
-    """Production connector for UNESCO UIS public indicator data."""
+    """Connector for UNESCO UIS public education and science indicators.
+
+    Fetches public UIS indicator payloads with limited parallel country fan-out
+    and optional bulk-oriented profile settings for backfill work.
+
+    Data source:
+        https://api.uis.unesco.org
+    Protocol:
+        REST JSON
+    Auth:
+        None
+    Async support:
+        Standard async HTTP execution only
+    Profile:
+        ``unesco_uis_public``
+    """
 
     namespace: ClassVar[str] = "unesco_uis"
     short_id: ClassVar[str] = "data"
     connector_id: ClassVar[str] = f"{namespace}.{short_id}"
     _BASE_URL: ClassVar[str] = "https://api.uis.unesco.org/api/public"
+    _PARALLEL_COUNTRY_LIMIT: ClassVar[int] = 4
     resilience_profile: ClassVar[HTTPResilienceProfile] = HTTPResilienceProfile(base_delay=1.4)
 
     capabilities: ClassVar[ConnectorCapability] = (
@@ -133,15 +151,25 @@ class UNESCOUISConnector(HTTPConnectorBase[pd.DataFrame]):
         last_headers: dict[str, str] = {}
 
         request_countries = countries or [""]
-        for country in request_countries:
+        semaphore = asyncio.Semaphore(
+            max(1, min(self._PARALLEL_COUNTRY_LIMIT, len(request_countries)))
+        )
+
+        async def _fetch_country(country: str) -> tuple[Any, dict[str, str], bytes]:
             request_params = dict(params)
             if country:
                 request_params["geoUnit"] = country
-            body, headers, raw = await self._resilient_request_json(
-                handle,
-                f"{self._base_url(handle)}/data/indicators",
-                params=request_params,
-            )
+            async with semaphore:
+                body, headers, raw = await self._resilient_request_json(
+                    handle,
+                    f"{self._base_url(handle)}/data/indicators",
+                    params=request_params,
+                )
+            return body, headers, raw
+
+        for body, headers, raw in await asyncio.gather(
+            *(_fetch_country(country) for country in request_countries)
+        ):
             last_headers = headers
             payload_chunks.append(raw)
             bytes_transferred += len(raw)

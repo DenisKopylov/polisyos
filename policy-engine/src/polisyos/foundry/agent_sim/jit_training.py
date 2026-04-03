@@ -1,3 +1,4 @@
+"""Public agent sim jit training module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -29,12 +30,14 @@ from polisyos.foundry.contracts.fidelity import FidelityLevel
 
 @dataclass(frozen=True)
 class JITTrainingConfig(TrainingConfigBase):
+    """JIT training config data model."""
     credit_config: CreditConfig | None = None
     collect_metrics: bool = True
     metrics_frequency: int = 1
 
 
 class TrainingCarry(NamedTuple):
+    """Training carry public type."""
     params: object
     opt_state: optax.OptState
     rng_key: jax.Array
@@ -49,6 +52,7 @@ def create_jit_trainer(
     initial_state: GlobalState,
     config: JITTrainingConfig,
 ) -> Callable[[jax.Array], tuple[ActorCritic, dict]]:
+    """Create jit trainer."""
     params, static = eqx.partition(actor_critic, eqx.is_inexact_array)
 
     probe_executor = executor_factory(actor_critic)
@@ -248,6 +252,7 @@ def create_jit_trainer_with_metrics(
     config: JITTrainingConfig,
     custom_metrics: Sequence[MetricDefinition] | None = None,
 ) -> Callable[[jax.Array], tuple[ActorCritic, dict, MetricsCollector]]:
+    """Create jit trainer with metrics."""
     params, static = eqx.partition(actor_critic, eqx.is_inexact_array)
 
     probe_executor = executor_factory(actor_critic)

@@ -1,3 +1,4 @@
+"""Public calibration report module API."""
 from __future__ import annotations
 
 from typing import Any, Dict, List, Mapping
@@ -15,6 +16,7 @@ from polisyos.foundry.calibration.identifiability import IdentifiabilityReport
 
 
 class CalibrationSeriesComparison(BaseModel):
+    """Calibration series comparison public type."""
     model_config = ConfigDict(extra="forbid")
 
     time: List[float] | None = None
@@ -23,6 +25,7 @@ class CalibrationSeriesComparison(BaseModel):
 
 
 class CalibrationFitMetrics(BaseModel):
+    """Calibration fit metrics data model."""
     model_config = ConfigDict(extra="forbid")
 
     mse: float
@@ -33,6 +36,7 @@ class CalibrationFitMetrics(BaseModel):
 
 
 class CalibrationFitQuality(BaseModel):
+    """Calibration fit quality public type."""
     model_config = ConfigDict(extra="forbid")
 
     per_target: Mapping[str, CalibrationFitMetrics] = Field(default_factory=dict)
@@ -40,6 +44,7 @@ class CalibrationFitQuality(BaseModel):
 
 
 class CalibrationUncertainty(BaseModel):
+    """Calibration uncertainty public type."""
     model_config = ConfigDict(extra="forbid")
 
     method: str = "laplace"
@@ -95,6 +100,7 @@ def put_calibration_config(
     *,
     inputs: List[InputRef] | None = None,
 ) -> ArtifactRef:
+    """Put calibration config helper."""
     return store.put_json(
         config,
         PutOptions(
@@ -113,6 +119,7 @@ def put_calibration_report(
     *,
     inputs: List[InputRef] | None = None,
 ) -> ArtifactRef:
+    """Put calibration report helper."""
     return store.put_json(
         report,
         PutOptions(

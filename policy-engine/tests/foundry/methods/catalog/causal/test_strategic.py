@@ -1,13 +1,16 @@
 from __future__ import annotations
 
 import hashlib
+import sys
+from types import ModuleType, SimpleNamespace
 
 import numpy as np
 
+from polisyos.foundry.methods.catalog.causal.policy_learning import OptimalPolicyLearner
 from polisyos.foundry.methods.catalog.causal.dtr import QLearningDTR
 from polisyos.foundry.methods.catalog.causal.protocols import DynamicTreatmentData
+from polisyos.foundry.methods.catalog.causal.protocols import HTEObservationalData
 from polisyos.foundry.methods.catalog.causal.strategic import (
-    build_strategic_response_bundle,
     evaluate_strategic_hook,
     solve_strategic_response,
 )
@@ -285,7 +288,7 @@ def test_macro_abstracted_fallback_works_with_exact_certificate() -> None:
     assert result.closure_summary["abstraction_map_ref"] == _artifact_id("m")
 
 
-def test_evaluate_hook_builds_bundle_with_disclosure_fields() -> None:
+def test_evaluate_hook_emits_summary_only_even_with_runtime_refs() -> None:
     params = {
         "strategic_scm": _strategic_contract().model_dump(mode="json"),
         "strategic_payoff_tables": {
@@ -308,10 +311,7 @@ def test_evaluate_hook_builds_bundle_with_disclosure_fields() -> None:
     assert warnings == ()
     assert summary is not None
     assert summary["fallback_mode"] == StrategicFallbackMode.EXACT_EQUILIBRIUM.value
-    assert bundle is not None
-    assert str(bundle.causal_component_ref.artifact_id) == _artifact_id("causal")
-    assert str(bundle.strategic_closure_ref.artifact_id) == _artifact_id("closure")
-    assert bundle.fallback_mode is StrategicFallbackMode.EXACT_EQUILIBRIUM
+    assert bundle is None
 
 
 def test_dtr_integration_emits_strategic_metadata() -> None:
@@ -333,3 +333,79 @@ def test_dtr_integration_emits_strategic_metadata() -> None:
         "leader": "high",
         "follower": "switch",
     }
+    assert "strategic_response_bundle" not in result
+
+
+def test_policy_learning_integration_emits_summary_without_bundle(monkeypatch) -> None:
+    class _FakeCausalForestDML:
+        def __init__(self, **kwargs) -> None:
+            self.kwargs = kwargs
+
+        def fit(self, y, t, X=None, W=None) -> None:
+            self._n_obs = len(y)
+
+        def effect(self, X):
+            return np.linspace(0.1, 1.0, num=X.shape[0], dtype=float)
+
+    class _FakePolicyTree:
+        def __init__(self, **kwargs) -> None:
+            self.kwargs = kwargs
+            self.tree_ = SimpleNamespace(
+                children_left=np.array([-1], dtype=int),
+                children_right=np.array([-1], dtype=int),
+                feature=np.array([-2], dtype=int),
+                threshold=np.array([-2.0], dtype=float),
+                value=np.array([[[1.0]]], dtype=float),
+            )
+
+        def fit(self, X, cate_estimates) -> None:
+            self._n_obs = X.shape[0]
+
+        def predict(self, X):
+            return np.ones(X.shape[0], dtype=int)
+
+        def apply(self, X):
+            return np.zeros(X.shape[0], dtype=int)
+
+    monkeypatch.setattr(
+        "polisyos.foundry.methods.catalog.causal.policy_learning.require_econml",
+        lambda: None,
+    )
+    dml_module = ModuleType("econml.dml")
+    dml_module.CausalForestDML = _FakeCausalForestDML
+    policy_module = ModuleType("econml.policy")
+    policy_module.PolicyTree = _FakePolicyTree
+    monkeypatch.setitem(sys.modules, "econml.dml", dml_module)
+    monkeypatch.setitem(sys.modules, "econml.policy", policy_module)
+
+    n_obs = 60
+    x = np.linspace(-1.0, 1.0, num=n_obs, dtype=float).reshape(n_obs, 1)
+    treatment = np.tile(np.array([0, 1], dtype=int), n_obs // 2)
+    outcome = 0.5 + 0.8 * treatment + x[:, 0]
+    state = HTEObservationalData(
+        outcome=outcome,
+        treatment=treatment,
+        covariates=x,
+        feature_names=["feature_0"],
+    )
+
+    result = OptimalPolicyLearner.pure_step(
+        state,
+        {
+            "cate_n_estimators": 20,
+            "max_depth": 2,
+            "min_samples_leaf": 10,
+            "budget_fraction": 0.5,
+            "strategic_scm": _strategic_contract().model_dump(mode="json"),
+            "strategic_payoff_tables": {
+                agent: table.model_dump(mode="json") for agent, table in _payoff_tables().items()
+            },
+        },
+    )
+
+    assert result["report"].metadata["strategic_response_present"] is True
+    assert result["policy_recommendation"].metadata["strategic_response"]["fallback_mode"] == (
+        StrategicFallbackMode.EXACT_EQUILIBRIUM.value
+    )
+    assert "strategic_response_summary" in result
+    assert "strategic_response_bundle" not in result

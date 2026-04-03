@@ -1,3 +1,4 @@
+"""Public corpus index module API."""
 from __future__ import annotations
 
 from typing import Literal
@@ -21,6 +22,7 @@ _DOC_SOURCE_PROPS_SCHEMA = SchemaInfo(name="polisyos.lex.corpus.DocSourceProps",
 
 
 class ProvisionEntryV1(KernelModel):
+    """Provision entry V 1 public type."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     provision_key: str
@@ -45,6 +47,7 @@ class ProvisionEntryV1(KernelModel):
 
 
 class ProvisionIndexV1(KernelModel):
+    """Provision index V 1 public type."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     schema_version: Literal["1.0"] = "1.0"
@@ -62,6 +65,7 @@ class ProvisionIndexV1(KernelModel):
 
 
 class VersionEntryV1(KernelModel):
+    """Version entry V 1 public type."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     doc_version_id: str = Field(..., pattern=ID_PATTERN)
@@ -74,6 +78,7 @@ class VersionEntryV1(KernelModel):
 
 
 class VersionIndexV1(KernelModel):
+    """Version index V 1 public type."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     schema_version: Literal["1.0"] = "1.0"
@@ -85,6 +90,7 @@ class VersionIndexV1(KernelModel):
 
 
 class DocSourcePropsV1(KernelModel):
+    """Doc source props V 1 public type."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     schema_version: Literal["1.0"] = "1.0"
@@ -95,6 +101,7 @@ class DocSourcePropsV1(KernelModel):
 
 
 def persist_provision_index(cas: FileSystemCAS, payload: ProvisionIndexV1) -> str:
+    """Persist provision index helper."""
     try:
         ref = cas.put_json(
             payload.model_dump(mode="python"),
@@ -110,6 +117,7 @@ def persist_provision_index(cas: FileSystemCAS, payload: ProvisionIndexV1) -> st
 
 
 def persist_version_index(cas: FileSystemCAS, payload: VersionIndexV1) -> str:
+    """Persist version index helper."""
     try:
         ref = cas.put_json(
             payload.model_dump(mode="python"),
@@ -125,6 +133,7 @@ def persist_version_index(cas: FileSystemCAS, payload: VersionIndexV1) -> str:
 
 
 def persist_doc_source_props(cas: FileSystemCAS, payload: DocSourcePropsV1) -> str:
+    """Persist doc source props helper."""
     try:
         ref = cas.put_json(
             payload.model_dump(mode="python"),
@@ -140,6 +149,7 @@ def persist_doc_source_props(cas: FileSystemCAS, payload: DocSourcePropsV1) -> s
 
 
 def load_provision_index(cas: FileSystemCAS, artifact_id: str) -> ProvisionIndexV1:
+    """Load provision index."""
     try:
         payload = lex_load_json_artifact(
             cas,
@@ -155,6 +165,7 @@ def load_provision_index(cas: FileSystemCAS, artifact_id: str) -> ProvisionIndex
 
 
 def load_version_index(cas: FileSystemCAS, artifact_id: str) -> VersionIndexV1:
+    """Load version index."""
     try:
         payload = lex_load_json_artifact(
             cas,
@@ -170,6 +181,7 @@ def load_version_index(cas: FileSystemCAS, artifact_id: str) -> VersionIndexV1:
 
 
 def load_doc_source_props(cas: FileSystemCAS, artifact_id: str) -> DocSourcePropsV1:
+    """Load doc source props."""
     try:
         payload = lex_load_json_artifact(
             cas,

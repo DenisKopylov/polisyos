@@ -1,78 +1,35 @@
-# Audit — переносимые аудит-пакеты
+# Audit (`polisyos.core.audit`)
 
-`core.audit` собирает проверяемый пакет `.polisyos-audit.tar.gz` из CAS + run metadata и верифицирует его офлайн.
+`core.audit` assembles portable audit archives from CAS artifacts and run metadata, then verifies
+them offline. The output is a deterministic `.polisyos-audit.tar.gz` bundle that can be checked
+without the original runtime.
 
-## Что входит в пакет
+## Role in System
 
-- CAS artifacts/manifests (в зависимости от профиля экспорта)
-- detached signatures и trusted public keys
-- provenance (`prov.json` + merged core graph)
-- run metadata (`manifest`, `trace`, `index`)
-- checksums + опциональная подпись checksums
-- standalone verifier template
-- опционально SLSA/SBOM материалы
+- **Depends on:** `core.artifacts` for CAS and `core.contracts.provenance` for merged provenance shapes.
+- **Used by:** runtime tooling, security/compliance flows, and export workflows for governed runs.
+- **Boundary function:** packages the evidence needed for external review and reproducible verification.
 
-## Основные модули
+## Key Concepts
 
-| Файл | Роль |
-|---|---|
-| `assembler.py`, `_assembler_*.py` | сборка дерева пакета и детерминированного tar.gz |
-| `verifier.py` | офлайн-проверки целостности, подписей, provenance, SLSA |
-| `models.py` | `ExportOptions`, `AuditExportResult`, `VerificationReport` |
-| `prov_json.py` | конвертер core graph <-> PROV-JSON |
-| `safe_tar.py` | безопасная распаковка архива |
-| `report.py` | markdown-рендер отчета |
+- **Assembler** - builds the archive tree, checksums, and optional signature material.
+- **Verifier** - validates integrity, signatures, provenance, and optional SLSA/SBOM material.
+- **Safe extraction** - `safe_tar.py` prevents unsafe archive unpacking.
+- **Markdown reports** - `report.py` renders verifier output into human-readable summaries.
+- **Templates** - the package ships both instructions and a standalone verifier template.
 
-## Сборка
+## Public API
 
-```python
-from pathlib import Path
+- `AuditPackageAssembler`
+- `AuditPackageVerifier`
+- `ExportOptions`
+- `ExportProfile`
+- `SigningPolicy`
+- `VerificationReport`
+- `render_markdown`
 
-from polisyos.core.audit import AuditPackageAssembler, ExportOptions, ExportProfile, SigningPolicy
+## Current State
 
-assembler = AuditPackageAssembler(
-    cas=store,
-    runs_dir=Path(".polisyos/runs"),
-    options=ExportOptions(
-        profile=ExportProfile.FULL,
-        signing_policy=SigningPolicy.WARN,
-        include_visualization=True,
-    ),
-)
-
-result = assembler.export("R_abc123", output_path=Path("audit_output.polisyos-audit.tar.gz"))
-```
-
-Профили:
-- `FULL`: blobs + manifests + metadata
-- `MANIFESTS_ONLY`: без blobs
-
-Политики подписи:
-- `STRICT`, `WARN`, `SKIP`
-
-## Верификация
-
-```python
-from pathlib import Path
-
-from polisyos.core.audit import AuditPackageVerifier, render_markdown
-
-verifier = AuditPackageVerifier(trusted_keys_dir=Path(".polisyos/keys/trusted"))
-report = verifier.verify(Path("audit_output.polisyos-audit.tar.gz"))
-print(render_markdown(report))
-```
-
-Проверки в отчете:
-- `Package Integrity`
-- `CAS Integrity`
-- `Signature Verification`
-- `Provenance Validation`
-- `Dependency Completeness`
-- `SLSA Verification`
-
-## Связи с core
-
-- `core.artifacts`: source of truth для artifacts/manifests/signatures/graph
-- `core.run` + `core.trace`: lifecycle metadata
-- `core.contracts.provenance`: merged provenance model
-- `core.security.slsa`: attestation/transparency интеграция (опционально)
+- Last updated: 2026-04-03
+- The audit bundle still includes provenance, manifest, and signature material, with optional SLSA/SBOM extras.
+- The tree now includes `instructions_template.md` and `standalone_verifier_template.py` as part of the package docs/tooling surface.

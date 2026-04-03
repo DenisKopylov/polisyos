@@ -1,3 +1,4 @@
+"""Public foundry utils module API."""
 from dataclasses import dataclass
 
 import jax
@@ -29,6 +30,7 @@ def gradient_health(
     vanishing_threshold: float = 1e-8,
     exploding_threshold: float = 1e3,
 ) -> dict:
+    """Gradient health helper."""
     report, _ = gradient_health_report(
         grads,
         clip_norm=None,
@@ -40,6 +42,7 @@ def gradient_health(
 
 @dataclass(frozen=True)
 class GradientHealthReport:
+    """Gradient health report data model."""
     nan_frac: float
     inf_frac: float
     grad_norm: float
@@ -83,6 +86,7 @@ def gradient_health_report(
     vanishing_threshold: float = 1e-8,
     exploding_threshold: float = 1e3,
 ) -> tuple[GradientHealthReport, object]:
+    """Gradient health report helper."""
     flat = _flatten_grads(grads)
     if flat.size == 0:
         report = GradientHealthReport(

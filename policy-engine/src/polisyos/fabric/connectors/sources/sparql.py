@@ -56,7 +56,22 @@ _DEFAULT_TIMEOUT_HINT = 30  # seconds
 
 
 class SPARQLConnector(HTTPConnectorBase[pd.DataFrame]):
-    """SPARQL endpoint connector with query templating and guardrails."""
+    """Connector for SPARQL endpoints such as Wikidata or DBpedia.
+
+    Applies templated query execution, timeout guardrails, and endpoint-aware
+    throttling before normalizing results into tabular frames.
+
+    Data source:
+        SPARQL-compatible knowledge graph endpoints
+    Protocol:
+        SPARQL over HTTP
+    Auth:
+        Usually none; profile-driven when needed
+    Async support:
+        Standard async HTTP execution only
+    Profile:
+        Any ``connector_family='sparql'`` profile
+    """
 
     namespace: ClassVar[str] = "sparql"
     short_id: ClassVar[str] = "endpoint"

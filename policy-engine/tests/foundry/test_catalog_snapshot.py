@@ -1,7 +1,13 @@
 from __future__ import annotations
 
+import importlib.util
+
+import pytest
+
 from polisyos.foundry.methods.catalog import ensure_all_methods_registered
 from polisyos.foundry.methods.catalog_snapshot import build_method_catalog_snapshot
+
+_Y0_INSTALLED = importlib.util.find_spec("y0") is not None
 
 
 def test_method_catalog_snapshot_contains_stable_entries() -> None:
@@ -18,6 +24,7 @@ def test_method_catalog_snapshot_contains_stable_entries() -> None:
     assert first.schema_version == "2.0"
 
 
+@pytest.mark.skipif(_Y0_INSTALLED, reason="y0 is installed — symbolic_identify reports causal_available=True")
 def test_method_catalog_snapshot_carries_causal_capability_posture() -> None:
     ensure_all_methods_registered()
     snapshot = build_method_catalog_snapshot(run_id="R_catalog")

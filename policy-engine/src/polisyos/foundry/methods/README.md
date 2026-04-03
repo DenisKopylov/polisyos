@@ -1,82 +1,39 @@
 # Methods (`polisyos.foundry.methods`)
 
-`methods` — подсистема Foundry для декларативных вычислительных методов: ABI, unified registry/discovery, композиция DAG-цепочек, capability-aware selection и multi-backend исполнение.
+`methods` - declarative method subsystem for typed ABI, registry/discovery, DAG
+composition, specialization and backend dispatch in Foundry.
 
-Актуально по коду на 2026-03-03.
+## Role in System
 
-## Роль в системе
+- **Depends on:** `polisyos.core`, `polisyos.ir`, backend-specific scientific stacks
+- **Used by:** Foundry execution graph and Scientist method-oriented nodes
+- Provides the public method surface for reusable computations independent of Trinity mechanisms.
 
-`methods` используется, когда вычисление оформляется как переиспользуемый typed method с контрактом входов/выходов, независимо от Trinity-механизмов.
+## Key Concepts
 
-## Архитектурный поток
+- **Typed ABI** - `FoundryMethod`, `MethodSignature`, `MethodMetadata`, slots and parameters.
+- **Registry and discovery** - `MethodRegistry` plus file-system/entry-point discovery.
+- **Composition** - DAG composition and linker-based slot compatibility checks.
+- **Resolution** - version policies and compatibility rules live in `resolution.py`.
+- **Backends** - method execution can route to JAX, NumPy or solver-style backends.
+- **Catalog snapshot** - registry state can be captured and persisted for reproducibility.
 
-```text
-FoundryMethod protocol
-        -> MethodRegistry / Discovery
-        -> SlotLinker + MethodComposer (DAG)
-        -> Backend dispatch (JAX / NumPy / Solver)
-        -> optional compile/specialization/artifacts/snapshot
-```
+## Public API
 
-## Структура подсистемы
+| Type/Function | Description |
+|---|---|
+| `FoundryMethod` | Base protocol for typed methods. |
+| `MethodRegistry` | Thread-safe registry with version resolution. |
+| `MethodComposer` | Builds method DAGs and ordered execution chains. |
+| `SlotLinker` | Checks and links slot compatibility. |
+| `MethodDispatcher` | Executes methods across supported backends. |
+| `ensure_all_methods_registered()` | Boots all catalog families into a registry. |
+| `build_method_catalog_snapshot()` | Captures a registry snapshot for reproducibility. |
 
-- `base.py`: ABI (`FoundryMethod`, `MethodSignature`, `MethodMetadata`, `SlotSpec`, `ParameterSpec`) и `@foundry_method`.
-- `registry.py`: thread-safe singleton `MethodRegistry` с version resolution и query API.
-- `discovery.py`: discovery utilities для entry points и dev filesystem scan; production bootstrap идет через `core.components`.
-- `linker.py`: проверка совместимости slot-ов (type/unit/shape) и построение bindings.
-- `composer.py`: DAG-композиция (`graphlib.TopologicalSorter`) и deterministic order.
-- `backends/*`: dispatch и запуск методов в JAX/NumPy/Solver окружениях.
-- `compiler.py`, `specialization.py`: optional compile/specialization и кеширование.
-- `artifacts.py`, `catalog_snapshot.py`: provenance и снимок каталога методов в CAS.
+→ Full reference: [docs/reference/foundry/index.md](../../../../docs/reference/foundry/index.md)
 
-## Каталог методов
+## Current State
 
-Канонические реализации находятся только в `methods/catalog/*`:
-
-- `methods/catalog/causal/`
-- `methods/catalog/econometrics/`
-- `methods/catalog/optimization/`
-- `methods/catalog/simulation/`
-- `methods/catalog/survey/`
-- `methods/catalog/distributional/`
-- `methods/catalog/forecasting/`
-- `methods/catalog/validation/`
-- `methods/catalog/sensitivity/`
-- `methods/catalog/bayesian/`
-- `methods/catalog/spatial/`
-
-Навигация по каталогу: `methods/catalog/README.md`.
-Для крупного causal-каталога есть отдельный документ: `methods/catalog/causal/README.md`.
-
-## Public surface после V2
-
-- Пакеты `polisyos.foundry.methods.causal`, `...econometrics`, `...optimization` остаются как flat public API.
-- Deep submodules вида `polisyos.foundry.methods.<domain>.<module>` удалены.
-- Bootstrap legacy API `bootstrap_registry(...)` удален; runtime должен идти через components index + methods bridge.
-
-## Связь с Foundry и Scientist
-
-- Method-узлы выполняются из execution-графа Foundry через `MethodDispatcher`.
-- Снимки каталога используются в `scientist/nodes/builtins/planning/build_method_catalog_snapshot.py`.
-- Подсистема подключена к `scientist/compute/runner.py` и method-oriented пакетам.
-
-## Текущее состояние и ограничения
-
-- Много optional deps: `jax`, solver stack, `statsmodels`, `linearmodels`, `econml`, и др.
-- При отсутствии зависимостей часть методов доступна, а часть регистрируется условно.
-- Snapshot `schema_version=2.0` является canonical capability/runtime truth для planner и scientist.
-
-## Документы V2
-
-- `catalog/AUTHORING.md` — как добавлять новые методы.
-- `catalog/NAMING.md` — канонический FQN contract.
-- `catalog/MIGRATION_V2.md` — breaking migration note.
-
-## Тестовый контур
-
-`testing/` покрывает:
-
-- protocol/signature checks;
-- slot compatibility и composition edge cases;
-- backend suites (`numpy`, `jax`, `solver`);
-- golden-регрессии и determinism проверки.
+- Last updated: 2026-04-03
+- Files: 271 Python files
+- Exports: 139

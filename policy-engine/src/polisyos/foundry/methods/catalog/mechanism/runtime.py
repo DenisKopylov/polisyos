@@ -1,3 +1,4 @@
+"""Public mechanism runtime module API."""
 from __future__ import annotations
 
 from typing import Any, ClassVar, Mapping
@@ -134,6 +135,7 @@ def _apply_runtime_mechanism(
     tags={"mechanism", "runtime", "fiscal", "subsidy", "structural"},
 )
 class TaxSubsidyMechanismMethod:
+    """Tax subsidy mechanism method public type."""
     method_kind: ClassVar[MethodKind] = MethodKind.MECHANISM
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STRICT_CPU
     runtime_stack: ClassVar[tuple[str, ...]] = ("jax",)
@@ -171,6 +173,9 @@ class TaxSubsidyMechanismMethod:
         description="Emit fiscal subsidy patches through the unified MethodRegistry.",
         tags=frozenset({"mechanism", "runtime", "fiscal", "subsidy", "structural"}),
         when_to_use="Apply targeted subsidy or tax relief to agents/firms in simulation; analyze fiscal transfer incidence",
+        citations=(
+            "Mirrlees, J. (1971). An Exploration in the Theory of Optimum Income Taxation. Review of Economic Studies, 38(2), 175-208.",
+        ),
         output_interpretation="Patches applied to agent income/wealth. Incidence = share of subsidy captured by each group. Check fiscal cost vs welfare gain.",
     )
 
@@ -185,6 +190,7 @@ class TaxSubsidyMechanismMethod:
     tags={"mechanism", "runtime", "fiscal", "tax", "structural"},
 )
 class IncomeTaxMechanismMethod:
+    """Income tax mechanism method public type."""
     method_kind: ClassVar[MethodKind] = MethodKind.MECHANISM
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STRICT_CPU
     runtime_stack: ClassVar[tuple[str, ...]] = ("jax",)
@@ -222,6 +228,9 @@ class IncomeTaxMechanismMethod:
         description="Emit income tax patches through the unified MethodRegistry.",
         tags=frozenset({"mechanism", "runtime", "fiscal", "tax", "structural"}),
         when_to_use="Apply income tax schedule to agents; analyze tax incidence, progressivity, and behavioral responses in simulation",
+        citations=(
+            "Mirrlees, J. (1971). An Exploration in the Theory of Optimum Income Taxation. Review of Economic Studies, 38(2), 175-208.",
+        ),
         output_interpretation="Tax liability patches per agent. Effective rate = tax paid / gross income. Progressivity index from Gini pre/post tax.",
     )
 
@@ -236,6 +245,7 @@ class IncomeTaxMechanismMethod:
     tags={"mechanism", "runtime", "labor", "structural"},
 )
 class LaborMarketMechanismMethod:
+    """Labor market mechanism method public type."""
     method_kind: ClassVar[MethodKind] = MethodKind.MECHANISM
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("jax",)
@@ -276,6 +286,9 @@ class LaborMarketMechanismMethod:
         description="Emit labor market employment and wage patches through the unified MethodRegistry.",
         tags=frozenset({"mechanism", "runtime", "labor", "structural"}),
         when_to_use="Simulate labor market matching, wage determination, and employment transitions; evaluate minimum wage or hiring subsidy policies",
+        citations=(
+            "Diamond, P. (1982). Aggregate Demand Management in Search Equilibrium. Journal of Political Economy, 90(5), 881-894.",
+        ),
         output_interpretation="Employment and wage patches per agent. Unemployment rate = share with no employment match. Wage distribution shift from policy.",
     )
 
@@ -295,6 +308,7 @@ class LaborMarketMechanismMethod:
     tags={"mechanism", "runtime", "queue", "structural"},
 )
 class QueueMechanismMethod:
+    """Queue mechanism method public type."""
     method_kind: ClassVar[MethodKind] = MethodKind.MECHANISM
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("jax",)
@@ -335,6 +349,9 @@ class QueueMechanismMethod:
         description="Emit queue-length patches through the unified MethodRegistry.",
         tags=frozenset({"mechanism", "runtime", "queue", "structural"}),
         when_to_use="Model service congestion in simulation; analyze capacity, waiting times, and throughput under policy changes",
+        citations=(
+            "Gross, D. & Shortle, J. (2008). Fundamentals of Queueing Theory. Wiley.",
+        ),
         output_interpretation="Queue-length patch. Stable queue = lambda < mu (rho < 1). Policy target: reduce waiting time or increase throughput.",
     )
 
@@ -355,6 +372,7 @@ class QueueMechanismMethod:
     tags={"mechanism", "runtime", "adaptive-agent", "structural"},
 )
 class AdaptiveAgentMechanismMethod:
+    """Adaptive agent mechanism method public type."""
     method_kind: ClassVar[MethodKind] = MethodKind.MECHANISM
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("jax", "equinox", "optax")
@@ -401,6 +419,9 @@ class AdaptiveAgentMechanismMethod:
         description="Emit adaptive agent policy patches through the unified MethodRegistry.",
         tags=frozenset({"mechanism", "runtime", "adaptive-agent", "structural"}),
         when_to_use="Endogenous agent decision-making with learning; model behavioral responses to policy interventions",
+        citations=(
+            "Tesfatsion, L. (2006). Agent-Based Computational Economics: A Constructive Approach to Economic Theory. Handbook of Computational Economics, Vol. 2.",
+        ),
         output_interpretation="Policy patches reflecting agent decisions. Track policy convergence over steps. Evaluate welfare under learned vs fixed policy.",
     )
 

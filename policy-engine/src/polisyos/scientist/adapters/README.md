@@ -1,26 +1,31 @@
-# Adapters Layer (`polisyos.scientist.adapters`)
+# Adapters (`polisyos.scientist.adapters`)
 
-`adapters` реализует порты `ExecutionContext` для интеграции Scientist с внешними execution/data подсистемами.
+`adapters` реализует bridge-слой между Scientist workflow runtime и внешними
+execution/data системами, не протаскивая прямые вызовы Foundry/Fabric в ноды.
 
-## Состав
+## Роль в системе
 
-- `foundry_bridge.py` — `DefaultFoundryPort`
-  - `compile()` и `execute()` для Foundry API;
-  - опциональная TEE-проверка через `TEEGatekeeper`;
-  - добавление `security.tee_attestation` и `security.sbom` как derived artifacts.
-- `fabric_bridge.py` — `DefaultFabricPort`
-  - `DataViewRequestRef -> DataSnapshotRef`;
-  - загрузка данных через `fabric_get_data()`;
-  - запись `fabric.tabular_payload`, `fabric.data_schema`, `fabric.quality_report`, `fabric.warnings`, итогового `fabric.data_snapshot`.
+- **Зависит от:** `core.contracts`, `core.security`, `foundry`, `fabric`
+- **Используется в:** `scientist.workflows`, builtin data/compile/simulate nodes
+- Пакет изолирует compile/execute и snapshot/materialization протоколы за typed портами.
 
-## Как используется в workflow
+## Ключевые концепции
 
-- `run_default_workflow()` всегда подключает `DefaultFoundryPort`, если порт не передан снаружи.
-- `DefaultFabricPort` подключается автоматически, когда в inputs есть `data_view_request_ref`.
-- Ноды `build_data_snapshot`, `compile_foundry`, `run_simulation` работают через эти порты, а не напрямую с Foundry/Fabric.
+- **DefaultFoundryPort** — compile/execute bridge к Foundry API.
+- **DefaultFabricPort** — превращает `DataViewRequest` в snapshot/artifact surface.
+- **Derived security artifacts** — TEE attestation и SBOM могут публиковаться через adapter path.
+- **Workflow injection** — адаптеры подставляются в `ExecutionContext`, а не хардкодятся в нодах.
 
-## Связи
+## Public API
 
-- `core.security.*` — настройки TEE/SBOM и middleware;
-- `core.contracts.foundry` и `core.contracts.fabric` — типизированные контракты запросов/ответов;
-- `nodes/builtins/*` — прямые потребители адаптеров в DAG.
+- `DefaultFoundryPort`
+- `DefaultFabricPort`
+
+Подробности: [Reference →](../../../../docs/reference/scientist/index.md)
+
+## Текущее состояние
+
+- Последнее обновление: 2026-04-03
+- Python modules: 3
+- Exports: 2
+- README приведён к общему шаблону; API surface остается компактным и стабильным

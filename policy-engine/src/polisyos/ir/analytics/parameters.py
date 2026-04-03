@@ -1,3 +1,4 @@
+"""Public analytics parameters module API."""
 from __future__ import annotations
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -55,6 +56,7 @@ def persist_context_adaptive_parameter_bundle(
     schema_name: str = _SCHEMA_NAME,
     schema_version: str = _SCHEMA_VERSION,
 ) -> ContextAdaptiveParameterBundleRef:
+    """Persist context adaptive parameter bundle helper."""
     ref = put_json_artifact(
         store,
         bundle.model_dump(mode="json"),
@@ -71,6 +73,7 @@ def load_context_adaptive_parameter_bundle(
     store: ArtifactStore,
     ref: ContextAdaptiveParameterBundleRef,
 ) -> ContextAdaptiveParameterBundle:
+    """Load context adaptive parameter bundle."""
     payload = get_json_artifact(store, ref.artifact_id)
     return ContextAdaptiveParameterBundle.model_validate(payload)
 

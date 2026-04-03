@@ -1,68 +1,33 @@
-# Security — zero-trust и multi-tenant primitives
+# Security (`polisyos.core.security`)
 
-`core.security` — общий security/runtime слой для multi-tenant исполнения: tenant routing, identity/authz, delegation, chained audit, TEE, SBOM и SLSA.
+`core.security` is the shared zero-trust, multi-tenant runtime layer for PolicyOS. It covers cell
+routing, identity/authz, delegation, chained audit, TEE, SBOM, SLSA, and quota enforcement.
 
-## Архитектура
+## Role in System
 
-```text
-security/
-├── cell.py, registry.py, router.py, tenant_context.py
-├── identity.py, access_scope.py, delegation.py, authz.py
-├── db_backend.py
-├── audit_models.py, audit_sink.py, audit_verifier.py
-├── tee.py, tee_middleware.py
-├── sbom.py
-├── slsa/
-├── settings.py, exceptions.py
-└── __init__.py  # lazy exports
-```
+- **Depends on:** `core.cache` for fast local memoization and shared runtime settings.
+- **Used by:** `runtime/http`, audit export tooling, and any execution path that needs tenant isolation or attestation.
+- **Boundary function:** keeps security primitives centralized so each product layer does not reimplement them.
 
-## Подсистемы
+## Key Concepts
 
-| Подсистема | Что делает |
-|---|---|
-| Tenant/cell routing | `CellRegistry`, `resolve_routing`, `tenant_scope` |
-| Identity | JWT/OIDC claims normalization + SPIFFE service identity |
-| AccessScope | неизменяемый security-контекст запроса |
-| Authorization | async OPA client (`OPAClient`) с TTL-cache и deny-by-default |
-| Delegation | подписанные hop-to-hop delegation tokens |
-| DB isolation | `PostgresBackend` (RLS) + `DuckDBLegacyBackend` |
-| Audit chain | append-only chained log + hot/cold backends + tamper verify |
-| TEE | attestation verification + gatekeeper middleware |
-| SBOM gate | CycloneDX генерация/проверка + vulnerability threshold |
-| SLSA | attestation/signing/transparency clients и config |
+- **Tenant and cell routing** - `cell.py`, `router.py`, and `tenant_context.py` keep requests scoped correctly.
+- **Identity and authz** - `identity.py`, `access_scope.py`, `delegation.py`, and `authz.py` model request trust and authorization.
+- **Audit chain** - chained logs, sinks, and verifiers provide tamper-evident records.
+- **TEE and attestation** - `tee.py` and `tee_middleware.py` gate sensitive execution paths.
+- **SBOM and SLSA** - supply-chain checks and attestation clients enforce release discipline.
+- **Quota enforcement** - `quota_registry.py` and `quota_enforcer.py` keep tenant/resource usage bounded.
 
-## Поведение по умолчанию
+## Public API
 
-- fail-closed для критичных путей (routing/authz/attestation).
-- часть переключателей автоматически ужесточается в `POLISYOS_ENV=prod`.
-- все runtime-переключатели централизованы в `settings.py` (`get_security_settings()`).
+- routing/tenant: `CellRegistry`, `resolve_routing`, `tenant_scope`
+- identity/authz: `AccessScope`, `OPAClient`
+- delegation: delegation token helpers in `delegation.py`
+- audit: audit sink/verifier helpers in `audit_sink.py` and `audit_verifier.py`
+- attestation: TEE and SBOM/SLSA helpers in `tee.py`, `sbom.py`, and `slsa/`
 
-## Ключевые env-группы
+## Current State
 
-Tenant/AuthN/AuthZ:
-- `POLISYOS_MULTI_TENANT_ENABLED`, `POLISYOS_CELL_REGISTRY_PATH`, `POLISYOS_MULTI_TENANT_FAIL_CLOSED`
-- `POLISYOS_AUTHN_ENABLED`, `POLISYOS_AUTHZ_MODE`, `POLISYOS_OPA_URL`, `POLISYOS_OPA_POLICY_PATH`
-
-Delegation/identity:
-- `POLISYOS_DELEGATION_REQUIRED`, `POLISYOS_DELEGATION_HEADER`, `POLISYOS_DELEGATION_SECRET`
-- `POLISYOS_MTLS_SPIFFE_HEADER`, `POLISYOS_SERVICE_SPIFFE_ID`
-
-TEE/SBOM:
-- `POLISYOS_TEE_ENABLED`, `POLISYOS_TEE_REQUIRED`, `POLISYOS_TEE_REPORT_PATH`, `POLISYOS_TEE_EXPECTED_MEASUREMENTS`
-- `POLISYOS_SBOM_ENABLED`, `POLISYOS_SBOM_PATH`, `POLISYOS_SBOM_CVSS_THRESHOLD`, `POLISYOS_SBOM_ALLOWED_CVES`
-
-SLSA:
-- `POLISYOS_SLSA_MODE`, `POLISYOS_SLSA_POLICY`
-- `POLISYOS_SLSA_FULCIO_URL`, `POLISYOS_SLSA_REKOR_URL`, `POLISYOS_SLSA_OIDC_*`
-
-Audit backends:
-- `POLISYOS_AUDIT_HOT_TIER_URL`
-- `POLISYOS_AUDIT_COLD_TIER_BUCKET`, `POLISYOS_AUDIT_COLD_TIER_PREFIX`, `POLISYOS_AUDIT_COLD_TIER_REGION`
-
-## Связи
-
-- `runtime/http`: routing, tenant context, authz, delegation, tee middleware
-- `core.run`: опционально fan-out trace в chained audit sink
-- `core.audit`: может включать SLSA/SBOM материалы при экспорте
-- `core.observability`: security telemetry (authz/audit/tee/sbom)
+- Last updated: 2026-04-03
+- The package tree now includes `namespace.py`, `quota_enforcer.py`, and `quota_registry.py` alongside the existing zero-trust primitives.
+- `runtime/http` remains the main consumer of the security middleware chain.

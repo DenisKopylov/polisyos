@@ -1,3 +1,4 @@
+"""Public econometrics advanced module API."""
 from __future__ import annotations
 
 import math
@@ -113,6 +114,7 @@ def _build_regression_result(
     tags={"econometrics", "quantile-regression"},
 )
 class QuantileRegressionEstimator:
+    """Quantile regression estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("statsmodels", "numpy")
 
@@ -194,6 +196,7 @@ class QuantileRegressionEstimator:
     tags={"econometrics", "event-study"},
 )
 class EventStudyEstimator:
+    """Event study estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -323,6 +326,7 @@ class EventStudyEstimator:
     tags={"econometrics", "local-projections"},
 )
 class LocalProjectionsEstimator:
+    """Local projections estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("statsmodels", "numpy")
 
@@ -431,6 +435,7 @@ class LocalProjectionsEstimator:
     tags={"econometrics", "garch"},
 )
 class GARCHEstimator:
+    """GARCH estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("arch", "numpy")
 
@@ -514,6 +519,7 @@ class GARCHEstimator:
     tags={"econometrics", "change-point"},
 )
 class ChangePointEstimator:
+    """Change point estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("ruptures", "numpy")
 

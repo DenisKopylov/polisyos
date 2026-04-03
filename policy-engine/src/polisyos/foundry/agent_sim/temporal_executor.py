@@ -1,3 +1,4 @@
+"""Public agent sim temporal executor module API."""
 from __future__ import annotations
 
 from typing import Iterable
@@ -20,6 +21,7 @@ def create_temporal_executor(
     aggregate_every: int | None = None,
     compute_gini: bool = False,
 ) -> PureExecutor:
+    """Create temporal executor."""
     mechanisms = list(base_mechanisms) if base_mechanisms is not None else []
     replaced = False
     for idx, mech in enumerate(mechanisms):

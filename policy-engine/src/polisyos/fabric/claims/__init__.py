@@ -1,3 +1,4 @@
+"""Public fabric claims package API."""
 from __future__ import annotations
 
 try:

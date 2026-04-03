@@ -1,3 +1,4 @@
+"""Public bayesian advanced module API."""
 from __future__ import annotations
 
 from typing import Any, ClassVar, Mapping
@@ -656,6 +657,7 @@ def _mixture_posterior_result(
     tags={"bayesian", "hierarchical", "regression"},
 )
 class BayesianHierarchicalRegressionEstimator:
+    """Bayesian hierarchical regression estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
     optional_deps: ClassVar[tuple[str, ...]] = ("arviz",)
@@ -699,6 +701,10 @@ class BayesianHierarchicalRegressionEstimator:
         description="Random-intercept Bayesian hierarchical regression with partial pooling across groups.",
         tags=frozenset({"bayesian", "hierarchical", "regression"}),
         when_to_use="Grouped data with partial pooling; schools, regions, time periods; partial pooling across groups",
+        citations=(
+            "Gelman, A. et al. (2013). Bayesian Data Analysis. 3rd ed. CRC Press.",
+            "Gelman, A. & Hill, J. (2006). Data Analysis Using Regression and Multilevel/Hierarchical Models. Cambridge University Press.",
+        ),
         when_not_to_use="No meaningful grouping structure; all groups have large equal samples",
         typical_min_obs=30,
         output_interpretation="Group-level estimates shrink toward grand mean. Shrinkage amount depends on group size and variance.",
@@ -860,6 +866,7 @@ class BayesianHierarchicalRegressionEstimator:
     tags={"bayesian", "sampling", "hmc"},
 )
 class BayesianHMCRegressionEstimator:
+    """Bayesian HMC regression estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
     optional_deps: ClassVar[tuple[str, ...]] = ("arviz",)
@@ -902,6 +909,10 @@ class BayesianHMCRegressionEstimator:
         description="Hamiltonian Monte Carlo sampler for Bayesian linear regression with adaptive warmup step size.",
         tags=frozenset({"bayesian", "sampling", "hmc"}),
         when_to_use="Bayesian regression where Metropolis-Hastings mixes poorly; correlated posteriors; moderate sample sizes",
+        citations=(
+            "Neal, R. (2011). MCMC using Hamiltonian dynamics. In Handbook of Markov Chain Monte Carlo, CRC Press.",
+            "Betancourt, M. (2017). A conceptual introduction to Hamiltonian Monte Carlo. arXiv:1701.02434.",
+        ),
         when_not_to_use="Very high-dimensional parameter space; gradient computation is expensive",
         typical_min_obs=30,
         output_interpretation="Posterior samples over regression coefficients. Check acceptance rate (target 60–80%). HMC produces less correlated chains than Metropolis.",
@@ -1010,6 +1021,7 @@ class BayesianHMCRegressionEstimator:
     tags={"bayesian", "sampling", "nuts"},
 )
 class BayesianNUTSRegressionEstimator:
+    """Bayesian NUTS regression estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
     optional_deps: ClassVar[tuple[str, ...]] = ("arviz",)
@@ -1053,6 +1065,9 @@ class BayesianNUTSRegressionEstimator:
         description="No-U-Turn Sampler for Bayesian linear regression with dynamic trajectory expansion.",
         tags=frozenset({"bayesian", "sampling", "nuts"}),
         when_to_use="Bayesian regression requiring efficient exploration of curved posteriors; preferred over HMC when step count is hard to tune",
+        citations=(
+            "Hoffman, M. & Gelman, A. (2014). The No-U-Turn sampler: Adaptively setting path lengths in Hamiltonian Monte Carlo. JMLR, 15, 1593-1623.",
+        ),
         when_not_to_use="Very high-dimensional or non-differentiable posteriors; speed-critical contexts where VI suffices",
         typical_min_obs=30,
         output_interpretation="Posterior samples with dynamic trajectory length. NUTS typically achieves higher ESS per sample than Metropolis or fixed-step HMC.",
@@ -1164,6 +1179,7 @@ class BayesianNUTSRegressionEstimator:
     tags={"bayesian", "mixture", "gaussian-mixture", "tabular", "estimation", "uncertainty"},
 )
 class BayesianGaussianMixtureEstimator:
+    """Bayesian gaussian mixture estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
     method_variant: ClassVar[str] = "gaussian_mixture"
@@ -1200,6 +1216,10 @@ class BayesianGaussianMixtureEstimator:
         description="Finite Bayesian Gaussian mixture with diagonal covariance and Dirichlet-smoothed EM updates.",
         tags=frozenset({"bayesian", "mixture", "gaussian-mixture"}),
         when_to_use="Known number of latent clusters; density estimation with soft assignments; policy heterogeneity analysis",
+        citations=(
+            "Gelman, A. et al. (2013). Bayesian Data Analysis. 3rd ed. CRC Press.",
+            "McLachlan, G. & Peel, D. (2000). Finite Mixture Models. Wiley.",
+        ),
         when_not_to_use="Number of components is unknown (use Dirichlet Process); data has non-Gaussian cluster shapes",
         typical_min_obs=100,
         output_interpretation="Component means, weights, and soft cluster assignments per observation. Dirichlet smoothing prevents degenerate components.",
@@ -1242,6 +1262,7 @@ class BayesianGaussianMixtureEstimator:
     tags={"bayesian", "nonparametric", "dirichlet-process", "tabular", "estimation", "uncertainty"},
 )
 class DirichletProcessMixtureEstimator:
+    """Dirichlet process mixture estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
     method_variant: ClassVar[str] = "dirichlet_process_mixture"
@@ -1279,6 +1300,10 @@ class DirichletProcessMixtureEstimator:
         description="Truncated Dirichlet-process Gaussian mixture with adaptive component pruning.",
         tags=frozenset({"bayesian", "nonparametric", "dirichlet-process"}),
         when_to_use="Unknown number of clusters; flexible density estimation; mixture models with unknown components",
+        citations=(
+            "Ferguson, T. (1973). A Bayesian analysis of some nonparametric problems. Annals of Statistics, 1(2), 209-230.",
+            "Neal, R. (2000). Markov chain sampling methods for Dirichlet process mixture models. Journal of Computational and Graphical Statistics, 9(2), 249-265.",
+        ),
         when_not_to_use="Number of components is known and fixed; small dataset where DP complexity is unwarranted",
         typical_min_obs=100,
         output_interpretation="Posterior distribution over number of clusters and cluster memberships. DP concentration α controls expected number of clusters.",

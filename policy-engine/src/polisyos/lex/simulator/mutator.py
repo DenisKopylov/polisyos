@@ -1,3 +1,4 @@
+"""Public simulator mutator module API."""
 from __future__ import annotations
 
 from pydantic import BaseModel, ConfigDict, Field

@@ -1,3 +1,4 @@
+"""Public lex normpack package API."""
 from __future__ import annotations
 
 from polisyos.lex.normpack.assemble_pack import assemble_norm_pack

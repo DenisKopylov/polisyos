@@ -1,3 +1,4 @@
+"""Public causal nuisance layer module API."""
 from __future__ import annotations
 
 import dataclasses
@@ -19,6 +20,7 @@ from polisyos.foundry.methods.catalog.causal.nuisance_backends import (
 
 @dataclasses.dataclass(frozen=True)
 class NuisanceConfig:
+    """Nuisance config data model."""
     nuisance_model_family: str = "competitive"
     crossfit_folds: int = 5
     n_repeats: int = 3
@@ -36,6 +38,7 @@ class NuisanceConfig:
 
 @dataclasses.dataclass(frozen=True)
 class OutcomeScaler:
+    """Outcome scaler public type."""
     mean: float
     scale: float
     applied: bool
@@ -44,6 +47,7 @@ class OutcomeScaler:
 
 @dataclasses.dataclass
 class CrossFitNuisanceOutputs:
+    """Cross fit nuisance outputs public type."""
     propensity: np.ndarray
     mu1: np.ndarray
     mu0: np.ndarray
@@ -109,12 +113,14 @@ class CrossFitNuisanceOutputs:
 
 @dataclasses.dataclass
 class TauFitResult:
+    """Tau fit result data model."""
     cate_predictions: np.ndarray
     feature_importances: np.ndarray | None
     fitted_values: np.ndarray | None = None
 
 
 def build_nuisance_config(params: dict[str, Any] | None = None) -> NuisanceConfig:
+    """Build nuisance config."""
     raw = params or {}
     seed_manifest_raw = raw.get("random_seed_manifest")
     seed_manifest = tuple(int(seed) for seed in seed_manifest_raw) if seed_manifest_raw is not None else ()
@@ -141,6 +147,7 @@ def crossfit_nuisances(
     outcome: np.ndarray,
     config: NuisanceConfig,
 ) -> CrossFitNuisanceOutputs:
+    """Crossfit nuisances helper."""
     X = np.asarray(X, dtype=float)
     treatment = np.asarray(treatment, dtype=float).reshape(-1)
     outcome = np.asarray(outcome, dtype=float).reshape(-1)
@@ -225,6 +232,7 @@ def fit_dr_tau_model(
     pseudo_outcome: np.ndarray,
     config: NuisanceConfig,
 ) -> TauFitResult:
+    """Fit dr tau model helper."""
     return _fit_tau_model(
         X,
         target=np.asarray(pseudo_outcome, dtype=float),
@@ -240,6 +248,7 @@ def fit_r_tau_model(
     t_residual: np.ndarray,
     config: NuisanceConfig,
 ) -> TauFitResult:
+    """Fit r tau model helper."""
     t_residual = np.asarray(t_residual, dtype=float)
     safe = np.abs(t_residual) >= 1e-3
     pseudo = np.zeros_like(t_residual)
@@ -263,6 +272,7 @@ def bootstrap_mean_interval(
     influence_values: np.ndarray | None = None,
     backend: str = "bootstrap_eif",
 ) -> tuple[float, float]:
+    """Bootstrap mean interval helper."""
     return _ci_bootstrap_mean_interval(
         values,
         seed=seed,
@@ -273,10 +283,12 @@ def bootstrap_mean_interval(
 
 
 def robust_standard_error(values: np.ndarray) -> float:
+    """Robust standard error helper."""
     return _ci_robust_standard_error(values)
 
 
 def fit_outcome_scaler(outcome: np.ndarray, policy: str) -> OutcomeScaler:
+    """Fit outcome scaler helper."""
     arr = np.asarray(outcome, dtype=float).reshape(-1)
     mean = float(np.mean(arr))
     scale = float(np.std(arr))
@@ -288,6 +300,7 @@ def fit_outcome_scaler(outcome: np.ndarray, policy: str) -> OutcomeScaler:
 
 
 def scale_outcome(outcome: np.ndarray, scaler: OutcomeScaler) -> np.ndarray:
+    """Scale outcome helper."""
     arr = np.asarray(outcome, dtype=float)
     if not scaler.applied:
         return arr
@@ -295,6 +308,7 @@ def scale_outcome(outcome: np.ndarray, scaler: OutcomeScaler) -> np.ndarray:
 
 
 def inverse_scale(values: np.ndarray, scaler: OutcomeScaler) -> np.ndarray:
+    """Inverse scale helper."""
     arr = np.asarray(values, dtype=float)
     if not scaler.applied:
         return arr

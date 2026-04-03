@@ -99,7 +99,9 @@ def _build_registry_db(tmpdir: str) -> Path:
             ],
         )
         con.executemany(
-            "INSERT INTO ds_observations VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            "INSERT INTO ds_observations "
+            "(observation_id, dataset_id, raw_variable, canonical_var, country_code, year, survey_year, wave, value, condition_json) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             [
                 (
                     "obs1",

@@ -1,3 +1,4 @@
+"""Public sources contracts package API."""
 from __future__ import annotations
 
 from .eurostat_contracts import (

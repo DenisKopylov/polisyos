@@ -1,3 +1,4 @@
+"""Public distributional registry boot module API."""
 from __future__ import annotations
 
 from typing import Sequence
@@ -25,6 +26,7 @@ from .poverty_advanced import MultidimensionalPovertyEstimator
 
 
 def register_distributional_methods() -> Sequence[type]:
+    """Register distributional methods."""
     return (
         LorenzCurveEstimator,
         AtkinsonIndexEstimator,

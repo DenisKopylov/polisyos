@@ -1,3 +1,4 @@
+"""Public backends protocol module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -9,6 +10,7 @@ from polisyos.foundry.methods.base import ComputeBackend, MethodSignature
 
 
 class SolverStatus(str, Enum):
+    """Solver status public type."""
     OPTIMAL = "optimal"
     FEASIBLE = "feasible"
     INFEASIBLE = "infeasible"
@@ -20,6 +22,7 @@ class SolverStatus(str, Enum):
 
 @dataclass(frozen=True, slots=True)
 class MethodTiming:
+    """Method timing public type."""
     wall_time_ms: float
     cpu_time_ms: float | None = None
     compile_time_ms: float | None = None
@@ -27,6 +30,7 @@ class MethodTiming:
 
 @dataclass(frozen=True, slots=True)
 class ReproducibilityInfo:
+    """Reproducibility info data model."""
     backend: ComputeBackend
     determinism_tier: DeterminismTier
     seed: int | None = None
@@ -40,6 +44,7 @@ class ReproducibilityInfo:
 
 @dataclass(frozen=True, slots=True)
 class MethodResult:
+    """Method result data model."""
     output: Any
     timing: MethodTiming
     reproducibility: ReproducibilityInfo
@@ -49,6 +54,7 @@ class MethodResult:
 
 
 class MethodRunner(Protocol):
+    """Method runner public type."""
     @property
     def supported_backends(self) -> frozenset[ComputeBackend]:
         ...

@@ -15,6 +15,7 @@ def _json_dumps(payload: Any) -> str:
 
 
 def load_json(path: Path, *, default: Any) -> Any:
+    """Load json."""
     if not path.exists():
         return default
     try:
@@ -25,6 +26,7 @@ def load_json(path: Path, *, default: Any) -> Any:
 
 
 def write_json(path: Path, payload: Any) -> None:
+    """Write json helper."""
     path.parent.mkdir(parents=True, exist_ok=True)
     fd, tmp_name = tempfile.mkstemp(prefix=f".{path.name}.", suffix=".tmp", dir=str(path.parent))
     try:
@@ -39,10 +41,12 @@ def write_json(path: Path, payload: Any) -> None:
 
 
 def hash_payload(payload: Any) -> str:
+    """Hash payload helper."""
     return hashlib.sha256(_json_dumps(payload).encode("utf-8")).hexdigest()
 
 
 def fingerprint_paths(paths: list[Path]) -> str:
+    """Fingerprint paths helper."""
     rows: list[dict[str, object]] = []
     for path in sorted({item.resolve() for item in paths if item is not None}):
         if not path.exists():
@@ -61,6 +65,7 @@ def fingerprint_paths(paths: list[Path]) -> str:
 
 
 def load_stage_state(path: Path) -> dict[str, dict[str, Any]]:
+    """Load stage state."""
     payload = load_json(path, default={})
     return payload if isinstance(payload, dict) else {}
 
@@ -74,6 +79,7 @@ def save_stage_state(
     outputs: list[Path] | None = None,
     metadata: dict[str, Any] | None = None,
 ) -> None:
+    """Save stage state helper."""
     state = load_stage_state(path)
     state[str(stage)] = {
         "status": str(status),
@@ -91,6 +97,7 @@ def stage_can_skip(
     input_fingerprint: str,
     required_outputs: list[Path] | None = None,
 ) -> bool:
+    """Stage can skip helper."""
     state = load_stage_state(path)
     current = state.get(str(stage))
     if not isinstance(current, dict):

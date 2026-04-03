@@ -1,3 +1,4 @@
+"""Public agent base module API."""
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
@@ -12,6 +13,7 @@ __all__ = ["BaseAgent", "MockAgent"]
 
 
 class BaseAgent(ABC):
+    """Base agent public type."""
     @abstractmethod
     def decide(self, step: int, context_df) -> TrinityBundle:
         """Produce a canonical TrinityBundle decision artifact."""

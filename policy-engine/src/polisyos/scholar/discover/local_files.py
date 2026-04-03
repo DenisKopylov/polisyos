@@ -1,3 +1,4 @@
+"""Public discover local files module API."""
 from __future__ import annotations
 
 from pathlib import Path
@@ -36,6 +37,7 @@ def _doc_source_from_source(
 
 
 def read_local_file(source: SourceSpec, *, max_bytes: int | None) -> AcquireResult:
+    """Read local file helper."""
     if source.kind != "local_file":
         raise ScholarValidationError(
             "read_local_file expects kind=local_file",

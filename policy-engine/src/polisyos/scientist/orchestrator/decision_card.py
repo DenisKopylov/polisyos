@@ -1,3 +1,4 @@
+"""Public orchestrator decision card module API."""
 from __future__ import annotations
 
 import json
@@ -13,12 +14,14 @@ logger = get_logger(__name__)
 
 
 class Verdict(str, Enum):
+    """Verdict public type."""
     APPROVE = "APPROVE"
     REJECT = "REJECT"
     REVIEW = "REVIEW"
 
 
 class Confidence(str, Enum):
+    """Confidence public type."""
     LOW = "LOW"
     MEDIUM = "MEDIUM"
     HIGH = "HIGH"
@@ -34,6 +37,7 @@ class Confidence(str, Enum):
 
 @dataclass(frozen=True)
 class KeyMetric:
+    """Key metric public type."""
     name: str
     value: float
     formatted: str
@@ -45,12 +49,14 @@ class KeyMetric:
 
 @dataclass(frozen=True)
 class DiagnosticBadge:
+    """Diagnostic badge public type."""
     label: str
     kind: str = "info"
 
 
 @dataclass(frozen=True)
 class IssuesSummary:
+    """Issues summary data model."""
     blocker_count: int = 0
     warning_count: int = 0
     info_count: int = 0
@@ -59,6 +65,7 @@ class IssuesSummary:
 
 @dataclass(frozen=True)
 class CohortSummaryRow:
+    """Cohort summary row public type."""
     cohort_label: str
     population_share: float
     primary_delta: float
@@ -68,6 +75,7 @@ class CohortSummaryRow:
 
 @dataclass(frozen=True)
 class DistributionalSummary:
+    """Distributional summary data model."""
     breakdowns: list[tuple[str, list[CohortSummaryRow]]]
     gini_before: float | None = None
     gini_after: float | None = None
@@ -81,6 +89,7 @@ class DistributionalSummary:
 
 @dataclass(frozen=True)
 class DecisionCard:
+    """Decision card public type."""
     run_id: str
     source_hash: str | None = None
     verdict: Verdict = Verdict.REVIEW

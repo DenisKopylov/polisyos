@@ -1,3 +1,4 @@
+"""Public passes normative arbitration pass module API."""
 from __future__ import annotations
 
 from typing import List
@@ -15,6 +16,7 @@ from polisyos.ir.refs import NormativeArbitrationResultRef
 
 
 class NormativeArbitrationPass(ValidatorPass):
+    """Normative arbitration pass implementation."""
     @property
     def pass_id(self) -> str:
         return "normative_arbitration"

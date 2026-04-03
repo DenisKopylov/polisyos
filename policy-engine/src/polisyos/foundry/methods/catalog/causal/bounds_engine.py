@@ -273,6 +273,13 @@ class BoundsEngineMethod:
 
     @staticmethod
     def pure_step(state: Mapping[str, Any], params: Mapping[str, Any]) -> dict[str, Any]:
+        if not isinstance(state, Mapping):
+            from polisyos.ir.observation.contract_compilers import BoundsEstimationInput
+
+            if isinstance(state, BoundsEstimationInput):
+                state = state.model_dump(mode="python")
+            else:
+                raise TypeError("state must be a mapping or BoundsEstimationInput")
         Y = np.asarray(state["outcome"], dtype=float)
         T = np.asarray(state["treatment"], dtype=float)
         y_lo = float(params.get("y_lower", 0.0))

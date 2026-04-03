@@ -11,9 +11,11 @@ import pytest
 
 from polisyos.academic.batch.article_extractor import run_article_extract
 from polisyos.academic.batch.config import AcademicBatchConfig
+from polisyos.academic.batch.fulltext_resolver import FullTextFetchResult
 from polisyos.academic.batch.graph_builder import run_graph_load
 from polisyos.academic.batch.resolve_extract import ProviderResponse
 from polisyos.academic.knowledge.canonical_seed import CANONICAL_VARIABLES
+from polisyos.academic.knowledge.runtime_canonical_registry import runtime_canonical_names
 from polisyos.batch_common.phase0_quality_validation import evaluate_phase0_quality
 from polisyos.datasets.batch.config import DatasetBatchConfig
 from polisyos.datasets.batch.core_sources_ingest import run_core_sources_ingest
@@ -174,6 +176,7 @@ def _canonical_namespace() -> set[str]:
             if child == "_root":
                 continue
             namespace.add(f"{root}.{child}")
+    namespace.update(runtime_canonical_names())
     return namespace
 
 
@@ -228,14 +231,18 @@ def _dataset_resolution_quality(
 def test_phase0_quality_validation_deterministic_e2e(monkeypatch, tmp_path: Path) -> None:
     monkeypatch.setattr("polisyos.academic.batch.resolve_extract.GonkaMultiKeyPool", _DeterministicGonkaClient)
 
-    async def _fake_fetch_full_text(work, **kwargs):  # type: ignore[no-untyped-def]
-        return (
-            "We use a difference-in-differences design. Institutional quality improves social trust.",
-            "fulltext_html",
-            "https://example.org/synthetic",
+    async def _fake_fetch_full_text_result(work, **kwargs):  # type: ignore[no-untyped-def]
+        return FullTextFetchResult(
+            text="We use a difference-in-differences design. Institutional quality improves social trust.",
+            source_kind="fulltext_html",
+            source_url="https://example.org/synthetic",
+            final_state="usable_fulltext",
         )
 
-    monkeypatch.setattr("polisyos.academic.batch.resolve_extract.fetch_full_text_for_work", _fake_fetch_full_text)
+    monkeypatch.setattr(
+        "polisyos.academic.batch.resolve_extract.fetch_full_text_result_for_work",
+        _fake_fetch_full_text_result,
+    )
 
     async def _fake_wb_fetch(self, _handle, request):  # noqa: ARG001
         filters = dict(request.filters or ())

@@ -210,6 +210,7 @@ def build_challenge_case_result(
     metrics: Mapping[str, float] | None = None,
     metadata: Mapping[str, Any] | None = None,
 ) -> ChallengeCaseResult:
+    """Build challenge case result."""
     resolved_status = str(status or ("passed" if passed else "failed")).strip() or "failed"
     return ChallengeCaseResult(
         case=case,
@@ -234,6 +235,7 @@ def build_challenge_suite_result(
     metadata: Mapping[str, Any] | None = None,
     warnings: Sequence[str] | None = None,
 ) -> ChallengeSuiteResult:
+    """Build challenge suite result."""
     executed = [result for result in case_results if result.status != "skipped"]
     total_cases = len(executed)
     failed = [result for result in executed if not result.passed]

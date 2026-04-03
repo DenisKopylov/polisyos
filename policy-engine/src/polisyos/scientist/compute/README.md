@@ -1,39 +1,34 @@
-# Compute Layer (`polisyos.scientist.compute`)
+# Compute (`polisyos.scientist.compute`)
 
-`compute` — адаптер исполнения вычислительных job-ов для Scientist (legacy program и method-based path).
+`compute` инкапсулирует исполнение Scientist job-ов поверх Foundry runtime: от
+legacy program execution до method-based path и нового C7 advanced suite.
 
-## Состав
+## Роль в системе
 
-- `job_spec.py`
-  - `JobSpec` — контракт job-а (`job_kind`, refs, method params, seed, input refs);
-  - `JobKey` — стабильный ключ дедупликации/кеша по canonical payload;
-  - `JobResult` — ссылки на выходные artifacts, warnings/issues.
-- `runner.py`
-  - `run_job(...)` — единая точка запуска;
-  - `LocalBackend` — legacy execute через `foundry.executor`;
-  - `MethodBackend` — запуск Foundry methods через dispatcher/registry;
-  - materialization bridge `scientist.unified_dag_adapter` для method path.
+- **Зависит от:** `foundry.executor`, `foundry.methods`, `core.artifacts`
+- **Используется в:** causal builtin nodes, advanced method orchestration, simulation bridges
+- Пакет дает единый runtime facade для materialize/dispatch/persist циклов.
 
-## Режимы выполнения
+## Ключевые концепции
 
-- `job_kind="legacy_program"`
-  - ожидает `program_ref`, `exec_plan_ref`, `state_snapshot_ref`/`base_state`;
-  - возвращает refs на `state_delta`, `metrics`, `state_snapshot`, `simulation_results`.
-- `job_kind="method"` (или задан `method_fqn`)
-  - вызывает method dispatcher;
-  - сохраняет `scientist.method_result` и `scientist.method_evidence`;
-  - поддерживает подзагрузку `input_refs` из CAS.
+- **JobSpec / JobKey / JobResult** — typed контракт job-а, дедупликации и результата.
+- **MethodBackend** — запуск Foundry methods через dispatcher/registry.
+- **Legacy path** — поддержка `legacy_program` execution для старых flows.
+- **C7 advanced suite** — новый набор advanced method runners и persisted artifacts.
+- **CAS materialization** — входы/выходы передаются ссылками и фиксируются как artifacts.
 
-## Где используется
+## Public API
 
-- `nodes/builtins/simulate/run_causal_evaluation.py`
-- `nodes/builtins/causal/run_causal_queries.py`
-- `nodes/builtins/causal/run_causal_ensemble.py`
+- `JobSpec`, `JobKey`, `JobResult`
+- `run_job(...)`, `MethodBackend`
+- `C7AdvancedInputs`, `C7AdvancedSuiteResult`, `C7PersistedArtifact`
+- `run_c7_advanced_suite(...)`
 
-Именно эти ноды используют `compute` для method-ориентированных causal этапов.
+Подробности: [Reference →](../../../../docs/reference/scientist/index.md)
 
-## Связи
+## Текущее состояние
 
-- `foundry.executor` и `foundry.methods.*` — фактический runtime backend;
-- `core.artifacts`/CAS — persistence всех результатов;
-- `ir.governance.validation` — единый формат issues при runtime ошибках.
+- Последнее обновление: 2026-04-03
+- Python modules: 4
+- Public surface: re-exports from `__init__.py` for job runtime and C7 advanced suite
+- Недавний delta: добавлен `advanced_methods.py`, README раньше не отражал C7 path

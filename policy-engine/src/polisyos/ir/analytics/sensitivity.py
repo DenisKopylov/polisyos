@@ -1,3 +1,4 @@
+"""Public analytics sensitivity module API."""
 from __future__ import annotations
 
 import math
@@ -47,6 +48,7 @@ class BenchmarkResult(BaseModel):
 
 
 class EValueResult(BaseModel):
+    """E value result data model."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     raw_effect: float
@@ -74,6 +76,7 @@ class EValueResult(BaseModel):
 
 
 class SensitivityResult(BaseModel):
+    """Sensitivity result data model."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -133,6 +136,7 @@ def persist_sensitivity_result(
     schema_name: str = "ir.sensitivity_result",
     schema_version: str = "1.0",
 ) -> CausalSensitivityResultRef:
+    """Persist sensitivity result helper."""
     ref = put_json_artifact(
         store,
         result.model_dump(mode="json"),
@@ -149,6 +153,7 @@ def load_sensitivity_result(
     store: ArtifactStore,
     ref: CausalSensitivityResultRef,
 ) -> SensitivityResult:
+    """Load sensitivity result."""
     payload = get_json_artifact(store, ref.artifact_id)
     return SensitivityResult.model_validate(payload)
 

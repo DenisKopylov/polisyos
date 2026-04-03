@@ -1,3 +1,4 @@
+"""Public fabric registry module API."""
 from __future__ import annotations
 
 import json
@@ -10,6 +11,7 @@ from polisyos.fabric.manifest import DatasetManifest
 
 
 class ManifestRegistry:
+    """Manifest registry implementation."""
     def __init__(self, curated_dir: Path) -> None:
         self.curated_dir = curated_dir
         self._manifests = GenericRegistry[str, DatasetManifest](

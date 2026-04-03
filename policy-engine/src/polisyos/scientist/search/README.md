@@ -1,45 +1,41 @@
-# Search Layer (`polisyos.scientist.search`)
+# Search (`polisyos.scientist.search`)
 
-`search` — опциональный контур итеративной оптимизации кандидатов политики.
+`search` реализует итеративный policy-optimization контур Scientist: candidate
+generation, evaluation stages, readiness/promotion gating, lesson registries,
+benchmark registries и optional stress/diversity logic.
 
-## Роль
+## Роль в системе
 
-- управляет search-loop (`SearchController`);
-- оценивает кандидатов через cheap/expensive стадии;
-- считает objective и применяет stopping criteria;
-- поддерживает stress/adversarial и portfolio сценарии.
+- **Зависит от:** `doe`, `governance`, `workflows`, `policy_design`, `core.artifacts`
+- **Используется в:** policy-design/promotion flows, stress-test CLI, candidate-ranking surfaces
+- Пакет не входит в mandatory `run_experiment()` path, но становится upstream для
+  policy promotion, benchmarking и advanced search loops.
 
-Default `run_experiment()` этот слой автоматически не запускает.
+## Ключевые концепции
 
-## Ключевые модули
+- **SearchController** — основной loop orchestration для cheap/expensive evaluation.
+- **Decision readiness** — readiness caps и governance-aware promotion eligibility.
+- **Judge stack** — typed failure cards, latent governance handling и promotion metadata.
+- **Registries** — benchmark, lesson, pareto, champion и discovery registry contracts.
+- **Funnel** — staged screening pipeline для candidate promotion.
+- **Strategies** — random/grid/Bayesian/MO search adapters и resource arbitration.
 
-- `controller.py` — `SearchController`, `SearchConfig`, `SearchResult`, `SearchIteration`.
-- `objective.py` — objective-модели (`CompositeObjective`, пресеты).
-- `stages.py` — `CheapStage`, `ExpensiveStage`, `CorrelationTracker`.
-- `stopping.py` — `MaxIterations`, `MaxWallTime`, `ImprovementPlateau`, `TargetAchieved`, пресеты.
-- `adversarial.py` — `run_stress_test()` (использует DoE `AdversarialPlan`).
-- `portfolio.py`, `diversity.py`, `sensitivity_adapter.py` — дополнительные контуры.
-- `strategies/` — генерация кандидатов (`random`, `grid`, adapter, resource arbiter, optional Bayesian/MO).
+## Public API
 
-Подробности по стратегическому слою: `search/strategies/README.md`.
+- `SearchController`, `SearchConfig`, `SearchResult`, `SearchIteration`
+- Objective/stage/stopping contracts: `CompositeObjective`, `CheapStage`,
+  `ExpensiveStage`, `StoppingPresets`
+- Registry and lesson surfaces: `BenchmarkRegistry`, `LessonRegistry`,
+  `LessonCard`, `ParetoRegistryContract`, `ChampionRegistryContract`
+- Stress and readiness helpers: `run_stress_test(...)`, `SensitivityAwareCandidateGenerator`,
+  `scientist_blueprint_compliance_audit(...)`
 
-## Минимальный API-контур
+Подробности: [Reference →](../../../../docs/reference/scientist/index.md)
 
-`SearchController` ожидает:
-- `candidate_generator.generate(history, current_best, context)`;
-- `stage_a_evaluator(candidate, context) -> (score, passed)`;
-- `stage_b_evaluator(candidate, context) -> dict`.
+## Текущее состояние
 
-Запуск: `controller.run(initial_context, initial_candidate=None)`.
-
-## Особенности
-
-- batch-режим включается через `SearchConfig.batch_size` + `generate_batch` у генератора.
-- optional diversity enrichment включается `POLISYOS_SEARCH_DIVERSITY_ENABLED`.
-- `strategies.bayesian` и `strategies.multi_objective` подключаются только при тяжелых зависимостях (`torch/botorch/gpytorch`).
-
-## Связи
-
-- `doe` — adversarial plans/sampling.
-- `core/components/_cli_scientist.py` — команда `scientist stress-test`.
-- `workflows.engine_base` — `ExpensiveStage` работает через `WorkflowEngine` protocol.
+- Последнее обновление: 2026-04-03
+- Python modules: 64
+- Exports: 107
+- Недавний delta: README теперь отражает изменения в `judge_stack.py`,
+  `readiness.py` и `latent_governance.py`, включая latent discovery degradation path

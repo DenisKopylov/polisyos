@@ -1,3 +1,4 @@
+"""Public fabric world package API."""
 from __future__ import annotations
 
 from polisyos.fabric.world.store import (

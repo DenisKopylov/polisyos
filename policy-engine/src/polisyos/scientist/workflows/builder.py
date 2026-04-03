@@ -1,3 +1,4 @@
+"""Public workflows builder module API."""
 from __future__ import annotations
 
 import logging
@@ -144,6 +145,7 @@ def _pin_cross_layer_input_ref(
 
 
 def build_default_registry(store: ArtifactStore) -> ArtifactRef:
+    """Build default registry."""
     bundle = build_default_registry_bundle(store)
     return bundle.bundle_ref
 
@@ -174,6 +176,7 @@ def build_execution_context(
     memory: object | None = None,
     depth: int = 0,
 ) -> ExecutionContext:
+    """Build execution context."""
     run = RunContext.start(
         store,
         registry_bundle_ref,
@@ -211,6 +214,7 @@ def build_registry_with_builtin_nodes(
     *,
     include_discovered_nodes: bool = True,
 ) -> NodeRegistry:
+    """Build registry with builtin nodes."""
     registry = NodeRegistry()
     for node in engine_builtin_nodes():
         registry.register(node)
@@ -240,6 +244,7 @@ def _ensure_snapshot_bind(state: ExperimentState) -> None:
 
 
 def resolve_workflow_id(initial_state: ExperimentState) -> str:
+    """Resolve workflow id."""
     return _resolve_workflow_id(initial_state)
 
 
@@ -257,6 +262,7 @@ def run_selected_workflow(
     logger: logging.Logger | None = None,
     tracer: object | None = None,
 ) -> WorkflowExecutionResult:
+    """Run selected workflow."""
     workflow_id = resolve_workflow_id(initial_state)
     if workflow_id == "scientist_policy_design":
         return run_policy_design_workflow(
@@ -344,6 +350,7 @@ def run_policy_design_workflow(
     logger: logging.Logger | None = None,
     tracer: object | None = None,
 ) -> WorkflowExecutionResult:
+    """Run policy design workflow."""
     store = store or FileSystemCAS(DEFAULT_CAS_ROOT)
     store = _maybe_namespace_store(store)
     policy = normalize_checkpoint_policy(checkpoint_policy)
@@ -425,6 +432,7 @@ def run_discovery_workflow(
     logger: logging.Logger | None = None,
     tracer: object | None = None,
 ) -> WorkflowExecutionResult:
+    """Run discovery workflow."""
     store = store or FileSystemCAS(DEFAULT_CAS_ROOT)
     store = _maybe_namespace_store(store)
     policy = normalize_checkpoint_policy(checkpoint_policy)
@@ -488,6 +496,7 @@ def run_default_workflow(
     logger: logging.Logger | None = None,
     tracer: object | None = None,
 ) -> WorkflowExecutionResult:
+    """Run default workflow."""
     store = store or FileSystemCAS(DEFAULT_CAS_ROOT)
     store = _maybe_namespace_store(store)
     policy = normalize_checkpoint_policy(checkpoint_policy)
@@ -573,6 +582,7 @@ def run_policy_verified_workflow(
     logger: logging.Logger | None = None,
     tracer: object | None = None,
 ) -> WorkflowExecutionResult:
+    """Run policy verified workflow."""
     store = store or FileSystemCAS(DEFAULT_CAS_ROOT)
     store = _maybe_namespace_store(store)
     policy = normalize_checkpoint_policy(checkpoint_policy)
@@ -654,6 +664,7 @@ def run_causal_full_workflow(
     logger: logging.Logger | None = None,
     tracer: object | None = None,
 ) -> WorkflowExecutionResult:
+    """Run causal full workflow."""
     store = store or FileSystemCAS(DEFAULT_CAS_ROOT)
     store = _maybe_namespace_store(store)
     policy = normalize_checkpoint_policy(checkpoint_policy)

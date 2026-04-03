@@ -22,6 +22,7 @@ THERMAL_PROFILES: dict[str, ThermalProfile] = {
 
 
 def resolve_profile(name: str | None) -> ThermalProfile:
+    """Resolve profile."""
     if not name:
         return THERMAL_PROFILES["default"]
     return THERMAL_PROFILES.get(name, THERMAL_PROFILES["default"])

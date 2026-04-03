@@ -1,3 +1,4 @@
+"""Public microsim protocols module API."""
 from __future__ import annotations
 
 from typing import Any, ClassVar
@@ -21,6 +22,7 @@ def _to_numpy(value: Any) -> np.ndarray:
 
 
 class SurveyMicroData(BaseModel):
+    """Survey micro data public type."""
     contract_id: ClassVar[str] = "foundry.microsim.survey_micro_data.v1"
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
 
@@ -69,6 +71,7 @@ class SurveyMicroData(BaseModel):
 
 
 class MicrosimResult(BaseModel):
+    """Microsim result data model."""
     contract_id: ClassVar[str] = "foundry.microsim.result.v1"
     model_config = ConfigDict(extra="forbid", frozen=True, arbitrary_types_allowed=True)
 
@@ -106,6 +109,7 @@ class MicrosimResult(BaseModel):
 
 
 class ReweightingResult(BaseModel):
+    """Reweighting result data model."""
     contract_id: ClassVar[str] = "foundry.microsim.reweighting_result.v1"
     model_config = ConfigDict(extra="forbid", frozen=True, arbitrary_types_allowed=True)
 
@@ -128,6 +132,7 @@ class ReweightingResult(BaseModel):
 
 
 class TaxBenefitResult(BaseModel):
+    """Tax benefit result data model."""
     contract_id: ClassVar[str] = "foundry.microsim.tax_benefit_result.v1"
     model_config = ConfigDict(extra="forbid", frozen=True, arbitrary_types_allowed=True)
 
@@ -181,6 +186,7 @@ class TaxBenefitResult(BaseModel):
 
 
 class BehavioralResponseResult(BaseModel):
+    """Behavioral response result data model."""
     contract_id: ClassVar[str] = "foundry.microsim.behavioral_response_result.v1"
     model_config = ConfigDict(extra="forbid", frozen=True, arbitrary_types_allowed=True)
 
@@ -216,6 +222,7 @@ class BehavioralResponseResult(BaseModel):
 
 
 class ImputationResult(BaseModel):
+    """Imputation result data model."""
     contract_id: ClassVar[str] = "foundry.microsim.imputation_result.v1"
     model_config = ConfigDict(extra="forbid", frozen=True, arbitrary_types_allowed=True)
 
@@ -237,6 +244,7 @@ class ImputationResult(BaseModel):
 
 
 class DynamicMicrosimResult(BaseModel):
+    """Dynamic microsim result data model."""
     contract_id: ClassVar[str] = "foundry.microsim.dynamic_result.v1"
     model_config = ConfigDict(extra="forbid", frozen=True, arbitrary_types_allowed=True)
 

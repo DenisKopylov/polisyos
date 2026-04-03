@@ -962,6 +962,7 @@ def _predict_probability(
 
 
 def prediction_bool_to_probability(value: float) -> float:
+    """Prediction bool to probability helper."""
     return max(0.0, min(1.0, value))
 
 

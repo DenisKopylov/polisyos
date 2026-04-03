@@ -133,9 +133,61 @@ def test_quality_gates_skip_checks_for_small_samples() -> None:
         "empty_statement_rows_pct",
         "oov_action_rate_pct",
         "missing_quote_rate_pct",
+        "primary_clause_miss_rate_pct",
         "audit_miss_rate_pct",
         "reference_resolution_coverage_pct",
     }
+
+
+def test_quality_gates_block_on_primary_clause_miss_but_keep_raw_audit_miss_as_warning() -> None:
+    report = {
+        "provision_docs_total": 50,
+        "full_only_docs_pct": 0.0,
+        "duplicate_anchor_rate_pct": 0.0,
+        "spo_rows_total": 200,
+        "empty_statement_rows_pct": 0.0,
+        "statement_total": 300,
+        "missing_quote_rate_pct": 0.0,
+        "grounded_statement_total": 300,
+        "grounded_missing_quote_rate_pct": 0.0,
+        "oov_action_rate_pct": 0.0,
+        "audit_sample_total": 20,
+        "audit_miss_rate_pct": 20.0,
+        "primary_clause_miss_rate_pct": 0.0,
+        "reference_rows_total": 20,
+        "reference_resolution_coverage_pct": 100.0,
+    }
+
+    gate = evaluate_quality_gates(
+        report=report,
+        thresholds=QualityGateThresholds(
+            min_provision_docs_for_doc_rate=1,
+            min_spo_rows_for_row_rate=1,
+            min_statements_for_statement_rate=1,
+            min_audit_samples_for_rate=1,
+            min_reference_rows_for_rate=1,
+        ),
+    )
+
+    assert gate.passed is True
+    assert gate.failed_checks == []
+    assert gate.warning_failed_checks == ["audit_miss_rate_pct"]
+
+    report["primary_clause_miss_rate_pct"] = 20.0
+    gate = evaluate_quality_gates(
+        report=report,
+        thresholds=QualityGateThresholds(
+            min_provision_docs_for_doc_rate=1,
+            min_spo_rows_for_row_rate=1,
+            min_statements_for_statement_rate=1,
+            min_audit_samples_for_rate=1,
+            min_reference_rows_for_rate=1,
+        ),
+    )
+
+    assert gate.passed is False
+    assert gate.failed_checks == ["primary_clause_miss_rate_pct"]
+    assert gate.warning_failed_checks == ["audit_miss_rate_pct"]
 
 
 def test_quality_report_prefers_grounded_missing_quote_rate(tmp_path: Path) -> None:

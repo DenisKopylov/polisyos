@@ -11,6 +11,7 @@ import yaml
 
 @dataclass(frozen=True)
 class ProxyPenaltyOverride:
+    """Proxy penalty override public type."""
     country_codes: tuple[str, ...] = ()
     start_year: int | None = None
     end_year: int | None = None
@@ -19,6 +20,7 @@ class ProxyPenaltyOverride:
 
 @dataclass(frozen=True)
 class ProxyMetricAlignmentSpec:
+    """Proxy metric alignment spec data model."""
     metric_name: str
     canonical_var: str
     confidence: float
@@ -28,11 +30,13 @@ class ProxyMetricAlignmentSpec:
 
 
 def default_proxy_metric_alignments_path() -> Path:
+    """Default proxy metric alignments path helper."""
     return Path(__file__).resolve().parents[4] / "data" / "dataset_catalog" / "proxy_metric_alignments.yaml"
 
 
 @lru_cache(maxsize=4)
 def load_proxy_metric_alignments(path: Path | None = None) -> dict[str, tuple[ProxyMetricAlignmentSpec, ...]]:
+    """Load proxy metric alignments."""
     resolved = (path or default_proxy_metric_alignments_path()).resolve()
     if not resolved.exists():
         return {}
@@ -91,6 +95,7 @@ def load_proxy_metric_alignments(path: Path | None = None) -> dict[str, tuple[Pr
 
 
 def metric_proxy_alignments(metric_name: str, path: Path | None = None) -> tuple[ProxyMetricAlignmentSpec, ...]:
+    """Metric proxy alignments helper."""
     mappings = load_proxy_metric_alignments(path)
     return mappings.get(str(metric_name or "").strip(), ())
 
@@ -104,6 +109,7 @@ def resolve_proxy_penalty(
     year: int | None = None,
     path: Path | None = None,
 ) -> float:
+    """Resolve proxy penalty."""
     metric = str(metric_name or "").strip()
     if not metric:
         return float(base_penalty)
@@ -127,6 +133,7 @@ def resolve_proxy_penalty(
 
 
 def metric_name_from_alignment_evidence(evidence: str) -> str | None:
+    """Metric name from alignment evidence helper."""
     marker = "metric_binding_proxy:"
     text = str(evidence or "")
     if marker not in text:

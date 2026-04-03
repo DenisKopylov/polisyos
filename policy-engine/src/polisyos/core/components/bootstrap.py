@@ -1,3 +1,4 @@
+"""Public components bootstrap module API."""
 from __future__ import annotations
 
 import importlib
@@ -11,6 +12,7 @@ from .registry import ComponentEntry, ComponentRegistry, DuplicateComponentIdPol
 
 @dataclass(slots=True)
 class BootstrapDomainReport:
+    """Bootstrap domain report data model."""
     registered: list[str] = field(default_factory=list)
     duplicates: list[str] = field(default_factory=list)
     errors: list[str] = field(default_factory=list)
@@ -23,6 +25,7 @@ class BootstrapDomainReport:
 
 @dataclass(slots=True)
 class BootstrapReport:
+    """Bootstrap report data model."""
     components_total: int = 0
     sources_processed: int = 0
     discovery_errors: list[str] = field(default_factory=list)

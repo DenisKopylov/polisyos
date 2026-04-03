@@ -1,3 +1,4 @@
+"""Public routes artifacts module API."""
 from __future__ import annotations
 
 from polisyos.core.artifacts.ids import ArtifactID

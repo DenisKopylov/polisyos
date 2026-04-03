@@ -1,3 +1,4 @@
+"""Public causal modern did module API."""
 from __future__ import annotations
 
 from typing import Any, ClassVar, Mapping
@@ -40,6 +41,7 @@ def _panel_did_slots() -> frozenset[SlotSpec]:
     tags={"causal", "did", "callaway-santanna"},
 )
 class CallawaySantAnnaEstimator:
+    """Callaway sant anna estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -154,6 +156,7 @@ class CallawaySantAnnaEstimator:
     tags={"causal", "did", "sun-abraham"},
 )
 class SunAbrahamEstimator:
+    """Sun abraham estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -267,6 +270,7 @@ class SunAbrahamEstimator:
     tags={"causal", "did", "dechaisemartin"},
 )
 class DeChaisemartinDHaultfoeuilleEstimator:
+    """De chaisemartin D haultfoeuille estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -379,6 +383,7 @@ class DeChaisemartinDHaultfoeuilleEstimator:
     tags={"causal", "did", "borusyak-jaravel-spiess"},
 )
 class BorusyakJaravelSpiessEstimator:
+    """Borusyak jaravel spiess estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 

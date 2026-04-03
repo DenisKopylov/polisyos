@@ -1,3 +1,4 @@
+"""Public data build data snapshot module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass, replace

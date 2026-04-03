@@ -1,3 +1,4 @@
+"""Public fabric trust adapter module API."""
 from __future__ import annotations
 
 from polisyos.core.contracts.fabric import UncertaintyBounds
@@ -16,6 +17,7 @@ def envelope_from_trust_bounds(
     trust_policy_id: str | None = None,
     assume_triangular: bool = False,
 ) -> UncertaintyEnvelope:
+    """Envelope from trust bounds helper."""
     distribution = (
         DistributionFamily.TRIANGULAR if assume_triangular else DistributionFamily.UNKNOWN
     )

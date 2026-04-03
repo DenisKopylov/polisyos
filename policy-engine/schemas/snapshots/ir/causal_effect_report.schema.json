@@ -3,8 +3,19 @@
     "BoundMethod": {
       "enum": [
         "manski_bounds",
+        "transport_bounds",
         "iv_bounds",
-        "monotone_treatment"
+        "monotone_treatment",
+        "lp_balke_pearl",
+        "imbens_manski_ci",
+        "mtr_bounds",
+        "miv_bounds",
+        "mts_bounds",
+        "general_lp_bounds",
+        "copula_bounds",
+        "tan_bounds",
+        "intersection_bounds",
+        "rosenbaum_sharp"
       ],
       "title": "BoundMethod",
       "type": "string"
@@ -19,11 +30,23 @@
         "dowhy_iv",
         "dowhy_frontdoor",
         "causal_forest",
+        "forest_dr",
+        "causal_bcf",
         "double_ml",
         "s_learner",
         "t_learner",
         "x_learner",
-        "policy_tree"
+        "policy_tree",
+        "g_computation",
+        "ice_g_formula",
+        "ltmle",
+        "g_estimation",
+        "q_learning_dtr",
+        "a_learning_dtr",
+        "outcome_weighted_learning",
+        "doubly_robust_dtr",
+        "off_policy_evaluation",
+        "causal_bandit"
       ],
       "title": "CausalMethod",
       "type": "string"
@@ -123,7 +146,9 @@
       "enum": [
         "point",
         "empirical",
-        "kde"
+        "kde",
+        "normal",
+        "bounded"
       ],
       "title": "DistributionType",
       "type": "string"
@@ -155,6 +180,30 @@
           "title": "Canonical Variable",
           "type": "string"
         },
+        "ci_high": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ci High"
+        },
+        "ci_low": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ci Low"
+        },
         "condition_on": {
           "additionalProperties": {
             "type": "number"
@@ -166,6 +215,30 @@
           "default": 0.0,
           "title": "Confidence",
           "type": "number"
+        },
+        "data_support_country": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Data Support Country"
+        },
+        "data_support_year": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Data Support Year"
         },
         "dataset_id": {
           "anyOf": [
@@ -196,6 +269,23 @@
         "distribution_type": {
           "$ref": "#/$defs/DistributionType",
           "default": "point"
+        },
+        "imputation_method": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Imputation Method"
+        },
+        "imputation_penalty": {
+          "default": 0.0,
+          "title": "Imputation Penalty",
+          "type": "number"
         },
         "is_conditional": {
           "default": false,
@@ -231,6 +321,25 @@
             }
           ],
           "title": "Raw Variable"
+        },
+        "std_error": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Std Error"
+        },
+        "uncertainty_sources": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Uncertainty Sources",
+          "type": "array"
         },
         "value": {
           "anyOf": [
@@ -276,11 +385,55 @@
           "title": "Bound Width",
           "type": "number"
         },
+        "bounds_type": {
+          "default": "manski",
+          "enum": [
+            "sharp_lp",
+            "relaxed_polynomial",
+            "manski"
+          ],
+          "title": "Bounds Type",
+          "type": "string"
+        },
+        "chart_type": {
+          "default": "interval",
+          "title": "Chart Type",
+          "type": "string"
+        },
         "confidence": {
           "maximum": 1.0,
           "minimum": 0.0,
           "title": "Confidence",
           "type": "number"
+        },
+        "discretization_converged": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Discretization Converged"
+        },
+        "discretization_method": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Discretization Method"
+        },
+        "display_label": {
+          "default": "",
+          "title": "Display Label",
+          "type": "string"
         },
         "informativeness_threshold": {
           "default": 0.5,
@@ -298,6 +451,37 @@
         },
         "method": {
           "$ref": "#/$defs/BoundMethod"
+        },
+        "n_bins_final": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "N Bins Final"
+        },
+        "n_refinement_steps": {
+          "default": 0,
+          "minimum": 0,
+          "title": "N Refinement Steps",
+          "type": "integer"
+        },
+        "relaxation_gap": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Relaxation Gap"
         },
         "schema_version": {
           "default": "1.0",
@@ -680,12 +864,22 @@
       "title": "TransportFormula",
       "type": "object"
     },
+    "TransportMode": {
+      "enum": [
+        "direct",
+        "transport_formula",
+        "bounds_only",
+        "none"
+      ],
+      "title": "TransportMode",
+      "type": "string"
+    },
     "TransportabilityResult": {
       "additionalProperties": false,
-      "description": "Phase 12 transportability contract (backward compatible with Phase 8A fields).",
+      "description": "Phase 13 transportability contract with legacy-read compatibility.",
       "properties": {
         "algorithm_version": {
-          "default": "simplified_tr_v2",
+          "default": "trso_v2",
           "title": "Algorithm Version",
           "type": "string"
         },
@@ -722,6 +916,19 @@
           },
           "title": "Data Gaps",
           "type": "array"
+        },
+        "estimand_ast": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Estimand Ast"
         },
         "expert_review_reasons": {
           "items": {
@@ -760,7 +967,7 @@
           "title": "Id Confidence Under Pag"
         },
         "identification_engine": {
-          "default": "simplified",
+          "default": "simplified_legacy",
           "title": "Identification Engine",
           "type": "string"
         },
@@ -770,6 +977,19 @@
           },
           "title": "Identification Trace",
           "type": "array"
+        },
+        "identified_region": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Identified Region"
         },
         "lagged_edge_count": {
           "default": 0,
@@ -918,7 +1138,7 @@
           "type": "integer"
         },
         "schema_version": {
-          "default": "1.0",
+          "default": "2.0",
           "pattern": "^\\d+\\.\\d+$",
           "title": "Schema Version",
           "type": "string"
@@ -947,7 +1167,7 @@
         },
         "status": {
           "$ref": "#/$defs/TransportabilityStatus",
-          "default": "direct"
+          "default": "identified"
         },
         "sutva_assumed": {
           "default": true,
@@ -1006,6 +1226,10 @@
           ],
           "default": null
         },
+        "transport_mode": {
+          "$ref": "#/$defs/TransportMode",
+          "default": "direct"
+        },
         "unsupported_cases": {
           "items": {
             "type": "string"
@@ -1038,9 +1262,10 @@
     },
     "TransportabilityStatus": {
       "enum": [
-        "direct",
-        "transportable",
-        "non_transportable"
+        "identified",
+        "partially_identified",
+        "bounded_non_identified",
+        "unsupported"
       ],
       "title": "TransportabilityStatus",
       "type": "string"

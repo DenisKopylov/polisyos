@@ -1,3 +1,4 @@
+"""Public agent sim vfi module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -9,6 +10,7 @@ import jax.numpy as jnp
 
 @dataclass
 class OfflineVFI:
+    """Offline VFI public type."""
     state_grid: dict[str, jnp.ndarray]
     action_grid: jnp.ndarray
     transition_fn: Callable[[dict[str, float], jnp.ndarray], dict[str, float]]
@@ -76,6 +78,7 @@ class OfflineVFI:
 
 @dataclass
 class VFILookupTable:
+    """VFI lookup table public type."""
     value_table: jnp.ndarray
     policy_table: jnp.ndarray
     state_grid: dict[str, jnp.ndarray]

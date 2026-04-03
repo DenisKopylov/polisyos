@@ -1,3 +1,4 @@
+"""Public claims extractor registry module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -26,6 +27,7 @@ logger = get_logger(__name__)
 
 
 class ClaimExtractorFn(Protocol):
+    """Claim extractor fn public type."""
     def __call__(
         self,
         *,
@@ -38,6 +40,7 @@ class ClaimExtractorFn(Protocol):
 
 @dataclass(slots=True)
 class ExtractorRecord:
+    """Extractor record data model."""
     extractor_id: str
     fn: ClaimExtractorFn
     source: str
@@ -47,12 +50,14 @@ class ExtractorRecord:
 
 @dataclass(slots=True)
 class ExtractorBootstrapReport:
+    """Extractor bootstrap report data model."""
     registered: list[str] = field(default_factory=list)
     errors: list[str] = field(default_factory=list)
     discovery_errors: list[str] = field(default_factory=list)
 
 
 class ClaimExtractorRegistry:
+    """Claim extractor registry implementation."""
     def __init__(self) -> None:
         self._legacy: dict[str, ClaimExtractorFn] = {}
         self._components = GenericRegistry[str, ExtractorRecord](
@@ -187,10 +192,12 @@ def _ensure_builtin_legacy_extractors(registry: ClaimExtractorRegistry) -> None:
 
 
 def get_extractor_registry() -> ClaimExtractorRegistry:
+    """Return extractor registry."""
     return _GLOBAL_REGISTRY
 
 
 def bootstrap_component_extractors(components_index: ComponentRegistry) -> ExtractorBootstrapReport:
+    """Bootstrap component extractors helper."""
     report = ExtractorBootstrapReport()
     host = HostAbi(versions={"world_abi": "1.0", "ir_abi": "1.0"}, strict=True)
 
@@ -240,6 +247,7 @@ def discover_and_bootstrap_extractors(
     include_dev_scan: bool = True,
     components_index: ComponentRegistry | None = None,
 ) -> ExtractorBootstrapReport:
+    """Discover and bootstrap extractors helper."""
     if components_index is not None:
         return bootstrap_component_extractors(components_index)
 

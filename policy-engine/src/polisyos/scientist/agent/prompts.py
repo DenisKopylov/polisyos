@@ -466,6 +466,7 @@ def get_drafter_prompt(hints: Optional[list[str]] = None) -> str:
 
 
 def get_data_need_extractor_prompt(metric_ids: list[str] | None = None) -> str:
+    """Return data need extractor prompt."""
     ids = metric_ids or []
     rendered_ids = "\n".join(f"- {metric_id}" for metric_id in ids) if ids else "- (none provided)"
     return DATA_NEED_EXTRACTOR_PROMPT.format(metric_ids=rendered_ids)
@@ -510,34 +511,42 @@ def get_critic_prompt() -> str:
 
 
 def get_policy_request_planner_prompt() -> str:
+    """Return policy request planner prompt."""
     return POLICY_REQUEST_PLANNER_PROMPT
 
 
 def get_legal_recall_planner_prompt() -> str:
+    """Return legal recall planner prompt."""
     return LEGAL_RECALL_PLANNER_PROMPT
 
 
 def get_source_verifier_prompt() -> str:
+    """Return source verifier prompt."""
     return SOURCE_VERIFIER_PROMPT
 
 
 def get_source_adjudicator_prompt() -> str:
+    """Return source adjudicator prompt."""
     return SOURCE_ADJUDICATOR_PROMPT
 
 
 def get_source_gap_critic_prompt() -> str:
+    """Return source gap critic prompt."""
     return SOURCE_GAP_CRITIC_PROMPT
 
 
 def get_policy_drafter_verified_prompt() -> str:
+    """Return policy drafter verified prompt."""
     return POLICY_DRAFTER_VERIFIED_PROMPT
 
 
 def get_policy_formalizer_verified_prompt() -> str:
+    """Return policy formalizer verified prompt."""
     return POLICY_FORMALIZER_VERIFIED_PROMPT
 
 
 def get_policy_final_reporter_prompt() -> str:
+    """Return policy final reporter prompt."""
     return POLICY_FINAL_REPORTER_PROMPT
 
 

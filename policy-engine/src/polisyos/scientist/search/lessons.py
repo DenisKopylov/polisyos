@@ -38,11 +38,13 @@ _WHITESPACE_RE = re.compile(r"\s+")
 
 
 class LessonKind(str, Enum):
+    """Lesson kind public type."""
     FAILURE = "failure"
     SUCCESS = "success"
 
 
 class LessonTrustLevel(str, Enum):
+    """Lesson trust level public type."""
     LOCAL = "local"
     TRANSFERRED = "transferred"
     LOW_CONFIDENCE = "low_confidence"
@@ -199,6 +201,7 @@ def persist_lesson_card(
     *,
     inputs: list[InputRef] | None = None,
 ) -> ArtifactRef:
+    """Persist lesson card helper."""
     return store.put_json(
         card,
         PutOptions(
@@ -212,6 +215,7 @@ def persist_lesson_card(
 
 
 def load_lesson_card(store: FileSystemCAS, ref: ArtifactRef | str) -> LessonCard:
+    """Load lesson card."""
     artifact_id = ref.artifact_id if isinstance(ref, ArtifactRef) else ref
     return LessonCard.model_validate(from_canonical_bytes(store.get_bytes(artifact_id)))
 

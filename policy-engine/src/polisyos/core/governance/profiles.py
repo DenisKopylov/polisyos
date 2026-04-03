@@ -1,3 +1,4 @@
+"""Public governance profiles module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -73,6 +74,7 @@ class ValidationProfile:
                     "cross_graph_evidence",
                     "literature_gate",
                     "normative_arbitration",
+                    "strategic_response",
                     "sutva_check",
                     "transportability_required",
                 }
@@ -117,6 +119,7 @@ class ValidationProfile:
                     "cross_graph_evidence",
                     "literature_gate",
                     "normative_arbitration",
+                    "strategic_response",
                     "sutva_check",
                     "transportability_required",
                     "human_review_required",

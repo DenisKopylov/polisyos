@@ -1,3 +1,4 @@
+"""Public ml advanced module API."""
 from __future__ import annotations
 
 from typing import Any, ClassVar, Mapping
@@ -44,6 +45,7 @@ def _time_series_payload(state: Any) -> dict[str, Any]:
     tags={"ml", "regression", "gaussian-process"},
 )
 class GaussianProcessEstimator:
+    """Gaussian process estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("scikit-learn", "numpy")
 
@@ -74,6 +76,9 @@ class GaussianProcessEstimator:
         description="Gaussian process regression for smooth non-parametric tabular prediction.",
         tags=frozenset({"ml", "regression", "gaussian-process"}),
         when_to_use="Small datasets requiring uncertainty quantification; smooth functions; Bayesian non-parametric regression",
+        citations=(
+            "Rasmussen, C. & Williams, C. (2006). Gaussian Processes for Machine Learning. MIT Press.",
+        ),
         when_not_to_use="Large datasets (>10k obs) due to O(n³) cost; high-dimensional input spaces",
         output_interpretation="Posterior mean = prediction. Posterior std = epistemic uncertainty. Kernel hyperparameters indicate length scale of variation.",
         typical_min_obs=20,
@@ -121,6 +126,7 @@ class GaussianProcessEstimator:
     tags={"ml", "regression", "quantile-forest"},
 )
 class QuantileForestEstimator:
+    """Quantile forest estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("scikit-learn", "numpy")
 
@@ -168,6 +174,9 @@ class QuantileForestEstimator:
         description="Random-forest quantile regression via tree-level predictive distribution.",
         tags=frozenset({"ml", "regression", "quantile-forest"}),
         when_to_use="Tabular data; prediction intervals without distributional assumptions; heteroscedastic outcomes",
+        citations=(
+            "Meinshausen, N. (2006). Quantile regression forests. JMLR, 7, 983-999.",
+        ),
         when_not_to_use="Need exact coverage guarantees (use conformal prediction); very small datasets",
         output_interpretation="Ensemble mean = point prediction. Quantile bounds define prediction interval. Width reflects heteroscedasticity.",
         typical_min_obs=100,
@@ -234,6 +243,7 @@ class QuantileForestEstimator:
     tags={"ml", "dynamics", "neural-ode"},
 )
 class NeuralODEEstimator:
+    """Neural ODE estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("scikit-learn", "scipy", "numpy")
 
@@ -265,6 +275,9 @@ class NeuralODEEstimator:
         description="Neural-ODE-inspired continuous-time dynamics learned via derivative matching and ODE integration.",
         tags=frozenset({"ml", "dynamics", "neural-ode"}),
         when_to_use="Continuous-time dynamics; irregular time series; systems with known ODE structure",
+        citations=(
+            "Chen, R. et al. (2018). Neural ordinary differential equations. NeurIPS, 31.",
+        ),
         when_not_to_use="Short time series (<6 obs); purely discrete processes; no temporal structure",
         output_interpretation="Fitted trajectory from ODE integration. Training score on derivative approximation. Residuals indicate model-data fit.",
         typical_min_obs=30,

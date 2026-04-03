@@ -1,3 +1,4 @@
+"""Public ir registry fragments module API."""
 from __future__ import annotations
 
 from typing import Any, Iterable, Literal, Sequence
@@ -23,6 +24,7 @@ RESERVED_NAMESPACE_PREFIXES: tuple[str, ...] = ("core.", "world.")
 
 
 class RegistryFragmentMeta(KernelModel):
+    """Registry fragment meta public type."""
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     fragment_id: str = Field(..., pattern=ID_PATTERN)
     namespace: str = Field(..., pattern=ID_PATTERN)
@@ -32,18 +34,21 @@ class RegistryFragmentMeta(KernelModel):
 
 
 class TimeAxisSpec(KernelModel):
+    """Time axis spec data model."""
     axis_id: str = Field(..., pattern=ID_PATTERN)
     description: str | None = None
     notes: list[str] = Field(default_factory=list)
 
 
 class TimeAxisRegistry(KernelModel):
+    """Time axis registry implementation."""
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     axes: dict[str, TimeAxisSpec] = Field(default_factory=dict)
     notes: list[str] = Field(default_factory=list)
 
 
 class GeoAreaSpec(KernelModel):
+    """Geo area spec data model."""
     geo_id: str = Field(..., pattern=ID_PATTERN)
     name: str | None = None
     kind: str | None = None
@@ -51,12 +56,14 @@ class GeoAreaSpec(KernelModel):
 
 
 class GeoRegistry(KernelModel):
+    """Geo registry implementation."""
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     areas: dict[str, GeoAreaSpec] = Field(default_factory=dict)
     notes: list[str] = Field(default_factory=list)
 
 
 class ActorTypeSpec(KernelModel):
+    """Actor type spec data model."""
     actor_type_id: str = Field(..., pattern=ID_PATTERN)
     name: str | None = None
     description: str | None = None
@@ -64,12 +71,14 @@ class ActorTypeSpec(KernelModel):
 
 
 class ActorRegistry(KernelModel):
+    """Actor registry implementation."""
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     actor_types: dict[str, ActorTypeSpec] = Field(default_factory=dict)
     notes: list[str] = Field(default_factory=list)
 
 
 class ConceptSpec(KernelModel):
+    """Concept spec data model."""
     concept_id: str = Field(..., pattern=ID_PATTERN)
     name: str | None = None
     description: str | None = None
@@ -77,12 +86,14 @@ class ConceptSpec(KernelModel):
 
 
 class ConceptRegistry(KernelModel):
+    """Concept registry implementation."""
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     concepts: dict[str, ConceptSpec] = Field(default_factory=dict)
     notes: list[str] = Field(default_factory=list)
 
 
 class RegistryBundle(KernelModel):
+    """Registry bundle data model."""
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     units: UnitsRegistry | None = None
     trust: TrustRegistry | None = None
@@ -102,84 +113,98 @@ class RegistryBundle(KernelModel):
 
 
 class UnitsFragment(KernelModel):
+    """Units fragment public type."""
     kind: Literal["units"] = "units"
     meta: RegistryFragmentMeta
     payload: UnitsRegistry
 
 
 class TrustFragment(KernelModel):
+    """Trust fragment public type."""
     kind: Literal["trust"] = "trust"
     meta: RegistryFragmentMeta
     payload: TrustRegistry
 
 
 class PredicatesFragment(KernelModel):
+    """Predicates fragment public type."""
     kind: Literal["predicates"] = "predicates"
     meta: RegistryFragmentMeta
     payload: PredicateRegistry
 
 
 class PrivacyFragment(KernelModel):
+    """Privacy fragment public type."""
     kind: Literal["privacy"] = "privacy"
     meta: RegistryFragmentMeta
     payload: PrivacyPolicyRegistry
 
 
 class MetricsFragment(KernelModel):
+    """Metrics fragment public type."""
     kind: Literal["metrics"] = "metrics"
     meta: RegistryFragmentMeta
     payload: MetricRegistry
 
 
 class MechanismsFragment(KernelModel):
+    """Mechanisms fragment public type."""
     kind: Literal["mechanisms"] = "mechanisms"
     meta: RegistryFragmentMeta
     payload: MechanismTypeRegistry
 
 
 class SlotsFragment(KernelModel):
+    """Slots fragment public type."""
     kind: Literal["slots"] = "slots"
     meta: RegistryFragmentMeta
     payload: SlotRegistry
 
 
 class SelectorFieldsFragment(KernelModel):
+    """Selector fields fragment public type."""
     kind: Literal["selector_fields"] = "selector_fields"
     meta: RegistryFragmentMeta
     payload: SelectorFieldRegistry
 
 
 class MergeRulesFragment(KernelModel):
+    """Merge rules fragment public type."""
     kind: Literal["merge_rules"] = "merge_rules"
     meta: RegistryFragmentMeta
     payload: MergeRuleRegistry
 
 
 class ConstraintsFragment(KernelModel):
+    """Constraints fragment public type."""
     kind: Literal["constraints"] = "constraints"
     meta: RegistryFragmentMeta
     payload: ConstraintRegistry
 
 
 class TimeFragment(KernelModel):
+    """Time fragment public type."""
     kind: Literal["time"] = "time"
     meta: RegistryFragmentMeta
     payload: TimeAxisRegistry
 
 
 class GeoFragment(KernelModel):
+    """Geo fragment public type."""
     kind: Literal["geo"] = "geo"
     meta: RegistryFragmentMeta
     payload: GeoRegistry
 
 
 class ActorsFragment(KernelModel):
+    """Actors fragment public type."""
     kind: Literal["actors"] = "actors"
     meta: RegistryFragmentMeta
     payload: ActorRegistry
 
 
 class ConceptsFragment(KernelModel):
+    """Concepts fragment public type."""
     kind: Literal["concepts"] = "concepts"
     meta: RegistryFragmentMeta
     payload: ConceptRegistry
@@ -205,10 +230,12 @@ RegistryFragment = Annotated[
 
 
 class ComposePolicy(KernelModel):
+    """Compose policy data model."""
     mode: Literal["error_on_conflict", "prefer_higher_priority"] = "error_on_conflict"
 
 
 class RegistryComposeRequest(KernelModel):
+    """Registry compose request data model."""
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     fragments: list[RegistryFragment]
     base_registries: RegistryBundle | None = None
@@ -216,6 +243,7 @@ class RegistryComposeRequest(KernelModel):
 
 
 class RegistryConflict(KernelModel):
+    """Registry conflict public type."""
     registry_kind: str
     item_key: str
     conflict_kind: Literal[
@@ -234,6 +262,7 @@ class RegistryConflict(KernelModel):
 
 
 class RegistryComposeResult(KernelModel):
+    """Registry compose result data model."""
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     composed: RegistryBundle | None = None
     conflicts: list[RegistryConflict] = Field(default_factory=list)
@@ -455,6 +484,7 @@ def _apply_fragment_items(
 
 
 def compose_registry_fragments(request: RegistryComposeRequest) -> RegistryComposeResult:
+    """Compose registry fragments helper."""
     fragments = _sorted_fragments(request.fragments)
     fragment_ids = {fragment.meta.fragment_id for fragment in fragments}
 

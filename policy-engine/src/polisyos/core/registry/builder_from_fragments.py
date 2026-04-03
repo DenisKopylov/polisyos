@@ -1,3 +1,4 @@
+"""Public registry builder from fragments module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -36,6 +37,7 @@ logger = get_logger(__name__)
 
 @dataclass(frozen=True, slots=True)
 class FragmentPrecedencePolicy:
+    """Fragment precedence policy data model."""
     core_priority: int = 10
     pack_priority: int = 100
     dev_override_priority: int = 1000
@@ -52,6 +54,7 @@ def build_registry_bundle_from_components(
     compose_policy: ComposePolicy | None = None,
     host_abi: HostAbi | None = None,
 ) -> tuple[ArtifactRef, ArtifactRef | None]:
+    """Build registry bundle from components."""
     policy = precedence_policy or FragmentPrecedencePolicy()
     compose = compose_policy or ComposePolicy(mode="prefer_higher_priority")
     host = host_abi or HostAbi(versions={"ir_abi": "1.0"}, strict=True)

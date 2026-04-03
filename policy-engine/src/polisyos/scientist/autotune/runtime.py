@@ -1,3 +1,4 @@
+"""Public autotune runtime module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -30,6 +31,7 @@ ModelT = TypeVar("ModelT", bound=MutationArtifact)
 
 
 class PydanticMutationCodec(Generic[ModelT]):
+    """Pydantic mutation codec public type."""
     def __init__(self, model_cls: type[ModelT]) -> None:
         self._model_cls = model_cls
 
@@ -49,6 +51,7 @@ def seed_loop_baseline(
     suite_version: str = "1.0",
     metadata: dict[str, Any] | None = None,
 ) -> ChampionPointer:
+    """Seed loop baseline helper."""
     active_store = store or default_store()
     active_registry = registry or ChampionRegistry(store=active_store)
     candidate_ref = persist_mutation_artifact(active_store, baseline)
@@ -77,6 +80,7 @@ def seed_loop_baseline(
 
 
 class ChampionBackedRuntimeLoader(Generic[ModelT]):
+    """Champion backed runtime loader implementation."""
     def __init__(
         self,
         *,
@@ -134,12 +138,14 @@ class _AutotuneObjective(BaseObjective):
 
 @dataclass
 class SearchRunArtifacts:
+    """Search run artifacts public type."""
     candidate_ref: ArtifactRef
     evaluation_ref: ArtifactRef
     evaluation: BenchmarkEvaluation
 
 
 class SequenceCandidateGenerator:
+    """Sequence candidate generator implementation."""
     def __init__(self, candidates: list[dict[str, Any] | MutationArtifact]) -> None:
         self._candidates = list(candidates)
         self._index = 0
@@ -165,6 +171,7 @@ class SequenceCandidateGenerator:
 
 
 class SearchLoopRunner:
+    """Search loop runner public type."""
     def __init__(
         self,
         *,

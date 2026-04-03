@@ -1,3 +1,4 @@
+"""Public data plane bindings module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -30,10 +31,14 @@ from polisyos.ir.kernel import SlotRegistry, SlotScope, SlotSpec, SlotValueType
 
 _MISSING = object()
 _FLOAT_QUANT = Decimal("0.000000001")
+_CELL_PREFIX = "cells."
+_HOUSEHOLD_CELL_PREFIX = "household_cells."
 
 
 @dataclass(frozen=True)
 class InputBindingsBuildResult:
+    """References produced when a data snapshot is bound into Foundry state."""
+
     input_bindings_ref: FoundryInputBindingsRef
     input_binding_report_ref: FoundryInputBindingReportRef
     bound_state_snapshot_ref: StateSnapshotRef
@@ -49,6 +54,8 @@ def build_input_bindings(
     quality_report_ref: ArtifactRef | None = None,
     notes: list[str] | None = None,
 ) -> InputBindingsBuildResult:
+    """Bind a fabric data snapshot into a concrete `GlobalState` snapshot."""
+
     snapshot = _load_data_snapshot(store, data_snapshot_ref)
     registry = load_registry_bundle_content(store, registry_bundle_ref)
     binding_payload = _load_binding_payload(store, snapshot)
@@ -169,6 +176,8 @@ def load_input_bindings(
     store: FileSystemCAS,
     ref: FoundryInputBindingsRef | ArtifactRef,
 ) -> FoundryInputBindings:
+    """Load a persisted Foundry input-binding artifact from CAS."""
+
     payload = from_canonical_bytes(store.get_bytes(ref.artifact_id))
     return FoundryInputBindings.model_validate(payload)
 
@@ -177,6 +186,8 @@ def resolve_bound_state_snapshot_ref(
     store: FileSystemCAS,
     ref: FoundryInputBindingsRef | ArtifactRef,
 ) -> StateSnapshotRef:
+    """Resolve the bound state snapshot produced by an input-binding artifact."""
+
     bindings = load_input_bindings(store, ref)
     _ensure_artifact_readable(store, bindings.data_snapshot_ref)
     _ensure_artifact_readable(store, bindings.bound_state_snapshot_ref)
@@ -287,8 +298,17 @@ def _build_base_state(
     if snapshot.data_ref.kind == "foundry.state_snapshot":
         return load_state_snapshot(store, snapshot_ref=snapshot.data_ref)
 
-    n_agents, n_firms = _infer_entity_sizes(payload=payload, rules=rules, slot_registry=slot_registry)
-    return GlobalState.empty(n_agents=max(1, n_agents), n_firms=max(1, n_firms))
+    n_agents, n_firms, n_cells, n_household_cells = _infer_entity_sizes(
+        payload=payload,
+        rules=rules,
+        slot_registry=slot_registry,
+    )
+    return GlobalState.empty(
+        n_agents=max(1, n_agents),
+        n_firms=max(1, n_firms),
+        n_cells=n_cells,
+        n_household_cells=n_household_cells,
+    )
 
 
 def _infer_entity_sizes(
@@ -296,9 +316,11 @@ def _infer_entity_sizes(
     payload: Any,
     rules: list[FoundryInputBindingRule],
     slot_registry: SlotRegistry,
-) -> tuple[int, int]:
+) -> tuple[int, int, int, int]:
     n_agents = 1
     n_firms = 1
+    n_cells = 0
+    n_household_cells = 0
     for rule in rules:
         slot = slot_registry.slots.get(rule.target_slot_id)
         if slot is None:
@@ -311,7 +333,13 @@ def _infer_entity_sizes(
             n_agents = max(n_agents, size)
         elif slot.scope == SlotScope.PER_FIRM and size is not None:
             n_firms = max(n_firms, size)
-    return n_agents, n_firms
+        elif slot.scope == SlotScope.PER_CELL and size is not None:
+            family_path = slot.state_path or slot.slot_id
+            if family_path.startswith(_CELL_PREFIX):
+                n_cells = max(n_cells, size)
+            elif family_path.startswith(_HOUSEHOLD_CELL_PREFIX):
+                n_household_cells = max(n_household_cells, size)
+    return n_agents, n_firms, n_cells, n_household_cells
 
 
 def _sequence_size(value: Any) -> int | None:

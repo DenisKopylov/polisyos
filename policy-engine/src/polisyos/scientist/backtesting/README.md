@@ -1,44 +1,39 @@
-# Backtesting Layer (`polisyos.scientist.backtesting`)
+# Backtesting (`polisyos.scientist.backtesting`)
 
-`backtesting` — историческая валидация предсказаний и расчет trust score для decision packet feedback loop.
+`backtesting` отвечает за историческую проверку policy outputs, сбор trust/evaluation
+метрик и выпуск diagnostic evidence, которое теперь напрямую потребляется
+governance calibration и backtest matrix контуром.
 
-## Роль
+## Роль в системе
 
-- запускает backtest-сценарии (`HistoricalValidationPlan`);
-- сравнивает прогнозы с ground truth;
-- агрегирует метрики качества и систематические bias;
-- формирует `BacktestReport` и сохраняет его в CAS;
-- определяет, можно ли считать backtest normal trust evidence или только degraded diagnostic artifact.
+- **Зависит от:** `ir.analytics`, `core.contracts`, `scientist.api`
+- **Используется в:** `scientist.governance`, CLI backtest commands, monitoring feedback flows
+- Пакет связывает historical plans, prediction evaluation, trust scoring и adversarial/
+  temporal suites в единый backtest runtime.
 
-## Ключевые компоненты
+## Ключевые концепции
 
-- `plan.py` — `HistoricalValidationPlan`, `MaskingStrategy`, `PredictionSource`.
-- `masking.py` — `OutcomeMasker`.
-- `evaluator.py` — `PredictionEvaluator` (RMSE/MAE/MAPE/Coverage).
-- `trust_scorer.py` — `TrustScorer` (coverage/mape/bias weighted score + grade).
-- `orchestrator.py` — `BacktestOrchestrator.run(plans)`.
-- `cli.py` — команда `polisyos scientist backtest`.
+- **HistoricalValidationPlan** — сценарий проверки предсказаний на исторических данных.
+- **BacktestOrchestrator** — координирует одиночные и пакетные backtest runs.
+- **TrustScorer** — считает coverage-first trust score и grade.
+- **Adversarial suites** — challenge-наборы для strategic gaming и related failure modes.
+- **Temporal evaluation** — trajectory и safe-rejection checks для time-aware scenarios.
+- **Trust eligibility** — degraded paths остаются diagnostic, но не повышают trust profile.
 
-## Входной контракт плана
+## Public API
 
-`HistoricalValidationPlan` требует:
+- `HistoricalValidationPlan`, `MaskingStrategy`, `PredictionSource`
+- `BacktestOrchestrator`, `OutcomeMasker`, `PredictionEvaluator`, `TrustScorer`
+- `run_phase_d4_challenge_suites(...)` и adversarial challenge models
+- `evaluate_temporal_trajectory(...)`, `evaluate_temporal_safe_rejection(...)`,
+  `build_temporal_backtest_report(...)`
 
-- `historical_data_ref` или `historical_data_path`;
-- `ground_truth_outcomes`;
-- `target_metrics` (если пусто, берутся ключи из `ground_truth_outcomes`).
+Подробности: [Reference →](../../../../docs/reference/scientist/index.md)
 
-Для `prediction_source="provided"` обязательно `predicted_outcomes`.
+## Текущее состояние
 
-## Особенности
-
-- `PredictionSource.SCIENTIST` может запускать `run_experiment`; если `scientist_state` не передан или прогнозы не извлечены, используется naive fallback, но теперь это явный degraded mode, а не normal trust path.
-- `BacktestReport` фиксирует `prediction_mode_requested`, `prediction_mode_effective`, `degraded`, `degraded_reasons`, `trust_eligible`.
-- Если `prediction_mode_requested="scientist"` деградирует в naive fallback, `trust_eligible=false`: такой backtest полезен для диагностики, но не поднимает `trust_score`/`trust_grade` в `DecisionPacket.trust_profile`.
-- trust grading в `TrustScorer` по-прежнему основан на coverage/mape/bias и coverage-first downgrade правилах, но итоговый trust profile публикуется только для trust-eligible path.
-
-## Связи
-
-- `ir.analytics.backtest` — типы отчета и CAS persistence.
-- `scientist.api.run_experiment` — опциональный источник предсказаний.
-- `scientist.feedback.build_monitoring_contract_from_packet` — производит monitoring contract из backtest + simulation results.
-- `core/components/cli_parts.py` — регистрация CLI subcommand `scientist backtest`.
+- Последнее обновление: 2026-04-03
+- Python modules: 17
+- Exports: 25
+- Недавний delta: пакет теперь является upstream для `BacktestMatrixRunner`
+  в `scientist.governance`

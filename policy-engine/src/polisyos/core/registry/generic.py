@@ -1,3 +1,4 @@
+"""Public registry generic module API."""
 from __future__ import annotations
 
 import threading
@@ -15,6 +16,7 @@ Indexer = Callable[[T], I | Iterable[I] | None]
 
 @dataclass(frozen=True, slots=True)
 class GenericRegistrySnapshot(Generic[K, T]):
+    """Generic registry snapshot data model."""
     keys: tuple[K, ...]
     values: tuple[T, ...]
 

@@ -1,3 +1,4 @@
+"""Public causal strategic module API."""
 from __future__ import annotations
 
 import itertools
@@ -24,6 +25,14 @@ MAX_STRATEGIC_PROFILE_ENUMERATIONS = 256
 
 @dataclass(frozen=True)
 class StrategicSolveResult:
+    """Result of solving a strategic-response contract.
+
+    Namespace:
+        causal.strategic
+    Version:
+        1.0.0
+    """
+
     fallback_mode: StrategicFallbackMode
     equilibrium_profiles: tuple[dict[str, str], ...]
     selected_equilibrium: dict[str, str] | None
@@ -451,6 +460,8 @@ def solve_strategic_response(
 
 
 def strategic_result_summary(result: StrategicSolveResult) -> dict[str, Any]:
+    """Project a `StrategicSolveResult` into a JSON-friendly summary payload."""
+
     summary: dict[str, Any] = {
         "fallback_mode": result.fallback_mode.value,
         "equilibrium_selection_dependence": result.equilibrium_selection_dependence,
@@ -483,6 +494,10 @@ def build_strategic_response_bundle(
     selected_equilibrium_ref: ArtifactRefModel | None = None,
     performative_shift_ref: ArtifactRefModel | None = None,
 ) -> StrategicResponseBundle:
+    """Build the persisted IR bundle for a solved strategic-response contract."""
+
+    # StrategicResponseBundle is a blueprint-runtime artifact. Method-layer helpers
+    # should emit summaries only and must not fabricate persisted strategic refs.
     return StrategicResponseBundle(
         causal_component_ref=causal_component_ref,
         strategic_closure_ref=strategic_closure_ref,
@@ -525,45 +540,7 @@ def evaluate_strategic_hook(
             abstraction_certificate=abstraction_certificate,
             macro_payoff_tables=macro_tables,
         )
-        bundle = None
-        runtime_refs = params.get("strategic_runtime_refs")
-        if isinstance(runtime_refs, Mapping):
-            try:
-                bundle = build_strategic_response_bundle(
-                    causal_component_ref=ArtifactRefModel.model_validate(
-                        runtime_refs["causal_component_ref"]
-                    ),
-                    strategic_closure_ref=ArtifactRefModel.model_validate(
-                        runtime_refs["strategic_closure_ref"]
-                    ),
-                    equilibrium_set_ref=ArtifactRefModel.model_validate(
-                        runtime_refs["equilibrium_set_ref"]
-                    ),
-                    post_adaptation_policy_value_ref=ArtifactRefModel.model_validate(
-                        runtime_refs["post_adaptation_policy_value_ref"]
-                    ),
-                    selected_equilibrium_ref=(
-                        None
-                        if runtime_refs.get("selected_equilibrium_ref") is None
-                        else ArtifactRefModel.model_validate(runtime_refs["selected_equilibrium_ref"])
-                    ),
-                    performative_shift_ref=(
-                        None
-                        if runtime_refs.get("performative_shift_ref") is None
-                        else ArtifactRefModel.model_validate(runtime_refs["performative_shift_ref"])
-                    ),
-                    behavioral_assumption_sensitivity_ref=(
-                        None
-                        if runtime_refs.get("behavioral_assumption_sensitivity_ref") is None
-                        else ArtifactRefModel.model_validate(
-                            runtime_refs["behavioral_assumption_sensitivity_ref"]
-                        )
-                    ),
-                    result=result,
-                )
-            except Exception:
-                bundle = None
-        return strategic_result_summary(result), result.warnings, bundle
+        return strategic_result_summary(result), result.warnings, None
     except Exception as exc:
         blocked = StrategicSolveResult(
             fallback_mode=StrategicFallbackMode.BLOCKED,

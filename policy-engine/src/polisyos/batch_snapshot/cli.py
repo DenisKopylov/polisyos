@@ -68,6 +68,7 @@ def finalize_snapshot(snapshot_root: Path, *, update_latest_symlink: bool = True
 
 
 def main() -> None:
+    """Main helper."""
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
     parser = argparse.ArgumentParser(description="Unified snapshot utilities")
     sub = parser.add_subparsers(dest="command", required=True)

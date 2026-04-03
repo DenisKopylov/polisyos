@@ -1,3 +1,4 @@
+"""Public causal run abm consistency module API."""
 from __future__ import annotations
 
 import math
@@ -413,6 +414,13 @@ def _load_exact_abstraction_inputs(
 
 @dataclass(frozen=True)
 class RunABMConsistencyCheckNode:
+    """Compare SCM effects against ABM aggregates and abstraction evidence.
+
+    Produces alignment diagnostics, optional finite-state abstraction artifacts,
+    and an abstraction certificate so governance can judge whether ABM and SCM
+    outputs remain mutually consistent.
+    """
+
     @property
     def spec(self) -> NodeSpec:
         return _SPEC

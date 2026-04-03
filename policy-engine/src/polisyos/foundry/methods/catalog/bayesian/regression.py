@@ -1,3 +1,4 @@
+"""Public bayesian regression module API."""
 from __future__ import annotations
 
 from typing import Any, ClassVar, Mapping
@@ -53,6 +54,7 @@ def _prediction_output_slots() -> frozenset[SlotSpec]:
     tags={"bayesian", "sampling", "regression"},
 )
 class BayesianLinearRegressionEstimator:
+    """Bayesian linear regression estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
     optional_deps: ClassVar[tuple[str, ...]] = ("arviz",)
@@ -88,6 +90,9 @@ class BayesianLinearRegressionEstimator:
         description="Sampling-based Bayesian linear regression with posterior predictive summaries.",
         tags=frozenset({"bayesian", "sampling", "regression"}),
         when_to_use="Regression with prior information; uncertainty quantification; small samples where frequentist CI unreliable",
+        citations=(
+            "Gelman, A. et al. (2013). Bayesian Data Analysis. 3rd ed. CRC Press.",
+        ),
         when_not_to_use="Very large datasets where MCMC is too slow; no interest in full posterior distribution",
         typical_min_obs=20,
         output_interpretation="Posterior distribution over coefficients. Credible interval: 95% probability parameter is in [a,b]. Posterior predictive for new observations.",

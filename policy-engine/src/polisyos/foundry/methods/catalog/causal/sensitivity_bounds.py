@@ -331,7 +331,7 @@ class TanBoundsEstimator:
 @foundry_method(
     namespace="causal.bounds",
     version="1.0.0",
-    tags={"causal", "bounds", "intersection", "clr"},
+    tags={"causal", "bounds", "intersection", "clr", "estimation", "cross-section", "partial-identification"},
 )
 class IntersectionBoundsEstimator:
     """Chernozhukov, Lee & Rosen (2013) intersection of identified sets.

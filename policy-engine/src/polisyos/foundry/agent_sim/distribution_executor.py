@@ -1,3 +1,4 @@
+"""Public agent sim distribution executor module API."""
 from __future__ import annotations
 
 from typing import Any, Iterable
@@ -13,6 +14,7 @@ from polisyos.foundry.contracts.fidelity import FidelityLevel
 
 
 class DistributionAwareExecutor(PureExecutor):
+    """Distribution aware executor implementation."""
     def __init__(
         self,
         mechanisms: Iterable[Mechanism],
@@ -56,6 +58,7 @@ def create_distribution_aware_executor(
     aggregate_every: int | None = None,
     compute_gini: bool = False,
 ) -> DistributionAwareExecutor:
+    """Create distribution aware executor."""
     return DistributionAwareExecutor(
         mechanisms,
         distribution_config=distribution_config,

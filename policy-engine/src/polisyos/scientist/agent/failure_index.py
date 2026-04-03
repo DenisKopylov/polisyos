@@ -239,6 +239,7 @@ class FailurePatternIndex:
 
 
 def normalize_location(location: str) -> str:
+    """Normalize location helper."""
     if not location:
         return ""
     normalized = _PATH_INDEX_RE.sub("[]", location)
@@ -247,6 +248,7 @@ def normalize_location(location: str) -> str:
 
 
 def normalize_message(message: str) -> str:
+    """Normalize message helper."""
     if not message:
         return ""
     lowered = message.lower()
@@ -264,6 +266,7 @@ def build_failure_signature(
     source_step: str,
     domain: str,
 ) -> str:
+    """Build failure signature."""
     material = "|".join(
         [
             error_code.strip().lower() or "unknown",

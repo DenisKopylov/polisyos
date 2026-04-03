@@ -1,3 +1,4 @@
+"""Public compile graph module API."""
 from __future__ import annotations
 
 from graphlib import TopologicalSorter
@@ -22,6 +23,7 @@ def build_program_graph(
     mechanisms: Iterable[LoweredMechanism],
     constraint_ids: list[str],
 ) -> tuple[ProgramGraph, dict[str, ArtifactRef]]:
+    """Build program graph."""
     _ = store
     nodes: list[ProgramNode] = []
     edges: list[ProgramEdge] = []
@@ -100,6 +102,7 @@ def build_program_graph(
 
 
 def build_exec_order(program_graph: ProgramGraph) -> list[str]:
+    """Build exec order."""
     if not program_graph.edges:
         return sorted(node.node_id for node in program_graph.nodes)
 

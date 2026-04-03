@@ -1424,20 +1424,90 @@ class CausalEngine:
 
         diagnostic_graph = self._diagnostic_only_executor_graph(executor_graph)
         if not diagnostic_graph.nodes:
-            return base_report, {}
+            return (
+                _unknown_data_readiness_report(
+                    sample_size=sample_size,
+                    fallback_data_available=fallback_data_available,
+                    reason="diagnostic_nodes_missing",
+                ),
+                {},
+            )
         try:
             _, diagnostic_outputs = self.estimate(diagnostic_graph, data_dict)
         except Exception:
-            return base_report, {}
+            return (
+                _unknown_data_readiness_report(
+                    sample_size=sample_size,
+                    fallback_data_available=fallback_data_available,
+                    reason="diagnostic_execution_failed",
+                ),
+                {},
+            )
+        resolved_report = _build_postrun_readiness_report(
+            node_outputs=diagnostic_outputs,
+            sample_size=sample_size,
+            fallback_data_available=fallback_data_available,
+        )
         return (
-            _build_postrun_readiness_report(
-                node_outputs=diagnostic_outputs,
+            resolved_report
+            or _unknown_data_readiness_report(
                 sample_size=sample_size,
                 fallback_data_available=fallback_data_available,
-            )
-            or base_report,
+                reason="diagnostic_outputs_unverified",
+            ),
             diagnostic_outputs,
         )
+
+    def _resolve_direct_estimation_readiness(
+        self,
+        *,
+        data: Any,
+        treatment: str | frozenset[str],
+        outcome: str | frozenset[str],
+    ) -> DataReadinessReport:
+        """Verify readiness for direct estimator wrappers using concrete diagnostics."""
+        data_dict = _coerce_mapping_like_data(data)
+        sample_size = _infer_sample_size(data_dict)
+        fallback_data_available = _has_fallback_arrays(data_dict, treatment, outcome)
+        registry = _ensure_readiness_registry(self._registry)
+        if registry is None:
+            return _unknown_data_readiness_report(
+                sample_size=sample_size,
+                fallback_data_available=fallback_data_available,
+                reason="diagnostic_registry_unavailable",
+            )
+
+        diagnostic_outputs, status = _run_direct_readiness_diagnostics(
+            registry=registry,
+            data=data,
+            data_dict=data_dict,
+            treatment=treatment,
+            outcome=outcome,
+        )
+        report = _build_postrun_readiness_report(
+            node_outputs=diagnostic_outputs,
+            sample_size=sample_size,
+            fallback_data_available=fallback_data_available,
+        )
+        if status["positivity"] != "verified":
+            return _unknown_data_readiness_report(
+                sample_size=sample_size,
+                fallback_data_available=fallback_data_available,
+                reason=status["positivity"],
+            )
+        if status["support_required"] and status["support"] != "verified":
+            return _unknown_data_readiness_report(
+                sample_size=sample_size,
+                fallback_data_available=fallback_data_available,
+                reason=status["support"],
+            )
+        if report is None:
+            return _unknown_data_readiness_report(
+                sample_size=sample_size,
+                fallback_data_available=fallback_data_available,
+                reason="diagnostic_outputs_unverified",
+            )
+        return report
 
     def _require_estimation_readiness(
         self,
@@ -1447,12 +1517,10 @@ class CausalEngine:
         outcome: str | frozenset[str],
     ) -> DataReadinessReport:
         """Block direct estimator wrappers before execution when readiness is insufficient."""
-        data_dict = _coerce_mapping_like_data(data)
-        sample_size = _infer_sample_size(data_dict)
-        readiness = build_data_readiness_report(
-            sample_size=sample_size,
-            measurement_quality="unknown",
-            fallback_data_available=_has_fallback_arrays(data_dict, treatment, outcome),
+        readiness = self._resolve_direct_estimation_readiness(
+            data=data,
+            treatment=treatment,
+            outcome=outcome,
         )
         if readiness.decision in {"block", "unknown"}:
             raise DataReadinessBlockedError(
@@ -2026,6 +2094,19 @@ class CausalEngine:
         ):
             try:
                 effect_report, execution_outputs = self.estimate(executor_graph, data_dict)
+                if (
+                    effect_report is not None
+                    and isinstance(getattr(resolved_id_result, "metadata", None), dict)
+                    and resolved_id_result.metadata
+                ):
+                    effect_report = effect_report.model_copy(
+                        update={
+                            "metadata": {
+                                **dict(effect_report.metadata),
+                                **dict(resolved_id_result.metadata),
+                            }
+                        }
+                    )
                 node_outputs.update(execution_outputs)
             except Exception:
                 pass  # estimate is best-effort; audit still proceeds
@@ -3017,6 +3098,321 @@ def _float_metrics_from_mapping(values: dict[str, Any] | None) -> dict[str, floa
         except (TypeError, ValueError):
             continue
     return metrics
+
+
+def _unknown_data_readiness_report(
+    *,
+    sample_size: int | None,
+    fallback_data_available: bool,
+    reason: str,
+    metrics: dict[str, float] | None = None,
+) -> DataReadinessReport:
+    """Construct a fail-closed readiness artifact when verification cannot complete."""
+    resolved_metrics = dict(metrics or {})
+    if sample_size is not None:
+        resolved_metrics.setdefault("sample_size", float(sample_size))
+    return DataReadinessReport(
+        decision="unknown",
+        can_compile_estimation=False,
+        can_run_estimation=False,
+        sample_size=sample_size,
+        measurement_quality="unknown",
+        fallback_data_available=fallback_data_available,
+        blocking_reasons=[reason],
+        warnings=["measurement_quality_unknown"],
+        metrics=resolved_metrics,
+    )
+
+
+def _ensure_readiness_registry(registry: Any) -> Any | None:
+    """Resolve a registry instance and lazily register the causal catalog when needed."""
+    if registry is not None:
+        return registry
+    try:
+        from polisyos.foundry.methods.exceptions import MethodAlreadyRegisteredError
+        from polisyos.foundry.methods.registry import MethodRegistry
+        from polisyos.foundry.methods.catalog.causal._registry_boot import (
+            register_causal_methods,
+        )
+    except Exception:
+        return None
+
+    resolved_registry = MethodRegistry.get_instance()
+    try:
+        for method_class in register_causal_methods():
+            try:
+                resolved_registry.register(method_class)
+            except MethodAlreadyRegisteredError:
+                continue
+    except Exception:
+        return None
+    return resolved_registry
+
+
+def _coerce_numeric_matrix(value: Any) -> np.ndarray | None:
+    """Convert arrays/lists into a finite 2D float matrix when possible."""
+    if value is None:
+        return None
+    try:
+        arr = np.asarray(value, dtype=float)
+    except Exception:
+        return None
+    if arr.size == 0:
+        return None
+    if arr.ndim == 1:
+        arr = arr.reshape(-1, 1)
+    elif arr.ndim > 2:
+        try:
+            arr = arr.reshape(arr.shape[0], -1)
+        except Exception:
+            return None
+    finite_mask = np.isfinite(arr).all(axis=1)
+    if not finite_mask.any():
+        return None
+    arr = arr[finite_mask]
+    return arr if arr.size > 0 else None
+
+
+def _coerce_binary_vector(value: Any) -> np.ndarray | None:
+    """Convert treatment-like inputs into a finite binary vector when possible."""
+    if value is None:
+        return None
+    try:
+        arr = np.asarray(value, dtype=float).reshape(-1)
+    except Exception:
+        return None
+    finite = arr[np.isfinite(arr)]
+    if finite.size == 0:
+        return None
+    unique = np.unique(finite)
+    if unique.size == 1:
+        if np.isclose(unique[0], 0.0) or np.isclose(unique[0], 1.0):
+            return finite.astype(float)
+        return None
+    if unique.size > 2 or not np.all(np.isclose(unique, 0.0) | np.isclose(unique, 1.0)):
+        return None
+    return finite.astype(float)
+
+
+def _align_numeric_rows(
+    matrix: np.ndarray | None,
+    vector: np.ndarray | None,
+) -> tuple[np.ndarray | None, np.ndarray | None]:
+    """Align a covariate matrix and treatment vector on shared finite observations."""
+    if matrix is None or vector is None:
+        return None, None
+    if matrix.shape[0] != vector.shape[0]:
+        return None, None
+    finite_mask = np.isfinite(vector) & np.isfinite(matrix).all(axis=1)
+    if not finite_mask.any():
+        return None, None
+    aligned_matrix = matrix[finite_mask]
+    aligned_vector = vector[finite_mask]
+    if aligned_matrix.shape[0] == 0 or aligned_vector.size == 0:
+        return None, None
+    return aligned_matrix, aligned_vector
+
+
+def _treatment_candidate_keys(
+    treatment: str | frozenset[str],
+) -> tuple[str, ...]:
+    """Return likely treatment keys for direct-wrapper payloads."""
+    treatment_name = _singleton_query_name(treatment, "treatment")
+    candidates = [
+        treatment_name,
+        "treatment",
+        "protected",
+    ]
+    return tuple(str(candidate) for candidate in candidates if candidate)
+
+
+def _outcome_candidate_keys(
+    outcome: str | frozenset[str],
+) -> tuple[str, ...]:
+    """Return likely outcome keys for direct-wrapper payloads."""
+    outcome_name = _singleton_query_name(outcome, "outcome")
+    candidates = [outcome_name, "outcome"]
+    return tuple(str(candidate) for candidate in candidates if candidate)
+
+
+def _first_non_null(
+    data_dict: dict[str, Any] | None,
+    candidate_keys: tuple[str, ...],
+) -> Any | None:
+    """Return the first non-null payload entry among candidate keys."""
+    if not data_dict:
+        return None
+    for key in candidate_keys:
+        value = data_dict.get(key)
+        if value is not None:
+            return value
+    return None
+
+
+def _derive_direct_positivity_state(
+    *,
+    data_dict: dict[str, Any] | None,
+    treatment: str | frozenset[str],
+    outcome: str | frozenset[str],
+) -> dict[str, np.ndarray] | None:
+    """Build the positivity diagnostic state for direct estimator wrappers."""
+    if not data_dict:
+        return None
+
+    treatment_vector = _coerce_binary_vector(
+        _first_non_null(data_dict, _treatment_candidate_keys(treatment))
+    )
+    if treatment_vector is None:
+        treatment_sequence = data_dict.get("treatment_sequence")
+        if treatment_sequence is not None:
+            try:
+                treatment_vector = _coerce_binary_vector(
+                    np.asarray(treatment_sequence, dtype=float).reshape(-1)
+                )
+            except Exception:
+                treatment_vector = None
+    if treatment_vector is None:
+        return None
+
+    candidate_matrices = [
+        _coerce_numeric_matrix(data_dict.get("covariates")),
+        _coerce_numeric_matrix(data_dict.get("confounders")),
+        _coerce_numeric_matrix(data_dict.get("covariate_sequence")),
+    ]
+
+    outcome_matrix = _coerce_numeric_matrix(
+        _first_non_null(data_dict, _outcome_candidate_keys(outcome))
+    )
+    if outcome_matrix is not None:
+        time_treatment = data_dict.get("time_treatment")
+        if outcome_matrix.ndim == 2 and outcome_matrix.shape[1] > 1:
+            try:
+                boundary = int(time_treatment) if time_treatment is not None else outcome_matrix.shape[1] - 1
+            except Exception:
+                boundary = outcome_matrix.shape[1] - 1
+            boundary = max(1, min(boundary, outcome_matrix.shape[1]))
+            candidate_matrices.append(outcome_matrix[:, :boundary])
+
+    for matrix in candidate_matrices:
+        aligned_matrix, aligned_vector = _align_numeric_rows(matrix, treatment_vector)
+        if aligned_matrix is not None and aligned_vector is not None:
+            return {
+                "X": aligned_matrix,
+                "treatment": aligned_vector,
+            }
+
+    intercept = np.zeros((treatment_vector.shape[0], 1), dtype=float)
+    aligned_matrix, aligned_vector = _align_numeric_rows(intercept, treatment_vector)
+    if aligned_matrix is None or aligned_vector is None:
+        return None
+    return {
+        "X": aligned_matrix,
+        "treatment": aligned_vector,
+    }
+
+
+def _derive_direct_support_state(
+    data_dict: dict[str, Any] | None,
+) -> dict[str, np.ndarray] | None:
+    """Build source/target covariate views when a direct wrapper carries them explicitly."""
+    if not data_dict:
+        return None
+    source = _coerce_numeric_matrix(
+        _first_non_null(
+            data_dict,
+            ("X_source", "source_covariates", "covariates_source"),
+        )
+    )
+    target = _coerce_numeric_matrix(
+        _first_non_null(
+            data_dict,
+            ("X_target", "target_covariates", "covariates_target"),
+        )
+    )
+    if source is None or target is None:
+        return None
+    if source.shape[1] != target.shape[1]:
+        return None
+    return {
+        "X_source": source,
+        "X_target": target,
+    }
+
+
+def _execute_readiness_diagnostic(
+    *,
+    registry: Any,
+    fqn_full: str,
+    state: dict[str, Any],
+    params: dict[str, Any] | None = None,
+) -> dict[str, Any] | None:
+    """Resolve and execute a diagnostic method, returning its raw output."""
+    method_cls = _resolve_method_class(registry, fqn_full)
+    output = method_cls.pure_step(state, params or {})
+    return output if isinstance(output, dict) else None
+
+
+def _run_direct_readiness_diagnostics(
+    *,
+    registry: Any,
+    data: Any,
+    data_dict: dict[str, Any] | None,
+    treatment: str | frozenset[str],
+    outcome: str | frozenset[str],
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    """Run concrete diagnostics for direct wrappers and report verification status."""
+    del data
+    diagnostic_outputs: dict[str, Any] = {}
+    status: dict[str, Any] = {
+        "positivity": "positivity_inputs_unavailable",
+        "support": "not_requested",
+        "support_required": False,
+    }
+
+    positivity_state = _derive_direct_positivity_state(
+        data_dict=data_dict,
+        treatment=treatment,
+        outcome=outcome,
+    )
+    if positivity_state is not None:
+        try:
+            positivity_result = _execute_readiness_diagnostic(
+                registry=registry,
+                fqn_full="causal.diagnostics.positivity_check@1.0.0",
+                state=positivity_state,
+            )
+        except Exception:
+            positivity_result = None
+            status["positivity"] = "positivity_diagnostic_failed"
+        if positivity_result is not None:
+            diagnostic_outputs["direct:positivity"] = positivity_result
+            positivity_payload = positivity_result.get("result")
+            if isinstance(positivity_payload, dict) and "passes_positivity" in positivity_payload:
+                status["positivity"] = "verified"
+            else:
+                status["positivity"] = "positivity_diagnostic_invalid"
+
+    support_state = _derive_direct_support_state(data_dict)
+    if support_state is not None:
+        status["support_required"] = True
+        try:
+            support_result = _execute_readiness_diagnostic(
+                registry=registry,
+                fqn_full="causal.diagnostics.support_mismatch@1.0.0",
+                state=support_state,
+            )
+        except Exception:
+            support_result = None
+            status["support"] = "support_diagnostic_failed"
+        if support_result is not None:
+            diagnostic_outputs["direct:support"] = support_result
+            support_payload = support_result.get("result")
+            if isinstance(support_payload, dict) and "passes_support_check" in support_payload:
+                status["support"] = "verified"
+            else:
+                status["support"] = "support_diagnostic_invalid"
+
+    return diagnostic_outputs, status
 
 
 def _extract_readiness_diagnostics(

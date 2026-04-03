@@ -1,3 +1,4 @@
+"""Public causal ci backends module API."""
 from __future__ import annotations
 
 import importlib
@@ -37,6 +38,7 @@ _VALID_DISCOVERY_CI_BACKENDS: frozenset[str] = frozenset({"auto", "numpy", "jax"
 
 @dataclass(frozen=True)
 class CIBackendSelection:
+    """CI backend selection public type."""
     requested: str
     used: str
     fallback_reason: str | None = None
@@ -57,6 +59,7 @@ def _is_jax_available() -> bool:
 
 
 def resolve_discovery_ci_backend(raw: Any) -> CIBackendSelection:
+    """Resolve discovery ci backend."""
     requested = _normalize_backend(raw)
     if requested not in _VALID_DISCOVERY_CI_BACKENDS:
         return CIBackendSelection(
@@ -87,6 +90,7 @@ def resolve_discovery_ci_backend(raw: Any) -> CIBackendSelection:
 
 
 def ci_backend_metadata(selection: CIBackendSelection) -> dict[str, Any]:
+    """Ci backend metadata helper."""
     return {
         "ci_backend_requested": selection.requested,
         "ci_backend_used": selection.used,
@@ -159,6 +163,7 @@ def partial_corr(
     *,
     backend: str = "numpy",
 ) -> float:
+    """Partial corr helper."""
     backend_norm = _normalize_backend(backend)
     if backend_norm not in {"numpy", "jax"}:
         backend_norm = "numpy"
@@ -188,6 +193,7 @@ def partial_corr_batch(
     *,
     backend: str = "numpy",
 ) -> np.ndarray:
+    """Partial corr batch helper."""
     x_arr = np.asarray(x, dtype=float)
     y_arr = np.asarray(y, dtype=float)
     if x_arr.ndim != 2 or y_arr.ndim != 2:
@@ -250,6 +256,7 @@ def bootstrap_mean_interval(
     influence_values: np.ndarray | None = None,
     backend: str = "bootstrap_eif",
 ) -> tuple[float, float]:
+    """Bootstrap mean interval helper."""
     arr = np.asarray(values, dtype=float).reshape(-1)
     arr = arr[np.isfinite(arr)]
     if arr.size == 0:
@@ -264,6 +271,7 @@ def bootstrap_mean_interval(
 
 
 def robust_standard_error(values: np.ndarray) -> float:
+    """Robust standard error helper."""
     arr = np.asarray(values, dtype=float).reshape(-1)
     arr = arr[np.isfinite(arr)]
     if arr.size <= 1:

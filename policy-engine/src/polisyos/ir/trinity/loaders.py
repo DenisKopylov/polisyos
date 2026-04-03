@@ -1,3 +1,4 @@
+"""Public trinity loaders module API."""
 from __future__ import annotations
 
 import json
@@ -10,6 +11,7 @@ from polisyos.ir.trinity import TRINITY_BUNDLE_SCHEMA_VERSION, TrinityBundle
 
 
 class TrinityLoadError(ValueError):
+    """Trinity load error exception."""
     pass
 
 
@@ -66,6 +68,7 @@ def load_problem_frame(
     fmt: str = "auto",
     target_schema_version: str = "1.0",
 ) -> ProblemFrame:
+    """Load problem frame."""
     if isinstance(payload, ProblemFrame):
         if payload.schema_version != target_schema_version:
             raise TrinityLoadError(
@@ -84,6 +87,7 @@ def load_policy_spec(
     fmt: str = "auto",
     target_schema_version: str = "1.0",
 ) -> PolicySpec:
+    """Load policy spec."""
     if isinstance(payload, PolicySpec):
         if payload.schema_version != target_schema_version:
             raise TrinityLoadError(
@@ -102,6 +106,7 @@ def load_model_spec(
     fmt: str = "auto",
     target_schema_version: str = "1.0",
 ) -> ModelSpec:
+    """Load model spec."""
     if isinstance(payload, ModelSpec):
         if payload.schema_version != target_schema_version:
             raise TrinityLoadError(
@@ -120,6 +125,7 @@ def load_trinity_bundle(
     fmt: str = "auto",
     target_schema_version: str = TRINITY_BUNDLE_SCHEMA_VERSION,
 ) -> TrinityBundle:
+    """Load trinity bundle."""
     if isinstance(payload, TrinityBundle):
         if payload.schema_version != target_schema_version:
             raise TrinityLoadError(

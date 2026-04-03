@@ -1,76 +1,38 @@
-# Academic Knowledge
+# Academic Knowledge (`polisyos.academic.knowledge`)
 
-`polisyos.academic.knowledge` — read-only слой поверх academic DuckDB/SKG, который предоставляет поиск работ, causal evidence, literature priors и transportability-aware выбор параметров.
+`polisyos.academic.knowledge` is the read-only query layer over the academic DuckDB/SKG store. It
+serves literature search, causal evidence lookup, prior construction, and transportability-aware
+parameter selection.
 
-## Роль в системе
+## Role in System
 
-Подпакет потребляет результаты `polisyos.academic.batch.graph_load` и используется как runtime API для:
-- retrieval релевантной литературы;
-- построения prior-ов для параметров;
-- выборки causal/edge evidence из SKG;
-- отбора параметров под target context.
+- **Depends on:** the graph materialized by `polisyos.academic.batch.graph_load` and `graph_index`.
+- **Used by:** runtime search, transportability selection, and downstream decision support.
+- **Boundary function:** keeps graph/query logic read-only and separate from batch graph construction.
 
-## Модули и ответственность
+## Key Concepts
 
-| Модуль | Назначение |
-|---|---|
-| `types.py` | Контракты `WorkRecord`, `EstimateCandidate`, `ParameterPrior`, search/result модели |
-| `store.py` | Низкоуровневый read-only доступ к DuckDB и HNSW индексу |
-| `search.py` | High-level фасад `ScholarKnowledgeGraph` (hybrid search + priors + evidence lookups) |
-| `skg_query.py` | Query API по SKG-таблицам (`ac_skg_*`), edge priors, parameter candidates |
-| `parameter_selector.py` | `ParameterSelector` с transportability scoring через `ContextProfile` и causal graph |
-| `variable_canonizer.py` | Детерминированная канонизация имен переменных + cache в DuckDB |
-| `canonical_seed.py` | Seed словарь canonical variable namespace |
-| `skg_store.py` | DDL/утилиты для SKG и confidence aggregation |
-| `skg_versioning.py` | version manager и retraction handling для SKG |
+- **Hybrid search** - `ScholarKnowledgeGraph` combines text and vector retrieval.
+- **SKG queries** - `SKGQuery` reads the `ac_skg_*` tables for edge and parameter evidence.
+- **Parameter selection** - `ParameterSelector` scores candidates for the current context.
+- **Canonical variables** - `VariableCanonizer` and the runtime registry normalize naming across domains.
+- **Versioning** - `SKGVersionManager` handles retractions and confidence recomputation.
 
-## Публичные entry points
+## Public API
 
-Через `polisyos.academic.knowledge` экспортируются:
-- `ScholarKnowledgeGraph`;
-- `SKGQuery`;
-- `ParameterSelector`;
-- `VariableCanonizer`;
-- `SKGVersionManager`;
-- типы из `types.py`.
+- `ScholarKnowledgeGraph`
+- `CanonicalVariableResolver`
+- `ResolutionResult`
+- `ParameterSelector`
+- `SKGQuery`
+- `ParameterCandidate`
+- `EdgeSupportRecord`
+- `EdgeTransportRecord`
+- `SKGVersionManager`
+- `VariableCanonizer`
 
-## Ключевые сценарии
+## Current State
 
-1. Поиск работ:
-`ScholarKnowledgeGraph.find_relevant_works()` выполняет fusion `text_search + vector_search`.
-2. Literature prior:
-`get_parameter_prior(variable, domain, country)` агрегирует оценки с trust-weighted mean/std.
-3. Causal evidence:
-`find_causal_evidence(cause, effect)` и `get_mechanism_evidence(...)`.
-4. SKG edge/parameter query:
-`SKGQuery.query_parameters()`, `query_edge_priors()`, `query_prior_for_variables()`.
-5. Context-aware выбор параметра:
-`ParameterSelector.select_for_context(...)` с учетом transportability и evidence strength.
-
-## Используемые таблицы
-
-- Runtime tables:
-  `ac_works`, `ac_parameter_estimates`, `ac_causal_claims`, `ac_boundary_conditions`, `ac_topic_selections`.
-- SKG tables:
-  `ac_skg_articles`, `ac_skg_variables`, `ac_skg_parameters`, `ac_skg_edges`, `ac_skg_versions`,
-  `ac_skg_canonization_cache`.
-
-## Особенности текущей реализации
-
-- `store.py` всегда открывает DuckDB в `read_only=True`.
-- Векторный поиск деградирует в text-only режим, если отсутствуют `ac_work_embeddings.npz`/`ac_work_index.hnsw`.
-- `VariableCanonizer`:
-  exact match -> cache -> fuzzy match -> slug fallback + pending review.
-- `aggregate_edge_confidence()` в `skg_store.py` отдает приоритет сильной evidence + replication bonus.
-- `SKGVersionManager.handle_retraction()` пересчитывает confidence edges, удаляет осиротевшие edges.
-
-## Связи с другими директориями
-
-- Вход данных: `polisyos.academic.batch.graph_builder`.
-- Семантические контракты: `polisyos.ir.analytics.context`, `polisyos.ir.analytics.literature`,
-  `polisyos.ir.analytics.transportability`, `polisyos.ir.analytics.parameters`.
-
-## Проверки
-
-- `policy-engine/tests/academic/knowledge`;
-- часть проверок в `policy-engine/tests/academic/batch/test_skg_*`.
+- Last updated: 2026-04-03
+- `runtime_canonical_registry.py` now exposes `runtime_canonical_entries()`, `runtime_canonical_names()`, and `runtime_approved_synonyms()`.
+- `variable_canonizer.py` still layers exact-match, cache, fuzzy, and slug fallback resolution on top of the canonical registry.

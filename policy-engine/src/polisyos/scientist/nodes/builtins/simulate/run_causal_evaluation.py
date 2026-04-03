@@ -1,3 +1,4 @@
+"""Public simulate run causal evaluation module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -270,6 +271,7 @@ def _infer_sutva_risk(query_treatment: str | None) -> str | None:
 
 @dataclass(frozen=True)
 class RunCausalEvaluationNode:
+    """Run causal evaluation node implementation."""
     @property
     def spec(self) -> NodeSpec:
         return _SPEC

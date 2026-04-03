@@ -1,9 +1,11 @@
+"""Public world abi module API."""
 from __future__ import annotations
 
 from enum import Enum
 
 
 class NodeKind(str, Enum):
+    """Node kind public type."""
     ARTIFACT = "artifact"
     DOC_SOURCE = "doc.source"
     DOC_VERSION = "doc.version"
@@ -18,6 +20,7 @@ class NodeKind(str, Enum):
 
 
 class EdgeKind(str, Enum):
+    """Edge kind public type."""
     DOC_HAS_VERSION = "doc.has_version"
     DOC_HAS_FRAGMENT = "doc.has_fragment"
     CLAIM_CITES = "claim.cites"

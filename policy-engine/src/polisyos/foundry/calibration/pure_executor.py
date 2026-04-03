@@ -1,3 +1,4 @@
+"""Public calibration pure executor module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass, replace
@@ -379,6 +380,7 @@ def apply_trainable_values(bundle: StaticBundle, values: Sequence[Any]) -> Stati
 
 
 def extract_trainable_values(bundle: StaticBundle) -> list[Any]:
+    """Extract trainable values helper."""
     values: list[Any] = []
     for handle in bundle.trainables:
         mech = bundle.nodes[handle.node_index].mechanism

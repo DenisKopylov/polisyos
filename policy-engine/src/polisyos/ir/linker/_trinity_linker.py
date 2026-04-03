@@ -30,6 +30,7 @@ def link_trinity(
     allow_extra_params: bool = False,
     strict: bool = True,
 ) -> tuple[LinkedTrinityBundle, LinkReport]:
+    """Link trinity helper."""
     issues: list[LinkIssue] = []
     notes: list[str] = []
     missing_registry_emitted: set[str] = set()

@@ -1,3 +1,4 @@
+"""Public optimization sequential module API."""
 from __future__ import annotations
 
 import time
@@ -64,6 +65,7 @@ def _solver_status(status: str) -> SolverStatus:
     tags={"optimization", "convex", "socp"},
 )
 class SecondOrderConeProgramEstimator:
+    """Second order cone program estimator implementation."""
     runtime_stack: ClassVar[tuple[str, ...]] = ("cvxpy", "numpy")
 
     signature: ClassVar[MethodSignature] = MethodSignature(
@@ -109,6 +111,9 @@ class SecondOrderConeProgramEstimator:
         description="Second-order cone program with one L2 norm cone and linear side constraints.",
         tags=frozenset({"optimization", "convex", "socp"}),
         when_to_use="Convex problems with quadratic cone constraints; robust linear programs; portfolio risk constraints",
+        citations=(
+            "Boyd, S. & Vandenberghe, L. (2004). Convex Optimization. Cambridge University Press.",
+        ),
         when_not_to_use="Non-convex feasible set; problem has integer variables; linear relaxation suffices",
         output_interpretation="Optimal solution satisfying cone and linear constraints. Objective value is globally optimal for convex SOCP.",
     )
@@ -177,6 +182,7 @@ class SecondOrderConeProgramEstimator:
     tags={"optimization", "stochastic-program"},
 )
 class TwoStageStochasticProgramEstimator:
+    """Two stage stochastic program estimator implementation."""
     runtime_stack: ClassVar[tuple[str, ...]] = ("cvxpy", "numpy")
 
     signature: ClassVar[MethodSignature] = MethodSignature(
@@ -217,6 +223,9 @@ class TwoStageStochasticProgramEstimator:
         description="Two-stage stochastic program with shortage recourse under discrete demand scenarios.",
         tags=frozenset({"optimization", "stochastic-program"}),
         when_to_use="Optimization under uncertainty; resource planning with stochastic demand or costs",
+        citations=(
+            "Birge, J. & Louveaux, F. (2011). Introduction to Stochastic Programming. Springer.",
+        ),
         when_not_to_use="Deterministic problem; uncertainty is irrelevant or negligible",
         output_interpretation="Here-and-now decisions (1st stage) + recourse actions (2nd stage). EVPI = value of perfect information.",
     )
@@ -290,6 +299,7 @@ class TwoStageStochasticProgramEstimator:
     tags={"optimization", "dynamic-programming"},
 )
 class DynamicProgrammingEstimator:
+    """Dynamic programming estimator implementation."""
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
     signature: ClassVar[MethodSignature] = MethodSignature(
@@ -331,6 +341,9 @@ class DynamicProgrammingEstimator:
         description="Finite-horizon dynamic programming over discrete states and actions.",
         tags=frozenset({"optimization", "dynamic-programming"}),
         when_to_use="Multi-period decisions with state transitions; optimal stopping, resource extraction, pension design",
+        citations=(
+            "Bellman, R. (1957). Dynamic Programming. Princeton University Press.",
+        ),
         when_not_to_use="State space too large (curse of dimensionality without approximation); no clear Markov structure",
         output_interpretation="Value function V(s): expected future payoff from state s. Policy function π(s): optimal action in state s.",
     )

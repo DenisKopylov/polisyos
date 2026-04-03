@@ -30,7 +30,22 @@ from polisyos.ir.connectors import (
 
 
 class RestJsonConnector(GenericRESTConnector):
-    """Production REST/JSON connector for paginated APIs."""
+    """Generic production connector for paginated REST/JSON APIs.
+
+    Used for sources that do not justify a dedicated connector class but still
+    need Fabric pagination, incremental fetch, and rate-limit handling.
+
+    Data source:
+        Profile-defined REST endpoints
+    Protocol:
+        REST JSON
+    Auth:
+        Configurable per profile
+    Async support:
+        Standard async HTTP execution only
+    Profile:
+        Any ``connector_family='rest'`` profile
+    """
 
     connector_id: ClassVar[str] = "rest.json"
 

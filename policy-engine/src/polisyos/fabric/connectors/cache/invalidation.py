@@ -19,6 +19,7 @@ logger = get_logger(__name__)
 
 
 class InvalidationStrategy(str, Enum):
+    """Invalidation strategy data model."""
     HARD_DELETE = "hard_delete"
     SOFT_MARK = "soft_mark"
     REFRESH_ASYNC = "refresh_async"
@@ -26,6 +27,7 @@ class InvalidationStrategy(str, Enum):
 
 @dataclass(frozen=True, slots=True)
 class InvalidationEvent:
+    """Invalidation event data model."""
     trigger_type: str
     dataset_id: str
     timestamp: datetime

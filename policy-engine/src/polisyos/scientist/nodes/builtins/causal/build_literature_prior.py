@@ -1,3 +1,4 @@
+"""Public causal build literature prior module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -132,6 +133,14 @@ def _environment_audit_summary(report: EnvironmentAuditReport) -> dict[str, Any]
 
 @dataclass(frozen=True)
 class BuildLiteraturePriorNode:
+    """Build a literature prior and projected causal graph from SKG evidence.
+
+    Reads causal variables plus optional environment-audit settings from
+    ``ExperimentState``, runs the Foundry literature-prior builder, and writes
+    both the prior artifact and its projected graph back into the workflow
+    state for downstream reconciliation.
+    """
+
     @property
     def spec(self) -> NodeSpec:
         return _SPEC

@@ -1,3 +1,4 @@
+"""Public causal gcm query module API."""
 from __future__ import annotations
 
 import math
@@ -784,6 +785,9 @@ class GCMQuery:
             ),
         },
         when_to_use="Query fitted GCM for counterfactuals, interventions, or attribution after GCMFit",
+        citations=(
+            "Pearl, J. (2009). Causality: Models, Reasoning, and Inference. Cambridge University Press.",
+        ),
         when_not_to_use="GCM has not been fitted; query is purely observational; non-acyclic graph",
         output_interpretation="Counterfactual distribution P(Y|do(X=x)). Attribution of anomaly/change to each causal parent.",
     )

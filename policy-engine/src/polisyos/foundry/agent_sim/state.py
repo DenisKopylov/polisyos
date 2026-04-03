@@ -1,3 +1,4 @@
+"""Public agent sim state module API."""
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -180,6 +181,7 @@ def compute_aggregates(
     *,
     compute_gini: bool = False,
 ) -> AggregateState:
+    """Compute aggregates helper."""
     active = agents.active.astype(jnp.float32)
     active_count = jnp.sum(active)
     safe_count = jnp.maximum(active_count, 1.0)

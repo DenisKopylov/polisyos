@@ -1,3 +1,4 @@
+"""Public microsim advanced module API."""
 from __future__ import annotations
 
 from typing import Any, ClassVar, Mapping
@@ -46,6 +47,7 @@ def _weighted_mean(values: np.ndarray, weights: np.ndarray) -> float:
     tags={"microsim", "tax-benefit", "survey"},
 )
 class TaxBenefitCalculatorEstimator:
+    """Tax benefit calculator estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -96,6 +98,10 @@ class TaxBenefitCalculatorEstimator:
         description="Tax-benefit calculator producing liabilities, transfers, disposable income, and tax rates.",
         tags=frozenset({"microsim", "tax-benefit", "survey"}),
         when_to_use="First-order (mechanical) distributional impact of policy reform on existing population; tax/benefit calculator",
+        citations=(
+            "Immervoll, H. et al. (2006). Microsimulation of personal income tax and transfer systems. International Journal of Microsimulation, 1(1), 1-13.",
+            "Sutherland, H. & Figari, F. (2013). EUROMOD: the European Union tax-benefit microsimulation model. International Journal of Microsimulation, 6(1), 4-26.",
+        ),
         when_not_to_use="Need behavioral responses; dynamic effects matter (use dynamic microsim)",
         output_interpretation="Distribution of winners/losers. Change in Gini, poverty headcount. Budget cost at first round.",
     )
@@ -164,6 +170,7 @@ class TaxBenefitCalculatorEstimator:
     tags={"microsim", "behavioral-response", "survey"},
 )
 class BehavioralResponseEstimator:
+    """Behavioral response estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -203,6 +210,10 @@ class BehavioralResponseEstimator:
         description="Behavioral income response to tax wedges using a labor-supply elasticity rule.",
         tags=frozenset({"microsim", "behavioral-response", "survey"}),
         when_to_use="Policy with significant labor supply or consumption behavioral responses; structural microsim",
+        citations=(
+            "Saez, E. (2001). Using elasticities to derive optimal income tax rates. Review of Economic Studies, 68(1), 205-229.",
+            "Immervoll, H. et al. (2007). Welfare reform in European countries: A microsimulation analysis. The Economic Journal, 117(516), 1-44.",
+        ),
         when_not_to_use="Behavioral responses negligible; elasticity estimates unavailable or highly uncertain",
         output_interpretation="Behavioral + first-round effects. Elasticities determine magnitude of behavioral response.",
     )
@@ -247,6 +258,7 @@ class BehavioralResponseEstimator:
     tags={"microsim", "imputation", "survey"},
 )
 class ImputationModelEstimator:
+    """Imputation model estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("scikit-learn", "numpy")
 
@@ -283,6 +295,10 @@ class ImputationModelEstimator:
         description="Supervised imputation of missing market income using tabular household features.",
         tags=frozenset({"microsim", "imputation", "survey"}),
         when_to_use="Missing income/covariate imputation in survey microdata prior to microsimulation",
+        citations=(
+            "Rubin, D. (1987). Multiple Imputation for Nonresponse in Surveys. Wiley.",
+            "van Buuren, S. (2018). Flexible Imputation of Missing Data. CRC Press.",
+        ),
         when_not_to_use="Very high missing rates (>50%); missingness is informative and cannot be modeled",
         output_interpretation="Imputed values replace missing entries. RMSE on observed training data indicates quality. Missing share shows scope of imputation.",
     )
@@ -346,6 +362,7 @@ class ImputationModelEstimator:
     tags={"microsim", "dynamic", "survey"},
 )
 class DynamicMicrosimEstimator:
+    """Dynamic microsim estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -391,6 +408,10 @@ class DynamicMicrosimEstimator:
         description="Dynamic microsimulation of income evolution and fiscal outcomes over a finite horizon.",
         tags=frozenset({"microsim", "dynamic", "survey"}),
         when_to_use="Long-run distributional effects; cohort pension reform; lifetime income redistribution",
+        citations=(
+            "O'Donoghue, C. (2014). Handbook of Microsimulation Modelling. Emerald Group Publishing.",
+            "Li, J. & O'Donoghue, C. (2013). A survey of dynamic microsimulation models: uses, model structure and methodology. International Journal of Microsimulation, 6(2), 3-55.",
+        ),
         when_not_to_use="Short-run first-order analysis sufficient; no longitudinal data available",
         output_interpretation="Lifetime income/wealth distributions. Generational accounting. Cohort-specific winners/losers.",
         typical_min_obs=1000,

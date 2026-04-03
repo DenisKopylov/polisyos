@@ -1,22 +1,32 @@
-# Orchestrator Utilities (`polisyos.scientist.orchestrator`)
+# Orchestrator (`polisyos.scientist.orchestrator`)
 
-`orchestrator` содержит presentation-утилиты поверх итогового `DecisionPacket`.
-
-## Что внутри
-
-- `decision_card.py`
-  - `DecisionCard.from_packet(...)` — сборка краткой управленческой карточки решения;
-  - агрегирует verdict/confidence, key metrics, issues summary, distributional блок;
-  - умеет сериализацию (`to_dict`) и markdown-рендер (`render_markdown`).
-- `__init__.py`
-  - публичные re-export: `DecisionCard`, `IssuesSummary`, `KeyMetric`.
+`orchestrator` публикует presentation-friendly readout поверх итогового
+`DecisionPacket`: компактные decision cards, issue summaries и key metrics
+для CLI, UI и reporting consumers.
 
 ## Роль в системе
 
-- не участвует в обязательном execution DAG;
-- используется как дополнительный слой человеко-читаемого summary для CLI/UI/reporting поверх уже собранного packet.
+- **Зависит от:** decision-packet payloads from Scientist runtime
+- **Используется в:** human-facing summaries, reporting and presentation layers
+- Пакет не исполняет workflow logic и не модифицирует run-state.
 
-## Входные зависимости
+## Ключевые концепции
 
-- ожидает payload, совместимый с `scientist.decision_packet`;
-- использует только read-only извлечение полей и агрегирование, без модификации состояния run.
+- **DecisionCard** — короткая карточка policy decision.
+- **IssuesSummary** — свернутое представление governance/problem issues.
+- **KeyMetric** — нормализованный metric snippet для summary surfaces.
+
+## Public API
+
+- `DecisionCard`
+- `IssuesSummary`
+- `KeyMetric`
+
+Подробности: [Reference →](../../../../docs/reference/scientist/index.md)
+
+## Текущее состояние
+
+- Последнее обновление: 2026-04-03
+- Python modules: 2
+- Exports: 3
+- README переписан по общему шаблону; пакет остается intentionally small

@@ -1,3 +1,4 @@
+"""Public governance report module API."""
 from __future__ import annotations
 
 from typing import Any, Literal
@@ -12,6 +13,7 @@ from polisyos.core.contracts.scientist import (
 
 
 class GovernanceReportLinks(BaseModel):
+    """Governance report links public type."""
     model_config = ConfigDict(extra="forbid")
 
     legal_report_ref: LegalReportRef | None = None

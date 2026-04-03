@@ -35,6 +35,7 @@ ValidationMode = Literal["strict", "warn", "disabled"]
 
 
 class SchemaValidationMode:
+    """Schema validation mode public type."""
     STRICT: ClassVar[ValidationMode] = "strict"
     WARN: ClassVar[ValidationMode] = "warn"
     DISABLED: ClassVar[ValidationMode] = "disabled"

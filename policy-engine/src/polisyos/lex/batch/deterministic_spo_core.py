@@ -15,7 +15,7 @@ from polisyos.lex.batch.deterministic_spo_subtypes import _extract_threshold_row
 _CORE_NORMATIVE_FAST_CUE_RE = re.compile(
     r"("
     r"повинен|повинна|повинні|зобов|"
-    r"має\s+право|мають\s+право|може|можуть|"
+    r"має\s+(?:пріоритетне\s+)?право|мають\s+(?:пріоритетне\s+)?право|може|можуть|вправі|"
     r"необхідно|слід|"
     r"не\s+має\s+права|не\s+мають\s+права|"
     r"забороняється|забороняються|заборонено|не\s+допускається|не\s+допускаються|"
@@ -29,6 +29,13 @@ _CORE_NORMATIVE_FAST_CUE_RE = re.compile(
     r"\d+(?:[.,]\d+)?\s*(?:%|грн|коп|кг|км|га|тонн(?:и)?)\b|"
     r"ставк|тариф|оклад|поріг|не\s+менш|не\s+більш|не\s+нижче|не\s+вище"
     r")",
+    re.IGNORECASE,
+)
+_WORD_THRESHOLD_RE = re.compile(
+    r"(?P<lemma>не\s+менше|не\s+більше|не\s+нижче|не\s+вище)\s+"
+    r"(?P<value>[а-яіїєґ'’`-]{2,24})\s+"
+    r"(?P<unit>рок(?:ів|и|у)|дн(?:ів|і|я)|місяц(?:ів|і|я)|тижн(?:ів|і|я)|"
+    r"відсотк(?:ів|и|а)|осіб|раз(?:ів|и)?)",
     re.IGNORECASE,
 )
 
@@ -70,7 +77,7 @@ def _extract_core_normative_fallback_candidates(
     ):
         return [], []
 
-    for sentence in _iter_sentences(text):
+    for sentence in _iter_sentences(text, split_newlines=threshold_bearing):
         sentence = sentence.strip()
         if len(sentence) < 16:
             continue
@@ -128,6 +135,26 @@ def _extract_core_normative_fallback_candidates(
                     for candidate in threshold_candidates
                 )
                 reason_codes.extend(["cnc_fallback_threshold_pattern", *threshold_reason_codes])
+            else:
+                word_threshold_match = _WORD_THRESHOLD_RE.search(sentence)
+                if word_threshold_match:
+                    object_uk = _clip_text(
+                        f"{word_threshold_match.group('lemma')} {word_threshold_match.group('value')} {word_threshold_match.group('unit')}",
+                        120,
+                    )
+                    candidates.append(
+                        _build_candidate(
+                            subject_uk=doc_title or "регульований показник",
+                            predicate="sets_threshold",
+                            object_uk=object_uk,
+                            norm_type="obligation",
+                            fact_text=f"{doc_title or 'регульований показник'} має поріг {object_uk}",
+                            quote=quote,
+                            confidence=0.73,
+                            thresholds_text=analysis_sentence,
+                        )
+                    )
+                    reason_codes.append("cnc_fallback_word_threshold_pattern")
 
         # Subject-verb-object with deontic markers: obligation
         require_match = _search_with_optional_context(
@@ -271,6 +298,31 @@ def _extract_core_normative_fallback_candidates(
                     )
                 )
                 reason_codes.append("cnc_fallback_passive_procedure_pattern")
+
+        passive_mandatory_match = _search_with_optional_context(
+            _PASSIVE_MANDATORY_ACTION_RE,
+            sentence,
+            analysis_text=analysis_sentence,
+        )
+        if passive_mandatory_match:
+            raw_subject = passive_mandatory_match.group("subject").strip(" ,;:")
+            raw_object = passive_mandatory_match.group("object").strip(" .;:")
+            subject_uk = _clip_text(raw_subject, 160)
+            object_uk = _clip_text(raw_object, 220)
+            if subject_uk and object_uk:
+                candidates.append(
+                    _build_candidate(
+                        subject_uk=subject_uk,
+                        predicate="requires",
+                        object_uk=object_uk,
+                        norm_type="obligation",
+                        fact_text=f"{subject_uk} {passive_mandatory_match.group('lemma').strip()} {object_uk}",
+                        quote=quote,
+                        confidence=0.75,
+                        thresholds_text=analysis_sentence,
+                    )
+                )
+                reason_codes.append("cnc_fallback_passive_mandatory_action_pattern")
 
         # "X підлягає Y"
         subject_to_match = _search_with_optional_context(
@@ -526,18 +578,41 @@ def _extract_semantic_tail_candidates(
                     "semantic_tail_prohibition",
                 )
 
-        sanction_match = _SANCTION_RE.search(clause)
-        if sanction_match:
+        for sanction_match in _SANCTION_RE.finditer(clause):
             subject_uk = _clip_text(sanction_match.group("subject").strip(" ,;:"), 180)
-            object_uk = _clip_text(sanction_match.group("object").strip(" .;:"), 240)
-            if subject_uk and object_uk:
+            raw_object = sanction_match.group("object").strip(" .;:")
+            lemma_text = sanction_match.group("lemma").strip()
+            # Check if the object ends with a colon followed by a list
+            # (e.g. "тягне за собою: штраф; позбавлення ліцензії; ...")
+            tail_after_match = clause[sanction_match.end():]
+            list_items = list(_iter_list_items(tail_after_match)) if ":" in raw_object or tail_after_match.lstrip().startswith(";") else []
+            if list_items and subject_uk:
+                # Colon-delimited list: each item is a separate sanction
+                base_object = raw_object.split(":")[0].strip() if ":" in raw_object else raw_object
+                for item in list_items:
+                    item_uk = _clip_text(item, 220)
+                    if item_uk:
+                        _append(
+                            _build_candidate(
+                                subject_uk=subject_uk,
+                                predicate="sanctions",
+                                object_uk=item_uk,
+                                norm_type="sanction",
+                                fact_text=f"{subject_uk} {lemma_text} {item_uk}",
+                                quote=quote,
+                                confidence=0.77,
+                            ),
+                            "semantic_tail_sanction_list_item",
+                        )
+            elif subject_uk and raw_object:
+                object_uk = _clip_text(raw_object, 240)
                 _append(
                     _build_candidate(
                         subject_uk=subject_uk,
                         predicate="sanctions",
                         object_uk=object_uk,
                         norm_type="sanction",
-                        fact_text=f"{subject_uk} {sanction_match.group('lemma').strip()} {object_uk}",
+                        fact_text=f"{subject_uk} {lemma_text} {object_uk}",
                         quote=quote,
                         confidence=0.79,
                     ),
@@ -560,6 +635,28 @@ def _extract_semantic_tail_candidates(
                 ),
                 "semantic_tail_threshold_policy",
             )
+        elif not threshold_policy_match:
+            # Fallback: if clause contains numeric rates/percentages that
+            # extract_thresholds_from_text can parse, emit a sets_threshold
+            # candidate so the audit category "threshold" is covered.
+            numeric_thresholds = extract_thresholds_from_text(clause)
+            if numeric_thresholds:
+                thr_summary = "; ".join(
+                    f"{t.value_text} {t.unit}" for t in numeric_thresholds[:3]
+                )
+                _append(
+                    _build_candidate(
+                        subject_uk=doc_title or "регульований показник",
+                        predicate="sets_threshold",
+                        object_uk=_clip_text(thr_summary, 240),
+                        norm_type="threshold",
+                        fact_text=f"Встановлено числовий поріг: {thr_summary}",
+                        quote=quote,
+                        confidence=0.75,
+                        thresholds_text=clause,
+                    ),
+                    "numeric_threshold_fallback",
+                )
 
         uses_rights_match = _USES_RIGHTS_RE.search(clause)
         if uses_rights_match:

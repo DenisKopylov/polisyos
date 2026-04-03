@@ -1,3 +1,4 @@
+"""Public http app module API."""
 from __future__ import annotations
 
 import time
@@ -51,6 +52,7 @@ def create_runtime_api_app(
     trusted_delegators: frozenset[str] = frozenset(),
     service_spiffe_id: str | None = None,
 ) -> Any:
+    """Create runtime api app."""
     if FastAPI is None:
         raise RuntimeError("Runtime HTTP API requires fastapi/starlette dependencies")
 
@@ -203,6 +205,7 @@ def _record_runtime_api_metric(
 
 
 def export_runtime_openapi_schema(*, app: Any | None = None) -> dict[str, Any]:
+    """Export runtime openapi schema helper."""
     runtime_app = app or create_runtime_api_app()
     return runtime_app.openapi()
 

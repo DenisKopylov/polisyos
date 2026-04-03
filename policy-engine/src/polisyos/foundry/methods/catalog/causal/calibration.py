@@ -1,3 +1,4 @@
+"""Public causal calibration module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -18,6 +19,7 @@ else:  # pragma: no cover - fallback only
 
 @dataclass
 class CalibrationResult:
+    """Calibration result data model."""
     mode: str
     fitted: bool
     calibration_size: int
@@ -36,6 +38,7 @@ def make_calibrated_propensity_prediction(
     clip: float,
     seed: int,
 ) -> tuple[np.ndarray, CalibrationResult]:
+    """Make calibrated propensity prediction helper."""
     X = np.asarray(X, dtype=float)
     treatment = np.asarray(treatment, dtype=float).reshape(-1)
     train_idx = np.asarray(train_idx, dtype=int).reshape(-1)

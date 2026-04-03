@@ -241,6 +241,7 @@ def persist_bootstrap_stability_report(
     *,
     inputs: list[InputRef] | None = None,
 ) -> BootstrapStabilityReportRef:
+    """Persist bootstrap stability report helper."""
     ref = store.put_json(
         report,
         PutOptions(
@@ -261,6 +262,7 @@ def load_bootstrap_stability_report(
     store: FileSystemCAS,
     ref: BootstrapStabilityReportRef,
 ) -> BootstrapStabilityReport:
+    """Load bootstrap stability report."""
     payload = from_canonical_bytes(store.get_bytes(ref.artifact_id))
     return BootstrapStabilityReport.model_validate(payload)
 

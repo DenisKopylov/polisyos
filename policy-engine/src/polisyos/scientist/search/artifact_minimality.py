@@ -8,6 +8,7 @@ from pydantic import BaseModel, Field, field_serializer, model_validator
 
 
 class ArtifactFunction(str, Enum):
+    """Artifact function public type."""
     ROUTING = "routing"
     PROMOTION_GATING = "promotion_gating"
     REPLAY_AUDIT = "replay_audit"
@@ -15,6 +16,7 @@ class ArtifactFunction(str, Enum):
 
 
 class ArtifactMinimalityMixin(BaseModel):
+    """Artifact minimality mixin public type."""
     artifact_functions: set[ArtifactFunction] = Field(default_factory=set)
 
     @model_validator(mode="after")
@@ -35,6 +37,7 @@ class ArtifactMinimalityMixin(BaseModel):
 
 
 def artifact_functions_field(*functions: ArtifactFunction) -> set[ArtifactFunction]:
+    """Artifact functions field helper."""
     return set(functions)
 
 

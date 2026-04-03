@@ -45,6 +45,7 @@ def test_dagma_discovery_success_path(monkeypatch) -> None:
     assert ("V0", "V1") in edge_pairs
     assert ("V1", "V2") in edge_pairs
     assert report.metadata["optimizer"] == "fake.optimizer"
+    assert report.metadata["algebraic_constraint_severity"] in {"info", "warning", "blocker"}
 
 
 def test_dagma_discovery_missing_dependency_graceful_fallback(monkeypatch) -> None:
@@ -66,6 +67,64 @@ def test_dagma_discovery_missing_dependency_graceful_fallback(monkeypatch) -> No
     assert report.graph.edges == []
     assert report.metadata.get("fallback") is True
     assert any("modulenotfounderror" in warning.lower() for warning in report.warnings)
+    assert report.metadata["algebraic_constraint_severity"] in {"warning", "blocker"}
+
+
+def test_dagma_discovery_forwards_explicit_algebraic_blocks(monkeypatch) -> None:
+    captured: dict[str, object] = {}
+
+    def _fake_runner(**kwargs):
+        del kwargs
+        return dagma_module._DAGMAExecutionResult(
+            weights=np.zeros((4, 4), dtype=float),
+            metadata={"optimizer": "fake.optimizer", "converged": True},
+            error=None,
+            timed_out=False,
+        )
+
+    def _fake_stamp(
+        report,
+        *,
+        data,
+        variable_names,
+        significance_level,
+        seed,
+        algebraic_blocks,
+    ):
+        del data, variable_names, significance_level, seed
+        captured["algebraic_blocks"] = algebraic_blocks
+        return report.model_copy(
+            update={
+                "metadata": {
+                    **dict(report.metadata),
+                    "algebraic_constraint_severity": "info",
+                }
+            }
+        )
+
+    monkeypatch.setattr(dagma_module, "_run_dagma_with_timeout", _fake_runner)
+    monkeypatch.setattr(
+        "polisyos.foundry.methods.catalog.causal.constraint_discovery._stamp_algebraic_constraint_audit",
+        _fake_stamp,
+    )
+
+    output = DAGMADiscovery.pure_step(
+        _state(n_variables=4),
+        params={
+            "weight_threshold": 0.1,
+            "algebraic_blocks": [
+                {
+                    "block_id": "factor_1",
+                    "family": "tetrad",
+                    "variables": ["V0", "V1", "V2", "V3"],
+                }
+            ],
+        },
+    )
+    report = output["report"]
+
+    assert captured["algebraic_blocks"] is not None
+    assert report.metadata["algebraic_constraint_severity"] == "info"
 
 
 def test_dagma_discovery_large_variable_smoke(monkeypatch) -> None:

@@ -1,6 +1,17 @@
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.ir.analytics.causal_discovery import DataCharacteristics, DataType, DimensionRegime
+from polisyos.ir.analytics.causal_discovery import (
+    AlgebraicConstraintFamily,
+    AlgebraicConstraintReport,
+    CausalDiscoveryReport,
+    ConstraintEvaluationResult,
+    DataCharacteristics,
+    DataType,
+    DimensionRegime,
+    LatentAssumptionCard,
+    LatentDiscoveryBundle,
+    LatentTrustLevel,
+)
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, GraphType
 from polisyos.ir.analytics.causal_queries import CausalQuery, QueryType
 from polisyos.scientist.discovery.aggregator import EvidenceWeightedAggregator
@@ -12,17 +23,23 @@ from polisyos.scientist.discovery.output import (
     load_discovery_artifact_bundle,
     load_discovery_audit_bundle,
     load_discovery_task_profile,
+    load_graph_hypotheses_for_bundle,
     load_graph_hypothesis_set,
+    load_merged_latent_discovery_bundle,
     load_refutation_report,
     load_reproducibility_report,
+    load_source_discovery_reports_for_bundle,
 )
+from polisyos.scientist.discovery.portfolio import PortfolioCandidate, PortfolioRunResult
 from polisyos.scientist.discovery.prior_miner import PriorMiner, PriorMinerConfig
 from polisyos.scientist.discovery.priors import GraphPriorBuilder
+from polisyos.scientist.discovery.priors import PriorKnowledgeBundle
 from polisyos.scientist.discovery.schema import (
     ComputeFootprint,
     DiscoveryAlgorithmFamily,
     DiscoveryMethod,
     GraphHypothesis,
+    graph_hypothesis_from_report,
 )
 from polisyos.scientist.discovery.stability import (
     BootstrapMode,
@@ -351,3 +368,128 @@ def test_discovery_artifact_builder_marks_measured_seed_reproducibility_when_rep
     assert reproducibility.seed_variation_status is SeedVariationStatus.MEASURED
     assert reproducibility.seed_variation_score == 0.905
     assert any("measured" in note for note in reproducibility.notes)
+
+
+def test_discovery_artifact_builder_persists_source_reports_and_merges_latent_bundle(
+    tmp_path,
+) -> None:
+    report_main = CausalDiscoveryReport(
+        method="pc",
+        graph=_graph([("X", "Y")]),
+        algebraic_constraints=AlgebraicConstraintReport(
+            severity="warning",
+            violated_constraints_preview=[
+                ConstraintEvaluationResult(
+                    constraint_id="ci:X_Y",
+                    family=AlgebraicConstraintFamily.CI,
+                    status="violated",
+                    severity="blocker",
+                )
+            ],
+        ),
+        latent_discovery=LatentDiscoveryBundle(
+            proposed_latent_nodes=["U_income"],
+            inducing_environments=["region"],
+            identification_conditions=["proxy_quality"],
+            falsification_tests=["negative_control_outcome"],
+            trust_level=LatentTrustLevel.RESEARCH,
+            assumption_cards=[
+                LatentAssumptionCard(
+                    assumption_id="latent_card",
+                    title="Latent confounding remains research-only",
+                    description="Observed proxies may still mask latent confounding.",
+                )
+            ],
+            no_promotion_reasons=["latent_discovery_proof_only"],
+        ),
+        metadata={"algebraic_constraint_severity": "warning"},
+    )
+    report_alt = CausalDiscoveryReport(
+        method="dagma",
+        graph=_graph([("Y", "X")]),
+        algebraic_constraints=AlgebraicConstraintReport(severity="info"),
+        metadata={"algebraic_constraint_severity": "info"},
+    )
+    hypotheses = [
+        graph_hypothesis_from_report(report_main, hypothesis_id="pc_main"),
+        graph_hypothesis_from_report(report_alt, hypothesis_id="dagma_alt"),
+    ]
+    stability = BootstrapStabilityReport(
+        bootstrap_mode=BootstrapMode.ROW,
+        config=BootstrapStabilityConfig(n_resamples=3),
+        summaries=[
+            HypothesisStabilitySummary(
+                hypothesis_id="pc_main",
+                edge_selection_frequency={"X->Y": 0.9},
+                mean_edge_stability=0.9,
+                adjustment_set_stability=0.8,
+                completed_resamples=3,
+            ),
+            HypothesisStabilitySummary(
+                hypothesis_id="dagma_alt",
+                edge_selection_frequency={"Y->X": 0.7},
+                mean_edge_stability=0.7,
+                adjustment_set_stability=0.6,
+                completed_resamples=3,
+            ),
+        ],
+    )
+    utility = DownstreamUtilityJudge().evaluate(
+        UtilityJudgeInput(
+            hypotheses=hypotheses,
+            stability_report=stability,
+            causal_query=_query(),
+        )
+    )
+    matrix = EvidenceWeightedAggregator().aggregate(hypotheses, stability, utility)
+    store = FileSystemCAS(tmp_path)
+
+    bundle_ref = DiscoveryArtifactBuilder().build(
+        store,
+        DiscoveryArtifactBuildInput(
+            run_id="R_discovery_latent",
+            task_id="task_discovery_latent",
+            variable_names=["X", "Y", "Z"],
+            causal_query=_query(),
+            hypotheses=hypotheses,
+            portfolio_result=PortfolioRunResult(
+                candidates=[
+                    PortfolioCandidate(
+                        hypothesis=hypotheses[0],
+                        source_report=report_main,
+                        method_params={"significance_level": 0.05},
+                    ),
+                    PortfolioCandidate(
+                        hypothesis=hypotheses[1],
+                        source_report=report_alt,
+                        method_params={"significance_level": 0.05},
+                    ),
+                ]
+            ),
+            edge_confidence_matrix=matrix,
+            bootstrap_stability_report=stability,
+            downstream_utility_report=utility,
+            graph_prior_bundle=GraphPriorBuilder().build(matrix, utility),
+            prior_knowledge_bundle=PriorKnowledgeBundle(),
+        ),
+    )
+
+    bundle = load_discovery_artifact_bundle(store, bundle_ref)
+    audit = load_discovery_audit_bundle(store, bundle.discovery_audit_bundle_ref)
+    loaded_hypotheses = load_graph_hypotheses_for_bundle(store, bundle)
+    source_reports = load_source_discovery_reports_for_bundle(store, bundle)
+    merged_latent = load_merged_latent_discovery_bundle(store, bundle)
+
+    assert set(audit.discovery_report_refs_by_hypothesis) == {"pc_main", "dagma_alt"}
+    assert all(
+        hypothesis.source_discovery_report_ref is not None for hypothesis in loaded_hypotheses
+    )
+    assert source_reports["pc_main"].algebraic_constraints is not None
+    assert (
+        source_reports["pc_main"].algebraic_constraints.violated_constraints_preview[0].constraint_id
+        == "ci:X_Y"
+    )
+    assert merged_latent is not None
+    assert merged_latent.readiness_cap == "proof_only"
+    assert merged_latent.promotion_allowed is False
+    assert merged_latent.metadata["source_hypothesis_ids"] == ["pc_main"]

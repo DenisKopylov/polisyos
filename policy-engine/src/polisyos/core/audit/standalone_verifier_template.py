@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+"""Public audit standalone verifier template module API."""
 from __future__ import annotations
 
 import json
@@ -458,6 +459,7 @@ def _verify_slsa(
 
 
 def main(argv: list[str] | None = None) -> int:
+    """Main helper."""
     argv = argv or sys.argv[1:]
     package = Path(argv[0]) if argv else Path.cwd().parent
     if package.is_dir():

@@ -1,3 +1,4 @@
+"""Public engine builtins package API."""
 from __future__ import annotations
 
 from polisyos.scientist.engine.builtins.emit_artifact import EmitArtifactNode
@@ -14,4 +15,5 @@ __all__ = [
 
 
 def builtin_nodes() -> list[Node]:
+    """Builtin nodes helper."""
     return [NoopNode(), SetStateNode(), EmitArtifactNode()]

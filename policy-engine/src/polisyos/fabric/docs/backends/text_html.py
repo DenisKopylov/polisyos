@@ -1,3 +1,4 @@
+"""Public backends text html module API."""
 from __future__ import annotations
 
 import re

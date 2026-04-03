@@ -1,0 +1,13 @@
+{
+  "enum": [
+    "budget_channel",
+    "compliance_channel",
+    "household_income_channel",
+    "labor_channel",
+    "procurement_channel",
+    "trade_channel"
+  ],
+  "title": "StrategicResponseChannel",
+  "type": "string",
+  "x-fqn": "polisyos.ir.observation.contracts.StrategicResponseChannel"
+}

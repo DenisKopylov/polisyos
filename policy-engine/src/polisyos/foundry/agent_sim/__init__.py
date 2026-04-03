@@ -1,3 +1,9 @@
+"""Public foundry agent sim package API."""
+from __future__ import annotations
+
+import importlib
+from typing import Any
+
 from .actor_critic import (
     ActorCritic,
     AdvantageNetwork,
@@ -189,7 +195,6 @@ from .training import (
 )
 from .vfi import OfflineVFI, VFILookupTable
 from .visualization import TrainingVisualizer, VisualizationConfig
-
 __all__ = [
     "ActorCritic",
     "AdaptiveUpdateStrategy",
@@ -208,6 +213,9 @@ __all__ = [
     "CompactDistributionState",
     "ComputeMode",
     "ConsumptionMechanism",
+    "ContractsDistributionAwareExecutor",
+    "ContractsGraphAwareExecutor",
+    "ContractsPopulationAwareExecutor",
     "CreditConfig",
     "CreditMode",
     "DeathMechanism",
@@ -233,10 +241,13 @@ __all__ = [
     "GraphSyncConfig",
     "GraphState",
     "GiftTransferMechanism",
+    "FirmLifecycleEventBatch",
+    "FirmLifecycleEventType",
     "HybridPlanner",
     "InformationDiffusionMechanism",
     "InheritanceConfig",
     "InheritanceMechanism",
+    "InterventionMechanismConfig",
     "JITTrainingConfig",
     "LaborNetworkMechanism",
     "LearningMode",
@@ -261,6 +272,7 @@ __all__ = [
     "PopulationState",
     "PolicyState",
     "PRNGState",
+    "ProcurementShockBatch",
     "PureExecutor",
     "RelativeConsumptionMechanism",
     "RewardConfig",
@@ -347,6 +359,7 @@ __all__ = [
     "initialize_population",
     "lifecycle_step",
     "maybe_update_distributions",
+    "multiplex_layer_code",
     "multi_hop_aggregation",
     "ppo_loss",
     "run_mode_a",
@@ -369,3 +382,52 @@ __all__ = [
     "training_loss_metrics",
     "train_government_policy",
 ]
+
+_LAZY_IMPORTS: dict[str, tuple[str, str]] = {
+    "ContractsDistributionAwareExecutor": (
+        "polisyos.foundry.agent_sim.wiring",
+        "ContractsDistributionAwareExecutor",
+    ),
+    "ContractsGraphAwareExecutor": (
+        "polisyos.foundry.agent_sim.wiring",
+        "ContractsGraphAwareExecutor",
+    ),
+    "ContractsPopulationAwareExecutor": (
+        "polisyos.foundry.agent_sim.wiring",
+        "ContractsPopulationAwareExecutor",
+    ),
+    "FirmLifecycleEventBatch": (
+        "polisyos.foundry.agent_sim.wiring",
+        "FirmLifecycleEventBatch",
+    ),
+    "FirmLifecycleEventType": (
+        "polisyos.foundry.agent_sim.wiring",
+        "FirmLifecycleEventType",
+    ),
+    "InterventionMechanismConfig": (
+        "polisyos.foundry.agent_sim.wiring",
+        "InterventionMechanismConfig",
+    ),
+    "ProcurementShockBatch": (
+        "polisyos.foundry.agent_sim.wiring",
+        "ProcurementShockBatch",
+    ),
+    "multiplex_layer_code": (
+        "polisyos.foundry.agent_sim.wiring",
+        "multiplex_layer_code",
+    ),
+}
+
+
+def __getattr__(name: str) -> Any:
+    if name not in _LAZY_IMPORTS:
+        raise AttributeError(f"module 'polisyos.foundry.agent_sim' has no attribute '{name}'")
+    module_name, attr_name = _LAZY_IMPORTS[name]
+    module = importlib.import_module(module_name)
+    value = getattr(module, attr_name)
+    globals()[name] = value
+    return value
+
+
+def __dir__() -> list[str]:
+    return sorted(list(globals().keys()) + list(_LAZY_IMPORTS.keys()))

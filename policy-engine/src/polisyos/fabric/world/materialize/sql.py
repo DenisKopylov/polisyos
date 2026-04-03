@@ -1,3 +1,4 @@
+"""Public materialize sql module API."""
 from __future__ import annotations
 
 from polisyos.ir.world.predicates import (
@@ -9,10 +10,12 @@ from polisyos.ir.world.predicates import (
 
 
 def sql_load_applied_segments() -> str:
+    """Sql load applied segments helper."""
     return "SELECT segment_id, segment_sha256 FROM world._meta_world_segments"
 
 
 def sql_count_new_world_facts(staging_table: str) -> str:
+    """Sql count new world facts helper."""
     return f"""
     SELECT COUNT(*)
     FROM {staging_table} s
@@ -23,6 +26,7 @@ def sql_count_new_world_facts(staging_table: str) -> str:
 
 
 def sql_insert_world_facts(staging_table: str) -> str:
+    """Sql insert world facts helper."""
     return f"""
     INSERT INTO world.world_facts (
         fact_id,
@@ -59,6 +63,7 @@ def sql_insert_world_facts(staging_table: str) -> str:
 
 
 def sql_count_new_edges(staging_table: str) -> str:
+    """Sql count new edges helper."""
     return f"""
     SELECT COUNT(*)
     FROM {staging_table} s
@@ -69,6 +74,7 @@ def sql_count_new_edges(staging_table: str) -> str:
 
 
 def sql_insert_world_edges(staging_table: str) -> str:
+    """Sql insert world edges helper."""
     return f"""
     INSERT INTO world.world_edges (
         edge_id,
@@ -103,6 +109,7 @@ def sql_insert_world_edges(staging_table: str) -> str:
 
 
 def sql_insert_missing_nodes(touched_table: str) -> str:
+    """Sql insert missing nodes helper."""
     return f"""
     INSERT INTO world.world_nodes (node_id, kind)
     SELECT DISTINCT t.node_id, 'unknown'
@@ -114,6 +121,7 @@ def sql_insert_missing_nodes(touched_table: str) -> str:
 
 
 def sql_kind_conflicts(touched_table: str) -> str:
+    """Sql kind conflicts helper."""
     return f"""
     SELECT subject_id
     FROM world.world_facts
@@ -146,6 +154,7 @@ def _sql_ranked_value(predicate_id: str, alias: str, touched_table: str) -> str:
 
 
 def sql_update_world_nodes(touched_table: str) -> str:
+    """Sql update world nodes helper."""
     label_cte = _sql_ranked_value(WORLD_LABEL, "label_choice", touched_table)
     artifact_cte = _sql_ranked_value(WORLD_ARTIFACT_ID, "artifact_choice", touched_table)
     props_cte = _sql_ranked_value(WORLD_PROPS_REF, "props_choice", touched_table)

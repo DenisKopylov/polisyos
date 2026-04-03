@@ -1,5 +1,73 @@
 {
   "$defs": {
+    "BenchmarkResult": {
+      "additionalProperties": false,
+      "description": "Cinelli-Hazlett benchmarking result relative to a named observed covariate.\n\nQuantifies how much confounding would be needed (relative to this covariate's\nassociation strength) to explain away the estimated effect.",
+      "properties": {
+        "bias_scale": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Bias Scale"
+        },
+        "covariate_name": {
+          "title": "Covariate Name",
+          "type": "string"
+        },
+        "interpretation": {
+          "default": "",
+          "title": "Interpretation",
+          "type": "string"
+        },
+        "r2td_x": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "R2Td X"
+        },
+        "r2yd_x": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "R2Yd X"
+        },
+        "rv_benchmarked": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Rv Benchmarked"
+        }
+      },
+      "required": [
+        "covariate_name"
+      ],
+      "title": "BenchmarkResult",
+      "type": "object"
+    },
     "EValueResult": {
       "additionalProperties": false,
       "properties": {
@@ -61,6 +129,20 @@
   },
   "additionalProperties": false,
   "properties": {
+    "benchmark_covariates": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Benchmark Covariates",
+      "type": "array"
+    },
+    "benchmark_results": {
+      "items": {
+        "$ref": "#/$defs/BenchmarkResult"
+      },
+      "title": "Benchmark Results",
+      "type": "array"
+    },
     "conversion_method": {
       "anyOf": [
         {

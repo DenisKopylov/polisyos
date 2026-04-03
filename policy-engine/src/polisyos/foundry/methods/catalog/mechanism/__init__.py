@@ -1,3 +1,4 @@
+"""Public catalog mechanism package API."""
 from __future__ import annotations
 
 from polisyos.foundry.methods.exceptions import MethodAlreadyRegisteredError
@@ -14,6 +15,7 @@ from .runtime import (
 
 
 def ensure_mechanism_methods_registered(registry: MethodRegistry | None = None) -> None:
+    """Ensure mechanism methods registered helper."""
     reg = registry if registry is not None else MethodRegistry.get_instance()
     for method_class in register_mechanism_methods():
         try:

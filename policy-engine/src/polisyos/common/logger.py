@@ -1,3 +1,4 @@
+"""Public common logger module API."""
 # Логгер настраивается в config.py для избежания циклических импортов
 from __future__ import annotations
 

@@ -1,3 +1,4 @@
+"""Public scholar freshness module API."""
 from __future__ import annotations
 
 import time
@@ -27,6 +28,7 @@ _DOMAIN_DAYS_DEFAULTS: dict[str, tuple[int, int, int]] = {
 
 @dataclass(frozen=True)
 class DomainThresholds:
+    """Domain thresholds public type."""
     staleness_seconds: int
     expiry_seconds: int
     cooldown_seconds: int
@@ -34,6 +36,7 @@ class DomainThresholds:
 
 @dataclass(frozen=True)
 class FreshnessCheckResult:
+    """Freshness check result data model."""
     bundle_ref: str
     status: FreshnessStatus
     age_seconds: int
@@ -68,6 +71,7 @@ def resolve_domain_thresholds(
     *,
     policy: ScholarPolicy | None = None,
 ) -> DomainThresholds:
+    """Resolve domain thresholds."""
     key = (domain or "").strip().lower()
 
     if policy is not None:
@@ -100,6 +104,7 @@ def build_freshness_metadata(
 ) -> FreshnessMetadata:
     # Keep knowledge bundle payload deterministic when source timestamps exist.
     # Mutable freshness bookkeeping is handled by FreshnessStateStore sidecar.
+    """Build freshness metadata."""
     reference_now = now or source_freshness_at or datetime(1970, 1, 1, tzinfo=timezone.utc)
     thresholds = resolve_domain_thresholds(domain, policy=policy)
     return FreshnessMetadata(
@@ -115,6 +120,7 @@ def build_freshness_metadata(
 
 
 class FreshnessPolicy:
+    """Freshness policy data model."""
     def __init__(
         self,
         *,
@@ -192,6 +198,7 @@ class FreshnessPolicy:
 
 
 def emit_freshness_metrics(result: FreshnessCheckResult) -> None:
+    """Emit freshness metrics helper."""
     metrics = get_metrics()
     record = getattr(metrics, "record_knowledge_freshness_check", None)
     if callable(record):
@@ -234,6 +241,7 @@ def timed_freshness_check(
     now: datetime | None = None,
     external_drift_signals: Mapping[str, bool] | None = None,
 ) -> FreshnessCheckResult:
+    """Timed freshness check helper."""
     started = time.perf_counter()
     result = policy.check(
         bundle_ref=bundle_ref,

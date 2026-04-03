@@ -1,3 +1,4 @@
+"""Public agent sim training config module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -7,6 +8,7 @@ from polisyos.foundry.contracts.fidelity import FidelityLevel
 
 @dataclass(frozen=True)
 class TrainingConfigBase:
+    """Training config base public type."""
     n_episodes: int = 100
     steps_per_episode: int = 64
     horizon: int = 256

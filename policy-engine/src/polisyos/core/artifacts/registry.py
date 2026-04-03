@@ -1,3 +1,4 @@
+"""Public artifacts registry module API."""
 from __future__ import annotations
 
 from pydantic import BaseModel, ConfigDict
@@ -6,6 +7,7 @@ from .manifest import ArtifactRef
 
 
 class RegistryBundlePayload(BaseModel):
+    """Registry bundle payload public type."""
     model_config = ConfigDict(extra="forbid")
     slot_registry: ArtifactRef
     merge_registry: ArtifactRef
@@ -20,6 +22,7 @@ class RegistryBundlePayload(BaseModel):
 
 
 class RegistryBundle(RegistryBundlePayload):
+    """Registry bundle data model."""
     model_config = ConfigDict(extra="forbid")
 
     bundle_ref: ArtifactRef

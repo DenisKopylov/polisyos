@@ -482,8 +482,8 @@ def test_missing_algebraic_metadata_defaults_to_clean_discovery_consistency() ->
     hypothesis = _hypothesis(
         hypothesis_id="candidate",
         graph=_dag_graph(),
-        method=DiscoveryMethod.DAGMA,
-        algorithm_family=DiscoveryAlgorithmFamily.SCORE_BASED,
+        method=DiscoveryMethod.PAIRWISE_HEURISTIC,
+        algorithm_family=DiscoveryAlgorithmFamily.FUNCTIONAL,
     )
     stability_report = _stability_report(
         HypothesisStabilitySummary(
@@ -503,3 +503,33 @@ def test_missing_algebraic_metadata_defaults_to_clean_discovery_consistency() ->
 
     assert report.scores[0].algebraic_severity is None
     assert report.scores[0].discovery_consistency_score == pytest.approx(1.0, rel=1e-6)
+
+
+def test_runtime_auditable_hypothesis_missing_algebraic_stamp_degrades_to_warning() -> None:
+    hypothesis = _hypothesis(
+        hypothesis_id="candidate",
+        graph=_dag_graph(),
+        method=DiscoveryMethod.DAGMA,
+        algorithm_family=DiscoveryAlgorithmFamily.SCORE_BASED,
+    )
+    hypothesis = hypothesis.model_copy(
+        update={"metadata": {"portfolio_method": "dagma", "report_method": "dagma"}}
+    )
+    stability_report = _stability_report(
+        HypothesisStabilitySummary(
+            hypothesis_id="candidate",
+            mean_edge_stability=0.5,
+            completed_resamples=5,
+        )
+    )
+
+    report = DownstreamUtilityJudge().evaluate(
+        UtilityJudgeInput(
+            hypotheses=[hypothesis],
+            stability_report=stability_report,
+            causal_query=_query(),
+        )
+    )
+
+    assert report.scores[0].algebraic_severity == "warning"
+    assert report.scores[0].discovery_consistency_score == pytest.approx(0.65, rel=1e-6)

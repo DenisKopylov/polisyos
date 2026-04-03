@@ -1,37 +1,28 @@
-# `polisyos.common.migrations`
+# Common Migrations (`polisyos.common.migrations`)
 
-Локальный migration-слой для артефактов, схемами которых владеет `polisyos.common`.
+`polisyos.common.migrations` owns the local migration registry for artifacts whose schema is managed
+by `polisyos.common`.
 
-## Состав пакета
+## Role in System
 
-```text
-migrations/
-├── __init__.py   # экспорт API
-├── base.py       # реестр миграций и executor цепочки
-└── manifest.py   # миграция dataset_manifest: 0.9 -> 1.0
-```
+- **Depends on:** the local migration registry and artifact-specific migration handlers.
+- **Used by:** bootstrap and migration tooling that needs to rewrite common-owned artifact payloads.
+- **Boundary function:** keeps common-owned migration logic separate from `polisyos.ir.migrations`.
 
-## Публичный контракт
+## Key Concepts
 
-- `register_migration(artifact, from_version, to_version)` — регистрирует шаг миграции;
-- `migrate_artifact(data, artifact, target_version)` — применяет шаги до целевой версии;
-- `MANIFEST_CURRENT_VERSION` — текущая версия `dataset_manifest`.
+- **Registry** - migrations are registered per artifact and chained by version.
+- **Executor** - `migrate_artifact()` applies the chain to a target version.
+- **Manifest migration** - the current packaged migration handles `dataset_manifest`.
 
-Входные данные обязаны содержать `schema_version`; при цикле или разрыве цепочки функция кидает `ValueError`.
+## Public API
 
-## Текущее покрытие (март 2026)
+- `register_migration`
+- `migrate_artifact`
+- `MANIFEST_CURRENT_VERSION`
 
-- артефакт: `dataset_manifest`;
-- цепочка: `0.9 -> 1.0`;
-- шаг `0.9 -> 1.0` в `manifest.py` нормализует старые поля:
-  - `datasetName` -> `dataset_name`;
-  - `rawHash` -> `raw_hash`.
+## Current State
 
-## Границы ответственности
-
-- `policy_ir` сюда не входит; его миграции живут в `polisyos.ir.migrations`;
-- `run_manifest` в CLI обрабатывается отдельно и не использует реестр этого пакета.
-
-## Известный интеграционный нюанс
-
-`policy-engine/migrate.py` и `policy-engine/tools/migrations/migrate.py` импортируют `POLICY_IR_CURRENT_VERSION` из `polisyos.common.migrations`, но этот символ здесь не экспортируется. Для версии IR нужно использовать `polisyos.ir.migrations`.
+- Last updated: 2026-04-03
+- Coverage still centers on `dataset_manifest` with a `0.9 -> 1.0` migration.
+- The package does not export `POLICY_IR_CURRENT_VERSION`; IR migrations remain owned by `polisyos.ir.migrations`.

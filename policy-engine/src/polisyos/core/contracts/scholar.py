@@ -22,6 +22,7 @@ _ID_RE = re.compile(ID_PATTERN)
 
 
 class TimeWindow(BaseModel):
+    """Time window public type."""
     model_config = ConfigDict(extra="forbid")
 
     start: str | None = None
@@ -33,6 +34,7 @@ SourceKind = Literal["local_file", "bytes", "url"]
 
 
 class SourceSpec(BaseModel):
+    """Source spec data model."""
     model_config = ConfigDict(extra="forbid")
 
     kind: SourceKind
@@ -83,6 +85,7 @@ class SourceSpec(BaseModel):
 
 
 class BudgetsV1(BaseModel):
+    """Budgets V 1 public type."""
     model_config = ConfigDict(extra="forbid")
 
     max_docs: int | None = Field(default=None, ge=1)
@@ -92,6 +95,7 @@ class BudgetsV1(BaseModel):
 
 
 class ThresholdsV1(BaseModel):
+    """Thresholds V 1 public type."""
     model_config = ConfigDict(extra="forbid")
 
     min_doc_trust_tier: TrustTier = TrustTier.MEDIUM
@@ -140,16 +144,19 @@ class ResearchIntent(BaseModel):
 
 
 class ResearchIntentRef(ArtifactRef):
+    """Research intent ref data model."""
     kind: Literal["scholar.research_intent"] = "scholar.research_intent"
     media_type: Literal["application/json"] = "application/json"
 
 
 class KnowledgeBundleRef(ArtifactRef):
+    """Knowledge bundle ref data model."""
     kind: Literal["scholar.knowledge_bundle"] = "scholar.knowledge_bundle"
     media_type: Literal["application/json"] = "application/json"
 
 
 class EnrichmentReportRef(ArtifactRef):
+    """Enrichment report ref data model."""
     kind: Literal["scholar.enrichment_report"] = "scholar.enrichment_report"
     media_type: Literal["application/json"] = "application/json"
 
@@ -213,6 +220,7 @@ class FreshnessMetadata(BaseModel):
 
 
 class KnowledgeBundle(BaseModel):
+    """Knowledge bundle data model."""
     model_config = ConfigDict(extra="forbid")
 
     intent: ResearchIntent | None = None

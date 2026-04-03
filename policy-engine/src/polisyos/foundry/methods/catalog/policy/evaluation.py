@@ -1,3 +1,4 @@
+"""Public policy evaluation module API."""
 from __future__ import annotations
 
 from typing import Any, ClassVar, Mapping
@@ -34,6 +35,7 @@ def _result_slot() -> frozenset[SlotSpec]:
     tags={"policy", "evaluation", "budget-impact", "fiscal", "structural"},
 )
 class BudgetImpactEstimator:
+    """Budget impact estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -109,6 +111,7 @@ class BudgetImpactEstimator:
     tags={"policy", "evaluation", "scorecard", "structural"},
 )
 class PolicyScorecardEstimator:
+    """Policy scorecard estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -184,6 +187,7 @@ class PolicyScorecardEstimator:
     tags={"policy", "evaluation", "ex-ante", "counterfactual", "structural"},
 )
 class ExAnteSimulationEstimator:
+    """Ex ante simulation estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 

@@ -12,6 +12,7 @@ TENANT_HEADER = "X-Tenant-ID"
 
 @dataclass(frozen=True)
 class RoutingResult:
+    """Routing result data model."""
     tenant_id: str
     cell_id: str
     cell_slug: str
@@ -32,6 +33,7 @@ def resolve_routing(
     registry: CellRegistry,
     tenant_header: str = TENANT_HEADER,
 ) -> RoutingResult:
+    """Resolve routing."""
     tenant_id = headers.get(tenant_header) or headers.get(tenant_header.lower())
     if not tenant_id:
         raise MissingTenantHeaderError(f"Missing required header: {tenant_header}")

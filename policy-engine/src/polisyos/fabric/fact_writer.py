@@ -1,3 +1,4 @@
+"""Public fabric fact writer module API."""
 from __future__ import annotations
 
 import json
@@ -91,6 +92,7 @@ def facts_from_dataframe(
     target_field: str | None = None,
     trust_policy_id: str | None = None,
 ) -> list[Fact]:
+    """Facts from dataframe helper."""
     facts: list[Fact] = []
     for _, row in df.iterrows():
         subject_id = str(row[subject_field])
@@ -137,6 +139,7 @@ def write_fact_segment(
     segment_dir: Path,
     segment_name: str,
 ) -> FactSegmentManifest:
+    """Write fact segment helper."""
     segment_dir.mkdir(parents=True, exist_ok=True)
     segment_id = f"{segment_name}_{int(time.time())}"
     segment_path = segment_dir / f"{segment_id}.parquet"

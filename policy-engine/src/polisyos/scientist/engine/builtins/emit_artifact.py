@@ -1,3 +1,4 @@
+"""Public builtins emit artifact module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -27,6 +28,7 @@ _EMIT_SPEC = NodeSpec(
 
 @dataclass(frozen=True)
 class EmitArtifactNode:
+    """Emit artifact node implementation."""
     params: dict[str, object] | None = None
 
     @property

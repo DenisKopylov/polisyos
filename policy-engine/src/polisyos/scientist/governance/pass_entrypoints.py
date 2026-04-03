@@ -1,3 +1,4 @@
+"""Public governance pass entrypoints module API."""
 from __future__ import annotations
 
 from collections.abc import Callable
@@ -8,9 +9,11 @@ from polisyos.core.governance.passes.legal_pass import LegalPass
 from polisyos.core.governance.passes.safety_pass import SafetyPass
 
 from .passes.budget_pass import BudgetPass
+from .passes.checkpoint_pass import CheckpointPass
 from .passes.confidence_pass import ConfidencePass
 from .passes.cross_graph_evidence_pass import CrossGraphEvidencePass
 from .passes.equity_pass import EquityPass
+from .passes.freshness_pass import FreshnessPass
 from .passes.human_review_pass import HumanReviewRequiredPass
 from .passes.literature_gate_pass import LiteratureGatePass
 from .passes.normative_arbitration_pass import NormativeArbitrationPass
@@ -20,79 +23,114 @@ from .passes.quality_gate_pass import QualityGatePass
 from .passes.refutation_pass import RefutationPass
 from .passes.schema_pass import SchemaPass
 from .passes.sutva_check_pass import SutvaCheckPass
+from .passes.strategic_response_pass import StrategicResponsePass
 from .passes.transportability_required_pass import TransportabilityRequiredPass
 
 
 def budget_pass_factory() -> ValidatorPass:
+    """Budget pass factory helper."""
     return BudgetPass()
 
 
+def checkpoint_pass_factory() -> ValidatorPass:
+    """Checkpoint pass factory helper."""
+    return CheckpointPass()
+
+
 def schema_pass_factory() -> ValidatorPass:
+    """Schema pass factory helper."""
     return SchemaPass()
 
 
 def privacy_pass_factory() -> ValidatorPass:
+    """Privacy pass factory helper."""
     return PrivacyPass()
 
 
 def pii_check_pass_factory() -> ValidatorPass:
+    """Pii check pass factory helper."""
     return PIICheckPass()
 
 
+def freshness_pass_factory() -> ValidatorPass:
+    """Freshness pass factory helper."""
+    return FreshnessPass()
+
+
 def sutva_check_pass_factory() -> ValidatorPass:
+    """Sutva check pass factory helper."""
     return SutvaCheckPass()
 
 
 def transportability_required_pass_factory() -> ValidatorPass:
+    """Transportability required pass factory helper."""
     return TransportabilityRequiredPass()
 
 
+def strategic_response_pass_factory() -> ValidatorPass:
+    """Strategic response pass factory helper."""
+    return StrategicResponsePass()
+
+
 def safety_pass_factory() -> ValidatorPass:
+    """Safety pass factory helper."""
     return SafetyPass()
 
 
 def equity_pass_factory() -> ValidatorPass:
+    """Equity pass factory helper."""
     return EquityPass()
 
 
 def cross_graph_evidence_pass_factory() -> ValidatorPass:
+    """Cross graph evidence pass factory helper."""
     return CrossGraphEvidencePass()
 
 
 def literature_gate_pass_factory() -> ValidatorPass:
+    """Literature gate pass factory helper."""
     return LiteratureGatePass()
 
 
 def normative_arbitration_pass_factory() -> ValidatorPass:
+    """Normative arbitration pass factory helper."""
     return NormativeArbitrationPass()
 
 
 def legal_pass_factory() -> ValidatorPass:
+    """Legal pass factory helper."""
     return LegalPass(backend=StubBackend())
 
 
 def confidence_pass_factory() -> ValidatorPass:
+    """Confidence pass factory helper."""
     return ConfidencePass()
 
 
 def refutation_pass_factory() -> ValidatorPass:
+    """Refutation pass factory helper."""
     return RefutationPass()
 
 
 def human_review_required_pass_factory() -> ValidatorPass:
+    """Human review required pass factory helper."""
     return HumanReviewRequiredPass()
 
 
 def quality_gate_pass_factory() -> ValidatorPass:
+    """Quality gate pass factory helper."""
     return QualityGatePass()
 
 
 def builtin_governance_pass_factories() -> dict[str, Callable[[], ValidatorPass]]:
+    """Builtin governance pass factories helper."""
     return {
         "budget": budget_pass_factory,
+        "checkpoint": checkpoint_pass_factory,
         "confidence": confidence_pass_factory,
         "cross_graph_evidence": cross_graph_evidence_pass_factory,
         "equity": equity_pass_factory,
+        "freshness": freshness_pass_factory,
         "human_review_required": human_review_required_pass_factory,
         "legal": legal_pass_factory,
         "literature_gate": literature_gate_pass_factory,
@@ -103,6 +141,7 @@ def builtin_governance_pass_factories() -> dict[str, Callable[[], ValidatorPass]
         "refutation": refutation_pass_factory,
         "safety": safety_pass_factory,
         "schema": schema_pass_factory,
+        "strategic_response": strategic_response_pass_factory,
         "sutva_check": sutva_check_pass_factory,
         "transportability_required": transportability_required_pass_factory,
     }
@@ -110,9 +149,12 @@ def builtin_governance_pass_factories() -> dict[str, Callable[[], ValidatorPass]
 
 __all__ = [
     "budget_pass_factory",
+    "checkpoint_pass_factory",
     "schema_pass_factory",
     "privacy_pass_factory",
     "pii_check_pass_factory",
+    "freshness_pass_factory",
+    "strategic_response_pass_factory",
     "sutva_check_pass_factory",
     "transportability_required_pass_factory",
     "safety_pass_factory",

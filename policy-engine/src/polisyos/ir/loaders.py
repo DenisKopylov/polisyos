@@ -1,3 +1,4 @@
+"""Public ir loaders module API."""
 from __future__ import annotations
 
 import json
@@ -7,6 +8,7 @@ from polisyos.ir.trinity import TrinityBundle
 
 
 class PolicyLoadError(ValueError):
+    """Policy load error exception."""
     pass
 
 

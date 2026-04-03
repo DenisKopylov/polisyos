@@ -1,3 +1,5 @@
+"""Public facade for Fabric world-query, catalog, and ingestion APIs."""
+
 from __future__ import annotations
 
 import importlib

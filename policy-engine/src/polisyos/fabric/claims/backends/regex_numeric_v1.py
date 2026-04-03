@@ -1,3 +1,4 @@
+"""Public backends regex numeric v 1 module API."""
 from __future__ import annotations
 
 import re
@@ -21,6 +22,7 @@ def extract(
     normalized_text: str,
     options: ClaimExtractOptions,
 ) -> list[ClaimCandidate]:
+    """Extract helper."""
     chunk_text = normalized_text[ctx.offset_start : ctx.offset_end]
     max_per_chunk = options.max_claims_per_chunk
 

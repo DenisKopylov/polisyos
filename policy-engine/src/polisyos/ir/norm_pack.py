@@ -1,3 +1,4 @@
+"""Public ir norm pack module API."""
 from __future__ import annotations
 
 import ast

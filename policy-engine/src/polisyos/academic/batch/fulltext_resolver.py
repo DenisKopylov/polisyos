@@ -74,6 +74,7 @@ _NON_PDF_BINARY_PREFIXES = (
 
 @dataclass(frozen=True)
 class FullTextFetchAttempt:
+    """Full text fetch attempt public type."""
     work_id: str
     attempt_kind: str
     candidate_priority: int
@@ -92,6 +93,7 @@ class FullTextFetchAttempt:
 
 @dataclass(frozen=True)
 class FullTextFetchResult:
+    """Full text fetch result data model."""
     text: str
     source_kind: str
     source_url: str
@@ -114,6 +116,7 @@ class _URLCandidate:
 
 
 def reconstruct_abstract(work: dict[str, Any]) -> str:
+    """Reconstruct abstract helper."""
     direct = str(work.get("abstract") or "").strip()
     if direct:
         return direct
@@ -592,6 +595,7 @@ def load_resolved_fulltext_cache(
     *,
     ttl_days: int,
 ) -> dict[str, dict[str, Any]]:
+    """Load resolved fulltext cache."""
     cache: dict[str, dict[str, Any]] = {}
     if not path.exists():
         return cache
@@ -1586,6 +1590,7 @@ def _load_selected_works(path: Path) -> list[dict[str, Any]]:
 
 
 async def run_fulltext_resolve(config: AcademicBatchConfig) -> dict[str, int]:
+    """Run fulltext resolve."""
     started_at = datetime.now(UTC).isoformat()
     rows = _load_selected_works(config.selected_global_works_path)
     if not rows:

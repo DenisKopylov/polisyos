@@ -1,3 +1,4 @@
+"""Public artifacts io module API."""
 from __future__ import annotations
 
 from typing import Any, Sequence
@@ -27,6 +28,7 @@ def put_json_artifact(
     inputs: Sequence[Any] | None = None,
     canon_spec: CanonSpec | None = None,
 ) -> dict[str, str]:
+    """Put json artifact helper."""
     canon_spec = canon_spec or CanonSpec()
     options = PutOptions(
         kind=kind,
@@ -44,10 +46,12 @@ def put_json_artifact(
 
 
 def get_json_artifact(store: ArtifactStore, artifact_id: ArtifactID) -> Any:
+    """Return json artifact."""
     return from_canonical_bytes(store.get_bytes(artifact_id))
 
 
 def normalize_input_sequence(inputs: Sequence[Any] | None) -> list[InputRef]:
+    """Normalize input sequence helper."""
     return normalize_input_refs(inputs)
 
 

@@ -252,7 +252,7 @@ def _beta_continued_fraction(a: float, b: float, x: float, max_iter: int = 200) 
 @foundry_method(
     namespace="causal.diagnostics.invariance",
     version="1.0.0",
-    tags={"causal", "diagnostics", "invariance", "ks-test", "multi-domain"},
+    tags={"causal", "diagnostics", "invariance", "ks-test", "multi-domain", "cross-section"},
 )
 class KSInvarianceTest:
     """Kolmogorov-Smirnov distribution invariance test across domains.
@@ -428,7 +428,7 @@ class KSInvarianceTest:
 @foundry_method(
     namespace="causal.diagnostics.invariance",
     version="1.0.0",
-    tags={"causal", "diagnostics", "invariance", "icp", "multi-domain"},
+    tags={"causal", "diagnostics", "invariance", "icp", "multi-domain", "cross-section"},
 )
 class ICPInvarianceTest:
     """Invariant Causal Prediction (ICP)-style invariance test.
@@ -616,6 +616,7 @@ def build_environment_audit_report(
     provenance_refs: list[str] | None = None,
     metadata: Mapping[str, Any] | None = None,
 ) -> EnvironmentAuditReport:
+    """Build environment audit report."""
     warnings: list[str] = []
     audit_metadata = dict(metadata or {})
     normalized_correction = _normalize_correction(correction, warnings)

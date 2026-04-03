@@ -1,3 +1,4 @@
+"""Public linker reports module API."""
 from __future__ import annotations
 
 from enum import Enum
@@ -11,12 +12,14 @@ SCHEMA_VERSION_PATTERN = r"^\d+\.\d+$"
 
 
 class LinkSeverity(str, Enum):
+    """Link severity public type."""
     ERROR = "error"
     WARNING = "warning"
     INFO = "info"
 
 
 class LinkIssueCode(str, Enum):
+    """Link issue code public type."""
     UNKNOWN_UNIT = "unknown_unit"
     UNKNOWN_CONCEPT = "unknown_concept"
     MISSING_SLOT = "missing_slot"
@@ -58,6 +61,7 @@ class LinkIssueCode(str, Enum):
 
 
 class LinkIssue(KernelModel):
+    """Link issue data model."""
     severity: LinkSeverity = LinkSeverity.ERROR
     code: LinkIssueCode
     message: str
@@ -67,6 +71,7 @@ class LinkIssue(KernelModel):
 
 
 class LinkReport(KernelModel):
+    """Link report data model."""
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     ok: bool
     issues: list[LinkIssue] = Field(default_factory=list)

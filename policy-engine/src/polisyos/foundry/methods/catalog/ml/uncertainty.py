@@ -1,3 +1,4 @@
+"""Public ml uncertainty module API."""
 from __future__ import annotations
 
 from typing import Any, ClassVar, Mapping
@@ -45,6 +46,7 @@ def _prediction_payload(state: Any) -> PredictionResult:
     tags={"ml", "uncertainty", "conformal-prediction"},
 )
 class ConformalPredictionEstimator:
+    """Conformal prediction estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -86,6 +88,10 @@ class ConformalPredictionEstimator:
         description="Split-conformal style residual intervals over an upstream prediction result.",
         tags=frozenset({"ml", "uncertainty", "conformal-prediction"}),
         when_to_use="Distribution-free prediction intervals with coverage guarantee; any black-box model",
+        citations=(
+            "Vovk, V., Gammerman, A. & Shafer, G. (2005). Algorithmic Learning in a Random World. Springer.",
+            "Romano, Y., Patterson, E. & Candes, E. (2019). Conformalized quantile regression. NeurIPS, 32.",
+        ),
         when_not_to_use="Need conditional coverage (use CQR); calibration set too small (<50 obs)",
         output_interpretation="Prediction set with 1-α marginal coverage guarantee. Width indicates uncertainty.",
         typical_min_obs=50,

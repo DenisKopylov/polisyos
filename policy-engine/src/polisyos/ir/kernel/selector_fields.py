@@ -1,3 +1,4 @@
+"""Public kernel selector fields module API."""
 from __future__ import annotations
 
 from pydantic import Field, model_validator
@@ -7,6 +8,7 @@ from .slots import SlotScope
 
 
 class SelectorFieldSpec(KernelModel):
+    """Selector field spec data model."""
     field_id: str = Field(..., pattern=ID_PATTERN)
     scope: SlotScope
     state_path: str | None = Field(None, max_length=200)
@@ -14,6 +16,7 @@ class SelectorFieldSpec(KernelModel):
 
 
 class SelectorFieldRegistry(KernelModel):
+    """Selector field registry implementation."""
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
     fields: dict[str, SelectorFieldSpec] = Field(default_factory=dict)
     notes: list[str] = Field(default_factory=list)
@@ -64,11 +67,35 @@ DEFAULT_SELECTOR_FIELD_REGISTRY = SelectorFieldRegistry(
             state_path="agents.is_employed",
             description="Employment flag",
         ),
+        "household_cell_id": SelectorFieldSpec(
+            field_id="household_cell_id",
+            scope=SlotScope.PER_AGENT,
+            state_path="agents.household_cell_id",
+            description="Household cell identifier",
+        ),
         "sector": SelectorFieldSpec(
             field_id="sector",
             scope=SlotScope.PER_FIRM,
             state_path="firms.sector_id",
             description="Economic sector",
+        ),
+        "firm_cell_id": SelectorFieldSpec(
+            field_id="firm_cell_id",
+            scope=SlotScope.PER_FIRM,
+            state_path="firms.cell_id",
+            description="Firm cell identifier",
+        ),
+        "region_code": SelectorFieldSpec(
+            field_id="region_code",
+            scope=SlotScope.PER_CELL,
+            state_path="cells.region_code",
+            description="Cell region code",
+        ),
+        "sector_id": SelectorFieldSpec(
+            field_id="sector_id",
+            scope=SlotScope.PER_CELL,
+            state_path="cells.sector_id",
+            description="Cell sector identifier",
         ),
         "employment_status": SelectorFieldSpec(
             field_id="employment_status",

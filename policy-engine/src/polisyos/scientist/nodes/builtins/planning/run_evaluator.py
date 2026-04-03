@@ -1,3 +1,4 @@
+"""Public planning run evaluator module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -60,6 +61,7 @@ _SPEC = NodeSpec(
 
 @dataclass(frozen=True)
 class RunEvaluatorNode:
+    """Run evaluator node implementation."""
     @property
     def spec(self) -> NodeSpec:
         return _SPEC

@@ -1,3 +1,4 @@
+"""Public agent sim visualization module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -33,6 +34,7 @@ def _import_plotly():
 
 @dataclass
 class VisualizationConfig:
+    """Visualization config data model."""
     output_dir: Path = Path("./viz_output")
     format: str = "png"
     dpi: int = 150
@@ -42,6 +44,7 @@ class VisualizationConfig:
 
 
 class TrainingVisualizer:
+    """Training visualizer public type."""
     def __init__(self, config: VisualizationConfig | None = None):
         self.config = config or VisualizationConfig()
         self.config.output_dir.mkdir(parents=True, exist_ok=True)

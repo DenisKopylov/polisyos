@@ -1,3 +1,4 @@
+"""Public causal transport bounds module API."""
 from __future__ import annotations
 
 from collections.abc import Mapping

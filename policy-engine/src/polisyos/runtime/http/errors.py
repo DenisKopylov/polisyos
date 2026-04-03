@@ -1,3 +1,4 @@
+"""Public http errors module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -45,6 +46,7 @@ def build_problem(
     type_uri: str | None = None,
     error: str | None = None,
 ) -> RuntimeApiProblem:
+    """Build problem."""
     resolved_title = title or _title_for_code(code, fallback="Runtime API error")
     resolved_type = type_uri or _DEFAULT_TYPE_BY_STATUS.get(status_code, "about:blank")
     resolved_error = error or code
@@ -73,6 +75,7 @@ def problem_response(
     error: str | None = None,
     extensions: dict[str, Any] | None = None,
 ) -> Any:
+    """Problem response helper."""
     if JSONResponse is None:
         raise RuntimeError("problem_response requires fastapi/starlette dependencies")
     payload = build_problem(
@@ -97,6 +100,7 @@ def problem_response(
 
 @dataclass(frozen=True)
 class RuntimeHTTPError(Exception):
+    """Runtime HTTP error exception."""
     status_code: int
     error: str
     detail: str
@@ -119,10 +123,12 @@ class RuntimeHTTPError(Exception):
 
 
 def bad_request(detail: str, *, code: str = "bad_request") -> RuntimeHTTPError:
+    """Bad request helper."""
     return RuntimeHTTPError(status_code=400, error="bad_request", detail=detail, code=code)
 
 
 def forbidden(detail: str, *, code: str = "forbidden") -> RuntimeHTTPError:
+    """Forbidden helper."""
     return RuntimeHTTPError(status_code=403, error="forbidden", detail=detail, code=code)
 
 
@@ -131,6 +137,7 @@ def unprocessable_entity(
     *,
     code: str = "unprocessable_entity",
 ) -> RuntimeHTTPError:
+    """Unprocessable entity helper."""
     return RuntimeHTTPError(
         status_code=422,
         error="request_validation_failed",
@@ -140,14 +147,17 @@ def unprocessable_entity(
 
 
 def not_found(detail: str, *, code: str = "not_found") -> RuntimeHTTPError:
+    """Not found helper."""
     return RuntimeHTTPError(status_code=404, error="not_found", detail=detail, code=code)
 
 
 def internal_error(detail: str, *, code: str = "internal_error") -> RuntimeHTTPError:
+    """Internal error helper."""
     return RuntimeHTTPError(status_code=500, error="internal_error", detail=detail, code=code)
 
 
 def install_exception_handlers(app: FastAPI) -> None:
+    """Install exception handlers helper."""
     if JSONResponse is None:
         return
 

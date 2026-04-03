@@ -1,3 +1,4 @@
+"""Public components protocols module API."""
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Callable, Protocol, runtime_checkable
@@ -22,6 +23,7 @@ ComponentFactory = Callable[[], Component]
 
 @runtime_checkable
 class SupportsValidation(Protocol):
+    """Supports validation public type."""
     def validate(self, host: "HostAbi") -> list["ComplianceIssue"]:  # pragma: no cover - Protocol signature
         ...
 

@@ -1,3 +1,4 @@
+"""Public planning compile cross graph evidence module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -38,6 +39,7 @@ from polisyos.scientist.evidence_sources import (
     normalize_evidence_sources_config,
     update_source_status,
 )
+from polisyos.ir.analytics.literature import load_literature_causal_prior
 from polisyos.scientist.cross_graph.feedback import (
     append_need_backlog,
     build_need_backlog,
@@ -50,6 +52,7 @@ from polisyos.scientist.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF,
+    ARTIFACT_LITERATURE_PRIOR_REF,
     ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF,
     INPUT_GRAPH_PRIOR_BUNDLE_REF,
     INPUT_TRINITY_BUNDLE_REF,
@@ -70,6 +73,7 @@ _SPEC = NodeSpec(
     state_reads=[
         f"inputs.{INPUT_TRINITY_BUNDLE_REF}",
         f"inputs.{INPUT_GRAPH_PRIOR_BUNDLE_REF}",
+        f"artifacts_index.{ARTIFACT_LITERATURE_PRIOR_REF}",
         f"artifacts_index.{ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF}",
         "policy_request_ref",
         "params.cross_graph_evidence_config",
@@ -89,6 +93,7 @@ _SPEC = NodeSpec(
 
 @dataclass(frozen=True)
 class CompileCrossGraphEvidenceNode:
+    """Compile cross graph evidence node implementation."""
     @property
     def spec(self) -> NodeSpec:
         return _SPEC
@@ -171,18 +176,30 @@ class CompileCrossGraphEvidenceNode:
 
         inputs: list[InputRef] = []
         if trinity_ref is not None:
-            inputs.append(InputRef(artifact_id=trinity_ref.artifact_id, role="trinity_bundle"))
+            inputs.append(
+                InputRef(artifact_id=str(trinity_ref.artifact_id), role="trinity_bundle")
+            )
         graph_prior_ref = state.inputs.get(INPUT_GRAPH_PRIOR_BUNDLE_REF)
         if graph_prior_ref is not None:
             inputs.append(
                 InputRef(
-                    artifact_id=graph_prior_ref.artifact_id,
+                    artifact_id=str(graph_prior_ref.artifact_id),
                     role="graph_prior_bundle",
                 )
             )
         graph_ref = state.artifacts_index.get(ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF)
         if graph_ref is not None:
-            inputs.append(InputRef(artifact_id=graph_ref.artifact_id, role="causal_graph"))
+            inputs.append(
+                InputRef(artifact_id=str(graph_ref.artifact_id), role="causal_graph")
+            )
+        literature_prior_ref = state.artifacts_index.get(ARTIFACT_LITERATURE_PRIOR_REF)
+        if literature_prior_ref is not None:
+            inputs.append(
+                InputRef(
+                    artifact_id=str(literature_prior_ref.artifact_id),
+                    role="literature_prior",
+                )
+            )
 
         try:
             if trinity_ref is None:
@@ -208,10 +225,21 @@ class CompileCrossGraphEvidenceNode:
             else:
                 payload = from_canonical_bytes(ctx.store.get_bytes(trinity_ref.artifact_id))
                 bundle = TrinityBundle.model_validate(payload)
+                literature_prior = (
+                    load_literature_causal_prior(ctx.store, literature_prior_ref)
+                    if literature_prior_ref is not None
+                    else None
+                )
                 profile = CrossGraphEvidenceCompiler(config).compile(
                     bundle,
                     target_context=target_context,
                     causal_graph=causal_graph,
+                    literature_prior=literature_prior,
+                    literature_prior_ref=(
+                        str(literature_prior_ref.artifact_id)
+                        if literature_prior_ref is not None
+                        else None
+                    ),
                 )
         except Exception as exc:
             profile = CrossGraphEvidenceProfile(
@@ -675,6 +703,7 @@ def _maybe_emit_feedback_outputs(
 
 
 def json_dumps(payload: dict[str, Any]) -> str:
+    """Json dumps helper."""
     import json
 
     return json.dumps(payload, ensure_ascii=False, indent=2)

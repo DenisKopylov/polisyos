@@ -1,3 +1,4 @@
+"""Public data enrich knowledge module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -54,6 +55,7 @@ _SPEC = NodeSpec(
 
 @dataclass(frozen=True)
 class EnrichKnowledgeNode:
+    """Enrich knowledge node implementation."""
     auto_refresh_on_stale: bool = True
     block_on_expired: bool = False
     refresh_cooldown_seconds: int = 3600

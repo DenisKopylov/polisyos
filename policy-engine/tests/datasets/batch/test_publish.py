@@ -70,6 +70,9 @@ def _write_qc_and_benchmark(
     source_preflight=100.0,
     qc_passed=True,
     source_status: str = "complete",
+    evaluation_mode: str = "full-ready",
+    mismatch_rate: float = 0.0,
+    blocking_mismatch_sources: int = 0,
 ) -> None:
     with open(config.qc_report_path, "w", encoding="utf-8") as fh:
         json.dump(
@@ -100,12 +103,15 @@ def _write_qc_and_benchmark(
         json.dump(
             {
                 "kind": "datasets_benchmark",
+                "evaluation_mode": evaluation_mode,
                 "metrics": {
                     "benchmark_search_top5_relevance_pct": search,
                     "benchmark_retrieval_ready_pct": retrieval,
                     "benchmark_transport_ready_pct": transport,
                     "benchmark_foundry_fitness_pct": foundry,
                     "benchmark_source_preflight_ready_pct": source_preflight,
+                    "benchmark_bulk_equivalence_mismatch_rate": mismatch_rate,
+                    "benchmark_bulk_equivalence_blocking_sources_total": blocking_mismatch_sources,
                 },
                 "thresholds": READINESS_THRESHOLDS,
                 "source_preflight": {
@@ -194,3 +200,38 @@ def test_run_publish_blocks_when_blocking_source_status_is_missing(tmp_path) -> 
         assert "missing blocking source statuses" in str(exc)
     else:
         raise AssertionError("Expected missing source status gate to block")
+
+
+def test_run_publish_allows_core_ready_snapshot(tmp_path) -> None:
+    registry_path = tmp_path / "registry.yaml"
+    _write_test_registry(registry_path)
+    config = DatasetBatchConfig(snapshot_root=tmp_path / "snap", registry_path=registry_path)
+    _build_publish_fixture(config)
+    _write_qc_and_benchmark(config, evaluation_mode="core-ready")
+
+    manifest_path = run_publish(config)
+
+    with open(config.consumer_readiness_path, "r", encoding="utf-8") as fh:
+        readiness_payload = json.load(fh)
+    with open(manifest_path, "r", encoding="utf-8") as fh:
+        manifest_payload = json.load(fh)
+
+    assert readiness_payload["readiness"]["consumer_ready"] is True
+    assert readiness_payload["readiness"]["full_publish_ready"] is False
+    assert readiness_payload["publish_mode"] == "core-ready"
+    assert manifest_payload["extra"]["evaluation_mode"] == "core-ready"
+
+
+def test_run_publish_blocks_partial_eval_even_if_thresholds_pass(tmp_path) -> None:
+    registry_path = tmp_path / "registry.yaml"
+    _write_test_registry(registry_path)
+    config = DatasetBatchConfig(snapshot_root=tmp_path / "snap", registry_path=registry_path)
+    _build_publish_fixture(config)
+    _write_qc_and_benchmark(config, evaluation_mode="partial-eval")
+
+    try:
+        run_publish(config)
+    except RuntimeError as exc:
+        assert "consumer readiness failed" in str(exc)
+    else:
+        raise AssertionError("Expected partial-eval publish to stay blocked")

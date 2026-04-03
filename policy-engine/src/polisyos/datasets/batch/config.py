@@ -48,6 +48,7 @@ class DatasetBatchConfig:
     country_scope: str = "core_blocking"
     active_countries: tuple[str, ...] = ()
     active_year_window: tuple[int, int] = (2018, 2022)
+    observation_mode: str = "all"
     resume_mode: str = "smart"
     preflight_sources: tuple[str, ...] = ()
     preflight_only: bool = False
@@ -198,6 +199,7 @@ class DatasetBatchConfig:
                 "country_scope": self.country_scope,
                 "active_countries": list(self.resolved_active_countries),
                 "active_year_window": list(self.resolved_year_window),
+                "observation_mode": self.observation_mode,
                 "resume_mode": self.resume_mode,
                 "preflight_sources": sorted(self.preflight_sources),
                 "preflight_only": self.preflight_only,
@@ -237,6 +239,8 @@ class DatasetBatchConfig:
                 raise ValueError("rest_backfill profile requires at least one enabled rolling-window source")
         if self.run_profile not in {"prod_full", "prod_core_blocking", "rest_backfill", "catalog_refresh", "preflight_core", "observations_backfill"}:
             raise ValueError(f"Unsupported run_profile: {self.run_profile}")
+        if self.observation_mode not in {"all", "core", "backfill"}:
+            raise ValueError("observation_mode must be one of: all, core, backfill")
         if self.resume_mode not in {"smart", "force", "off"}:
             raise ValueError("resume_mode must be one of: smart, force, off")
         if self.country_scope not in COUNTRY_SCOPES and not self.active_countries:

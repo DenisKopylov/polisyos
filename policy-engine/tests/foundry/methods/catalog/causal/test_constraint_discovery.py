@@ -548,7 +548,7 @@ def test_algebraic_audit_failure_degrades_to_warning(monkeypatch) -> None:
     assert any("algebraic_audit_failed" in warning for warning in report.warnings)
     assert report.graph.edges
     assert report.algebraic_constraints is not None
-    assert report.algebraic_constraints.severity == "info"
+    assert report.algebraic_constraints.severity == "warning"
 
 
 @pytest.mark.integration

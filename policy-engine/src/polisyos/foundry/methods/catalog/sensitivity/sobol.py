@@ -1,3 +1,4 @@
+"""Public sensitivity sobol module API."""
 from __future__ import annotations
 
 from typing import Any, ClassVar, Mapping
@@ -28,6 +29,7 @@ def _result_slot() -> frozenset[SlotSpec]:
     tags={"sensitivity", "global", "sobol", "tabular"},
 )
 class SobolFirstOrderEstimator:
+    """Sobol first order estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 

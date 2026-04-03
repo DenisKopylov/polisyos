@@ -1,3 +1,4 @@
+"""Public orchestrator enrich module API."""
 from __future__ import annotations
 
 import time
@@ -335,6 +336,7 @@ def enrich_topic(
     db: Any | None = None,
     policy: ScholarPolicy | None = None,
 ) -> EnrichResultV1:
+    """Enrich topic helper."""
     if db is not None and storage is None:
         warnings.warn(
             "scholar.enrich_topic(db=...) is deprecated; use storage=DuckDBStorageAdapter(db)",

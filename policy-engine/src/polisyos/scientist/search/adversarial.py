@@ -1,3 +1,4 @@
+"""Public search adversarial module API."""
 from __future__ import annotations
 
 import math
@@ -423,6 +424,7 @@ def run_stress_test(
     cas: FileSystemCAS | None = None,
     decision_packet_ref: str | None = None,
 ) -> StressTestReport:
+    """Run stress test."""
     runtime_context = context or {}
     param_names = [item.name for item in adversarial_plan.parameter_specs]
     initial_samples = generate_adversarial_samples(adversarial_plan)
@@ -649,6 +651,7 @@ def persist_platform_meta_evaluation_report(
     *,
     inputs: list[InputRef] | None = None,
 ) -> PlatformMetaEvaluationReportRef:
+    """Persist platform meta evaluation report helper."""
     ref = store.put_json(
         report.model_dump(mode="json"),
         PutOptions(
@@ -669,6 +672,7 @@ def load_platform_meta_evaluation_report(
     store: FileSystemCAS,
     ref: PlatformMetaEvaluationReportRef | ArtifactRef,
 ) -> PlatformMetaEvaluationReport:
+    """Load platform meta evaluation report."""
     payload = from_canonical_bytes(store.get_bytes(ref.artifact_id))
     return PlatformMetaEvaluationReport.model_validate(payload)
 

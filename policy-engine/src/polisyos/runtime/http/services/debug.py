@@ -1,3 +1,4 @@
+"""Public services debug module API."""
 from __future__ import annotations
 
 import hashlib
@@ -79,6 +80,7 @@ logger = get_logger(__name__)
 
 
 class DebugService:
+    """Debug service implementation."""
     def __init__(
         self,
         *,

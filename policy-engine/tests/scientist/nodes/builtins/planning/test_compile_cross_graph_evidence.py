@@ -1,11 +1,20 @@
 from __future__ import annotations
 
+from polisyos.core.artifacts.manifest import SchemaInfo
+from polisyos.core.artifacts.store import PutOptions
+from polisyos.ir.analytics.literature import (
+    EnvironmentAuditReport,
+    LiteratureCausalPrior,
+    persist_literature_causal_prior,
+)
 from polisyos.scientist.nodes.builtins.planning.compile_cross_graph_evidence import (
     CompileCrossGraphEvidenceNode,
 )
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF,
+    ARTIFACT_LITERATURE_PRIOR_REF,
     INPUT_GRAPH_PRIOR_BUNDLE_REF,
+    INPUT_TRINITY_BUNDLE_REF,
 )
 from polisyos.scientist.discovery.priors import (
     GraphPriorBundle,
@@ -13,6 +22,31 @@ from polisyos.scientist.discovery.priors import (
     persist_graph_prior_bundle,
 )
 from polisyos.ir.analytics.cross_graph import load_cross_graph_evidence_profile
+from polisyos.ir.governance.problem_frame import ConstraintSpec, ProblemFrame
+from polisyos.ir.governance.policy_spec import PolicySpec
+from polisyos.ir.model_spec import ModelSpec
+from polisyos.ir.trinity import TrinityBundle
+
+
+def _bundle() -> TrinityBundle:
+    return TrinityBundle(
+        problem_frame=ProblemFrame(
+            problem_id="problem1",
+            domain="social",
+            hard_constraints=[
+                ConstraintSpec(
+                    constraint_id="budget_cap",
+                    value=1,
+                    slot_id="budget",
+                )
+            ],
+        ),
+        policy_spec=PolicySpec(policy_id="policy1"),
+        model_spec=ModelSpec(
+            model_id="model1",
+            data_snapshot_ref="sha256:" + ("0" * 64),
+        ),
+    )
 
 
 def test_compilation_without_trinity(execution_context, minimal_state):
@@ -210,3 +244,72 @@ def test_compilation_persists_degraded_profile_for_invalid_config(
     assert profile.summary.status == "degraded"
     assert profile.diagnostics[0].code == "cross_graph.invalid_config"
     assert profile.benchmark_summary["reason"] == "invalid_config"
+
+
+def test_compilation_passes_literature_prior_context_into_compiler(
+    execution_context,
+    minimal_state,
+    cas_store,
+    monkeypatch,
+):
+    trinity_ref = cas_store.put_json(
+        _bundle(),
+        PutOptions(
+            kind="ir.trinity_bundle",
+            media_type="application/json",
+            schema=SchemaInfo(name="ir.trinity_bundle", version="1.0"),
+        ),
+    )
+    prior_ref = persist_literature_causal_prior(
+        cas_store,
+        LiteratureCausalPrior(
+            environment_audit=EnvironmentAuditReport(
+                status="warning",
+                n_environments=2,
+                ks_passed=False,
+                ks_rejected_variables=[0],
+            ),
+            metadata={"build_status": "ok"},
+        ),
+    )
+    captured: dict[str, object] = {}
+
+    def _fake_compile(self, bundle, **kwargs):
+        del self, bundle
+        captured.update(kwargs)
+        from polisyos.ir.analytics.cross_graph import (
+            CrossGraphEvidenceProfile,
+            CrossGraphEvidenceSummary,
+        )
+
+        return CrossGraphEvidenceProfile(
+            summary=CrossGraphEvidenceSummary(status="ok", total_needs=0),
+            notes=["compiled"],
+        )
+
+    monkeypatch.setattr(
+        "polisyos.scientist.cross_graph.compiler.CrossGraphEvidenceCompiler.compile",
+        _fake_compile,
+    )
+
+    state = minimal_state.model_copy(
+        update={
+            "inputs": {
+                **minimal_state.inputs,
+                INPUT_TRINITY_BUNDLE_REF: trinity_ref,
+            },
+            "artifacts_index": {
+                **minimal_state.artifacts_index,
+                ARTIFACT_LITERATURE_PRIOR_REF: prior_ref,
+            },
+            "params": {
+                "cross_graph_evidence_config": {"enabled": True},
+            },
+        }
+    )
+
+    outcome = CompileCrossGraphEvidenceNode().execute(execution_context, state)
+
+    assert outcome.status == "ok"
+    assert captured["literature_prior"] is not None
+    assert captured["literature_prior_ref"] == str(prior_ref.artifact_id)

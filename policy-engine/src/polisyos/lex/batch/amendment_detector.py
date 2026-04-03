@@ -17,6 +17,7 @@ _STRUCTURAL_PATTERNS: list[tuple[str, re.Pattern[str]]] = [
         "replace_text",
         re.compile(
             r"[Уу]\s+(?:статт[іиюяею]|частин[іиау]|пункт[іиау])\s+(\d+(?:[-.]\d+)*)"
+            r"(?:\s+(?:(?!\s+слова?\s+[«\"']).){0,180})?"
             r"\s+слова?\s+[«\"'](.*?)[»\"']\s+замінити\s+словами?\s+[«\"'](.*?)[»\"']",
             re.DOTALL | re.IGNORECASE,
         ),
@@ -130,9 +131,27 @@ _BROAD_AMENDMENT_RE = re.compile(
     re.IGNORECASE,
 )
 
+_LOW_SIGNAL_FALLBACKS = {
+    "виключено",
+    "виключити",
+    "доповнити",
+    "доповнено",
+    "увести",
+    "ввести",
+    "скасувати",
+}
+_FALLBACK_CONTEXT_RE = re.compile(
+    r"(статт[іиюяею]|частин[іиау]|пункт[іиау]|підпункт|абзац|"
+    r"закон(?:у)?\s+україни|кодекс(?:у)?\s+україни|постанова|наказ|указ|розпорядження|"
+    r"внести\s+(?:такі\s+)?(?:зміни|доповнення)|внесення\s+змін)",
+    re.IGNORECASE,
+)
+
 
 @dataclass(frozen=True)
 class AmendmentRecord:
+    """Structured amendment extracted from Ukrainian legal text."""
+
     amendment_type: str
     target_anchor: str
     old_text_uk: str
@@ -150,7 +169,17 @@ def _extract_target_anchor(groups: tuple[str, ...], amendment_type: str) -> str:
     return f"article:{anchor_num}"
 
 
+def _should_keep_fallback_signal(text: str, match: re.Match[str]) -> bool:
+    source_text = " ".join(match.group(0).split()).strip().lower()
+    if source_text not in _LOW_SIGNAL_FALLBACKS:
+        return True
+    window = text[max(0, match.start() - 120): min(len(text), match.end() + 120)]
+    return bool(_FALLBACK_CONTEXT_RE.search(window))
+
+
 def detect_amendments(text: str) -> list[AmendmentRecord]:
+    """Extract structural and fallback amendment signals from provision text."""
+
     amendments: list[AmendmentRecord] = []
     seen_spans: set[tuple[int, int]] = set()
 
@@ -212,6 +241,8 @@ def detect_amendments(text: str) -> list[AmendmentRecord]:
             abs(span[0] - s) < 15 or (s <= span[0] < e or s < span[1] <= e)
             for s, e in seen_spans
         ):
+            continue
+        if not _should_keep_fallback_signal(text, match):
             continue
         seen_spans.add(span)
         amendments.append(

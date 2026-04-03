@@ -1,3 +1,4 @@
+"""Public foundry agents module API."""
 from __future__ import annotations
 
 import os
@@ -72,6 +73,7 @@ def build_observations(
     *,
     overrides: Mapping[str, Any] | None = None,
 ) -> jnp.ndarray:
+    """Build observations."""
     n_agents = state.agents.size
     override_values = overrides or {}
     features: list[jnp.ndarray] = []
@@ -140,6 +142,7 @@ def continuous_actions_from_logits(
     key: jax.Array | None = None,
     stochastic: bool = False,
 ) -> jnp.ndarray:
+    """Continuous actions from logits helper."""
     action_val = jax.nn.sigmoid(logits)
     if stochastic and key is not None:
         noise = 0.01 * jax.random.normal(key, shape=action_val.shape)
@@ -151,6 +154,7 @@ def continuous_actions_from_logits(
 
 
 class AgentPolicy(eqx.Module):
+    """Agent policy data model."""
     layers: tuple[eqx.nn.Linear, ...]
     activation: Callable[[jnp.ndarray], jnp.ndarray] = eqx.field(static=True)
     action_type: str = eqx.field(static=True)
@@ -207,6 +211,7 @@ class AgentPolicy(eqx.Module):
 
 
 class AdaptiveAgentMechanism(Mechanism):
+    """Adaptive agent mechanism public type."""
     policy: AgentPolicy
     action_space: dict[str, Any] = eqx.field(static=True)
     observation_space: tuple[str, ...] = eqx.field(static=True)

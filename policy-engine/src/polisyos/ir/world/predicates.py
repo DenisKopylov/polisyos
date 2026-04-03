@@ -1,3 +1,4 @@
+"""Public world predicates module API."""
 from __future__ import annotations
 
 from polisyos.ir.world.abi import EdgeKind
@@ -10,6 +11,7 @@ WORLD_REL_PREFIX = "world.rel."
 
 
 def rel(edge_kind: EdgeKind | str) -> str:
+    """Rel helper."""
     value = edge_kind.value if isinstance(edge_kind, EdgeKind) else str(edge_kind)
     return f"{WORLD_REL_PREFIX}{value}"
 

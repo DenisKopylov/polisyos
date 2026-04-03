@@ -1,3 +1,4 @@
+"""Public conflicts score claims module API."""
 from __future__ import annotations
 
 from decimal import ROUND_HALF_UP, Decimal
@@ -78,6 +79,7 @@ def score_claim_trust_assessments(
     policy_id: str,
     algorithm_version: str,
 ) -> tuple[dict[str, TrustAssessment], dict[str, dict[str, Decimal]]]:
+    """Score claim trust assessments helper."""
     consensus_by_claim: dict[str, Decimal] = {}
     for conflict_set in conflict_sets:
         signatures = {

@@ -1,3 +1,4 @@
+"""Public planning draft policy options module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -50,6 +51,7 @@ _SPEC = NodeSpec(
 
 @dataclass(frozen=True)
 class DraftPolicyOptionsNode:
+    """Draft policy options node implementation."""
     @property
     def spec(self) -> NodeSpec:
         return _SPEC

@@ -1,3 +1,4 @@
+"""Public llm retry module API."""
 from __future__ import annotations
 
 from polisyos.core.resilience.retry import retry_async

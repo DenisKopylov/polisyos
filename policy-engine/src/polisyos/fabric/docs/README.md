@@ -1,54 +1,39 @@
-# Docs
+# Docs (`polisyos.fabric.docs`)
 
-`polisyos.fabric.docs` — документный pipeline, который готовит CAS-артефакты и world-сегменты для downstream `claims/world`.
+`docs` - document pipeline that turns raw source bytes into normalized document
+artifacts and world segments for downstream claim and world flows.
 
-## Pipeline
+## Role in System
 
-```text
-ingest_doc_bytes -> normalize_doc -> structure_doc -> chunk_doc
-```
+- **Depends on:** `polisyos.core.artifacts`, `polisyos.fabric.world`
+- **Used by:** `fabric.claims` and world materialization pipelines
+- Ensures document ingestion is deterministic, structured and traceable.
 
-Каждая стадия:
+## Key Concepts
 
-- обновляет `DocMeta`,
-- пишет world event,
-- формирует world fact segment + append в index.
+- **Four-stage pipeline** - ingest, normalize, structure, chunk.
+- **Artifact outputs** - every stage emits CAS-backed refs and doc metadata.
+- **MIME handling** - text/plain and text/html are native; PDF is stubbed in core.
+- **World events** - document stages emit deterministic world events for lineage.
 
-## Основные модули
+## Public API
 
-- `types.py` — `DocSourceSpec`, options/results dataclasses.
-- `ingestion.py` — прием raw bytes, формирование `DocMeta`, запись raw artifact.
-- `normalize.py` — decode + mime-aware text normalization через `BackendDispatcher`.
-- `structure.py` — anchors/sections + `DocFragment` generation.
-- `chunking.py` — char/paragraph chunking + fragment generation.
-- `errors.py` — pipeline errors.
-- `backends/` — `text_plain`, `text_html`, `pdf` (stub).
+| Type/Function | Description |
+|---|---|
+| `DocSourceSpec` | Source specification for document ingestion. |
+| `DocIngestResult` | Result of document ingestion. |
+| `DocNormalizeResult` | Result of document normalization. |
+| `DocStructureResult` | Result of document structure extraction. |
+| `DocChunkResult` | Result of document chunking. |
+| `ingest_doc_bytes()` | Ingests raw document bytes. |
+| `normalize_doc()` | Normalizes raw bytes into text. |
+| `structure_doc()` | Extracts sections and anchors. |
+| `chunk_doc()` | Splits structured docs into chunks. |
 
-## Ограничения и поддержка MIME
+→ Full reference: [docs/reference/fabric/index.md](../../../../docs/reference/fabric/index.md)
 
-- `DocSourceSpec` требует ровно один идентификатор: `canonical_url` или `official_id` или `source_locator`.
-- `license` обязателен.
-- Нативно поддержаны `text/plain` и `text/html`.
-- Любой `text/*` без отдельного backend идет через plain-text normalizer.
-- `pdf` backend в core — заглушка (нужны optional deps/расширения).
+## Current State
 
-## Результаты стадий
-
-`DocIngestResult`, `DocNormalizeResult`, `DocStructureResult`, `DocChunkResult` возвращают:
-
-- `doc_source_id`, `doc_version_id`,
-- актуальные artifact refs (`raw_ref`, `normalized_ref`, `structure_ref`, `chunks_ref`),
-- `doc_meta_artifact_id`,
-- `world_event_id`, `world_event_artifact_id`,
-- `world_segment_manifest`.
-
-Дополнительно:
-
-- `DocStructureResult.fragment_ids`
-- `DocChunkResult.chunk_fragment_ids`
-
-## Связи
-
-- downstream: `fabric.claims`.
-- world persistence: `fabric.world.store`.
-- доменные модели: `polisyos.ir.world.doc`, `polisyos.ir.citations`.
+- Last updated: 2026-04-03
+- Files: 11 Python files
+- Exports: 17

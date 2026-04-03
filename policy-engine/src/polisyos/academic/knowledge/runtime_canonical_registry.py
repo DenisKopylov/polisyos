@@ -8,6 +8,7 @@ from typing import Final
 
 @dataclass(frozen=True)
 class RuntimeCanonicalEntry:
+    """Runtime canonical entry data model."""
     canonical_name: str
     aliases: tuple[str, ...]
     need_types: tuple[str, ...] = ("parameter", "causal_edge", "scholar_query", "context")
@@ -83,6 +84,10 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     "economic.gdp_growth": RuntimeCanonicalEntry(
         canonical_name="economic.gdp_growth",
         aliases=("gdp_growth", "economic growth", "output growth", "gross domestic product growth"),
+    ),
+    "economic.gdp": RuntimeCanonicalEntry(
+        canonical_name="economic.gdp",
+        aliases=("gdp", "gross domestic product", "economic output", "total economic output"),
     ),
     "labor.unemployment_rate": RuntimeCanonicalEntry(
         canonical_name="labor.unemployment_rate",
@@ -217,7 +222,16 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     ),
     "economic.fiscal_balance": RuntimeCanonicalEntry(
         canonical_name="economic.fiscal_balance",
-        aliases=("fiscal balance", "budget balance", "fiscal deficit", "budget deficit", "fiscal surplus"),
+        aliases=(
+            "fiscal balance",
+            "budget balance",
+            "fiscal deficit",
+            "budget deficit",
+            "fiscal surplus",
+            "government balance",
+            "gov balance",
+            "cash surplus deficit",
+        ),
     ),
     "economic.government_spending": RuntimeCanonicalEntry(
         canonical_name="economic.government_spending",
@@ -271,6 +285,10 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
         canonical_name="economic.gdp_per_capita",
         aliases=("gdp per capita", "income per capita", "per capita income", "per capita gdp"),
     ),
+    "economic.average_income": RuntimeCanonicalEntry(
+        canonical_name="economic.average_income",
+        aliases=("average income", "avg income", "mean income", "adjusted net national income per capita"),
+    ),
     "economic.industrial_output": RuntimeCanonicalEntry(
         canonical_name="economic.industrial_output",
         aliases=("industrial output", "manufacturing output", "industrial production", "industrial value added"),
@@ -298,6 +316,10 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     "economic.current_account_balance": RuntimeCanonicalEntry(
         canonical_name="economic.current_account_balance",
         aliases=("current account balance", "current account", "external balance"),
+    ),
+    "economic.r_and_d_spending": RuntimeCanonicalEntry(
+        canonical_name="economic.r_and_d_spending",
+        aliases=("r and d spending", "r&d spending", "research and development spending", "research spending", "gerd"),
     ),
     "economic.real_wage": RuntimeCanonicalEntry(
         canonical_name="economic.real_wage",
@@ -405,9 +427,25 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
         canonical_name="health.malaria_incidence",
         aliases=("malaria incidence", "malaria prevalence", "malaria cases"),
     ),
+    "health.tuberculosis_incidence": RuntimeCanonicalEntry(
+        canonical_name="health.tuberculosis_incidence",
+        aliases=("tuberculosis incidence", "tb incidence", "tuberculosis cases"),
+    ),
     "health.hiv_prevalence": RuntimeCanonicalEntry(
         canonical_name="health.hiv_prevalence",
         aliases=("hiv prevalence", "hiv/aids prevalence", "hiv incidence"),
+    ),
+    "health.diabetes_prevalence": RuntimeCanonicalEntry(
+        canonical_name="health.diabetes_prevalence",
+        aliases=("diabetes prevalence", "diabetes rate", "diabetes burden"),
+    ),
+    "health.hypertension_prevalence": RuntimeCanonicalEntry(
+        canonical_name="health.hypertension_prevalence",
+        aliases=("hypertension prevalence", "high blood pressure prevalence", "raised blood pressure prevalence"),
+    ),
+    "health.alcohol_consumption": RuntimeCanonicalEntry(
+        canonical_name="health.alcohol_consumption",
+        aliases=("alcohol consumption", "alcohol use", "per capita alcohol consumption"),
     ),
     "health.healthcare_spending": RuntimeCanonicalEntry(
         canonical_name="health.healthcare_spending",
@@ -440,6 +478,10 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     "health.clean_water_access": RuntimeCanonicalEntry(
         canonical_name="health.clean_water_access",
         aliases=("clean water access", "safe water access", "improved water source", "drinking water access"),
+    ),
+    "health.suicide_rate": RuntimeCanonicalEntry(
+        canonical_name="health.suicide_rate",
+        aliases=("suicide rate", "suicide mortality", "self-harm mortality"),
     ),
     # ── Education ────────────────────────────────────────────────────
     "education.enrollment_rate": RuntimeCanonicalEntry(
@@ -675,6 +717,10 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
         canonical_name="social.poverty_headcount",
         aliases=("poverty headcount", "poverty headcount ratio", "extreme poverty rate"),
     ),
+    "social.at_risk_of_poverty": RuntimeCanonicalEntry(
+        canonical_name="social.at_risk_of_poverty",
+        aliases=("at risk of poverty", "at-risk-of-poverty", "at risk of poverty rate", "arop rate"),
+    ),
     "social.social_mobility": RuntimeCanonicalEntry(
         canonical_name="social.social_mobility",
         aliases=("social mobility", "intergenerational mobility", "economic mobility"),
@@ -730,6 +776,10 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     "demographic.population_growth": RuntimeCanonicalEntry(
         canonical_name="demographic.population_growth",
         aliases=("population growth", "population growth rate"),
+    ),
+    "demographic.population": RuntimeCanonicalEntry(
+        canonical_name="demographic.population",
+        aliases=("population", "total population", "population size"),
     ),
     # ── Trade ────────────────────────────────────────────────────────
     "trade.trade_openness": RuntimeCanonicalEntry(
@@ -1528,14 +1578,17 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
 
 
 def runtime_canonical_entries() -> dict[str, RuntimeCanonicalEntry]:
+    """Runtime canonical entries helper."""
     return dict(RUNTIME_CANONICAL_REGISTRY)
 
 
 def runtime_canonical_names() -> set[str]:
+    """Runtime canonical names helper."""
     return set(RUNTIME_CANONICAL_REGISTRY)
 
 
 def runtime_approved_synonyms() -> dict[str, str]:
+    """Runtime approved synonyms helper."""
     synonyms: dict[str, str] = {}
     for canonical_name, entry in RUNTIME_CANONICAL_REGISTRY.items():
         synonyms.setdefault(canonical_name.strip().lower(), canonical_name)

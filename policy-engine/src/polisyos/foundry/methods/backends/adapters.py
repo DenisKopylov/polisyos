@@ -1,3 +1,4 @@
+"""Public backends adapters module API."""
 from __future__ import annotations
 
 from typing import Any
@@ -36,6 +37,7 @@ def adapt_state(
     source_backend: ComputeBackend,
     target_backend: ComputeBackend,
 ) -> Any:
+    """Adapt state helper."""
     if source_backend == target_backend:
         return state
 

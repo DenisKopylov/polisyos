@@ -46,7 +46,22 @@ from polisyos.ir.connectors import (
 
 
 class CKANCatalogConnector(HTTPConnectorBase[pd.DataFrame]):
-    """CKAN catalog discovery via Action API v3."""
+    """Connector for CKAN package and dataset discovery.
+
+    Uses the CKAN Action API to enumerate packages, metadata, and resource
+    descriptors before a resource-specific fetch is delegated elsewhere.
+
+    Data source:
+        CKAN-compatible portals
+    Protocol:
+        CKAN Action API v3
+    Auth:
+        Profile-driven per portal
+    Async support:
+        Standard async HTTP execution only
+    Profile:
+        Any ``connector_family='ckan'`` catalog profile
+    """
 
     namespace: ClassVar[str] = "ckan"
     short_id: ClassVar[str] = "catalog"

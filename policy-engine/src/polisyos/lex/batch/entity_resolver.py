@@ -5,16 +5,19 @@ from __future__ import annotations
 import hashlib
 import json
 import difflib
+import re
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Iterator
 
 from polisyos.common.logger import get_logger
+from polisyos.lex.batch.quality_filters import compact_text, is_low_quality_entity_text, is_synthetic_subject
 
 logger = get_logger(__name__)
 
 
 def normalize_entity_name(name: str) -> str:
+    """Normalize entity name helper."""
     lowered = str(name or "").strip().lower()
     collapsed = "".join(char if char.isalnum() else "_" for char in lowered)
     while "__" in collapsed:
@@ -29,6 +32,7 @@ def _entity_id(*parts: str) -> str:
 
 @dataclass
 class EntityRecord:
+    """Entity record data model."""
     entity_id: str
     name_en: str
     name_uk: str
@@ -63,34 +67,51 @@ class EntityResolver:
         entity_type: str = "concept",
         entity_subtype: str = "",
     ) -> str:
-        candidates = [normalize_entity_name(name_en), normalize_entity_name(name_uk)]
+        if is_synthetic_subject(name_uk) or is_synthetic_subject(name_en):
+            label = compact_text(name_uk) or compact_text(name_en) or "synthetic_subject"
+            return self._special_entity(
+                kind="synthetic_subject",
+                name_en=label if re.search(r"[a-z]", label, re.IGNORECASE) else "synthetic_subject",
+                name_uk=label,
+            )
+
+        filtered_name_en = "" if is_low_quality_entity_text(name_en) else name_en
+        filtered_name_uk = "" if is_low_quality_entity_text(name_uk) else name_uk
+        if not filtered_name_en and not filtered_name_uk:
+            return self._special_entity(
+                kind="low_quality_fragment",
+                name_en="low_quality_fragment",
+                name_uk="низькоякісний фрагмент",
+            )
+
+        candidates = [normalize_entity_name(filtered_name_en), normalize_entity_name(filtered_name_uk)]
         for candidate in candidates:
             if candidate and candidate in self._name_index:
                 entity_id = self._name_index[candidate]
-                self._merge_aliases(entity_id, name_en=name_en, name_uk=name_uk)
+                self._merge_aliases(entity_id, name_en=filtered_name_en, name_uk=filtered_name_uk)
                 return entity_id
             if candidate and candidate in self._alias_index:
                 entity_id = self._alias_index[candidate]
-                self._merge_aliases(entity_id, name_en=name_en, name_uk=name_uk)
+                self._merge_aliases(entity_id, name_en=filtered_name_en, name_uk=filtered_name_uk)
                 return entity_id
 
-        entity_id = self._fuzzy_match(name_en=name_en, name_uk=name_uk)
+        entity_id = self._fuzzy_match(name_en=filtered_name_en, name_uk=filtered_name_uk)
         if entity_id:
-            self._merge_aliases(entity_id, name_en=name_en, name_uk=name_uk)
+            self._merge_aliases(entity_id, name_en=filtered_name_en, name_uk=filtered_name_uk)
             return entity_id
 
-        norm = normalize_entity_name(name_en) or normalize_entity_name(name_uk) or "unknown"
+        norm = normalize_entity_name(filtered_name_en) or normalize_entity_name(filtered_name_uk) or "unknown"
         entity_id = _entity_id(norm, entity_type, entity_subtype)
         record = EntityRecord(
             entity_id=entity_id,
-            name_en=name_en,
-            name_uk=name_uk,
+            name_en=filtered_name_en,
+            name_uk=filtered_name_uk,
             entity_type=entity_type,
             entity_subtype=entity_subtype,
         )
         self._records[entity_id] = record
-        self._register_name(entity_id, name_en)
-        self._register_name(entity_id, name_uk)
+        self._register_name(entity_id, filtered_name_en)
+        self._register_name(entity_id, filtered_name_uk)
         return entity_id
 
     def all_records(self) -> Iterator[EntityRecord]:
@@ -226,3 +247,21 @@ class EntityResolver:
                 if len(names) >= self._FUZZY_MAX_BUCKET_CANDIDATES:
                     return names
         return names
+
+    def _special_entity(self, *, kind: str, name_en: str, name_uk: str) -> str:
+        entity_id = _entity_id(kind)
+        record = self._records.get(entity_id)
+        if record is None:
+            record = EntityRecord(
+                entity_id=entity_id,
+                name_en=name_en,
+                name_uk=name_uk,
+                entity_type="concept",
+                entity_subtype=kind,
+                mention_count=0,
+            )
+            self._records[entity_id] = record
+            self._register_name(entity_id, name_en)
+            self._register_name(entity_id, name_uk)
+        record.mention_count += 1
+        return entity_id

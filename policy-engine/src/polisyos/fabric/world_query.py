@@ -1,3 +1,4 @@
+"""Public fabric world query module API."""
 from __future__ import annotations
 
 import re
@@ -46,6 +47,7 @@ class WorldQueryError(ValueError):
 
 @dataclass(frozen=True)
 class WorldQueryRequest:
+    """World query request data model."""
     table: str
     columns: tuple[str, ...] = ("*",)
     where: Mapping[str, Any] | None = None
@@ -58,6 +60,7 @@ def execute_world_query(
     db: SimulationDB | DatabaseBackend,
     request: WorldQueryRequest,
 ) -> pd.DataFrame:
+    """Execute world query."""
     table_sql = _resolve_table(request.table)
     allowed_columns = normalize_allowed_columns(request.allowed_columns)
     try:
@@ -93,6 +96,7 @@ def query_world_table(
     limit: int = 1_000,
     allowed_columns: Sequence[str] | None = None,
 ) -> pd.DataFrame:
+    """Query world table helper."""
     request = WorldQueryRequest(
         table=table,
         columns=tuple(columns) if columns else ("*",),
@@ -112,6 +116,7 @@ def query_claims(
     limit: int = 1_000,
     allowed_columns: Sequence[str] | None = None,
 ) -> pd.DataFrame:
+    """Query claims helper."""
     return query_world_table(
         db,
         table="claims",
@@ -131,6 +136,7 @@ def query_events(
     limit: int = 1_000,
     allowed_columns: Sequence[str] | None = None,
 ) -> pd.DataFrame:
+    """Query events helper."""
     return query_world_table(
         db,
         table="world_events",

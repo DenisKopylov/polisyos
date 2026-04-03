@@ -1,3 +1,4 @@
+"""Public migrations policy ir module API."""
 from __future__ import annotations
 
 from polisyos.ir.migrations.base import register_migration

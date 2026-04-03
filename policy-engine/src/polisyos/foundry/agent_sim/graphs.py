@@ -1,3 +1,4 @@
+"""Public agent sim graphs module API."""
 from __future__ import annotations
 
 import chex
@@ -7,6 +8,7 @@ from jaxtyping import Array, Bool, Float, Int
 
 
 class EdgeType:
+    """Edge type public type."""
     SOCIAL_FRIEND = 0
     SOCIAL_FAMILY = 1
     ECONOMIC_EMPLOYER = 2
@@ -17,6 +19,7 @@ class EdgeType:
 
 @chex.dataclass(frozen=True)
 class EdgeList:
+    """Edge list public type."""
     senders: Int[Array, "n_edges"]
     receivers: Int[Array, "n_edges"]
     weights: Float[Array, "n_edges"]
@@ -28,6 +31,7 @@ class EdgeList:
 
 @chex.dataclass(frozen=True)
 class FixedSizeEdgeList:
+    """Fixed size edge list public type."""
     senders: Int[Array, "max_edges"]
     receivers: Int[Array, "max_edges"]
     weights: Float[Array, "max_edges"]
@@ -40,6 +44,7 @@ class FixedSizeEdgeList:
 
 @chex.dataclass(frozen=True)
 class GraphState:
+    """Graph state data model."""
     edges: EdgeList | FixedSizeEdgeList
     node_to_edges_start: Int[Array, "n_nodes_plus_one"]
     sorted_by_receiver: Bool[Array, ""]
@@ -70,6 +75,7 @@ class GraphState:
 
 @chex.dataclass(frozen=True)
 class MultiEdgeList:
+    """Multi edge list public type."""
     all_edges: EdgeList
 
     def get_edges_by_type(self, edge_type: int) -> EdgeList:
@@ -97,6 +103,7 @@ def create_random_graph(
     *,
     graph_type: str = "erdos_renyi",
 ) -> EdgeList:
+    """Create random graph."""
     if graph_type == "erdos_renyi":
         return _create_erdos_renyi(n_nodes, avg_degree, rng_key)
     if graph_type == "barabasi_albert":
@@ -163,6 +170,7 @@ def create_watts_strogatz_graph(
     rewire_prob: float,
     rng_key: chex.PRNGKey,
 ) -> EdgeList:
+    """Create watts strogatz graph."""
     if degree % 2 != 0:
         degree = degree + 1
     half = degree // 2
@@ -200,6 +208,7 @@ def create_spatial_graph(
     active: jnp.ndarray,
     rng_key: chex.PRNGKey | None = None,
 ) -> EdgeList:
+    """Create spatial graph."""
     n_nodes = positions.shape[0]
     if n_nodes <= 2000:
         diff = positions[:, None, :] - positions[None, :, :]
@@ -245,6 +254,7 @@ def create_scale_free_graph(
     m: int,
     rng_key: chex.PRNGKey,
 ) -> EdgeList:
+    """Create scale free graph."""
     initial = m + 1
     senders_list: list[int] = []
     receivers_list: list[int] = []
@@ -283,6 +293,7 @@ def create_scale_free_graph(
 
 
 def create_fixed_size_graph(edges: EdgeList, max_edges: int) -> FixedSizeEdgeList:
+    """Create fixed size graph."""
     n_edges = edges.n_edges
     if n_edges > max_edges:
         raise ValueError(f"Too many edges: {n_edges} > {max_edges}")
@@ -315,6 +326,7 @@ def aggregate_messages(
     aggregation: str = "sum",
     active: jnp.ndarray | None = None,
 ) -> jnp.ndarray:
+    """Aggregate messages helper."""
     senders = edges.senders
     receivers = edges.receivers
     weights = edges.weights
@@ -362,6 +374,7 @@ def scatter_messages(
     operation: str = "add",
     active: jnp.ndarray | None = None,
 ) -> jnp.ndarray:
+    """Scatter messages helper."""
     senders = edges.senders
     receivers = edges.receivers
     weights = edges.weights
@@ -387,6 +400,7 @@ def scatter_messages(
 
 
 def segment_softmax(scores: jnp.ndarray, segment_ids: jnp.ndarray, n_segments: int) -> jnp.ndarray:
+    """Segment softmax helper."""
     max_scores = jax.ops.segment_max(scores, segment_ids, num_segments=n_segments)
     shifted = scores - max_scores[segment_ids]
     exp_scores = jnp.exp(shifted)
@@ -402,6 +416,7 @@ def apply_edge_attention(
     key_features: jnp.ndarray,
     temperature: float = 1.0,
 ) -> jnp.ndarray:
+    """Apply edge attention helper."""
     queries = query_features[edges.receivers]
     keys = key_features[edges.senders]
     scores = jnp.sum(queries * keys, axis=-1) / temperature
@@ -418,6 +433,7 @@ def multi_hop_aggregation(
     decay: float = 0.5,
     active: jnp.ndarray | None = None,
 ) -> jnp.ndarray:
+    """Multi hop aggregation helper."""
     def body(hop, carry):
         current, aggregated = carry
         messages = aggregate_messages(
@@ -436,6 +452,7 @@ def multi_hop_aggregation(
 
 
 def compute_degree_centrality(edges: EdgeList | FixedSizeEdgeList) -> jnp.ndarray:
+    """Compute degree centrality helper."""
     n_nodes = int(edges.n_nodes)
     in_degrees, out_degrees = compute_degrees(edges)
     total_degree = in_degrees + out_degrees
@@ -449,6 +466,7 @@ def compute_pagerank(
     damping: float = 0.85,
     n_iterations: int = 20,
 ) -> jnp.ndarray:
+    """Compute pagerank helper."""
     n_nodes = int(edges.n_nodes)
     weights = edges.weights
     edge_mask = jnp.ones(weights.shape[0], dtype=jnp.bool_)
@@ -472,6 +490,7 @@ def compute_graph_metrics(
     edges: EdgeList | FixedSizeEdgeList,
     active: jnp.ndarray,
 ) -> dict[str, jnp.ndarray]:
+    """Compute graph metrics helper."""
     n_nodes = int(edges.n_nodes)
     edge_mask = active[edges.senders] & active[edges.receivers]
     if hasattr(edges, "active"):
@@ -500,6 +519,7 @@ def compute_graph_metrics(
 
 
 def compute_degrees(edges: EdgeList | FixedSizeEdgeList) -> tuple[jnp.ndarray, jnp.ndarray]:
+    """Compute degrees helper."""
     n_nodes = int(edges.n_nodes)
     edge_mask = jnp.ones(edges.senders.shape[0], dtype=jnp.float32)
     if hasattr(edges, "active"):
@@ -510,6 +530,7 @@ def compute_degrees(edges: EdgeList | FixedSizeEdgeList) -> tuple[jnp.ndarray, j
 
 
 class DynamicGraphUpdater:
+    """Dynamic graph updater public type."""
     def __init__(
         self,
         *,

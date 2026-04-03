@@ -10,6 +10,7 @@ from typing import Any
 
 
 def build_feedback_queue_rows(audit_rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Build feedback queue rows."""
     feedback_rows: list[dict[str, Any]] = []
     for row in audit_rows:
         if not bool(row.get("miss", False)):
@@ -53,6 +54,7 @@ def build_feedback_queue_rows(audit_rows: list[dict[str, Any]]) -> list[dict[str
 
 
 def write_candidate_patterns(*, feedback_rows: list[dict[str, Any]], output_dir: Path) -> Path:
+    """Write candidate patterns helper."""
     output_dir.mkdir(parents=True, exist_ok=True)
     grouped: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for row in feedback_rows:

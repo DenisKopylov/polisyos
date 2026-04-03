@@ -1,3 +1,4 @@
+"""Public security settings module API."""
 from __future__ import annotations
 
 import os
@@ -165,6 +166,7 @@ class SecuritySettings:
 
 @lru_cache(maxsize=1)
 def get_security_settings() -> SecuritySettings:
+    """Return security settings."""
     env_name = os.getenv("POLISYOS_ENV", "dev").strip().lower()
     default_tee_enabled = env_name in {"prod", "production"}
     default_tee_required = env_name in {"prod", "production"}

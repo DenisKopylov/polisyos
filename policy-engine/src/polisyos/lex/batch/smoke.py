@@ -43,6 +43,7 @@ _CATEGORY_PRIORITY = (
 
 @dataclass(frozen=True)
 class SmokeProfile:
+    """Smoke profile data model."""
     name: str
     sample_docs: int
     scan_docs: int
@@ -159,6 +160,7 @@ SMOKE_PROFILES: dict[str, SmokeProfile] = {
 
 @dataclass(frozen=True)
 class SmokeCandidate:
+    """Smoke candidate public type."""
     doc_id: str
     name: str
     doc_type: str
@@ -200,6 +202,7 @@ def scan_smoke_candidates(
     status_filter: frozenset[str] | None = None,
     type_filter: frozenset[str] | None = None,
 ) -> list[SmokeCandidate]:
+    """Scan smoke candidates helper."""
     candidates: list[SmokeCandidate] = []
     for idx, doc in enumerate(
         iter_documents(
@@ -233,6 +236,7 @@ def select_smoke_candidates(
     *,
     sample_docs: int,
 ) -> list[tuple[SmokeCandidate, str]]:
+    """Select smoke candidates helper."""
     if not candidates or sample_docs <= 0:
         return []
 
@@ -303,6 +307,7 @@ def write_smoke_plan(
     selected: list[tuple[SmokeCandidate, str]],
     scan_total: int,
 ) -> Path:
+    """Write smoke plan helper."""
     counts_by_category = Counter(candidate.doc_type_category or "other" for candidate, _ in selected)
     counts_by_cue = Counter(cue for candidate, _ in selected for cue in candidate.structure_cues)
     payload = {
@@ -472,6 +477,7 @@ def build_smoke_report(
     plan_path: Path,
     stats: PipelineStats,
 ) -> tuple[Path, Path]:
+    """Build smoke report."""
     with open(plan_path, "r", encoding="utf-8") as fh:
         plan = json.load(fh)
 
@@ -692,6 +698,7 @@ def run_smoke(
     llm_gap_fill_max_share: float | None = None,
     stages: set[str] | None = None,
 ) -> dict[str, Any]:
+    """Run smoke."""
     if profile_name not in SMOKE_PROFILES:
         raise ValueError(f"Unknown smoke profile: {profile_name}")
 

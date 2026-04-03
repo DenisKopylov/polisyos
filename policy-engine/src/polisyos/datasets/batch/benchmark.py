@@ -84,6 +84,7 @@ class BenchmarkOutcome:
 
 
 def readiness_thresholds_for_profile(run_profile: str) -> dict[str, float]:
+    """Readiness thresholds for profile helper."""
     thresholds = dict(READINESS_THRESHOLDS)
     profile = str(run_profile or "prod_full").strip() or "prod_full"
     if profile == "preflight_core":
@@ -92,6 +93,7 @@ def readiness_thresholds_for_profile(run_profile: str) -> dict[str, float]:
 
 
 def active_readiness_thresholds_for_profile(run_profile: str) -> dict[str, float]:
+    """Active readiness thresholds for profile helper."""
     thresholds = readiness_thresholds_for_profile(run_profile)
     skipped = _PROFILE_THRESHOLD_SKIPS.get(str(run_profile or "prod_full").strip() or "prod_full", frozenset())
     return {name: value for name, value in thresholds.items() if name not in skipped}
@@ -514,6 +516,125 @@ def _load_json_list(path: Path) -> list[dict[str, object]]:
     return [item for item in payload if isinstance(item, dict)]
 
 
+def _load_bulk_equivalence_manifests(config: DatasetBatchConfig) -> list[dict[str, object]]:
+    root = config.manifests_dir / "observations" / "bulk_equivalence"
+    if not root.exists():
+        return []
+    payloads: list[dict[str, object]] = []
+    for path in sorted(root.rglob("*.json")):
+        try:
+            with open(path, "r", encoding="utf-8") as fh:
+                payload = json.load(fh)
+        except Exception:
+            continue
+        if isinstance(payload, dict):
+            payloads.append(payload)
+    return payloads
+
+
+def _bulk_equivalence_metrics(config: DatasetBatchConfig) -> tuple[list[dict[str, object]], dict[str, float | int]]:
+    manifests = _load_bulk_equivalence_manifests(config)
+    total_compared = sum(int(item.get("compared_series", 0) or 0) for item in manifests)
+    total_mismatches = sum(int(item.get("mismatches", 0) or 0) for item in manifests)
+    blocking_sources = {
+        str(item.get("source") or "").strip()
+        for item in manifests
+        if bool(item.get("blocking")) and str(item.get("source") or "").strip()
+    }
+    mismatch_rate = round((float(total_mismatches) / max(float(total_compared), 1.0)) * 100.0, 2) if total_compared > 0 else 0.0
+    return manifests, {
+        "benchmark_bulk_equivalence_mismatch_rate": mismatch_rate,
+        "benchmark_bulk_equivalence_blocking_sources_total": len(blocking_sources),
+    }
+
+
+def _load_core_ingest_context(
+    config: DatasetBatchConfig,
+    con: duckdb.DuckDBPyConnection,
+) -> dict[str, object]:
+    stage_state: dict[str, object] = {}
+    if config.stage_state_path.exists():
+        with open(config.stage_state_path, "r", encoding="utf-8") as fh:
+            loaded = json.load(fh)
+        if isinstance(loaded, dict):
+            stage_state = loaded.get("core_sources_ingest", {}) if isinstance(loaded.get("core_sources_ingest"), dict) else {}
+    metadata = stage_state.get("metadata", {}) if isinstance(stage_state, dict) else {}
+    if not isinstance(metadata, dict):
+        metadata = {}
+    stage_status = str(stage_state.get("status") or "").strip()
+    observation_count = 0
+    if _table_exists(con, "ds_observations"):
+        observation_count = int(con.execute("SELECT count(*) FROM ds_observations").fetchone()[0] or 0)
+    completed_shards = 0
+    if config.manifests_dir.joinpath("completed_observation_shards.json").exists():
+        completed_shards = len(_load_json_list(config.manifests_dir / "completed_observation_shards.json"))
+    blocked_by_source = {
+        str(key): int(value)
+        for key, value in (metadata.get("blocked_by_source", {}) or {}).items()
+        if isinstance(value, (int, float)) and int(value) > 0
+    }
+    quota_wait_seconds_by_source = {
+        str(key): float(value)
+        for key, value in (metadata.get("quota_wait_seconds_by_source", {}) or {}).items()
+        if isinstance(value, (int, float)) and float(value) > 0.0
+    }
+    capability_failures_by_source = {
+        str(key): int(value)
+        for key, value in (metadata.get("capability_failures_by_source", {}) or {}).items()
+        if isinstance(value, (int, float)) and int(value) > 0
+    }
+    current_phase = str(metadata.get("current_phase") or "").strip()
+    publishable_core_complete = bool(metadata.get("publishable_core_complete"))
+    publishable_core_pending = max(0, int(metadata.get("publishable_core_pending", 0) or 0))
+    backfill_pending = max(0, int(metadata.get("backfill_pending", 0) or 0))
+    source_core_completion_pct = {
+        str(key): float(value)
+        for key, value in (metadata.get("source_core_completion_pct", {}) or {}).items()
+        if isinstance(value, (int, float))
+    }
+    source_full_completion_pct = {
+        str(key): float(value)
+        for key, value in (metadata.get("source_full_completion_pct", {}) or {}).items()
+        if isinstance(value, (int, float))
+    }
+    blocked = bool(
+        observation_count <= 0
+        and stage_status == "running"
+        and (
+            current_phase in {"planning", "blocked_sources"}
+            or blocked_by_source
+            or quota_wait_seconds_by_source
+            or capability_failures_by_source
+            or completed_shards == 0
+        )
+    )
+    if blocked:
+        evaluation_mode = "partial-eval"
+    elif publishable_core_complete and backfill_pending > 0:
+        evaluation_mode = "core-ready"
+    elif publishable_core_complete and publishable_core_pending <= 0 and backfill_pending <= 0:
+        evaluation_mode = "full-ready"
+    else:
+        evaluation_mode = "full-eval"
+    return {
+        "stage_status": stage_status,
+        "current_phase": current_phase,
+        "observation_count": observation_count,
+        "completed_shards": completed_shards,
+        "blocked_by_source": blocked_by_source,
+        "quota_wait_seconds_by_source": quota_wait_seconds_by_source,
+        "capability_failures_by_source": capability_failures_by_source,
+        "publishable_core_complete": publishable_core_complete,
+        "publishable_core_pending": publishable_core_pending,
+        "backfill_pending": backfill_pending,
+        "source_core_completion_pct": source_core_completion_pct,
+        "source_full_completion_pct": source_full_completion_pct,
+        "blocked": blocked,
+        "partial_eval": bool(blocked),
+        "evaluation_mode": evaluation_mode,
+    }
+
+
 def _source_counts(
     con: duckdb.DuckDBPyConnection,
     *,
@@ -542,6 +663,8 @@ def _auth_or_env_error(text: str) -> bool:
 def _run_source_preflight_benchmark(
     config: DatasetBatchConfig,
     con: duckdb.DuckDBPyConnection,
+    *,
+    core_ingest_context: dict[str, object],
 ) -> tuple[dict[str, object], dict[str, float | int]]:
     registry = config.load_registry()
     blocking_sources = [
@@ -605,6 +728,16 @@ def _run_source_preflight_benchmark(
     cases: list[dict[str, object]] = []
     ready = 0
     auth_failures = 0
+    quota_blocked_total = 0
+    blocked_sources = {
+        str(key)
+        for key in (core_ingest_context.get("blocked_by_source", {}) or {}).keys()
+    }
+    quota_blocked_sources = {
+        str(key)
+        for key in (core_ingest_context.get("quota_wait_seconds_by_source", {}) or {}).keys()
+    }
+    core_ingest_blocked = bool(core_ingest_context.get("blocked"))
     for spec in blocking_sources:
         manifest_path = _latest_source_manifest(config.raw_dir / spec.name)
         raw_count = 0
@@ -666,6 +799,8 @@ def _run_source_preflight_benchmark(
                 failure_reason = "auth_or_env"
             elif failed > 0:
                 failure_reason = "fetch_error"
+            elif empirical_required and core_ingest_blocked and not has_empirical_rows:
+                failure_reason = "ingest_blocked"
             elif empirical_required and not has_empirical_rows and complete_empty > 0:
                 failure_reason = "indicators_empty"
             elif raw_count <= 0:
@@ -677,6 +812,8 @@ def _run_source_preflight_benchmark(
             elif not has_execution_artifacts:
                 failure_reason = "no_execution_artifacts"
 
+        source_blocked_by_quota = spec.name in blocked_sources or spec.name in quota_blocked_sources
+        quota_blocked_total += int(source_blocked_by_quota)
         cases.append(
             {
                 "source": spec.name,
@@ -695,6 +832,10 @@ def _run_source_preflight_benchmark(
                 "empirical_status": empirical_status,
                 "empirical_rows": empirical_rows,
                 "auth_or_env_failure": auth_or_env_failure,
+                "source_blocked_by_quota": source_blocked_by_quota,
+                "observation_missing_due_to_stage_block": bool(
+                    empirical_required and not has_empirical_rows and core_ingest_blocked
+                ),
                 "ready": source_ready,
                 "failure_reason": failure_reason,
             }
@@ -705,6 +846,7 @@ def _run_source_preflight_benchmark(
         "benchmark_source_preflight_sources_total": total,
         "benchmark_source_preflight_ready_pct": _pct(ready, total),
         "benchmark_source_preflight_auth_failures_total": auth_failures,
+        "benchmark_source_blocked_by_quota_total": quota_blocked_total,
     }
 
 
@@ -890,6 +1032,7 @@ def _run_transport_benchmark(
     con: duckdb.DuckDBPyConnection,
     *,
     suite: BenchmarkSuite,
+    core_ingest_context: dict[str, object],
 ) -> tuple[dict[str, object], dict[str, float | int]]:
     has_alignments = _table_exists(con, "ds_variable_alignments")
     has_observations = _table_exists(con, "ds_observations")
@@ -898,6 +1041,9 @@ def _run_transport_benchmark(
     alignment_hits = 0
     observation_hits = 0
     ready_hits = 0
+    alignment_without_observations = 0
+    blocked_variables = 0
+    core_ingest_blocked = bool(core_ingest_context.get("blocked"))
 
     for canonical_var in suite.transport_variables:
         aliases = _metric_aliases(canonical_var)
@@ -932,12 +1078,20 @@ def _run_transport_benchmark(
         alignment_hits += int(alignment_hit)
         observation_hits += int(observation_hit)
         ready_hits += int(ready)
+        alignment_present_without_observations = bool(alignment_hit and not observation_hit)
+        observation_missing_due_to_stage_block = bool(
+            alignment_present_without_observations and core_ingest_blocked
+        )
+        alignment_without_observations += int(alignment_present_without_observations)
+        blocked_variables += int(observation_missing_due_to_stage_block)
         variable_results.append(
             {
                 "canonical_var": canonical_var,
                 "alignment_hit": alignment_hit,
                 "observation_hit": observation_hit,
                 "registry_hit": registry_hit,
+                "alignment_present_without_observations": alignment_present_without_observations,
+                "observation_missing_due_to_stage_block": observation_missing_due_to_stage_block,
                 "ready": ready,
             }
         )
@@ -948,6 +1102,8 @@ def _run_transport_benchmark(
         "benchmark_transport_alignment_pct": _pct(alignment_hits, total),
         "benchmark_transport_observation_pct": _pct(observation_hits, total),
         "benchmark_transport_ready_pct": _pct(ready_hits, total),
+        "benchmark_transport_alignment_without_observation_pct": _pct(alignment_without_observations, total),
+        "benchmark_transport_stage_blocked_variables_total": blocked_variables,
     }
     return {"variables": variable_results}, metrics
 
@@ -1062,15 +1218,25 @@ def run_benchmark(
     con = duckdb.connect(str(config.db_path), read_only=True)
     try:
         active_suite = _benchmark_suite_for_snapshot(con, suite)
+        core_ingest_context = _load_core_ingest_context(config, con)
         search_payload, search_metrics = _run_search_benchmark(
             graph,
             suite=active_suite,
             vector_index_available=(config.index_dir / "ds_dataset_index.hnsw").exists(),
         )
         retrieval_payload, retrieval_metrics = _run_retrieval_benchmark(graph, suite=active_suite)
-        transport_payload, transport_metrics = _run_transport_benchmark(con, suite=active_suite)
+        transport_payload, transport_metrics = _run_transport_benchmark(
+            con,
+            suite=active_suite,
+            core_ingest_context=core_ingest_context,
+        )
         foundry_payload, foundry_metrics = _run_foundry_benchmark(con, graph, suite=active_suite)
-        preflight_payload, preflight_metrics = _run_source_preflight_benchmark(config, con)
+        preflight_payload, preflight_metrics = _run_source_preflight_benchmark(
+            config,
+            con,
+            core_ingest_context=core_ingest_context,
+        )
+        bulk_equivalence_payload, bulk_equivalence_metrics = _bulk_equivalence_metrics(config)
     finally:
         con.close()
         graph.close()
@@ -1081,6 +1247,20 @@ def run_benchmark(
     metrics.update(transport_metrics)
     metrics.update(foundry_metrics)
     metrics.update(preflight_metrics)
+    metrics.update(bulk_equivalence_metrics)
+    metrics["benchmark_partial_eval"] = int(bool(core_ingest_context.get("partial_eval")))
+    metrics["publishable_core_pending"] = int(core_ingest_context.get("publishable_core_pending", 0) or 0)
+    metrics["backfill_pending"] = int(core_ingest_context.get("backfill_pending", 0) or 0)
+    metrics["benchmark_source_core_completion_pct_avg"] = round(
+        float(sum((core_ingest_context.get("source_core_completion_pct") or {}).values()))
+        / max(float(len(core_ingest_context.get("source_core_completion_pct") or {})), 1.0),
+        2,
+    )
+    metrics["benchmark_source_full_completion_pct_avg"] = round(
+        float(sum((core_ingest_context.get("source_full_completion_pct") or {}).values()))
+        / max(float(len(core_ingest_context.get("source_full_completion_pct") or {})), 1.0),
+        2,
+    )
     rest_rows_by_source, rest_bytes_by_source, history_budget_exceeded_sources = _rest_manifest_metrics(config)
     metrics["history_budget_exceeded_sources_total"] = len(history_budget_exceeded_sources)
 
@@ -1090,6 +1270,7 @@ def run_benchmark(
         "component_dir": str(config.component_dir),
         "generated_at": datetime.now(UTC).isoformat(),
         "run_profile": config.run_profile,
+        "evaluation_mode": str(core_ingest_context.get("evaluation_mode") or "full-eval"),
         "thresholds": thresholds,
         "suite": {
             "search_cases": [asdict(case) for case in active_suite.search_cases],
@@ -1106,6 +1287,8 @@ def run_benchmark(
         "transport": transport_payload,
         "foundry": foundry_payload,
         "source_preflight": preflight_payload,
+        "bulk_equivalence": {"manifests": bulk_equivalence_payload},
+        "diagnostic_context": core_ingest_context,
         "source_publish_blocking": {
             spec.name: bool(spec.publish_blocking)
             for spec in sorted(config.load_registry().sources, key=lambda item: item.name)

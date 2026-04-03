@@ -383,6 +383,7 @@ def _legacy_strength_from_adjudication(adjudication: dict) -> str:
 
 @dataclass
 class GraphStats:
+    """Graph stats public type."""
     works: int = 0
     concepts: int = 0
     estimates: int = 0
@@ -1720,6 +1721,7 @@ def build_indexes(db_path: Path) -> None:
 
 
 def run_graph_load(config: AcademicBatchConfig) -> GraphStats:
+    """Run graph load."""
     started_at = datetime.now(UTC).isoformat()
 
     def _iter_records() -> Iterable[WorkRecord]:
@@ -1796,6 +1798,7 @@ def run_graph_load(config: AcademicBatchConfig) -> GraphStats:
 
 
 def run_graph_index(config: AcademicBatchConfig) -> None:
+    """Run graph index."""
     started_at = datetime.now(UTC).isoformat()
     build_indexes(config.db_path)
     write_stage_manifest(
@@ -1816,6 +1819,7 @@ def build_graph(
     insert_batch_size: int = 10_000,
     claim_adjudications_path: Path | None = None,
 ) -> GraphStats:
+    """Build graph."""
     stats = load_graph(
         records=records,
         db_path=db_path,

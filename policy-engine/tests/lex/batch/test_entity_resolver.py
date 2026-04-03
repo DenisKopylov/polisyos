@@ -38,6 +38,38 @@ def test_entity_resolver_caps_fuzzy_bucket_candidates() -> None:
     assert len(candidates) <= resolver._FUZZY_MAX_BUCKET_CANDIDATES
 
 
+def test_entity_resolver_collapses_synthetic_placeholders() -> None:
+    resolver = EntityResolver()
+
+    first = resolver.resolve(
+        name_en="",
+        name_uk="орган, що прийняв акт",
+        entity_type="concept",
+    )
+    second = resolver.resolve(
+        name_en="",
+        name_uk="суб'єкт правовідносин",
+        entity_type="concept",
+    )
+
+    assert first == second
+    record = next(record for record in resolver.all_records() if record.entity_id == first)
+    assert record.entity_subtype == "synthetic_subject"
+
+
+def test_entity_resolver_sinks_low_quality_fragments() -> None:
+    resolver = EntityResolver()
+
+    entity_id = resolver.resolve(
+        name_en="",
+        name_uk='(пункт 11.11 статті 11 доповнено словами "згідно із законом")',
+        entity_type="concept",
+    )
+
+    record = next(record for record in resolver.all_records() if record.entity_id == entity_id)
+    assert record.entity_subtype == "low_quality_fragment"
+
+
 def test_detect_consistency_issues_uses_correct_column_offsets() -> None:
     con = duckdb.connect(":memory:")
     con.execute(
@@ -117,4 +149,3 @@ def test_detect_consistency_issues_uses_correct_column_offsets() -> None:
         """
     ).fetchone()
     assert row == ("doc-law", "doc-order", "lex_superior", "doc-law", "art:5", "art:7")
-

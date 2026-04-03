@@ -183,6 +183,9 @@ class GaussianProcessRegressionEstimator:
         ),
         tags=frozenset({"bayesian", "gaussian-process", "regression", "uncertainty"}),
         when_to_use="Nonparametric regression/classification; spatial kriging; Bayesian optimization acquisition functions",
+        citations=(
+            "Rasmussen, C. & Williams, C. (2006). Gaussian Processes for Machine Learning. MIT Press.",
+        ),
         when_not_to_use="Dataset too large for O(n³) exact GP (use sparse variant); non-stationary covariance structure",
         typical_min_obs=20,
         output_interpretation="Posterior mean = best estimate. Posterior variance = uncertainty. Check kernel selection via marginal likelihood.",

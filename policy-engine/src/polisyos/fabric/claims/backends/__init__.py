@@ -1,3 +1,4 @@
+"""Public claims backends package API."""
 from __future__ import annotations
 
 from polisyos.fabric.claims.extractor_registry import ClaimExtractorFn, get_extractor_registry
@@ -14,16 +15,19 @@ def _ensure_legacy_registered() -> None:
 
 
 def get_extractor(extractor_id: str) -> ClaimExtractorFn:
+    """Return extractor."""
     _, extractor = resolve_extractor(extractor_id)
     return extractor
 
 
 def resolve_extractor(extractor_id: str) -> tuple[str, ClaimExtractorFn]:
+    """Resolve extractor."""
     _ensure_legacy_registered()
     return get_extractor_registry().resolve(extractor_id)
 
 
 def list_extractors() -> list[str]:
+    """List extractors."""
     _ensure_legacy_registered()
     return get_extractor_registry().list_extractors()
 

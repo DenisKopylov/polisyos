@@ -1,3 +1,5 @@
+"""Builtin Scientist causal nodes used by workflow DAGs."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
@@ -8,6 +10,15 @@ if TYPE_CHECKING:
     )
     from polisyos.scientist.nodes.builtins.causal.reconcile_causal_graph import (
         ReconcileCausalGraphNode,
+    )
+    from polisyos.scientist.nodes.builtins.causal.counterfactual_identification_gate import (
+        CounterfactualIdentificationGateNode,
+    )
+    from polisyos.scientist.nodes.builtins.causal.run_causal_readiness import (
+        RunCausalReadinessNode,
+    )
+    from polisyos.scientist.nodes.builtins.causal.run_causal_contract_execution import (
+        RunCausalContractExecutionNode,
     )
     from polisyos.scientist.nodes.builtins.causal.resolve_parameters import (
         ResolveParametersNode,
@@ -27,7 +38,10 @@ if TYPE_CHECKING:
 
 __all__ = [
     "BuildLiteraturePriorNode",
+    "CounterfactualIdentificationGateNode",
     "ReconcileCausalGraphNode",
+    "RunCausalReadinessNode",
+    "RunCausalContractExecutionNode",
     "ResolveParametersNode",
     "RunABMConsistencyCheckNode",
     "RunCausalEnsembleNode",
@@ -49,6 +63,24 @@ def __getattr__(name: str) -> Any:
         )
 
         return ReconcileCausalGraphNode
+    if name == "CounterfactualIdentificationGateNode":
+        from polisyos.scientist.nodes.builtins.causal.counterfactual_identification_gate import (
+            CounterfactualIdentificationGateNode,
+        )
+
+        return CounterfactualIdentificationGateNode
+    if name == "RunCausalReadinessNode":
+        from polisyos.scientist.nodes.builtins.causal.run_causal_readiness import (
+            RunCausalReadinessNode,
+        )
+
+        return RunCausalReadinessNode
+    if name == "RunCausalContractExecutionNode":
+        from polisyos.scientist.nodes.builtins.causal.run_causal_contract_execution import (
+            RunCausalContractExecutionNode,
+        )
+
+        return RunCausalContractExecutionNode
     if name == "ResolveParametersNode":
         from polisyos.scientist.nodes.builtins.causal.resolve_parameters import (
             ResolveParametersNode,

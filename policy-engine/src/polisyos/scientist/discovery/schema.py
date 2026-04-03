@@ -11,8 +11,13 @@ from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.contracts.scientist import GraphHypothesisRef
-from polisyos.ir.analytics.causal_discovery import CausalDiscoveryReport
+from polisyos.ir.analytics.causal_discovery import (
+    AlgebraicConstraintReport,
+    CausalDiscoveryReport,
+    LatentDiscoveryBundle,
+)
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel
+from polisyos.ir.refs import CausalDiscoveryReportRef
 
 GRAPH_HYPOTHESIS_SCHEMA_NAME = "polisyos.scientist.discovery.GraphHypothesis"
 GRAPH_HYPOTHESIS_SCHEMA_VERSION = "1.0"
@@ -74,6 +79,9 @@ class GraphHypothesis(BaseModel):
     compute_footprint: ComputeFootprint = Field(default_factory=ComputeFootprint)
     failure_reasons: list[str] = Field(default_factory=list)
     warnings: list[str] = Field(default_factory=list)
+    algebraic_constraints: AlgebraicConstraintReport | None = None
+    latent_discovery: LatentDiscoveryBundle | None = None
+    source_discovery_report_ref: CausalDiscoveryReportRef | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
@@ -243,6 +251,8 @@ def graph_hypothesis_from_report(
         compute_footprint=compute_footprint or ComputeFootprint(),
         failure_reasons=failure_reasons,
         warnings=warnings,
+        algebraic_constraints=report.algebraic_constraints,
+        latent_discovery=report.latent_discovery,
         metadata={
             "discovery_report_metadata": dict(report.metadata),
             **(metadata or {}),
@@ -256,6 +266,7 @@ def persist_graph_hypothesis(
     *,
     inputs: list[InputRef] | None = None,
 ) -> GraphHypothesisRef:
+    """Persist graph hypothesis helper."""
     ref = store.put_json(
         hypothesis,
         PutOptions(
@@ -276,6 +287,7 @@ def load_graph_hypothesis(
     store: FileSystemCAS,
     ref: GraphHypothesisRef,
 ) -> GraphHypothesis:
+    """Load graph hypothesis."""
     payload = from_canonical_bytes(store.get_bytes(ref.artifact_id))
     return GraphHypothesis.model_validate(payload)
 

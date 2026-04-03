@@ -1,3 +1,4 @@
+"""Public workflows selection module API."""
 from __future__ import annotations
 
 from typing import Any, Mapping
@@ -22,6 +23,7 @@ _SERIOUS_EXECUTION_PROFILES: frozenset[str] = frozenset({"research", "governed",
 
 
 def resolve_workflow_id(initial_state: ExperimentState) -> str:
+    """Resolve workflow id."""
     explicit = str(initial_state.params.get("workflow_id", "") or "").strip().lower()
     if explicit == "scientist_discovery":
         return "scientist_discovery"

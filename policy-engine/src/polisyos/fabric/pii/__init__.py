@@ -1,3 +1,4 @@
+"""Public fabric pii package API."""
 from polisyos.fabric.pii.detector import PresidioConfig, PresidioDetector
 from polisyos.fabric.pii.models import PIIEntity, PIIEntityType, PIIScanResult, PIISeverity
 from polisyos.fabric.pii.stage import PIIDetectionStage

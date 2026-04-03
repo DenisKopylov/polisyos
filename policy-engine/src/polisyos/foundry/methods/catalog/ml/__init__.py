@@ -1,3 +1,4 @@
+"""Public catalog ml package API."""
 from __future__ import annotations
 
 from polisyos.foundry.methods.exceptions import MethodAlreadyRegisteredError
@@ -23,6 +24,7 @@ from .uncertainty import ConformalPredictionEstimator
 
 
 def ensure_ml_methods_registered(registry: MethodRegistry | None = None) -> None:
+    """Ensure ml methods registered helper."""
     reg = registry if registry is not None else MethodRegistry.get_instance()
     for method_class in register_ml_methods():
         try:

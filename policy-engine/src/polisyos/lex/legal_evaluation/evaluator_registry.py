@@ -1,3 +1,4 @@
+"""Public legal evaluation evaluator registry module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -28,6 +29,7 @@ LexEvaluatorFn = Callable[
 
 @dataclass(slots=True)
 class EvaluatorRecord:
+    """Evaluator record data model."""
     component_id: str
     base_id: str
     version: str
@@ -37,12 +39,14 @@ class EvaluatorRecord:
 
 @dataclass(slots=True)
 class EvaluatorBootstrapReport:
+    """Evaluator bootstrap report data model."""
     registered: list[str] = field(default_factory=list)
     errors: list[str] = field(default_factory=list)
     discovery_errors: list[str] = field(default_factory=list)
 
 
 class LexEvaluatorRegistry:
+    """Lex evaluator registry implementation."""
     def __init__(self) -> None:
         self._records = GenericRegistry[str, EvaluatorRecord](
             key_fn=lambda record: record.component_id,
@@ -78,6 +82,7 @@ _BUILTINS_REGISTERED = False
 
 
 def get_evaluator_registry() -> LexEvaluatorRegistry:
+    """Return evaluator registry."""
     _ensure_builtin_evaluators()
     return _GLOBAL_REGISTRY
 
@@ -109,6 +114,7 @@ def _ensure_builtin_evaluators() -> None:
 
 
 def bootstrap_component_evaluators(components_index: ComponentRegistry) -> EvaluatorBootstrapReport:
+    """Bootstrap component evaluators helper."""
     report = EvaluatorBootstrapReport()
     host = HostAbi(versions={"ir_abi": "1.0", "world_abi": "1.0"}, strict=True)
 
@@ -160,6 +166,7 @@ def discover_and_bootstrap_evaluators(
     include_dev_scan: bool = True,
     components_index: ComponentRegistry | None = None,
 ) -> EvaluatorBootstrapReport:
+    """Discover and bootstrap evaluators helper."""
     if components_index is not None:
         return bootstrap_component_evaluators(components_index)
 

@@ -187,6 +187,20 @@ def test_build_legal_unit_signals_marks_appendix_header_as_search_only() -> None
     assert signals.route_class == "search_only"
 
 
+def test_build_legal_unit_signals_demotes_appendix_reference_explanation_to_scaffold() -> None:
+    signals = build_legal_unit_signals(
+        text="У графі 12 зазначаються реквізити документа відповідно до статті 5 цього Порядку.",
+        struct_kind="paragraph",
+        section_role="table_clause",
+        fallback_allowed_for_reasoning=True,
+        doc_family="appendix_heavy",
+        doc_title="Додаток до Порядку",
+        citation_label="Примітка 1",
+    )
+
+    assert signals.legal_unit_subtype == "table_scaffold"
+
+
 def test_build_legal_unit_signals_routes_appendix_heavy_cnc_through_deterministic_retry() -> None:
     """appendix_heavy + core_normative_clause should now use deterministic_then_llm_retry."""
     signals = build_legal_unit_signals(
@@ -215,6 +229,21 @@ def test_build_legal_unit_signals_marks_amendment_wording_item_as_deterministic(
         doc_family="appendix_heavy",
         doc_title="Про внесення змін",
         citation_label="Пункт 25",
+    )
+
+    assert signals.legal_unit_subtype == "amendment_bundle"
+    assert signals.route_class == "deterministic_only"
+
+
+def test_build_legal_unit_signals_routes_amendment_packaging_leads_out_of_core_normative_clause() -> None:
+    signals = build_legal_unit_signals(
+        text="Назву розділу IV Закону викласти в такій редакції: \"Прикінцеві положення\".",
+        struct_kind="point",
+        section_role="normative_unit",
+        fallback_allowed_for_reasoning=True,
+        doc_family="law",
+        doc_title="Про внесення змін до Закону України",
+        citation_label="Пункт 3",
     )
 
     assert signals.legal_unit_subtype == "amendment_bundle"
@@ -370,3 +399,41 @@ def test_build_legal_unit_signals_uses_plugin_specific_normative_and_reference_p
     assert signals.legal_unit_subtype == "core_normative_clause"
     assert signals.legal_unit_micro_subtype == "reference_tail"
     assert signals.reference_bearing is True
+
+
+def test_build_legal_unit_signals_keeps_incidental_approval_article_out_of_bundle() -> None:
+    signals = build_legal_unit_signals(
+        text=(
+            "Стаття 123. Доручення на провадження дій у справі про порушення митних правил "
+            "Службова особа митного органу України має право доручити провадження окремих дій "
+            "службовій особі іншого митного органу України. Доручення повинно бути виконано "
+            "у строк не більше п'яти днів з дня його одержання."
+        ),
+        struct_kind="article",
+        section_role="normative_unit",
+        fallback_allowed_for_reasoning=True,
+        doc_family="law",
+        doc_title="Митний кодекс України",
+        citation_label="Стаття 123",
+    )
+
+    assert signals.legal_unit_subtype != "approval_bundle"
+    assert signals.legal_unit_subtype in {"core_normative_clause", "temporal_clause"}
+
+
+def test_build_legal_unit_signals_keeps_editorial_amendment_note_out_of_bundle() -> None:
+    signals = build_legal_unit_signals(
+        text=(
+            "Стаття 2. Платником податку є особа, обсяг оподатковуваних операцій якої "
+            "перевищував 600 неоподатковуваних мінімумів доходів громадян. "
+            "(статтю 2 доповнено пунктом 2.6 згідно із Законом України від 26.09.97 р. N 550/97-ВР)"
+        ),
+        struct_kind="article",
+        section_role="normative_unit",
+        fallback_allowed_for_reasoning=True,
+        doc_family="law",
+        doc_title="Закон про податок на додану вартість",
+        citation_label="Стаття 2",
+    )
+
+    assert signals.legal_unit_subtype != "amendment_bundle"

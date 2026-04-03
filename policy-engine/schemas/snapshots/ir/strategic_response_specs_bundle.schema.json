@@ -1,0 +1,88 @@
+{
+  "$defs": {
+    "StrategicResponseChannel": {
+      "enum": [
+        "budget_channel",
+        "procurement_channel",
+        "labor_channel",
+        "trade_channel",
+        "household_income_channel",
+        "compliance_channel"
+      ],
+      "title": "StrategicResponseChannel",
+      "type": "string"
+    },
+    "StrategicResponseSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "channels": {
+          "items": {
+            "$ref": "#/$defs/StrategicResponseChannel"
+          },
+          "minItems": 1,
+          "title": "Channels",
+          "type": "array"
+        },
+        "hook_fqn": {
+          "default": "polisyos.foundry.methods.catalog.causal.strategic.evaluate_strategic_hook",
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Hook Fqn",
+          "type": "string"
+        },
+        "intervention_kind": {
+          "maxLength": 120,
+          "minLength": 1,
+          "title": "Intervention Kind",
+          "type": "string"
+        },
+        "notes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Notes",
+          "type": "array"
+        },
+        "strategic_response_expected": {
+          "default": true,
+          "title": "Strategic Response Expected",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "intervention_kind",
+        "channels"
+      ],
+      "title": "StrategicResponseSpec",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "artifact_name": {
+      "const": "strategic_response_specs_v1.json",
+      "default": "strategic_response_specs_v1.json",
+      "title": "Artifact Name",
+      "type": "string"
+    },
+    "expectations": {
+      "items": {
+        "$ref": "#/$defs/StrategicResponseSpec"
+      },
+      "minItems": 1,
+      "title": "Expectations",
+      "type": "array"
+    },
+    "schema_version": {
+      "default": "1.0",
+      "pattern": "^\\d+\\.\\d+$",
+      "title": "Schema Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "expectations"
+  ],
+  "title": "StrategicResponseSpecsBundle",
+  "type": "object"
+}

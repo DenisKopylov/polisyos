@@ -1,3 +1,4 @@
+"""Public services timeline module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -19,10 +20,12 @@ logger = get_logger(__name__)
 
 @dataclass(frozen=True)
 class TimelineBuildResult:
+    """Timeline build result data model."""
     timeline: RunTimelineView
 
 
 class TimelineService:
+    """Timeline service implementation."""
     def build_for_run(self, run: IndexedRunRecord) -> TimelineBuildResult:
         if run.trace_path is None or not run.trace_path.exists():
             timeline = RunTimelineView(

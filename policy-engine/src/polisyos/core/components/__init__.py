@@ -1,3 +1,4 @@
+"""Public core components package API."""
 from .bootstrap import (
     BootstrapDomainReport,
     BootstrapReport,

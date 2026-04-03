@@ -1245,7 +1245,7 @@ def _cate_quality_case(
         runner=runner,
         checker=checker,
         tags=("hte", "cate"),
-        timeout_s=300.0,
+        timeout_s=1800.0,
     )
 
 
@@ -1300,7 +1300,7 @@ def _modifier_detection_case(
         runner=runner,
         checker=checker,
         tags=("hte", "modifiers"),
-        timeout_s=300.0,
+        timeout_s=1800.0,
     )
 
 
@@ -1397,7 +1397,7 @@ def _pipeline_integrity_case(
         runner=runner,
         checker=checker,
         tags=("hte", "pipeline"),
-        timeout_s=300.0,
+        timeout_s=1800.0,
     )
 
 

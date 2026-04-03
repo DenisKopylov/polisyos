@@ -1,4 +1,7 @@
+"""Public scientist autotune package API."""
 from __future__ import annotations
+
+import importlib
 
 from .models import (
     BenchmarkEvaluation,
@@ -74,6 +77,51 @@ try:
     )
 except Exception:  # pragma: no cover - optional import guard for package init cycles
     pass
+
+_OPTIONAL_LAZY_IMPORTS: dict[str, tuple[str, str]] = {
+    "ChampionBackedRuntimeLoader": (
+        "polisyos.scientist.autotune.runtime",
+        "ChampionBackedRuntimeLoader",
+    ),
+    "PydanticMutationCodec": (
+        "polisyos.scientist.autotune.runtime",
+        "PydanticMutationCodec",
+    ),
+    "SequenceCandidateGenerator": (
+        "polisyos.scientist.autotune.runtime",
+        "SequenceCandidateGenerator",
+    ),
+    "SearchLoopRunner": (
+        "polisyos.scientist.autotune.runtime",
+        "SearchLoopRunner",
+    ),
+    "seed_loop_baseline": (
+        "polisyos.scientist.autotune.runtime",
+        "seed_loop_baseline",
+    ),
+    "CapabilityAwareExecutionPlanCandidateGenerator": (
+        "polisyos.scientist.autotune.execution_plan",
+        "CapabilityAwareExecutionPlanCandidateGenerator",
+    ),
+    "build_execution_plan_generation_context": (
+        "polisyos.scientist.autotune.execution_plan",
+        "build_execution_plan_generation_context",
+    ),
+    "suggest_execution_plan_topology_mutations": (
+        "polisyos.scientist.autotune.execution_plan",
+        "suggest_execution_plan_topology_mutations",
+    ),
+}
+
+
+def __getattr__(name: str):
+    if name not in _OPTIONAL_LAZY_IMPORTS:
+        raise AttributeError(f"module 'polisyos.scientist.autotune' has no attribute '{name}'")
+    module_name, attr_name = _OPTIONAL_LAZY_IMPORTS[name]
+    module = importlib.import_module(module_name)
+    value = getattr(module, attr_name)
+    globals()[name] = value
+    return value
 
 try:
     from .execution_plan import (

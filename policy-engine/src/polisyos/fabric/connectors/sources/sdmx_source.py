@@ -89,6 +89,19 @@ def _parse_http_datetime(value: str | None) -> datetime | None:
         return None
 
 
+def _structure_payload_root(body: dict[str, Any]) -> dict[str, Any]:
+    structure = body.get("structure")
+    if isinstance(structure, dict):
+        return structure
+    nested = body.get("data")
+    if isinstance(nested, dict):
+        nested_structure = nested.get("structure")
+        if isinstance(nested_structure, dict):
+            return nested_structure
+        return nested
+    return body
+
+
 def _dimension_values(dim: dict[str, Any]) -> list[str]:
     values = dim.get("values", [])
     labels: list[str] = []
@@ -165,7 +178,22 @@ def _parse_sdmx_json(body: dict[str, Any]) -> pd.DataFrame:
 # ---------------------------------------------------------------------------
 
 class SDMXSourceConnector(HTTPConnectorBase[pd.DataFrame]):
-    """Production SDMX REST connector for statistical data agencies."""
+    """Production SDMX connector for ECB, OECD, IMF, BIS, ILO, and peers.
+
+    Uses profile-provided base URLs and SDMX agency headers to fetch grouped
+    datasets, stream larger responses, and inspect dataset structure.
+
+    Data source:
+        Profile-defined SDMX agencies
+    Protocol:
+        SDMX-JSON / SDMX-ML over HTTP
+    Auth:
+        Profile-driven, usually none
+    Async support:
+        Yes, via async fetch and ``fetch_stream()``
+    Profile:
+        Any ``connector_family='sdmx'`` profile such as ``oecd_sdmx``
+    """
 
     namespace: ClassVar[str] = "sdmx"
     short_id: ClassVar[str] = "source"
@@ -325,7 +353,7 @@ class SDMXSourceConnector(HTTPConnectorBase[pd.DataFrame]):
 
     @staticmethod
     def _extract_dataflows(body: dict[str, Any]) -> Iterable[dict[str, Any]]:
-        structure = body.get("structure", body)
+        structure = _structure_payload_root(body)
         dataflows = (
             structure.get("dataflows")
             or structure.get("dataFlows")
@@ -352,7 +380,7 @@ class SDMXSourceConnector(HTTPConnectorBase[pd.DataFrame]):
 
     @staticmethod
     def _extract_structure_dimension_order(body: dict[str, Any]) -> list[str]:
-        structure = body.get("structure", body)
+        structure = _structure_payload_root(body)
         candidate_sets = (
             structure.get("dataStructures"),
             structure.get("datastructures"),
@@ -386,7 +414,7 @@ class SDMXSourceConnector(HTTPConnectorBase[pd.DataFrame]):
 
     @staticmethod
     def _extract_constraint_positions(body: dict[str, Any]) -> dict[str, list[str]]:
-        structure = body.get("structure", body)
+        structure = _structure_payload_root(body)
         constraints = (
             structure.get("contentConstraints")
             or structure.get("contentconstraints")

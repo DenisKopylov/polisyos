@@ -43,6 +43,8 @@ from ._executor_patching import (  # noqa: F401
 
 # State snapshot persistence
 from ._executor_snapshots import (  # noqa: F401
+    export_seed_state_npz,
+    import_seed_state_npz,
     load_state_snapshot,
     put_state_snapshot,
 )
@@ -59,6 +61,8 @@ __all__ = [
     "apply_patch_map",
     "apply_state_delta_and_snapshot",
     # snapshots
+    "export_seed_state_npz",
+    "import_seed_state_npz",
     "load_state_snapshot",
     "put_state_snapshot",
     # ops

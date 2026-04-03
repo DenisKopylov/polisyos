@@ -1,110 +1,43 @@
-# Lex
+# Lex (`polisyos.lex`)
 
-`polisyos.lex` — юридический слой `policy-engine`: от подготовки нормативного корпуса до оценки легальности, what-if анализа изменений норм и работы с legal knowledge graph.
+`polisyos.lex` покрывает юридический контур PolicyOS: ingest и versioning
+нормативных документов, сборку `NormPack`, compliance-оценку, what-if симуляцию,
+offline knowledge graph и новый слой `lex -> intervention`, который переводит
+provision-level правила в tunable policy/runtime artifacts.
 
 ## Роль в системе
 
-`lex` связывает:
-- `polisyos.fabric` (ingest документов, claims/world facts);
-- `polisyos.ir` (типы `NormPack`, `PolicySpec`, `ComplianceIssue`, world-модели);
-- `polisyos.core` (CAS, component registry, governance passes).
+- **Зависит от:** `polisyos.ir`, `polisyos.core`, `polisyos.fabric`, `polisyos.foundry`
+- **Используется в:** `polisyos.scientist`, `polisyos.runtime`, governance and policy-design flows
+- Модуль связывает legal corpus, factual world state и policy execution surface через CAS, fact log и typed contracts.
 
-Основной принцип: каждый значимый шаг сохраняется в CAS и/или в fact log с provenance-событиями.
+## Ключевые концепции
 
-## Контуры
+- **Compliance path** — `corpus -> normpack -> legal_evaluation -> simulator` формирует юридическую проверку и change proposals.
+- **Knowledge path** — `batch -> knowledge` превращает XML-корпус в DuckDB/HNSW legal graph для search и downstream reasoning.
+- **Intervention mapping** — `interventions.py` и `intervention_artifacts.py` компилируют provision directives в intervention knobs, temporal sequences и strategic-response specs.
+- **Version-aware corpus** — `build_version_index()` и `resolve_active_version()` выбирают активную редакцию по temporal envelope, а не по случайному document id.
+- **Component-driven extensibility** — providers, evaluators и extractors поднимаются через registry/entry points, а не хардкодятся в orchestration.
+- **Artifact-first execution** — ключевые выходы сохраняются как `lex.*` artifacts и world events с provenance.
 
-- Online-контур комплаенса: `corpus -> normpack -> legal_evaluation -> simulator`.
-- Offline-контур графа знаний: `batch -> knowledge`.
+## Public API
 
-## Архитектура директории
+| Type/Function | Description |
+|---|---|
+| `ingest_legal_doc_bytes()` | Ingest raw legal bytes and persist normalized corpus metadata |
+| `build_legal_structure()` | Extract provision hierarchy and emit `lex.corpus.provision_index` |
+| `build_version_index()`, `resolve_active_version()` | Build and query active-version indexes for legal docs |
+| `assemble_norm_pack()` | Assemble a `NormPack` through provider or pipeline path |
+| `evaluate_legality()` | Produce `lex.legal_report` and optional change proposals |
+| `NormPackMutator`, `diff_norm_packs()`, `NormImpactAnalyzer` | What-if diff and impact analysis for norm changes |
+| `LegalKnowledgeGraph` | Read-only search API over the offline legal graph |
+| `LexInterventionCompiler`, `TemporalInterventionSequencer` | Compile legal provisions into intervention/runtime artifacts |
 
-```text
-lex/
-  api.py                # фасад синхронного API
-  __init__.py           # lazy-экспорт core API/типов + simulator/knowledge
-  types.py              # dataclass-запросы/результаты
-  errors.py             # LexError + подтипы
-  artifacts.py          # безопасная загрузка CAS payload
-  factlog.py            # загрузка world fact segments (parquet)
-  common.py             # общие утилиты (ISO date, ws collapse, latest value)
+Full reference: [docs/reference/lex/](../../../docs/reference/lex/index.md)
 
-  corpus/               # ingest, structure, version indexes
-  normpack/             # сборка NormPack (provider/pipeline path)
-  legal_evaluation/     # legal report + change proposals + transport constraints
-  simulator/            # diff/impact анализ изменений NormPack
-  batch/                # XML -> legal knowledge graph (offline)
-  knowledge/            # read-only search API по legal graph
-```
+## Current State
 
-## Основные потоки
-
-```text
-Compliance:
-raw bytes
-  -> ingest_legal_doc_bytes
-  -> build_legal_structure
-  -> build_version_index / resolve_active_version
-  -> assemble_norm_pack
-  -> evaluate_legality
-  -> (optional explicit) propose_changes
-
-Simulation:
-old/new NormPack -> diff_norm_packs -> NormImpactAnalyzer.analyze
-
-Knowledge:
-XML corpus -> lex.batch (parse/structure/spo/graph/embed)
-          -> DuckDB + HNSW/NPZ indexes
-          -> LegalKnowledgeGraph search API
-```
-
-## Публичный API
-
-Через `polisyos.lex.api`:
-- `ingest_legal_doc_bytes`
-- `build_legal_structure`
-- `build_version_index`
-- `resolve_active_version`
-- `assemble_norm_pack`
-- `evaluate_legality`
-- `evaluate_transport_constraints`
-- `propose_changes`
-
-Через lazy-реэкспорт `polisyos.lex`:
-- core API (кроме `evaluate_transport_constraints`, он доступен через `polisyos.lex.api`);
-- simulator-инструменты (`NormPackMutator`, `diff_norm_packs`, `NormImpactAnalyzer`);
-- knowledge API (`LegalKnowledgeGraph`);
-- типы запросов/результатов `lex.types`.
-
-## Точки расширения
-
-- `polisyos.norm_pack_providers` — внешние `NormPackProvider`.
-- `polisyos.lex_evaluators` — внешние legal evaluators.
-- `polisyos.lex_extractors` и `polisyos.scholar_extractors` — extractors для norm claims.
-
-## Ключевые артефакты
-
-- `lex.corpus.provision_index`
-- `lex.corpus.version_index`
-- `lex.corpus.doc_source_props`
-- `lex.norms.claim_set`
-- `lex.norm_pack`
-- `lex.legal_report`
-- `lex.change_proposal`
-- `lex.norm_diff`
-- `lex.norm_impact_report`
-- offline graph bundle: `lex_knowledge_graph.duckdb`, `lex_*_embeddings.npz`, `lex_*_index.hnsw`
-
-## Подсистемы
-
-- `corpus`: [corpus/README.md](corpus/README.md)
-- `normpack`: [normpack/README.md](normpack/README.md)
-- `legal_evaluation`: [legal_evaluation/README.md](legal_evaluation/README.md)
-- `simulator`: [simulator/README.md](simulator/README.md)
-- `batch`: [batch/README.md](batch/README.md)
-- `knowledge`: [knowledge/README.md](knowledge/README.md)
-
-## Эксплуатационные особенности
-
-- Большинство подсистем предпочитает `warnings`/`quality_issues` вместо раннего hard-fail.
-- `normpack.select_sources` умеет fallback-выбор версии напрямую из фактов, если `version_index` еще не собран.
-- `evaluate_legality` перед запуском всегда bootstrap-ит evaluator registry; встроенный backend — `lex.eval.simple_v1@1.0.0`.
+- Last updated: 2026-04-03
+- Files: 9 top-level Python files plus 6 subpackages
+- Exports: 58 lazy exports in `__init__.py`
+- Notable delta: root facade now includes intervention mapping artifacts in addition to corpus, normpack, simulator and knowledge flows

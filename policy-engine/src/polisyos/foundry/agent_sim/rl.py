@@ -1,3 +1,4 @@
+"""Public agent sim rl module API."""
 from __future__ import annotations
 
 import chex
@@ -14,6 +15,7 @@ from polisyos.foundry.agent_sim.actor_critic import (
 
 @chex.dataclass(frozen=True)
 class Transition:
+    """Transition public type."""
     observation: Float[Array, "obs_dim"]
     action: Float[Array, "action_dim"]
     reward: Float[Array, ""]
@@ -24,6 +26,7 @@ class Transition:
 
 @chex.dataclass(frozen=True)
 class Trajectory:
+    """Trajectory public type."""
     observations: Float[Array, "T n_agents obs_dim"]
     actions: Float[Array, "T n_agents action_dim"]
     rewards: Float[Array, "T n_agents"]
@@ -42,6 +45,7 @@ def compute_returns_and_advantages(
     gae_lambda: float = 0.95,
     active_mask: Bool[Array, "T n_agents"] | None = None,
 ) -> tuple[Float[Array, "T n_agents"], Float[Array, "T n_agents"]]:
+    """Compute returns and advantages helper."""
     rewards = trajectory.rewards
     values = trajectory.values
     dones = trajectory.dones
@@ -86,6 +90,7 @@ def ppo_loss(
     entropy_coef: float = 0.01,
     active_mask: Bool[Array, "T n_agents"] | None = None,
 ) -> tuple[Float[Array, ""], dict[str, Array]]:
+    """Ppo loss helper."""
     observations = trajectory.observations
     actions = trajectory.actions
     T, n_agents, obs_dim = observations.shape

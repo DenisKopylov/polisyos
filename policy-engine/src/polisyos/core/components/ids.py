@@ -1,3 +1,4 @@
+"""Public components ids module API."""
 from __future__ import annotations
 
 import re
@@ -23,6 +24,7 @@ _COMPONENT_ID_RE = re.compile(
 @total_ordering
 @dataclass(frozen=True, slots=True)
 class SemVer:
+    """Sem ver public type."""
     major: int
     minor: int
     patch: int
@@ -122,6 +124,7 @@ def _compare_prerelease(left: tuple[str, ...], right: tuple[str, ...]) -> int:
 
 @dataclass(frozen=True, slots=True)
 class SemverRange:
+    """Semver range public type."""
     raw: str
     clauses: tuple[tuple[str, SemVer], ...]
 
@@ -255,6 +258,7 @@ class ComponentId(RootModel[str]):
 
 
 def compare_semver(left: str, right: str) -> int:
+    """Compare semver helper."""
     left_semver = SemVer.parse(left)
     right_semver = SemVer.parse(right)
     if left_semver < right_semver:

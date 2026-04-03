@@ -329,8 +329,12 @@
       "enum": [
         "rct",
         "quasi_natural",
+        "quasi_natural_event",
         "meta_analysis",
+        "panel_fe",
+        "structural",
         "observational",
+        "cross_sectional",
         "theoretical",
         "unknown"
       ],
@@ -393,6 +397,17 @@
           "title": "Transport Confidence",
           "type": "number"
         },
+        "transport_mode": {
+          "$ref": "#/$defs/TransportMode",
+          "default": "none"
+        },
+        "transport_notes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Transport Notes",
+          "type": "array"
+        },
         "transport_status": {
           "$ref": "#/$defs/TransportabilityStatus"
         },
@@ -425,11 +440,22 @@
       "title": "ParameterType",
       "type": "string"
     },
-    "TransportabilityStatus": {
+    "TransportMode": {
       "enum": [
         "direct",
-        "transportable",
-        "non_transportable"
+        "transport_formula",
+        "bounds_only",
+        "none"
+      ],
+      "title": "TransportMode",
+      "type": "string"
+    },
+    "TransportabilityStatus": {
+      "enum": [
+        "identified",
+        "partially_identified",
+        "bounded_non_identified",
+        "unsupported"
       ],
       "title": "TransportabilityStatus",
       "type": "string"

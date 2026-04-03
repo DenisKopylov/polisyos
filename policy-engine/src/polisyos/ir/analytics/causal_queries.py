@@ -1,3 +1,4 @@
+"""Public analytics causal queries module API."""
 from __future__ import annotations
 
 import math
@@ -19,6 +20,8 @@ from polisyos.ir.refs import CausalQueryResultRef
 
 
 class QueryType(str, Enum):
+    """High-level family of causal query requested from the engine."""
+
     INTERVENTIONAL = "interventional"
     COUNTERFACTUAL = "counterfactual"
     ATTRIBUTION = "attribution"
@@ -26,6 +29,8 @@ class QueryType(str, Enum):
 
 
 class InterventionType(str, Enum):
+    """Mechanics of the treatment perturbation encoded in a query."""
+
     ATOMIC = "atomic"
     TRUNCATED = "truncated"
     SHIFTED = "shifted"
@@ -33,6 +38,8 @@ class InterventionType(str, Enum):
 
 
 class InterventionSpec(BaseModel):
+    """Treatment perturbation attached to a causal query."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     type: InterventionType = InterventionType.ATOMIC
@@ -85,6 +92,8 @@ class InterventionSpec(BaseModel):
 
 
 class CausalQuery(BaseModel):
+    """Fully specified causal query contract for execution or persistence."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     query_type: QueryType
@@ -165,6 +174,8 @@ class CausalQuery(BaseModel):
 
 
 class CausalQueryResult(BaseModel):
+    """Result payload returned for a persisted or in-memory causal query."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -243,7 +254,8 @@ class CausalQueryResult(BaseModel):
         )
 
 
-CausalInterventionSpec = InterventionSpec
+class CausalInterventionSpec(InterventionSpec):
+    """Backward-compatible named alias for `InterventionSpec`."""
 
 
 def persist_causal_query_result(
@@ -254,6 +266,7 @@ def persist_causal_query_result(
     schema_name: str = "ir.causal_query_result",
     schema_version: str = "1.0",
 ) -> CausalQueryResultRef:
+    """Persist causal query result helper."""
     ref = put_json_artifact(
         store,
         result.model_dump(mode="json"),
@@ -270,6 +283,7 @@ def load_causal_query_result(
     store: ArtifactStore,
     ref: CausalQueryResultRef,
 ) -> CausalQueryResult:
+    """Load causal query result."""
     payload = get_json_artifact(store, ref.artifact_id)
     return CausalQueryResult.model_validate(payload)
 

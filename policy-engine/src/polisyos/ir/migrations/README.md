@@ -1,27 +1,40 @@
-# ir.migrations
+# Migrations (`polisyos.ir.migrations`)
 
-`ir.migrations` — runtime механизм миграции версий schema для canonical policy IR payload.
+`polisyos.ir.migrations` отвечает за runtime migration только канонического
+policy IR payload. Модуль intentionally узкий: он не пытается реанимировать
+legacy non-Trinity surface, а поддерживает версионирование `TrinityBundle`
+внутри допустимой schema lineage.
 
-## Состав
+## Роль в системе
 
-| Файл | Назначение |
+- **Зависит от:** `polisyos.ir.trinity`
+- **Используется в:** `polisyos.ir.loaders`, runtime ingestion, compatibility checks
+- Migration layer изолирует schema-version transitions от остального code path.
+
+## Ключевые концепции
+
+- **Policy IR artifact** — canonical migration target всегда `policy_ir`.
+- **Version parsing** — допустим только формат `MAJOR.MINOR`.
+- **Controlled major bumps** — major transitions требуют явного `allow_major=True`.
+- **Identity migration** — текущая цепочка регистрирует только `1.0 -> 1.0`.
+- **Legacy rejection** — payloads с `semantic` или `2.*` version family блокируются как pre-Trinity surface.
+
+## Public API
+
+| Type/Function | Description |
 |---|---|
-| `base.py` | общий реестр migration-функций (`register_migration`, `migrate_artifact`) |
-| `__init__.py` | policy IR API: `migrate_policy_ir`, version parsing, major bump checks |
-| `policy_ir.py` | текущая canonical версия и регистрация migration-цепочки |
-| `trinity_migration.py` | вспомогательные проверки/нормализация Trinity payload |
+| `IR_ARTIFACT` | Canonical artifact family name для policy IR |
+| `IR_CURRENT_VERSION` | Текущая поддерживаемая версия policy IR |
+| `parse_version()` | Парсит `MAJOR.MINOR` schema version |
+| `is_major_bump()` | Определяет, требуется ли guarded major transition |
+| `register_migration()` | Регистрирует migration step в shared registry |
+| `migrate_policy_ir()` | Прогоняет payload через canonical migration chain |
+
+Full reference: [docs/reference/ir/](../../../../docs/reference/ir/index.md)
 
 ## Текущее состояние
 
-- `IR_ARTIFACT = "policy_ir"`.
-- `IR_CURRENT_VERSION = "1.0"`.
-- Зарегистрирован migration шаг: `1.0 -> 1.0` (identity через `TrinityBundle.model_validate`).
-- Runtime миграции legacy non-Trinity payload не поддерживаются.
-
-## Ограничения и поведение
-
-- `migrate_policy_ir()` требует `schema_version` в payload.
-- `schema_version` должен быть формата `MAJOR.MINOR`.
-- При major change требуется явный `allow_major=True`.
-- Payload с `schema_version` семейства `2.*` или полем `semantic` отклоняется как legacy формат.
-- `migrate_artifact()` защищён от циклов миграции и от отсутствующих переходов в registry.
+- Последнее обновление: 2026-04-03
+- Files: 5 Python files
+- Exports: 6 public names in `__init__.py`
+- Current migration chain: только Trinity `1.0 -> 1.0`; observation additions не вводят отдельной migration ветки

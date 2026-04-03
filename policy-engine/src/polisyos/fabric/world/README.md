@@ -1,57 +1,39 @@
-# World
+# World (`polisyos.fabric.world`)
 
-`polisyos.fabric.world` превращает append-only fact segments в queryable world-представление (DuckDB, optional Kuzu export).
+`world` - append-only fact store and materialization layer that turns Fabric
+segments into queryable world state.
 
-## Состав
+## Role in System
 
-- `store/` — emit/validate/persist world entities, segment lifecycle (`write`, `append index`, `load manifests`).
-- `materialize/` — применение сегментов в DuckDB projections + optional export в Kuzu.
-- `events.py` — генерация детерминированных world events для pipeline-стадий.
+- **Depends on:** `polisyos.fabric.world.store`, `polisyos.fabric.world.materialize`
+- **Used by:** `fabric.docs`, `fabric.claims`, `fabric.world_query`, retrieval and runtime consumers
+- Keeps world facts, events and projections consistent across DuckDB and optional export targets.
 
-## Поток данных
+## Key Concepts
 
-```text
-Fact segments + manifests
-   -> world.store (CAS + _segments.jsonl)
-   -> world.materialize.duckdb (idempotent apply)
-   -> world.* projection tables
-   -> world_query (safe read API)
-```
+- **Segment store** - writes and validates append-only fact segments.
+- **Materialization** - applies segments into DuckDB projections and optional Kuzu export.
+- **Merge strategy** - explicit conflict semantics for repeated materialization.
+- **Schema management** - DDL and online schema updates are part of the world layer.
 
-## Materialization API
+## Public API
 
-- `ensure_world_schema(...)` — применяет DDL + idempotent online migrations (в т.ч. conflict projections).
-- `apply_world_segment(...)` — применяет один сегмент транзакционно.
-- `ensure_world_materialized(...)` — инкрементально применяет набор сегментов.
-- `materialize_world_duckdb_from_fact_log(...)` — materialize from fact-log root.
-- `materialize_world_kuzu_from_duckdb(...)` — optional экспорт в Kuzu.
+| Type/Function | Description |
+|---|---|
+| `write_world_fact_segment()` | Writes a fact segment to the world store. |
+| `persist_world_event()` | Persists a deterministic world event. |
+| `ensure_world_schema()` | Ensures the DuckDB world schema exists. |
+| `apply_world_segment()` | Applies one world segment transactionally. |
+| `ensure_world_materialized()` | Materializes a batch of segments. |
+| `materialize_world_duckdb_from_fact_log()` | Materializes the world from a fact log root. |
+| `materialize_world_kuzu_from_duckdb()` | Optional Kuzu export path. |
+| `MergeStrategy` | Merge policy for repeated materialization. |
+| `WorldMergeConflict` | Raised when merge semantics conflict. |
 
-## Консистентность и merge
+→ Full reference: [docs/reference/fabric/index.md](../../../../docs/reference/fabric/index.md)
 
-Merge rules задаются в `materialize/rules.py`:
+## Current State
 
-- `ERROR_ON_CONFLICT`
-- `PREFER_NON_NULL_LAST_TX`
-- `LAST_TX`
-- `FIRST_TX`
-
-Если для одного `node_id` конфликтует `kind`, поднимается `WorldMergeConflict`.
-
-## DuckDB schema
-
-DDL: [duckdb_world.sql](/Users/deniskopylov/polisyos/policy-engine/src/polisyos/fabric/world/ddl/duckdb_world.sql)
-
-Ключевые таблицы:
-
-- meta: `world._meta_world_segments`
-- event-sourcing view: `world.world_facts`
-- graph: `world.world_nodes`, `world.world_edges`, `world.world_events`
-- docs: `world.doc_sources`, `world.doc_versions`, `world.doc_fragments`
-- claims/conflicts: `world.claims`, `world.claim_citations`, `world.conflict_sets`, `world.conflict_members`
-- trust/quality: `world.trust_assessments`, `world.quality_reports`
-
-## Связи
-
-- producers: `fabric.docs`, `fabric.claims`, ingestion-related pipelines.
-- consumers: [world_query.py](/Users/deniskopylov/polisyos/policy-engine/src/polisyos/fabric/world_query.py), retrieval/control/scientist paths.
-- runtime: `fabric.io` (`SimulationDB`) и `fabric.storage` adapters.
+- Last updated: 2026-04-03
+- Files: 18 Python files
+- Exports: 35

@@ -147,6 +147,23 @@ class TestProxyIdentification:
         rule_names = [s.rule_name for s in result.proof_steps]
         assert "PROXY_ADJUSTMENT" in rule_names
 
+    def test_proxy_id_surfaces_proxy_boundary_metadata(self):
+        from polisyos.foundry.methods.catalog.causal.measurement_error import identify_with_proxy
+
+        graph = make_dag([("C_star", "C"), ("C", "X"), ("C", "Y"), ("X", "Y")])
+        result = identify_with_proxy(
+            graph=graph,
+            treatment="X",
+            outcome="Y",
+            proxy_map={"C": "C_star"},
+            measurement_model="known",
+        )
+
+        assert "proxy_boundary" in result.metadata
+        payload = result.metadata["proxy_boundary"]
+        assert "proxy_boundary:measurement_model_known" in payload["boundary_notes"]
+        assert "proxy_boundary:proxy_explanation_ruled_out" in payload["boundary_notes"]
+
 
 def test_latent_proxy_boundary_notes_add_no_promotion_reasons_when_unresolved():
     from polisyos.foundry.methods.catalog.causal.measurement_error import (

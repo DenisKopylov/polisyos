@@ -1,3 +1,4 @@
+"""Public microsim static module API."""
 from __future__ import annotations
 
 from typing import Any, ClassVar, Mapping
@@ -50,6 +51,7 @@ def _weighted_gini(values: np.ndarray, weights: np.ndarray) -> float:
     tags={"microsim", "simulation", "survey"},
 )
 class StaticMicrosimEstimator:
+    """Static microsim estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -102,6 +104,10 @@ class StaticMicrosimEstimator:
         description="Static tax-benefit microsimulation with weighted distributional aggregates.",
         tags=frozenset({"microsim", "simulation", "survey"}),
         when_to_use="First-order (mechanical) distributional impact of policy reform on existing population; tax/benefit calculator",
+        citations=(
+            "Immervoll, H. et al. (2006). Microsimulation of personal income tax and transfer systems. International Journal of Microsimulation, 1(1), 1-13.",
+            "Bourguignon, F. & Spadaro, A. (2006). Microsimulation as a tool for evaluating redistribution policies. Journal of Economic Inequality, 4(1), 77-106.",
+        ),
         when_not_to_use="Need behavioral responses; dynamic effects matter (use dynamic microsim)",
         output_interpretation="Distribution of winners/losers. Change in Gini, poverty headcount. Budget cost at first round.",
     )

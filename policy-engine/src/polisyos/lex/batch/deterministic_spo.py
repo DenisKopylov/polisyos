@@ -11,13 +11,18 @@ from polisyos.lex.batch.canonicalizers import (
     canonicalize_norm_type,
     extract_thresholds_from_text,
 )
+from polisyos.lex.batch.quality_filters import (
+    has_explicit_threshold_cue,
+    is_synthetic_subject,
+    is_threshold_noise_context,
+)
 from polisyos.lex.batch.patterns import (
     AMENDMENT_CORE_RE,
     NORMATIVE_CORE_RE,
     THRESHOLD_CORE_RE,
     TREATY_TITLE_RE,
 )
-from polisyos.lex.knowledge.types import SPOCandidate
+from polisyos.lex.knowledge.types import SPOCandidate, ThresholdAtom
 
 
 @dataclass(frozen=True)
@@ -199,7 +204,7 @@ _SUBJECT_PROHIBIT_RE = re.compile(
 )
 _SUBJECT_PERMISSION_RE = re.compile(
     r"(?P<subject>[^.;:]{2,180}?)\s+"
-    r"(?P<lemma>має\s+право|мають\s+право|може|можуть)\s+"
+    r"(?P<lemma>має\s+(?:пріоритетне\s+)?право|мають\s+(?:пріоритетне\s+)?право|може|можуть|вправі)\s+"
     r"(?P<object>[^.;]{6,260})",
     re.IGNORECASE,
 )
@@ -224,6 +229,14 @@ _PASSIVE_PROCEDURE_RE = re.compile(
     r"(?P<lemma>проводиться|проводяться|здійснюється|здійснюються|розраховується|розраховуються|"
     r"відноситься|відносяться|покривається|покриваються|вважається|вважаються)\s+"
     r"(?P<object>[^.;]{6,260})",
+    re.IGNORECASE,
+)
+_PASSIVE_MANDATORY_ACTION_RE = re.compile(
+    r"(?P<subject>[^.;:]{2,180}?)\s+"
+    r"(?P<lemma>повин(?:но|ен|на|ні)\s+бути\s+"
+    r"(?:виконан(?:о|а|і)|подан(?:о|а|і)|здійснен(?:о|а|і)|затверджен(?:о|а|і)|"
+    r"переоформлен(?:о|а|і)|підготовлен(?:о|а|і)))\s+"
+    r"(?P<object>[^.;]{4,260})",
     re.IGNORECASE,
 )
 _SUBJECT_TO_RE = re.compile(
@@ -359,7 +372,7 @@ _PERMISSION_CONDITION_RE = re.compile(
 )
 _TAIL_PERMISSION_RE = re.compile(
     r"(?:^|[.;]\s*)(?P<subject>[^.;:]{2,180}?)\s+"
-    r"(?P<lemma>може|можуть|має\s+право|мають\s+право)\s+"
+    r"(?P<lemma>може|можуть|має\s+(?:пріоритетне\s+)?право|мають\s+(?:пріоритетне\s+)?право|вправі)\s+"
     r"(?P<object>[^.;]{6,260})",
     re.IGNORECASE,
 )
@@ -378,7 +391,7 @@ _TAIL_THRESHOLD_POLICY_RE = re.compile(
     re.IGNORECASE,
 )
 _USES_RIGHTS_RE = re.compile(
-    r"(?P<subject>[^.;:]{2,180}?)\s+користується\s+(?P<object>[^.;]{6,260})",
+    r"(?P<subject>[^.;:]{2,180}?)\s+користу(?:ється|ються)\s+(?P<object>[^.;]{6,260})",
     re.IGNORECASE,
 )
 _NO_LIABILITY_RE = re.compile(
@@ -465,12 +478,37 @@ def _clip_text(text: str, size: int = 220) -> str:
     return f"{chunk[:size - 1]}…"
 
 
+def _filtered_thresholds(
+    *,
+    text: str,
+    applies_to: str,
+) -> list[ThresholdAtom]:
+    thresholds = extract_thresholds_from_text(text, applies_to=applies_to)
+    explicit_cue = has_explicit_threshold_cue(text)
+    if is_threshold_noise_context(text) and not explicit_cue:
+        return []
+    filtered: list[ThresholdAtom] = []
+    for threshold in thresholds:
+        unit = str(getattr(threshold, "unit", "") or "").strip().lower()
+        if unit == "year" and not explicit_cue:
+            continue
+        filtered.append(threshold)
+    return filtered
+
+
 def _strip_article_prefix(text: str) -> str:
     return _ARTICLE_PREFIX_RE.sub("", text.strip(), count=1)
 
 
-def _iter_sentences(text: str) -> Iterable[str]:
+def _iter_sentences(text: str, *, split_newlines: bool = False) -> Iterable[str]:
     stripped = _strip_article_prefix(text)
+    # For threshold/table provisions, newlines separate distinct rows
+    if split_newlines:
+        for line in stripped.split("\n"):
+            line = line.strip()
+            if line:
+                yield line
+        return
     parts = [part.strip() for part in _SENTENCE_SPLIT_RE.split(stripped) if part.strip()]
     if not parts:
         yield stripped
@@ -875,8 +913,8 @@ def extract_deterministic_spo(
         reason_codes.append("approval_pattern")
 
     threshold_analysis_text = _combine_with_context(cleaned, context_prefix)
-    thresholds = extract_thresholds_from_text(
-        threshold_analysis_text,
+    thresholds = _filtered_thresholds(
+        text=threshold_analysis_text,
         applies_to=doc_title or "цей акт",
     )
     if (
@@ -905,16 +943,22 @@ def extract_deterministic_spo(
         )
     ):
         thresholds = []
-    if thresholds and (threshold_bearing or subtype in {"tariff_threshold_row", "core_normative_clause", ""}):
+    threshold_explicit = has_explicit_threshold_cue(threshold_analysis_text)
+    if thresholds and (
+        threshold_bearing
+        or subtype == "tariff_threshold_row"
+        or (subtype in {"core_normative_clause", ""} and threshold_explicit)
+    ):
         best = thresholds[0]
-        threshold_desc = best.value_text or best.value_decimal or "числовий поріг"
+        threshold_desc = str(best.value_text or best.value_decimal or "числовий поріг").strip()
+        threshold_subject = subject if subject and not is_synthetic_subject(subject) else "регульований показник"
         candidates.append(
             _build_candidate(
-                subject_uk=subject,
+                subject_uk=threshold_subject,
                 predicate="sets_threshold",
-                object_uk=doc_title or "регульований показник",
+                object_uk=threshold_desc or "числовий поріг",
                 norm_type="obligation",
-                fact_text=f"Встановлено поріг: {threshold_desc}",
+                fact_text=f"{threshold_subject} має поріг {threshold_desc or 'числовий поріг'}",
                 quote=quote,
                 confidence=0.88,
                 thresholds_text=_combine_with_context(cleaned, context_prefix),

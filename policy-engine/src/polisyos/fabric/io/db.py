@@ -1,3 +1,4 @@
+"""Public io db module API."""
 import json
 
 import duckdb
@@ -7,6 +8,7 @@ from polisyos.common.logger import logger
 
 
 class SimulationDB:
+    """Simulation DB public type."""
     def __init__(self, db_path: str = "data/databases/simulation.duckdb"):
         self.db_path = db_path
         self.conn = duckdb.connect(db_path)

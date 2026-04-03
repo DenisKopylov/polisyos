@@ -1,3 +1,4 @@
+"""Public scientist llm cycle module API."""
 from __future__ import annotations
 
 import graphlib
@@ -49,6 +50,7 @@ def build_default_execution_plan(
     governance_constraints: list[dict[str, Any]] | None = None,
     expected_outputs: list[dict[str, Any]] | None = None,
 ) -> ExecutionPlan:
+    """Build default execution plan."""
     payload_needs = [
         PlanDataNeed(
             metric=item.metric,
@@ -83,6 +85,7 @@ def preflight_execution_plan(
     plan: ExecutionPlan,
     catalog: MethodCatalogSnapshot,
 ) -> PreflightReport:
+    """Preflight execution plan helper."""
     diagnostics: list[PreflightDiagnostic] = []
     registry = MethodRegistry.get_instance()
 
@@ -280,6 +283,7 @@ def evaluate_iteration(
     retrieval_quality: float = 1.0,
     budget_remaining_ratio: float | None = None,
 ) -> EvaluatorReport:
+    """Evaluate iteration helper."""
     normalized_verdict = str(verdict or "").strip().upper()
     if normalized_verdict == "APPROVE":
         eval_verdict: EvaluatorVerdict = "APPROVE"
@@ -329,6 +333,7 @@ def persist_execution_plan(
     *,
     inputs: list[InputRef] | None = None,
 ) -> ExecutionPlanRef:
+    """Persist execution plan helper."""
     payload_ref = store.put_json(
         plan,
         PutOptions(
@@ -348,6 +353,7 @@ def persist_preflight_report(
     *,
     inputs: list[InputRef] | None = None,
 ) -> PreflightReportRef:
+    """Persist preflight report helper."""
     payload_ref = store.put_json(
         report,
         PutOptions(
@@ -367,6 +373,7 @@ def persist_evaluator_report(
     *,
     inputs: list[InputRef] | None = None,
 ) -> EvaluatorReportRef:
+    """Persist evaluator report helper."""
     payload_ref = store.put_json(
         report,
         PutOptions(
@@ -386,6 +393,7 @@ def persist_iteration_state(
     *,
     inputs: list[InputRef] | None = None,
 ) -> IterationStateRef:
+    """Persist iteration state helper."""
     payload_ref = store.put_json(
         state,
         PutOptions(
@@ -410,6 +418,7 @@ def build_reproducibility_manifest(
     data_snapshot_ref: str | None,
     input_bindings_ref: str | None,
 ) -> ReproducibilityManifest:
+    """Build reproducibility manifest."""
     return ReproducibilityManifest(
         run_id=run_id,
         iteration=iteration,
@@ -506,6 +515,7 @@ def persist_reproducibility_manifest(
     *,
     inputs: list[InputRef] | None = None,
 ) -> ReproducibilityManifestRef:
+    """Persist reproducibility manifest helper."""
     payload_ref = store.put_json(
         manifest,
         PutOptions(

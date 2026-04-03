@@ -9,6 +9,11 @@ from collections import OrderedDict
 from pathlib import Path
 
 
+VALIDATION_CONTOURS = ("legacy", "production", "academic")
+VISIBILITY_LANES = ("public", "hidden_release", "prod_shadow")
+GATE_CLASSES = ("legacy_floor", "prod_blocker", "academic_claim", "shadow_only")
+
+
 @dataclasses.dataclass(frozen=True)
 class SuiteSpec:
     suite_id: str
@@ -21,6 +26,13 @@ class SuiteSpec:
     default_timeout_s: float = 0.0
     headline: bool = False
     stress_only: bool = False
+    validation_contours: tuple[str, ...] = ("legacy",)
+    visibility: str = "public"
+    family: str | None = None
+    gate_class: str = "legacy_floor"
+    required_comparators: tuple[str, ...] = ()
+    primary_metrics: tuple[str, ...] = ()
+    supports_shadow: bool = False
 
     @property
     def script_path(self) -> Path:
@@ -302,6 +314,445 @@ _SUITES: tuple[SuiteSpec, ...] = (
         proof_class="frontier_correctness",
         headline=True,
     ),
+    SuiteSpec(
+        suite_id="proof_closure_prod",
+        label="Production contour — Proof closure benchmark",
+        script_relpath="proof_closure/proof_closure_prod.py",
+        aliases=("proof_closure", "production_grade"),
+        profiles=("extended",),
+        validation_contours=("production",),
+        visibility="public",
+        family="proof_closure",
+        gate_class="prod_blocker",
+        required_comparators=("y0", "ananke"),
+        primary_metrics=(
+            "routing_accuracy",
+            "bare_dead_end_rate",
+            "proof_replay_success_rate",
+            "bounds_validity_rate",
+            "abstention_calibration",
+        ),
+        supports_shadow=True,
+    ),
+    SuiteSpec(
+        suite_id="readiness_governance",
+        label="Production contour — Readiness governance benchmark",
+        script_relpath="governance/readiness_governance.py",
+        aliases=("readiness_governance", "production_grade", "governance"),
+        profiles=("extended",),
+        validation_contours=("production",),
+        visibility="public",
+        family="readiness_governance",
+        gate_class="prod_blocker",
+        primary_metrics=(
+            "false_pass_rate",
+            "false_block_rate",
+            "decision_calibration",
+            "diagnostic_presence_rate",
+        ),
+        supports_shadow=True,
+    ),
+    SuiteSpec(
+        suite_id="cold_start_import",
+        label="Production contour — Cold-start import benchmark",
+        script_relpath="ops/cold_start_import.py",
+        aliases=("ops", "production_grade", "cold_start"),
+        profiles=("extended",),
+        validation_contours=("production",),
+        visibility="public",
+        family="cold_start_import",
+        gate_class="prod_blocker",
+        primary_metrics=("cold_start_success_rate", "bootstrap_success_rate"),
+        supports_shadow=True,
+    ),
+    SuiteSpec(
+        suite_id="replay_lineage",
+        label="Production contour — Replay and lineage benchmark",
+        script_relpath="ops/replay_lineage.py",
+        aliases=("ops", "production_grade", "replay_lineage"),
+        profiles=("extended",),
+        validation_contours=("production",),
+        visibility="public",
+        family="replay_lineage",
+        gate_class="prod_blocker",
+        primary_metrics=("replay_success_rate", "hash_stability_rate", "lineage_completeness_rate"),
+        supports_shadow=True,
+    ),
+    SuiteSpec(
+        suite_id="fault_injection",
+        label="Production contour — Fault injection benchmark",
+        script_relpath="ops/fault_injection.py",
+        aliases=("ops", "production_grade", "fault_injection"),
+        profiles=("extended",),
+        validation_contours=("production",),
+        visibility="public",
+        family="fault_injection",
+        gate_class="prod_blocker",
+        primary_metrics=("safe_failure_rate", "diagnostic_capture_rate"),
+        supports_shadow=True,
+    ),
+    SuiteSpec(
+        suite_id="budgeted_execution",
+        label="Production contour — Budgeted execution benchmark",
+        script_relpath="ops/budgeted_execution.py",
+        aliases=("ops", "production_grade", "budgeted_execution"),
+        profiles=("extended",),
+        validation_contours=("production",),
+        visibility="public",
+        family="budgeted_execution",
+        gate_class="prod_blocker",
+        primary_metrics=("p50_latency_s", "p95_latency_s", "peak_rss_mb", "quality_under_budget"),
+        supports_shadow=True,
+    ),
+    SuiteSpec(
+        suite_id="schema_drift",
+        label="Production contour — Schema drift benchmark",
+        script_relpath="ops/schema_drift.py",
+        aliases=("ops", "production_grade", "schema_drift"),
+        profiles=("extended",),
+        validation_contours=("production",),
+        visibility="public",
+        family="schema_drift",
+        gate_class="prod_blocker",
+        primary_metrics=("drift_detection_rate", "unsafe_pass_rate"),
+        supports_shadow=True,
+    ),
+    SuiteSpec(
+        suite_id="concurrency_determinism",
+        label="Production contour — Concurrency determinism benchmark",
+        script_relpath="ops/concurrency_determinism.py",
+        aliases=("ops", "production_grade", "concurrency"),
+        profiles=("extended",),
+        validation_contours=("production",),
+        visibility="public",
+        family="concurrency_determinism",
+        gate_class="prod_blocker",
+        primary_metrics=("determinism_rate", "idempotence_rate"),
+        supports_shadow=True,
+    ),
+    SuiteSpec(
+        suite_id="proof_closure_public",
+        label="Academic contour — Proof closure public benchmark",
+        script_relpath="proof_closure/proof_closure_public.py",
+        aliases=("proof_closure", "academic_grade"),
+        profiles=("extended",),
+        validation_contours=("academic",),
+        visibility="public",
+        family="proof_closure",
+        gate_class="academic_claim",
+        required_comparators=("y0", "ananke"),
+        primary_metrics=(
+            "routing_accuracy",
+            "bare_dead_end_rate",
+            "proof_replay_success_rate",
+            "bounds_validity_rate",
+            "abstention_calibration",
+        ),
+        supports_shadow=True,
+    ),
+    SuiteSpec(
+        suite_id="proof_closure_hidden_release",
+        label="Academic contour — Proof closure hidden release benchmark",
+        script_relpath="proof_closure/proof_closure_hidden_release.py",
+        aliases=("proof_closure", "academic_grade"),
+        profiles=("extended",),
+        validation_contours=("academic",),
+        visibility="hidden_release",
+        family="proof_closure",
+        gate_class="academic_claim",
+        required_comparators=("y0", "ananke"),
+        primary_metrics=(
+            "routing_accuracy",
+            "bare_dead_end_rate",
+            "proof_replay_success_rate",
+            "bounds_validity_rate",
+            "abstention_calibration",
+        ),
+        supports_shadow=True,
+    ),
+    SuiteSpec(
+        suite_id="composition_alignment_public",
+        label="Academic contour — Composition and alignment public benchmark",
+        script_relpath="composition/composition_alignment_public.py",
+        aliases=("composition_alignment", "academic_grade"),
+        profiles=("extended",),
+        validation_contours=("academic",),
+        visibility="public",
+        family="composition_alignment",
+        gate_class="academic_claim",
+        primary_metrics=(
+            "invalid_stitch_recall",
+            "valid_stitch_precision",
+            "preservation_status_accuracy",
+            "assumption_injection_correctness",
+        ),
+        supports_shadow=True,
+    ),
+    SuiteSpec(
+        suite_id="composition_alignment_hidden_release",
+        label="Academic contour — Composition and alignment hidden release benchmark",
+        script_relpath="composition/composition_alignment_hidden_release.py",
+        aliases=("composition_alignment", "academic_grade"),
+        profiles=("extended",),
+        validation_contours=("academic",),
+        visibility="hidden_release",
+        family="composition_alignment",
+        gate_class="academic_claim",
+        primary_metrics=(
+            "invalid_stitch_recall",
+            "valid_stitch_precision",
+            "preservation_status_accuracy",
+            "assumption_injection_correctness",
+        ),
+        supports_shadow=True,
+    ),
+    SuiteSpec(
+        suite_id="temporal_paths_public",
+        label="Academic contour — Temporal paths public benchmark",
+        script_relpath="temporal/temporal_paths_public.py",
+        aliases=("temporal_paths", "academic_grade"),
+        profiles=("extended",),
+        validation_contours=("academic",),
+        visibility="public",
+        family="temporal_paths",
+        gate_class="academic_claim",
+        required_comparators=("pygformula", "tigramite", "econml"),
+        primary_metrics=(
+            "path_rmse",
+            "integral_error",
+            "band_coverage",
+            "diagnostic_presence_rate",
+            "bundle_reload_success_rate",
+        ),
+        supports_shadow=True,
+    ),
+    SuiteSpec(
+        suite_id="temporal_paths_hidden_release",
+        label="Academic contour — Temporal paths hidden release benchmark",
+        script_relpath="temporal/temporal_paths_hidden_release.py",
+        aliases=("temporal_paths", "academic_grade"),
+        profiles=("extended",),
+        validation_contours=("academic",),
+        visibility="hidden_release",
+        family="temporal_paths",
+        gate_class="academic_claim",
+        required_comparators=("pygformula", "tigramite", "econml"),
+        primary_metrics=(
+            "path_rmse",
+            "integral_error",
+            "band_coverage",
+            "diagnostic_presence_rate",
+            "bundle_reload_success_rate",
+        ),
+        supports_shadow=True,
+    ),
+    SuiteSpec(
+        suite_id="distributional_public",
+        label="Academic contour — Distributional public benchmark",
+        script_relpath="distributional/distributional_public.py",
+        aliases=("distributional", "academic_grade"),
+        profiles=("extended",),
+        validation_contours=("academic",),
+        visibility="public",
+        family="distributional",
+        gate_class="academic_claim",
+        required_comparators=("pot",),
+        primary_metrics=(
+            "wasserstein_error",
+            "quantile_error",
+            "tail_risk_error",
+            "mass_conservation_rate",
+            "subgroup_monotonicity_rate",
+        ),
+        supports_shadow=True,
+    ),
+    SuiteSpec(
+        suite_id="distributional_hidden_release",
+        label="Academic contour — Distributional hidden release benchmark",
+        script_relpath="distributional/distributional_hidden_release.py",
+        aliases=("distributional", "academic_grade"),
+        profiles=("extended",),
+        validation_contours=("academic",),
+        visibility="hidden_release",
+        family="distributional",
+        gate_class="academic_claim",
+        required_comparators=("pot",),
+        primary_metrics=(
+            "wasserstein_error",
+            "quantile_error",
+            "tail_risk_error",
+            "mass_conservation_rate",
+            "subgroup_monotonicity_rate",
+        ),
+        supports_shadow=True,
+    ),
+    SuiteSpec(
+        suite_id="strategic_solver_public",
+        label="Academic contour — Strategic solver public benchmark",
+        script_relpath="strategic/strategic_solver_public.py",
+        aliases=("strategic_solver", "academic_grade"),
+        profiles=("extended",),
+        validation_contours=("academic",),
+        visibility="public",
+        family="strategic_solver",
+        gate_class="academic_claim",
+        required_comparators=("openspiel", "nashpy"),
+        primary_metrics=(
+            "leader_value_error",
+            "best_response_gap",
+            "exploitability_proxy",
+            "budget_enforcement_rate",
+        ),
+        supports_shadow=True,
+    ),
+    SuiteSpec(
+        suite_id="strategic_solver_hidden_release",
+        label="Academic contour — Strategic solver hidden release benchmark",
+        script_relpath="strategic/strategic_solver_hidden_release.py",
+        aliases=("strategic_solver", "academic_grade"),
+        profiles=("extended",),
+        validation_contours=("academic",),
+        visibility="hidden_release",
+        family="strategic_solver",
+        gate_class="academic_claim",
+        required_comparators=("openspiel", "nashpy"),
+        primary_metrics=(
+            "leader_value_error",
+            "best_response_gap",
+            "exploitability_proxy",
+            "budget_enforcement_rate",
+        ),
+        supports_shadow=True,
+    ),
+    SuiteSpec(
+        suite_id="abstraction_exactness_public",
+        label="Academic contour — Abstraction exactness public benchmark",
+        script_relpath="abstraction/abstraction_exactness_public.py",
+        aliases=("abstraction_exactness", "academic_grade"),
+        profiles=("extended",),
+        validation_contours=("academic",),
+        visibility="public",
+        family="abstraction_exactness",
+        gate_class="academic_claim",
+        primary_metrics=(
+            "micro_macro_exact_match_rate",
+            "certificate_validity_rate",
+            "leakage_detection_rate",
+        ),
+        supports_shadow=True,
+    ),
+    SuiteSpec(
+        suite_id="abstraction_exactness_hidden_release",
+        label="Academic contour — Abstraction exactness hidden release benchmark",
+        script_relpath="abstraction/abstraction_exactness_hidden_release.py",
+        aliases=("abstraction_exactness", "academic_grade"),
+        profiles=("extended",),
+        validation_contours=("academic",),
+        visibility="hidden_release",
+        family="abstraction_exactness",
+        gate_class="academic_claim",
+        primary_metrics=(
+            "micro_macro_exact_match_rate",
+            "certificate_validity_rate",
+            "leakage_detection_rate",
+        ),
+        supports_shadow=True,
+    ),
+    SuiteSpec(
+        suite_id="discovery_governance_public",
+        label="Academic contour — Discovery governance public benchmark",
+        script_relpath="governance/discovery_governance_public.py",
+        aliases=("discovery_governance", "academic_grade"),
+        profiles=("extended",),
+        validation_contours=("academic",),
+        visibility="public",
+        family="discovery_governance",
+        gate_class="academic_claim",
+        required_comparators=("causal-learn", "pgmpy", "tigramite"),
+        primary_metrics=(
+            "constraint_precision",
+            "constraint_recall",
+            "disputed_edge_calibration",
+            "ranking_utility_correlation",
+            "cap_violation_rate",
+        ),
+        supports_shadow=True,
+    ),
+    SuiteSpec(
+        suite_id="discovery_governance_hidden_release",
+        label="Academic contour — Discovery governance hidden release benchmark",
+        script_relpath="governance/discovery_governance_hidden_release.py",
+        aliases=("discovery_governance", "academic_grade"),
+        profiles=("extended",),
+        validation_contours=("academic",),
+        visibility="hidden_release",
+        family="discovery_governance",
+        gate_class="academic_claim",
+        required_comparators=("causal-learn", "pgmpy", "tigramite"),
+        primary_metrics=(
+            "constraint_precision",
+            "constraint_recall",
+            "disputed_edge_calibration",
+            "ranking_utility_correlation",
+            "cap_violation_rate",
+        ),
+        supports_shadow=True,
+    ),
+    SuiteSpec(
+        suite_id="interaction_contracts_public",
+        label="Academic contour — Interaction contracts public benchmark",
+        script_relpath="interaction/interaction_contracts_public.py",
+        aliases=("interaction_contracts", "academic_grade"),
+        profiles=("extended",),
+        validation_contours=("academic",),
+        visibility="public",
+        family="interaction_contracts",
+        gate_class="academic_claim",
+        primary_metrics=(
+            "certificate_completeness_rate",
+            "unsupported_failure_correctness",
+            "interference_regression_rate",
+        ),
+        supports_shadow=True,
+    ),
+    SuiteSpec(
+        suite_id="interaction_contracts_hidden_release",
+        label="Academic contour — Interaction contracts hidden release benchmark",
+        script_relpath="interaction/interaction_contracts_hidden_release.py",
+        aliases=("interaction_contracts", "academic_grade"),
+        profiles=("extended",),
+        validation_contours=("academic",),
+        visibility="hidden_release",
+        family="interaction_contracts",
+        gate_class="academic_claim",
+        primary_metrics=(
+            "certificate_completeness_rate",
+            "unsupported_failure_correctness",
+            "interference_regression_rate",
+        ),
+        supports_shadow=True,
+    ),
+    SuiteSpec(
+        suite_id="honest_comparison",
+        label="Honest head-to-head: PolicyOS vs raw open-source causal inference",
+        script_relpath="honest_comparison/run_honest_benchmark.py",
+        aliases=("honest", "head_to_head"),
+        profiles=("extended",),
+        claim_profiles=("full_stack_publication_claim",),
+        proof_class="publication_benchmark",
+        headline=True,
+        validation_contours=("academic",),
+        visibility="public",
+        family="estimation",
+        gate_class="academic_claim",
+        required_comparators=("econml", "zepid", "dowhy"),
+        primary_metrics=(
+            "ate_rmse",
+            "ci_coverage",
+            "pehe",
+            "failure_rate",
+        ),
+    ),
 )
 
 
@@ -320,11 +771,51 @@ def all_suite_specs() -> tuple[SuiteSpec, ...]:
     return _SUITES
 
 
-def suites_for_profile(profile: str) -> list[SuiteSpec]:
+def _filtered_specs(
+    *,
+    profile: str | None = None,
+    validation_contour: str | None = None,
+    visibility: str | None = None,
+) -> list[SuiteSpec]:
+    candidates = list(_SUITES)
+    if profile is not None:
+        normalized_profile = profile.strip().lower()
+        if normalized_profile not in {"air-m2", "extended"}:
+            raise ValueError(f"Unknown benchmark profile: {profile!r}")
+        candidates = [spec for spec in candidates if normalized_profile in spec.profiles]
+    if validation_contour is not None:
+        normalized_contour = validation_contour.strip().lower()
+        if normalized_contour not in VALIDATION_CONTOURS:
+            raise ValueError(f"Unknown validation contour: {validation_contour!r}")
+        candidates = [
+            spec for spec in candidates
+            if normalized_contour in spec.validation_contours
+        ]
+    if visibility is not None:
+        normalized_visibility = visibility.strip().lower()
+        if normalized_visibility not in VISIBILITY_LANES:
+            raise ValueError(f"Unknown visibility lane: {visibility!r}")
+        if normalized_visibility == "prod_shadow":
+            candidates = [spec for spec in candidates if spec.supports_shadow]
+        else:
+            candidates = [spec for spec in candidates if spec.visibility == normalized_visibility]
+    return candidates
+
+
+def suites_for_profile(
+    profile: str,
+    *,
+    validation_contour: str | None = None,
+    visibility: str | None = None,
+) -> list[SuiteSpec]:
     normalized = profile.strip().lower()
     if normalized not in {"air-m2", "extended"}:
         raise ValueError(f"Unknown benchmark profile: {profile!r}")
-    return [spec for spec in _SUITES if normalized in spec.profiles]
+    return _filtered_specs(
+        profile=normalized,
+        validation_contour=validation_contour,
+        visibility=visibility,
+    )
 
 
 def canonical_suite_id(suite_id: str) -> str:
@@ -339,9 +830,19 @@ def spec_by_suite_id(suite_id: str) -> SuiteSpec | None:
     return None
 
 
-def alias_targets(alias: str, *, profile: str | None = None) -> list[SuiteSpec]:
+def alias_targets(
+    alias: str,
+    *,
+    profile: str | None = None,
+    validation_contour: str | None = None,
+    visibility: str | None = None,
+) -> list[SuiteSpec]:
     normalized = canonical_suite_id(alias)
-    candidates = suites_for_profile(profile) if profile else list(_SUITES)
+    candidates = _filtered_specs(
+        profile=profile,
+        validation_contour=validation_contour,
+        visibility=visibility,
+    )
     return [
         spec
         for spec in candidates
@@ -349,8 +850,17 @@ def alias_targets(alias: str, *, profile: str | None = None) -> list[SuiteSpec]:
     ]
 
 
-def emit_registry_tsv(*, profile: str | None = None) -> str:
-    candidates = suites_for_profile(profile) if profile else list(_SUITES)
+def emit_registry_tsv(
+    *,
+    profile: str | None = None,
+    validation_contour: str | None = None,
+    visibility: str | None = None,
+) -> str:
+    candidates = _filtered_specs(
+        profile=profile,
+        validation_contour=validation_contour,
+        visibility=visibility,
+    )
     lines = []
     for spec in candidates:
         aliases = ",".join(OrderedDict.fromkeys((spec.suite_id, *spec.aliases)).keys())
@@ -369,8 +879,18 @@ def emit_registry_tsv(*, profile: str | None = None) -> str:
     return "\n".join(lines)
 
 
-def suites_for_claim_profile(claim_profile: str, *, profile: str | None = None) -> list[SuiteSpec]:
-    candidates = suites_for_profile(profile) if profile else list(_SUITES)
+def suites_for_claim_profile(
+    claim_profile: str,
+    *,
+    profile: str | None = None,
+    validation_contour: str | None = None,
+    visibility: str | None = None,
+) -> list[SuiteSpec]:
+    candidates = _filtered_specs(
+        profile=profile,
+        validation_contour=validation_contour,
+        visibility=visibility,
+    )
     return [spec for spec in candidates if claim_profile in spec.claim_profiles]
 
 
@@ -383,6 +903,8 @@ __all__ = [
     "spec_by_suite_id",
     "suites_for_claim_profile",
     "suites_for_profile",
+    "VALIDATION_CONTOURS",
+    "VISIBILITY_LANES",
 ]
 
 
@@ -392,17 +914,33 @@ def _main() -> int:
     parser.add_argument("--format", choices=("tsv", "json"), default="tsv")
     parser.add_argument("--alias")
     parser.add_argument("--claim-profile")
+    parser.add_argument("--validation-contour", choices=VALIDATION_CONTOURS)
+    parser.add_argument("--visibility", choices=VISIBILITY_LANES)
     args = parser.parse_args()
 
     if args.alias and args.claim_profile:
         parser.error("--alias and --claim-profile are mutually exclusive")
 
     if args.alias:
-        specs = alias_targets(args.alias, profile=args.profile)
+        specs = alias_targets(
+            args.alias,
+            profile=args.profile,
+            validation_contour=args.validation_contour,
+            visibility=args.visibility,
+        )
     elif args.claim_profile:
-        specs = suites_for_claim_profile(args.claim_profile, profile=args.profile)
+        specs = suites_for_claim_profile(
+            args.claim_profile,
+            profile=args.profile,
+            validation_contour=args.validation_contour,
+            visibility=args.visibility,
+        )
     else:
-        specs = suites_for_profile(args.profile) if args.profile else list(_SUITES)
+        specs = _filtered_specs(
+            profile=args.profile,
+            validation_contour=args.validation_contour,
+            visibility=args.visibility,
+        )
     if args.format == "json":
         payload = [
             {
@@ -415,13 +953,26 @@ def _main() -> int:
                 "proof_class": spec.proof_class,
                 "headline": spec.headline,
                 "stress_only": spec.stress_only,
+                "validation_contours": list(spec.validation_contours),
+                "visibility": spec.visibility,
+                "family": spec.family,
+                "gate_class": spec.gate_class,
+                "required_comparators": list(spec.required_comparators),
+                "primary_metrics": list(spec.primary_metrics),
+                "supports_shadow": spec.supports_shadow,
             }
             for spec in specs
         ]
         print(json.dumps(payload, indent=2))
         return 0
 
-    print(emit_registry_tsv(profile=args.profile))
+    print(
+        emit_registry_tsv(
+            profile=args.profile,
+            validation_contour=args.validation_contour,
+            visibility=args.visibility,
+        )
+    )
     return 0
 
 

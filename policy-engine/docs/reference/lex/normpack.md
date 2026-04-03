@@ -1,0 +1,35 @@
+# Lex NormPack
+Related explanation: [Lex Pipeline](../../explanation/lex-pipeline.md).
+
+This page covers the public Lex API for ingesting legal documents, resolving
+active versions, assembling `NormPack` snapshots, and evaluating or simulating
+legal changes against those snapshots.
+
+## Pipeline Surface
+
+| Layer | Main contracts |
+|------|-----------------|
+| Source metadata and options | `LegalDocSource`, `LexIngestOptions`, `LexStructureOptions` |
+| Versioning | `LexVersionIndexOptions`, `ActiveVersionStrategy`, `ActiveVersionResult` |
+| NormPack assembly | `NormPackBuildRequest`, `NormPackBuildResult`, `NormPackBudgets` |
+| Mutation and diff | `MutationIntent`, `NormChange`, `NormDiff`, `diff_norm_packs` |
+| Impact analysis | `NormImpactAnalyzer`, `NormImpactReport`, `ComplianceDelta`, `AffectedKPI` |
+| Legality evaluation | `LegalEvaluationRequest`, `LegalReportRef`, `ChangeProposalRef` |
+
+## Top-Level API
+
+::: polisyos.lex.api
+
+::: polisyos.lex.types
+
+::: polisyos.lex.errors
+
+## Mutation And Impact
+
+::: polisyos.lex.simulator.mutator
+
+::: polisyos.lex.simulator.diff
+
+::: polisyos.lex.simulator.report
+
+::: polisyos.lex.simulator.engine

@@ -1,3 +1,4 @@
+"""Public econometrics expansion module API."""
 from __future__ import annotations
 
 import math
@@ -44,6 +45,7 @@ def _normal_pvalue(z_score: float) -> float:
     tags={"econometrics", "vecm"},
 )
 class VECMEstimator:
+    """VECM estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("statsmodels", "numpy")
 
@@ -75,6 +77,9 @@ class VECMEstimator:
         description="Vector error correction model for cointegrated multivariate time series.",
         tags=frozenset({"econometrics", "vecm"}),
         when_to_use="Cointegrated multivariate time series; long-run equilibrium with error-correction dynamics",
+        citations=(
+            "Johansen, S. (1991). Estimation and hypothesis testing of cointegration vectors in Gaussian vector autoregressive models. Econometrica, 59(6), 1551-1580.",
+        ),
         typical_min_obs=100,
         output_interpretation="EC term coefficient: speed of mean reversion. Long-run cointegrating vector.",
     )
@@ -141,6 +146,7 @@ class VECMEstimator:
     tags={"econometrics", "bayesian-var"},
 )
 class BayesianVAREstimator:
+    """Bayesian VAR estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy", "scipy")
 
@@ -173,6 +179,10 @@ class BayesianVAREstimator:
         description="Closed-form Bayesian VAR with ridge-style Minnesota prior shrinkage.",
         tags=frozenset({"econometrics", "bayesian-var"}),
         when_to_use="Multivariate time series forecasting with many variables; Minnesota prior shrinks toward random walk",
+        citations=(
+            "Litterman, R. (1986). Forecasting with Bayesian vector autoregressions: Five years of experience. Journal of Business & Economic Statistics, 4(1), 25-38.",
+            "Doan, T., Litterman, R. & Sims, C. (1984). Forecasting and conditional projection using realistic prior distributions. Econometric Reviews, 3(1), 1-100.",
+        ),
         typical_min_obs=80,
         output_interpretation="Posterior mean coefficients with credible intervals. Prior scale controls shrinkage strength. Residual covariance trace for model fit.",
     )
@@ -278,6 +288,7 @@ def _project_simplex(weights: np.ndarray) -> np.ndarray:
     tags={"econometrics", "synthetic-did"},
 )
 class SyntheticDiDEstimator:
+    """Synthetic di D estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -309,6 +320,9 @@ class SyntheticDiDEstimator:
         description="Synthetic difference-in-differences estimator with ridge-regularized donor weights.",
         tags=frozenset({"econometrics", "synthetic-did"}),
         when_to_use="Panel DiD with poor pre-trend parallel trends; combine synthetic control donor weighting with DiD",
+        citations=(
+            "Arkhangelsky, D. et al. (2021). Synthetic difference-in-differences. American Economic Review, 111(12), 4088-4118.",
+        ),
         typical_min_obs=50,
         output_interpretation="ATE_SDID: average treatment effect on treated. Pre-fit RMSE measures synthetic control quality. Donor weights show control unit contributions.",
     )
@@ -387,6 +401,7 @@ def _row_normalize(weights_matrix: np.ndarray) -> np.ndarray:
     tags={"econometrics", "spatial-autoregressive"},
 )
 class SpatialAutoregressiveEstimator:
+    """Spatial autoregressive estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("statsmodels", "numpy")
 
@@ -423,6 +438,10 @@ class SpatialAutoregressiveEstimator:
         description="Spatial autoregressive regression using a normalized spatial lag of the outcome.",
         tags=frozenset({"econometrics", "spatial-autoregressive"}),
         when_to_use="Cross-sectional or panel data with spatial spillovers; outcome in one unit depends on neighbors' outcomes",
+        citations=(
+            "Anselin, L. (1988). Spatial Econometrics: Methods and Models. Kluwer Academic Publishers.",
+            "LeSage, J. & Pace, R. (2009). Introduction to Spatial Econometrics. CRC Press.",
+        ),
         typical_min_obs=50,
         output_interpretation="rho: spatial autoregressive coefficient measuring spillover strength. X coefficients: direct effects. HC1 SEs account for heteroskedasticity.",
     )

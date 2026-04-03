@@ -1,3 +1,4 @@
+"""Public methods backends package API."""
 from __future__ import annotations
 
 from polisyos.foundry.methods.backends.async_chain_executor import (

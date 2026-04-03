@@ -149,7 +149,7 @@ def _bootstrap_hsic_null(
 @foundry_method(
     namespace="causal.diagnostics.independence",
     version="1.0.0",
-    tags={"causal", "diagnostics", "independence", "hsic", "kernel"},
+    tags={"causal", "diagnostics", "independence", "hsic", "kernel", "cross-section"},
 )
 class HSICIndependenceTest:
     """Hilbert-Schmidt Independence Criterion (HSIC) test for X ⊥ Y.
@@ -278,7 +278,7 @@ class HSICIndependenceTest:
 @foundry_method(
     namespace="causal.diagnostics.independence",
     version="1.0.0",
-    tags={"causal", "diagnostics", "independence", "kci", "conditional", "kernel"},
+    tags={"causal", "diagnostics", "independence", "kci", "conditional", "kernel", "cross-section"},
 )
 class KCIConditionalTest:
     """Kernel Conditional Independence (KCI) test for X ⊥ Y | Z.
@@ -422,7 +422,7 @@ class KCIConditionalTest:
 @foundry_method(
     namespace="causal.diagnostics.independence",
     version="1.0.0",
-    tags={"causal", "diagnostics", "independence", "partial-correlation", "linear"},
+    tags={"causal", "diagnostics", "independence", "partial-correlation", "linear", "cross-section"},
 )
 class PartialCorrelationTest:
     """Partial correlation test for X ⊥ Y | Z using Fisher z-transform.

@@ -38,6 +38,15 @@ def test_extract_thresholds_from_text_finds_percent_and_duration() -> None:
     assert all(t.applies_to == "customs_employee" for t in thresholds)
 
 
+def test_extract_thresholds_from_text_skips_calendar_year_dates() -> None:
+    thresholds = extract_thresholds_from_text(
+        "Зареєстровано 12.03.1997 року в Міністерстві юстиції України",
+        applies_to="act",
+    )
+
+    assert thresholds == []
+
+
 def test_extract_thresholds_from_text_finds_scalar_limits() -> None:
     thresholds = extract_thresholds_from_text(
         "корисне навантаження не менш як 500 кг на дальність 300 км і більше",

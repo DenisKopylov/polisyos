@@ -56,6 +56,7 @@ def _freshness_score(last_updated: datetime | None) -> float:
 
 @dataclass(frozen=True)
 class FastLaneResolveResult:
+    """Fast lane resolve result data model."""
     fetch_plans: list[FetchPlan]
     candidates: list[MetricCandidate]
     warnings: list[str]

@@ -1,3 +1,4 @@
+"""Public econometrics iv module API."""
 from __future__ import annotations
 
 from typing import Any, ClassVar, Mapping

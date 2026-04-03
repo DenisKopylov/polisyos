@@ -1,3 +1,4 @@
+"""Public survey estimation module API."""
 from __future__ import annotations
 
 from typing import Any, ClassVar, Mapping
@@ -29,6 +30,7 @@ def _result_slot() -> frozenset[SlotSpec]:
     tags={"survey", "small-area", "fay-herriot"},
 )
 class FayHerriotEstimator:
+    """Fay herriot estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -122,6 +124,7 @@ class FayHerriotEstimator:
     tags={"survey", "calibration", "greg"},
 )
 class CalibrationGREGEstimator:
+    """Calibration GREG estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 

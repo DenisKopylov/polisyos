@@ -1,3 +1,4 @@
+"""Public compile lowering module API."""
 from __future__ import annotations
 
 from collections import Counter
@@ -31,6 +32,7 @@ CoverageStatus = Literal[
 
 @dataclass(frozen=True)
 class CoverageEntry:
+    """Coverage entry data model."""
     status: CoverageStatus
     consumer: str
 
@@ -102,6 +104,7 @@ _REQUIRED_CONSUMERS = {
 
 
 def audit_trinity_field_coverage(*, strict: bool = True) -> list[str]:
+    """Audit trinity field coverage helper."""
     model_map = {
         "ProblemFrame": ProblemFrameModel,
         "PolicySpec": PolicySpecModel,
@@ -146,6 +149,7 @@ def lower_trinity(
     registry_content: Any,
     strict: bool = True,
 ) -> tuple[LoweredIRRef, LoweredIR, list[str]]:
+    """Lower trinity helper."""
     semantic_notes = audit_trinity_field_coverage(strict=strict)
     linked_by_intervention = {
         item.intervention_id: item for item in getattr(linked_bundle.bindings, "interventions", [])

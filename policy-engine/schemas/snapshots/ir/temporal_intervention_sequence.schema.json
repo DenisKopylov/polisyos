@@ -1,0 +1,128 @@
+{
+  "$defs": {
+    "IdentificationMode": {
+      "enum": [
+        "point_identified",
+        "partially_identified",
+        "bounds_only",
+        "proxy_identified",
+        "interference_aware",
+        "sequential"
+      ],
+      "title": "IdentificationMode",
+      "type": "string"
+    },
+    "StrategicResponseChannel": {
+      "enum": [
+        "budget_channel",
+        "procurement_channel",
+        "labor_channel",
+        "trade_channel",
+        "household_income_channel",
+        "compliance_channel"
+      ],
+      "title": "StrategicResponseChannel",
+      "type": "string"
+    },
+    "TemporalInterventionStep": {
+      "additionalProperties": false,
+      "properties": {
+        "effective_date": {
+          "description": "ISO-like YYYY-MM or YYYY-MM-DD activation marker for the step.",
+          "pattern": "^\\d{4}-\\d{2}(-\\d{2})?$",
+          "title": "Effective Date",
+          "type": "string"
+        },
+        "intervention_id": {
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "title": "Intervention Id",
+          "type": "string"
+        },
+        "notes": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 20,
+          "title": "Notes",
+          "type": "array"
+        },
+        "parameter_overrides": {
+          "additionalProperties": true,
+          "title": "Parameter Overrides",
+          "type": "object"
+        },
+        "step_id": {
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "title": "Step Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "step_id",
+        "effective_date",
+        "intervention_id"
+      ],
+      "title": "TemporalInterventionStep",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "dynamic_intervention_id": {
+      "pattern": "^[a-z][a-z0-9_]*$",
+      "title": "Dynamic Intervention Id",
+      "type": "string"
+    },
+    "identification_mode": {
+      "$ref": "#/$defs/IdentificationMode",
+      "default": "sequential"
+    },
+    "notes": {
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 20,
+      "title": "Notes",
+      "type": "array"
+    },
+    "schema_version": {
+      "default": "1.0",
+      "pattern": "^\\d+\\.\\d+$",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "sequence_id": {
+      "pattern": "^[a-z][a-z0-9_]*$",
+      "title": "Sequence Id",
+      "type": "string"
+    },
+    "steps": {
+      "items": {
+        "$ref": "#/$defs/TemporalInterventionStep"
+      },
+      "maxItems": 128,
+      "minItems": 1,
+      "title": "Steps",
+      "type": "array"
+    },
+    "strategic_response_expected": {
+      "default": false,
+      "title": "Strategic Response Expected",
+      "type": "boolean"
+    },
+    "transmission_channels": {
+      "items": {
+        "$ref": "#/$defs/StrategicResponseChannel"
+      },
+      "title": "Transmission Channels",
+      "type": "array"
+    }
+  },
+  "required": [
+    "sequence_id",
+    "dynamic_intervention_id",
+    "steps"
+  ],
+  "title": "TemporalInterventionSequence",
+  "type": "object"
+}

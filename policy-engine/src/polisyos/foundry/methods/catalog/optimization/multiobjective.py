@@ -1,3 +1,4 @@
+"""Public optimization multiobjective module API."""
 from __future__ import annotations
 
 import time
@@ -40,6 +41,7 @@ def _serialize_result(result: OptimizationResult) -> dict[str, Any]:
     tags={"optimization", "multiobjective", "nsga2"},
 )
 class MultiObjectiveNSGA2Estimator:
+    """Multi objective NSGA 2 estimator implementation."""
     runtime_stack: ClassVar[tuple[str, ...]] = ("pymoo", "numpy")
 
     signature: ClassVar[MethodSignature] = MethodSignature(
@@ -86,6 +88,9 @@ class MultiObjectiveNSGA2Estimator:
         description="NSGA-II search for Pareto-efficient selections under a budget.",
         tags=frozenset({"optimization", "multiobjective", "nsga2"}),
         when_to_use="Multiple conflicting objectives; policy trade-off analysis (equity vs efficiency); Pareto frontier",
+        citations=(
+            "Deb, K. et al. (2002). A fast and elitist multiobjective genetic algorithm: NSGA-II. IEEE Transactions on Evolutionary Computation, 6(2), 182-197.",
+        ),
         when_not_to_use="Single objective problem; objectives can be aggregated with known weights",
         output_interpretation="Pareto-optimal set. Each solution is undominated. Decision-maker selects preferred trade-off point.",
     )

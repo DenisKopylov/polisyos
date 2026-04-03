@@ -1,3 +1,4 @@
+"""Public simulation registry boot module API."""
 from __future__ import annotations
 
 from polisyos.foundry.methods.catalog.simulation.dynamics import (
@@ -15,6 +16,7 @@ from polisyos.foundry.methods.catalog.simulation.inference import (
 
 
 def register_simulation_methods() -> tuple[type, ...]:
+    """Register simulation methods."""
     return (
         StockFlowSystemDynamicsEstimator,
         QueueDiscreteEventEstimator,

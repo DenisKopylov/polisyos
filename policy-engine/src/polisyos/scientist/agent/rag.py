@@ -138,6 +138,7 @@ def _l2_normalize(arr: np.ndarray) -> np.ndarray:
 
 @dataclass(frozen=True, slots=True)
 class RAGCaseEntry:
+    """RAG case entry data model."""
     decision_packet_ref: str
     trinity_bundle_ref: str
     run_id: str
@@ -152,6 +153,7 @@ class RAGCaseEntry:
 
 @dataclass(frozen=True, slots=True)
 class RAGSearchResult:
+    """RAG search result data model."""
     entry: RAGCaseEntry
     similarity: float
 
@@ -581,6 +583,7 @@ class CASRAGIndex:
 
 
 def find_latest_rag_snapshot_ref(cas: FileSystemCAS) -> str | None:
+    """Find latest rag snapshot ref helper."""
     latest_ref: str | None = None
     latest_created = ""
     for artifact_id in cas.iter_artifact_ids():
@@ -603,6 +606,7 @@ def build_or_load_rag_index(
     config: RAGConfig,
     embedder: EmbeddingBackend,
 ) -> CASRAGIndex:
+    """Build or load rag index."""
     latest_ref = find_latest_rag_snapshot_ref(cas)
     if latest_ref:
         try:
@@ -622,6 +626,7 @@ def format_few_shot_block(
     *,
     max_chars: int = 6000,
 ) -> str:
+    """Format few shot block helper."""
     if not results:
         return ""
 
@@ -661,6 +666,7 @@ def build_default_embedder(
     provider_embed_fn: Callable[[list[str]], Sequence[Sequence[float]]] | None = None,
     provider_dimension: int = 256,
 ) -> EmbeddingBackend:
+    """Build default embedder."""
     backend = config.embedding_backend.strip().lower()
     if backend == "provider" and provider_embed_fn is not None:
         return ProviderEmbeddingBackend(provider_embed_fn, dimension=provider_dimension)

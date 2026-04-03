@@ -1,3 +1,4 @@
+"""Public kernel metrics module API."""
 from __future__ import annotations
 
 from pydantic import Field, model_validator
@@ -6,12 +7,14 @@ from .base import ID_PATTERN, KernelModel
 
 
 class MetricSpec(KernelModel):
+    """Metric spec data model."""
     metric_id: str = Field(..., pattern=ID_PATTERN)
     unit_id: str | None = Field(None, pattern=ID_PATTERN)
     description: str | None = Field(None, max_length=200)
 
 
 class MetricRegistry(KernelModel):
+    """Metric registry implementation."""
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
     metrics: dict[str, MetricSpec] = Field(default_factory=dict)
     notes: list[str] = Field(default_factory=list)

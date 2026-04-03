@@ -12,6 +12,7 @@ from .gateway_client import GatewayLLMClient, GatewayLLMResponse
 
 
 class EndpointHealth(str, Enum):
+    """Endpoint health public type."""
     HEALTHY = "healthy"
     DEGRADED = "degraded"
     UNHEALTHY = "unhealthy"

@@ -1,3 +1,4 @@
+"""Public backtesting cli module API."""
 from __future__ import annotations
 
 import json
@@ -9,6 +10,7 @@ from polisyos.scientist.backtesting.plan import HistoricalValidationPlan, Predic
 
 
 def add_backtest_subparser(scientist_sub) -> None:
+    """Add backtest subparser helper."""
     parser = scientist_sub.add_parser(
         "backtest",
         help="Run historical validation and generate BacktestReport",
@@ -40,6 +42,7 @@ def add_backtest_subparser(scientist_sub) -> None:
 
 
 def run_backtest_command(args) -> tuple[int, str]:
+    """Run backtest command."""
     plans = _load_plans(args)
     orchestrator = BacktestOrchestrator(cas_root=args.cas_root)
     report = orchestrator.run(plans)

@@ -13,6 +13,7 @@ from polisyos.ir.kernel.base import ARTIFACT_ID_PATTERN, ID_PATTERN, KernelModel
 
 
 class FactProvenance(KernelModel):
+    """Fact provenance public type."""
     source_id: str = Field(..., pattern=ID_PATTERN)
     license: str
     raw_hash: str
@@ -22,6 +23,7 @@ class FactProvenance(KernelModel):
 
 
 class FactTrust(KernelModel):
+    """Fact trust public type."""
     confidence: float | None = Field(None, ge=0.0, le=1.0)
     method: str | None = None
     policy_id: str | None = Field(None, pattern=ID_PATTERN)
@@ -29,6 +31,7 @@ class FactTrust(KernelModel):
 
 
 class FactPIIEntity(KernelModel):
+    """Fact PII entity public type."""
     entity_type: str
     severity: str
     score: float | None = Field(None, ge=0.0, le=1.0)
@@ -39,6 +42,7 @@ class FactPIIEntity(KernelModel):
 
 
 class FactLegal(KernelModel):
+    """Fact legal public type."""
     pii_class: str | None = None
     access_tier: str | None = None
     basis: str | None = None
@@ -49,6 +53,7 @@ class FactLegal(KernelModel):
 
 
 class Fact(KernelModel):
+    """Fact public type."""
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
     fact_id: str = Field(..., pattern=ARTIFACT_ID_PATTERN)
     subject_id: str = Field(..., pattern=ID_PATTERN)
@@ -76,6 +81,7 @@ def build_fact_id(payload: Any) -> str:
 
 
 class FactBatch(BaseModel):
+    """Fact batch public type."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -89,6 +95,7 @@ class FactBatch(BaseModel):
 
 
 class FactSegmentManifest(KernelModel):
+    """Fact segment manifest data model."""
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
     segment_id: str = Field(..., pattern=ID_PATTERN)
     path: str

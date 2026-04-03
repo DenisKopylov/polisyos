@@ -20,6 +20,7 @@ def _as_bool(raw: str | None, default: bool = False) -> bool:
 
 
 class FindingSeverity(str, Enum):
+    """Finding severity public type."""
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
@@ -27,6 +28,7 @@ class FindingSeverity(str, Enum):
 
 
 class FindingCategory(str, Enum):
+    """Finding category public type."""
     SIDE_EFFECT = "side_effect"
     MISSING_GROUP = "missing_group"
     BUDGET_VIOLATION = "budget_violation"

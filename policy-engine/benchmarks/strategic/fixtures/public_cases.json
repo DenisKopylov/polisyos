@@ -1,0 +1,47 @@
+{
+  "family": "strategic_solver",
+  "visibility": "public",
+  "revision": "2.1",
+  "cases": [
+    {
+      "case_id": "strategic_solver::stackelberg_public",
+      "case_class": "stackelberg_toy_game",
+      "inputs_ref": "fixture://strategic_solver/stackelberg_public",
+      "oracle_ref": "oracle://strategic_solver/stackelberg_public",
+      "baseline_overlap": ["nashpy", "openspiel"],
+      "gates": {
+        "claim_eligible": true
+      },
+      "tags": ["stackelberg", "toy_game"],
+      "leader_payoff_matrix": [[2.0, 0.0], [3.0, 1.0]],
+      "follower_payoff_matrix": [[1.0, 3.0], [0.0, 2.0]],
+      "expected_metrics": {
+        "leader_value_error": 0.0,
+        "best_response_gap": 0.0,
+        "exploitability_proxy": 0.0,
+        "budget_enforcement_rate": 1.0
+      },
+      "expected_equilibrium": {
+        "leader": [1.0, 0.0],
+        "follower": [0.0, 1.0]
+      }
+    },
+    {
+      "case_id": "strategic_solver::budget_guard_public",
+      "case_class": "budget_enforcement",
+      "inputs_ref": "fixture://strategic_solver/budget_guard_public",
+      "oracle_ref": "oracle://strategic_solver/budget_guard_public",
+      "baseline_overlap": [],
+      "gates": {
+        "claim_eligible": true
+      },
+      "tags": ["budget", "fallback"],
+      "expected_metrics": {
+        "leader_value_error": 0.01,
+        "best_response_gap": 0.02,
+        "exploitability_proxy": 0.01,
+        "budget_enforcement_rate": 1.0
+      }
+    }
+  ]
+}

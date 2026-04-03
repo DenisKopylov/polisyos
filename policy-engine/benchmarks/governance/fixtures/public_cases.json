@@ -1,0 +1,71 @@
+{
+  "family": "discovery_governance",
+  "visibility": "public",
+  "revision": "2.1",
+  "cases": [
+    {
+      "case_id": "discovery_governance::sachs_public",
+      "case_class": "source_suite",
+      "inputs_ref": "benchmark://discovery_sachs",
+      "oracle_ref": "oracle://discovery_governance/sachs_public",
+      "baseline_overlap": [],
+      "gates": {
+        "claim_eligible": true
+      },
+      "tags": ["sachs", "public_benchmark"],
+      "source_suite": "discovery_sachs"
+    },
+    {
+      "case_id": "discovery_governance::tuebingen_public",
+      "case_class": "source_suite",
+      "inputs_ref": "benchmark://discovery_tuebingen",
+      "oracle_ref": "oracle://discovery_governance/tuebingen_public",
+      "baseline_overlap": [],
+      "gates": {
+        "claim_eligible": true
+      },
+      "tags": ["tuebingen", "public_benchmark"],
+      "source_suite": "discovery_tuebingen"
+    },
+    {
+      "case_id": "discovery_governance::tetrad_contracts_public",
+      "case_class": "algebraic_constraints",
+      "inputs_ref": "fixture://discovery_governance/tetrad_contracts_public",
+      "oracle_ref": "oracle://discovery_governance/tetrad_contracts_public",
+      "baseline_overlap": [],
+      "gates": {
+        "claim_eligible": true
+      },
+      "tags": ["tetrad", "algebraic"],
+      "expected_metrics": {
+        "constraint_precision": 0.86,
+        "constraint_recall": 0.84,
+        "disputed_edge_calibration": 0.88,
+        "ranking_utility_correlation": 0.81,
+        "cap_violation_rate": 0.0,
+        "SHD": 5.0,
+        "SID": 10.0
+      }
+    },
+    {
+      "case_id": "discovery_governance::prior_audit_public",
+      "case_class": "prior_audit",
+      "inputs_ref": "fixture://discovery_governance/prior_audit_public",
+      "oracle_ref": "oracle://discovery_governance/prior_audit_public",
+      "baseline_overlap": [],
+      "gates": {
+        "claim_eligible": true
+      },
+      "tags": ["prior_audit", "invariance"],
+      "expected_metrics": {
+        "constraint_precision": 0.84,
+        "constraint_recall": 0.85,
+        "disputed_edge_calibration": 0.89,
+        "ranking_utility_correlation": 0.82,
+        "cap_violation_rate": 0.0,
+        "SHD": 5.0,
+        "SID": 10.0
+      }
+    }
+  ]
+}

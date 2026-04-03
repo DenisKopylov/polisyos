@@ -68,6 +68,11 @@ def _write_consumer_readiness_manifest(*, output_dir: Path, require_embeddings: 
     smoke_payload = _load_json(output_dir / "smoke" / "smoke_report.json")
     benchmark_readiness = benchmark_payload.get("readiness", {}) if isinstance(benchmark_payload.get("readiness"), dict) else {}
     quality_metrics = qc_payload.get("metrics", {}) if isinstance(qc_payload.get("metrics"), dict) else {}
+    qc_failed_checks = list(quality_metrics.get("qc_failed_checks", []))
+    release_failed_checks = list(quality_metrics.get("release_failed_checks", []))
+    if not require_embeddings:
+        qc_failed_checks = [check for check in qc_failed_checks if check != "embedding_artifacts_present"]
+        release_failed_checks = [check for check in release_failed_checks if check != "embedding_artifacts_present"]
     family_breakdown = quality_metrics.get("doc_family_breakdown", {}) if isinstance(quality_metrics.get("doc_family_breakdown"), dict) else {}
     subtype_breakdown = quality_metrics.get("legal_unit_subtype_breakdown", {}) if isinstance(quality_metrics.get("legal_unit_subtype_breakdown"), dict) else {}
     top_problem_subtypes = quality_metrics.get("top_problem_subtypes", []) if isinstance(quality_metrics.get("top_problem_subtypes"), list) else []
@@ -78,9 +83,9 @@ def _write_consumer_readiness_manifest(*, output_dir: Path, require_embeddings: 
     top_problem_doc_groups = smoke_payload.get("top_problem_doc_groups", []) if isinstance(smoke_payload.get("top_problem_doc_groups"), list) else []
     top_problem_docs = smoke_payload.get("top_problem_docs", []) if isinstance(smoke_payload.get("top_problem_docs"), list) else []
     quality_gate_passed = bool(quality_metrics.get("quality_gate_passed", qc_payload.get("passed", False)))
-    qc_passed = bool(quality_metrics.get("qc_passed", qc_payload.get("passed", False)))
+    qc_passed = not qc_failed_checks
     benchmark_passed = bool(benchmark_readiness.get("passed", False))
-    release_passed = bool(quality_metrics.get("release_passed", quality_gate_passed and qc_passed))
+    release_passed = bool(quality_gate_passed and qc_passed)
     release_ready = (
         readiness["consumer_ready"]
         and release_passed
@@ -102,9 +107,9 @@ def _write_consumer_readiness_manifest(*, output_dir: Path, require_embeddings: 
                     "release_passed": release_passed,
                     "quality_gate_failed_checks": quality_metrics.get("quality_gate_failed_checks", []),
                     "quality_hotspot_failed_checks": quality_metrics.get("quality_hotspot_failed_checks", []),
-                    "qc_failed_checks": quality_metrics.get("qc_failed_checks", []),
+                    "qc_failed_checks": qc_failed_checks,
                     "benchmark_failed_checks": benchmark_readiness.get("failed_checks", []),
-                    "release_failed_checks": quality_metrics.get("release_failed_checks", []),
+                    "release_failed_checks": release_failed_checks,
                 },
                 "table_counts": tables,
                 "require_embeddings": require_embeddings,
@@ -163,6 +168,7 @@ def _write_consumer_readiness_manifest(*, output_dir: Path, require_embeddings: 
 
 
 def run_publish(output_dir: Path, *, require_embeddings: bool = True) -> Path:
+    """Run publish."""
     consumer_manifest = _write_consumer_readiness_manifest(
         output_dir=output_dir,
         require_embeddings=require_embeddings,

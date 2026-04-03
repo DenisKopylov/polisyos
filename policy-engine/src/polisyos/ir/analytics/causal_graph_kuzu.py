@@ -1,3 +1,4 @@
+"""Public analytics causal graph kuzu module API."""
 from __future__ import annotations
 
 import csv
@@ -35,6 +36,7 @@ def ensure_causal_kuzu_schema(
     ddl_path: Path | None = None,
     clear_on_start: bool = False,
 ) -> None:
+    """Ensure causal kuzu schema helper."""
     path = Path(kuzu_path)
     if clear_on_start and path.exists():
         if path.is_dir():
@@ -68,6 +70,7 @@ def materialize_causal_kuzu_from_graph(
     tmp_dir: Path | None = None,
     keep_tmp: bool = False,
 ) -> None:
+    """Materialize causal kuzu from graph helper."""
     if kuzu_enabled is None:
         kuzu_enabled = False
     if not kuzu_enabled:

@@ -9,6 +9,7 @@ from ._metrics_registry_base import _MetricsRegistryBase
 
 
 class MetricsRegistry(_MetricsRegistryBase):
+    """Metrics registry implementation."""
     def time_simulation(
         self,
         attributes: Optional[dict[str, Any]] = None,

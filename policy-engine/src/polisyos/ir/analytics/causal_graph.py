@@ -1,3 +1,4 @@
+"""Public analytics causal graph module API."""
 from __future__ import annotations
 
 import json
@@ -12,6 +13,7 @@ from polisyos.ir.refs import CausalGraphModelRef
 
 
 class GraphType(str, Enum):
+    """Graph type public type."""
     DAG = "dag"
     CPDAG = "cpdag"
     PAG = "pag"
@@ -20,18 +22,21 @@ class GraphType(str, Enum):
 
 
 class PAGIdentificationPolicy(str, Enum):
+    """PAG identification policy data model."""
     CONSERVATIVE = "conservative"
     OPTIMISTIC = "optimistic"
     PROBABILISTIC = "probabilistic"
 
 
 class EdgeMark(str, Enum):
+    """Edge mark public type."""
     TAIL = "tail"
     ARROW = "arrow"
     CIRCLE = "circle"
 
 
 class EdgeSource(str, Enum):
+    """Edge source public type."""
     DATA = "data"
     LITERATURE = "literature"
     LLM_PRIOR = "llm_prior"
@@ -40,6 +45,7 @@ class EdgeSource(str, Enum):
 
 
 class CausalEdge(BaseModel):
+    """Causal edge public type."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     SOURCE_WEIGHTS: ClassVar[dict[EdgeSource, float]] = {
@@ -341,6 +347,7 @@ def persist_causal_graph_model(
     schema_name: str = "ir.causal_graph_model",
     schema_version: str = "1.0",
 ) -> CausalGraphModelRef:
+    """Persist causal graph model helper."""
     ref = put_json_artifact(
         store,
         graph.model_dump(mode="json"),
@@ -357,6 +364,7 @@ def load_causal_graph_model(
     store: ArtifactStore,
     ref: CausalGraphModelRef,
 ) -> CausalGraphModel:
+    """Load causal graph model."""
     payload = get_json_artifact(store, ref.artifact_id)
     return CausalGraphModel.model_validate(payload)
 

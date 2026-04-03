@@ -1,3 +1,4 @@
+"""Public normpack provider registry module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -22,6 +23,7 @@ from polisyos.ir.norm_pack import NormPack
 
 
 class NormPackProvider(Protocol):
+    """Norm pack provider implementation."""
     provider_id: str
 
     def get_static_norm_pack(
@@ -36,6 +38,7 @@ class NormPackProvider(Protocol):
 
 @dataclass(slots=True)
 class ProviderRecord:
+    """Provider record data model."""
     component_id: str
     base_id: str
     version: str
@@ -47,12 +50,14 @@ class ProviderRecord:
 
 @dataclass(slots=True)
 class ProviderBootstrapReport:
+    """Provider bootstrap report data model."""
     registered: list[str] = field(default_factory=list)
     errors: list[str] = field(default_factory=list)
     discovery_errors: list[str] = field(default_factory=list)
 
 
 class NormPackProviderRegistry:
+    """Norm pack provider registry implementation."""
     def __init__(self) -> None:
         self._records = GenericRegistry[str, ProviderRecord](
             key_fn=lambda record: record.component_id,
@@ -87,10 +92,12 @@ _GLOBAL_REGISTRY = NormPackProviderRegistry()
 
 
 def get_norm_pack_provider_registry() -> NormPackProviderRegistry:
+    """Return norm pack provider registry."""
     return _GLOBAL_REGISTRY
 
 
 def bootstrap_component_providers(components_index: ComponentRegistry) -> ProviderBootstrapReport:
+    """Bootstrap component providers helper."""
     report = ProviderBootstrapReport()
     host = HostAbi(versions={"ir_abi": "1.0", "world_abi": "1.0"}, strict=True)
 
@@ -144,6 +151,7 @@ def discover_and_bootstrap_providers(
     include_dev_scan: bool = True,
     components_index: ComponentRegistry | None = None,
 ) -> ProviderBootstrapReport:
+    """Discover and bootstrap providers helper."""
     if components_index is not None:
         return bootstrap_component_providers(components_index)
 

@@ -29,6 +29,7 @@ READINESS_CONTRACT_SCHEMA_NAME = "polisyos.scientist.search.DecisionReadinessCon
 
 
 class DecisionReadiness(str, Enum):
+    """Decision readiness public type."""
     RESEARCH_ARTIFACT = "research_artifact"
     ANALYST_ADVISORY = "analyst_advisory"
     EXTERNAL_BRIEFING = "external_briefing"
@@ -202,6 +203,7 @@ class DecisionReadinessEvaluator:
         )
         runtime_metadata = dict(evidence_metadata or {})
         latent_governance = _resolve_latent_governance(runtime_metadata)
+        latent_resolution_error = _resolve_latent_discovery_resolution_error(runtime_metadata)
         resolved_data_readiness = data_readiness_report
         if (
             resolved_data_readiness is None
@@ -218,7 +220,9 @@ class DecisionReadinessEvaluator:
         readiness_cap_reason = None
         promotable_source = bool(runtime_metadata.get("promotable_source", True))
         degradation_mode = str(runtime_metadata.get("degradation_mode") or "").strip().lower()
-        if latent_governance is not None:
+        if latent_resolution_error is not None:
+            readiness_cap_reason = "latent_discovery_bundle_unreadable"
+        elif latent_governance is not None:
             readiness_cap_reason = "latent_discovery_proof_only"
         elif not promotable_source:
             readiness_cap_reason = "evaluation_source_not_promotable"
@@ -319,6 +323,8 @@ class DecisionReadinessEvaluator:
             metadata["not_for_decision_support"] = bool(
                 latent_governance.get("not_for_decision_support", True)
             )
+        if latent_resolution_error is not None:
+            metadata["latent_discovery_resolution_error"] = dict(latent_resolution_error)
         if readiness_cap is not None:
             metadata["readiness_cap"] = readiness_cap.value
             metadata["readiness_cap_reason"] = readiness_cap_reason or "unspecified"
@@ -351,6 +357,7 @@ def persist_decision_readiness_contract(
     *,
     inputs: list[InputRef] | None = None,
 ) -> ArtifactRef:
+    """Persist decision readiness contract helper."""
     return store.put_json(
         contract,
         PutOptions(
@@ -370,6 +377,7 @@ def load_decision_readiness_contract(
     store: FileSystemCAS,
     ref: ArtifactRef,
 ) -> DecisionReadinessContract:
+    """Load decision readiness contract."""
     payload = from_canonical_bytes(store.get_bytes(ref.artifact_id))
     return DecisionReadinessContract.model_validate(payload)
 
@@ -433,6 +441,8 @@ def _resolve_readiness_cap(
     data_readiness_report: DataReadinessReport | None = None,
     claim_mode: Literal["proof_only", "bounds", "estimation"] = "estimation",
 ) -> DecisionReadiness | None:
+    if _resolve_latent_discovery_resolution_error(evidence_metadata) is not None:
+        return DecisionReadiness.RESEARCH_ARTIFACT
     if _resolve_latent_governance(evidence_metadata) is not None:
         return DecisionReadiness.RESEARCH_ARTIFACT
     promotable_source = bool(evidence_metadata.get("promotable_source", True))
@@ -456,6 +466,15 @@ def _resolve_latent_governance(
 ) -> dict[str, object] | None:
     payload = evidence_metadata.get("latent_governance")
     if not isinstance(payload, dict) or not payload.get("active", False):
+        return None
+    return payload
+
+
+def _resolve_latent_discovery_resolution_error(
+    evidence_metadata: dict[str, object],
+) -> dict[str, object] | None:
+    payload = evidence_metadata.get("latent_discovery_resolution_error")
+    if not isinstance(payload, dict):
         return None
     return payload
 

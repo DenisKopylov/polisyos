@@ -1,3 +1,4 @@
+"""Public autotune execution plan module API."""
 from __future__ import annotations
 
 import json
@@ -39,17 +40,20 @@ EXECUTION_PLAN_LOOP_ID = "execution_plan"
 
 
 class ExecutionPlanSearchMode(str, Enum):
+    """Execution plan search mode public type."""
     PARAMS_ONLY = "params_only"
     TOPOLOGY_STEP = "topology_step"
 
 
 class TopologyMutationKind(str, Enum):
+    """Topology mutation kind public type."""
     SWAP_METHOD = "swap_method"
     INSERT_ADAPTER = "insert_adapter"
     DROP_OPTIONAL_NODE = "drop_optional_node"
 
 
 class TopologyMutation(BaseModel):
+    """Topology mutation public type."""
     model_config = ConfigDict(extra="forbid")
 
     kind: TopologyMutationKind
@@ -60,6 +64,7 @@ class TopologyMutation(BaseModel):
 
 
 class ExecutionPlanSearchConfig(MutationArtifact):
+    """Execution plan search config data model."""
     model_config = ConfigDict(extra="forbid")
 
     loop_id: str = EXECUTION_PLAN_LOOP_ID
@@ -178,6 +183,7 @@ class ExecutionPlanSearchConfig(MutationArtifact):
 
 
 def build_baseline_execution_plan_config(context: dict[str, Any] | None = None) -> ExecutionPlanSearchConfig:
+    """Build baseline execution plan config."""
     baseline_plan = None if context is None else context.get("baseline_execution_plan")
     if isinstance(baseline_plan, ExecutionPlan):
         return ExecutionPlanSearchConfig(
@@ -203,6 +209,7 @@ def suggest_execution_plan_topology_mutations(
     limit: int = 8,
     registry: MethodRegistry | None = None,
 ) -> list[TopologyMutation]:
+    """Suggest execution plan topology mutations helper."""
     reg = registry or MethodRegistry.get_instance()
     mutations: list[TopologyMutation] = []
     seen: set[tuple[str, str, str, str]] = set()
@@ -301,6 +308,7 @@ def suggest_execution_plan_topology_mutations(
 
 
 class CapabilityAwareExecutionPlanCandidateGenerator:
+    """Capability aware execution plan candidate generator implementation."""
     def generate(
         self,
         history: list[Any],
@@ -341,6 +349,7 @@ def build_execution_plan_generation_context(
     context: dict[str, Any],
     limit: int = 8,
 ) -> dict[str, Any]:
+    """Build execution plan generation context."""
     generation_context: dict[str, Any] = {}
     config = _current_execution_plan_config(
         history=history,
@@ -384,6 +393,7 @@ def build_execution_plan_generation_context(
 
 
 def default_execution_plan_policy() -> PromotionPolicy:
+    """Default execution plan policy helper."""
     return PromotionPolicy(
         loop_id=EXECUTION_PLAN_LOOP_ID,
         primary_metric="composite_score",
@@ -581,6 +591,7 @@ def _mutation_note(mutation: TopologyMutation) -> str:
 
 
 class ExecutionPlanBenchmarkEvaluator(BenchmarkedEvaluator):
+    """Execution plan benchmark evaluator public type."""
     def __init__(
         self,
         *,
@@ -680,6 +691,7 @@ def execution_plan_search_loop_spec(
     store: Any | None = None,
     registry: ChampionRegistry | None = None,
 ) -> SearchLoopSpec:
+    """Execution plan search loop spec helper."""
     return SearchLoopSpec(
         loop_id=EXECUTION_PLAN_LOOP_ID,
         mutation_codec=PydanticMutationCodec(ExecutionPlanSearchConfig),

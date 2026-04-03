@@ -264,6 +264,7 @@ def persist_downstream_utility_report(
     *,
     inputs: list[InputRef] | None = None,
 ) -> DownstreamUtilityReportRef:
+    """Persist downstream utility report helper."""
     ref = store.put_json(
         report,
         PutOptions(
@@ -284,6 +285,7 @@ def load_downstream_utility_report(
     store: FileSystemCAS,
     ref: DownstreamUtilityReportRef,
 ) -> DownstreamUtilityReport:
+    """Load downstream utility report."""
     payload = from_canonical_bytes(store.get_bytes(ref.artifact_id))
     return DownstreamUtilityReport.model_validate(payload)
 
@@ -339,11 +341,12 @@ def _disputed_edge_stats(
 def _algebraic_consistency(
     hypothesis: GraphHypothesis,
 ) -> tuple[str | None, float]:
+    severity = ""
+    if hypothesis.algebraic_constraints is not None:
+        severity = str(hypothesis.algebraic_constraints.severity or "").strip().lower()
     report_metadata = hypothesis.metadata.get("discovery_report_metadata")
-    if isinstance(report_metadata, dict):
+    if not severity and isinstance(report_metadata, dict):
         severity = str(report_metadata.get("algebraic_constraint_severity") or "").strip().lower()
-    else:
-        severity = ""
     if not severity:
         direct = str(hypothesis.metadata.get("algebraic_constraint_severity") or "").strip().lower()
         severity = direct
@@ -353,6 +356,12 @@ def _algebraic_consistency(
         return "warning", 0.5
     if severity == "info":
         return "info", 1.0
+    if hypothesis.method.value in {"pc", "fci", "ges", "dagma"} and (
+        hypothesis.source_discovery_report_ref is not None
+        or isinstance(report_metadata, dict)
+        or "portfolio_method" in hypothesis.metadata
+    ):
+        return "warning", 0.5
     return None, 1.0
 
 

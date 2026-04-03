@@ -1,3 +1,4 @@
+"""Public backends base module API."""
 from __future__ import annotations
 
 from polisyos.core.contracts.lex import RuleBackend

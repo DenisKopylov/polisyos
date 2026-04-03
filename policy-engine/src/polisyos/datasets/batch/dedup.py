@@ -37,6 +37,7 @@ def _dedup_quality_score(record: DatasetRecord) -> float:
 
 
 def merge_and_dedup(config: DatasetBatchConfig) -> MergeStats:
+    """Merge and dedup helper."""
     started_at = datetime.now(UTC).isoformat()
     merged: list[DatasetRecord] = []
     seen: dict[str, DatasetRecord] = {}

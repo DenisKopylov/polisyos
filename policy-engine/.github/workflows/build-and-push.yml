@@ -26,7 +26,7 @@ jobs:
       - name: Install build dependencies
         run: |
           pip install --upgrade pip
-          pip install -e ".[dev,test]"
+          pip install -e ".[dev,test,causal-discovery]"
           pip install cyclonedx-bom uv
 
       - name: Build container image

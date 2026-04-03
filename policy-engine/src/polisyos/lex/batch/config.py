@@ -302,6 +302,8 @@ class BatchConfig:
     quality_max_hallucination_rate_pct: float = 3.0
     quality_max_unresolved_contradictions: int = 10
     quality_max_low_confidence_normative_pct: float = 15.0
+    quality_max_current_like_temporal_unknown_pct: float = 25.0
+    quality_max_temporal_interval_inversions: int = 0
     quality_min_reference_resolution_coverage_pct: float = 80.0
     quality_min_amendment_extraction_coverage_pct: float = 60.0
     quality_min_amendment_target_resolution_pct: float = 70.0
@@ -398,6 +400,10 @@ class BatchConfig:
             raise ValueError("quality_min_amendment_extraction_coverage_pct must be in range [0, 100]")
         if self.quality_min_amendment_target_resolution_pct < 0.0 or self.quality_min_amendment_target_resolution_pct > 100.0:
             raise ValueError("quality_min_amendment_target_resolution_pct must be in range [0, 100]")
+        if self.quality_max_current_like_temporal_unknown_pct < 0.0 or self.quality_max_current_like_temporal_unknown_pct > 100.0:
+            raise ValueError("quality_max_current_like_temporal_unknown_pct must be in range [0, 100]")
+        if self.quality_max_temporal_interval_inversions < 0:
+            raise ValueError("quality_max_temporal_interval_inversions must be >= 0")
         if self.quality_min_reference_rows_for_rate < 0:
             raise ValueError("quality_min_reference_rows_for_rate must be >= 0")
         if not (0.0 <= self.llm_gate_auto_conf_threshold <= 1.0):

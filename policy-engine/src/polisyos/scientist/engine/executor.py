@@ -1,3 +1,4 @@
+"""Public engine executor module API."""
 from __future__ import annotations
 
 import logging
@@ -53,6 +54,7 @@ _CACHE_DISABLED_NODE_IDS = frozenset(
 
 
 class NodeRunRecord(BaseModel):
+    """Node run record data model."""
     model_config = ConfigDict(extra="forbid")
 
     alias: str
@@ -65,6 +67,7 @@ class NodeRunRecord(BaseModel):
 
 
 class WorkflowReport(BaseModel):
+    """Workflow report data model."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -77,6 +80,7 @@ class WorkflowReport(BaseModel):
 
 @dataclass(frozen=True)
 class WorkflowExecutionResult:
+    """Workflow execution result data model."""
     state: ExperimentState
     report: WorkflowReport
     run_ref: ArtifactRef | None = None

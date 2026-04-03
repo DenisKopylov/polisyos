@@ -1,3 +1,4 @@
+"""Public docs backends package API."""
 from __future__ import annotations
 
 from .pdf import normalize_pdf_to_text_v1

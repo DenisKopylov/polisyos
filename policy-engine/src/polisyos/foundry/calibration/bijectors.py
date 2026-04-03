@@ -1,3 +1,4 @@
+"""Public calibration bijectors module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -9,6 +10,7 @@ import jax.numpy as jnp
 
 @dataclass
 class Bijector:
+    """Bijector public type."""
     forward: Callable[[jnp.ndarray], jnp.ndarray]
     inverse: Callable[[jnp.ndarray], jnp.ndarray]
     log_det_jacobian: Callable[[jnp.ndarray], jnp.ndarray] | None = None
@@ -147,10 +149,12 @@ def inverse_bijector(b: Bijector) -> Bijector:
 
 
 def to_unconstrained(values: Sequence[jnp.ndarray], bijectors: Sequence[Bijector]) -> List[jnp.ndarray]:
+    """Convert to unconstrained."""
     return [b.inverse(v) for b, v in zip(bijectors, values)]
 
 
 def from_unconstrained(
     unconstrained: Sequence[jnp.ndarray], bijectors: Sequence[Bijector]
 ) -> List[jnp.ndarray]:
+    """Create from unconstrained."""
     return [b.forward(u) for b, u in zip(bijectors, unconstrained)]

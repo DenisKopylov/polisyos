@@ -258,7 +258,32 @@ def test_deterministic_spo_extracts_subtype_approval_bundle() -> None:
 
     assert result.candidates
     assert any(candidate.predicate == "approves" for candidate in result.candidates)
-    assert "subtype_approval_bundle" in result.reason_codes
+
+
+def test_deterministic_spo_extracts_passive_mandatory_execution_clause() -> None:
+    result = extract_deterministic_spo(
+        text="Доручення повинно бути виконано у строк не більше п'яти днів з дня його одержання.",
+        citation_label="Стаття 123",
+        doc_title="Митний кодекс України",
+        legal_unit_subtype="core_normative_clause",
+    )
+
+    predicates = {candidate.predicate for candidate in result.candidates}
+    assert "requires" in predicates
+    assert "cnc_fallback_passive_mandatory_action_pattern" in result.reason_codes
+
+
+def test_deterministic_spo_extracts_plural_uses_rights_clause() -> None:
+    result = extract_deterministic_spo(
+        text="Консульські посадові особи користуються дипломатичними привілеями та імунітетами в повному обсязі.",
+        citation_label="Стаття 35",
+        doc_title="Консульська конвенція між Україною та Республікою Польща",
+        legal_unit_subtype="core_normative_clause",
+    )
+
+    assert result.candidates
+    assert any(candidate.predicate == "grants" for candidate in result.candidates)
+    assert "semantic_tail_uses_rights" in result.reason_codes
 
 
 def test_deterministic_spo_extracts_passive_approval_bundle() -> None:
@@ -498,8 +523,7 @@ def test_deterministic_spo_extracts_application_requirement_obligation_fallback(
     assert "subtype_application_requirement_obligation" in result.reason_codes
 
 
-def test_deterministic_spo_extracts_threshold_text_fallback() -> None:
-    """Threshold row should create candidate even for text-only rows without numbers."""
+def test_deterministic_spo_skips_threshold_text_only_row_without_numeric_signal() -> None:
     result = extract_deterministic_spo(
         text="Головний бухгалтер централізованої бухгалтерії",
         citation_label="Рядок 5",
@@ -509,9 +533,8 @@ def test_deterministic_spo_extracts_threshold_text_fallback() -> None:
         threshold_bearing=True,
     )
 
-    assert result.candidates
-    assert any(candidate.predicate == "sets_threshold" for candidate in result.candidates)
-    assert "subtype_threshold_text_fallback" in result.reason_codes
+    assert result.candidates == []
+    assert result.reason_codes == ["no_match"]
 
 
 def test_deterministic_spo_extracts_application_requirement_impersonal_multi_statement() -> None:
@@ -568,6 +591,23 @@ def test_deterministic_spo_extracts_core_normative_threshold_fallback() -> None:
     assert result.candidates
     assert any(candidate.predicate == "sets_threshold" for candidate in result.candidates)
     assert "cnc_fallback_threshold_pattern" in result.reason_codes
+
+
+def test_deterministic_spo_skips_calendar_year_as_threshold_in_core_clause() -> None:
+    result = extract_deterministic_spo(
+        text=(
+            "Емісійно-кредитному департаменту підготувати на січень - лютий 1996 року "
+            "регіональні семінари та надіслати нормативні документи."
+        ),
+        citation_label="Пункт 6",
+        doc_title="Постанова Національного банку України",
+        legal_unit_subtype="core_normative_clause",
+        quality_family="appendix_heavy",
+        threshold_bearing=True,
+    )
+
+    assert result.candidates
+    assert all(candidate.predicate != "sets_threshold" for candidate in result.candidates)
 
 
 def test_deterministic_spo_skips_cue_less_core_normative_clause() -> None:
@@ -733,6 +773,37 @@ def test_deterministic_spo_extracts_threshold_policy_tail_from_core_clause() -> 
         "semantic_tail_threshold_policy",
         "cnc_fallback_threshold_pattern",
     } & set(result.reason_codes)
+
+
+def test_deterministic_spo_extracts_word_threshold_and_priority_permission_from_core_clause() -> None:
+    result = extract_deterministic_spo(
+        text=(
+            "Власники приватизованих об'єктів мають пріоритетне право на довгострокову оренду "
+            "(на строк не менше десяти років) займаних ними земельних ділянок."
+        ),
+        citation_label="Пункт 3",
+        doc_title="Закон України про приватизацію",
+        legal_unit_subtype="core_normative_clause",
+        legal_unit_micro_subtype="threshold_tail",
+        quality_family="law",
+        threshold_bearing=True,
+    )
+
+    assert any(candidate.predicate == "grants" for candidate in result.candidates)
+    assert any(candidate.predicate == "sets_threshold" for candidate in result.candidates)
+
+
+def test_deterministic_spo_extracts_vpravi_permission_from_core_clause() -> None:
+    result = extract_deterministic_spo(
+        text="Ревізійна комісія вправі вимагати від посадових осіб товариства подання матеріалів.",
+        citation_label="Стаття 63",
+        doc_title="Закон України про господарські товариства",
+        legal_unit_subtype="core_normative_clause",
+        legal_unit_micro_subtype="threshold_tail",
+        quality_family="law",
+    )
+
+    assert any(candidate.predicate == "grants" for candidate in result.candidates)
 
 
 def test_deterministic_spo_skips_search_only_front_matter_subtype() -> None:

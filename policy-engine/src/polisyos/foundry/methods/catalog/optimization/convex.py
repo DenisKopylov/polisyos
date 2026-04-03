@@ -1,3 +1,4 @@
+"""Public optimization convex module API."""
 from __future__ import annotations
 
 import time
@@ -89,6 +90,7 @@ def _pick_solver(cp: Any, requested: str, *fallbacks: str) -> Any:
     tags={"optimization", "convex", "quadratic-program"},
 )
 class QuadraticProgramEstimator:
+    """Quadratic program estimator implementation."""
     runtime_stack: ClassVar[tuple[str, ...]] = ("cvxpy", "numpy")
 
     signature: ClassVar[MethodSignature] = MethodSignature(
@@ -146,6 +148,9 @@ class QuadraticProgramEstimator:
         description="Quadratic program with explicit vectors, matrices, and bounds.",
         tags=frozenset({"optimization", "convex", "quadratic-program"}),
         when_to_use="Convex objective + constraints; portfolio optimization, signal processing, regression variants",
+        citations=(
+            "Boyd, S. & Vandenberghe, L. (2004). Convex Optimization. Cambridge University Press.",
+        ),
         when_not_to_use="Non-convex quadratic objective (indefinite Q); integer variables required",
         output_interpretation="Globally optimal solution (convex guarantees). KKT conditions hold at optimum.",
     )
@@ -221,6 +226,7 @@ class QuadraticProgramEstimator:
     tags={"optimization", "convex", "robust-optimization"},
 )
 class RobustOptimizationEstimator:
+    """Robust optimization estimator implementation."""
     runtime_stack: ClassVar[tuple[str, ...]] = ("cvxpy", "numpy")
 
     signature: ClassVar[MethodSignature] = MethodSignature(
@@ -272,6 +278,9 @@ class RobustOptimizationEstimator:
         description="Robust linear allocation with L1 uncertainty penalty on the objective.",
         tags=frozenset({"optimization", "convex", "robust-optimization"}),
         when_to_use="Worst-case uncertainty; no distributional assumption on uncertainty; robust policy design",
+        citations=(
+            "Ben-Tal, A., El Ghaoui, L. & Nemirovski, A. (2009). Robust Optimization. Princeton University Press.",
+        ),
         when_not_to_use="Uncertainty is well-characterized probabilistically; stochastic program is preferred",
         output_interpretation="Minimax optimal solution. Constraint satisfied for all scenarios in uncertainty set.",
     )

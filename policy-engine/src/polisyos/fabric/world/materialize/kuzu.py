@@ -1,3 +1,4 @@
+"""Public materialize kuzu module API."""
 from __future__ import annotations
 
 import shutil
@@ -22,6 +23,7 @@ def ensure_world_kuzu_schema(
     ddl_path: Path | None = None,
     clear_on_start: bool = False,
 ) -> None:
+    """Ensure world kuzu schema helper."""
     kuzu = _import_kuzu()
     path = Path(kuzu_path)
     if clear_on_start and path.exists():
@@ -57,6 +59,7 @@ def materialize_world_kuzu_from_duckdb(
     keep_tmp: bool = False,
     kuzu_enabled: bool | None = None,
 ) -> None:
+    """Materialize world kuzu from duckdb helper."""
     if mode != "rebuild":
         raise ValueError(f"unsupported kuzu materialization mode: {mode}")
     if batch_size <= 0:

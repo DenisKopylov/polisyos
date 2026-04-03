@@ -1,3 +1,4 @@
+"""Public common timestamps module API."""
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -5,6 +6,7 @@ from typing import Any
 
 
 def utc_now(*, drop_microseconds: bool = False) -> datetime:
+    """Utc now helper."""
     current = datetime.now(timezone.utc)
     if drop_microseconds:
         return current.replace(microsecond=0)
@@ -12,12 +14,14 @@ def utc_now(*, drop_microseconds: bool = False) -> datetime:
 
 
 def ensure_utc(value: datetime) -> datetime:
+    """Ensure utc helper."""
     if value.tzinfo is None:
         return value.replace(tzinfo=timezone.utc)
     return value.astimezone(timezone.utc)
 
 
 def to_iso_utc(value: datetime, *, z_suffix: bool = True) -> str:
+    """Convert to iso utc."""
     rendered = ensure_utc(value).isoformat()
     if z_suffix:
         return rendered.replace("+00:00", "Z")
@@ -25,6 +29,7 @@ def to_iso_utc(value: datetime, *, z_suffix: bool = True) -> str:
 
 
 def parse_iso_datetime(value: Any) -> datetime | None:
+    """Parse iso datetime helper."""
     if isinstance(value, datetime):
         return ensure_utc(value)
     if not isinstance(value, str):
@@ -38,10 +43,12 @@ def parse_iso_datetime(value: Any) -> datetime | None:
 
 
 def to_epoch_seconds(value: datetime) -> float:
+    """Convert to epoch seconds."""
     return ensure_utc(value).timestamp()
 
 
 def from_epoch_seconds(value: float) -> datetime:
+    """Create from epoch seconds."""
     return datetime.fromtimestamp(value, tz=timezone.utc)
 
 

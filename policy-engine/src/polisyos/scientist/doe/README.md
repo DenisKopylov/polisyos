@@ -1,30 +1,35 @@
-# DoE Layer (`polisyos.scientist.doe`)
+# DoE (`polisyos.scientist.doe`)
 
-`doe` — дизайн и анализ экспериментальных планов (sensitivity/adversarial) для Scientist.
+`doe` покрывает design-of-experiments и stress-analysis часть Scientist: sensitivity,
+ablation и adversarial планы, генерацию sample sets и пост-анализ уязвимостей.
 
-## Что внутри
+## Роль в системе
 
-- `designs.py`
-  - `ScenarioSweep`, `AblationPlan`
-  - `SensitivityPlan`, `ParameterSpec`, `SensitivityMethod`
-  - `AdversarialPlan`, `AdversarialStrategy`
-  - `SensitivityResult`, `RunFailurePolicy`
-- `sampling.py`
-  - `generate_sensitivity_samples(plan)`
-  - `generate_adversarial_samples(plan)`
-- `analysis.py`
-  - `analyze_sensitivity(plan, samples, outputs)`
-- `stress_report.py`
-  - `StressTestReport`, `Vulnerability`, `VulnerabilityType`
+- **Зависит от:** numerical sampling/analysis utilities and Scientist evaluation contracts
+- **Используется в:** `scientist.search.adversarial`, CLI stress/sensitivity commands
+- Пакет формирует controlled experiment plans для проверки robustness и parameter sensitivity.
 
-## Практические нюансы
+## Ключевые концепции
 
-- `SensitivityPlan` требует `parameter_specs` (или legacy `parameters`), валидирует лимит ожидаемых запусков.
-- `generate_sensitivity_samples` использует SALib (MORRIS/SOBOL/FAST).
-- `analyze_sensitivity` умеет обрабатывать частично проваленные запуски через `RunFailurePolicy`.
-- `AdversarialPlan` используется слоем `search.adversarial` для stress-test loop.
+- **SensitivityPlan** — параметризованный sensitivity design с failure policy.
+- **AdversarialPlan** — сценарный stress-test для policy candidates.
+- **Sampling** — генерация sensitivity/adversarial samples.
+- **Analysis** — агрегация результатов и уязвимостей после execution.
+- **StressTestReport** — итоговая форма публикации robustness issues.
 
-## Где используется
+## Public API
 
-- CLI `polisyos scientist sensitivity run` (`core/components/_cli_scientist.py`).
-- CLI `polisyos scientist stress-test` (через `search.adversarial.run_stress_test`).
+- `SensitivityPlan`, `ScenarioSweep`, `AblationPlan`
+- `AdversarialPlan`, `AdversarialStrategy`
+- `generate_sensitivity_samples(...)`, `generate_adversarial_samples(...)`
+- `analyze_sensitivity(...)`
+- `StressTestReport`, `Vulnerability`, `VulnerabilityType`
+
+Подробности: [Reference →](../../../../docs/reference/scientist/index.md)
+
+## Текущее состояние
+
+- Последнее обновление: 2026-04-03
+- Python modules: 8
+- Exports: 16
+- README синхронизирован с тем, что `doe` остается upstream для search/stress flows

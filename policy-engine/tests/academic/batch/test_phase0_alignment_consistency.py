@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from polisyos.academic.knowledge.canonical_seed import CANONICAL_VARIABLES
+from polisyos.academic.knowledge.runtime_canonical_registry import runtime_canonical_names
 from polisyos.datasets.knowledge.variable_alignment import load_seed_alignments
 
 
@@ -14,6 +15,7 @@ def _canonical_namespace() -> set[str]:
             if child == "_root":
                 continue
             namespace.add(f"{root}.{child}")
+    namespace.update(runtime_canonical_names())
     return namespace
 
 

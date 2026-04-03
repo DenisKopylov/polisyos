@@ -1,3 +1,4 @@
+"""Public calibration uncertainty adapter module API."""
 from __future__ import annotations
 
 import math
@@ -26,6 +27,7 @@ def envelope_from_calibration_param(
     *,
     confidence_level: float = 0.95,
 ) -> UncertaintyEnvelope | None:
+    """Envelope from calibration param helper."""
     if report.uncertainties is None:
         return None
 
@@ -89,6 +91,7 @@ def envelopes_from_calibration(
     *,
     confidence_level: float = 0.95,
 ) -> Mapping[str, UncertaintyEnvelope]:
+    """Envelopes from calibration helper."""
     result: dict[str, UncertaintyEnvelope] = {}
     for param_name in report.calibrated_params:
         env = envelope_from_calibration_param(

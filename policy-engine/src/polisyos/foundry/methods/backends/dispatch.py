@@ -1,3 +1,4 @@
+"""Public backends dispatch module API."""
 from __future__ import annotations
 
 import threading
@@ -68,6 +69,7 @@ def _record_execution(
 
 @dataclass(frozen=True)
 class BackendNotAvailableError(RuntimeError):
+    """Backend not available error exception."""
     backend: ComputeBackend
 
     def __str__(self) -> str:

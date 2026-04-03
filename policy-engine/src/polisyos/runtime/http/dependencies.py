@@ -1,3 +1,4 @@
+"""Public http dependencies module API."""
 from __future__ import annotations
 
 import uuid
@@ -26,6 +27,7 @@ except ModuleNotFoundError:  # pragma: no cover
 
 @dataclass(frozen=True)
 class RuntimeApiContext:
+    """Runtime api context public type."""
     cas_root: Path
     core_runs_root: Path
     store: FileSystemCAS
@@ -51,6 +53,7 @@ def build_runtime_api_context(
     allow_unscoped_artifacts: bool = False,
     artifact_redaction_hooks: dict[str, Any] | None = None,
 ) -> RuntimeApiContext:
+    """Build runtime api context."""
     store = FileSystemCAS(cas_root)
     timeline = TimelineService()
     lineage = LineageService(
@@ -88,10 +91,12 @@ def build_runtime_api_context(
 
 
 def get_runtime_api_context(request: Request) -> RuntimeApiContext:  # pragma: no cover
+    """Return runtime api context."""
     return request.app.state.runtime_api_ctx
 
 
 def ensure_request_id(request: Request) -> str:  # pragma: no cover
+    """Ensure request ID helper."""
     request_id = getattr(request.state, "request_id", None)
     if isinstance(request_id, str) and request_id:
         return request_id
@@ -109,6 +114,7 @@ def build_meta(
     *,
     source_kinds: list[SourceKind] | None = None,
 ) -> ApiMeta:  # pragma: no cover
+    """Build meta."""
     request_id = ensure_request_id(request)
     dedup = sorted(set(source_kinds or []))
     return ApiMeta(request_id=request_id, source_kinds=dedup)
@@ -121,6 +127,7 @@ def set_authz_resource(
     kind: str,
     artifact_id: str | None = None,
 ) -> None:  # pragma: no cover
+    """Set authz resource helper."""
     request.state.authz_resource = {
         "tenant_id": tenant_id or "",
         "kind": kind,
@@ -129,6 +136,7 @@ def set_authz_resource(
 
 
 def get_access_scope(request: Request) -> AccessScope | None:  # pragma: no cover
+    """Return access scope."""
     scope = getattr(request.state, "access_scope", None)
     return scope if isinstance(scope, AccessScope) else None
 
@@ -139,6 +147,7 @@ def enforce_run_tenant_access(
     ctx: RuntimeApiContext,
     run: IndexedRunRecord,
 ) -> None:  # pragma: no cover
+    """Enforce run tenant access helper."""
     scope = get_access_scope(request)
     if scope is None:
         return
@@ -164,6 +173,7 @@ def enforce_artifact_tenant_access(
     ctx: RuntimeApiContext,
     artifact_id: ArtifactID,
 ) -> str | None:  # pragma: no cover
+    """Enforce artifact tenant access helper."""
     scope = get_access_scope(request)
     tenant_id = ctx.run_index.get_artifact_tenant(str(artifact_id))
     if scope is None:
@@ -184,4 +194,5 @@ def enforce_artifact_tenant_access(
 
 
 def parse_artifact_ids(values: list[str]) -> list[ArtifactID]:
+    """Parse artifact ids helper."""
     return [ArtifactID.model_validate(value) for value in values]

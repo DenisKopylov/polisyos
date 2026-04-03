@@ -17,7 +17,7 @@ def _write_jsonl(path: Path, rows: list[dict]) -> None:
             fh.write(json.dumps(row, ensure_ascii=False) + "\n")
 
 
-def test_quality_report_includes_gate_metrics_and_fails_on_audit_miss(tmp_path: Path) -> None:
+def test_quality_report_includes_gate_metrics_and_treats_raw_audit_miss_as_warning(tmp_path: Path) -> None:
     provisions_dir = tmp_path / "provisions"
     spo_results_dir = tmp_path / "spo_results"
     llm_gate_manifest = tmp_path / "manifests" / "llm_gate.json"
@@ -85,6 +85,7 @@ def test_quality_report_includes_gate_metrics_and_fails_on_audit_miss(tmp_path: 
     assert report["top_gap_fill_subtypes"][0]["legal_unit_subtype"] == "core_normative_clause"
     assert report["audit_sample_total"] == 2
     assert report["audit_miss_rate_pct"] == 50.0
+    assert report["primary_clause_miss_rate_pct"] == 0.0
 
     gate = evaluate_quality_gates(
         report=report,
@@ -102,5 +103,6 @@ def test_quality_report_includes_gate_metrics_and_fails_on_audit_miss(tmp_path: 
                 min_statements_for_statement_rate=1,
         ),
     )
-    assert gate.passed is False
-    assert "audit_miss_rate_pct" in gate.failed_checks
+    assert gate.passed is True
+    assert gate.failed_checks == []
+    assert "audit_miss_rate_pct" in gate.warning_failed_checks

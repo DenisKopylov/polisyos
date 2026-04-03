@@ -3,12 +3,21 @@
 from __future__ import annotations
 
 from polisyos.lex.batch import deterministic_spo as _base
+from polisyos.lex.batch.quality_filters import has_explicit_threshold_cue
 
 _BASE_EXPORTS = {'re', 'canonicalize_action', 'canonicalize_norm_type', 'extract_thresholds_from_text'}
 for _name in dir(_base):
     if _name.startswith("_") or _name in _BASE_EXPORTS:
         globals().setdefault(_name, getattr(_base, _name))
 del _name
+
+_WORD_THRESHOLD_ROW_RE = re.compile(
+    r"(?P<lemma>не\s+менше|не\s+більше|не\s+нижче|не\s+вище)\s+"
+    r"(?P<value>[а-яіїєґ'’`-]{2,24})\s+"
+    r"(?P<unit>рок(?:ів|и|у)|дн(?:ів|і|я)|місяц(?:ів|і|я)|тижн(?:ів|і|я)|"
+    r"відсотк(?:ів|и|а)|осіб|раз(?:ів|и)?)",
+    re.IGNORECASE,
+)
 
 def _approval_object_hint(text: str) -> str:
     lines = [_compact for _compact in (" ".join(line.split()) for line in text.splitlines()) if _compact]
@@ -333,7 +342,12 @@ def _extract_threshold_row_candidates_inner(
         return [], []
     quote = _clip_text(cleaned, size=320)
     analysis_text = _combine_with_context(cleaned, context_prefix)
-    thresholds = extract_thresholds_from_text(analysis_text, applies_to=doc_title or "регульований показник")
+    thresholds = [
+        threshold
+        for threshold in extract_thresholds_from_text(analysis_text, applies_to=doc_title or "регульований показник")
+        if str(getattr(threshold, "unit", "") or "").strip().lower() != "year"
+        or has_explicit_threshold_cue(analysis_text)
+    ]
 
     def _emit_threshold_candidates(
         *,
@@ -344,7 +358,7 @@ def _extract_threshold_row_candidates_inner(
     ) -> tuple[list[SPOCandidate], list[str]]:
         candidates: list[SPOCandidate] = []
         reasons: list[str] = []
-        subject = _clip_text(subject_hint or doc_title or "регульований показник", 160)
+        subject = _clip_text(subject_hint or "регульований показник", 160)
         for threshold in raw_thresholds:
             value_text = str(getattr(threshold, "value_text", "") or getattr(threshold, "value_decimal", "") or "").strip()
             unit = str(getattr(threshold, "unit", "") or "").strip()
@@ -365,6 +379,30 @@ def _extract_threshold_row_candidates_inner(
             )
             reasons.append(reason_code)
         return candidates, reasons
+
+    if not thresholds:
+        word_threshold_match = _WORD_THRESHOLD_ROW_RE.search(analysis_text)
+        if word_threshold_match:
+            subject_uk = _clip_text(doc_title or "регульований показник", 160)
+            object_uk = _clip_text(
+                f"{word_threshold_match.group('lemma')} {word_threshold_match.group('value')} {word_threshold_match.group('unit')}",
+                120,
+            )
+            return (
+                [
+                    _build_candidate(
+                        subject_uk=subject_uk or "регульований показник",
+                        predicate="sets_threshold",
+                        object_uk=object_uk,
+                        norm_type="obligation",
+                        fact_text=f"{subject_uk or 'регульований показник'} має поріг {object_uk}",
+                        quote=quote,
+                        confidence=0.73,
+                        thresholds_text=analysis_text,
+                    )
+                ],
+                ["subtype_threshold_word_row"],
+            )
 
     match = _THRESHOLD_ROW_RE.search(cleaned)
     if not match:
@@ -437,7 +475,7 @@ def _extract_threshold_row_candidates_inner(
                 )
             ], ["subtype_threshold_schedule_row"]
         threshold_candidates, threshold_reasons = _emit_threshold_candidates(
-            subject_hint=doc_title or "орган, що прийняв акт",
+            subject_hint="регульований показник",
             raw_thresholds=thresholds,
             base_confidence=0.86,
             reason_code="subtype_threshold_fallback",
@@ -470,36 +508,13 @@ def _extract_threshold_row_candidates(
 ) -> tuple[list[SPOCandidate], list[str]]:
     """Extract threshold from tariff_threshold_row provisions.
 
-    Delegates to internal _extract_threshold_row_candidates_inner and adds
-    a text-based fallback for provisions that didn't match numeric patterns.
+    Delegates to internal _extract_threshold_row_candidates_inner.
     """
-    candidates, reason_codes = _extract_threshold_row_candidates_inner(
+    return _extract_threshold_row_candidates_inner(
         text=text,
         doc_title=doc_title,
         context_prefix=context_prefix,
     )
-    if candidates:
-        return candidates, reason_codes
-
-    # Fallback: provision classified as tariff_threshold_row but no numeric match.
-    # Create a minimal candidate from the text content itself.
-    cleaned = text.strip()
-    if not cleaned or len(cleaned) < 6:
-        return [], []
-    quote = _clip_text(cleaned, size=320)
-    subject_hint = _clip_text(cleaned, 160)
-    return [
-        _build_candidate(
-            subject_uk=subject_hint,
-            predicate="sets_threshold",
-            object_uk=doc_title or "регульований показник",
-            norm_type="obligation",
-            fact_text=f"Визначено параметр: {subject_hint}",
-            quote=quote,
-            confidence=0.7,
-            thresholds_text=_combine_with_context(cleaned, context_prefix),
-        )
-    ], ["subtype_threshold_text_fallback"]
 
 
 def _extract_application_requirement_candidates(

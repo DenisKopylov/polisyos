@@ -1,3 +1,4 @@
+"""Public core contracts package API."""
 from __future__ import annotations
 
 import importlib
@@ -221,6 +222,7 @@ _MODULE_SYMBOLS: dict[str, tuple[str, ...]] = {
         "ActiveDisambiguationPlanRef",
         "BootstrapStabilityReportRef",
         "ChampionPolicyDossierRef",
+        "CalibrationValidationBundleRef",
         "CheckpointRef",
         "ConstraintSatisfactionReportRef",
         "CritiqueRef",
@@ -392,6 +394,7 @@ __all__ = [
     "GovernanceReportRef",
     "SensitivityResultRef",
     "StressTestReportRef",
+    "CalibrationValidationBundleRef",
     "UncertaintyEnvelopeRef",
     "BacktestReportRef",
     "HTEResultRef",

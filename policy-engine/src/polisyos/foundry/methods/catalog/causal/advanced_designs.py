@@ -1,3 +1,4 @@
+"""Public causal advanced designs module API."""
 from __future__ import annotations
 
 from typing import Any, ClassVar, Mapping
@@ -154,6 +155,7 @@ def _truncate_pseudo_outcome(
     tags={"causal", "regression-kink", "rkd"},
 )
 class RegressionKinkDesignEstimator:
+    """Regression kink design estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -250,6 +252,7 @@ class RegressionKinkDesignEstimator:
     tags={"causal", "bunching", "kleven", "cross-section", "estimation"},
 )
 class BunchingEstimator:
+    """Bunching estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -358,6 +361,7 @@ class BunchingEstimator:
     tags={"causal", "mte", "marginal-treatment-effect"},
 )
 class MarginalTreatmentEffectEstimator:
+    """Marginal treatment effect estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -463,6 +467,7 @@ class MarginalTreatmentEffectEstimator:
     tags={"causal", "shift-share", "bartik-iv"},
 )
 class ShiftShareIVEstimator:
+    """Shift share IV estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -586,6 +591,7 @@ class ShiftShareIVEstimator:
     tags={"causal", "hte", "dr-learner"},
 )
 class DRLearnerEstimator:
+    """DR learner estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -765,6 +771,7 @@ class DRLearnerEstimator:
     tags={"causal", "hte", "r-learner"},
 )
 class RLearnerEstimator:
+    """R learner estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 

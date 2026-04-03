@@ -1,3 +1,4 @@
+"""Public fabric provenance package API."""
 from polisyos.fabric.provenance.core import (
     ActivityType,
     AgentType,

@@ -2,12 +2,14 @@ from __future__ import annotations
 
 import logging
 
-from polisyos.core.artifacts.manifest import SchemaInfo
+from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.compiler.report import CompileReport, put_compile_report, put_link_report
+from polisyos.core.contracts.backtest import BacktestReportRef
 from polisyos.core.contracts.foundry import ExecPlanRef, Metrics, MetricsRef, SimulationResult
 from polisyos.core.contracts.lex import ChangeProposalRef, LegalReportRef
+from polisyos.core.contracts.scientist import StressTestReportRef
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
 from polisyos.ir.analytics.abstraction import (
@@ -91,12 +93,23 @@ from polisyos.ir.analytics.uncertainty import (
 from polisyos.ir.linker import LinkIssue, LinkIssueCode, LinkReport, LinkSeverity
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.governance.backtest_matrix import BacktestKind, BacktestMatrixResult
+from polisyos.scientist.governance.calibration_leaderboard import (
+    CalibrationLeaderboardEntry,
+    CalibrationLeaderboardMetrics,
+)
+from polisyos.scientist.governance.calibration_validation import (
+    CalibrationValidationBundle,
+    persist_calibration_validation_bundle,
+)
 from polisyos.scientist.governance.report import GovernanceReport, GovernanceReportLinks
+from polisyos.scientist.governance.stress_scenarios import StressScenarioKind, StressScenarioResult
 from polisyos.scientist.nodes.builtins.decide.build_decision_packet import BuildDecisionPacketNode
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_ABM_ALIGNMENT_REPORT_REF,
     ARTIFACT_ABSTRACTION_CERTIFICATE_REF,
     ARTIFACT_BACKTEST_REPORT_REF,
+    ARTIFACT_CALIBRATION_VALIDATION_BUNDLE_REF,
     ARTIFACT_CAUSAL_ENVELOPE_REF,
     ARTIFACT_CAUSAL_ENSEMBLE_REF,
     ARTIFACT_CAUSAL_REPORT_REF,
@@ -1037,6 +1050,95 @@ def test_build_decision_packet_includes_hte_and_backtest_sections(tmp_path) -> N
     assert payload["targeting"]["recommendation_ref"] == str(recommendation_ref.artifact_id)
     assert payload["backtest"]["report_ref"] == str(backtest_ref.artifact_id)
     assert payload["trust_profile"]["backtest_trust_grade"] == "B"
+
+
+def test_build_decision_packet_includes_calibration_validation_summary(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+    registry_bundle = build_default_registry_bundle(store).bundle_ref
+    run = RunContext.start(
+        store=store,
+        registry_bundle=registry_bundle,
+        run_id="R_packet_c5b",
+    )
+    ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test.packet"))
+
+    trinity_ref = store.put_json(
+        {"trinity": {}},
+        PutOptions(
+            kind="ir.trinity_bundle",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version="1.0"),
+        ),
+    )
+    data_snapshot_ref = store.put_json(
+        {"data_ref": {"artifact_id": "sha256:" + "1" * 64}},
+        PutOptions(kind="foundry.data_snapshot", media_type="application/json"),
+    )
+    candidate_ref = ArtifactRef(
+        artifact_id="sha256:" + "2" * 64,
+        kind="scientist.test",
+        media_type="application/json",
+    )
+    calibration_validation_ref = persist_calibration_validation_bundle(
+        store,
+        CalibrationValidationBundle(
+            run_id="R_packet_c5b",
+            candidate_ref=candidate_ref,
+            governance_verdict="approve",
+            status="completed",
+            backtest_matrix=BacktestMatrixResult(
+                report_id="BTM_packet",
+                backtest_report_ref=BacktestReportRef(artifact_id="sha256:" + "3" * 64),
+                composite_score=0.81,
+                worst_kind=BacktestKind.DISTRESS,
+            ),
+            stress_scenarios=StressScenarioResult(
+                report_id="stress_packet",
+                stress_test_report_ref=StressTestReportRef(artifact_id="sha256:" + "4" * 64),
+                robustness_score=0.74,
+                worst_scenario=StressScenarioKind.TRADE_DISRUPTION,
+            ),
+            leaderboard_entry=CalibrationLeaderboardEntry(
+                entry_id="leaderboard_packet",
+                run_id="R_packet_c5b",
+                candidate_ref=candidate_ref,
+                metrics=CalibrationLeaderboardMetrics(
+                    calibration_fit_score=0.9,
+                    backtest_matrix_score=0.81,
+                    stress_robustness_score=0.74,
+                    specification_curve_robustness=0.7,
+                    transportability_score=0.8,
+                    interference_fit=0.85,
+                    strategic_response_plausibility=0.9,
+                    governance_verdict="approve",
+                    adversarial_passed=True,
+                    eligible_for_promotion=True,
+                    composite_score=0.82,
+                ),
+                worst_backtest_kind=BacktestKind.DISTRESS,
+                worst_stress_scenario=StressScenarioKind.TRADE_DISRUPTION,
+            ),
+        ),
+    )
+
+    state = ExperimentState(
+        run_id="R_packet_c5b",
+        inputs={
+            INPUT_TRINITY_BUNDLE_REF: trinity_ref,
+            INPUT_REGISTRY_BUNDLE_REF: registry_bundle,
+            INPUT_DATA_SNAPSHOT_REF: data_snapshot_ref,
+        },
+        artifacts_index={
+            ARTIFACT_CALIBRATION_VALIDATION_BUNDLE_REF: calibration_validation_ref,
+        },
+    )
+    outcome = BuildDecisionPacketNode().execute(ctx, state)
+    packet_ref = outcome.artifacts[0]
+    payload = from_canonical_bytes(store.get_bytes(packet_ref.artifact_id))
+
+    assert payload["calibration_validation"]["status"] == "completed"
+    assert payload["calibration_validation"]["summary"]["composite_score"] == 0.82
+    assert payload["calibration_validation"]["summary"]["worst_backtest_kind"] == "distress"
 
 
 def test_build_decision_packet_includes_sensitivity_section(tmp_path) -> None:

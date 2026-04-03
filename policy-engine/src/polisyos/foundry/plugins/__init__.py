@@ -1,3 +1,4 @@
+"""Public foundry plugins package API."""
 from .api import PolisySimulator, SimulationConfig, SimulationResult, TrainingResult
 from .composite import (
     CompositeExecutor,

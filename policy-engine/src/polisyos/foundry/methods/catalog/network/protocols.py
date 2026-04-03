@@ -1,3 +1,4 @@
+"""Public network protocols module API."""
 from __future__ import annotations
 
 from typing import Any, ClassVar
@@ -13,6 +14,7 @@ def _to_numpy(value: Any) -> np.ndarray:
 
 
 class NetworkData(BaseModel):
+    """Network data public type."""
     contract_id: ClassVar[str] = "foundry.network.data.v1"
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
 
@@ -58,6 +60,7 @@ class NetworkData(BaseModel):
 
 
 class MultiplexNetworkData(BaseModel):
+    """Multiplex network data public type."""
     contract_id: ClassVar[str] = "foundry.network.multiplex_data.v1"
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
 
@@ -97,6 +100,7 @@ class MultiplexNetworkData(BaseModel):
 
 
 class NetworkResult(BaseModel):
+    """Network result data model."""
     contract_id: ClassVar[str] = "foundry.network.result.v1"
     model_config = ConfigDict(extra="forbid", frozen=True, arbitrary_types_allowed=True)
 

@@ -41,36 +41,43 @@ StopReason = Literal[
 
 
 class ExecutionPlanRef(ArtifactRef):
+    """Execution plan ref data model."""
     kind: Literal["scientist.execution_plan"] = "scientist.execution_plan"
     media_type: Literal["application/json"] = "application/json"
 
 
 class MethodCatalogSnapshotRef(ArtifactRef):
+    """Method catalog snapshot ref data model."""
     kind: Literal["foundry.method_catalog_snapshot"] = "foundry.method_catalog_snapshot"
     media_type: Literal["application/json"] = "application/json"
 
 
 class PreflightReportRef(ArtifactRef):
+    """Preflight report ref data model."""
     kind: Literal["scientist.preflight_report"] = "scientist.preflight_report"
     media_type: Literal["application/json"] = "application/json"
 
 
 class EvaluatorReportRef(ArtifactRef):
+    """Evaluator report ref data model."""
     kind: Literal["scientist.evaluator_report"] = "scientist.evaluator_report"
     media_type: Literal["application/json"] = "application/json"
 
 
 class IterationStateRef(ArtifactRef):
+    """Iteration state ref data model."""
     kind: Literal["scientist.iteration_state"] = "scientist.iteration_state"
     media_type: Literal["application/json"] = "application/json"
 
 
 class ReproducibilityManifestRef(ArtifactRef):
+    """Reproducibility manifest ref data model."""
     kind: Literal["scientist.reproducibility_manifest"] = "scientist.reproducibility_manifest"
     media_type: Literal["application/json"] = "application/json"
 
 
 class PlanDataNeed(BaseModel):
+    """Plan data need public type."""
     model_config = ConfigDict(extra="forbid")
 
     metric: str = Field(..., min_length=1, max_length=256)
@@ -83,6 +90,7 @@ class PlanDataNeed(BaseModel):
 
 
 class MethodDagNode(BaseModel):
+    """Method dag node implementation."""
     model_config = ConfigDict(extra="forbid")
 
     node_id: str = Field(..., min_length=1, max_length=128)
@@ -99,6 +107,7 @@ class MethodDagNode(BaseModel):
 
 
 class MethodDagEdge(BaseModel):
+    """Method dag edge public type."""
     model_config = ConfigDict(extra="forbid")
 
     src: str = Field(..., min_length=1, max_length=128)
@@ -107,6 +116,7 @@ class MethodDagEdge(BaseModel):
 
 
 class BudgetSpec(BaseModel):
+    """Budget spec data model."""
     model_config = ConfigDict(extra="forbid")
 
     max_iterations: int = Field(default=3, ge=1, le=100)
@@ -117,6 +127,7 @@ class BudgetSpec(BaseModel):
 
 
 class StopCriteria(BaseModel):
+    """Stop criteria public type."""
     model_config = ConfigDict(extra="forbid")
 
     min_delta_improvement: float = Field(default=0.0, ge=0.0, le=1.0)
@@ -126,6 +137,7 @@ class StopCriteria(BaseModel):
 
 
 class GovernanceConstraint(BaseModel):
+    """Governance constraint public type."""
     model_config = ConfigDict(extra="forbid")
 
     constraint_id: str = Field(..., min_length=1, max_length=128)
@@ -136,6 +148,7 @@ class GovernanceConstraint(BaseModel):
 
 
 class ExpectedOutputSpec(BaseModel):
+    """Expected output spec data model."""
     model_config = ConfigDict(extra="forbid")
 
     output_id: str = Field(..., min_length=1, max_length=128)
@@ -174,6 +187,7 @@ class ExecutionPlan(BaseModel):
 
 
 class MethodCatalogEntry(BaseModel):
+    """Method catalog entry data model."""
     model_config = ConfigDict(extra="forbid")
 
     fqn: str = Field(..., min_length=1)
@@ -221,6 +235,7 @@ class MethodCatalogEntry(BaseModel):
 
 
 class MethodCatalogSnapshot(BaseModel):
+    """Method catalog snapshot data model."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("2.0", pattern=r"^\d+\.\d+$")
@@ -240,6 +255,7 @@ class MethodCatalogSnapshot(BaseModel):
 
 
 class PreflightDiagnostic(BaseModel):
+    """Preflight diagnostic public type."""
     model_config = ConfigDict(extra="forbid")
 
     code: str = Field(..., min_length=1, max_length=128)
@@ -251,6 +267,7 @@ class PreflightDiagnostic(BaseModel):
 
 
 class PreflightReport(BaseModel):
+    """Preflight report data model."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -262,6 +279,7 @@ class PreflightReport(BaseModel):
 
 
 class EvaluatorScores(BaseModel):
+    """Evaluator scores public type."""
     model_config = ConfigDict(extra="forbid")
 
     kpi_score: float = Field(default=0.0, ge=0.0, le=1.0)
@@ -273,6 +291,7 @@ class EvaluatorScores(BaseModel):
 
 
 class EvaluatorReport(BaseModel):
+    """Evaluator report data model."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -285,6 +304,7 @@ class EvaluatorReport(BaseModel):
 
 
 class IterationState(BaseModel):
+    """Iteration state data model."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -302,6 +322,7 @@ class IterationState(BaseModel):
 
 
 class ReproducibilityManifest(BaseModel):
+    """Reproducibility manifest data model."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")

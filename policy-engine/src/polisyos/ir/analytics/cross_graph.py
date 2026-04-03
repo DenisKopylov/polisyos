@@ -1,3 +1,4 @@
+"""Public analytics cross graph module API."""
 from __future__ import annotations
 
 import hashlib
@@ -29,12 +30,14 @@ _COMPOSITION_CERTIFICATE_SCHEMA_VERSION = "1.1"
 
 
 class InterfaceRole(str, Enum):
+    """Interface role public type."""
     INPUT = "input"
     OUTPUT = "output"
     SHARED = "shared"
 
 
 class InterfaceVariableSchema(BaseModel):
+    """Interface variable schema data model."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     variable_name: str = Field(min_length=1)
@@ -47,6 +50,7 @@ class InterfaceVariableSchema(BaseModel):
 
 
 class FragmentInterfaceSchema(BaseModel):
+    """Fragment interface schema data model."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     fragment_id: str = Field(min_length=1)
@@ -62,6 +66,7 @@ class FragmentInterfaceSchema(BaseModel):
 
 
 class SCMFragment(BaseModel):
+    """SCM fragment public type."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     schema_version: str = Field("1.1", pattern=r"^\d+\.\d+$")
@@ -143,6 +148,7 @@ class SCMFragment(BaseModel):
 
 
 class InterfaceVariableBinding(BaseModel):
+    """Interface variable binding public type."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     fragment_id: str = Field(min_length=1)
@@ -155,6 +161,7 @@ class InterfaceVariableBinding(BaseModel):
 
 
 class InterfaceMappingEntry(BaseModel):
+    """Interface mapping entry data model."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     interface_id: str = Field(min_length=1)
@@ -177,6 +184,7 @@ class InterfaceMappingEntry(BaseModel):
 
 
 class InterfaceMapping(BaseModel):
+    """Interface mapping public type."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -198,6 +206,7 @@ class InterfaceMapping(BaseModel):
 
 
 class CompositionCertificate(BaseModel):
+    """Composition certificate public type."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     schema_version: str = Field("1.1", pattern=r"^\d+\.\d+$")
@@ -240,6 +249,7 @@ class CompositionCertificate(BaseModel):
 
 
 class ConceptKind(str, Enum):
+    """Concept kind public type."""
     METRIC = "metric"
     VARIABLE = "variable"
     PARAMETER = "parameter"
@@ -252,6 +262,7 @@ class ConceptKind(str, Enum):
 
 
 class BridgeRelation(str, Enum):
+    """Bridge relation public type."""
     METRIC_TO_VARIABLE = "metric_to_variable"
     PARAMETER_TO_VARIABLE = "parameter_to_variable"
     LEGAL_TO_METRIC = "legal_to_metric"
@@ -263,6 +274,7 @@ class BridgeRelation(str, Enum):
 
 
 class EvidenceNeedType(str, Enum):
+    """Evidence need type public type."""
     OBJECTIVE_METRIC = "objective_metric"
     KPI_METRIC = "kpi_metric"
     SUCCESS_CRITERION_METRIC = "success_criterion_metric"
@@ -274,6 +286,7 @@ class EvidenceNeedType(str, Enum):
 
 
 class LegalStatus(str, Enum):
+    """Legal status public type."""
     ALLOWED = "allowed"
     CONSTRAINED = "constrained"
     PROHIBITED = "prohibited"
@@ -281,6 +294,7 @@ class LegalStatus(str, Enum):
 
 
 class ObservabilityStatus(str, Enum):
+    """Observability status public type."""
     DIRECT = "direct"
     PROXY_ONLY = "proxy_only"
     MISSING = "missing"
@@ -288,6 +302,7 @@ class ObservabilityStatus(str, Enum):
 
 
 class EvidenceStatus(str, Enum):
+    """Evidence status public type."""
     SUPPORTED = "supported"
     MIXED = "mixed"
     INSUFFICIENT = "insufficient"
@@ -295,6 +310,7 @@ class EvidenceStatus(str, Enum):
 
 
 class TransportStatus(str, Enum):
+    """Transport status public type."""
     IDENTIFIED = "identified"
     PARTIALLY_IDENTIFIED = "partially_identified"
     BOUNDED_NON_IDENTIFIED = "bounded_non_identified"
@@ -302,6 +318,7 @@ class TransportStatus(str, Enum):
 
 
 class EvidenceSourceKind(str, Enum):
+    """Evidence source kind public type."""
     ACADEMIC = "academic"
     DATASETS = "datasets"
     LEGAL = "legal"
@@ -309,6 +326,7 @@ class EvidenceSourceKind(str, Enum):
 
 
 class EvidenceSourceState(str, Enum):
+    """Evidence source state data model."""
     AVAILABLE = "available"
     MISSING_CONFIG = "missing_config"
     MISSING_PATH = "missing_path"
@@ -318,6 +336,7 @@ class EvidenceSourceState(str, Enum):
 
 
 class CanonicalConcept(BaseModel):
+    """Canonical concept public type."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     concept_id: str
@@ -328,6 +347,7 @@ class CanonicalConcept(BaseModel):
 
 
 class ConceptBridge(BaseModel):
+    """Concept bridge public type."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     src_system: str
@@ -340,6 +360,7 @@ class ConceptBridge(BaseModel):
 
 
 class EvidenceNeed(BaseModel):
+    """Evidence need public type."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     need_id: str
@@ -365,6 +386,7 @@ class EvidenceNeed(BaseModel):
 
 
 class CrossGraphDiagnostic(BaseModel):
+    """Cross graph diagnostic public type."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     code: str
@@ -375,6 +397,7 @@ class CrossGraphDiagnostic(BaseModel):
 
 
 class EvidenceNeedAssessment(BaseModel):
+    """Evidence need assessment public type."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     need: EvidenceNeed
@@ -393,6 +416,7 @@ class EvidenceNeedAssessment(BaseModel):
 
 
 class CrossGraphEvidenceSummary(BaseModel):
+    """Cross graph evidence summary data model."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     status: str = "ok"
@@ -406,6 +430,7 @@ class CrossGraphEvidenceSummary(BaseModel):
 
 
 class CrossGraphSourceRefs(BaseModel):
+    """Cross graph source refs public type."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     academic_db_path: str | None = None
@@ -415,6 +440,7 @@ class CrossGraphSourceRefs(BaseModel):
 
 
 class EvidenceSourceStatus(BaseModel):
+    """Evidence source status public type."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     source: EvidenceSourceKind
@@ -427,6 +453,7 @@ class EvidenceSourceStatus(BaseModel):
 
 
 class CrossGraphEvidenceProfile(BaseModel):
+    """Cross graph evidence profile data model."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     schema_version: str = Field("2.1", pattern=r"^\d+\.\d+$")
@@ -448,6 +475,7 @@ def build_evidence_need_id(
     source_path: str,
     payload: dict[str, Any],
 ) -> str:
+    """Build evidence need id."""
     normalized = json.dumps(
         {
             "need_type": need_type.value,
@@ -470,6 +498,7 @@ def persist_scm_fragment(
     schema_name: str = _SCM_FRAGMENT_SCHEMA_NAME,
     schema_version: str = _SCM_FRAGMENT_SCHEMA_VERSION,
 ) -> SCMFragmentRef:
+    """Persist scm fragment helper."""
     ref = put_json_artifact(
         store,
         fragment.model_dump(mode="json"),
@@ -486,6 +515,7 @@ def load_scm_fragment(
     store: ArtifactStore,
     ref: SCMFragmentRef,
 ) -> SCMFragment:
+    """Load scm fragment."""
     payload = get_json_artifact(store, ref.artifact_id)
     return SCMFragment.model_validate(payload)
 
@@ -498,6 +528,7 @@ def persist_interface_mapping(
     schema_name: str = _INTERFACE_MAPPING_SCHEMA_NAME,
     schema_version: str = _INTERFACE_MAPPING_SCHEMA_VERSION,
 ) -> InterfaceMappingRef:
+    """Persist interface mapping helper."""
     ref = put_json_artifact(
         store,
         mapping.model_dump(mode="json"),
@@ -514,6 +545,7 @@ def load_interface_mapping(
     store: ArtifactStore,
     ref: InterfaceMappingRef,
 ) -> InterfaceMapping:
+    """Load interface mapping."""
     payload = get_json_artifact(store, ref.artifact_id)
     return InterfaceMapping.model_validate(payload)
 
@@ -526,6 +558,7 @@ def persist_composition_certificate(
     schema_name: str = _COMPOSITION_CERTIFICATE_SCHEMA_NAME,
     schema_version: str = _COMPOSITION_CERTIFICATE_SCHEMA_VERSION,
 ) -> CompositionCertificateRef:
+    """Persist composition certificate helper."""
     ref = put_json_artifact(
         store,
         certificate.model_dump(mode="json"),
@@ -542,6 +575,7 @@ def load_composition_certificate(
     store: ArtifactStore,
     ref: CompositionCertificateRef,
 ) -> CompositionCertificate:
+    """Load composition certificate."""
     payload = get_json_artifact(store, ref.artifact_id)
     return CompositionCertificate.model_validate(payload)
 
@@ -554,6 +588,7 @@ def persist_cross_graph_evidence_profile(
     schema_name: str = _SCHEMA_NAME,
     schema_version: str = _SCHEMA_VERSION,
 ) -> CrossGraphEvidenceProfileRef:
+    """Persist cross graph evidence profile helper."""
     ref = put_json_artifact(
         store,
         profile.model_dump(mode="json"),
@@ -570,6 +605,7 @@ def load_cross_graph_evidence_profile(
     store: ArtifactStore,
     ref: CrossGraphEvidenceProfileRef,
 ) -> CrossGraphEvidenceProfile:
+    """Load cross graph evidence profile."""
     payload = get_json_artifact(store, ref.artifact_id)
     return CrossGraphEvidenceProfile.model_validate(payload)
 

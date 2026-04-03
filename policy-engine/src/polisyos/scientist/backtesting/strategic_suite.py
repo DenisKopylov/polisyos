@@ -1,3 +1,4 @@
+"""Public backtesting strategic suite module API."""
 from __future__ import annotations
 
 from collections.abc import Mapping
@@ -41,6 +42,7 @@ def run_strategic_challenge_suites(
     strategic_summary: Mapping[str, Any] | None,
     abstraction_certificate: AbstractionCertificate | None,
 ) -> tuple[list[ChallengeSuiteResult], tuple[str, ...]]:
+    """Run strategic challenge suites."""
     del run_id
 
     contract = _coerce_strategic_contract(params.get("strategic_scm"))

@@ -1,3 +1,4 @@
+"""Public conflicts resolve module API."""
 from __future__ import annotations
 
 from decimal import ROUND_HALF_UP, Decimal
@@ -286,6 +287,7 @@ def rank_conflict_candidates(
     claim_breakdown_by_id: dict[str, dict[str, Decimal]],
     claim_assessment_by_id: dict[str, TrustAssessment],
 ) -> list[RankedClaim]:
+    """Rank conflict candidates helper."""
     ranked: list[RankedClaim] = []
     for claim_id in member_claim_ids:
         assessment = claim_assessment_by_id[claim_id]
@@ -369,6 +371,7 @@ def resolve_conflicts(
     options: ConflictResolveOptions | None = None,
     segment_name: str | None = None,
 ) -> ConflictResolveResult:
+    """Resolve conflicts."""
     resolved_db = _resolve_simulation_db(storage=storage, db=db)
     opts = options or ConflictResolveOptions()
     policy = get_conflict_policy(policy_id)

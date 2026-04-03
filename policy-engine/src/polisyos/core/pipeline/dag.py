@@ -1,3 +1,4 @@
+"""Public pipeline dag module API."""
 from __future__ import annotations
 
 import graphlib

@@ -1,3 +1,4 @@
+"""Public planning run discovery blueprint runtime module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -72,6 +73,7 @@ _SPEC = NodeSpec(
         "params.discovery_time_index",
         "params.discovery_domain",
         "params.discovery_notes",
+        "params.discovery_algebraic_blocks",
         "params.discovery_selection_diagram",
         "params.discovery_source_context",
         "params.discovery_target_context",
@@ -93,6 +95,7 @@ _SPEC = NodeSpec(
 
 @dataclass(frozen=True)
 class RunDiscoveryBlueprintRuntimeNode:
+    """Run discovery blueprint runtime node implementation."""
     @property
     def spec(self) -> NodeSpec:
         return _SPEC
@@ -126,7 +129,9 @@ class RunDiscoveryBlueprintRuntimeNode:
                     message=str(exc),
                 ),
             )
-        portfolio_config = PortfolioRunnerConfig()
+        portfolio_config = PortfolioRunnerConfig(
+            algebraic_blocks=list(state.params.get("discovery_algebraic_blocks", []) or [])
+        )
         portfolio_runner = GraphDiscoveryPortfolioRunner(config=portfolio_config)
         portfolio_result = portfolio_runner.run(discovery_state)
         hypotheses = [candidate.hypothesis for candidate in portfolio_result.candidates]

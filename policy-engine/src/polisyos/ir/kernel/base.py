@@ -1,3 +1,4 @@
+"""Public kernel base module API."""
 from __future__ import annotations
 
 from typing import Any
@@ -10,16 +11,19 @@ ARTIFACT_ID_PATTERN = r"^sha256:[0-9a-f]{64}$"
 
 
 class KernelModel(BaseModel):
+    """Kernel model public type."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
 
 def reject_float(value: Any) -> Any:
+    """Reject float helper."""
     if isinstance(value, float):
         raise ValueError("float forbidden; use string or int")
     return value
 
 
 def reject_floats_deep(value: Any) -> Any:
+    """Reject floats deep helper."""
     if isinstance(value, float):
         raise ValueError("float forbidden; use string or int")
     if isinstance(value, list):

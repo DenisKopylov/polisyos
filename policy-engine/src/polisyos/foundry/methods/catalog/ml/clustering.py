@@ -1,3 +1,4 @@
+"""Public ml clustering module API."""
 from __future__ import annotations
 
 from typing import Any, ClassVar, Mapping
@@ -42,6 +43,7 @@ def _tabular_payload(state: Any) -> dict[str, Any]:
     tags={"ml", "clustering", "kmeans"},
 )
 class KMeansEstimator:
+    """K means estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("scikit-learn", "numpy")
 
@@ -85,6 +87,9 @@ class KMeansEstimator:
         description="K-means clustering for segmentation of tabular observations.",
         tags=frozenset({"ml", "clustering", "kmeans"}),
         when_to_use="Unsupervised grouping of units; identify latent population segments; input for targeting policy",
+        citations=(
+            "MacQueen, J. (1967). Some methods for classification and analysis of multivariate observations. Proceedings of the 5th Berkeley Symposium on Mathematical Statistics and Probability, 1, 281-297.",
+        ),
         when_not_to_use="Non-spherical clusters; unknown k with no elbow; presence of outliers (use DBSCAN)",
         output_interpretation="Cluster assignments + centroids. Silhouette score: >0.5 = good. Elbow in within-cluster SS for k selection.",
     )

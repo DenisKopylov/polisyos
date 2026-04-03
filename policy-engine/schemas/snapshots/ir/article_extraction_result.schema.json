@@ -71,10 +71,60 @@
           "title": "Cause Variable",
           "type": "string"
         },
+        "claim_explicitness": {
+          "$ref": "#/$defs/ClaimExplicitness",
+          "default": "unclear"
+        },
+        "claim_extraction_confidence": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Claim Extraction Confidence"
+        },
+        "claim_id": {
+          "default": "",
+          "title": "Claim Id",
+          "type": "string"
+        },
+        "claim_text": {
+          "default": "",
+          "title": "Claim Text",
+          "type": "string"
+        },
+        "claim_type": {
+          "$ref": "#/$defs/ClaimType",
+          "default": "unclear"
+        },
         "counterevidence_notes": {
           "default": "",
           "title": "Counterevidence Notes",
           "type": "string"
+        },
+        "design_family_hint": {
+          "$ref": "#/$defs/DesignFamily",
+          "default": "unclear"
+        },
+        "design_quality_tier": {
+          "anyOf": [
+            {
+              "maximum": 4,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Design Quality Tier"
         },
         "direction": {
           "$ref": "#/$defs/CausalDirection",
@@ -100,6 +150,24 @@
           "$ref": "#/$defs/EvidenceStrength",
           "default": "unknown"
         },
+        "extraction_warnings": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Extraction Warnings",
+          "type": "array"
+        },
+        "identification_strategy": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/IdentificationStrategy"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "magnitude_qualitative": {
           "anyOf": [
             {
@@ -112,12 +180,77 @@
           "default": null,
           "title": "Magnitude Qualitative"
         },
+        "method_span_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Method Span Ids",
+          "type": "array"
+        },
+        "method_spans": {
+          "items": {
+            "$ref": "#/$defs/EvidenceSpan"
+          },
+          "title": "Method Spans",
+          "type": "array"
+        },
+        "publish_blockers": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Publish Blockers",
+          "type": "array"
+        },
+        "publish_to_graph": {
+          "default": false,
+          "title": "Publish To Graph",
+          "type": "boolean"
+        },
         "scope_conditions": {
           "items": {
             "type": "string"
           },
           "title": "Scope Conditions",
           "type": "array"
+        },
+        "source_basis": {
+          "$ref": "#/$defs/SourceBasis",
+          "default": "fulltext"
+        },
+        "span_contamination_detected": {
+          "default": false,
+          "title": "Span Contamination Detected",
+          "type": "boolean"
+        },
+        "strong_design_evidence": {
+          "default": false,
+          "title": "Strong Design Evidence",
+          "type": "boolean"
+        },
+        "supporting_span_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Supporting Span Ids",
+          "type": "array"
+        },
+        "supporting_spans": {
+          "items": {
+            "$ref": "#/$defs/EvidenceSpan"
+          },
+          "title": "Supporting Spans",
+          "type": "array"
+        },
+        "uncertainty_budget": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/UncertaintyBudget"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         }
       },
       "required": [
@@ -138,6 +271,118 @@
       ],
       "title": "CausalDirection",
       "type": "string"
+    },
+    "ClaimExplicitness": {
+      "enum": [
+        "explicit",
+        "implicit",
+        "unclear"
+      ],
+      "title": "ClaimExplicitness",
+      "type": "string"
+    },
+    "ClaimType": {
+      "enum": [
+        "causal_claim",
+        "causal_assertion",
+        "associative",
+        "association",
+        "mechanism",
+        "descriptive",
+        "normative",
+        "review_summary",
+        "unclear",
+        "not_applicable"
+      ],
+      "title": "ClaimType",
+      "type": "string"
+    },
+    "ContextAttribute": {
+      "additionalProperties": false,
+      "description": "A context attribute extracted from literature (Track B).",
+      "properties": {
+        "attribute_name": {
+          "title": "Attribute Name",
+          "type": "string"
+        },
+        "canonical_name": {
+          "default": "",
+          "title": "Canonical Name",
+          "type": "string"
+        },
+        "confidence": {
+          "default": 0.5,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "country_codes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Country Codes",
+          "type": "array"
+        },
+        "evidence_spans": {
+          "items": {
+            "$ref": "#/$defs/EvidenceSpan"
+          },
+          "title": "Evidence Spans",
+          "type": "array"
+        },
+        "measurement_method": {
+          "default": "",
+          "title": "Measurement Method",
+          "type": "string"
+        },
+        "time_period": {
+          "default": "",
+          "title": "Time Period",
+          "type": "string"
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unit"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value"
+        },
+        "value_qualitative": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value Qualitative"
+        }
+      },
+      "required": [
+        "attribute_name"
+      ],
+      "title": "ContextAttribute",
+      "type": "object"
     },
     "ContextProfile": {
       "additionalProperties": false,
@@ -297,6 +542,32 @@
         "manual"
       ],
       "title": "ContextProfileInferenceLevel",
+      "type": "string"
+    },
+    "DesignFamily": {
+      "enum": [
+        "rct",
+        "iv",
+        "did",
+        "rdd",
+        "synthetic_control",
+        "event_study",
+        "quasi_experimental_other",
+        "quasi_experimental_did",
+        "quasi_experimental_rdd",
+        "panel_fe",
+        "ols",
+        "ols_cross_sectional",
+        "meta_analysis",
+        "review",
+        "review_narrative",
+        "review_meta_analysis",
+        "theoretical",
+        "structural_model",
+        "time_series_cointegration",
+        "unclear"
+      ],
+      "title": "DesignFamily",
       "type": "string"
     },
     "EvidenceParameter": {
@@ -464,17 +735,180 @@
       "title": "EvidenceParameter",
       "type": "object"
     },
+    "EvidenceSpan": {
+      "additionalProperties": false,
+      "properties": {
+        "score": {
+          "default": 0.0,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Score",
+          "type": "number"
+        },
+        "section": {
+          "default": "",
+          "title": "Section",
+          "type": "string"
+        },
+        "sentence_index": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sentence Index"
+        },
+        "span_id": {
+          "default": "",
+          "title": "Span Id",
+          "type": "string"
+        },
+        "text": {
+          "title": "Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "title": "EvidenceSpan",
+      "type": "object"
+    },
     "EvidenceStrength": {
       "enum": [
         "rct",
         "quasi_natural",
+        "quasi_natural_event",
         "meta_analysis",
+        "panel_fe",
+        "structural",
         "observational",
+        "cross_sectional",
         "theoretical",
         "unknown"
       ],
       "title": "EvidenceStrength",
       "type": "string"
+    },
+    "HeterogeneityResult": {
+      "additionalProperties": false,
+      "description": "Result of a heterogeneity/moderation test within a single study.",
+      "properties": {
+        "confidence": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Confidence"
+        },
+        "dimension": {
+          "default": "",
+          "title": "Dimension",
+          "type": "string"
+        },
+        "finding": {
+          "default": "",
+          "title": "Finding",
+          "type": "string"
+        },
+        "interaction_coefficient": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Interaction Coefficient"
+        },
+        "interaction_pvalue": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Interaction Pvalue"
+        },
+        "moderator": {
+          "title": "Moderator",
+          "type": "string"
+        },
+        "subgroup_effects": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "title": "Subgroup Effects",
+          "type": "object"
+        }
+      },
+      "required": [
+        "moderator"
+      ],
+      "title": "HeterogeneityResult",
+      "type": "object"
+    },
+    "IdentificationStrategy": {
+      "additionalProperties": false,
+      "description": "How a causal effect was identified (instrument, design assumptions, etc.).",
+      "properties": {
+        "design_assumptions": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Design Assumptions",
+          "type": "array"
+        },
+        "exclusion_restrictions": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Exclusion Restrictions",
+          "type": "array"
+        },
+        "identification_confidence": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Identification Confidence"
+        },
+        "identification_method": {
+          "default": "",
+          "title": "Identification Method",
+          "type": "string"
+        },
+        "instrument": {
+          "default": "",
+          "title": "Instrument",
+          "type": "string"
+        }
+      },
+      "title": "IdentificationStrategy",
+      "type": "object"
     },
     "IncomeLevel": {
       "enum": [
@@ -526,6 +960,119 @@
       "title": "Mechanism",
       "type": "object"
     },
+    "ModerationEdge": {
+      "additionalProperties": false,
+      "description": "A context variable that moderates a causal edge (Track C).",
+      "properties": {
+        "alignment_source": {
+          "default": "",
+          "title": "Alignment Source",
+          "type": "string"
+        },
+        "base_cause": {
+          "title": "Base Cause",
+          "type": "string"
+        },
+        "base_claim_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Base Claim Id"
+        },
+        "base_effect": {
+          "title": "Base Effect",
+          "type": "string"
+        },
+        "confidence": {
+          "default": 0.5,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "direction_of_moderation": {
+          "default": "",
+          "title": "Direction Of Moderation",
+          "type": "string"
+        },
+        "evidence_count": {
+          "default": 1,
+          "title": "Evidence Count",
+          "type": "integer"
+        },
+        "evidence_text": {
+          "default": "",
+          "title": "Evidence Text",
+          "type": "string"
+        },
+        "interaction_pvalue": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Interaction Pvalue"
+        },
+        "match_quality": {
+          "default": "",
+          "title": "Match Quality",
+          "type": "string"
+        },
+        "moderator": {
+          "title": "Moderator",
+          "type": "string"
+        },
+        "quantitative_interaction": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Quantitative Interaction"
+        },
+        "source_openalex_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Source Openalex Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "base_cause",
+        "base_effect",
+        "moderator"
+      ],
+      "title": "ModerationEdge",
+      "type": "object"
+    },
+    "PaperKind": {
+      "enum": [
+        "empirical_causal",
+        "context_characterization",
+        "heterogeneity_analysis",
+        "review_systematic",
+        "theoretical",
+        "descriptive",
+        "mixed"
+      ],
+      "title": "PaperKind",
+      "type": "string"
+    },
     "ParameterType": {
       "enum": [
         "quantitative",
@@ -535,6 +1082,53 @@
       ],
       "title": "ParameterType",
       "type": "string"
+    },
+    "SourceBasis": {
+      "enum": [
+        "fulltext",
+        "abstract_only"
+      ],
+      "title": "SourceBasis",
+      "type": "string"
+    },
+    "TextQuality": {
+      "enum": [
+        "structured_fulltext",
+        "extracted_fulltext",
+        "abstract_only",
+        "degraded"
+      ],
+      "title": "TextQuality",
+      "type": "string"
+    },
+    "UncertaintyBudget": {
+      "additionalProperties": false,
+      "description": "Three-axis uncertainty decomposition for a causal estimate.",
+      "properties": {
+        "conflict_residual": {
+          "default": 0.0,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Conflict Residual",
+          "type": "number"
+        },
+        "graph_uncertainty": {
+          "default": 0.0,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Graph Uncertainty",
+          "type": "number"
+        },
+        "sampling_uncertainty": {
+          "default": 0.0,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Sampling Uncertainty",
+          "type": "number"
+        }
+      },
+      "title": "UncertaintyBudget",
+      "type": "object"
     }
   },
   "additionalProperties": false,
@@ -564,6 +1158,13 @@
       "title": "Cited By Count",
       "type": "integer"
     },
+    "context_attributes": {
+      "items": {
+        "$ref": "#/$defs/ContextAttribute"
+      },
+      "title": "Context Attributes",
+      "type": "array"
+    },
     "doi": {
       "default": "",
       "title": "Doi",
@@ -575,6 +1176,11 @@
       },
       "title": "Empirical Parameters",
       "type": "array"
+    },
+    "external_validity_assessment": {
+      "default": "",
+      "title": "External Validity Assessment",
+      "type": "string"
     },
     "extraction_confidence": {
       "title": "Extraction Confidence",
@@ -593,11 +1199,37 @@
       "title": "Extraction Timestamp",
       "type": "string"
     },
+    "extraction_warnings": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Extraction Warnings",
+      "type": "array"
+    },
+    "heterogeneity_results": {
+      "items": {
+        "$ref": "#/$defs/HeterogeneityResult"
+      },
+      "title": "Heterogeneity Results",
+      "type": "array"
+    },
+    "llm_error_class": {
+      "default": "",
+      "title": "Llm Error Class",
+      "type": "string"
+    },
     "mechanisms": {
       "items": {
         "$ref": "#/$defs/Mechanism"
       },
       "title": "Mechanisms",
+      "type": "array"
+    },
+    "method_spans": {
+      "items": {
+        "$ref": "#/$defs/EvidenceSpan"
+      },
+      "title": "Method Spans",
       "type": "array"
     },
     "methodology": {
@@ -609,9 +1241,40 @@
       "$ref": "#/$defs/EvidenceStrength",
       "default": "unknown"
     },
+    "moderation_edges": {
+      "items": {
+        "$ref": "#/$defs/ModerationEdge"
+      },
+      "title": "Moderation Edges",
+      "type": "array"
+    },
     "openalex_id": {
       "title": "Openalex Id",
       "type": "string"
+    },
+    "paper_kind": {
+      "$ref": "#/$defs/PaperKind",
+      "default": "empirical_causal"
+    },
+    "paper_relevance": {
+      "default": true,
+      "title": "Paper Relevance",
+      "type": "boolean"
+    },
+    "paper_relevance_reason": {
+      "default": "",
+      "title": "Paper Relevance Reason",
+      "type": "string"
+    },
+    "provider_finish_reason": {
+      "default": "",
+      "title": "Provider Finish Reason",
+      "type": "string"
+    },
+    "provider_latency_ms": {
+      "default": 0.0,
+      "title": "Provider Latency Ms",
+      "type": "number"
     },
     "publication_year": {
       "anyOf": [
@@ -624,6 +1287,11 @@
       ],
       "default": null,
       "title": "Publication Year"
+    },
+    "reconciliation_diagnostics": {
+      "additionalProperties": true,
+      "title": "Reconciliation Diagnostics",
+      "type": "object"
     },
     "sample_size": {
       "anyOf": [
@@ -638,7 +1306,7 @@
       "title": "Sample Size"
     },
     "schema_version": {
-      "default": "1.1",
+      "default": "1.5",
       "title": "Schema Version",
       "type": "string"
     },
@@ -646,6 +1314,10 @@
       "default": 0.0,
       "title": "Screening Cost Usd",
       "type": "number"
+    },
+    "source_basis": {
+      "$ref": "#/$defs/SourceBasis",
+      "default": "fulltext"
     },
     "source_context": {
       "anyOf": [
@@ -657,6 +1329,17 @@
         }
       ],
       "default": null
+    },
+    "supporting_spans": {
+      "items": {
+        "$ref": "#/$defs/EvidenceSpan"
+      },
+      "title": "Supporting Spans",
+      "type": "array"
+    },
+    "text_quality": {
+      "$ref": "#/$defs/TextQuality",
+      "default": "extracted_fulltext"
     },
     "title": {
       "title": "Title",
@@ -671,6 +1354,11 @@
       "default": 0,
       "title": "Token Count Prompt",
       "type": "integer"
+    },
+    "truncated_output": {
+      "default": false,
+      "title": "Truncated Output",
+      "type": "boolean"
     },
     "year": {
       "anyOf": [

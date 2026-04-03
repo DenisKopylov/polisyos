@@ -1,3 +1,4 @@
+"""Public http openapi contract module API."""
 from __future__ import annotations
 
 from copy import deepcopy
@@ -1167,6 +1168,105 @@ _SUCCESS_EXAMPLES_BY_OPERATION: dict[str, dict[str, Any]] = {
         ],
         "total": 1,
     },
+    "list_control_workers": {
+        "meta": _META_NO_SOURCE,
+        "active_only": True,
+        "workers": [
+            {
+                "worker_id": "worker_embedded_001",
+                "worker_type": "embedded",
+                "state": "idle",
+                "active_job_id": None,
+                "metadata": {},
+                "heartbeat_at": _TS_SAMPLE,
+                "lease_expires_at": _TS_SAMPLE,
+                "created_at": _TS_SAMPLE,
+                "updated_at": _TS_SAMPLE,
+            }
+        ],
+    },
+    "list_control_outbox": {
+        "meta": _META_NO_SOURCE,
+        "state": "pending",
+        "limit": 100,
+        "events": [
+            {
+                "event_id": "evt_outbox_001",
+                "topic": "decision_validity",
+                "event_key": "R_core_api_001",
+                "state": "pending",
+                "job_id": "job_ctrl_abcdef01",
+                "run_id": _RUN_ID_SAMPLE,
+                "payload": {},
+                "created_at": _TS_SAMPLE,
+                "published_at": None,
+                "attempt": 0,
+                "error_message": None,
+            }
+        ],
+    },
+    "publish_decision_validity_event": {
+        "meta": _META_NO_SOURCE,
+        "event_id": "evt_dv_001",
+        "dedupe_key": "dv_data_update_2026-02-11",
+        "affected_packets": [_ARTIFACT_ID_SAMPLE],
+        "affected_statuses": {"invalidated": 1},
+        "message": "Decision validity event published; 1 packet(s) affected.",
+    },
+    "get_run_decision_validity": {
+        "meta": _META_NO_SOURCE,
+        "run_id": _RUN_ID_SAMPLE,
+        "decision_packet_ref": {
+            "artifact_id": _ARTIFACT_ID_SAMPLE,
+            "kind": "scientist.decision_packet",
+            "media_type": "application/json",
+        },
+        "status": "active",
+        "checked_at": _TS_SAMPLE,
+        "reasons": [],
+        "triggers": [],
+        "review_required": False,
+        "supersedes_decision_ref": None,
+        "superseded_by_ref": None,
+        "evaluation_ref": None,
+        "decision_lineage_key": "lineage_R_core_api_001",
+        "recommended_action": "none",
+        "lifecycle": {
+            "events": [],
+            "transitions": [],
+            "pending_reviews": [],
+            "scheduled_jobs": [],
+            "reissue_candidates": [],
+            "latest_transition_at": None,
+        },
+    },
+    "get_packet_decision_validity": {
+        "meta": _META_NO_SOURCE,
+        "run_id": None,
+        "decision_packet_ref": {
+            "artifact_id": _ARTIFACT_ID_SAMPLE,
+            "kind": "scientist.decision_packet",
+            "media_type": "application/json",
+        },
+        "status": "active",
+        "checked_at": _TS_SAMPLE,
+        "reasons": [],
+        "triggers": [],
+        "review_required": False,
+        "supersedes_decision_ref": None,
+        "superseded_by_ref": None,
+        "evaluation_ref": None,
+        "decision_lineage_key": "lineage_pkt_001",
+        "recommended_action": "none",
+        "lifecycle": {
+            "events": [],
+            "transitions": [],
+            "pending_reviews": [],
+            "scheduled_jobs": [],
+            "reissue_candidates": [],
+            "latest_transition_at": None,
+        },
+    },
 }
 
 
@@ -1200,6 +1300,7 @@ def _iter_operations(schema: dict[str, Any]):
 
 
 def augment_runtime_openapi(schema: dict[str, Any]) -> dict[str, Any]:
+    """Augment runtime openapi helper."""
     mutated = deepcopy(schema)
     components = mutated.setdefault("components", {})
     component_schemas = components.setdefault("schemas", {})
@@ -1266,6 +1367,7 @@ def augment_runtime_openapi(schema: dict[str, Any]) -> dict[str, Any]:
 
 
 def install_runtime_openapi_contract(app: Any) -> None:
+    """Install runtime openapi contract helper."""
     original_openapi = app.openapi
     cached: dict[str, Any] | None = None
 
@@ -1279,6 +1381,7 @@ def install_runtime_openapi_contract(app: Any) -> None:
 
 
 def validate_runtime_openapi_contract(schema: dict[str, Any]) -> list[str]:
+    """Validate runtime openapi contract."""
     violations: list[str] = []
     for path, method, operation in _iter_operations(schema):
         responses = operation.get("responses")

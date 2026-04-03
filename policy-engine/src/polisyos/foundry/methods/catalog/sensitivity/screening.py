@@ -1,3 +1,4 @@
+"""Public sensitivity screening module API."""
 from __future__ import annotations
 
 from typing import Any, ClassVar, Mapping
@@ -29,6 +30,7 @@ def _result_slot() -> frozenset[SlotSpec]:
     tags={"sensitivity", "global", "morris", "screening", "tabular"},
 )
 class MorrisSensitivityEstimator:
+    """Morris sensitivity estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -108,6 +110,7 @@ class MorrisSensitivityEstimator:
     tags={"sensitivity", "global", "fast", "tabular"},
 )
 class FASTEstimator:
+    """FAST estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -190,6 +193,7 @@ class FASTEstimator:
     tags={"sensitivity", "global", "pawn", "distribution-based", "tabular"},
 )
 class PAWNEstimator:
+    """PAWN estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 

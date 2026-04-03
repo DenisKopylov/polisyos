@@ -1,3 +1,4 @@
+"""Public compile link trinity module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass, replace
@@ -44,6 +45,7 @@ _SPEC = NodeSpec(
 
 @dataclass(frozen=True)
 class LinkTrinityNode:
+    """Link trinity node implementation."""
     allow_extra_params: bool = False
     strict: bool = True
 

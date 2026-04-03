@@ -12,6 +12,7 @@ import aiohttp
 
 @dataclass(slots=True)
 class GatewayUsage:
+    """Gateway usage public type."""
     prompt_tokens: int = 0
     completion_tokens: int = 0
     total_tokens: int = 0
@@ -29,6 +30,7 @@ class GatewayToolCall:
 
 @dataclass(slots=True)
 class GatewayLLMResponse:
+    """Gateway LLM response data model."""
     content: str
     usage: GatewayUsage = field(default_factory=GatewayUsage)
     model: str = "unknown"

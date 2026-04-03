@@ -1,3 +1,4 @@
+"""Public optimization game theory module API."""
 from __future__ import annotations
 
 from typing import Any, ClassVar, Mapping
@@ -29,6 +30,7 @@ def _result_slot() -> frozenset[SlotSpec]:
     tags={"optimization", "game-theory", "nash-equilibrium"},
 )
 class NashEquilibriumEstimator:
+    """Nash equilibrium estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 

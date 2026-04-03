@@ -36,14 +36,28 @@ class AcademicGatherer:
         academic_query = context.get("academic_query")
         target_context = context.get("target_context")
         context_metadata = _context_metadata(context)
+        baseline_result = _assess_literature_prior_baseline(
+            need,
+            literature_prior=context.get("literature_prior"),
+            context_metadata=context_metadata,
+        )
 
         if academic_query is None:
-            return GathererResult(
-                status=EvidenceStatus.INSUFFICIENT.value,
-                confidence=0.3,
-                diagnostics=[],
-                provenance_refs=[],
-                metadata={"reason": "no_academic_query", **context_metadata},
+            return _attach_environment_audit_diagnostics(
+                need,
+                _merge_baseline_with_primary(
+                    GathererResult(
+                        status=EvidenceStatus.INSUFFICIENT.value,
+                        confidence=0.3,
+                        diagnostics=[],
+                        provenance_refs=[],
+                        metadata={"reason": "no_academic_query", **context_metadata},
+                    ),
+                    baseline_result,
+                ),
+                environment_audit_summary=context_metadata.get(
+                    "environment_audit_summary", {}
+                ),
             )
 
         # Delegate to existing compiler function if available
@@ -55,26 +69,23 @@ class AcademicGatherer:
                 academic_query=academic_query,
                 target_context=target_context,
             )
-            status = (
-                result.evidence_status.value
-                if hasattr(result.evidence_status, "value")
-                else str(result.evidence_status)
-            )
-            diagnostics = list(result.diagnostics) if hasattr(result, "diagnostics") else []
-            diagnostics.extend(
-                _environment_audit_diagnostics(
-                    need,
-                    status=status,
-                    environment_audit_summary=context_metadata.get(
-                        "environment_audit_summary", {}
-                    ),
-                )
-            )
-            return GathererResult(
-                status=status,
-                confidence=result.transport_confidence if hasattr(result, "transport_confidence") else 0.5,
-                diagnostics=diagnostics,
-                provenance_refs=list(result.provenance_refs) if hasattr(result, "provenance_refs") else [],
+            gathered = GathererResult(
+                status=(
+                    result.evidence_status.value
+                    if hasattr(result.evidence_status, "value")
+                    else str(result.evidence_status)
+                ),
+                confidence=(
+                    result.transport_confidence
+                    if hasattr(result, "transport_confidence")
+                    else 0.5
+                ),
+                diagnostics=list(result.diagnostics) if hasattr(result, "diagnostics") else [],
+                provenance_refs=(
+                    list(result.provenance_refs)
+                    if hasattr(result, "provenance_refs")
+                    else []
+                ),
                 metadata={
                     **(
                         {"transport_reasons": list(result.transport_reasons)}
@@ -84,9 +95,23 @@ class AcademicGatherer:
                     **context_metadata,
                 },
             )
+            return _attach_environment_audit_diagnostics(
+                need,
+                _merge_baseline_with_primary(gathered, baseline_result),
+                environment_audit_summary=context_metadata.get(
+                    "environment_audit_summary", {}
+                ),
+            )
 
         # Standalone assessment: check for parameter/edge needs
-        return self._fallback_assess(need, concepts, context_metadata=context_metadata)
+        return _attach_environment_audit_diagnostics(
+            need,
+            _merge_baseline_with_primary(
+                self._fallback_assess(need, concepts, context_metadata=context_metadata),
+                baseline_result,
+            ),
+            environment_audit_summary=context_metadata.get("environment_audit_summary", {}),
+        )
 
     def _fallback_assess(
         self,
@@ -106,13 +131,7 @@ class AcademicGatherer:
         return GathererResult(
             status=EvidenceStatus.INSUFFICIENT.value,
             confidence=0.3,
-            diagnostics=_environment_audit_diagnostics(
-                need,
-                status=EvidenceStatus.INSUFFICIENT.value,
-                environment_audit_summary=context_metadata.get(
-                    "environment_audit_summary", {}
-                ),
-            ),
+            diagnostics=[],
             provenance_refs=[],
             metadata={
                 "reason": "standalone_fallback",
@@ -120,6 +139,159 @@ class AcademicGatherer:
                 **context_metadata,
             },
         )
+
+
+def _attach_environment_audit_diagnostics(
+    need: EvidenceNeed,
+    result: GathererResult,
+    *,
+    environment_audit_summary: dict[str, Any],
+) -> GathererResult:
+    diagnostics = list(result.diagnostics)
+    diagnostics.extend(
+        diagnostic
+        for diagnostic in _environment_audit_diagnostics(
+            need,
+            status=result.status,
+            environment_audit_summary=environment_audit_summary,
+        )
+        if diagnostic not in diagnostics
+    )
+    return GathererResult(
+        status=result.status,
+        confidence=result.confidence,
+        diagnostics=diagnostics,
+        provenance_refs=list(result.provenance_refs),
+        metadata=dict(result.metadata),
+    )
+
+
+def _assess_literature_prior_baseline(
+    need: EvidenceNeed,
+    *,
+    literature_prior: Any,
+    context_metadata: dict[str, Any],
+) -> GathererResult | None:
+    if need.need_type is not EvidenceNeedType.CAUSAL_EDGE_NEED:
+        return None
+    if not need.cause or not need.effect:
+        return None
+
+    payload = _serialize_value(literature_prior)
+    if not isinstance(payload, dict):
+        return None
+    edges = payload.get("edges")
+    if not isinstance(edges, list):
+        return None
+
+    matches = [
+        edge
+        for edge in edges
+        if isinstance(edge, dict)
+        and str(edge.get("src") or "").strip() == str(need.cause).strip()
+        and str(edge.get("dst") or "").strip() == str(need.effect).strip()
+    ]
+    if not matches:
+        return None
+
+    best = sorted(
+        matches,
+        key=lambda edge: (
+            float(edge.get("confidence") or 0.0),
+            int(edge.get("n_articles") or 0),
+        ),
+        reverse=True,
+    )[0]
+    confidence = float(best.get("confidence") or 0.0)
+    n_articles = int(best.get("n_articles") or 0)
+    usable = confidence >= 0.5 and n_articles >= 2
+    status = EvidenceStatus.MIXED if usable else EvidenceStatus.INSUFFICIENT
+    baseline_confidence = min(
+        0.7 if usable else 0.45,
+        max(0.2, confidence),
+    )
+    article_refs = [
+        str(item)
+        for item in list(best.get("article_refs", []) or [])
+        if str(item).strip()
+    ]
+    metadata = {
+        **context_metadata,
+        "baseline_support_source": "literature_prior",
+        "literature_prior_match": {
+            "src": str(best.get("src") or need.cause),
+            "dst": str(best.get("dst") or need.effect),
+            "confidence": confidence,
+            "n_articles": n_articles,
+            "direction": best.get("direction"),
+            "evidence_strength": best.get("evidence_strength"),
+        },
+        "literature_prior_confidence": confidence,
+        "literature_prior_article_refs": list(article_refs),
+    }
+    diagnostics = [
+        CrossGraphDiagnostic(
+            code="cross_graph.academic.literature_prior_baseline_used",
+            need_id=need.need_id,
+            message="Literature prior provided baseline academic evidence for this causal edge.",
+            details={
+                "status": status.value,
+                "confidence": confidence,
+                "n_articles": n_articles,
+            },
+        )
+    ]
+    return GathererResult(
+        status=status.value,
+        confidence=baseline_confidence,
+        diagnostics=diagnostics,
+        provenance_refs=article_refs,
+        metadata=metadata,
+    )
+
+
+def _merge_baseline_with_primary(
+    primary: GathererResult,
+    baseline: GathererResult | None,
+) -> GathererResult:
+    if baseline is None:
+        return primary
+
+    primary_status = _coerce_evidence_status(primary.status)
+    baseline_status = _coerce_evidence_status(baseline.status)
+    merged_status = primary_status
+    if primary_status in {
+        EvidenceStatus.INSUFFICIENT,
+        EvidenceStatus.UNSUPPORTED,
+    } and baseline_status is EvidenceStatus.MIXED:
+        merged_status = EvidenceStatus.MIXED
+    elif primary_status is EvidenceStatus.UNSUPPORTED and baseline_status is EvidenceStatus.INSUFFICIENT:
+        merged_status = EvidenceStatus.INSUFFICIENT
+
+    diagnostics = list(primary.diagnostics)
+    diagnostics.extend(
+        diagnostic for diagnostic in baseline.diagnostics if diagnostic not in diagnostics
+    )
+    provenance_refs = _dedupe_strings(
+        [*list(primary.provenance_refs), *list(baseline.provenance_refs)]
+    )
+    metadata = {
+        **dict(primary.metadata),
+        **{
+            key: value
+            for key, value in dict(baseline.metadata).items()
+            if key not in primary.metadata
+        },
+    }
+    metadata.setdefault("literature_prior_baseline", dict(baseline.metadata))
+
+    return GathererResult(
+        status=merged_status.value,
+        confidence=max(float(primary.confidence), float(baseline.confidence)),
+        diagnostics=diagnostics,
+        provenance_refs=provenance_refs,
+        metadata=metadata,
+    )
 
 
 def _context_metadata(context: dict[str, Any]) -> dict[str, Any]:
@@ -218,6 +390,26 @@ def _environment_audit_diagnostics(
             },
         )
     ]
+
+
+def _coerce_evidence_status(status: str) -> EvidenceStatus:
+    normalized = str(status or "").strip().lower()
+    for candidate in EvidenceStatus:
+        if candidate.value == normalized:
+            return candidate
+    return EvidenceStatus.INSUFFICIENT
+
+
+def _dedupe_strings(values: list[str]) -> list[str]:
+    seen: set[str] = set()
+    output: list[str] = []
+    for value in values:
+        normalized = str(value).strip()
+        if not normalized or normalized in seen:
+            continue
+        seen.add(normalized)
+        output.append(normalized)
+    return output
 
 
 def _has_academic_support(status: str) -> bool:

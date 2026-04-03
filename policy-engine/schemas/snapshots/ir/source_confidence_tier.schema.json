@@ -1,0 +1,10 @@
+{
+  "enum": [
+    "core",
+    "exploratory",
+    "validated"
+  ],
+  "title": "SourceConfidenceTier",
+  "type": "string",
+  "x-fqn": "polisyos.ir.observation.contracts.SourceConfidenceTier"
+}

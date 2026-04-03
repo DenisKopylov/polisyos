@@ -1,3 +1,4 @@
+"""Public uncertainty protocol module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -8,6 +9,7 @@ from polisyos.ir.analytics.uncertainty import PropagationMethod, UncertaintyEnve
 
 @dataclass(frozen=True)
 class PropagationResult:
+    """Propagation result data model."""
     metric_id: str
     envelope: UncertaintyEnvelope
     input_envelopes_used: list[str]
@@ -16,6 +18,7 @@ class PropagationResult:
 
 
 class PropagationStrategy(Protocol):
+    """Propagation strategy data model."""
     @property
     def method(self) -> PropagationMethod: ...
 

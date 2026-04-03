@@ -1,3 +1,4 @@
+"""Public world materialize package API."""
 from __future__ import annotations
 
 from polisyos.fabric.world.materialize.duckdb import (

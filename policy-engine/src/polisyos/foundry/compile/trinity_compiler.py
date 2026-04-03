@@ -1,3 +1,4 @@
+"""Public compile trinity compiler module API."""
 from __future__ import annotations
 
 from polisyos.core.artifacts.ids import ArtifactID
@@ -28,6 +29,7 @@ from ._lowering import lower_trinity
 
 
 def compile_trinity(store: FileSystemCAS, request: CompileRequest) -> CompileResult:
+    """Compile trinity."""
     policy_ref = request.policy_ref
     payload = from_canonical_bytes(store.get_bytes(policy_ref.artifact_id))
     bundle = TrinityBundle.model_validate(payload)

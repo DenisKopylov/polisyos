@@ -1,3 +1,4 @@
+"""Public ir linker package API."""
 from __future__ import annotations
 
 from .link_trinity import (

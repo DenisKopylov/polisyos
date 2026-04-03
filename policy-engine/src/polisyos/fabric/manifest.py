@@ -1,3 +1,4 @@
+"""Public fabric manifest module API."""
 from datetime import datetime, timezone
 from typing import Dict, Optional
 
@@ -5,6 +6,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 class CoverageMetrics(BaseModel):
+    """Coverage metrics data model."""
     time_start: Optional[str] = None
     time_end: Optional[str] = None
     region_coverage: Optional[str] = None
@@ -13,6 +15,7 @@ class CoverageMetrics(BaseModel):
 
 
 class QualityMetrics(BaseModel):
+    """Quality metrics data model."""
     missing_rate: float = Field(..., ge=0.0, le=1.0)
     duplicate_rate: float = Field(..., ge=0.0, le=1.0)
     outlier_rate: float = Field(..., ge=0.0, le=1.0)
@@ -22,6 +25,7 @@ class QualityMetrics(BaseModel):
 
 
 class ReconciliationReport(BaseModel):
+    """Reconciliation report data model."""
     status: str
     tolerance: float
     total_outflow: float
@@ -33,6 +37,7 @@ class ReconciliationReport(BaseModel):
 
 
 class DatasetManifest(BaseModel):
+    """Dataset manifest data model."""
     dataset_name: str
     source: str
     license: str

@@ -1,3 +1,4 @@
+"""Public analytics applicability module API."""
 from __future__ import annotations
 
 import re
@@ -12,6 +13,7 @@ _ID_RE = re.compile(ID_PATTERN)
 
 
 class TimeWindow(KernelModel):
+    """Time window public type."""
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     valid_from: str | None = None
     valid_to: str | None = None
@@ -25,6 +27,7 @@ class TimeWindow(KernelModel):
 
 
 class IdSelector(KernelModel):
+    """ID selector public type."""
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     any_of: list[str] = Field(default_factory=list)
     all_of: list[str] = Field(default_factory=list)
@@ -42,12 +45,14 @@ class IdSelector(KernelModel):
 
 
 class ApplicabilityEntitySelector(KernelModel):
+    """Applicability entity selector public type."""
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     actors: IdSelector = Field(default_factory=IdSelector)
     concepts: IdSelector = Field(default_factory=IdSelector)
 
 
 class ConditionExpr(KernelModel):
+    """Condition expr public type."""
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     language: str = Field(..., min_length=1)
     expr: str = Field(..., min_length=1)
@@ -56,6 +61,7 @@ class ConditionExpr(KernelModel):
 
 
 class NormApplicability(KernelModel):
+    """Norm applicability public type."""
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     jurisdiction: IdSelector = Field(default_factory=IdSelector)
     time: TimeWindow = Field(default_factory=TimeWindow)

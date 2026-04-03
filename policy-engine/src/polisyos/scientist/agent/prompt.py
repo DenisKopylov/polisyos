@@ -1,3 +1,4 @@
+"""Public agent prompt module API."""
 import json
 
 from polisyos.ir.trinity import TrinityBundle
@@ -29,6 +30,7 @@ Recent Economic Data:
 
 def get_system_prompt(step: int, data_context: str) -> str:
     # Dynamically use canonical Trinity bundle schema.
+    """Return system prompt."""
     schema = TrinityBundle.model_json_schema()
 
     return SYSTEM_PROMPT_TEMPLATE.format(

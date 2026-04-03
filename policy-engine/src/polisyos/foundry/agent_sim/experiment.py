@@ -1,3 +1,4 @@
+"""Public agent sim experiment module API."""
 from __future__ import annotations
 
 import json
@@ -23,6 +24,7 @@ def _json_default(value: Any):
 
 @dataclass
 class ExperimentConfig:
+    """Experiment config data model."""
     name: str
     description: str = ""
     tags: list[str] = field(default_factory=list)
@@ -47,6 +49,7 @@ class ExperimentConfig:
 
 @dataclass
 class ExperimentResult:
+    """Experiment result data model."""
     config: ExperimentConfig
     metrics: dict[str, Any]
     final_state: dict | None = None
@@ -70,6 +73,7 @@ class ExperimentResult:
 
 
 class ExperimentTracker:
+    """Experiment tracker implementation."""
     def __init__(self, base_dir: str | Path):
         self.base_dir = Path(base_dir)
         self.base_dir.mkdir(parents=True, exist_ok=True)
@@ -163,6 +167,7 @@ class ExperimentTracker:
 
 
 class ExperimentRun:
+    """Experiment run public type."""
     def __init__(
         self,
         run_id: str,

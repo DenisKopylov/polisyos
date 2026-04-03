@@ -1,3 +1,4 @@
+"""Public optimization io model module API."""
 from __future__ import annotations
 
 import time
@@ -138,7 +139,12 @@ class LeontiefInputOutput:
     @staticmethod
     def pure_step(state: Any, params: Mapping[str, Any]) -> dict[str, Any]:
         if not isinstance(state, Mapping):
-            raise TypeError("state must be a mapping with technical_coefficients and final_demand")
+            from polisyos.ir.observation.contract_compilers import LeontiefIOInput
+
+            if isinstance(state, LeontiefIOInput):
+                state = state.model_dump(mode="python")
+            else:
+                raise TypeError("state must be a mapping or LeontiefIOInput")
 
         technical_coefficients = state.get("technical_coefficients")
         final_demand = state.get("final_demand")

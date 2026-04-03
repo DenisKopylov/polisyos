@@ -1,3 +1,4 @@
+"""Public agent sim metrics module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -12,6 +13,7 @@ from polisyos.foundry.agent_sim.state import GlobalState
 
 
 class MetricType(str, Enum):
+    """Metric type public type."""
     SCALAR = "scalar"
     HISTOGRAM = "histogram"
     TRAJECTORY = "trajectory"
@@ -20,6 +22,7 @@ class MetricType(str, Enum):
 
 @dataclass(frozen=True)
 class MetricDefinition:
+    """Metric definition public type."""
     name: str
     metric_type: MetricType
     compute_fn: Callable[[GlobalState], jnp.ndarray]
@@ -29,6 +32,7 @@ class MetricDefinition:
 
 @chex.dataclass(frozen=True)
 class MetricsBuffer:
+    """Metrics buffer public type."""
     scalars: dict[str, jnp.ndarray]
     histograms: dict[str, jnp.ndarray]
     write_idx: jnp.ndarray
@@ -105,6 +109,7 @@ class MetricsBuffer:
 
 @chex.dataclass(frozen=True, init=False, mappable_dataclass=False)
 class MetricsCollector:
+    """Metrics collector public type."""
     definitions: tuple[MetricDefinition, ...]
     buffer: MetricsBuffer
     step_counter: jnp.ndarray
@@ -166,6 +171,7 @@ class MetricsCollector:
 
 
 def standard_training_metrics() -> list[MetricDefinition]:
+    """Standard training metrics helper."""
     def _active_mean(values: jnp.ndarray, active: jnp.ndarray) -> jnp.ndarray:
         active_f = active.astype(jnp.float32)
         denom = jnp.maximum(jnp.sum(active_f), 1.0)
@@ -218,6 +224,7 @@ def standard_training_metrics() -> list[MetricDefinition]:
 
 
 def training_loss_metrics() -> list[MetricDefinition]:
+    """Training loss metrics helper."""
     return [
         MetricDefinition(
             name="policy_loss",

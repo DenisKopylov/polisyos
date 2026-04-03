@@ -1,3 +1,4 @@
+"""Public routes runs module API."""
 from __future__ import annotations
 
 import asyncio

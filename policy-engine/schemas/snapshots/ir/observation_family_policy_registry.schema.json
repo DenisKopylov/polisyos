@@ -1,0 +1,128 @@
+{
+  "$defs": {
+    "IdentificationMode": {
+      "enum": [
+        "point_identified",
+        "partially_identified",
+        "bounds_only",
+        "proxy_identified",
+        "interference_aware",
+        "sequential"
+      ],
+      "title": "IdentificationMode",
+      "type": "string"
+    },
+    "ObservationFamily": {
+      "enum": [
+        "budget_flows",
+        "procurement_flows",
+        "macro_state",
+        "firm_fundamentals",
+        "trade_exposure",
+        "labor_market",
+        "household_distribution",
+        "distress_enforcement",
+        "spatial_raster_exogenous",
+        "public_service_domain_flows",
+        "education_human_capital_supply",
+        "construction_capital_formation",
+        "logistics_friction"
+      ],
+      "title": "ObservationFamily",
+      "type": "string"
+    },
+    "ObservationFamilyPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "fallback_identification_mode": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/IdentificationMode"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "fallback_mode_annotation": {
+          "anyOf": [
+            {
+              "maxLength": 120,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Fallback Mode Annotation"
+        },
+        "family": {
+          "$ref": "#/$defs/ObservationFamily"
+        },
+        "mandatory_governance_passes": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Mandatory Governance Passes",
+          "type": "array"
+        },
+        "primary_identification_mode": {
+          "$ref": "#/$defs/IdentificationMode"
+        },
+        "requires_bounds_bundle": {
+          "default": false,
+          "title": "Requires Bounds Bundle",
+          "type": "boolean"
+        },
+        "requires_interference_contract": {
+          "default": false,
+          "title": "Requires Interference Contract",
+          "type": "boolean"
+        },
+        "requires_proxy_check": {
+          "default": false,
+          "title": "Requires Proxy Check",
+          "type": "boolean"
+        },
+        "requires_strategic_response_check": {
+          "default": false,
+          "title": "Requires Strategic Response Check",
+          "type": "boolean"
+        },
+        "schema_version": {
+          "default": "1.0",
+          "pattern": "^\\d+\\.\\d+$",
+          "title": "Schema Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "family",
+        "primary_identification_mode"
+      ],
+      "title": "ObservationFamilyPolicy",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "policies": {
+      "additionalProperties": {
+        "$ref": "#/$defs/ObservationFamilyPolicy"
+      },
+      "title": "Policies",
+      "type": "object"
+    },
+    "schema_version": {
+      "default": "1.0",
+      "pattern": "^\\d+\\.\\d+$",
+      "title": "Schema Version",
+      "type": "string"
+    }
+  },
+  "title": "ObservationFamilyPolicyRegistry",
+  "type": "object"
+}

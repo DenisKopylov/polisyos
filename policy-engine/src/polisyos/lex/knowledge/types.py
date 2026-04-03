@@ -394,6 +394,12 @@ class LegalFact(BaseModel):
     version_id: str = ""
     effective_from: str = ""
     effective_to: str = ""
+    temporal_state: str = ""
+    temporal_resolution_status: str = ""
+    temporal_source_scope: str = ""
+    temporal_source_kind: str = ""
+    temporal_confidence: float | None = None
+    temporal_provenance_json: str = ""
 
     # SPO bilingual labels (for embedding template)
     subject_en: str = ""
@@ -511,6 +517,12 @@ class LegalFactResult(BaseModel):
     top_domain: str = ""
     effective_from: str = ""
     effective_to: str = ""
+    temporal_state: str = ""
+    temporal_resolution_status: str = ""
+    temporal_source_scope: str = ""
+    temporal_source_kind: str = ""
+    temporal_confidence: float | None = None
+    temporal_provenance_json: str = ""
     doc_name: str
     doc_reestr_code: str
     provision_anchor: str = ""

@@ -1,3 +1,4 @@
+"""Public components metadata module API."""
 from __future__ import annotations
 
 import re
@@ -12,6 +13,7 @@ _BASE_ID_RE = re.compile(r"^[a-z][a-z0-9_]*(?:\.[a-z][a-z0-9_]*)+$")
 
 
 class ComponentKind(str, Enum):
+    """Component kind public type."""
     IR_FRAGMENT = "ir_fragment"
     FOUNDRY_METHOD = "foundry_method"
     FABRIC_CONNECTOR = "fabric_connector"
@@ -23,6 +25,7 @@ class ComponentKind(str, Enum):
 
 
 class ComponentDep(BaseModel):
+    """Component dep public type."""
     model_config = ConfigDict(extra="forbid")
 
     base_id: str

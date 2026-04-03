@@ -1,3 +1,4 @@
+"""Public lex artifacts module API."""
 from __future__ import annotations
 
 from typing import TypeVar
@@ -23,6 +24,7 @@ def load_json_artifact(
     wrap_read_errors: bool = False,
     read_error_prefix: str | None = None,
 ) -> dict:
+    """Load json artifact."""
     try:
         aid = ArtifactID.model_validate(artifact_id)
         payload = from_canonical_bytes(cas.get_bytes(aid))
@@ -46,6 +48,7 @@ def load_doc_meta_artifact(
     read_error_prefix: str | None = None,
     validate_ids: bool = False,
 ) -> DocMeta:
+    """Load doc meta artifact."""
     payload = load_json_artifact(
         cas,
         artifact_id,

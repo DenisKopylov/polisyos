@@ -1,59 +1,41 @@
-# Workflows Layer (`polisyos.scientist.workflows`)
+# Workflows (`polisyos.scientist.workflows`)
 
-`workflows` собирает и запускает workflow-спецификации Scientist поверх `engine`.
+`workflows` описывает и запускает канонические Scientist DAG-спеки, строит
+execution context, собирает registry нод и вызывает `WorkflowExecutor`.
 
-## Роль
+## Роль в системе
 
-- определяет канонические DAG-спеки (`scientist_default`, `scientist_causal_full`);
-- строит `ExecutionContext` (run context + tenant/cell/access scope + adapters);
-- формирует `NodeRegistry` (builtin + discovered plugins);
-- запускает `WorkflowExecutor` под `run.lock` и checkpoint policy.
+- **Зависит от:** `engine`, `nodes`, `adapters`, `governance`, `core`
+- **Используется в:** `run_experiment()`, runtime control flows, policy-design/discovery launchers
+- Пакет соединяет декларативные `WorkflowSpec` с реальным execution context и builtin registry.
 
-## Ключевые файлы
+## Ключевые концепции
 
-- `default.py` — `default_workflow_spec()` (`scientist_default`).
-- `causal_full.py` — `causal_full_workflow_spec()` (`scientist_causal_full`).
-- `builder.py`
-  - `run_default_workflow(...)`
-  - `run_causal_full_workflow(...)`
-  - `build_execution_context(...)`
-  - `build_registry_with_builtin_nodes(...)`
-  - `build_default_registry(...)`
-- `engine_base.py` — protocol `WorkflowEngine`/`WorkflowEngineFactory`.
-- `engine_simple.py` — lightweight `SimpleLoopEngine`.
-- `engine_langgraph.py` — compatibility adapter для legacy LangGraph path.
+- **Canonical specs** — `scientist_default`, `scientist_causal_full`,
+  `scientist_discovery`, `scientist_policy_design`.
+- **Builder layer** — сбор `ExecutionContext`, registry и workflow selection logic.
+- **Engine adapters** — `SimpleLoopEngine` и legacy-compatible `LangGraphEngine`.
+- **Causal readiness integration** — `scientist_causal_full` теперь запускает
+  `run_causal_readiness` перед governance/decision surfaces.
+- **C6c policy design** — `policy_design.py` добавил literature prior, reconciliation,
+  hierarchical policy search, readiness и counterfactual gate.
 
-## Актуальные DAG
+## Public API
 
-`scientist_default`:
-- data branch: `build_data_snapshot -> bind_foundry_inputs -> run_data_plane_gate`;
-- planning branch: `build_execution_plan -> build_method_catalog_snapshot -> run_preflight -> ready_to_run`;
-- execute branch: `link_trinity -> compile_foundry -> resolve_parameters -> run_simulation`;
-- analysis/governance: `run_distributional_analysis`, `propagate_uncertainty`, `run_causal_evaluation`, `run_governance`, `run_evaluator`, `build_decision_packet`.
+- `run_default_workflow(...)`, `run_causal_full_workflow(...)`,
+  `run_discovery_workflow(...)`, `run_policy_design_workflow(...)`,
+  `run_selected_workflow(...)`
+- `build_execution_context(...)`, `build_default_registry(...)`,
+  `build_registry_with_builtin_nodes(...)`, `resolve_workflow_id(...)`
+- `default_workflow_spec()`, `causal_full_workflow_spec()`,
+  `discovery_workflow_spec()`, `policy_design_workflow_spec()`
 
-`scientist_causal_full` добавляет causal-ноды:
-- `build_literature_prior`
-- `reconcile_causal_graph`
-- `run_causal_queries`
-- `run_causal_ensemble`
-- `run_abm_consistency`
-- `run_transportability`
+Подробности: [Reference →](../../../../docs/reference/scientist/index.md)
 
-Обе спецификации работают с `error_policy="continue"`.
+## Текущее состояние
 
-## Расширяемость
-
-`build_registry_with_builtin_nodes(include_discovered_nodes=True)`:
-- всегда подключает engine/scientist builtin nodes;
-- дополнительно загружает plugin-ноды из `ENTRY_POINT_GROUP_SCIENTIST_NODES`.
-
-## Эксплуатационные нюансы
-
-- `run_id` автогенерируется при пустом значении;
-- `registry_bundle_ref` создается автоматически при отсутствии;
-- обязателен хотя бы один input snapshot-источник:
-  - `data_snapshot_ref`, или
-  - `input_bindings_ref`, или
-  - `data_view_request_ref`;
-- запуск и resume защищены `.polisyos/runs/<run_id>/run.lock`;
-- checkpoint policy: `off | strict | best_effort`.
+- Последнее обновление: 2026-04-03
+- Python modules: 11
+- Exports: 18
+- Недавний delta: `policy_design.py` и `causal_full.py` расширены новым causal-readiness
+  и hierarchical-search path

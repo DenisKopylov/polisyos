@@ -556,6 +556,7 @@ def persist_continuous_time_query(
     schema_name: str = _CONTINUOUS_TIME_QUERY_SCHEMA_NAME,
     schema_version: str = _CONTINUOUS_TIME_QUERY_SCHEMA_VERSION,
 ) -> ContinuousTimeQueryRef:
+    """Persist continuous time query helper."""
     ref = put_json_artifact(
         store,
         query.model_dump(mode="json"),
@@ -572,6 +573,7 @@ def load_continuous_time_query(
     store: ArtifactStore,
     ref: ContinuousTimeQueryRef,
 ) -> ContinuousTimeQuery:
+    """Load continuous time query."""
     payload = get_json_artifact(store, ref.artifact_id)
     return ContinuousTimeQuery.model_validate(payload)
 
@@ -584,6 +586,7 @@ def persist_temporal_intervention_trajectory(
     schema_name: str = _TEMPORAL_INTERVENTION_TRAJECTORY_SCHEMA_NAME,
     schema_version: str = _TEMPORAL_INTERVENTION_TRAJECTORY_SCHEMA_VERSION,
 ) -> TemporalInterventionTrajectoryRef:
+    """Persist temporal intervention trajectory helper."""
     ref = put_json_artifact(
         store,
         trajectory.model_dump(mode="json"),
@@ -600,6 +603,7 @@ def load_temporal_intervention_trajectory(
     store: ArtifactStore,
     ref: TemporalInterventionTrajectoryRef,
 ) -> TemporalInterventionTrajectory:
+    """Load temporal intervention trajectory."""
     payload = get_json_artifact(store, ref.artifact_id)
     return TemporalInterventionTrajectory.model_validate(payload)
 
@@ -612,6 +616,7 @@ def persist_dynamic_treatment_regime(
     schema_name: str = _DYNAMIC_TREATMENT_REGIME_SCHEMA_NAME,
     schema_version: str = _DYNAMIC_TREATMENT_REGIME_SCHEMA_VERSION,
 ) -> DynamicTreatmentRegimeRef:
+    """Persist dynamic treatment regime helper."""
     ref = put_json_artifact(
         store,
         regime.model_dump(mode="json"),
@@ -628,6 +633,7 @@ def load_dynamic_treatment_regime(
     store: ArtifactStore,
     ref: DynamicTreatmentRegimeRef,
 ) -> DynamicTreatmentRegime:
+    """Load dynamic treatment regime."""
     payload = get_json_artifact(store, ref.artifact_id)
     return DynamicTreatmentRegime.model_validate(payload)
 
@@ -640,6 +646,7 @@ def persist_effect_trajectory_bundle(
     schema_name: str = _EFFECT_TRAJECTORY_BUNDLE_SCHEMA_NAME,
     schema_version: str = _EFFECT_TRAJECTORY_BUNDLE_SCHEMA_VERSION,
 ) -> EffectTrajectoryBundleRef:
+    """Persist effect trajectory bundle helper."""
     ref = put_json_artifact(
         store,
         bundle.model_dump(mode="json"),
@@ -656,6 +663,7 @@ def load_effect_trajectory_bundle(
     store: ArtifactStore,
     ref: EffectTrajectoryBundleRef,
 ) -> EffectTrajectoryBundle:
+    """Load effect trajectory bundle."""
     payload = get_json_artifact(store, ref.artifact_id)
     return EffectTrajectoryBundle.model_validate(payload)
 

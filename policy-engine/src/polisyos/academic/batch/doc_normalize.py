@@ -1057,6 +1057,7 @@ def _pseudo_tei_xml(*, title: str, sections: list[dict[str, Any]]) -> str:
 
 
 async def run_doc_normalize(config: AcademicBatchConfig) -> dict[str, int]:
+    """Run doc normalize."""
     started_at = datetime.now(UTC).isoformat()
     selected_rows = _load_selected_rows(config.selected_global_works_path)
     if not selected_rows:

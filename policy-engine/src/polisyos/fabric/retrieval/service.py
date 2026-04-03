@@ -34,6 +34,7 @@ logger = get_logger(__name__)
 
 @dataclass(frozen=True)
 class ResolveOutcome:
+    """Resolve outcome public type."""
     mode: str
     fetch_plans: list[FetchPlan]
     candidates: list[MetricCandidate]
@@ -43,6 +44,7 @@ class ResolveOutcome:
 
 @dataclass(frozen=True)
 class DiscoverOutcome:
+    """Discover outcome public type."""
     candidates: list[DiscoveryCandidate]
     docs_fetched_total: int
     warnings: list[str]
@@ -50,6 +52,7 @@ class DiscoverOutcome:
 
 @dataclass(frozen=True)
 class ExecuteOutcome:
+    """Execute outcome public type."""
     data_context: DataContext
     previews: list[ExecutePlanResult]
     promoted_count: int

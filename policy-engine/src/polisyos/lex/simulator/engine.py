@@ -1,3 +1,4 @@
+"""Public simulator engine module API."""
 from __future__ import annotations
 
 from collections import defaultdict
@@ -18,6 +19,8 @@ from .report import AffectedKPI, ComplianceDelta, ComplianceTransition, NormImpa
 
 
 class NormImpactAnalyzer:
+    """Run governance passes over two norm packs and summarize the delta."""
+
     DEFAULT_PASSES: tuple[str, ...] = ("legal", "safety")
 
     def __init__(
@@ -311,4 +314,3 @@ def _count_transition(
         if issue is not None and issue.severity == severity:
             total += 1
     return total
-

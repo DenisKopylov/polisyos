@@ -1,3 +1,4 @@
+"""Public compute runner module API."""
 from __future__ import annotations
 
 import json
@@ -35,6 +36,7 @@ from polisyos.scientist.compute.job_spec import JobKey, JobResult, JobSpec
 
 @dataclass
 class ExecutionResult:
+    """Execution result data model."""
     exec_artifacts: Any
     applied: Any
     final_state: Any
@@ -42,6 +44,7 @@ class ExecutionResult:
 
 @dataclass(frozen=True)
 class MethodExecutionArtifacts:
+    """Method execution artifacts public type."""
     result_ref: ArtifactRef
     evidence_ref: ArtifactRef
 
@@ -224,6 +227,7 @@ class MethodBackend:
 
 
 def resolve_backend(kind: str | None) -> RunnerBackend:
+    """Resolve backend."""
     backend_kind = (kind or os.getenv("POLISYOS_RUNNER_BACKEND") or "local").lower()
     if backend_kind != "local":
         raise ValueError(

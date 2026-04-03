@@ -1,3 +1,4 @@
+"""Public policy welfare module API."""
 from __future__ import annotations
 
 from typing import Any, ClassVar, Mapping
@@ -47,6 +48,7 @@ def _values_payload(state: Any, *, key: str = "values") -> np.ndarray:
     tags={"policy", "welfare", "cost-benefit", "structural"},
 )
 class CostBenefitAnalysisEstimator:
+    """Cost benefit analysis estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -171,6 +173,7 @@ def _compute_irr(cash_flows: np.ndarray, tol: float = 1e-8, max_iter: int = 200)
     tags={"policy", "welfare", "cost-effectiveness", "structural"},
 )
 class CostEffectivenessEstimator:
+    """Cost effectiveness estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -265,6 +268,7 @@ class CostEffectivenessEstimator:
     tags={"policy", "welfare", "swf", "utilitarian", "structural"},
 )
 class UtilitarianSWFEstimator:
+    """Utilitarian SWF estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -325,6 +329,7 @@ class UtilitarianSWFEstimator:
     tags={"policy", "welfare", "swf", "rawlsian", "structural"},
 )
 class RawlsianSWFEstimator:
+    """Rawlsian SWF estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -380,6 +385,7 @@ class RawlsianSWFEstimator:
     tags={"policy", "welfare", "swf", "atkinson", "structural"},
 )
 class AtkinsonSWFEstimator:
+    """Atkinson SWF estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -449,6 +455,7 @@ class AtkinsonSWFEstimator:
     tags={"policy", "welfare", "swf", "sen", "structural"},
 )
 class SenCapabilityEstimator:
+    """Sen capability estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 

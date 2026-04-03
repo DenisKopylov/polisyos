@@ -1,3 +1,4 @@
+"""Public microsim calibration module API."""
 from __future__ import annotations
 
 from typing import Any, ClassVar, Mapping
@@ -36,6 +37,7 @@ def _survey_payload(state: Any) -> dict[str, Any]:
     tags={"microsim", "calibration", "survey"},
 )
 class ReweightingCalibrationEstimator:
+    """Reweighting calibration estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -92,6 +94,9 @@ class ReweightingCalibrationEstimator:
         description="Linear calibration of survey weights to population totals and mean income.",
         tags=frozenset({"microsim", "calibration", "survey"}),
         when_to_use="Align microsimulation outputs to aggregate control totals; demographic projection calibration",
+        citations=(
+            "Deville, J. & Sarndal, C. (1992). Calibration estimators in survey sampling. Journal of the American Statistical Association, 87(418), 376-382.",
+        ),
         when_not_to_use="Control totals are inconsistent or unavailable; non-linear calibration required",
         output_interpretation="Calibrated weights/probabilities. Check alignment tables: model vs target. RMSE across cells.",
     )

@@ -41,6 +41,7 @@ import dataclasses
 import json
 import math
 import sys
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any
 
@@ -260,16 +261,23 @@ def _tuebingen_case(
     accuracy_threshold: float,
 ) -> BenchmarkCase:
     def runner() -> TuebingenResult:
-        n_correct = 0
-        n_per_type: dict[str, int] = {}
-        n_correct_per_type: dict[str, int] = {}
-
-        for i, pair in enumerate(pairs):
+        def _eval_pair(args: tuple[int, BivariatePair]) -> tuple[BivariatePair, bool]:
+            i, pair = args
             X, Y = _simulate_pair(pair, n_obs, seed + i)
             score = _anm_direction_score(X, Y)
             pred = "X→Y" if score > 0 else "Y→X"
-            correct = pred == pair.true_direction
+            return pair, pred == pair.true_direction
 
+        # Evaluate pairs in parallel — each pair is independent, each uses its own RNG.
+        # KernelRidge + HSIC both release the GIL during LAPACK/numpy ops.
+        n_workers = min(8, len(pairs))
+        with ThreadPoolExecutor(max_workers=n_workers) as ex:
+            pair_results = list(ex.map(_eval_pair, enumerate(pairs)))
+
+        n_correct = 0
+        n_per_type: dict[str, int] = {}
+        n_correct_per_type: dict[str, int] = {}
+        for pair, correct in pair_results:
             n_per_type[pair.dgp_type] = n_per_type.get(pair.dgp_type, 0) + 1
             if correct:
                 n_correct += 1

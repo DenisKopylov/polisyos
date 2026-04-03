@@ -1,3 +1,4 @@
+"""Public common config module API."""
 import multiprocessing
 import os
 import sys

@@ -1,3 +1,4 @@
+"""Public catalog spatial package API."""
 from __future__ import annotations
 
 from polisyos.foundry.methods.exceptions import MethodAlreadyRegisteredError
@@ -25,6 +26,7 @@ from .protocols import AccessibilityData, GravityFlowData, SpatialData, SpatialR
 
 
 def ensure_spatial_methods_registered(registry: MethodRegistry | None = None) -> None:
+    """Ensure spatial methods registered helper."""
     reg = registry if registry is not None else MethodRegistry.get_instance()
     for method_class in register_spatial_methods():
         try:

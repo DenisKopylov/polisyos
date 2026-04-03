@@ -1,3 +1,4 @@
+"""Public materialize staging module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -28,6 +29,7 @@ REQUIRED_COLUMNS = {
 
 @dataclass
 class StagedWorldSegment:
+    """Staged world segment public type."""
     df: pd.DataFrame
     attr_df: pd.DataFrame
     edge_df: pd.DataFrame
@@ -35,6 +37,7 @@ class StagedWorldSegment:
 
 
 def stage_world_segment(manifest: FactSegmentManifest) -> StagedWorldSegment:
+    """Stage world segment helper."""
     path = Path(manifest.path)
     df = pd.read_parquet(path)
     missing = REQUIRED_COLUMNS - set(df.columns)

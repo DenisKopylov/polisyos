@@ -1,3 +1,4 @@
+"""Public security audit sink module API."""
 from __future__ import annotations
 
 import json
@@ -380,6 +381,7 @@ class ChainedAuditSink:
 
 
 def build_default_audit_backends_from_env() -> list[AuditStorageBackend]:
+    """Build default audit backends from env."""
     backends: list[AuditStorageBackend] = []
 
     hot_url = os.getenv("POLISYOS_AUDIT_HOT_TIER_URL", "").strip()

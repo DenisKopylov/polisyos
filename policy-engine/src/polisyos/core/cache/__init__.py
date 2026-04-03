@@ -1,3 +1,4 @@
+"""Public core cache package API."""
 from __future__ import annotations
 
 from .lru import LRUCache, LRUCacheStats

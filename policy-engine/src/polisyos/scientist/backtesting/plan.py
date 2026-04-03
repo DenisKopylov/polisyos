@@ -1,3 +1,4 @@
+"""Public backtesting plan module API."""
 from __future__ import annotations
 
 from enum import Enum
@@ -7,12 +8,14 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 class MaskingStrategy(str, Enum):
+    """Masking strategy data model."""
     DROP_POST = "drop_post"
     REPLACE_NAN = "replace_nan"
     TRUNCATE = "truncate"
 
 
 class PredictionSource(str, Enum):
+    """Prediction source public type."""
     PROVIDED = "provided"
     SCIENTIST = "scientist"
     NAIVE = "naive"

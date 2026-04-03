@@ -499,7 +499,7 @@ def counterfactual_fusion(
 @foundry_method(
     namespace="causal.fusion",
     version="1.0.0",
-    tags={"causal", "fusion", "transport", "bareinboim_pearl", "mz_id"},
+    tags={"causal", "fusion", "transport", "bareinboim_pearl", "mz_id", "cross-section"},
 )
 class DataFusionEngine:
     """Multi-source causal data fusion (Bareinboim & Pearl 2016).

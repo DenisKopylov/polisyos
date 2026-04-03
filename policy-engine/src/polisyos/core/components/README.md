@@ -1,68 +1,32 @@
-# Components — component model и bootstrap
+# Components (`polisyos.core.components`)
 
-`core.components` — единая модель расширений PolisyOS: идентификаторы, metadata/capabilities, discovery, реестр компонентов и bootstrap runtime-реестров.
+`core.components` is PolicyOS's component model and bootstrap layer. It defines component ids,
+metadata, capabilities, discovery rules, registries, and the bootstrap flow that turns discovered
+components into runtime registries.
 
-## Состав
+## Role in System
 
-```text
-components/
-├── ids.py          # SemVer/SemverRange/ComponentId
-├── metadata.py     # ComponentKind/ComponentMetadata/ComponentDep
-├── capabilities.py # Capability flags
-├── protocols.py    # Component / ComponentFactory / ComponentProvider protocols
-├── discovery.py    # entry-point + dev-scan discovery
-├── registry.py     # multi-version ComponentRegistry
-├── compliance.py   # metadata/runtime compliance checks
-├── bootstrap.py    # bootstrap domain registries from one component index
-├── cli*.py         # CLI facade + subcommands (components/registry/audit/replay/...)
-└── __init__.py
-```
+- **Depends on:** nothing domain-specific; it sits on top of shared runtime primitives.
+- **Used by:** `fabric`, `foundry`, `lex`, `scientist`, `scholar`, `registry`, and CLI/bootstrap tooling.
+- **Boundary function:** turns package metadata and entry points into consistent runtime registries.
 
-## Identity и metadata
+## Key Concepts
 
-- `ComponentId`: формат `namespace.name@semver`
-- `ComponentKind`: `ir_fragment`, `foundry_method`, `fabric_connector`, `scholar_extractor`, `lex_*`, `scientist_node`, `norm_pack_provider`
-- `Capability`: type- и cross-cutting возможности (`CAS_READ`, `FOUNDRY_EXECUTE`, `LEX_EVALUATE`, ...)
+- **Component identity** - `ComponentId` encodes namespace, name, and SemVer.
+- **Component metadata** - `ComponentMetadata` and `ComponentDep` describe what a component is and what it needs.
+- **Capabilities** - flags capture cross-cutting abilities such as CAS reading or execution rights.
+- **Discovery** - entry-point and dev-scan discovery can be combined with explicit precedence rules.
+- **Registry** - `ComponentRegistry` stores multiple versions and resolves exact or compatible matches.
+- **Bootstrap** - `build_components_index()` and `bootstrap_plugin_registries()` wire the discovered index into runtime domains.
 
-## Discovery
+## Public API
 
-`discover_components()` собирает компоненты из:
-- entry-point групп `polisyos.ir_fragments`, `polisyos.foundry_methods`, `polisyos.fabric_connectors`, `polisyos.lex_*`, `polisyos.scholar_extractors`, `polisyos.scientist_nodes`, `polisyos.norm_pack_providers`;
-- dev-scan (по умолчанию включен, обычно `.../packs`).
+- identity/metadata: `ComponentId`, `ComponentKind`, `ComponentMetadata`, `ComponentDep`, `Capability`
+- discovery/registry: `discover_components`, `ComponentRegistry`, `build_components_index`
+- bootstrap/CLI: `bootstrap_plugin_registries`, `ComponentProvider`, `ComponentFactory`
 
-`polisyos.components` (legacy group) поддерживается отдельно через `include_legacy_group=True`.
+## Current State
 
-Политики:
-- duplicate policy (`warn/error/ignore`)
-- precedence (`dev_scan_wins_over_entry_points`)
-
-## ComponentRegistry
-
-`ComponentRegistry` хранит несколько версий и поддерживает:
-- `register`, `get`, `list`, `list_all`
-- `resolve` (`EXACT`, `LATEST`, `LATEST_COMPATIBLE`)
-- `query` по `kind/domain/jurisdiction/capabilities/tags`
-
-## Bootstrap runtime-реестров
-
-Типовой поток:
-
-```python
-from polisyos.core.components import build_components_index, bootstrap_plugin_registries
-
-components_index, discovery_report = build_components_index()
-bootstrap_report = bootstrap_plugin_registries(components_index)
-```
-
-`bootstrap_plugin_registries()` инициализирует домены:
-- connectors (`fabric`)
-- methods (`foundry`)
-- evaluators/providers (`lex`)
-- extractors (`fabric`/`scholar`/`lex`)
-- nodes (`scientist`)
-
-## Где используется
-
-- `packs/`: декларация компонентных metadata
-- `registry/`: сборка IR bundle из `ComponentKind.IR_FRAGMENT`
-- `fabric`/`foundry`/`lex`/`scientist`/`scholar`: runtime discovery и bootstrap
+- Last updated: 2026-04-03
+- The tree now includes the CLI facades `_cli_audit.py`, `_cli_crypto.py`, `_cli_lex.py`, `_cli_replay.py`, `_cli_scholar.py`, and `_cli_scientist.py`.
+- Component discovery still supports both entry points and local dev-scan fallback.

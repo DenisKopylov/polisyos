@@ -11,6 +11,7 @@ SCHEMA_VERSION_PATTERN = r"^\d+\.\d+$"
 
 
 class LinkedIntervention(KernelModel):
+    """Linked intervention public type."""
     intervention_id: str = Field(..., pattern=ID_PATTERN)
     mechanism_id: str = Field(..., pattern=ID_PATTERN)
     reads_slots: list[str] = Field(default_factory=list)
@@ -20,6 +21,7 @@ class LinkedIntervention(KernelModel):
 
 
 class TrinityBindings(KernelModel):
+    """Trinity bindings public type."""
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     interventions: list[LinkedIntervention] = Field(default_factory=list)
     used_mechanisms: list[str] = Field(default_factory=list)
@@ -32,6 +34,7 @@ class TrinityBindings(KernelModel):
 
 
 class LinkedTrinityBundle(KernelModel):
+    """Linked trinity bundle data model."""
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     bundle: TrinityBundle
     registry_digest: str | None = Field(None, pattern=ARTIFACT_ID_PATTERN)

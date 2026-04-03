@@ -121,7 +121,9 @@ def _build_benchmark_fixture(config: DatasetBatchConfig) -> None:
             ],
         )
         con.executemany(
-            "INSERT INTO ds_observations VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            "INSERT INTO ds_observations "
+            "(observation_id, dataset_id, raw_variable, canonical_var, country_code, year, survey_year, wave, value, condition_json) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             [
                 ("obs-gdp", "ds-gdp", "value", "gdp_per_capita", "UA", 2020, None, None, 1000.0, "{}"),
                 ("obs-unemp", "ds-unemp", "value", "unemployment_rate", "UA", 2020, None, None, 8.0, "{}"),
@@ -235,7 +237,9 @@ def test_run_benchmark_accepts_alias_metrics_for_retrieval_transport_and_foundry
             ],
         )
         con.execute(
-            "INSERT INTO ds_observations VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            "INSERT INTO ds_observations "
+            "(observation_id, dataset_id, raw_variable, canonical_var, country_code, year, survey_year, wave, value, condition_json) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             [
                 "obs-health",
                 "ds-health",
@@ -272,6 +276,191 @@ def test_run_benchmark_accepts_alias_metrics_for_retrieval_transport_and_foundry
     assert outcome.metrics["benchmark_retrieval_ready_pct"] == 100.0
     assert outcome.metrics["benchmark_transport_ready_pct"] == 100.0
     assert outcome.metrics["benchmark_foundry_fitness_pct"] == 100.0
+
+
+def test_run_benchmark_aggregates_bulk_equivalence_manifests(tmp_path) -> None:
+    config = DatasetBatchConfig(snapshot_root=tmp_path / "snap")
+    _build_benchmark_fixture(config)
+
+    manifest_root = config.manifests_dir / "observations" / "bulk_equivalence"
+    (manifest_root / "eurostat" / "v1").mkdir(parents=True, exist_ok=True)
+    (manifest_root / "ilo" / "v2").mkdir(parents=True, exist_ok=True)
+    (manifest_root / "eurostat" / "v1" / "une_rt_a.json").write_text(
+        json.dumps(
+            {
+                "status": "ok",
+                "source": "eurostat",
+                "dataset_id": "une_rt_a",
+                "dataset_version": "v1",
+                "compared_series": 25,
+                "mismatches": 1,
+                "blocking": True,
+            }
+        ),
+        encoding="utf-8",
+    )
+    (manifest_root / "ilo" / "v2" / "emp.json").write_text(
+        json.dumps(
+            {
+                "status": "ok",
+                "source": "ilo",
+                "dataset_id": "EMP_TEMP_SEX_IND_OCU_NB_A",
+                "dataset_version": "v2",
+                "compared_series": 50,
+                "mismatches": 1,
+                "blocking": False,
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    outcome = run_benchmark(config)
+
+    assert outcome.metrics["benchmark_bulk_equivalence_mismatch_rate"] == round((2 / 75) * 100.0, 2)
+    assert outcome.metrics["benchmark_bulk_equivalence_blocking_sources_total"] == 1
+
+    with open(outcome.report_path, "r", encoding="utf-8") as fh:
+        payload = json.load(fh)
+
+    assert len(payload["bulk_equivalence"]["manifests"]) == 2
+
+
+def test_run_benchmark_marks_partial_eval_when_core_ingest_is_blocked(tmp_path) -> None:
+    registry_path = tmp_path / "registry.yaml"
+    _write_test_registry(
+        registry_path,
+        [
+            {
+                "name": "oecd",
+                "family": "sdmx",
+                "execution_tier": "fetchable",
+                "run_lane": "empirical",
+                "publish_blocking": True,
+            }
+        ],
+    )
+    config = DatasetBatchConfig(snapshot_root=tmp_path / "snap", registry_path=registry_path)
+
+    raw_dir = config.raw_dir / "oecd" / "20260218T000000Z"
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    payload = raw_dir / "payload.jsonl"
+    payload.write_text('{"id":"DF_TEST"}\n', encoding="utf-8")
+    (raw_dir / "manifest.json").write_text(
+        json.dumps(
+            {
+                "source": "oecd",
+                "endpoint": "https://example.test",
+                "payload": str(payload),
+                "count": 1,
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    build_graph(
+        records=iter(
+            [
+                DatasetRecord(
+                    id="ds-inflation",
+                    title="Inflation index",
+                    description="Inflation index dataset",
+                    source="oecd",
+                    source_portal="oecd",
+                    dataset_id="DF_TEST",
+                    source_dataset_id="DF_TEST",
+                    execution_tier="transport_ready",
+                    update_frequency="annual",
+                    polisyos_metrics=["inflation"],
+                    variables=["country_code", "year", "value"],
+                    preferred_distribution_id="dist-inflation",
+                    distributions=[
+                        DistributionRecord(
+                            id="dist-inflation",
+                            connector_type="sdmx.source",
+                            source_locator="DF_TEST",
+                            profile_id="oecd_sdmx",
+                            parser_supported=True,
+                            machine_readable=True,
+                            quality_score=0.9,
+                        )
+                    ],
+                ),
+            ]
+        ),
+        db_path=config.db_path,
+    )
+
+    con = duckdb.connect(str(config.db_path))
+    try:
+        con.execute(
+            "INSERT INTO ds_registry_datasets VALUES (?, ?, ?, ?, ?, ?, ?)",
+            [
+                "ds-inflation",
+                "oecd",
+                "Inflation index",
+                json.dumps({"countries": ["UA"], "time_range": "2022-2022"}),
+                json.dumps({"access_type": "open"}),
+                "annual",
+                "2026-01-01",
+            ],
+        )
+        con.execute(
+            "INSERT INTO ds_variable_alignments VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            [
+                "ds-inflation",
+                "value",
+                "inflation",
+                "exact",
+                0.95,
+                "seed",
+                False,
+                0.0,
+            ],
+        )
+    finally:
+        con.close()
+
+    config.stage_state_path.write_text(
+        json.dumps(
+            {
+                "core_sources_ingest": {
+                    "status": "running",
+                    "metadata": {
+                        "current_phase": "planning",
+                        "blocked_by_source": {"oecd": 1},
+                        "quota_wait_seconds_by_source": {"oecd": 60.0},
+                        "capability_failures_by_source": {"oecd": 1},
+                    },
+                }
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    suite = BenchmarkSuite(
+        search_cases=(
+            SearchBenchmarkCase(
+                case_id="inflation",
+                query="inflation index",
+                expected_metrics=("inflation",),
+                expected_sources=("oecd",),
+            ),
+        ),
+        retrieval_metrics=("inflation",),
+        transport_variables=("inflation",),
+        foundry_metrics=("inflation",),
+    )
+
+    outcome = run_benchmark(config, suite=suite)
+    with open(outcome.report_path, "r", encoding="utf-8") as fh:
+        payload = json.load(fh)
+
+    assert payload["evaluation_mode"] == "partial-eval"
+    assert payload["diagnostic_context"]["blocked"] is True
+    assert payload["transport"]["variables"][0]["alignment_present_without_observations"] is True
+    assert payload["transport"]["variables"][0]["observation_missing_due_to_stage_block"] is True
+    assert payload["source_preflight"]["sources"][0]["source_blocked_by_quota"] is True
+    assert payload["source_preflight"]["sources"][0]["failure_reason"] == "ingest_blocked"
 
 
 def test_foundry_benchmark_prefers_execution_grade_alias_binding_over_catalog_exact(tmp_path) -> None:
@@ -360,7 +549,9 @@ def test_foundry_benchmark_prefers_execution_grade_alias_binding_over_catalog_ex
             ],
         )
         con.execute(
-            "INSERT INTO ds_observations VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            "INSERT INTO ds_observations "
+            "(observation_id, dataset_id, raw_variable, canonical_var, country_code, year, survey_year, wave, value, condition_json) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             [
                 "obs-life",
                 "ds-life",

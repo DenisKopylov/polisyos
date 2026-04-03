@@ -1,3 +1,4 @@
+"""Public autotune reflexion module API."""
 from __future__ import annotations
 
 import json
@@ -31,12 +32,14 @@ REFLEXION_LOOP_ID = "reflexion_routing"
 
 
 class RecoverableRoutingDecision(str, Enum):
+    """Recoverable routing decision public type."""
     RETURN_TO_FORMALIZER = "return_to_formalizer"
     RETURN_TO_DRAFTER = "return_to_drafter"
     ESCALATE_TO_HUMAN = "escalate_to_human"
 
 
 class ReflexionRoutingRule(BaseModel):
+    """Reflexion routing rule data model."""
     model_config = ConfigDict(extra="forbid")
 
     error_codes: list[str] = Field(default_factory=list)
@@ -46,6 +49,7 @@ class ReflexionRoutingRule(BaseModel):
 
 
 class ReflexionRoutingConfig(MutationArtifact):
+    """Reflexion routing config data model."""
     model_config = ConfigDict(extra="forbid")
 
     loop_id: str = REFLEXION_LOOP_ID
@@ -53,10 +57,12 @@ class ReflexionRoutingConfig(MutationArtifact):
 
 
 def build_baseline_reflexion_routing_config(_context: dict[str, Any] | None = None) -> ReflexionRoutingConfig:
+    """Build baseline reflexion routing config."""
     return ReflexionRoutingConfig()
 
 
 def default_reflexion_policy() -> PromotionPolicy:
+    """Default reflexion policy helper."""
     return PromotionPolicy(
         loop_id=REFLEXION_LOOP_ID,
         primary_metric="retry_success_rate",
@@ -73,6 +79,7 @@ def route_recoverable_failure(
     *,
     config: ReflexionRoutingConfig,
 ) -> str | None:
+    """Route recoverable failure helper."""
     if card.severity != FailureSeverity.RECOVERABLE:
         return None
     summary = f"{card.error_code}\n{card.violation_summary}\n{card.remediation_advice}".lower()
@@ -92,11 +99,13 @@ def load_reflexion_routing_config(
     context: dict[str, Any] | None = None,
     loader: ChampionBackedRuntimeLoader[ReflexionRoutingConfig] | None = None,
 ) -> ReflexionRoutingConfig:
+    """Load reflexion routing config."""
     active_loader = loader or ReflexionRoutingRuntimeLoader()
     return active_loader.load(context)
 
 
 class ReflexionRoutingEvaluator(BenchmarkedEvaluator):
+    """Reflexion routing evaluator public type."""
     def __init__(
         self,
         *,
@@ -144,6 +153,7 @@ class ReflexionRoutingEvaluator(BenchmarkedEvaluator):
 
 
 class ReflexionRoutingRuntimeLoader(ChampionBackedRuntimeLoader[ReflexionRoutingConfig]):
+    """Reflexion routing runtime loader implementation."""
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(
             loop_id=REFLEXION_LOOP_ID,
@@ -155,6 +165,7 @@ class ReflexionRoutingRuntimeLoader(ChampionBackedRuntimeLoader[ReflexionRouting
 
 
 class ReflexionReplayRecorder:
+    """Reflexion replay recorder public type."""
     def __init__(self) -> None:
         self._records: list[dict[str, Any]] = []
 
@@ -224,6 +235,7 @@ def reflexion_search_loop_spec(
     store: Any | None = None,
     registry: ChampionRegistry | None = None,
 ) -> SearchLoopSpec:
+    """Reflexion search loop spec helper."""
     return SearchLoopSpec(
         loop_id=REFLEXION_LOOP_ID,
         mutation_codec=PydanticMutationCodec(ReflexionRoutingConfig),

@@ -1,3 +1,4 @@
+"""Public builtins decide package API."""
 from __future__ import annotations
 
 import importlib

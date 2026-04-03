@@ -1,3 +1,4 @@
+"""Public claims normalize module API."""
 from __future__ import annotations
 
 from dataclasses import asdict
@@ -155,6 +156,7 @@ def normalize_claims(
     options: ClaimNormalizeOptions | None = None,
     segment_name: str | None = None,
 ) -> ClaimNormalizeResult:
+    """Normalize claims helper."""
     opts = options or ClaimNormalizeOptions()
 
     claim_set_payload = load_json_artifact(cas, claim_set_artifact_id)

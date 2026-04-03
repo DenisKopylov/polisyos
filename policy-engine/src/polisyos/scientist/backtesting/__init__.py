@@ -1,3 +1,8 @@
+"""Public scientist backtesting package API."""
+from __future__ import annotations
+
+import importlib
+
 from .adversarial import (
     ABSTRACTION_LEAKAGE_SUITE_ID,
     MULTIPLICITY_DISCLOSURE_SUITE_ID,
@@ -10,7 +15,6 @@ from .adversarial import (
     ChallengeSuiteResult,
     run_phase_d4_challenge_suites,
 )
-from .composition_bridge import CompositionReplayResult, replay_fragment_composition_case
 from .evaluator import PredictionEvaluator
 from .masking import OutcomeMasker
 from .orchestrator import BacktestOrchestrator
@@ -52,3 +56,12 @@ __all__ = [
     "summarize_temporal_evaluations",
     "build_temporal_backtest_report",
 ]
+
+
+def __getattr__(name: str):
+    if name in {"CompositionReplayResult", "replay_fragment_composition_case"}:
+        module = importlib.import_module("polisyos.scientist.backtesting.composition_bridge")
+        value = getattr(module, name)
+        globals()[name] = value
+        return value
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

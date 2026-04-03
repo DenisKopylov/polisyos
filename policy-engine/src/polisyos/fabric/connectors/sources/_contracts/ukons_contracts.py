@@ -1,3 +1,4 @@
+"""Public contracts ukons contracts module API."""
 from __future__ import annotations
 
 from polisyos.fabric.connectors.contracts import (

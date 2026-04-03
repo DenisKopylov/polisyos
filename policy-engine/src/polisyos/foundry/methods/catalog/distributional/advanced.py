@@ -1,3 +1,4 @@
+"""Public distributional advanced module API."""
 from __future__ import annotations
 
 from typing import Any, ClassVar, Mapping
@@ -52,6 +53,7 @@ def _values_payload(state: Any, *, key: str = "values") -> np.ndarray:
     tags={"distributional", "inequality", "theil", "cross-section"},
 )
 class TheilIndexEstimator:
+    """Theil index estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -107,6 +109,7 @@ class TheilIndexEstimator:
     tags={"distributional", "inequality", "palma", "cross-section"},
 )
 class PalmaRatioEstimator:
+    """Palma ratio estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -168,6 +171,7 @@ class PalmaRatioEstimator:
     tags={"distributional", "inequality", "generalized-gini", "cross-section"},
 )
 class GeneralizedGiniEstimator:
+    """Generalized gini estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 

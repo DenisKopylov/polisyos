@@ -1,3 +1,4 @@
+"""Public canon canon json module API."""
 from __future__ import annotations
 
 import base64
@@ -13,11 +14,13 @@ from pydantic import BaseModel
 
 
 class CanonViolation(ValueError):
+    """Canon violation public type."""
     pass
 
 
 @dataclass(frozen=True)
 class CanonSpec:
+    """Canon spec data model."""
     name: str = "polisyos.canon.json"
     version: str = "0.1.0"
 
@@ -90,6 +93,7 @@ def _canonicalize_obj(obj: Any, spec: CanonSpec) -> Any:
 
 
 def to_canonical_bytes(obj: Any, spec: CanonSpec | None = None) -> bytes:
+    """Convert to canonical bytes."""
     spec = spec or CanonSpec()
     canon_obj = _canonicalize_obj(obj, spec)
     try:
@@ -112,6 +116,7 @@ def _parse_datetime(value: str) -> datetime:
 
 
 def from_canonical_obj(obj: Any) -> Any:
+    """Create from canonical obj."""
     if isinstance(obj, Mapping):
         if "_type" in obj:
             kind = obj.get("_type")
@@ -135,5 +140,6 @@ def from_canonical_obj(obj: Any) -> Any:
 
 
 def from_canonical_bytes(data: bytes) -> Any:
+    """Create from canonical bytes."""
     payload = json.loads(data)
     return from_canonical_obj(payload)

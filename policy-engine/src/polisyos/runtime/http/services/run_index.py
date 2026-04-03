@@ -1,3 +1,4 @@
+"""Public services run index module API."""
 from __future__ import annotations
 
 import time
@@ -17,6 +18,7 @@ from .adapters.core_run import CoreRunAdapterResult, load_core_run
 
 @dataclass(frozen=True)
 class IndexedRunRecord:
+    """Indexed run record data model."""
     run_id: str
     source_kind: SourceKind
     details: RunDetails
@@ -30,6 +32,7 @@ class IndexedRunRecord:
 
 
 class RunIndexService:
+    """Run index service implementation."""
     def __init__(
         self,
         *,

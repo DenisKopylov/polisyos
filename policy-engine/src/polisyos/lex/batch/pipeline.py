@@ -1293,6 +1293,7 @@ async def run_batch_pipeline(config: BatchConfig) -> PipelineStats:
             domains_dir=config.domains_dir if config.extract_domains_enabled else None,
             doc_metadata=doc_metadata,
             db_path=config.db_path,
+            resolution_cards_path=config.cards_path,
             feedback_queue_path=config.pattern_feedback_queue_path if config.pattern_feedback_enabled else None,
             insert_batch_size=config.graph_insert_batch,
         )

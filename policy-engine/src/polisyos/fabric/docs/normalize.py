@@ -1,3 +1,4 @@
+"""Public docs normalize module API."""
 from __future__ import annotations
 
 from dataclasses import asdict
@@ -119,6 +120,7 @@ def normalize_doc(
     options: DocNormalizeOptions | None = None,
     segment_name: str | None = None,
 ) -> DocNormalizeResult:
+    """Normalize doc helper."""
     opts = options or DocNormalizeOptions()
 
     meta = _load_doc_meta(cas, doc_meta_artifact_id)

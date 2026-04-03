@@ -1,3 +1,4 @@
+"""Public autotune models module API."""
 from __future__ import annotations
 
 import os
@@ -16,11 +17,13 @@ from polisyos.core.canon.canon_json import CanonSpec
 
 
 class MetricDirection(str, Enum):
+    """Metric direction public type."""
     MINIMIZE = "minimize"
     MAXIMIZE = "maximize"
 
 
 class BenchmarkSplit(str, Enum):
+    """Benchmark split public type."""
     SELECTION = "selection"
     HOLDOUT = "holdout"
     HIDDEN_HOLDOUT = "hidden_holdout"
@@ -30,6 +33,7 @@ class BenchmarkSplit(str, Enum):
 
 
 class MutationArtifact(BaseModel):
+    """Mutation artifact public type."""
     model_config = ConfigDict(extra="forbid")
 
     loop_id: str = Field(..., min_length=1, max_length=128)
@@ -39,6 +43,7 @@ class MutationArtifact(BaseModel):
 
 
 class BenchmarkSplitManifest(BaseModel):
+    """Benchmark split manifest data model."""
     model_config = ConfigDict(extra="forbid")
 
     suite_id: str = Field(..., min_length=1, max_length=128)
@@ -88,6 +93,7 @@ class BenchmarkSplitManifest(BaseModel):
 
 
 class BenchmarkSuite(BaseModel):
+    """Benchmark suite public type."""
     model_config = ConfigDict(extra="forbid")
 
     suite_id: str = Field(..., min_length=1, max_length=128)
@@ -99,6 +105,7 @@ class BenchmarkSuite(BaseModel):
 
 
 class BenchmarkEvaluation(BaseModel):
+    """Benchmark evaluation public type."""
     model_config = ConfigDict(extra="forbid")
 
     loop_id: str = Field(..., min_length=1, max_length=128)
@@ -158,6 +165,7 @@ class BenchmarkEvaluation(BaseModel):
 
 
 class PromotionPolicy(BaseModel):
+    """Promotion policy data model."""
     model_config = ConfigDict(extra="forbid")
 
     loop_id: str = Field(..., min_length=1, max_length=128)
@@ -170,6 +178,7 @@ class PromotionPolicy(BaseModel):
 
 
 class ChampionPointer(BaseModel):
+    """Champion pointer public type."""
     model_config = ConfigDict(extra="forbid")
 
     loop_id: str = Field(..., min_length=1, max_length=128)
@@ -183,6 +192,7 @@ class ChampionPointer(BaseModel):
 
 
 class PromotionDecision(BaseModel):
+    """Promotion decision public type."""
     model_config = ConfigDict(extra="forbid")
 
     loop_id: str = Field(..., min_length=1, max_length=128)
@@ -205,6 +215,7 @@ class CandidateGenerator(Protocol):
 
 
 class BenchmarkedEvaluator(Protocol):
+    """Benchmarked evaluator public type."""
     def evaluate(
         self,
         candidate_ref: ArtifactRef,
@@ -215,6 +226,7 @@ class BenchmarkedEvaluator(Protocol):
 
 
 class MutationCodec(Protocol):
+    """Mutation codec public type."""
     def encode(self, payload: MutationArtifact) -> MutationArtifact:
         ...
 
@@ -223,12 +235,14 @@ class MutationCodec(Protocol):
 
 
 class RuntimeLoader(Protocol):
+    """Runtime loader implementation."""
     def load(self, context: dict[str, Any] | None = None) -> MutationArtifact | None:
         ...
 
 
 @dataclass(frozen=True)
 class SearchLoopSpec:
+    """Search loop spec data model."""
     loop_id: str
     mutation_codec: MutationCodec | None
     candidate_generator: Any | None
@@ -238,18 +252,22 @@ class SearchLoopSpec:
 
 
 def default_cas_root() -> Path:
+    """Default cas root helper."""
     return Path(os.environ.get("POLISYOS_CAS_ROOT", ".polisyos"))
 
 
 def default_search_registry_root() -> Path:
+    """Default search registry root helper."""
     return Path(os.environ.get("POLISYOS_SEARCH_REGISTRY_ROOT", ".polisyos/search_registry"))
 
 
 def default_store(root: Path | None = None) -> FileSystemCAS:
+    """Default store helper."""
     return FileSystemCAS(root or default_cas_root())
 
 
 def load_json_artifact(store: FileSystemCAS, ref: ArtifactRef | str) -> Any:
+    """Load json artifact."""
     artifact_id = ref.artifact_id if isinstance(ref, ArtifactRef) else ref
     return from_canonical_bytes(store.get_bytes(artifact_id))
 
@@ -259,6 +277,7 @@ def load_model_artifact(
     ref: ArtifactRef | str,
     model_cls: type[BaseModel],
 ) -> BaseModel:
+    """Load model artifact."""
     payload = load_json_artifact(store, ref)
     return model_cls.model_validate(payload)
 
@@ -274,6 +293,7 @@ def persist_mutation_artifact(
     kind: str | None = None,
     inputs: list[InputRef] | None = None,
 ) -> ArtifactRef:
+    """Persist mutation artifact helper."""
     return store.put_json(
         artifact,
         PutOptions(
@@ -295,6 +315,7 @@ def persist_benchmark_suite(
     *,
     inputs: list[InputRef] | None = None,
 ) -> ArtifactRef:
+    """Persist benchmark suite helper."""
     return store.put_json(
         suite,
         PutOptions(
@@ -313,6 +334,7 @@ def persist_split_manifest(
     *,
     inputs: list[InputRef] | None = None,
 ) -> ArtifactRef:
+    """Persist split manifest helper."""
     return store.put_json(
         split_manifest,
         PutOptions(
@@ -334,6 +356,7 @@ def persist_benchmark_evaluation(
     *,
     inputs: list[InputRef] | None = None,
 ) -> ArtifactRef:
+    """Persist benchmark evaluation helper."""
     merged_inputs = list(inputs or [])
     merged_inputs.append(InputRef(artifact_id=evaluation.candidate_ref.artifact_id, role="candidate"))
     return store.put_json(
@@ -352,6 +375,7 @@ def persist_benchmark_evaluation(
 
 
 def read_split_manifest(path: Path) -> BenchmarkSplitManifest:
+    """Read split manifest helper."""
     return BenchmarkSplitManifest.model_validate_json(path.read_text(encoding="utf-8"))
 
 
@@ -359,4 +383,5 @@ def resolve_item_split(
     item_id: str,
     split_manifest: BenchmarkSplitManifest,
 ) -> BenchmarkSplit | None:
+    """Resolve item split."""
     return split_manifest.split_for(item_id)

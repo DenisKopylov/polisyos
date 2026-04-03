@@ -1,3 +1,4 @@
+"""Public security tee middleware module API."""
 from __future__ import annotations
 
 import os

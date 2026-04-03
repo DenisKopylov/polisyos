@@ -1,3 +1,4 @@
+"""Public lex types module API."""
 from __future__ import annotations
 
 import warnings
@@ -21,6 +22,14 @@ from .errors import LexValidationError
 
 @dataclass(frozen=True)
 class LegalDocSource:
+    """Canonical source identity and provenance for one legal document.
+
+    Exactly one stable locator must be supplied: either a canonical URL or an
+    official registry identifier. The remaining fields capture the publication,
+    jurisdiction, and temporal metadata that downstream Lex pipelines preserve
+    into document manifests.
+    """
+
     canonical_url: str | None = None
     official_id: str | None = None
 
@@ -60,6 +69,13 @@ class LegalDocSource:
 
 @dataclass(frozen=True)
 class LexIngestOptions:
+    """Controls the corpus ingest, normalization, and chunking stages.
+
+    The Lex ingest pipeline can stop after raw persistence or continue into
+    normalization, structure building, and chunk generation. These flags also
+    carry the provenance identifiers written into fact-log events.
+    """
+
     docs_ingest: DocIngestOptions | None = None
     docs_normalize: DocNormalizeOptions | None = None
     docs_structure: DocStructureOptions | None = None
@@ -77,6 +93,8 @@ class LexIngestOptions:
 
 @dataclass(frozen=True)
 class WorldEventRefLike:
+    """Minimal reference to a world event emitted during legal corpus ingest."""
+
     event_id: str
     event_artifact_id: str
     event_kind: str | None = None
@@ -84,6 +102,8 @@ class WorldEventRefLike:
 
 @dataclass(frozen=True)
 class LexIngestResult:
+    """Artifact references and event metadata produced by document ingest."""
+
     doc_source_id: str
     doc_version_id: str
     raw_ref: str
@@ -98,6 +118,8 @@ class LexIngestResult:
 
 @dataclass(frozen=True)
 class LexStructureOptions:
+    """Options for deterministic legal-structure extraction from a document."""
+
     jurisdiction: str | None = None
     structure_algorithm_id: str | None = None
     require_articles: bool = False
@@ -111,6 +133,8 @@ class LexStructureOptions:
 
 @dataclass(frozen=True)
 class LexStructureResult:
+    """Provision-level outputs emitted by the legal structuring stage."""
+
     doc_source_id: str
     doc_version_id: str
     doc_meta_artifact_id: str
@@ -124,6 +148,8 @@ class LexStructureResult:
 
 @dataclass(frozen=True)
 class LexVersionIndexOptions:
+    """Configuration for building active-version indexes across document revisions."""
+
     selection_policy_id: str = "lex.versioning_v1.effective_range_then_published_at"
     write_doc_source_props_pointer: bool = True
 
@@ -133,6 +159,8 @@ class LexVersionIndexOptions:
 
 @dataclass(frozen=True)
 class LexVersionIndexResult:
+    """Persisted version-index metadata for one legal document source."""
+
     doc_source_id: str
     version_index_artifact_id: str
     doc_source_props_artifact_id: str
@@ -145,6 +173,8 @@ class LexVersionIndexResult:
 
 @dataclass(frozen=True)
 class ActiveVersionStrategy:
+    """How to resolve the active document version for a given `as_of` date."""
+
     mode: Literal["by_version_index_v1"] = "by_version_index_v1"
     version_index_artifact_id: str | None = None
     fact_log_root: Path | None = None
@@ -157,6 +187,8 @@ class ActiveVersionStrategy:
 
 @dataclass(frozen=True)
 class ActiveVersionResult:
+    """Outcome of active-version resolution for a legal document source."""
+
     doc_source_id: str
     as_of_iso: str
     selected_doc_version_id: str | None
@@ -168,6 +200,7 @@ class ActiveVersionResult:
 
 
 class ResolveCandidate(BaseModel):
+    """Resolve candidate public type."""
     model_config = ConfigDict(extra="forbid")
 
     doc_version_id: str
@@ -179,6 +212,8 @@ class ResolveCandidate(BaseModel):
 
 @dataclass(frozen=True)
 class NormPackBudgets:
+    """Soft assembly limits applied while building a `NormPack`."""
+
     max_docs: int | None = None
     max_provisions: int | None = None
     max_claims: int | None = None
@@ -186,6 +221,8 @@ class NormPackBudgets:
 
 @dataclass(frozen=True)
 class NormPackBuildRequest:
+    """Inputs that define which legal materials should form a `NormPack`."""
+
     jurisdiction: str
     as_of: str
     domain: str | None = None
@@ -201,6 +238,7 @@ class NormPackBuildRequest:
 
 @dataclass(frozen=True)
 class SelectedDocVersion:
+    """Selected doc version public type."""
     doc_source_id: str
     doc_version_id: str
     doc_meta_artifact_id: str
@@ -211,6 +249,8 @@ class SelectedDocVersion:
 
 @dataclass(frozen=True)
 class NormPackBuildResult:
+    """Materialized `NormPack` selection, provenance, and world-event outputs."""
+
     request: NormPackBuildRequest
     jurisdiction_norm: str
     as_of_norm: str

@@ -1,9 +1,11 @@
+"""Public catalog payloads module API."""
 from __future__ import annotations
 
 from typing import Any, Mapping
 
 
 def filter_model_mapping(model_cls: type, payload: Mapping[str, Any]) -> dict[str, Any]:
+    """Filter model mapping helper."""
     allowed = set(getattr(model_cls, "model_fields", {}))
     return {key: value for key, value in payload.items() if key in allowed}
 
@@ -14,6 +16,7 @@ def extract_model_payload(
     model_cls: type,
     nested_keys: tuple[str, ...] = (),
 ) -> dict[str, Any]:
+    """Extract model payload helper."""
     if isinstance(state, model_cls):
         return state.model_dump(mode="python")
 

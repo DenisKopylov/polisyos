@@ -1,49 +1,38 @@
-# Claims
+# Claims (`polisyos.fabric.claims`)
 
-`polisyos.fabric.claims` — pipeline извлечения и нормализации утверждений из документов с последующей детекцией/резолюцией конфликтов.
+`claims` - extraction, normalization and conflict-resolution pipeline for claims
+derived from documents and external evidence.
 
-## Сквозной поток
+## Role in System
 
-```text
-DocMeta + normalized/chunks artifacts
-  -> extract_claims_from_doc
-  -> normalize_claims
-  -> detect_conflicts
-  -> resolve_conflicts
-  -> world facts/events + trust/quality/uncertainty artifacts
-```
+- **Depends on:** `polisyos.fabric.docs`, `polisyos.ir.world`, `polisyos.ir.analytics.uncertainty`
+- **Used by:** world materialization, evidence/provenance flows and downstream analysis
+- Converts document chunks into claim sets that can be persisted and reconciled.
 
-## Основные модули
+## Key Concepts
 
-- `extraction.py` — сбор `Claim` из chunk-контекста, дедуп, claim_set + evidence.
-- `normalize.py` — canonicalization predicate/unit/value, `derived_from` связи.
-- `conflicts/detect.py` — формирование `ConflictSet` и membership edges.
-- `conflicts/resolve.py` — ranking кандидатов, выбор winner, trust/quality/uncertainty outputs.
-- `extractor_registry.py` — registry legacy + component extractors, bootstrap/discovery.
-- `persist.py` — helpers загрузки/персиста claim set, evidence bundle, world segment.
-- `world_events.py` — детерминированные world events для стадий claims.
+- **Extraction** - build claims from chunk context and extractor registry inputs.
+- **Normalization** - canonicalize values, units and predicates.
+- **Conflict handling** - detect and resolve claim conflicts with trust/quality outputs.
+- **Persistence** - store claim sets, evidence bundles and world events.
+- **Extractor registry** - legacy plus component extractors and semver-aware resolution.
 
-## API входы/выходы
+## Public API
 
-- `extract_claims_from_doc(...)`
-  Важно: на текущем API `extractor_id` обязателен (авто-выбор делается внешним кодом через `ClaimExtractorRegistry.select(...)`).
-- `normalize_claims(...)`
-  Возвращает новый `claim_set_artifact_id`, `derived_edges`, world event/meta refs.
-- `detect_conflicts(...)`
-  Может работать от `claim_ids`, `claim_set_artifact_ids` или `db`.
-- `resolve_conflicts(...)`
-  Применяет policy, пишет `ConflictResolution`, `TrustAssessment`, `QualityReport`, uncertainty envelope.
+| Type/Function | Description |
+|---|---|
+| `extract_claims_from_doc()` | Extracts claim candidates from a document. |
+| `normalize_claims()` | Canonicalizes extracted claims. |
+| `detect_conflicts()` | Detects conflicting claims. |
+| `resolve_conflicts()` | Resolves conflicts with policy and diagnostics. |
+| `ClaimExtractOptions` | Options for claim extraction. |
+| `ClaimNormalizeOptions` | Options for claim normalization. |
+| `ChunkContext` | Input context for chunk-level extraction. |
 
-## Extractor layer
+→ Full reference: [docs/reference/fabric/index.md](../../../../docs/reference/fabric/index.md)
 
-Поддерживаются:
+## Current State
 
-- legacy extractors: `explicit_lines_v1`, `lex.norm_extractor.regex_v1`, `regex_numeric_v1`,
-- component extractors (bootstrap из `polisyos.core.components`),
-- version-aware resolve (`id@semver` и fallback на latest compatible).
-
-## Связи
-
-- upstream: `fabric.docs` (`normalized_ref`, `chunks_ref`, `DocMeta`).
-- downstream: `fabric.world` (nodes/edges/events), `fabric.evidence`, `fabric.provenance`.
-- модели: `polisyos.ir.world.*` и `polisyos.ir.analytics.uncertainty`.
+- Last updated: 2026-04-03
+- Files: 23 Python files
+- Exports: 14

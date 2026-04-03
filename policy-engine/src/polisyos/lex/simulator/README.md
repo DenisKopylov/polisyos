@@ -1,64 +1,39 @@
-# simulator
+# Simulator (`polisyos.lex.simulator`)
 
-`polisyos.lex.simulator` выполняет what-if анализ изменений `NormPack` до применения изменений в основном pipeline.
+`polisyos.lex.simulator` выполняет what-if анализ изменений `NormPack`: mutation,
+diff и impact analysis до того, как изменения попадут в основной policy pipeline.
+Это безопасный legal sandbox для сравнения baseline и proposed norm bundles.
 
-## Роль
+## Роль в системе
 
-Подсистема отвечает за:
-- детерминированную мутацию baseline `NormPack`;
-- diff между версиями набора норм;
-- оценку влияния изменений через governance passes.
+- **Зависит от:** `polisyos.lex.normpack`, `polisyos.core.governance`, `polisyos.ir.norm_pack`
+- **Используется в:** policy-design review, governance validation, explicit norm change analysis
+- Пакет отделяет legal what-if analysis от production assembly/evaluation path.
 
-## Поток
+## Ключевые концепции
 
-```text
-baseline NormPack
-  -> (optional) mutate
-  -> diff_norm_packs(old, new)
-  -> run governance passes for old/new
-  -> compute compliance transitions + affected KPI
-  -> (optional) persist lex.norm_diff + lex.norm_impact_report
-```
+- **Deterministic mutation** — `NormPackMutator` строит новый `pack_id` и mutation trace для reproducible sandbox runs.
+- **Structured diff** — `diff_norm_packs()` вычисляет `added/removed/modified/unchanged` plus field-level deltas.
+- **Impact analysis** — `NormImpactAnalyzer` запускает governance passes на old/new packs и агрегирует compliance transitions.
+- **Persistence surface** — при `persist=True` публикуются `lex.norm_diff` и `lex.norm_impact_report`.
+- **Report models** — `NormImpactReport`, `ComplianceDelta` и `AffectedKPI` задают human-facing result surface.
 
-## Ключевые модули
+## Public API
 
-### `mutator.py`
+| Type/Function | Description |
+|---|---|
+| `NormPackMutator` | Deterministic mutation builder for baseline `NormPack` |
+| `MutationIntent` | Structured description of requested norm changes |
+| `diff_norm_packs()` | Compute structured diff between old and new packs |
+| `NormDiff`, `NormChange`, `NormChangeType` | Diff result contracts |
+| `NormImpactAnalyzer` | Run governance-based impact analysis over pack deltas |
+| `NormImpactReport`, `ComplianceDelta`, `ComplianceTransition`, `AffectedKPI` | Final impact-report models |
 
-`NormPackMutator`:
-- операции `add_norm`, `remove_norm`, `replace_norm`, `modify_norm`;
-- вспомогательные операции `set_effective_date`, `with_metadata`;
-- `build(intent)` формирует новый детерминированный `pack_id` и пишет mutation trace в metadata.
+Full reference: [docs/reference/lex/](../../../../docs/reference/lex/index.md)
 
-### `diff.py`
+## Current State
 
-`diff_norm_packs(old_pack, new_pack)`:
-- классифицирует изменения (`added`, `removed`, `modified`, `unchanged`);
-- строит field-level deltas для модифицированных норм;
-- возвращает агрегированные счетчики и `affected_norm_ids`.
-
-### `engine.py`
-
-`NormImpactAnalyzer`:
-- по умолчанию запускает passes `legal`, `safety`;
-- вычисляет переходы `pass_to_fail`, `fail_to_pass`, `new_issue`, `resolved_issue`, `severity_change`;
-- агрегирует blocker/warning deltas;
-- формирует `NormImpactReport` и при `persist=True` сохраняет `lex.norm_diff` и `lex.norm_impact_report`.
-
-### `report.py`
-
-Модели отчета:
-- `NormImpactReport`
-- `ComplianceDelta`
-- `AffectedKPI`
-
-### `cli.py`
-
-Утилиты:
-- загрузка `NormPack` из CAS или JSON;
-- markdown-рендер impact report.
-
-## Связи
-
-- Использует `polisyos.core.governance` (`LegalPass`, `SafetyPass`, `ValidationProfile`).
-- Работает с `NormPack` (`polisyos.ir.norm_pack`) и `ComplianceIssue` (`polisyos.core.contracts.lex`).
-- Типичный upstream: `policy-engine/src/polisyos/lex/normpack`.
+- Last updated: 2026-04-03
+- Files: 6 Python files
+- Exports: 12 symbols in `__init__.py`
+- Notable delta: package remains stable, but README is now aligned with the shared template and explicit about diff/impact contracts

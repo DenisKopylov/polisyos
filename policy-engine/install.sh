@@ -32,7 +32,7 @@ fi
 # Создание виртуального окружения и установка зависимостей
 if [[ "$PACKAGE_MANAGER" == "uv" ]]; then
     echo "📦 Синхронизация зависимостей через uv..."
-    uv sync --frozen --extra dev --extra test --extra runtime-http
+    uv sync --frozen --extra dev --extra test --extra runtime-http --extra causal-discovery
 
     echo "🔧 Активация виртуального окружения..."
     source .venv/bin/activate
@@ -51,7 +51,7 @@ else
     source .venv/bin/activate
 
     echo "📦 Установка зависимостей через pip..."
-    pip install -e .[dev,test,runtime-http]
+    pip install -e .[dev,test,runtime-http,causal-discovery]
 
     # Специфика JAX для разных платформ
     if [[ "$OS" == "macos" ]]; then

@@ -678,6 +678,14 @@ def _statement_merge_key(statement: Any) -> tuple[Any, ...] | None:
     )
 
 
+_GAP_FILL_CONFIDENCE_FLOOR = 0.86
+"""Minimum confidence for gap_fill statements added alongside an existing
+deterministic baseline.  When deterministic already found ≥1 statement and
+LLM adds more, those additions are corroborated by the fact that the
+provision is normatively active — they deserve ≥ 0.86 to qualify for the
+lex_high_confidence_norms view (threshold 0.85)."""
+
+
 def _merge_statement_lists(
     baseline_statements: list[Any],
     llm_statements: list[Any],
@@ -685,6 +693,7 @@ def _merge_statement_lists(
     merged: list[dict[str, Any]] = []
     seen: set[tuple[Any, ...]] = set()
     added = 0
+    has_baseline = False
 
     for statement in baseline_statements:
         payload = _statement_as_dict(statement)
@@ -694,6 +703,7 @@ def _merge_statement_lists(
         if key is not None:
             seen.add(key)
         merged.append(payload)
+        has_baseline = True
 
     for statement in llm_statements:
         payload = _statement_as_dict(statement)
@@ -704,6 +714,12 @@ def _merge_statement_lists(
             continue
         if key is not None:
             seen.add(key)
+        # Boost confidence for LLM additions when deterministic baseline
+        # already confirmed the provision is normatively active.
+        if has_baseline:
+            raw_conf = float(payload.get("confidence") or 0.0)
+            if 0 < raw_conf < _GAP_FILL_CONFIDENCE_FLOOR:
+                payload["confidence"] = _GAP_FILL_CONFIDENCE_FLOOR
         merged.append(payload)
         added += 1
 

@@ -235,6 +235,56 @@ def test_run_all_research_tier_is_reflected_in_summary(tmp_path: Path):
     assert summary["tier"] == "research_acceptance"
 
 
+def test_suite_registry_cli_emits_extended_contour_fields():
+    result = _run(
+        [
+            "python3",
+            "benchmarks/suite_registry.py",
+            "--format",
+            "json",
+            "--validation-contour",
+            "academic",
+            "--alias",
+            "proof_closure",
+        ]
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+    payload = json.loads(result.stdout)
+    assert {item["suite_id"] for item in payload} == {
+        "proof_closure_public",
+        "proof_closure_hidden_release",
+    }
+    assert all(item["validation_contours"] == ["academic"] for item in payload)
+    assert {item["visibility"] for item in payload} == {"public", "hidden_release"}
+
+
+def test_run_all_contour_and_visibility_filters_are_reflected_in_summary(tmp_path: Path):
+    json_dir = tmp_path / "academic-hidden"
+    result = _run(
+        [
+            "bash",
+            "benchmarks/run_all_benchmarks.sh",
+            "--mode",
+            "smoke",
+            "--contour",
+            "academic",
+            "--visibility",
+            "hidden_release",
+            "--circuit",
+            "proof_closure",
+            "--json-dir",
+            str(json_dir),
+            "--quiet",
+        ]
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+    summary = json.loads((json_dir / "run_summary.json").read_text(encoding="utf-8"))
+    assert summary["validation_contour"] == "academic"
+    assert summary["visibility"] == "hidden_release"
+    assert summary["matched"] == 1
+    assert summary["suite_results"][0]["suite_id"] == "proof_closure_hidden_release"
+
+
 def test_run_all_invalid_filter_fails(tmp_path: Path):
     json_dir = tmp_path / "invalid-filter"
     result = _run(

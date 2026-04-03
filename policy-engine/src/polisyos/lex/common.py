@@ -1,3 +1,4 @@
+"""Public lex common module API."""
 from __future__ import annotations
 
 import re
@@ -13,10 +14,12 @@ __all__ = ["collapse_ws", "latest_object_by_subject", "parse_iso_date"]
 
 
 def collapse_ws(text: str) -> str:
+    """Collapse ws helper."""
     return re.sub(r"\s+", " ", text.strip())
 
 
 def parse_iso_date(value: str | None) -> date | None:
+    """Parse iso date helper."""
     if value is None:
         return None
     raw = value.strip()
@@ -38,6 +41,7 @@ def latest_object_by_subject(
     subject_ids: set[str],
     predicate_id: str,
 ) -> dict[str, str]:
+    """Latest object by subject helper."""
     if not subject_ids:
         return {}
     subset = facts[

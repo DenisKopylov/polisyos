@@ -1,3 +1,4 @@
+"""Public foundry cost model module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass

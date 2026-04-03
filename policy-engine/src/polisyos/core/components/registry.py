@@ -1,3 +1,4 @@
+"""Public components registry module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -13,12 +14,14 @@ from .protocols import Component
 
 
 class DuplicateComponentIdPolicy(str, Enum):
+    """Duplicate component ID policy data model."""
     WARN = "warn"
     ERROR = "error"
     IGNORE = "ignore"
 
 
 class ResolvePolicy(str, Enum):
+    """Resolve policy data model."""
     EXACT = "exact"
     LATEST = "latest"
     LATEST_COMPATIBLE = "latest_compatible"
@@ -26,11 +29,13 @@ class ResolvePolicy(str, Enum):
 
 @dataclass(slots=True, frozen=True)
 class SourcePrecedencePolicy:
+    """Source precedence policy data model."""
     dev_scan_wins_over_entry_points: bool = True
 
 
 @dataclass(slots=True)
 class ComponentEntry:
+    """Component entry data model."""
     metadata: ComponentMetadata
     component: Component
     source: object | None = None

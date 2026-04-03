@@ -1,3 +1,4 @@
+"""Public catalog econometrics package API."""
 from __future__ import annotations
 
 from polisyos.foundry.methods.exceptions import MethodAlreadyRegisteredError
@@ -62,6 +63,7 @@ from .timeseries import ARIMAEstimator, VAREstimator
 
 
 def ensure_econometric_methods_registered(registry: MethodRegistry | None = None) -> None:
+    """Ensure econometric methods registered helper."""
     reg = registry if registry is not None else MethodRegistry.get_instance()
     for method_class in register_econometric_methods():
         try:

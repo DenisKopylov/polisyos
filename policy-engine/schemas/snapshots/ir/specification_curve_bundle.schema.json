@@ -1,0 +1,90 @@
+{
+  "$defs": {
+    "ObservationFamily": {
+      "enum": [
+        "budget_flows",
+        "procurement_flows",
+        "macro_state",
+        "firm_fundamentals",
+        "trade_exposure",
+        "labor_market",
+        "household_distribution",
+        "distress_enforcement",
+        "spatial_raster_exogenous",
+        "public_service_domain_flows",
+        "education_human_capital_supply",
+        "construction_capital_formation",
+        "logistics_friction"
+      ],
+      "title": "ObservationFamily",
+      "type": "string"
+    },
+    "SpecificationCurveSource": {
+      "additionalProperties": false,
+      "properties": {
+        "included_families": {
+          "items": {
+            "$ref": "#/$defs/ObservationFamily"
+          },
+          "minItems": 1,
+          "title": "Included Families",
+          "type": "array"
+        },
+        "notes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Notes",
+          "type": "array"
+        },
+        "sensitivity_axes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Sensitivity Axes",
+          "type": "array"
+        },
+        "source_combination_id": {
+          "maxLength": 120,
+          "minLength": 1,
+          "title": "Source Combination Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_combination_id",
+        "included_families"
+      ],
+      "title": "SpecificationCurveSource",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "artifact_name": {
+      "const": "specification_curve_input_v1.json",
+      "default": "specification_curve_input_v1.json",
+      "title": "Artifact Name",
+      "type": "string"
+    },
+    "schema_version": {
+      "default": "1.0",
+      "pattern": "^\\d+\\.\\d+$",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "source_specifications": {
+      "items": {
+        "$ref": "#/$defs/SpecificationCurveSource"
+      },
+      "minItems": 1,
+      "title": "Source Specifications",
+      "type": "array"
+    }
+  },
+  "required": [
+    "source_specifications"
+  ],
+  "title": "SpecificationCurveBundle",
+  "type": "object"
+}

@@ -196,3 +196,67 @@ def test_legal_knowledge_store_supports_quality_band_and_fused_confidence_filter
         assert thresholds[0].fused_confidence == pytest.approx(0.91)
     finally:
         store.close()
+
+
+def test_legal_knowledge_store_hides_temporal_unknown_rows_for_as_of(tmp_path) -> None:
+    db_path = tmp_path / "lex_temporal_graph.duckdb"
+    with duckdb.connect(str(db_path)) as con:
+        con.execute(
+            """
+            CREATE TABLE lex_normative_facts (
+                fact_id VARCHAR,
+                subject_en VARCHAR,
+                predicate VARCHAR,
+                object_en VARCHAR,
+                fact_text VARCHAR,
+                confidence REAL,
+                norm_type VARCHAR,
+                action_canon VARCHAR,
+                norm_type_canon VARCHAR,
+                thresholds_json VARCHAR,
+                source_quote_uk VARCHAR,
+                trust_tier VARCHAR,
+                grounding_status VARCHAR,
+                canonical_status VARCHAR,
+                reference_resolution_status VARCHAR,
+                structure_quality VARCHAR,
+                constraint_type_canon VARCHAR,
+                jurisdiction VARCHAR,
+                top_domain VARCHAR,
+                effective_from VARCHAR,
+                effective_to VARCHAR,
+                temporal_state VARCHAR,
+                temporal_resolution_status VARCHAR,
+                temporal_source_scope VARCHAR,
+                temporal_source_kind VARCHAR,
+                temporal_confidence REAL,
+                temporal_provenance_json VARCHAR,
+                doc_name VARCHAR,
+                doc_reestr_code VARCHAR,
+                provision_anchor VARCHAR,
+                provision_citation VARCHAR
+            )
+            """
+        )
+        con.execute(
+            """
+            INSERT INTO lex_normative_facts VALUES
+            ('resolved1', 'body', 'requires', 'permit', 'Resolved rule', 0.9, 'obligation', 'requires',
+             'obligation', '[]', 'quote', 'normative_fact', 'exact_quote', 'canonicalized', 'resolved',
+             'structured_legal_unit', '', 'UA', 'transport', '2024-01-01', '', 'current', 'resolved',
+             'document', 'doc_temporal_inheritance', 0.9, '{}', 'Resolved law', 'R-1', 'art:1', 'стаття 1'),
+            ('unknown1', 'body', 'requires', 'permit', 'Unknown temporal rule', 0.9, 'obligation', 'requires',
+             'obligation', '[]', 'quote', 'normative_fact', 'exact_quote', 'canonicalized', 'resolved',
+             'structured_legal_unit', '', 'UA', 'transport', '', '', 'current', 'unknown',
+             'document', 'status_semantics', 0.5, '{}', 'Unknown law', 'U-1', 'art:2', 'стаття 2')
+            """
+        )
+        con.execute("CREATE TABLE lex_rule_thresholds (threshold_id VARCHAR, fact_id VARCHAR, metric VARCHAR)")
+
+    store = LegalKnowledgeStore(db_path=db_path, index_dir=tmp_path)
+    try:
+        norms = store.get_applicable_norms(domain="transport", jurisdiction="UA", as_of="2024-02-01")
+        assert [fact.fact_id for fact in norms] == ["resolved1"]
+        assert norms[0].temporal_resolution_status == "resolved"
+    finally:
+        store.close()

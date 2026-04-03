@@ -1,3 +1,4 @@
+"""Public decide run policy promotion module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -32,6 +33,7 @@ from polisyos.scientist.nodes.builtins.decide.build_policy_output_bundle import 
 )
 from polisyos.scientist.nodes.builtins.decide.policy_runtime_support import (
     load_prior_knowledge_bundle_for_state,
+    resolve_effective_latent_discovery_bundle_for_state,
 )
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_ENVELOPE_REF,
@@ -119,6 +121,7 @@ _SPEC = NodeSpec(
 
 @dataclass(frozen=True)
 class RunPolicyPromotionNode:
+    """Run policy promotion node implementation."""
     @property
     def spec(self) -> NodeSpec:
         return _SPEC
@@ -181,6 +184,12 @@ def _run_promotion_with_evidence(
     distributional_report = _load_distributional_report(ctx, state)
     cross_graph_profile = _load_cross_graph_profile(ctx, state)
     prior_knowledge_bundle = load_prior_knowledge_bundle_for_state(ctx, state)
+    latent_resolution = resolve_effective_latent_discovery_bundle_for_state(
+        ctx,
+        state,
+        causal_report=causal_report,
+    )
+    latent_discovery_bundle = latent_resolution.bundle
     uncertainty = _load_search_uncertainty(ctx, state)
 
     champion_registry = ChampionRegistry(
@@ -204,6 +213,8 @@ def _run_promotion_with_evidence(
         cross_graph_profile=cross_graph_profile,
         prior_knowledge_bundle=prior_knowledge_bundle,
         governance_report=governance_report,
+        latent_discovery_bundle=latent_discovery_bundle,
+        latent_discovery_resolution_error=latent_resolution.error_payload(),
         uncertainty_envelope=uncertainty,
         candidate_ref=candidate_ref,
         evaluation_ref=selection_ref,

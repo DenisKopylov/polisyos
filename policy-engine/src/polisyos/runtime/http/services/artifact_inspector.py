@@ -1,3 +1,4 @@
+"""Public services artifact inspector module API."""
 from __future__ import annotations
 
 from collections.abc import Callable
@@ -23,6 +24,7 @@ logger = get_logger(__name__)
 
 
 class ArtifactInspectorService:
+    """Artifact inspector service implementation."""
     def __init__(
         self,
         *,

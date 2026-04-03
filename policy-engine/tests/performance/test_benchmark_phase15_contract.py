@@ -22,8 +22,10 @@ from benchmarks.method_registry import (
 from benchmarks.metrics import compute_accuracy_metrics
 from benchmarks.claim_gate import build_publication_benchmark_card, evaluate_claim_gate
 from benchmarks.comparators import (
+    COMPARATOR_GROUPS,
     REQUIRED_ACCEPTANCE_COMPARATORS,
     build_research_acceptance_comparator_status,
+    comparator_labels_for_group,
     comparator_degraded_reasons,
     comparator_distribution_names,
     comparator_required_modules,
@@ -38,7 +40,14 @@ from benchmarks.scorecards import (
     compute_ranking_summary,
     summarize_method_metrics,
 )
-from benchmarks.suite_registry import alias_targets, canonical_suite_id, suites_for_claim_profile, suites_for_profile
+from benchmarks.suite_registry import (
+    VALIDATION_CONTOURS,
+    VISIBILITY_LANES,
+    alias_targets,
+    canonical_suite_id,
+    suites_for_claim_profile,
+    suites_for_profile,
+)
 
 
 def test_benchmark_report_results_alias_points_to_cases():
@@ -105,6 +114,8 @@ def test_report_payload_uses_unified_schema():
     assert payload["run_id"] == "run-123"
     assert payload["mode"] == "smoke"
     assert payload["benchmark_tier"] == "local_evidence"
+    assert payload["validation_contour"] == "legacy"
+    assert payload["visibility"] == "public"
     assert payload["estimator_profile"] == "flagship_competitive"
     assert payload["core_circuits"] == ["transport"]
     assert payload["data_source"] == "synthetic_suite"
@@ -116,6 +127,14 @@ def test_report_payload_uses_unified_schema():
     assert "blockers" in payload
     assert "aggregate_metrics" in payload
     assert "standardized_metrics" in payload
+    assert payload["epistemic_metrics"] == {}
+    assert payload["governance_metrics"] == {}
+    assert payload["certificate_metrics"] == {}
+    assert payload["lineage_metrics"] == {}
+    assert payload["comparator_matrix"] == {}
+    assert payload["ablation_matrix"] == {}
+    assert payload["leaderboard_tables"] == {}
+    assert payload["release_gate_results"] == {}
     assert "method_groups" in payload
     assert "method_manifest" in payload
     assert "gate_method_set" in payload
@@ -155,6 +174,30 @@ def test_suite_registry_resolves_capability_and_legacy_aliases():
     assert "capability_symbolic_nonid" in frontier_ids
 
 
+def test_suite_registry_filters_by_contour_and_visibility():
+    academic_proof = {
+        spec.suite_id
+        for spec in alias_targets("proof_closure", validation_contour="academic")
+    }
+    assert academic_proof == {"proof_closure_public", "proof_closure_hidden_release"}
+    hidden_temporal = {
+        spec.suite_id
+        for spec in alias_targets(
+            "temporal_paths",
+            validation_contour="academic",
+            visibility="hidden_release",
+        )
+    }
+    assert hidden_temporal == {"temporal_paths_hidden_release"}
+    prod_shadow = {
+        spec.suite_id
+        for spec in alias_targets("proof_closure", visibility="prod_shadow")
+    }
+    assert "proof_closure_prod" in prod_shadow
+    assert VALIDATION_CONTOURS == ("legacy", "production", "academic")
+    assert VISIBILITY_LANES == ("public", "hidden_release", "prod_shadow")
+
+
 def test_method_registry_normalizes_flagship_aliases():
     assert canonical_method_name("policy_os_drlearner") == "policy_os_drlearner_cf"
     assert canonical_method_name("external_causal_forest_econml") == "policy_os_causal_forest"
@@ -178,6 +221,30 @@ def test_comparator_scaffold_covers_research_acceptance_env():
     assert set(comparator_required_modules()) == set(REQUIRED_ACCEPTANCE_COMPARATORS)
     degraded = comparator_degraded_reasons({"econml": "missing", "zepid": "available"})
     assert "econml comparator unavailable" in degraded
+
+
+def test_suite_scoped_comparator_groups_resolve_custom_subsets():
+    assert "effect_estimation_core" in COMPARATOR_GROUPS
+    assert comparator_labels_for_group("effect_estimation_core")[:3] == (
+        "dowhy",
+        "causallib",
+        "econml",
+    )
+    discovery_status = build_research_acceptance_comparator_status(
+        groups=("discovery",),
+        default_to_legacy_required=False,
+    )
+    assert set(discovery_status) == {"causal-learn", "pgmpy", "tigramite"}
+    temporal_modules = comparator_required_modules(
+        required_labels=("pygformula", "econml"),
+        default_to_legacy_required=False,
+    )
+    assert set(temporal_modules) == {"pygformula", "econml"}
+    graph_dists = comparator_distribution_names(
+        groups=("graph_ops",),
+        default_to_legacy_required=False,
+    )
+    assert set(graph_dists) == {"pywhy-graphs", "pgmpy"}
 
 
 def test_y0_reference_suite_agrees_when_installed():

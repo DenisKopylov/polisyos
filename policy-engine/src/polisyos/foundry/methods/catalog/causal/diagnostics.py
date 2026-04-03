@@ -1,3 +1,4 @@
+"""Public causal diagnostics module API."""
 from __future__ import annotations
 
 from typing import Any, ClassVar, Mapping
@@ -38,6 +39,7 @@ def _panel_payload(state: Any) -> dict[str, Any]:
     tags={"causal", "diagnostics", "parallel-trends"},
 )
 class ParallelTrendsCheck:
+    """Parallel trends check public type."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("statsmodels", "numpy")
 
@@ -76,6 +78,9 @@ class ParallelTrendsCheck:
         description="Pre-treatment slope check for the DiD parallel trends assumption.",
         tags=frozenset({"causal", "diagnostics", "parallel-trends"}),
         when_to_use="Assess covariate balance after matching/weighting; check overlap; validate identification assumptions",
+        citations=(
+            "Angrist, J. & Pischke, J. (2009). Mostly Harmless Econometrics. Princeton University Press.",
+        ),
         output_interpretation="Standardized mean differences < 0.1 = good balance. Propensity overlap plot: check common support.",
     )
 
@@ -336,7 +341,7 @@ class PositivityDiagnostic:
 @foundry_method(
     namespace="causal.diagnostics",
     version="1.0.0",
-    tags={"causal", "diagnostics", "support", "transportability", "density-ratio"},
+    tags={"causal", "diagnostics", "support", "transportability", "density-ratio", "cross-section"},
 )
 class SupportMismatchDiagnostic:
     """Support mismatch diagnostic using density-ratio estimation.

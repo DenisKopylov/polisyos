@@ -1,3 +1,4 @@
+"""Public services control plane store module API."""
 from __future__ import annotations
 
 import json
@@ -45,6 +46,7 @@ def _job_event_topic(event_type: str) -> str:
 
 @dataclass(frozen=True)
 class ControlJobRecord:
+    """Control job record data model."""
     job_id: str
     kind: ControlJobKind
     state: ControlJobState
@@ -93,6 +95,7 @@ class ControlJobRecord:
 
 @dataclass(frozen=True)
 class ControlWorkerLeaseRecord:
+    """Control worker lease record data model."""
     worker_id: str
     state: str
     backend: str | None
@@ -106,6 +109,7 @@ class ControlWorkerLeaseRecord:
 
 @dataclass(frozen=True)
 class ControlOutboxRecord:
+    """Control outbox record data model."""
     event_id: str
     topic: str
     event_key: str | None
@@ -120,6 +124,7 @@ class ControlOutboxRecord:
 
 
 class ControlPlaneStore:
+    """Control plane store implementation."""
     def __init__(
         self,
         *,

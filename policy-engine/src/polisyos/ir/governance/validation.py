@@ -1,3 +1,4 @@
+"""Public governance validation module API."""
 from __future__ import annotations
 
 import difflib
@@ -9,6 +10,7 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 
 class ValidationIssue(BaseModel):
+    """Validation issue data model."""
     loc: List[Union[str, int]]
     message: str
     error_type: str
@@ -17,6 +19,7 @@ class ValidationIssue(BaseModel):
 
 
 class ValidationReport(BaseModel):
+    """Validation report data model."""
     error_summary: str
     issues: List[ValidationIssue]
     repair_attempt: Optional[str] = None
@@ -31,6 +34,7 @@ def _json_dump(payload: Any) -> List[str]:
 
 
 def diff_payloads(before: Any, after: Any) -> str:
+    """Diff payloads helper."""
     before_lines = _json_dump(before)
     after_lines = _json_dump(after)
     diff = difflib.unified_diff(
@@ -44,6 +48,7 @@ def diff_payloads(before: Any, after: Any) -> str:
 
 
 def issues_from_validation_error(error: ValidationError) -> List[ValidationIssue]:
+    """Issues from validation error helper."""
     issues: List[ValidationIssue] = []
     for entry in error.errors():
         loc = list(entry.get("loc", ()))
@@ -59,6 +64,7 @@ def issues_from_validation_error(error: ValidationError) -> List[ValidationIssue
 
 
 def summarize_issues(issues: Iterable[ValidationIssue]) -> str:
+    """Summarize issues helper."""
     issues_list = list(issues)
     if not issues_list:
         return "No validation issues."
@@ -76,6 +82,7 @@ def build_validation_report(
     after: Any | None = None,
     repair_attempt: str | None = None,
 ) -> ValidationReport:
+    """Build validation report."""
     issues = issues_from_validation_error(error)
     diff_text = None
     if before is not None or after is not None:

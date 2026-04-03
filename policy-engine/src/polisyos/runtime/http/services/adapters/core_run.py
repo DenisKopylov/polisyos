@@ -1,3 +1,4 @@
+"""Public adapters core run module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -17,6 +18,7 @@ logger = get_logger(__name__)
 
 @dataclass(frozen=True)
 class CoreRunAdapterResult:
+    """Core run adapter result data model."""
     run_id: str
     status: str
     started_at: datetime | None
@@ -43,6 +45,7 @@ def load_core_run(
     store: FileSystemCAS,
     run_dir: Path,
 ) -> CoreRunAdapterResult | None:
+    """Load core run."""
     trace_path = run_dir / "trace.jsonl"
     if not trace_path.exists():
         return None

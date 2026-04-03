@@ -32,6 +32,7 @@ from polisyos.scientist.search.objective import CompositeObjective
 
 
 class ScenarioAttackSurface(BaseModel):
+    """Scenario attack surface public type."""
     model_config = ConfigDict(extra="forbid")
 
     candidate_id: str = Field(min_length=1)
@@ -43,6 +44,7 @@ class ScenarioAttackSurface(BaseModel):
 
 
 class AdversarialScenarioProposal(BaseModel):
+    """Adversarial scenario proposal public type."""
     model_config = ConfigDict(extra="forbid")
 
     scenario_id: str = Field(min_length=1)
@@ -54,6 +56,7 @@ class AdversarialScenarioProposal(BaseModel):
 
 
 class AdversarialScenarioBundle(BaseModel):
+    """Adversarial scenario bundle data model."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -65,6 +68,7 @@ class AdversarialScenarioBundle(BaseModel):
 
 
 class ScenarioAdversaryConfig(BaseModel):
+    """Scenario adversary config data model."""
     model_config = ConfigDict(extra="forbid")
 
     model_name: str = "gpt-5.4"
@@ -79,6 +83,7 @@ class ScenarioAdversaryConfig(BaseModel):
 
 
 class AdversaryExecutionResult(BaseModel):
+    """Adversary execution result data model."""
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
 
     scenario_bundle: AdversarialScenarioBundle
@@ -337,6 +342,7 @@ def persist_adversarial_scenario_bundle(
     *,
     inputs: list[InputRef] | None = None,
 ) -> ArtifactRef:
+    """Persist adversarial scenario bundle helper."""
     return store.put_json(
         bundle,
         PutOptions(
@@ -356,6 +362,7 @@ def load_adversarial_scenario_bundle(
     store: FileSystemCAS,
     ref: ArtifactRef,
 ) -> AdversarialScenarioBundle:
+    """Load adversarial scenario bundle."""
     payload = from_canonical_bytes(store.get_bytes(ref.artifact_id))
     return AdversarialScenarioBundle.model_validate(payload)
 

@@ -319,6 +319,7 @@ def _claim_source_basis(con: duckdb.DuckDBPyConnection) -> dict[str, str]:
 
 
 def run_edge_synthesize(config: AcademicBatchConfig) -> dict[str, int]:
+    """Run edge synthesize."""
     started_at = datetime.now(UTC).isoformat()
     if not config.db_path.exists():
         write_stage_manifest(

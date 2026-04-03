@@ -65,6 +65,7 @@ class SourceBinding(BaseModel):
 
 
 class SourceBindingCollection(BaseModel):
+    """Source binding collection public type."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = "1.0"

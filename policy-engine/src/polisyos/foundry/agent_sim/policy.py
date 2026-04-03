@@ -1,3 +1,4 @@
+"""Public agent sim policy module API."""
 from __future__ import annotations
 
 from typing import Callable, Iterable
@@ -12,6 +13,7 @@ from polisyos.foundry.agent_sim.state import AgentState, PolicyState
 
 
 class MLP(eqx.Module):
+    """MLP public type."""
     layers: tuple[eqx.nn.Linear, ...]
     activation: Callable[[jnp.ndarray], jnp.ndarray] = eqx.field(static=True)
 
@@ -30,6 +32,7 @@ class MLP(eqx.Module):
 
 
 class SharedPolicy(eqx.Module):
+    """Shared policy data model."""
     network: MLP
 
     def __init__(
@@ -65,6 +68,7 @@ def build_observations(
     *,
     steps_per_year: int = 12,
 ) -> Float[Array, "n_agents obs_dim"]:
+    """Build observations."""
     n_agents = agents.wealth.shape[0]
     age_years = agents.age.astype(jnp.float32) / float(steps_per_year)
 

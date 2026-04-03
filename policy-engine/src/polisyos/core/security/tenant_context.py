@@ -29,11 +29,13 @@ _current_access_scope: contextvars.ContextVar["AccessScope | None"] = contextvar
 
 @dataclass(frozen=True)
 class TenantContext:
+    """Tenant context public type."""
     tenant_id: str
     cell_id: str | None = None
 
 
 def get_current_tenant_id() -> str:
+    """Return current tenant id."""
     tenant_id = _current_tenant.get()
     if tenant_id is None:
         raise TenantContextNotSetError(
@@ -43,26 +45,31 @@ def get_current_tenant_id() -> str:
 
 
 def get_current_tenant_id_or_none() -> str | None:
+    """Return current tenant id or none."""
     return _current_tenant.get()
 
 
 def get_current_cell_id() -> str | None:
+    """Return current cell id."""
     return _current_cell.get()
 
 
 def set_current_access_scope(
     scope: "AccessScope | None",
 ) -> contextvars.Token["AccessScope | None"]:
+    """Set current access scope helper."""
     return _current_access_scope.set(scope)
 
 
 def reset_current_access_scope(
     token: contextvars.Token["AccessScope | None"],
 ) -> None:
+    """Reset current access scope helper."""
     _current_access_scope.reset(token)
 
 
 def get_current_access_scope_or_none() -> "AccessScope | None":
+    """Return current access scope or none."""
     return _current_access_scope.get()
 
 
@@ -73,6 +80,7 @@ def tenant_scope(
     tenant_id: str,
     cell_id: str | None = None,
 ) -> Iterator[TenantContext]:
+    """Tenant scope helper."""
     token_tenant = _current_tenant.set(tenant_id)
     token_cell = _current_cell.set(cell_id)
     try:
@@ -87,6 +95,7 @@ def tenant_scope(
 
 
 def require_tenant_context(func: Callable[P, R]) -> Callable[P, R]:
+    """Require tenant context helper."""
     @functools.wraps(func)
     def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
         _ = get_current_tenant_id()

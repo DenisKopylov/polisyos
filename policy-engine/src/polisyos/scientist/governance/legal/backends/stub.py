@@ -1,3 +1,4 @@
+"""Public backends stub module API."""
 from __future__ import annotations
 
 import warnings

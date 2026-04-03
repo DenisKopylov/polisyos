@@ -1,3 +1,4 @@
+"""Public compute job spec module API."""
 from __future__ import annotations
 
 import json
@@ -10,6 +11,7 @@ from polisyos.core.canon import content_hash
 
 
 class JobSpec(BaseModel):
+    """Job spec data model."""
     model_config = ConfigDict(extra="forbid")
 
     job_kind: str = "legacy_program"
@@ -41,6 +43,7 @@ class JobSpec(BaseModel):
 
 
 class JobKey(BaseModel):
+    """Job key public type."""
     model_config = ConfigDict(extra="forbid")
 
     value: str
@@ -58,6 +61,7 @@ class JobKey(BaseModel):
 
 
 class JobResult(BaseModel):
+    """Job result data model."""
     model_config = ConfigDict(extra="forbid")
 
     job_key: JobKey

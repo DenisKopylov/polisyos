@@ -1,3 +1,4 @@
+"""Public foundry specs module API."""
 from __future__ import annotations
 
 from decimal import Decimal, InvalidOperation
@@ -12,6 +13,7 @@ MECHANISM_SPECS: Dict[str, MechanismSpec] = DEFAULT_MECHANISM_REGISTRY.mechanism
 
 
 def get_mechanism_spec(mech_type: str) -> MechanismSpec:
+    """Return mechanism spec."""
     if mech_type not in MECHANISM_SPECS:
         raise ValueError(
             f"Unknown mechanism type: '{mech_type}'. Available: {list(MECHANISM_SPECS.keys())}"
@@ -105,6 +107,7 @@ def validate_mechanism_params(
     allow_extra_params: bool = False,
     mechanism_spec: MechanismSpec | None = None,
 ) -> None:
+    """Validate mechanism params."""
     spec = mechanism_spec or get_mechanism_spec(mech_type)
     spec_params = spec.params
 
@@ -135,6 +138,7 @@ def validate_mechanism_params(
 
 
 def mechanism_catalog() -> list[dict]:
+    """Mechanism catalog helper."""
     catalog = []
     for name, spec in sorted(MECHANISM_SPECS.items()):
         required = [param_id for param_id, param in spec.params.items() if param.required]

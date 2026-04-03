@@ -1,33 +1,38 @@
-# Catalog
+# Catalog (`polisyos.fabric.catalog`)
 
-`polisyos.fabric.catalog` — слой метрических контрактов и curated source bindings для deterministic resolve.
+`catalog` - metric-level data contracts and curated source bindings for deterministic
+resolve across the Fabric layer.
 
-## Что решает каталог
+## Role in System
 
-- фиксирует канонические метрики (`DataContract`) и их тип/единицы/PII-tier;
-- дает hash-locked представление метрики (`MetricBinding`) для детекта contract drift;
-- хранит curated mapping `metric -> connector/dataset/profile` (`SourceBinding`);
-- предоставляет search и fast-lane resolve для retrieval.
+- **Depends on:** `polisyos.ir.connectors`
+- **Used by:** `fabric.retrieval`, `fabric.connectors`, governance/security flows
+- Defines the canonical contract IDs and the mapping from metrics to source bindings.
 
-## Состав
+## Key Concepts
 
-- `contract.py` — `DataContract`, `DataType`, `Granularity`, `PIITier`, `DataContractCollection`.
-- `registry.py` — `DataContractRegistry`, `ContractNotFoundError`, `ContractHashMismatchError`.
-- `binding.py` — `MetricBinding`, `DataContractSchemaBinding`.
-- `source_bindings.py` — `SourceBinding`, `SourceBindingRegistry`.
-- `search.py` — `MetricSearcher`, `SearchResponse`.
-- `resolver_fast_lane.py` — `FastLaneResolver`, `FastLaneResolveResult`.
-- `validate.py` — загрузка и schema validation контрактных JSON.
+- **Data contracts** - canonical metric definitions with granularity and PII tiers.
+- **Source bindings** - curated `metric -> dataset/profile` mappings.
+- **Hash-locked validation** - detects drift between requested and stored contracts.
+- **Fast lane resolve** - deterministic resolution before live discovery is needed.
 
-## Типичный flow
+## Public API
 
-1. `DataContractRegistry` читает curated `data_contracts.json`.
-2. `SourceBindingRegistry` читает curated `source_bindings.json`.
-3. `FastLaneResolver.resolve(...)` ранжирует кандидатов и строит `FetchPlan` + fallbacks.
-4. `retrieval.executor` выполняет план через connectors.
+| Type/Function | Description |
+|---|---|
+| `DataContract` | Canonical metric contract. |
+| `DataContractRegistry` | Registry for contract records. |
+| `MetricBinding` | Hash-locked metric binding. |
+| `SourceBinding` | Curated source binding. |
+| `SourceBindingRegistry` | Registry for source bindings. |
+| `FastLaneResolver` | Deterministic resolver for metric requests. |
+| `MetricSearcher` | Search helper for contract discovery. |
+| `load_contract_collection()` | Loads curated contract collections. |
 
-## Связи
+→ Full reference: [docs/reference/fabric/index.md](../../../../docs/reference/fabric/index.md)
 
-- `fabric.retrieval` — основной consumer для fastlane/search/promotions.
-- `fabric.connectors.contracts` — привязка metric contract к dataset schema.
-- governance/security — используют стабильные `metric_id` и `PIITier`.
+## Current State
+
+- Last updated: 2026-04-03
+- Files: 8 Python files
+- Exports: 20

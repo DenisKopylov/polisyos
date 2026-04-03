@@ -1,3 +1,4 @@
+"""Public foundry queue module API."""
 from __future__ import annotations
 
 from typing import Optional
@@ -13,6 +14,7 @@ from polisyos.foundry.contracts.mechanism import Mechanism, PatchMap
 
 @chex.dataclass(frozen=True)
 class QueueState:
+    """Queue state data model."""
     queue_length: jnp.ndarray  # shape ()
 
 
@@ -94,6 +96,7 @@ class QueueMechanism(Mechanism):
 def simulate_queue(
     mech: QueueMechanism, state: QueueState, key: jax.Array, steps: int
 ) -> QueueState:
+    """Simulate queue helper."""
     def scan_step(carry, _):
         current_state, current_key = carry
         current_key, step_key = jax.random.split(current_key)
@@ -107,6 +110,7 @@ def simulate_queue(
 
 
 def fidelity_gap_report(a: QueueState, b: QueueState) -> dict:
+    """Fidelity gap report helper."""
     diff = jnp.abs(a.queue_length - b.queue_length)
     denom = jnp.maximum(jnp.abs(a.queue_length), 1e-6)
     rel = diff / denom

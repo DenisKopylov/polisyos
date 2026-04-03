@@ -47,6 +47,7 @@ DEFAULT_DISTRIBUTIONAL_TAIL_PROBS = (0.90, 0.95)
 
 @dataclass(frozen=True)
 class ScalarDiscreteMeasure:
+    """Scalar discrete measure public type."""
     bin_edges: np.ndarray
     support: np.ndarray
     probabilities: np.ndarray
@@ -60,6 +61,7 @@ class ScalarDiscreteMeasure:
 
 @dataclass(frozen=True)
 class QuantileShiftResult:
+    """Quantile shift result data model."""
     quantiles: np.ndarray
     baseline_values: np.ndarray
     counterfactual_values: np.ndarray
@@ -68,6 +70,7 @@ class QuantileShiftResult:
 
 @dataclass(frozen=True)
 class TailRiskResult:
+    """Tail risk result data model."""
     tail_probs: np.ndarray
     thresholds: np.ndarray
     baseline_exceedance_probs: np.ndarray
@@ -80,6 +83,7 @@ class TailRiskResult:
 
 @dataclass(frozen=True)
 class ScalarOTDistributionalResult:
+    """Scalar OT distributional result data model."""
     baseline_measure: ScalarDiscreteMeasure
     counterfactual_measure: ScalarDiscreteMeasure
     coupling_matrix: np.ndarray
@@ -439,6 +443,7 @@ def compute_sinkhorn_coupling(
     max_iter: int = 200,
     tolerance: float = 1e-8,
 ) -> tuple[np.ndarray, dict[str, Any]]:
+    """Compute sinkhorn coupling helper."""
     if source_probabilities is None or target_probabilities is None:
         raise ValueError(
             "raw sample-to-sample OT is prohibited; provide normalized discrete measures instead"
@@ -618,6 +623,7 @@ def compute_scalar_distributional_effect(
     quantiles: tuple[float, ...] = DEFAULT_DISTRIBUTIONAL_QUANTILES,
     tail_probs: tuple[float, ...] = DEFAULT_DISTRIBUTIONAL_TAIL_PROBS,
 ) -> ScalarOTDistributionalResult:
+    """Compute scalar distributional effect helper."""
     baseline_arr = _coerce_1d_finite(baseline_values, field_name="baseline_values")
     counterfactual_arr = _coerce_1d_finite(counterfactual_values, field_name="counterfactual_values")
     _validate_compute_budget(

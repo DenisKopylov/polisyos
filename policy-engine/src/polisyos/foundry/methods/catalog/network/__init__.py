@@ -1,3 +1,4 @@
+"""Public catalog network package API."""
 from __future__ import annotations
 
 from polisyos.foundry.methods.exceptions import MethodAlreadyRegisteredError
@@ -15,6 +16,7 @@ from .protocols import MultiplexNetworkData, NetworkData, NetworkResult
 
 
 def ensure_network_methods_registered(registry: MethodRegistry | None = None) -> None:
+    """Ensure network methods registered helper."""
     reg = registry if registry is not None else MethodRegistry.get_instance()
     for method_class in register_network_methods():
         try:

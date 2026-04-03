@@ -1,3 +1,4 @@
+"""Public engine idempotency module API."""
 from __future__ import annotations
 
 import json
@@ -31,6 +32,7 @@ _IDEM_CANON = CanonSpec(
 
 
 class NodeCacheEntry(BaseModel):
+    """Node cache entry data model."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field(default="1.0", pattern=r"^\d+\.\d+$")
@@ -58,6 +60,7 @@ def extract_state_slice(
     state: ExperimentState,
     state_reads: list[str],
 ) -> dict[str, Any]:
+    """Extract state slice helper."""
     slice_data: dict[str, Any] = {}
     for read_path in sorted(state_reads):
         value = _resolve_path(state, read_path)
@@ -75,6 +78,7 @@ def compute_idempotency_payload(
     state: ExperimentState,
     bind_params: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
+    """Compute idempotency payload helper."""
     return {
         "contract_version": IDEMPOTENCY_CONTRACT_VERSION,
         "scope": "run",
@@ -90,12 +94,14 @@ def compute_idempotency_key(
     state: ExperimentState,
     bind_params: dict[str, Any] | None = None,
 ) -> str:
+    """Compute idempotency key helper."""
     payload = compute_idempotency_payload(spec=spec, state=state, bind_params=bind_params)
     canonical = to_canonical_bytes(payload, _IDEM_CANON)
     return content_hash(canonical)
 
 
 class NodeResultCache:
+    """Node result cache public type."""
     def __init__(
         self,
         store: ArtifactStore,

@@ -31,6 +31,9 @@ class TestCalibratorInputs:
         assert inputs.constraint_registry is None
         assert inputs.constraint_values is None
         assert inputs.controls_seq is None
+        assert inputs.measurement_bundle is None
+        assert inputs.measurement_loss_config is None
+        assert inputs.measurement_loss_adapter is None
 
 
 class TestCalibrationMetricsCollector:

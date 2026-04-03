@@ -1,87 +1,31 @@
-# Academic Batch
+# Academic Batch (`polisyos.academic.batch`)
 
-`polisyos.academic.batch` — staged pipeline построения academic/SKG графа из OpenAlex-литературы в режиме `fulltext-first` с одним LLM-вызовом на paper и deterministic publish gates.
+`polisyos.academic.batch` is the staged pipeline that turns OpenAlex-selected literature into an
+academic/SKG graph. It runs in a fulltext-first mode, keeps extraction deterministic where
+possible, and writes publish-ready DuckDB and manifest artifacts.
 
-## Роль в системе
+## Role in System
 
-Подсистема готовит данные для `polisyos.academic.knowledge`:
-- отбирает релевантные работы по каталогам тем;
-- извлекает параметры/causal claims/boundary conditions;
-- материализует DuckDB таблицы (`ac_*` и `ac_skg_*`);
-- строит локальный векторный индекс и выпускает publish manifest.
+- **Depends on:** `batch_common`, `core.canon`, `ir.analytics`, and `academic.openalex`.
+- **Used by:** `academic.knowledge` and downstream discovery / prior-selection workflows.
+- **Boundary function:** separates build-time harvesting/extraction from read-only graph access.
 
-## Стадии (актуальный порядок)
+## Key Concepts
 
-`topic_select -> harvest -> parse -> resolve_extract -> merge_dedup -> graph_load -> graph_index -> embed -> qc -> publish`
+- **Staged pipeline** - topic selection, harvest, parse, resolve/extract, merge/dedup, graph load/index, embed, QC, publish.
+- **Extraction planning** - `AcademicBatchConfig` keeps the batch inputs and runtime knobs used by the staged pipeline.
+- **Fulltext-first resolve** - `resolve_extract.py` streams eligible papers, uses a lazy JSONL index, and keeps dispatch backpressure bounded.
+- **Deterministic publish gates** - publish only happens after QC and readiness thresholds are satisfied.
+- **Graph materialization** - `graph_builder.py` writes both runtime tables and SKG tables.
 
-| Стадия | Модуль | Вход | Основной выход |
-|---|---|---|---|
-| `topic_select` | `topic_select.py` | topic CSV (`relevant_topics_*.csv`) | `topic_selection/*.jsonl` |
-| `harvest` | `harvester.py` | `selected_topic_works.jsonl` | `raw/<topic>/<ts>/payload.jsonl` |
-| `parse` | `parser.py` | `raw/*/payload.jsonl` | `parsed/*.jsonl` (`WorkRecord`, deterministic extraction) |
-| `resolve_extract` | `resolve_extract.py` | `selected_global_works.jsonl` | `resolve_extract_results.jsonl`, `raw_claim_candidates.jsonl`, `published_claims.jsonl`, `extracted/resolve_extract.jsonl` |
-| `merge_dedup` | `dedup.py` | `extracted/*.jsonl` или `parsed/*.jsonl` | `merged/all_records.jsonl`, `topic_links.jsonl`, `duplicates_report.csv` |
-| `graph_load` | `graph_builder.py` | `merged/all_records.jsonl` | `graph/scholar_knowledge.duckdb` |
-| `graph_index` | `graph_builder.py` | DuckDB файл | вторичные индексы `ac_*` |
-| `embed` | `embedder.py` | `ac_works` | `ac_work_embeddings.npz`, `ac_work_index.hnsw` |
-| `qc` | `qc.py` | артефакты batch + DB | `qc_report.json` |
-| `publish` | `publish.py` | все предыдущие stage outputs | `publish/manifest.json` |
+## Public API
 
-## Ключевые модули
+- configuration: `AcademicBatchConfig`, `ALL_STAGES`, `DEFAULT_RUN_STAGES`
+- CLI: `run`, `topic-select`, `resolve-extract`, `graph-load`, `qc`, `publish`, `stats`, `search`, `prior`
+- orchestration modules: `pipeline.py`, `resolve_extract.py`, `graph_builder.py`, `publish.py`, `qc.py`
 
-- `config.py`: `AcademicBatchConfig`, список `ALL_STAGES`, snapshot paths, runtime knobs.
-- `pipeline.py`: async orchestration, stage metrics, thermal cooldown.
-- `cli.py`: stage commands (`run`, `stats`, `search`, `prior`), alias-обработка стадий.
-- `resolve_extract.py`: streaming orchestration, shared multi-key provider pool, one-call extraction contract, deterministic publish gates.
-- `prompts/`: schema hints для extraction contract и auxiliary prompt fragments.
-- `context_classifier.py`: базовая привязка extraction результата к `ContextProfile`.
+## Current State
 
-## Resolve-extract semantics
-
-- `parser.py` дает baseline `extraction_mode=deterministic`.
-- `resolve_extract.py` делает:
-  - concurrent fulltext fetch;
-  - deterministic eligibility gate;
-  - shared multi-key LLM scheduling;
-  - один extraction call на paper;
-  - raw claim persistence;
-  - deterministic publish gating.
-- В `dedup._merge_records()` применяется приоритет:
-  `resolve_extract > article_extract > llm_enriched > deterministic`.
-- `abstract_only` записи сохраняются только в raw/exploration artifacts и не должны попадать в published causal graph.
-
-## DuckDB слой graph_load
-
-`graph_builder.py` материализует:
-- runtime tables: `ac_works`, `ac_parameter_estimates`, `ac_causal_claims`, `ac_boundary_conditions`,
-  `ac_topics`, `ac_topic_selections`, `ac_article_extractions`, `ac_causal_claims_raw`, `ac_claim_adjudications`, `ac_ingest_errors`, `ac_runs`;
-- SKG tables: `ac_skg_articles`, `ac_skg_variables`, `ac_skg_parameters`, `ac_skg_edges`, `ac_skg_versions`.
-
-## CLI
-
-```bash
-python -m polisyos.academic.batch.cli run --snapshot-root <snapshot_root>
-python -m polisyos.academic.batch.cli topic-select --snapshot-root <snapshot_root>
-python -m polisyos.academic.batch.cli resolve-extract --snapshot-root <snapshot_root>
-python -m polisyos.academic.batch.cli graph-load --snapshot-root <snapshot_root>
-python -m polisyos.academic.batch.cli qc --snapshot-root <snapshot_root>
-python -m polisyos.academic.batch.cli publish --snapshot-root <snapshot_root>
-```
-
-Операционные команды:
-- `stats --db-path <duckdb>`;
-- `search --db-path <duckdb> --query "..."`
-- `prior --db-path <duckdb> --variable "<canonical_name>"`.
-
-## Связи с другими пакетами
-
-- `polisyos.academic.openalex`: topic catalog + OpenAlex API + selection.
-- `polisyos.academic.knowledge`: типы `WorkRecord`, SKG schema helpers.
-- `polisyos.batch_common`: manifests, QC infra, thermal helpers, snapshot paths.
-- `polisyos.ir.analytics`: `ArticleExtractionResult`, `ContextProfile`, Evidence enums.
-
-## Проверки
-
-Релевантные тесты:
-- `policy-engine/tests/academic/batch`;
-- `policy-engine/tests/integration/test_phase0_quality_validation.py`.
+- Last updated: 2026-04-03
+- `resolve_extract.py` now uses `_LazyJsonlDict` for the precomputed fulltext cache and adds bounded bounce/backpressure handling.
+- `claim_adjudicator.py` now routes LLM adjudication through the multi-key pool and uses more explicit design-tier scoring.

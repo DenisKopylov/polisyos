@@ -152,7 +152,7 @@
     },
     "CausalGraphModel": {
       "additionalProperties": false,
-      "description": "DAG / CPDAG / PAG causal graph IR contract.",
+      "description": "DAG / CPDAG / PAG / MGRAPH / ADMG causal graph IR contract.",
       "properties": {
         "discovery_method": {
           "default": "",
@@ -247,7 +247,9 @@
       "enum": [
         "dag",
         "cpdag",
-        "pag"
+        "pag",
+        "mgraph",
+        "admg"
       ],
       "title": "GraphType",
       "type": "string"

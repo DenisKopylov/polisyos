@@ -9,9 +9,22 @@ dependencies:
   - pandas
   - pip
   - pip:
+      - ananke-causal
+      - causallib
+      - causal-learn
+      - causalml
       - econml
       - dowhy
+      - lightgbm
+      - nashpy
+      - open_spiel
+      - pgmpy
+      - pot
+      - pygformula
+      - stochtree
+      - tigramite
       - y0
       - zepid
-      - stochtree
-      - lightgbm
+      # `pywhy-graphs` is tracked in the comparator catalog but is not
+      # currently distributed on PyPI. We keep it optional until a stable
+      # install channel is available for research-acceptance environments.

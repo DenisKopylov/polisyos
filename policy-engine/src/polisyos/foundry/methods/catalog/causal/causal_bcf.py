@@ -1,3 +1,4 @@
+"""Public causal causal bcf module API."""
 from __future__ import annotations
 
 from typing import Any, Callable, ClassVar, Literal, Mapping, Sequence

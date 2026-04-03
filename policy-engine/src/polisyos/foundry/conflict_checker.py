@@ -1,3 +1,4 @@
+"""Public foundry conflict checker module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass, field

@@ -428,6 +428,31 @@ class TestFilterAndTimeHelpers:
         params = SDMXSourceConnector._build_time_params(req)
         assert params == {"startPeriod": "2023-01-01"}
 
+    def test_extract_structure_dimension_order_from_nested_data_payload(self):
+        payload = {
+            "data": {
+                "dataStructures": [
+                    {
+                        "components": {
+                            "dimensions": {
+                                "dimension": [
+                                    {"id": "REF_AREA"},
+                                    {"id": "FREQ"},
+                                    {"id": "MEASURE"},
+                                    {"id": "SEX"},
+                                    {"id": "AGE"},
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+
+        order = SDMXSourceConnector._extract_structure_dimension_order(payload)
+
+        assert order == ["REF_AREA", "FREQ", "MEASURE", "SEX", "AGE"]
+
     def test_build_time_params_none(self):
         req = FetchRequest(dataset_id="EXR")
         params = SDMXSourceConnector._build_time_params(req)

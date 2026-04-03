@@ -1,3 +1,4 @@
+"""Public conflicts uncertainty adapter module API."""
 from __future__ import annotations
 
 from decimal import Decimal
@@ -23,6 +24,7 @@ def envelope_from_conflict_resolution(
     resolution: ConflictSetResolution,
     candidates: list[ConflictResolutionCandidate] | None = None,
 ) -> UncertaintyEnvelope | None:
+    """Envelope from conflict resolution helper."""
     point = float(resolution.confidence)
 
     if not candidates:

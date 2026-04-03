@@ -101,14 +101,20 @@ def _runtime_payoff_tables() -> dict[str, FiniteStrategicPayoffTable]:
     }
 
 
-def _runtime_contract() -> StrategicSCM:
+def _runtime_contract(
+    *,
+    utility_refs: dict[str, ArtifactRefModel] | None = None,
+    macro_utility_refs: dict[str, ArtifactRefModel] | None = None,
+) -> StrategicSCM:
     return StrategicSCM(
         base_graph_ref=_artifact_ref_model("graph", kind="ir.causal_graph_model"),
         strategic_agents=("leader", "follower"),
-        utility_refs={
+        utility_refs=utility_refs
+        or {
             "leader": _artifact_ref_model("leader-payoff", kind="ir.strategic_payoff_table"),
             "follower": _artifact_ref_model("follower-payoff", kind="ir.strategic_payoff_table"),
         },
+        macro_utility_refs=macro_utility_refs,
         policy_rule_ref=_artifact_ref_model("policy", kind="ir.policy_recommendation"),
         equilibrium_concept="stackelberg",
         compute_budget=ComputeBudget(max_llm_calls=0.0, max_sim_runs=16.0, max_wall_time_s=30.0),
@@ -257,8 +263,15 @@ def test_runtime_strategic_helper_persists_normalized_contract_and_real_causal_c
     tmp_path,
 ) -> None:
     ctx = _build_ctx(tmp_path, run_id="runtime_strategic_ok")
-    contract = _runtime_contract()
     tables = _runtime_payoff_tables()
+    leader_ref = persist_strategic_payoff_table(ctx.store, tables["leader"])
+    follower_ref = persist_strategic_payoff_table(ctx.store, tables["follower"])
+    contract = _runtime_contract(
+        utility_refs={
+            "leader": leader_ref,
+            "follower": follower_ref,
+        }
+    )
     causal_report_ref = _ref("c")
     state = ExperimentState(
         run_id="runtime_strategic_ok",
@@ -284,7 +297,7 @@ def test_runtime_strategic_helper_persists_normalized_contract_and_real_causal_c
     assert output.strategic_response_bundle_ref is not None
     assert output.strategic_response_summary is not None
     normalized_contract = load_strategic_scm(ctx.store, output.strategic_scm_ref)
-    assert normalized_contract.utility_refs["leader"].artifact_id != contract.utility_refs["leader"].artifact_id
+    assert normalized_contract.utility_refs["leader"] == leader_ref
     assert load_strategic_payoff_table(ctx.store, normalized_contract.utility_refs["leader"]) == tables["leader"]
     assert output.strategic_response_summary["causal_component_ref"]["artifact_id"] == str(
         causal_report_ref.artifact_id
@@ -293,8 +306,15 @@ def test_runtime_strategic_helper_persists_normalized_contract_and_real_causal_c
 
 def test_runtime_strategic_helper_blocks_when_causal_report_is_missing(tmp_path) -> None:
     ctx = _build_ctx(tmp_path, run_id="runtime_strategic_no_causal")
-    contract = _runtime_contract()
     tables = _runtime_payoff_tables()
+    leader_ref = persist_strategic_payoff_table(ctx.store, tables["leader"])
+    follower_ref = persist_strategic_payoff_table(ctx.store, tables["follower"])
+    contract = _runtime_contract(
+        utility_refs={
+            "leader": leader_ref,
+            "follower": follower_ref,
+        }
+    )
     state = ExperimentState(
         run_id="runtime_strategic_no_causal",
         params={
@@ -322,6 +342,40 @@ def test_runtime_strategic_helper_blocks_when_causal_report_is_missing(tmp_path)
     )
 
 
+def test_runtime_strategic_helper_blocks_on_unreadable_contract_payoff_refs(tmp_path) -> None:
+    ctx = _build_ctx(tmp_path, run_id="runtime_strategic_unreadable")
+    contract = _runtime_contract()
+    tables = _runtime_payoff_tables()
+    state = ExperimentState(
+        run_id="runtime_strategic_unreadable",
+        params={
+            "strategic_scm": contract.model_dump(mode="json"),
+            "strategic_payoff_tables": {
+                agent: table.model_dump(mode="json") for agent, table in tables.items()
+            },
+        },
+        artifacts_index={ARTIFACT_CAUSAL_REPORT_REF: _ref("c")},
+    )
+
+    output = _persist_runtime_strategic_artifacts(
+        ctx,
+        state,
+        candidate_ref=_ref("a"),
+        selection_vector_ref=_ref("b"),
+        selection_artifact=SimpleNamespace(simulation_results={"policy_value": 2.0}),
+        artifacts_index=dict(state.artifacts_index),
+    )
+
+    assert output.strategic_scm_ref is not None
+    assert output.strategic_response_bundle_ref is None
+    assert output.strategic_response_summary is not None
+    assert output.strategic_response_summary["blocked_reason"] == (
+        "strategic_contract_payoff_ref_unreadable"
+    )
+    stored_contract = load_strategic_scm(ctx.store, output.strategic_scm_ref)
+    assert stored_contract.utility_refs == contract.utility_refs
+
+
 def test_runtime_strategic_helper_blocks_on_contract_payoff_mismatch(tmp_path) -> None:
     ctx = _build_ctx(tmp_path, run_id="runtime_strategic_mismatch")
     tables = _runtime_payoff_tables()
@@ -335,12 +389,10 @@ def test_runtime_strategic_helper_blocks_on_contract_payoff_mismatch(tmp_path) -
     )
     leader_ref = persist_strategic_payoff_table(ctx.store, mismatched_leader)
     follower_ref = persist_strategic_payoff_table(ctx.store, tables["follower"])
-    contract = _runtime_contract().model_copy(
-        update={
-            "utility_refs": {
-                "leader": leader_ref,
-                "follower": follower_ref,
-            }
+    contract = _runtime_contract(
+        utility_refs={
+            "leader": leader_ref,
+            "follower": follower_ref,
         }
     )
     state = ExperimentState(

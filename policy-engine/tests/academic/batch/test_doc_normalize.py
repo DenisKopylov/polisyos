@@ -104,8 +104,8 @@ def test_doc_normalize_uses_pub2tei_when_xml_source_is_available(tmp_path, monke
             "ok": True,
             "status": 200,
             "content_type": "application/xml",
-            "bytes": b"<article><body><sec><title>Results</title><p>Coefficient 0.2</p></sec></body></article>",
-            "text": "<article><body><sec><title>Results</title><p>Coefficient 0.2</p></sec></body></article>",
+            "bytes": b"<publisher-record><body><section><title>Results</title><p>Coefficient 0.2</p></section></body></publisher-record>",
+            "text": "<publisher-record><body><section><title>Results</title><p>Coefficient 0.2</p></section></body></publisher-record>",
         }
 
     async def _fake_pub2tei(*args, **kwargs):  # type: ignore[no-untyped-def]

@@ -14,6 +14,7 @@ if TYPE_CHECKING:
 
 @dataclass(frozen=True, slots=True)
 class EvictionContext:
+    """Eviction context public type."""
     total_entries: int
     total_size_bytes: int
     recently_accessed_keys: set[str]

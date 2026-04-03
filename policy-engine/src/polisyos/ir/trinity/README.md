@@ -1,41 +1,42 @@
-# ir.trinity
+# Trinity (`polisyos.ir.trinity`)
 
-`ir.trinity` определяет канонический policy payload: `TrinityBundle`.
+`polisyos.ir.trinity` определяет канонический policy payload `TrinityBundle`.
+Именно эта структура является официальной точкой входа для policy ingestion:
+`ProblemFrame` описывает why, `PolicySpec` задает what, а `ModelSpec` описывает
+how. Все downstream compile, governance и migration flows стартуют отсюда.
 
-## Контракт
+## Роль в системе
 
-`TrinityBundle` объединяет:
+- **Зависит от:** `polisyos.ir.governance`, `polisyos.ir.model_spec`
+- **Используется в:** `polisyos.ir.loaders`, `polisyos.ir.migrations`, `polisyos.ir.linker`, `polisyos.foundry`, `polisyos.scientist`
+- Trinity служит canonical boundary между authoring/import и runtime validation.
 
-- `ProblemFrame` (why);
-- `PolicySpec` (what);
-- `ModelSpec` (how).
+## Ключевые концепции
 
-Актуальная версия bundle: `TRINITY_BUNDLE_SCHEMA_VERSION = "1.0"`.
+- **Three-part payload** — `ProblemFrame`, `PolicySpec`, `ModelSpec`.
+- **Versioned bundle** — `TRINITY_BUNDLE_SCHEMA_VERSION` фиксирует текущий schema contract.
+- **Strict loaders** — submodule loaders принимают `dict`, `str`, `bytes` и валидируют schema version.
+- **No legacy auto-upgrade** — non-Trinity payloads не мигрируются автоматически.
+- **Link-before-execute** — Trinity bundle должен пройти через registry linker перед compile/runtime.
 
-## Загрузчики
+## Public API
 
-`trinity/loaders.py` предоставляет strict loaders:
+| Type/Function | Description |
+|---|---|
+| `TrinityBundle` | Канонический контейнер policy IR |
+| `ProblemFrame` | Why-layer governance contract |
+| `PolicySpec` | What-layer intervention contract |
+| `ModelSpec` | How-layer execution/model contract |
+| `TRINITY_BUNDLE_SCHEMA_VERSION` | Текущая версия bundle schema |
+| `load_trinity_bundle()` | Strict loader для Trinity payloads |
 
-- `load_problem_frame()`
-- `load_policy_spec()`
-- `load_model_spec()`
-- `load_trinity_bundle()`
+Full reference: [docs/reference/ir/](../../../../docs/reference/ir/index.md)
 
-Поддерживаются входы `dict`, `str`, `bytes`; форматы `json`, `yaml`, `auto`.
-Все loaders требуют валидный `schema_version` (можно переопределить `target_schema_version`/`target_version`) и возвращают типизированные модели.
+See also: [docs/explanation/trinity.md](../../../../docs/explanation/trinity.md)
 
-## Высокоуровневый фасад
+## Текущее состояние
 
-`ir/loaders.py` добавляет удобные входы:
-
-- `load_policy()`
-- `load_trinity_bundle()` (возвращает `(TrinityBundle, None)`)
-- `load_trinity()`
-
-Важно: на текущем коде `auto_migrate` не выполняет legacy runtime migration. Невалидный non-Trinity payload будет отклонён.
-
-## Связь с другими модулями
-
-- `ir.migrations` — runtime миграции canonical Trinity payload версий.
-- `ir.linker` — валидация Trinity против `RegistryBundle`.
-- `ir.registry_fragments` — источник registry для линковки.
+- Последнее обновление: 2026-04-03
+- Files: 3 Python files
+- Exports: 5 public names in `__init__.py`
+- Current version: `TrinityBundle` schema остается `1.0`; новые temporal and observation-aware policy fields живут внутри составляющих contracts, а не в отдельной bundle версии

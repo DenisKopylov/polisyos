@@ -1,3 +1,4 @@
+"""Public backends dispatcher module API."""
 from __future__ import annotations
 
 import threading
@@ -10,6 +11,7 @@ V = TypeVar("V")
 
 @dataclass(frozen=True)
 class BackendNotAvailableError(RuntimeError, Generic[K]):
+    """Backend not available error exception."""
     backend: K
     reason: str | None = None
 

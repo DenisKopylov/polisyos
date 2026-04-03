@@ -1,3 +1,4 @@
+"""Public governance gate module API."""
 from __future__ import annotations
 
 import enum
@@ -8,6 +9,8 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 class GateVerdict(str, enum.Enum):
+    """Final outcome produced by a governance gate."""
+
     APPROVE = "approve"
     REJECT = "reject"
     ESCALATE = "escalate"
@@ -15,6 +18,8 @@ class GateVerdict(str, enum.Enum):
 
 
 class GatePriority(str, enum.Enum):
+    """Scheduling priority assigned to a gate request."""
+
     LOW = "low"
     NORMAL = "normal"
     HIGH = "high"
@@ -22,6 +27,8 @@ class GatePriority(str, enum.Enum):
 
 
 class GateEventType(str, enum.Enum):
+    """Audit-log event type emitted by the gate subsystem."""
+
     GATE_REQUESTED = "GATE_REQUESTED"
     GATE_DECIDED = "GATE_DECIDED"
     GATE_TIMEOUT = "GATE_TIMEOUT"
@@ -29,6 +36,8 @@ class GateEventType(str, enum.Enum):
 
 
 class GateContext(BaseModel):
+    """Execution and risk context presented to a governance approver."""
+
     model_config = ConfigDict(extra="forbid")
 
     workflow_id: str
@@ -47,6 +56,8 @@ class GateContext(BaseModel):
 
 
 class GateRequest(BaseModel):
+    """Approval request payload emitted when execution needs governance review."""
+
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.1", pattern=r"^\d+\.\d+$")
@@ -61,6 +72,8 @@ class GateRequest(BaseModel):
 
 
 class GateDecision(BaseModel):
+    """Recorded gate verdict with approver identity and supporting evidence."""
+
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -75,6 +88,8 @@ class GateDecision(BaseModel):
 
 
 class GateEvent(BaseModel):
+    """Audit event emitted for gate lifecycle transitions."""
+
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")

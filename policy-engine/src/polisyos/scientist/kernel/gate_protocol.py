@@ -1,3 +1,4 @@
+"""Public kernel gate protocol module API."""
 from __future__ import annotations
 
 try:

@@ -1,5 +1,17 @@
 {
   "$defs": {
+    "IdentificationMode": {
+      "enum": [
+        "point_identified",
+        "partially_identified",
+        "bounds_only",
+        "proxy_identified",
+        "interference_aware",
+        "sequential"
+      ],
+      "title": "IdentificationMode",
+      "type": "string"
+    },
     "InterventionSpec": {
       "additionalProperties": false,
       "description": "Policy intervention specification.\n\nDefines a single policy action with targeting, timing, and parameters.\nCompatible with existing InterventionSpec in surface.py.",
@@ -9,6 +21,17 @@
           "description": "Whether intervention is active",
           "title": "Enabled",
           "type": "boolean"
+        },
+        "identification_mode": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/IdentificationMode"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "intervention_id": {
           "pattern": "^[a-z][a-z0-9_]*$",
@@ -20,6 +43,25 @@
           "pattern": "^[a-z][a-z0-9_]*$",
           "title": "Kind",
           "type": "string"
+        },
+        "lex_provision_ref": {
+          "anyOf": [
+            {
+              "maxLength": 200,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Reference to the legal provision or lex artifact driving the intervention.",
+          "title": "Lex Provision Ref"
+        },
+        "measurement_expectations": {
+          "additionalProperties": true,
+          "title": "Measurement Expectations",
+          "type": "object"
         },
         "notes": {
           "items": {
@@ -53,6 +95,11 @@
           "$ref": "#/$defs/ScheduleSpec",
           "description": "Timing of intervention"
         },
+        "strategic_response_expected": {
+          "default": false,
+          "title": "Strategic Response Expected",
+          "type": "boolean"
+        },
         "target": {
           "description": "Agent/entity selector expression",
           "discriminator": {
@@ -79,6 +126,41 @@
             }
           ],
           "title": "Target"
+        },
+        "target_population_type": {
+          "anyOf": [
+            {
+              "maxLength": 120,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Population semantics used for policy targeting and evaluation.",
+          "title": "Target Population Type"
+        },
+        "target_region_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Target Region Ids",
+          "type": "array"
+        },
+        "target_sector_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Target Sector Ids",
+          "type": "array"
+        },
+        "transmission_channels": {
+          "items": {
+            "$ref": "#/$defs/StrategicResponseChannel"
+          },
+          "title": "Transmission Channels",
+          "type": "array"
         }
       },
       "required": [
@@ -457,6 +539,18 @@
       ],
       "title": "SelectorPredicate",
       "type": "object"
+    },
+    "StrategicResponseChannel": {
+      "enum": [
+        "budget_channel",
+        "procurement_channel",
+        "labor_channel",
+        "trade_channel",
+        "household_income_channel",
+        "compliance_channel"
+      ],
+      "title": "StrategicResponseChannel",
+      "type": "string"
     },
     "TranslatableString": {
       "additionalProperties": false,

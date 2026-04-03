@@ -1,3 +1,4 @@
+"""Public engine workflow spec module API."""
 from __future__ import annotations
 
 from decimal import Decimal
@@ -15,6 +16,7 @@ JsonValue = JsonPrimitive | list[Any] | dict[str, Any]
 
 
 class NodeInvocation(BaseModel):
+    """Node invocation public type."""
     model_config = ConfigDict(extra="forbid")
 
     alias: str = Field(..., pattern=r"^[a-z][a-z0-9_]*$")
@@ -37,6 +39,7 @@ class NodeInvocation(BaseModel):
 
 
 class WorkflowSpec(BaseModel):
+    """Workflow spec data model."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")

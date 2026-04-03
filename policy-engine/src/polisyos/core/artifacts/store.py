@@ -1,3 +1,4 @@
+"""Public artifacts store module API."""
 from __future__ import annotations
 
 import json
@@ -51,6 +52,7 @@ from .signing import (
 
 @dataclass(frozen=True)
 class PutOptions:
+    """Put options data model."""
     kind: str
     media_type: str
     schema: SchemaInfo | None = None
@@ -61,6 +63,7 @@ class PutOptions:
 
 
 class VerificationReport(BaseModel):
+    """Verification report data model."""
     model_config = ConfigDict(extra="forbid")
 
     ok: bool
@@ -73,6 +76,7 @@ class VerificationReport(BaseModel):
 
 @dataclass(frozen=True)
 class ExportReport:
+    """Export report data model."""
     exported_artifacts: int
     total_bytes: int
     output_path: Path
@@ -82,6 +86,7 @@ class ExportReport:
 
 @dataclass(frozen=True)
 class ImportReport:
+    """Import report data model."""
     imported_files: int
     imported_artifacts: int
     total_bytes: int

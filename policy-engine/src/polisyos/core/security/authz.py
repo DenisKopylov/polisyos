@@ -21,6 +21,7 @@ logger = get_logger("polisyos.security.authz")
 
 
 class AuthzDecision(str, Enum):
+    """Authz decision public type."""
     ALLOW = "allow"
     DENY = "deny"
     ERROR = "error"
@@ -28,6 +29,7 @@ class AuthzDecision(str, Enum):
 
 @dataclass(frozen=True, slots=True)
 class AuthzResult:
+    """Authz result data model."""
     decision: AuthzDecision
     policy: str
     reasons: tuple[str, ...] = ()
@@ -42,6 +44,7 @@ class AuthzResult:
 
 @dataclass(frozen=True, slots=True)
 class AuthzInput:
+    """Authz input public type."""
     request_method: str
     request_path: str
     request_headers: dict[str, str]

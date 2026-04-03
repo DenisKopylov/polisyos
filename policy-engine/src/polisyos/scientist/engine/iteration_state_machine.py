@@ -1,3 +1,4 @@
+"""Public engine iteration state machine module API."""
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -27,6 +28,7 @@ _ALLOWED: dict[IterationLifecycleState, frozenset[TransitionEvent]] = {
 
 
 def can_transition(state: IterationLifecycleState, event: TransitionEvent) -> bool:
+    """Can transition helper."""
     return event in _ALLOWED.get(state, frozenset())
 
 
@@ -38,6 +40,7 @@ def transition(
     stop_reason: StopReason | None = None,
     notes: list[str] | None = None,
 ) -> IterationState:
+    """Transition helper."""
     current = state.lifecycle_state
     if not can_transition(current, event):
         raise ValueError(f"Invalid transition: state={current!r}, event={event!r}")
@@ -61,6 +64,7 @@ def transition(
 def derive_terminal_state_from_verdict(
     verdict: EvaluatorVerdict,
 ) -> tuple[IterationLifecycleState, StopReason | None]:
+    """Derive terminal state from verdict helper."""
     if verdict == "APPROVE":
         return "approved", "approved"
     if verdict == "STOP_BUDGET":

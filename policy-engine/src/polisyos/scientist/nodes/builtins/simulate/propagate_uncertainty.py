@@ -1,3 +1,4 @@
+"""Public simulate propagate uncertainty module API."""
 from __future__ import annotations
 
 import math
@@ -60,6 +61,7 @@ _SPEC = NodeSpec(
 
 @dataclass(frozen=True)
 class PropagateUncertaintyNode:
+    """Propagate uncertainty node implementation."""
     @property
     def spec(self) -> NodeSpec:
         return _SPEC

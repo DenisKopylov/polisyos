@@ -1,3 +1,4 @@
+"""Public lex simulator package API."""
 from .diff import FieldDelta, NormChange, NormChangeType, NormDiff, diff_norm_packs
 from .engine import NormImpactAnalyzer
 from .mutator import MutationIntent, NormPackMutator

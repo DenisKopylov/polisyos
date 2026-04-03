@@ -1,3 +1,4 @@
+"""Public knowledge parameter selector module API."""
 from __future__ import annotations
 
 from polisyos.academic.knowledge.skg_query import SKGQuery

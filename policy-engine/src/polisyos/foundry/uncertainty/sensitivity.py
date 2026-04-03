@@ -1,3 +1,4 @@
+"""Public uncertainty sensitivity module API."""
 from __future__ import annotations
 
 import numpy as np

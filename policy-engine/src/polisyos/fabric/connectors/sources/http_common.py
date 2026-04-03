@@ -1,3 +1,4 @@
+"""Public sources http common module API."""
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -16,6 +17,7 @@ FRESHNESS_SOURCE_TIMESTAMP_MISSING = "freshness:source_timestamp_missing"
 
 
 def safe_int(value: Any) -> int | None:
+    """Safe int helper."""
     if value is None:
         return None
     try:
@@ -25,6 +27,7 @@ def safe_int(value: Any) -> int | None:
 
 
 def safe_float(value: Any) -> float | None:
+    """Safe float helper."""
     if value is None:
         return None
     try:
@@ -34,6 +37,7 @@ def safe_float(value: Any) -> float | None:
 
 
 def frame_completeness(frame: pd.DataFrame) -> float:
+    """Frame completeness helper."""
     if frame.size == 0:
         return 1.0
     null_ratio = float(frame.isna().sum().sum()) / float(frame.size)
@@ -41,6 +45,7 @@ def frame_completeness(frame: pd.DataFrame) -> float:
 
 
 def parse_http_datetime(value: str | None) -> datetime | None:
+    """Parse http datetime helper."""
     if not value:
         return None
     try:
@@ -56,6 +61,7 @@ def parse_http_datetime(value: str | None) -> datetime | None:
 
 
 def retry_after_seconds(headers: Mapping[str, str]) -> float | None:
+    """Retry after seconds helper."""
     retry_after = parse_retry_after_header(headers.get("Retry-After"))
     if retry_after is not None:
         return retry_after
@@ -78,6 +84,7 @@ def build_data_version(
     content_hash: str,
     fetched_at: datetime,
 ) -> tuple[DataVersion, datetime | None]:
+    """Build data version."""
     source_updated_at = parse_http_datetime(last_modified)
     if etag:
         return (
@@ -115,6 +122,7 @@ def quality_flags_from_source_metadata(
     source_updated_at: datetime | None,
     base_flags: Iterable[str] = (),
 ) -> frozenset[str]:
+    """Quality flags from source metadata helper."""
     flags = {str(flag) for flag in base_flags}
     if source_updated_at is None:
         flags.add(FRESHNESS_SOURCE_TIMESTAMP_MISSING)

@@ -1,0 +1,114 @@
+{
+  "$defs": {
+    "ContractCompatibilityTarget": {
+      "additionalProperties": false,
+      "properties": {
+        "contract_fqn": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Contract Fqn",
+          "type": "string"
+        },
+        "contract_id": {
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Contract Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "contract_id",
+        "contract_fqn"
+      ],
+      "title": "ContractCompatibilityTarget",
+      "type": "object"
+    },
+    "IdentificationMode": {
+      "enum": [
+        "point_identified",
+        "partially_identified",
+        "bounds_only",
+        "proxy_identified",
+        "interference_aware",
+        "sequential"
+      ],
+      "title": "IdentificationMode",
+      "type": "string"
+    },
+    "ObservationContractRoute": {
+      "additionalProperties": false,
+      "properties": {
+        "family": {
+          "$ref": "#/$defs/ObservationFamily"
+        },
+        "identification_mode": {
+          "$ref": "#/$defs/IdentificationMode"
+        },
+        "notes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Notes",
+          "type": "array"
+        },
+        "target_contract": {
+          "$ref": "#/$defs/ContractCompatibilityTarget"
+        }
+      },
+      "required": [
+        "family",
+        "identification_mode",
+        "target_contract"
+      ],
+      "title": "ObservationContractRoute",
+      "type": "object"
+    },
+    "ObservationFamily": {
+      "enum": [
+        "budget_flows",
+        "procurement_flows",
+        "macro_state",
+        "firm_fundamentals",
+        "trade_exposure",
+        "labor_market",
+        "household_distribution",
+        "distress_enforcement",
+        "spatial_raster_exogenous",
+        "public_service_domain_flows",
+        "education_human_capital_supply",
+        "construction_capital_formation",
+        "logistics_friction"
+      ],
+      "title": "ObservationFamily",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "artifact_name": {
+      "const": "observation_to_contract_manifest.json",
+      "default": "observation_to_contract_manifest.json",
+      "title": "Artifact Name",
+      "type": "string"
+    },
+    "routes": {
+      "items": {
+        "$ref": "#/$defs/ObservationContractRoute"
+      },
+      "minItems": 1,
+      "title": "Routes",
+      "type": "array"
+    },
+    "schema_version": {
+      "default": "1.0",
+      "pattern": "^\\d+\\.\\d+$",
+      "title": "Schema Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "routes"
+  ],
+  "title": "ObservationToContractManifest",
+  "type": "object"
+}

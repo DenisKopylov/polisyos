@@ -1,3 +1,4 @@
+"""Public doe analysis module API."""
 from __future__ import annotations
 
 import math
@@ -12,6 +13,7 @@ def analyze_sensitivity(
     samples: np.ndarray,
     outputs: np.ndarray,
 ) -> SensitivityResult:
+    """Analyze sensitivity helper."""
     if outputs.ndim != 1:
         raise ValueError("outputs must be a 1D array")
     if samples.ndim != 2:

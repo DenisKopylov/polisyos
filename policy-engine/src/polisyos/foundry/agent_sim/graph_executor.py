@@ -1,3 +1,4 @@
+"""Public agent sim graph executor module API."""
 from __future__ import annotations
 
 from typing import Any, Iterable
@@ -16,6 +17,7 @@ from polisyos.foundry.contracts.fidelity import FidelityLevel
 
 
 class GraphAwareExecutor(PureExecutor):
+    """Graph aware executor implementation."""
     def __init__(
         self,
         mechanisms: Iterable[Mechanism],
@@ -81,6 +83,7 @@ def create_graph_aware_executor(
     aggregate_every: int | None = None,
     compute_gini: bool = False,
 ) -> GraphAwareExecutor:
+    """Create graph aware executor."""
     return GraphAwareExecutor(
         mechanisms,
         distribution_config=distribution_config,

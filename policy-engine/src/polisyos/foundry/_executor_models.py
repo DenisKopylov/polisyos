@@ -65,6 +65,7 @@ class ExecutionStrictness(str, Enum):
 
 @dataclass(frozen=True)
 class ExecuteArtifacts:
+    """Execute artifacts public type."""
     state_delta_ref: ArtifactRef
     metrics_ref: ArtifactRef
     constraint_report_ref: ConstraintReportRef | None = None
@@ -78,6 +79,7 @@ class ExecuteArtifacts:
 
 @dataclass(frozen=True)
 class ApplyArtifacts:
+    """Apply artifacts public type."""
     state_snapshot_ref: ArtifactRef
 
 
@@ -87,6 +89,7 @@ class ApplyArtifacts:
 
 
 def artifact_id(value: ArtifactRef | ArtifactID | str) -> ArtifactID:
+    """Artifact ID helper."""
     if isinstance(value, ArtifactRef):
         return value.artifact_id
     if isinstance(value, ArtifactID):
@@ -95,12 +98,14 @@ def artifact_id(value: ArtifactRef | ArtifactID | str) -> ArtifactID:
 
 
 def load_model(store: FileSystemCAS, ref: ArtifactRef | ArtifactID | str, model_cls):  # noqa: ANN201
+    """Load model."""
     data = store.get_bytes(artifact_id(ref))
     payload = from_canonical_bytes(data)
     return model_cls.model_validate(payload)
 
 
 def load_payload(store: FileSystemCAS, ref: ArtifactRef | ArtifactID | str) -> dict[str, Any]:
+    """Load payload."""
     data = store.get_bytes(artifact_id(ref))
     payload = from_canonical_bytes(data)
     if isinstance(payload, BaseModel):
@@ -111,6 +116,7 @@ def load_payload(store: FileSystemCAS, ref: ArtifactRef | ArtifactID | str) -> d
 
 
 def put_tensor(store: FileSystemCAS, value: Any) -> ArtifactRef:
+    """Put tensor helper."""
     array = np.asarray(value)
     buf = BytesIO()
     np.save(buf, array, allow_pickle=False)
@@ -122,6 +128,7 @@ def put_tensor(store: FileSystemCAS, value: Any) -> ArtifactRef:
 
 
 def load_tensor(store: FileSystemCAS, ref: ArtifactRef | ArtifactID | str) -> np.ndarray:
+    """Load tensor."""
     data = store.get_bytes(artifact_id(ref))
     return np.load(BytesIO(data), allow_pickle=False)
 
@@ -132,6 +139,7 @@ def load_tensor(store: FileSystemCAS, ref: ArtifactRef | ArtifactID | str) -> np
 
 
 def get_state_path(obj: Any, path: str) -> Any:
+    """Return state path."""
     current = obj
     for part in path.split("."):
         current = getattr(current, part)
@@ -139,6 +147,7 @@ def get_state_path(obj: Any, path: str) -> Any:
 
 
 def set_state_path(obj: Any, path: str, value: Any) -> Any:
+    """Set state path helper."""
     parts = path.split(".")
     if len(parts) == 1:
         return obj.replace(**{parts[0]: value})

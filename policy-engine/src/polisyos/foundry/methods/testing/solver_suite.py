@@ -1,3 +1,4 @@
+"""Public testing solver suite module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -6,6 +7,7 @@ from typing import Any
 
 @dataclass(frozen=True, slots=True)
 class SolverSuiteResult:
+    """Solver suite result data model."""
     passed: bool
     message: str = ""
 

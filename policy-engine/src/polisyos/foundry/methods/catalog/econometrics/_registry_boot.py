@@ -1,3 +1,4 @@
+"""Public econometrics registry boot module API."""
 from __future__ import annotations
 
 from typing import Sequence
@@ -54,6 +55,7 @@ from .timeseries import ARIMAEstimator, VAREstimator
 
 
 def register_econometric_methods() -> Sequence[type]:
+    """Register econometric methods."""
     return (
         FixedEffectsEstimator,
         RandomEffectsEstimator,

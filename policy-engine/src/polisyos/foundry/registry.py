@@ -1,3 +1,4 @@
+"""Public foundry registry module API."""
 import importlib
 import inspect
 from collections.abc import Iterator, Mapping as MappingABC
@@ -20,6 +21,7 @@ if TYPE_CHECKING:  # pragma: no cover
 
 @dataclass(frozen=True)
 class MechanismRuntimeDescriptor:
+    """Mechanism runtime descriptor data model."""
     mechanism_type: str
     method_fqn: str
     mechanism_class_path: str
@@ -88,10 +90,12 @@ class UnsupportedRuntimeFidelityError(ValueError):
 
 
 def has_runtime_mechanism_support(mech_type: str) -> bool:
+    """Return whether has runtime mechanism support."""
     return mech_type in _runtime_registry_descriptors()
 
 
 def get_mechanism_descriptor(mech_type: str) -> MechanismRuntimeDescriptor:
+    """Return mechanism descriptor."""
     descriptors = _runtime_registry_descriptors()
     if mech_type not in descriptors:
         raise MissingRuntimeMechanismSupportError(mech_type)
@@ -99,6 +103,7 @@ def get_mechanism_descriptor(mech_type: str) -> MechanismRuntimeDescriptor:
 
 
 def get_mechanism_class(mech_type: str) -> Type[Any]:
+    """Return mechanism class."""
     return get_mechanism_descriptor(mech_type).mechanism_class
 
 
@@ -106,6 +111,7 @@ def resolve_runtime_fidelity(
     mech_type: str,
     requested_fidelity: IRFidelityLevel | str | None,
 ) -> RuntimeFidelityLevel:
+    """Resolve runtime fidelity."""
     descriptor = get_mechanism_descriptor(mech_type)
     requested = (
         requested_fidelity
@@ -151,6 +157,7 @@ def create_mechanism(
     *,
     selected_fidelity: RuntimeFidelityLevel | str | None = None,
 ) -> Any:
+    """Create mechanism."""
     mechanism_type, params = _extract_intervention_fields(intervention)
     validate_mechanism_params(mechanism_type, params)
     descriptor = get_mechanism_descriptor(mechanism_type)
@@ -174,6 +181,7 @@ def create_mechanism_from_spec(
     mechanism_spec: MechanismTypeSpec | None = None,
     selected_fidelity: RuntimeFidelityLevel | str | None = None,
 ) -> Any:
+    """Create mechanism from spec."""
     coerced = _coerce_params(params)
     validate_mechanism_params(mechanism_type, coerced, mechanism_spec=mechanism_spec)
     descriptor = get_mechanism_descriptor(mechanism_type)

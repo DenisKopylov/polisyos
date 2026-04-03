@@ -109,6 +109,7 @@ def run_qc(
     fail_fast: bool | None = None,
     strict_phase0: bool | None = None,
 ) -> QCReport:
+    """Run qc."""
     started_at = datetime.now(UTC).isoformat()
     checks: list[QCCheck] = []
     metrics: dict[str, object] = {}

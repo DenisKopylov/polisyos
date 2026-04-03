@@ -1,3 +1,4 @@
+"""Public scientist doe package API."""
 from .analysis import analyze_sensitivity
 from .designs import (
     AblationPlan,

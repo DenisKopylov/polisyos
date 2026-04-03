@@ -1,3 +1,4 @@
+"""Public spatial protocols module API."""
 from __future__ import annotations
 
 from typing import Any, ClassVar
@@ -13,6 +14,7 @@ def _to_numpy(value: Any) -> np.ndarray:
 
 
 class SpatialData(BaseModel):
+    """Spatial data public type."""
     contract_id: ClassVar[str] = "foundry.spatial.data.v1"
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
 
@@ -64,6 +66,7 @@ class SpatialData(BaseModel):
 
 
 class GravityFlowData(BaseModel):
+    """Gravity flow data public type."""
     contract_id: ClassVar[str] = "foundry.spatial.gravity_flow_data.v1"
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
 
@@ -124,6 +127,7 @@ class GravityFlowData(BaseModel):
 
 
 class AccessibilityData(BaseModel):
+    """Accessibility data public type."""
     contract_id: ClassVar[str] = "foundry.spatial.accessibility_data.v1"
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
 
@@ -179,6 +183,7 @@ class AccessibilityData(BaseModel):
 
 
 class SpatialResult(BaseModel):
+    """Spatial result data model."""
     contract_id: ClassVar[str] = "foundry.spatial.result.v1"
     model_config = ConfigDict(extra="forbid", frozen=True, arbitrary_types_allowed=True)
 

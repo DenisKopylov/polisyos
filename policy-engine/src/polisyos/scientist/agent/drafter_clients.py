@@ -14,6 +14,7 @@ from polisyos.scientist.llm import TracedLLMClient
 
 
 class MockLLM:
+    """Mock LLM public type."""
     def invoke(self, prompt: str) -> str:
         """Эмулирует ответ GPT-4, возвращая валидный JSON."""
         print(f"   [MockLLM] 'Thinking' about: {prompt[:50]}...")

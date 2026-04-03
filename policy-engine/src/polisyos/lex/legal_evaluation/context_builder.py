@@ -1,3 +1,4 @@
+"""Public legal evaluation context builder module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -45,6 +46,7 @@ def _json_pointer_escape(value: str) -> str:
 
 @dataclass(frozen=True)
 class ObservedValue:
+    """Observed value public type."""
     predicate_id: str
     source_kind: str
     value_kind: str
@@ -60,6 +62,7 @@ class ObservedValue:
 
 @dataclass(frozen=True)
 class RuleObservation:
+    """Rule observation public type."""
     rule_id: str
     predicate_id: str
     applies: bool
@@ -69,6 +72,7 @@ class RuleObservation:
 
 @dataclass(frozen=True)
 class LegalContext:
+    """Legal context public type."""
     request: LegalEvaluationRequest
     jurisdiction_norm: str
     as_of_norm: str
@@ -298,6 +302,7 @@ class _InterventionRecord:
 
 
 class LegalContextBuilder:
+    """Legal context builder implementation."""
     def __init__(
         self,
         *,

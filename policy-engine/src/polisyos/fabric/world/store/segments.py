@@ -1,3 +1,4 @@
+"""Public store segments module API."""
 from __future__ import annotations
 
 import re
@@ -52,6 +53,7 @@ def write_world_fact_segment(
     fact_log_root: Path,
     segment_name: str,
 ) -> FactSegmentManifest:
+    """Write world fact segment helper."""
     try:
         segment_dir = fact_log_root / "world"
         normalized = _normalize_segment_name(segment_name)
@@ -70,6 +72,7 @@ def append_world_segment_index(
     *,
     fact_log_root: Path,
 ) -> None:
+    """Append world segment index helper."""
     try:
         index_path = fact_log_root / "world" / SEGMENTS_INDEX_NAME
         index_path.parent.mkdir(parents=True, exist_ok=True)
@@ -80,6 +83,7 @@ def append_world_segment_index(
 
 
 def load_world_fact_manifests(fact_log_root: Path) -> list[FactSegmentManifest]:
+    """Load world fact manifests."""
     index_path = fact_log_root / "world" / SEGMENTS_INDEX_NAME
     if not index_path.exists():
         return []
@@ -99,6 +103,7 @@ def load_world_fact_manifests(fact_log_root: Path) -> list[FactSegmentManifest]:
 def persist_fact_segment_manifest(
     manifest: FactSegmentManifest, store: FileSystemCAS
 ) -> ArtifactRef:
+    """Persist fact segment manifest helper."""
     ref = store.put_json(
         manifest.model_dump(),
         opts=PutOptions(

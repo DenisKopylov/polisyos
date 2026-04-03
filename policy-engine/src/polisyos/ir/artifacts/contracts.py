@@ -1,3 +1,4 @@
+"""Public artifacts contracts module API."""
 from __future__ import annotations
 
 import re
@@ -49,12 +50,14 @@ class ArtifactID(RootModel[str]):
 
 
 class SchemaInfo(BaseModel):
+    """Schema info data model."""
     model_config = ConfigDict(extra="forbid")
     name: str
     version: str
 
 
 class CanonInfo(BaseModel):
+    """Canon info data model."""
     model_config = ConfigDict(extra="forbid")
 
     name: str = "polisyos.canon.json"
@@ -79,6 +82,7 @@ class CanonInfo(BaseModel):
 
 
 class InputRef(BaseModel):
+    """Input ref data model."""
     model_config = ConfigDict(extra="forbid")
     artifact_id: ArtifactID
     role: str
@@ -86,6 +90,7 @@ class InputRef(BaseModel):
 
 @dataclass(frozen=True)
 class PutOptions:
+    """Put options data model."""
     kind: str
     media_type: str
     schema: SchemaInfo | None = None
@@ -110,6 +115,7 @@ class StorePutOptions:
 
 @runtime_checkable
 class ArtifactStore(Protocol):
+    """Artifact store implementation."""
     def put_json(
         self,
         obj: Any,
@@ -133,6 +139,7 @@ def _as_payload(value: Any) -> dict[str, Any]:
 
 
 def normalize_input_refs(inputs: Sequence[Any] | None) -> list[InputRef]:
+    """Normalize input refs helper."""
     if not inputs:
         return []
     normalized: list[InputRef] = []
@@ -145,6 +152,7 @@ def normalize_input_refs(inputs: Sequence[Any] | None) -> list[InputRef]:
 
 
 def to_store_put_options(opts: PutOptions) -> StorePutOptions:
+    """Convert to store put options."""
     schema = opts.schema.model_dump(mode="python") if opts.schema is not None else None
     canon = opts.canon.model_dump(mode="python") if opts.canon is not None else None
     inputs = [entry.model_dump(mode="python") for entry in (opts.inputs or [])] or None
@@ -160,6 +168,7 @@ def to_store_put_options(opts: PutOptions) -> StorePutOptions:
 
 
 def normalize_artifact_ref(ref: Any) -> dict[str, str]:
+    """Normalize artifact ref helper."""
     payload = _as_payload(ref)
     artifact_id = payload.get("artifact_id")
     kind = payload.get("kind")

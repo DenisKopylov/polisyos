@@ -1,3 +1,4 @@
+"""Public cache ttl module API."""
 from __future__ import annotations
 
 import threading
@@ -12,6 +13,7 @@ from .protocol import K, T, V
 
 @dataclass(frozen=True, slots=True)
 class TTLCacheStats:
+    """TTL cache stats public type."""
     hits: int = 0
     misses: int = 0
     evictions: int = 0

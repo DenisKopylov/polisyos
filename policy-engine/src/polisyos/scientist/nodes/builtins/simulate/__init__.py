@@ -1,3 +1,4 @@
+"""Public builtins simulate package API."""
 from __future__ import annotations
 
 from .run_simulation import RunSimulationNode

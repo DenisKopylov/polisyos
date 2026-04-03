@@ -1,3 +1,4 @@
+"""Public agent sim demographics module API."""
 from __future__ import annotations
 
 import jax
@@ -8,6 +9,7 @@ from polisyos.foundry.agent_sim.state import AgentState
 
 
 def compute_demographic_metrics(agents: AgentState, *, steps_per_year: int = 12) -> dict[str, jnp.ndarray]:
+    """Compute demographic metrics helper."""
     active = agents.active
     n_active = jnp.sum(active.astype(jnp.float32))
     age_years = agents.age.astype(jnp.float32) / float(steps_per_year)
@@ -50,6 +52,7 @@ def compute_population_pyramid(
     max_age: int = 100,
     steps_per_year: int = 12,
 ) -> jnp.ndarray:
+    """Compute population pyramid helper."""
     age_years = agents.age.astype(jnp.float32) / float(steps_per_year)
     active = agents.active
     bin_edges = jnp.linspace(0.0, float(max_age), n_bins + 1)
@@ -66,6 +69,7 @@ def compute_intergenerational_mobility(
     agents: AgentState,
     parent_wealth_at_birth: jnp.ndarray,
 ) -> dict[str, jnp.ndarray]:
+    """Compute intergenerational mobility helper."""
     active = agents.active
     has_parent = agents.parent_id >= 0
     valid = active & has_parent

@@ -1,3 +1,4 @@
+"""Public ml transformers module API."""
 from __future__ import annotations
 
 import math
@@ -78,6 +79,7 @@ def _attention_importance(attention: np.ndarray, feature_names: list[str]) -> di
     tags={"ml", "deep-learning", "tabular-transformer"},
 )
 class TabularTransformerEstimator:
+    """Tabular transformer estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy", "scikit-learn")
 
@@ -108,6 +110,10 @@ class TabularTransformerEstimator:
         description="Transformer-style tabular regressor using a self-attention encoder with a ridge head.",
         tags=frozenset({"ml", "deep-learning", "tabular-transformer"}),
         when_to_use="Sequence modeling with long-range dependencies; NLP tasks; tabular data with attention",
+        citations=(
+            "Vaswani, A. et al. (2017). Attention is all you need. NeurIPS, 30.",
+            "Gorishniy, Y. et al. (2021). Revisiting deep learning models for tabular data. NeurIPS, 34.",
+        ),
         when_not_to_use="Very small datasets (<50 obs); need simple interpretable model; no GPU available for large models",
         output_interpretation="Task-specific output (classification logits, regression values, generated text). Attention weights for interpretability.",
         typical_min_obs=50,

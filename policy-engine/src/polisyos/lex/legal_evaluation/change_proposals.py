@@ -1,3 +1,4 @@
+"""Public legal evaluation change proposals module API."""
 from __future__ import annotations
 
 from decimal import Decimal
@@ -85,6 +86,7 @@ def propose_changes_v1(
     report_payload: dict[str, Any],
     based_on_report_ref: LegalReportRef,
 ) -> dict[str, Any]:
+    """Propose changes v 1 helper."""
     request = report_payload.get("request")
     findings = report_payload.get("findings")
     quality_issues = report_payload.get("quality_issues")
@@ -219,6 +221,7 @@ def propose_changes_impl(
     based_on_report_ref: LegalReportRef,
     segment_name: str | None = None,
 ) -> list[ChangeProposalRef]:
+    """Propose changes impl helper."""
     del fact_log_root
     del segment_name
 

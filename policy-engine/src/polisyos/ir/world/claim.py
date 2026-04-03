@@ -1,3 +1,4 @@
+"""Public world claim module API."""
 from __future__ import annotations
 
 import re
@@ -27,6 +28,7 @@ DecimalValue = Annotated[Decimal, BeforeValidator(reject_float)]
 
 
 class ClaimSourceKind(str, Enum):
+    """Claim source kind public type."""
     DOC = "doc"
     DATASET = "dataset"
     SIMULATION = "simulation"
@@ -35,6 +37,7 @@ class ClaimSourceKind(str, Enum):
 
 
 class Claim(KernelModel):
+    """Claim public type."""
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     claim_id: str = Field(..., pattern=ID_PATTERN)
     predicate_id: str = Field(..., pattern=ID_PATTERN)

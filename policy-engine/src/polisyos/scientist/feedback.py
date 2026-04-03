@@ -1,3 +1,4 @@
+"""Public scientist feedback module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -39,6 +40,7 @@ from polisyos.scientist.decision_validity import DecisionValidityService
 
 @dataclass(frozen=True)
 class FeedbackArtifacts:
+    """Feedback artifacts public type."""
     monitoring_contract_ref: str | None = None
     monitoring_report_ref: str | None = None
     compare_report_ref: str | None = None
@@ -53,6 +55,7 @@ def build_monitoring_contract_from_packet(
     packet_payload: Mapping[str, Any],
     override: Mapping[str, Any] | None = None,
 ) -> DecisionMonitoringContract | None:
+    """Build monitoring contract from packet."""
     simulation_results = (
         packet_payload.get("simulation_results")
         if isinstance(packet_payload.get("simulation_results"), Mapping)
@@ -113,6 +116,7 @@ def build_monitoring_contract_from_packet(
 def build_parameter_override_bundle(
     calibration_report: CalibrationReport,
 ) -> ParameterOverrideBundle | None:
+    """Build parameter override bundle."""
     overrides: dict[str, dict[str, Any]] = {}
     sources: dict[str, list[str]] = {}
     for key, value in calibration_report.calibrated_params.items():
@@ -131,6 +135,7 @@ def build_parameter_override_bundle(
 
 
 class DecisionFeedbackService:
+    """Decision feedback service implementation."""
     def __init__(self, store: FileSystemCAS) -> None:
         self._store = store
         self._decision_validity = DecisionValidityService(store)

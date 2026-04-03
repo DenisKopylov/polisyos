@@ -1,3 +1,4 @@
+"""Public corpus structure module API."""
 from __future__ import annotations
 
 import re
@@ -482,6 +483,7 @@ def build_legal_structure(
     options: LexStructureOptions | None = None,
     segment_name: str | None = None,
 ) -> LexStructureResult:
+    """Build legal structure."""
     opts = options or LexStructureOptions()
 
     try:

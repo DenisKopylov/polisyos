@@ -1,3 +1,4 @@
+"""Public analytics literature module API."""
 from __future__ import annotations
 
 import math
@@ -20,6 +21,7 @@ from polisyos.ir.refs import LiteratureCausalPriorRef
 
 
 class ParameterType(str, Enum):
+    """Parameter type public type."""
     QUANTITATIVE = "quantitative"
     QUALITATIVE = "qualitative"
     ORDINAL = "ordinal"
@@ -27,6 +29,7 @@ class ParameterType(str, Enum):
 
 
 class EvidenceStrength(str, Enum):
+    """Evidence strength public type."""
     RCT = "rct"
     QUASI_NATURAL = "quasi_natural"
     QUASI_NATURAL_EVENT = "quasi_natural_event"
@@ -40,6 +43,7 @@ class EvidenceStrength(str, Enum):
 
 
 class CausalDirection(str, Enum):
+    """Causal direction public type."""
     POSITIVE = "positive"
     NEGATIVE = "negative"
     NULL = "null"
@@ -49,11 +53,13 @@ class CausalDirection(str, Enum):
 
 
 class SourceBasis(str, Enum):
+    """Source basis public type."""
     FULLTEXT = "fulltext"
     ABSTRACT_ONLY = "abstract_only"
 
 
 class TextQuality(str, Enum):
+    """Text quality public type."""
     STRUCTURED_FULLTEXT = "structured_fulltext"
     EXTRACTED_FULLTEXT = "extracted_fulltext"
     ABSTRACT_ONLY = "abstract_only"
@@ -61,6 +67,7 @@ class TextQuality(str, Enum):
 
 
 class ClaimType(str, Enum):
+    """Claim type public type."""
     CAUSAL_CLAIM = "causal_claim"
     CAUSAL_ASSERTION = "causal_assertion"
     ASSOCIATIVE = "associative"
@@ -74,12 +81,14 @@ class ClaimType(str, Enum):
 
 
 class ClaimExplicitness(str, Enum):
+    """Claim explicitness public type."""
     EXPLICIT = "explicit"
     IMPLICIT = "implicit"
     UNCLEAR = "unclear"
 
 
 class DesignFamily(str, Enum):
+    """Design family public type."""
     RCT = "rct"
     IV = "iv"
     DID = "did"
@@ -103,6 +112,7 @@ class DesignFamily(str, Enum):
 
 
 class CausalCredibility(str, Enum):
+    """Causal credibility public type."""
     STRONG = "strong"
     MODERATE = "moderate"
     WEAK = "weak"
@@ -111,6 +121,7 @@ class CausalCredibility(str, Enum):
 
 
 class RiskOfBias(str, Enum):
+    """Risk of bias public type."""
     LOW = "low"
     MODERATE = "moderate"
     SERIOUS = "serious"
@@ -119,6 +130,7 @@ class RiskOfBias(str, Enum):
 
 
 class SupportStatus(str, Enum):
+    """Support status public type."""
     SUPPORTED = "supported"
     MIXED = "mixed"
     COUNTEREVIDENCE = "counterevidence"
@@ -128,6 +140,7 @@ class SupportStatus(str, Enum):
 
 
 class PaperKind(str, Enum):
+    """Paper kind public type."""
     EMPIRICAL_CAUSAL = "empirical_causal"
     CONTEXT_CHARACTERIZATION = "context_characterization"
     HETEROGENEITY_ANALYSIS = "heterogeneity_analysis"
@@ -138,6 +151,7 @@ class PaperKind(str, Enum):
 
 
 class EvidenceSpan(BaseModel):
+    """Evidence span public type."""
     model_config = ConfigDict(extra="forbid")
 
     span_id: str = ""
@@ -225,6 +239,7 @@ class ModerationEdge(BaseModel):
 
 
 class EvidenceParameter(BaseModel):
+    """Evidence parameter public type."""
     model_config = ConfigDict(extra="forbid")
 
     name: str
@@ -260,6 +275,7 @@ class EvidenceParameter(BaseModel):
 
 
 class CausalClaim(BaseModel):
+    """Causal claim public type."""
     model_config = ConfigDict(extra="forbid")
 
     claim_id: str = ""
@@ -323,6 +339,7 @@ class CausalClaim(BaseModel):
 
 
 class Mechanism(BaseModel):
+    """Mechanism public type."""
     model_config = ConfigDict(extra="forbid")
 
     description: str
@@ -332,6 +349,7 @@ class Mechanism(BaseModel):
 
 
 class BoundaryCondition(BaseModel):
+    """Boundary condition public type."""
     model_config = ConfigDict(extra="forbid")
 
     variable: str = ""
@@ -479,6 +497,7 @@ class ClaimAdjudicationResult(BaseModel):
 
 
 class LiteratureEdgePrior(BaseModel):
+    """Literature edge prior public type."""
     model_config = ConfigDict(extra="forbid")
 
     src: str
@@ -494,6 +513,7 @@ class LiteratureEdgePrior(BaseModel):
 
 
 class ReconciliationDiagnostics(BaseModel):
+    """Reconciliation diagnostics public type."""
     model_config = ConfigDict(extra="forbid")
 
     cyclic_inconsistency_norm: float = Field(default=0.0, ge=0.0)
@@ -515,6 +535,7 @@ class ReconciliationDiagnostics(BaseModel):
 
 
 class EnvironmentAuditReport(BaseModel):
+    """Environment audit report data model."""
     model_config = ConfigDict(extra="forbid")
 
     status: Literal["ok", "warning", "skipped", "degraded"] = "skipped"
@@ -533,6 +554,7 @@ class EnvironmentAuditReport(BaseModel):
 
 
 class LiteratureCausalPrior(BaseModel):
+    """Literature causal prior public type."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = "1.0"
@@ -607,6 +629,7 @@ def persist_article_extraction_result(
     *,
     inputs: list[InputRef] | None = None,
 ) -> dict:
+    """Persist article extraction result helper."""
     return put_json_artifact(
         store,
         result.model_dump(mode="json"),
@@ -619,6 +642,7 @@ def persist_article_extraction_result(
 
 
 def load_article_extraction_result(store: ArtifactStore, ref: object) -> ArticleExtractionResult:
+    """Load article extraction result."""
     artifact_id = ref.artifact_id if hasattr(ref, "artifact_id") else ref
     artifact = artifact_id if isinstance(artifact_id, ArtifactID) else ArtifactID(str(artifact_id))
     payload = get_json_artifact(store, artifact)
@@ -631,6 +655,7 @@ def persist_literature_causal_prior(
     *,
     inputs: list[InputRef] | None = None,
 ) -> LiteratureCausalPriorRef:
+    """Persist literature causal prior helper."""
     ref = put_json_artifact(
         store,
         prior.model_dump(mode="json"),
@@ -647,6 +672,7 @@ def load_literature_causal_prior(
     store: ArtifactStore,
     ref: LiteratureCausalPriorRef | object,
 ) -> LiteratureCausalPrior:
+    """Load literature causal prior."""
     artifact_id = ref.artifact_id if hasattr(ref, "artifact_id") else ref
     artifact = artifact_id if isinstance(artifact_id, ArtifactID) else ArtifactID(str(artifact_id))
     payload = get_json_artifact(store, artifact)

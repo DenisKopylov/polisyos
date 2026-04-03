@@ -1,3 +1,4 @@
+"""Public batch doc identity module API."""
 from __future__ import annotations
 
 import hashlib
@@ -24,14 +25,17 @@ def _stable_hash(*parts: str, size: int = 18) -> str:
 
 
 def normalize_text_key(value: str) -> str:
+    """Normalize text key helper."""
     return _NON_ALNUM_RE.sub(" ", _compact_ws(value).lower()).strip()
 
 
 def normalize_ref_number(value: str) -> str:
+    """Normalize ref number helper."""
     return _NUMBER_NON_WORD_RE.sub("", _compact_ws(value).lower())
 
 
 def normalize_publishers(value: Any) -> str:
+    """Normalize publishers helper."""
     if isinstance(value, str):
         parts = [value]
     elif isinstance(value, (list, tuple)):
@@ -42,6 +46,7 @@ def normalize_publishers(value: Any) -> str:
 
 
 def doc_type_category(value: str) -> str:
+    """Doc type category helper."""
     raw = normalize_text_key(value)
     if not raw:
         return ""
@@ -73,6 +78,7 @@ def doc_type_category(value: str) -> str:
 
 
 def parse_doc_date(value: str | None) -> date | None:
+    """Parse doc date helper."""
     if value is None:
         return None
     raw = value.strip()
@@ -95,6 +101,7 @@ def parse_doc_date(value: str | None) -> date | None:
 
 
 def doc_family_id(meta: dict[str, Any]) -> str:
+    """Doc family ID helper."""
     doc_type = doc_type_category(str(meta.get("doc_type") or ""))
     number = normalize_ref_number(str(meta.get("number") or meta.get("reg_number") or ""))
     publisher = normalize_publishers(meta.get("publisher"))
@@ -108,6 +115,7 @@ def doc_family_id(meta: dict[str, Any]) -> str:
 
 
 def version_sort_key(meta: dict[str, Any], doc_id: str) -> tuple[date, str, str]:
+    """Version sort key helper."""
     doc_date = (
         parse_doc_date(str(meta.get("date_acc") or ""))
         or parse_doc_date(str(meta.get("reestr_date") or ""))
@@ -123,6 +131,7 @@ def version_sort_key(meta: dict[str, Any], doc_id: str) -> tuple[date, str, str]
 
 @dataclass(frozen=True)
 class DocIndexEntry:
+    """Doc index entry data model."""
     doc_id: str
     family_id: str
     reestr_code: str
@@ -145,6 +154,7 @@ class DocIndexEntry:
 
 @dataclass(frozen=True)
 class DocResolutionIndex:
+    """Doc resolution index public type."""
     entries: list[DocIndexEntry]
     by_doc_id: dict[str, DocIndexEntry]
     by_reestr_code: dict[str, list[DocIndexEntry]]
@@ -157,6 +167,7 @@ class DocResolutionIndex:
 
 
 def build_doc_resolution_index(doc_metadata: dict[str, dict[str, Any]]) -> DocResolutionIndex:
+    """Build doc resolution index."""
     entries: list[DocIndexEntry] = []
     by_doc_id: dict[str, DocIndexEntry] = {}
     by_reestr_code: dict[str, list[DocIndexEntry]] = {}
@@ -194,7 +205,8 @@ def build_doc_resolution_index(doc_metadata: dict[str, dict[str, Any]]) -> DocRe
             status=str(meta.get("status") or ""),
             meta=meta,
         )
-        entries.append(entry)
+        if entry.name_norm:
+            entries.append(entry)
         by_doc_id[doc_id] = entry
         if entry.reestr_code_norm:
             by_reestr_code.setdefault(entry.reestr_code_norm, []).append(entry)
@@ -215,7 +227,8 @@ def build_doc_resolution_index(doc_metadata: dict[str, dict[str, Any]]) -> DocRe
             key=lambda item: version_sort_key(item.meta, item.doc_id),
         )
         by_family[family_id] = ordered
-        latest_by_family[family_id] = ordered[-1]
+        named_ordered = [item for item in ordered if item.name_norm]
+        latest_by_family[family_id] = (named_ordered or ordered)[-1]
 
     return DocResolutionIndex(
         entries=entries,

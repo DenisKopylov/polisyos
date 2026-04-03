@@ -1,3 +1,4 @@
+"""Public policy verified service module API."""
 from __future__ import annotations
 
 import asyncio
@@ -61,6 +62,7 @@ from polisyos.scientist.policy_verified.models import (
 
 
 def build_policy_request_frame(ctx: ExecutionContext, state: ExperimentState) -> PolicyRequestFrame:
+    """Build policy request frame."""
     intent = _load_research_intent(ctx.store, state.inputs.get(INPUT_RESEARCH_INTENT_REF))
     params = state.params
     raw_question = (
@@ -118,6 +120,7 @@ def assemble_legal_candidate_pack(
     state: ExperimentState,
     frame: PolicyRequestFrame,
 ) -> LegalCandidatePack:
+    """Assemble legal candidate pack helper."""
     toolkit = _build_legal_toolkit(ctx, state)
     legal_status = _resolve_legal_source_status(ctx, state, toolkit=toolkit)
     if toolkit is None:
@@ -167,6 +170,7 @@ def expand_legal_source_pack(
     state: ExperimentState,
     candidate_pack: LegalCandidatePack,
 ) -> LegalSourcePack:
+    """Expand legal source pack helper."""
     toolkit = _build_legal_toolkit(ctx, state)
     legal_status = _resolve_legal_source_status(ctx, state, toolkit=toolkit)
     if toolkit is None:
@@ -205,6 +209,7 @@ def verify_source_pack(
     candidate_pack: LegalCandidatePack,
     source_pack: LegalSourcePack,
 ) -> SourceVerificationReport:
+    """Verify source pack helper."""
     baseline_claims = _baseline_verified_claims(candidate_pack, source_pack)
     gaps = _initial_gaps(source_pack, baseline_claims)
     report = SourceVerificationReport(
@@ -251,6 +256,7 @@ def review_source_gaps(
     source_pack: LegalSourcePack,
     report: SourceVerificationReport,
 ) -> SourceVerificationReport:
+    """Review source gaps helper."""
     gaps = list(report.unresolved_critical_gaps)
     if not gaps and report.verified_claims:
         return report
@@ -287,6 +293,7 @@ def recover_source_gaps(
     source_pack: LegalSourcePack,
     report: SourceVerificationReport,
 ) -> tuple[LegalCandidatePack, LegalSourcePack, SourceVerificationReport]:
+    """Recover source gaps helper."""
     reviewed_report = review_source_gaps(state, frame, source_pack, report)
     if not reviewed_report.unresolved_critical_gaps:
         return candidate_pack, source_pack, reviewed_report
@@ -418,6 +425,7 @@ def draft_policy_option_set(
     frame: PolicyRequestFrame,
     report: SourceVerificationReport,
 ) -> PolicyOptionSet:
+    """Draft policy option set helper."""
     verified_claims = report.verified_claims
     citations = sorted({claim.citation_label for claim in verified_claims if claim.citation_label})
     constraints = [
@@ -471,6 +479,7 @@ def formalize_policy_option_set(
     frame: PolicyRequestFrame,
     option_set: PolicyOptionSet,
 ) -> TrinityBundleRef | None:
+    """Formalize policy option set helper."""
     existing_ref = state.inputs.get(INPUT_TRINITY_BUNDLE_REF)
     if existing_ref is not None:
         return TrinityBundleRef.model_validate(existing_ref.model_dump())
@@ -513,6 +522,7 @@ def build_verified_policy_report(
     report: SourceVerificationReport,
     option_set: PolicyOptionSet,
 ) -> VerifiedPolicyReport:
+    """Build verified policy report."""
     constraints_and_timing = []
     for option in option_set.verified_options:
         constraints_and_timing.extend(option.constraints)

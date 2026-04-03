@@ -44,6 +44,11 @@ class BenchmarkRegistryEntry(BaseModel):
     artifact_kind: str | None = None
     rotation_group: str | None = None
     produced_by_run_id: str | None = None
+    validation_contour: str | None = None
+    visibility: str | None = None
+    holdout_family: str | None = None
+    benchmark_revision: str | None = None
+    comparator_profile: str | None = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     metadata: dict[str, Any] = Field(default_factory=dict)
 
@@ -176,6 +181,11 @@ class BenchmarkRegistry:
         artifact_kind: str | None = None,
         rotation_group: str | None = None,
         produced_by_run_id: str | None = None,
+        validation_contour: str | None = None,
+        visibility: str | None = None,
+        holdout_family: str | None = None,
+        benchmark_revision: str | None = None,
+        comparator_profile: str | None = None,
     ) -> None:
         normalized = _normalize_split_type(split_type)
         snapshot = self._load_snapshot()
@@ -197,6 +207,11 @@ class BenchmarkRegistry:
             produced_by_run_id=str(produced_by_run_id).strip() or None
             if produced_by_run_id is not None
             else None,
+            validation_contour=_normalize_scope_text(validation_contour),
+            visibility=_normalize_scope_text(visibility),
+            holdout_family=_normalize_scope_text(holdout_family),
+            benchmark_revision=_normalize_scope_text(benchmark_revision),
+            comparator_profile=_normalize_scope_text(comparator_profile),
             metadata=dict(metadata or {}),
         )
         deduped = [
@@ -212,6 +227,11 @@ class BenchmarkRegistry:
                 and _scope_value(item, "query_type") == entry.query_type
                 and _scope_value(item, "estimator_name") == entry.estimator_name
                 and _scope_value(item, "readiness_target") == entry.readiness_target
+                and _scope_value(item, "validation_contour") == entry.validation_contour
+                and _scope_value(item, "visibility") == entry.visibility
+                and _scope_value(item, "holdout_family") == entry.holdout_family
+                and _scope_value(item, "benchmark_revision") == entry.benchmark_revision
+                and _scope_value(item, "comparator_profile") == entry.comparator_profile
             )
         ]
         deduped.append(entry)
@@ -234,6 +254,11 @@ class BenchmarkRegistry:
         query_type: str | None = None,
         estimator_name: str | None = None,
         readiness_target: str | None = None,
+        validation_contour: str | None = None,
+        visibility: str | None = None,
+        holdout_family: str | None = None,
+        benchmark_revision: str | None = None,
+        comparator_profile: str | None = None,
     ) -> list[ArtifactRef]:
         return [
             item.artifact_ref
@@ -246,6 +271,11 @@ class BenchmarkRegistry:
                 query_type=query_type,
                 estimator_name=estimator_name,
                 readiness_target=readiness_target,
+                validation_contour=validation_contour,
+                visibility=visibility,
+                holdout_family=holdout_family,
+                benchmark_revision=benchmark_revision,
+                comparator_profile=comparator_profile,
             )
         ]
 
@@ -260,6 +290,11 @@ class BenchmarkRegistry:
         query_type: str | None = None,
         estimator_name: str | None = None,
         readiness_target: str | None = None,
+        validation_contour: str | None = None,
+        visibility: str | None = None,
+        holdout_family: str | None = None,
+        benchmark_revision: str | None = None,
+        comparator_profile: str | None = None,
     ) -> list[BenchmarkRegistryEntry]:
         normalized = _normalize_split_type(split_type)
         snapshot = self._load_snapshot()
@@ -267,6 +302,11 @@ class BenchmarkRegistry:
         query_type = _normalize_scope_text(query_type)
         estimator_name = _normalize_scope_text(estimator_name)
         readiness_target = _normalize_scope_text(readiness_target)
+        validation_contour = _normalize_scope_text(validation_contour)
+        visibility = _normalize_scope_text(visibility)
+        holdout_family = _normalize_scope_text(holdout_family)
+        benchmark_revision = _normalize_scope_text(benchmark_revision)
+        comparator_profile = _normalize_scope_text(comparator_profile)
         filtered = [
             item
             for item in snapshot.entries
@@ -284,6 +324,26 @@ class BenchmarkRegistry:
                 readiness_target is None
                 or _scope_value(item, "readiness_target") == readiness_target
             )
+            and (
+                validation_contour is None
+                or _scope_value(item, "validation_contour") == validation_contour
+            )
+            and (
+                visibility is None
+                or _scope_value(item, "visibility") == visibility
+            )
+            and (
+                holdout_family is None
+                or _scope_value(item, "holdout_family") == holdout_family
+            )
+            and (
+                benchmark_revision is None
+                or _scope_value(item, "benchmark_revision") == benchmark_revision
+            )
+            and (
+                comparator_profile is None
+                or _scope_value(item, "comparator_profile") == comparator_profile
+            )
         ]
         filtered.sort(key=lambda item: item.created_at.timestamp(), reverse=True)
         return filtered
@@ -299,6 +359,11 @@ class BenchmarkRegistry:
         query_type: str | None = None,
         estimator_name: str | None = None,
         readiness_target: str | None = None,
+        validation_contour: str | None = None,
+        visibility: str | None = None,
+        holdout_family: str | None = None,
+        benchmark_revision: str | None = None,
+        comparator_profile: str | None = None,
     ) -> ArtifactRef | None:
         refs = self.get(
             split_type,
@@ -309,6 +374,11 @@ class BenchmarkRegistry:
             query_type=query_type,
             estimator_name=estimator_name,
             readiness_target=readiness_target,
+            validation_contour=validation_contour,
+            visibility=visibility,
+            holdout_family=holdout_family,
+            benchmark_revision=benchmark_revision,
+            comparator_profile=comparator_profile,
         )
         return refs[0] if refs else None
 
@@ -325,6 +395,11 @@ class BenchmarkRegistry:
         rotation_group: str | None = None,
         produced_by_run_id: str | None = None,
         metadata: dict[str, Any] | None = None,
+        validation_contour: str | None = None,
+        visibility: str | None = None,
+        holdout_family: str | None = None,
+        benchmark_revision: str | None = None,
+        comparator_profile: str | None = None,
     ) -> None:
         combined_metadata = dict(evaluation.metadata)
         combined_metadata.update(metadata or {})
@@ -345,6 +420,16 @@ class BenchmarkRegistry:
             rotation_group=rotation_group
             or _normalize_scope_text(combined_metadata.get("rotation_group")),
             produced_by_run_id=produced_by_run_id,
+            validation_contour=validation_contour
+            or _normalize_scope_text(combined_metadata.get("validation_contour")),
+            visibility=visibility
+            or _normalize_scope_text(combined_metadata.get("visibility")),
+            holdout_family=holdout_family
+            or _normalize_scope_text(combined_metadata.get("holdout_family")),
+            benchmark_revision=benchmark_revision
+            or _normalize_scope_text(combined_metadata.get("benchmark_revision")),
+            comparator_profile=comparator_profile
+            or _normalize_scope_text(combined_metadata.get("comparator_profile")),
             metadata=combined_metadata,
         )
 

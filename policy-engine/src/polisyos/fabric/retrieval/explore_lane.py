@@ -20,6 +20,7 @@ logger = get_logger(__name__)
 
 @dataclass(frozen=True)
 class ExploreLaneLimits:
+    """Explore lane limits public type."""
     max_sources_per_query: int = 5
     max_discovery_calls_per_source: int = 25
     max_candidates_total: int = 50
@@ -29,6 +30,7 @@ class ExploreLaneLimits:
 
 @dataclass(frozen=True)
 class ExploreLaneDiscoverResult:
+    """Explore lane discover result data model."""
     candidates: list[DiscoveryCandidate]
     docs_fetched_total: int
     warnings: list[str]

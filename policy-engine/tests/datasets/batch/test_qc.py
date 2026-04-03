@@ -87,6 +87,49 @@ def test_qc_writes_coverage_heatmap_when_observations_exist(tmp_path) -> None:
     assert Path(report.metrics["coverage_heatmap_path"]).exists()
 
 
+def test_qc_supports_legacy_dataset_schema_without_coverage_columns(tmp_path) -> None:
+    config = DatasetBatchConfig(snapshot_root=tmp_path / "snap")
+
+    raw_dir = config.raw_dir / "unesco_uis" / "20260218T000000Z"
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    payload = raw_dir / "payload.jsonl"
+    payload.write_text('{"id":"EDU_001"}\n', encoding="utf-8")
+    write_raw_manifest(
+        manifest_path=raw_dir / "manifest.json",
+        source="unesco_uis",
+        endpoint="https://example.test",
+        payload_path=payload,
+        count=1,
+    )
+
+    config.merged_records_path.parent.mkdir(parents=True, exist_ok=True)
+    config.merged_records_path.write_text('{"title":"Dataset","description":"Desc","source":"unesco_uis"}\n', encoding="utf-8")
+
+    con = duckdb.connect(str(config.db_path))
+    con.execute(
+        "CREATE TABLE ds_distributions (url VARCHAR, dataset_id VARCHAR, format VARCHAR)"
+    )
+    con.execute(
+        "CREATE TABLE ds_datasets ("
+        "id VARCHAR, source VARCHAR, title VARCHAR, description VARCHAR, spatial VARCHAR, "
+        "temporal_start VARCHAR, temporal_end VARCHAR, polisyos_metrics VARCHAR[], variables VARCHAR[], "
+        "keywords VARCHAR[], themes VARCHAR[], formats VARCHAR[], updated_at TIMESTAMP)"
+    )
+    con.execute(
+        "INSERT INTO ds_datasets VALUES ("
+        "'ds-uis', 'unesco_uis', 'Education', 'Legacy schema dataset', 'UA', "
+        "'2000', '2022', ['education_outcomes'], ['EDU_001'], [], [], ['CSV'], CURRENT_TIMESTAMP)"
+    )
+    con.execute("CHECKPOINT")
+    con.close()
+
+    report = run_qc(config, fail_fast=False)
+
+    assert "datasets_with_temporal_coverage_pct" in report.metrics
+    assert "datasets_with_geographic_coverage_pct" in report.metrics
+    assert "execution_readiness_score_avg" in report.metrics
+
+
 def test_qc_fail_fast_raises_on_manifest_mismatch(tmp_path) -> None:
     config = DatasetBatchConfig(snapshot_root=tmp_path / "snap")
 
@@ -201,6 +244,56 @@ def test_qc_uses_preflight_threshold_contract(tmp_path) -> None:
     assert report.passed is True
     assert "benchmark_transport_ready_pct" not in failures
     assert "benchmark_foundry_fitness_pct" not in failures
+
+
+def test_qc_marks_transport_failures_as_diagnostic_for_partial_eval(tmp_path) -> None:
+    config = DatasetBatchConfig(snapshot_root=tmp_path / "snap")
+
+    raw_dir = config.raw_dir / "oecd" / "20260218T000000Z"
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    payload = raw_dir / "payload.jsonl"
+    payload.write_text('{"id":"DF_TEST"}\n', encoding="utf-8")
+    write_raw_manifest(
+        manifest_path=raw_dir / "manifest.json",
+        source="oecd",
+        endpoint="https://example.test",
+        payload_path=payload,
+        count=1,
+    )
+    config.merged_records_path.write_text('{"title":"Dataset","description":"Desc"}\n', encoding="utf-8")
+    with open(config.benchmark_report_path, "w", encoding="utf-8") as fh:
+        json.dump(
+            {
+                "kind": "datasets_benchmark",
+                "evaluation_mode": "partial-eval",
+                "metrics": {
+                    "benchmark_search_top5_relevance_pct": 90.0,
+                    "benchmark_retrieval_ready_pct": 90.0,
+                    "benchmark_transport_ready_pct": 0.0,
+                    "benchmark_foundry_fitness_pct": 90.0,
+                    "benchmark_source_preflight_ready_pct": 0.0,
+                },
+                "thresholds": READINESS_THRESHOLDS,
+            },
+            fh,
+            ensure_ascii=False,
+            indent=2,
+        )
+
+    con = duckdb.connect(str(config.db_path))
+    con.execute("CREATE TABLE IF NOT EXISTS ds_distributions (url VARCHAR)")
+    con.execute("CHECKPOINT")
+    con.close()
+
+    report = run_qc(config, fail_fast=False)
+    checks = {check.name: check for check in report.checks}
+
+    assert report.passed is True
+    assert checks["benchmark_transport_ready_pct"].group == "empirical-transport-health"
+    assert checks["benchmark_transport_ready_pct"].severity == "warning"
+    assert checks["benchmark_transport_ready_pct"].status == "blocked"
+    assert checks["benchmark_source_preflight_ready_pct"].severity == "warning"
+    assert report.metrics["qc_evaluation_mode"] == "partial-eval"
 
 
 def test_qc_skips_coverage_and_spread_as_blocking_checks_for_preflight(tmp_path) -> None:

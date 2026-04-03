@@ -1,3 +1,4 @@
+"""Public workflows engine base module API."""
 from __future__ import annotations
 
 from typing import Any, Dict, Protocol, runtime_checkable

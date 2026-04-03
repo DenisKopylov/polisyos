@@ -278,6 +278,7 @@ class ReflexionOrchestrator:
 
 
 def increment_retry_count(state: "ExperimentState") -> "ExperimentState":
+    """Increment retry count helper."""
     current = state.get("total_retry_count", 0)
     return {**state, "total_retry_count": current + 1}
 
@@ -286,6 +287,7 @@ def add_failure_to_history(
     state: "ExperimentState",
     card: FailureCard,
 ) -> "ExperimentState":
+    """Add failure to history helper."""
     history = list(state.get("failure_history", []))
     history.append(FailureCardRef.from_card(card).model_dump(mode="json"))
     return {**state, "failure_history": history}
@@ -295,10 +297,12 @@ def set_current_failure_card(
     state: "ExperimentState",
     card: Optional[FailureCard],
 ) -> "ExperimentState":
+    """Set current failure card helper."""
     return {**state, "current_failure_card": card.model_dump(mode="json") if card else None}
 
 
 def clear_reflexion_state(state: "ExperimentState") -> "ExperimentState":
+    """Clear reflexion state helper."""
     return {
         **state,
         "current_failure_card": None,

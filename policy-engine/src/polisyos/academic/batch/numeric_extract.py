@@ -79,6 +79,7 @@ def _raw_numeric_rows(result: ArticleExtractionResult, source_context: dict[str,
     return rows
 
 def run_numeric_extract(config: AcademicBatchConfig) -> dict[str, int]:
+    """Run numeric extract."""
     started_at = datetime.now(UTC).isoformat()
     final_results = _load_final_results(config.resolve_extract_final_results_path)
     context_profiles = _load_context_profiles(config.resolve_extract_final_works_path)

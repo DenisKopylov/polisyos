@@ -75,6 +75,7 @@ def anonymize_tenant_id(tenant_id: str | None) -> str | None:
 
 
 def tenant_partition(tenant_hash: str | None) -> str:
+    """Tenant partition helper."""
     return _slug(tenant_hash or "global")
 
 
@@ -84,6 +85,7 @@ def build_transfer_hop(
     *,
     provenance_weight: float,
 ) -> TransferAuditHop:
+    """Build transfer hop."""
     return TransferAuditHop(
         from_task_family=source.task_family,
         from_domain=source.domain,

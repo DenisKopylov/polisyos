@@ -1,3 +1,4 @@
+"""Public kernel trust module API."""
 from __future__ import annotations
 
 from typing import Literal
@@ -8,6 +9,7 @@ from .base import ID_PATTERN, KernelModel
 
 
 class TrustPolicySpec(KernelModel):
+    """Trust policy spec data model."""
     policy_id: str = Field(..., pattern=ID_PATTERN)
     description: str | None = Field(None, max_length=200)
     min_confidence: float | None = None
@@ -17,6 +19,7 @@ class TrustPolicySpec(KernelModel):
 
 
 class TrustRegistry(KernelModel):
+    """Trust registry implementation."""
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
     policies: dict[str, TrustPolicySpec] = Field(default_factory=dict)
     notes: list[str] = Field(default_factory=list)

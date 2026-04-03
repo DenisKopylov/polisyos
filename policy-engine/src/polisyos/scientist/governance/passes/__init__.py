@@ -1,3 +1,5 @@
+"""Lazy public facade for builtin Scientist governance passes."""
+
 from __future__ import annotations
 
 from typing import Any
@@ -15,8 +17,11 @@ __all__ = [
     "PassContext",
     "ValidatorPass",
     "BudgetPass",
+    "CheckpointPass",
     "ConfidencePass",
+    "CrossGraphEvidencePass",
     "EquityPass",
+    "FreshnessPass",
     "HumanReviewRequiredPass",
     "LegalPass",
     "LiteratureGatePass",
@@ -27,6 +32,7 @@ __all__ = [
     "QualityGatePass",
     "SafetyPass",
     "SchemaPass",
+    "StrategicResponsePass",
     "SutvaCheckPass",
     "TransportabilityRequiredPass",
 ]
@@ -37,14 +43,26 @@ def __getattr__(name: str) -> Any:
         from .budget_pass import BudgetPass
 
         return BudgetPass
+    if name == "CheckpointPass":
+        from .checkpoint_pass import CheckpointPass
+
+        return CheckpointPass
     if name == "ConfidencePass":
         from .confidence_pass import ConfidencePass
 
         return ConfidencePass
+    if name == "CrossGraphEvidencePass":
+        from .cross_graph_evidence_pass import CrossGraphEvidencePass
+
+        return CrossGraphEvidencePass
     if name == "EquityPass":
         from .equity_pass import EquityPass
 
         return EquityPass
+    if name == "FreshnessPass":
+        from .freshness_pass import FreshnessPass
+
+        return FreshnessPass
     if name == "HumanReviewRequiredPass":
         from .human_review_pass import HumanReviewRequiredPass
 
@@ -85,6 +103,10 @@ def __getattr__(name: str) -> Any:
         from .schema_pass import SchemaPass
 
         return SchemaPass
+    if name == "StrategicResponsePass":
+        from .strategic_response_pass import StrategicResponsePass
+
+        return StrategicResponsePass
     if name == "SutvaCheckPass":
         from .sutva_check_pass import SutvaCheckPass
 

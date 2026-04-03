@@ -136,6 +136,7 @@ CANONICAL_VARIABLES: Final[dict[str, dict[str, list[str]]]] = _build_seed()
 
 
 def canonical_variable_count() -> int:
+    """Canonical variable count helper."""
     total = 0
     for children in CANONICAL_VARIABLES.values():
         total += len(children)

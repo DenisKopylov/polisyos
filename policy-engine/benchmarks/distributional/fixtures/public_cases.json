@@ -1,0 +1,73 @@
+{
+  "family": "distributional",
+  "visibility": "public",
+  "revision": "2.1",
+  "cases": [
+    {
+      "case_id": "distributional::wasserstein_shift_public",
+      "case_class": "wasserstein_shift",
+      "inputs_ref": "fixture://distributional/wasserstein_shift_public",
+      "oracle_ref": "oracle://distributional/wasserstein_shift_public",
+      "baseline_overlap": ["pot"],
+      "gates": {
+        "claim_eligible": true
+      },
+      "tags": ["distributional", "wasserstein"],
+      "source_distribution": [0.1, 0.4, 0.7, 1.1],
+      "target_distribution": [0.2, 0.5, 0.9, 1.2],
+      "quantile_level": 0.5,
+      "tail_alpha": 0.9,
+      "expected_metrics": {
+        "wasserstein_error": 0.125,
+        "quantile_error": 0.1,
+        "tail_risk_error": 0.1,
+        "mass_conservation_rate": 1.0,
+        "subgroup_monotonicity_rate": 1.0
+      }
+    },
+    {
+      "case_id": "distributional::tail_risk_shift_public",
+      "case_class": "tail_risk_shift",
+      "inputs_ref": "fixture://distributional/tail_risk_shift_public",
+      "oracle_ref": "oracle://distributional/tail_risk_shift_public",
+      "baseline_overlap": ["pot"],
+      "gates": {
+        "claim_eligible": true
+      },
+      "tags": ["distributional", "tail_risk"],
+      "source_distribution": [0.0, 0.1, 0.2, 0.4, 1.0],
+      "target_distribution": [0.0, 0.15, 0.25, 0.55, 1.25],
+      "quantile_level": 0.75,
+      "tail_alpha": 0.8,
+      "expected_metrics": {
+        "wasserstein_error": 0.1,
+        "quantile_error": 0.15,
+        "tail_risk_error": 0.175,
+        "mass_conservation_rate": 1.0,
+        "subgroup_monotonicity_rate": 1.0
+      }
+    },
+    {
+      "case_id": "distributional::subgroup_shift_public",
+      "case_class": "subgroup_shift",
+      "inputs_ref": "fixture://distributional/subgroup_shift_public",
+      "oracle_ref": "oracle://distributional/subgroup_shift_public",
+      "baseline_overlap": ["pot"],
+      "gates": {
+        "claim_eligible": true
+      },
+      "tags": ["distributional", "subgroup"],
+      "source_distribution": [0.05, 0.15, 0.3, 0.45, 0.7],
+      "target_distribution": [0.1, 0.2, 0.35, 0.5, 0.75],
+      "quantile_level": 0.6,
+      "tail_alpha": 0.85,
+      "expected_metrics": {
+        "wasserstein_error": 0.05,
+        "quantile_error": 0.05,
+        "tail_risk_error": 0.05,
+        "mass_conservation_rate": 1.0,
+        "subgroup_monotonicity_rate": 1.0
+      }
+    }
+  ]
+}

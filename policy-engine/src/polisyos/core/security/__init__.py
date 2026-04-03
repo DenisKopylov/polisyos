@@ -1,3 +1,4 @@
+"""Public core security package API."""
 from __future__ import annotations
 
 from importlib import import_module

@@ -1,3 +1,4 @@
+"""Public analytics abstraction module API."""
 from __future__ import annotations
 
 import math
@@ -47,6 +48,7 @@ def _validate_artifact_ref(ref: ArtifactRefModel, *, field_name: str) -> Artifac
 
 
 class AbstractionPreservationType(str, Enum):
+    """Abstraction preservation type public type."""
     EXACT = "exact"
     APPROXIMATE = "approximate"
     POLICY_VALUE_ONLY = "policy_value_only"
@@ -164,6 +166,7 @@ def persist_finite_state_abstraction_map(
     schema_name: str = _FINITE_STATE_ABSTRACTION_MAP_SCHEMA_NAME,
     schema_version: str = _FINITE_STATE_ABSTRACTION_MAP_SCHEMA_VERSION,
 ) -> FiniteStateAbstractionMapRef:
+    """Persist finite state abstraction map helper."""
     ref = put_json_artifact(
         store,
         abstraction_map.model_dump(mode="json"),
@@ -180,6 +183,7 @@ def load_finite_state_abstraction_map(
     store: ArtifactStore,
     ref: FiniteStateAbstractionMapRef,
 ) -> FiniteStateAbstractionMap:
+    """Load finite state abstraction map."""
     payload = get_json_artifact(store, ref.artifact_id)
     return FiniteStateAbstractionMap.model_validate(payload)
 
@@ -192,6 +196,7 @@ def persist_abstraction_certificate(
     schema_name: str = _ABSTRACTION_CERTIFICATE_SCHEMA_NAME,
     schema_version: str = _ABSTRACTION_CERTIFICATE_SCHEMA_VERSION,
 ) -> AbstractionCertificateRef:
+    """Persist abstraction certificate helper."""
     ref = put_json_artifact(
         store,
         certificate.model_dump(mode="json"),
@@ -208,6 +213,7 @@ def load_abstraction_certificate(
     store: ArtifactStore,
     ref: AbstractionCertificateRef,
 ) -> AbstractionCertificate:
+    """Load abstraction certificate."""
     payload = get_json_artifact(store, ref.artifact_id)
     return AbstractionCertificate.model_validate(payload)
 

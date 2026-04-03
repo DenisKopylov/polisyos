@@ -641,7 +641,7 @@ MZ_ID_CASES = (
         ),
         IdentificationStatus.IDENTIFIED,
         r"P(Y \mid X)",
-        ("S_AUGMENT", "C_COMPONENT"),
+        ("S_AUGMENT", "G_FORMULA"),
     ),
     (
         "bow_arc_no_domains_falls_back_to_hedge",

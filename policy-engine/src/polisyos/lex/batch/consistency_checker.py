@@ -73,6 +73,7 @@ def detect_consistency_issues(
     *,
     jurisdiction: str = "UA",
 ) -> int:
+    """Detect consistency issues helper."""
     if not _table_exists(con, "lex_consistency_issues") or not _table_exists(con, "lex_normative_facts"):
         return 0
     con.execute("DELETE FROM lex_consistency_issues")

@@ -42,23 +42,9 @@ from polisyos.scientist.autotune.models import (
 )
 from polisyos.scientist.discovery.priors import PriorKnowledgeBundle
 from polisyos.scientist.engine.budget import BudgetState
-from polisyos.scientist.governance.pass_entrypoints import (
-    budget_pass_factory,
-    equity_pass_factory,
-    human_review_required_pass_factory,
-    legal_pass_factory,
-    pii_check_pass_factory,
-    privacy_pass_factory,
-)
-from polisyos.scientist.governance.passes.checkpoint_pass import CheckpointPass
-from polisyos.scientist.governance.passes.citation_validator_pass import CitationValidatorPass
-from polisyos.scientist.governance.passes.freshness_pass import FreshnessPass
-from polisyos.scientist.governance.passes.quality_gate_pass import QualityGatePass
-from polisyos.scientist.governance.passes.refutation_pass import RefutationPass
-from polisyos.scientist.governance.passes.sutva_check_pass import SutvaCheckPass
-from polisyos.scientist.governance.passes.transportability_required_pass import (
-    TransportabilityRequiredPass,
-)
+# Governance passes are lazy-imported inside the methods that use them to keep
+# module-level cold-start time below the 15 s CI threshold.  The TYPE_CHECKING
+# guard preserves static type information without triggering the import chain.
 from polisyos.scientist.governance.report import GovernanceReport
 from polisyos.scientist.policy_design.objectives import PolicyEvaluationVector
 from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
@@ -70,7 +56,6 @@ from polisyos.scientist.search.latent_governance import (
     assess_latent_governance,
 )
 from polisyos.scientist.search.registry_contracts import ChampionRegistryContract
-from polisyos.scientist.search.promotion_evidence import PromotionEvidenceBundle
 from polisyos.scientist.search.readiness import (
     DecisionReadinessContract,
     DecisionReadinessEvaluator,
@@ -91,6 +76,7 @@ JUDGE_VERDICT_SCHEMA_NAME = "polisyos.scientist.search.JudgeVerdict"
 
 
 class JudgeName(str, Enum):
+    """Judge name public type."""
     STRUCTURAL = "structural"
     STATISTICAL = "statistical"
     ROBUSTNESS = "robustness"
@@ -378,6 +364,7 @@ def persist_judge_verdict(
     *,
     inputs: list[InputRef] | None = None,
 ) -> ArtifactRef:
+    """Persist judge verdict helper."""
     return store.put_json(
         verdict,
         PutOptions(
@@ -394,6 +381,7 @@ def load_judge_verdict(
     store: FileSystemCAS,
     ref: ArtifactRef,
 ) -> JudgeVerdict:
+    """Load judge verdict."""
     payload = from_canonical_bytes(store.get_bytes(ref.artifact_id))
     return JudgeVerdict.model_validate(payload)
 
@@ -430,6 +418,7 @@ class JudgeInputBundle(BaseModel):
     prior_knowledge_bundle: PriorKnowledgeBundle | None = None
     governance_report: GovernanceReport | None = None
     latent_discovery_bundle: LatentDiscoveryBundle | None = None
+    latent_discovery_resolution_error: dict[str, Any] | None = None
     uncertainty_envelope: UncertaintyEnvelope | IRUncertaintyEnvelope | None = None
     budget_state: BudgetState | None = None
     candidate_ref: ArtifactRef | None = None
@@ -456,11 +445,16 @@ class JudgeInputBundle(BaseModel):
         return assess_latent_governance(self.latent_discovery_bundle)
 
     def effective_claim_mode(self) -> Literal["proof_only", "bounds", "estimation"]:
-        if self.latent_discovery_bundle is not None:
+        if (
+            self.latent_discovery_bundle is not None
+            or isinstance(self.latent_discovery_resolution_error, dict)
+        ):
             return "proof_only"
         return self.claim_mode
 
     def effective_evaluation_degradation_mode(self) -> str | None:
+        if isinstance(self.latent_discovery_resolution_error, dict):
+            return "research_only"
         assessment = self.latent_governance_assessment()
         if assessment is not None:
             return assessment.degradation_mode
@@ -510,6 +504,11 @@ class JudgeInputBundle(BaseModel):
             state.setdefault(
                 "latent_discovery_bundle",
                 self.latent_discovery_bundle.model_dump(mode="json"),
+            )
+        if self.latent_discovery_resolution_error is not None:
+            state.setdefault(
+                "latent_discovery_resolution_error",
+                dict(self.latent_discovery_resolution_error),
             )
         latent_governance = self.latent_governance_assessment()
         if latent_governance is not None:
@@ -904,6 +903,7 @@ class JudgeStack:
         quality_state = bundle.build_state()
         if "data_quality_report" in quality_state or "evidence_bundle" in quality_state:
             pass_context = bundle.build_pass_context({"quality"})
+            from polisyos.scientist.governance.passes.quality_gate_pass import QualityGatePass
             issues = QualityGatePass(force_run=True).validate(pass_context)
             for issue in issues:
                 card = compliance_issue_to_failure_card(
@@ -947,6 +947,8 @@ class JudgeStack:
             )
         else:
             pass_context = bundle.build_pass_context({"refutation", "sutva_check"})
+            from polisyos.scientist.governance.passes.refutation_pass import RefutationPass
+            from polisyos.scientist.governance.passes.sutva_check_pass import SutvaCheckPass
             for validator in (RefutationPass(), SutvaCheckPass()):
                 for issue in validator.validate(pass_context):
                     card = compliance_issue_to_failure_card(
@@ -975,6 +977,7 @@ class JudgeStack:
                         )
             else:
                 pass_context = bundle.build_pass_context({"transportability_required"})
+                from polisyos.scientist.governance.passes.transportability_required_pass import TransportabilityRequiredPass
                 for issue in TransportabilityRequiredPass().validate(pass_context):
                     card = compliance_issue_to_failure_card(
                         issue,
@@ -1023,6 +1026,14 @@ class JudgeStack:
         latent_governance = bundle.latent_governance_assessment()
         pass_context = bundle.build_pass_context(
             {"budget", "equity", "privacy", "pii_check", "human_review_required", "legal"}
+        )
+        from polisyos.scientist.governance.pass_entrypoints import (
+            budget_pass_factory,
+            equity_pass_factory,
+            human_review_required_pass_factory,
+            legal_pass_factory,
+            pii_check_pass_factory,
+            privacy_pass_factory,
         )
         for validator in (
             budget_pass_factory(),
@@ -1083,6 +1094,36 @@ class JudgeStack:
                     )
                 )
 
+        if isinstance(bundle.latent_discovery_resolution_error, dict):
+            error_code = str(
+                bundle.latent_discovery_resolution_error.get("error_code")
+                or "latent_discovery_bundle_unreadable"
+            ).strip() or "latent_discovery_bundle_unreadable"
+            error_message = str(
+                bundle.latent_discovery_resolution_error.get("error_message")
+                or "Latent discovery bundle could not be loaded."
+            ).strip() or "Latent discovery bundle could not be loaded."
+            cards.append(
+                TypedFailureCard(
+                    judge_name=JudgeName.GOVERNANCE.value,
+                    failure_type="latent_discovery_bundle_unreadable",
+                    severity=FailureSeverity.BLOCKER,
+                    description=(
+                        "Latent discovery bundle could not be loaded, so proof-only constraints "
+                        "cannot be verified."
+                    ),
+                    remediation_hint=(
+                        "Restore the discovery artifact bundle or clear the broken latent "
+                        "discovery reference before promotion."
+                    ),
+                    metadata={
+                        "error_code": error_code,
+                        "error_message": error_message,
+                        **dict(bundle.latent_discovery_resolution_error),
+                    },
+                )
+            )
+
         if latent_governance is not None:
             if latent_governance.missing_requirements:
                 cards.append(
@@ -1096,7 +1137,7 @@ class JudgeStack:
                         ),
                         remediation_hint=(
                             "Provide assumption cards, inducing environments, "
-                            "falsification tests, and disclosure flags."
+                            "identification conditions, falsification tests, and disclosure flags."
                         ),
                         metadata={"missing_requirements": latent_governance.missing_requirements},
                     )
@@ -1154,9 +1195,10 @@ class JudgeStack:
                     ),
                 )
             )
-        pass_context = bundle.build_pass_context(
-            {"checkpoint_integrity", "citation_validator", "freshness"}
-        )
+        pass_context = bundle.build_pass_context({"checkpoint", "citation_validator", "freshness"})
+        from polisyos.scientist.governance.passes.checkpoint_pass import CheckpointPass
+        from polisyos.scientist.governance.passes.citation_validator_pass import CitationValidatorPass
+        from polisyos.scientist.governance.passes.freshness_pass import FreshnessPass
         for validator in (CheckpointPass(), CitationValidatorPass(), FreshnessPass()):
             for issue in validator.validate(pass_context):
                 card = compliance_issue_to_failure_card(
@@ -1465,6 +1507,7 @@ class PolicyPromotionCoordinator:
         prior_knowledge_bundle: PriorKnowledgeBundle | None = None,
         governance_report: GovernanceReport | None = None,
         latent_discovery_bundle: LatentDiscoveryBundle | None = None,
+        latent_discovery_resolution_error: dict[str, Any] | None = None,
         uncertainty_envelope: UncertaintyEnvelope | IRUncertaintyEnvelope | None = None,
         budget_state: BudgetState | None = None,
         candidate_ref: ArtifactRef | None = None,
@@ -1509,6 +1552,11 @@ class PolicyPromotionCoordinator:
             prior_knowledge_bundle=prior_knowledge_bundle,
             governance_report=governance_report,
             latent_discovery_bundle=latent_discovery_bundle,
+            latent_discovery_resolution_error=(
+                None
+                if latent_discovery_resolution_error is None
+                else dict(latent_discovery_resolution_error)
+            ),
             uncertainty_envelope=uncertainty_envelope,
             budget_state=budget_state,
             candidate_ref=candidate_ref,
@@ -1585,6 +1633,11 @@ class PolicyPromotionCoordinator:
                 "promotable_source": judge_input.evaluation_promotable_source,
                 "degradation_mode": judge_input.effective_evaluation_degradation_mode(),
                 "notes": list(judge_input.evaluation_provenance_notes),
+                "latent_discovery_resolution_error": (
+                    None
+                    if judge_input.latent_discovery_resolution_error is None
+                    else dict(judge_input.latent_discovery_resolution_error)
+                ),
                 "latent_governance": (
                     None
                     if judge_input.latent_governance_assessment() is None
@@ -1714,6 +1767,7 @@ def compliance_issue_to_failure_card(
     *,
     judge_name: str,
 ) -> TypedFailureCard:
+    """Compliance issue to failure card helper."""
     severity = {
         IssueSeverity.BLOCKER: FailureSeverity.BLOCKER,
         IssueSeverity.WARNING: FailureSeverity.WARNING,
@@ -1737,6 +1791,7 @@ def to_search_uncertainty_envelope(
     causal_effect_report: CausalEffectReport | None = None,
     cross_graph_profile: CrossGraphEvidenceProfile | None = None,
 ) -> UncertaintyEnvelope:
+    """Convert to search uncertainty envelope."""
     if isinstance(payload, UncertaintyEnvelope):
         return payload
 
@@ -1797,6 +1852,7 @@ def to_search_uncertainty_envelope(
 
 
 def benchmark_split(name: str):
+    """Benchmark split helper."""
     from polisyos.scientist.autotune.models import BenchmarkSplit
 
     normalized = str(name).strip().lower()

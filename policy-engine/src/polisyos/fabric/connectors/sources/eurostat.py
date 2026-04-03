@@ -1,3 +1,4 @@
+"""Public sources eurostat module API."""
 from __future__ import annotations
 
 import json
@@ -36,7 +37,22 @@ from polisyos.ir.connectors import (
 
 
 class EurostatConnector(HTTPConnectorBase[pd.DataFrame]):
-    """Connector for Eurostat JSON Statistics API."""
+    """Connector for Eurostat public statistics via REST JSON and SDMX.
+
+    Supports synchronous JSON fetches for core queries and profile-driven bulk
+    or async retrieval for larger Eurostat workloads.
+
+    Data source:
+        https://ec.europa.eu/eurostat
+    Protocol:
+        REST JSON, SDMX 2.1, bulk export
+    Auth:
+        None
+    Async support:
+        Yes, including ``fetch_async()`` and dataset description helpers
+    Profile:
+        ``eurostat_public``
+    """
 
     namespace: ClassVar[str] = "eurostat"
     short_id: ClassVar[str] = "data"
@@ -682,7 +698,6 @@ def _dimension_codes(info: dict[str, Any]) -> list[str]:
     if not isinstance(category, dict):
         return []
     index = category.get("index", {})
-    labels = category.get("label", {})
 
     if isinstance(index, dict):
         ordered_keys = [key for key, _ in sorted(index.items(), key=lambda item: int(item[1]))]
@@ -691,16 +706,15 @@ def _dimension_codes(info: dict[str, Any]) -> list[str]:
     else:
         ordered_keys = []
 
-    if not ordered_keys and isinstance(labels, dict):
-        ordered_keys = sorted(str(key) for key in labels)
+    if not ordered_keys:
+        labels = category.get("label", {})
+        if isinstance(labels, dict):
+            ordered_keys = sorted(str(key) for key in labels)
 
-    resolved: list[str] = []
-    for key in ordered_keys:
-        if isinstance(labels, dict) and key in labels:
-            resolved.append(str(labels[key]))
-        else:
-            resolved.append(str(key))
-    return resolved
+    # Keep the stable category codes from the Eurostat payload rather than
+    # swapping them for human-readable labels. Downstream filters, bulk
+    # equivalence, and checkpoint signatures all operate on codes.
+    return [str(key) for key in ordered_keys]
 
 
 def _decode_index(index: int, sizes: list[Any]) -> list[int]:

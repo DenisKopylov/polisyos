@@ -14,6 +14,7 @@ from polisyos.ir.analytics.cross_graph import (
 
 
 class ConflictSeverity(str, Enum):
+    """Conflict severity public type."""
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
@@ -21,6 +22,7 @@ class ConflictSeverity(str, Enum):
 
 
 class ResolutionStrategy(str, Enum):
+    """Resolution strategy data model."""
     ACCEPT_MAJORITY = "accept_majority"
     ACCEPT_HIGHEST_QUALITY = "accept_highest_quality"
     ESCALATE = "escalate"

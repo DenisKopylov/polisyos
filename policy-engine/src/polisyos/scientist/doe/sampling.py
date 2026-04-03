@@ -1,3 +1,4 @@
+"""Public doe sampling module API."""
 from __future__ import annotations
 
 import itertools
@@ -8,6 +9,7 @@ from .designs import AdversarialPlan, AdversarialStrategy, SensitivityMethod, Se
 
 
 def generate_sensitivity_samples(plan: SensitivityPlan) -> np.ndarray:
+    """Generate sensitivity samples helper."""
     _set_numpy_seed(plan.seed)
     problem = _plan_to_salib_problem(plan)
 
@@ -43,6 +45,7 @@ def generate_sensitivity_samples(plan: SensitivityPlan) -> np.ndarray:
 
 
 def generate_adversarial_samples(plan: AdversarialPlan) -> np.ndarray:
+    """Generate adversarial samples helper."""
     _set_numpy_seed(plan.seed)
     n_params = len(plan.parameter_specs)
     bounds = np.array(

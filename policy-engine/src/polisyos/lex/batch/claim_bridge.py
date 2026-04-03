@@ -52,6 +52,7 @@ _THRESHOLD_KEY_PRIORITY = ("value_decimal", "value_text", "unit", "operator")
 
 @dataclass(frozen=True)
 class BatchClaimBridgeResult:
+    """Batch claim bridge result data model."""
     raw_claim_set_artifact_ids: list[str]
     normalized_claim_set_artifact_ids: list[str]
     claim_ids: list[str]

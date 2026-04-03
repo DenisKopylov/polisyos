@@ -1,3 +1,4 @@
+"""Public analytics backtest module API."""
 from __future__ import annotations
 
 import math
@@ -12,6 +13,8 @@ from polisyos.ir.refs import BacktestReportRef
 
 
 class BiasDirection(str, Enum):
+    """Direction of systematic bias detected in historical validation."""
+
     OPTIMISTIC = "optimistic"
     PESSIMISTIC = "pessimistic"
     NEUTRAL = "neutral"
@@ -19,6 +22,8 @@ class BiasDirection(str, Enum):
 
 
 class OutcomeComparison(BaseModel):
+    """Comparison between predicted and observed outcomes for one metric."""
+
     model_config = ConfigDict(extra="forbid")
 
     metric_name: str = Field(min_length=1)
@@ -50,6 +55,8 @@ class OutcomeComparison(BaseModel):
 
 
 class SystematicBias(BaseModel):
+    """Structured bias pattern detected across backtest scenarios."""
+
     model_config = ConfigDict(extra="forbid")
 
     bias_type: str = Field(min_length=1)
@@ -69,6 +76,8 @@ class SystematicBias(BaseModel):
 
 
 class BacktestScenario(BaseModel):
+    """Historical validation scenario with per-metric forecast comparisons."""
+
     model_config = ConfigDict(extra="forbid")
 
     scenario_id: str = Field(min_length=1)
@@ -98,6 +107,8 @@ class BacktestScenario(BaseModel):
 
 
 class BacktestReport(BaseModel):
+    """Aggregate report summarizing historical validation performance."""
+
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -159,6 +170,7 @@ def persist_backtest_report(
     schema_name: str = "ir.backtest_report",
     schema_version: str = "1.0",
 ) -> BacktestReportRef:
+    """Persist backtest report helper."""
     ref = put_json_artifact(
         store,
         report.model_dump(mode="json"),
@@ -172,6 +184,7 @@ def persist_backtest_report(
 
 
 def load_backtest_report(store: ArtifactStore, ref: BacktestReportRef) -> BacktestReport:
+    """Load backtest report."""
     payload = get_json_artifact(store, ref.artifact_id)
     return BacktestReport.model_validate(payload)
 

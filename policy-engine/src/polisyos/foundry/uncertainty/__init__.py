@@ -1,3 +1,4 @@
+"""Public foundry uncertainty package API."""
 from .aggregator import AggregationStrategy, aggregate_envelopes
 from .config import AdaptiveStoppingConfig, PropagationConfig
 from .dispatcher import PropagationDispatcher

@@ -74,6 +74,8 @@ ZONE_MAP: dict[str, str] = {
     "methods/deprecation.py":            "infra",   # deprecation warnings
     "methods/backends/checkpointing.py": "infra",   # checkpoint I/O
     "methods/backends/ray_runner.py":    "infra",   # Ray distributed runner
+    "_executor_snapshots.py":            "infra",   # state snapshot persistence
+    "methods/selection_history.py":      "infra",   # execution history I/O
     # no_jax — causal/econometrics/optimization (mixed minus JAX family)
     "methods/catalog/causal/ci_backends.py": "mixed",  # allowlist override
     "methods/catalog/causal/":           "no_jax",

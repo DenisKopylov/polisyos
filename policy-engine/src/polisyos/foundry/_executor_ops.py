@@ -50,6 +50,7 @@ __all__ = [
 
 
 def coerce_selector_scalar(value: Any) -> Any:
+    """Coerce selector scalar helper."""
     if isinstance(value, Decimal):
         return float(value)
     if isinstance(value, bool):
@@ -73,6 +74,7 @@ def selector_field_values(
     *,
     selector_field_registry: SelectorFieldRegistry | None,
 ) -> tuple[jnp.ndarray, SlotScope]:
+    """Selector field values helper."""
     if field_id in {"id", "agent_id"}:
         n_agents = getattr(state.agents, "size", None)
         if n_agents is None:
@@ -89,6 +91,7 @@ def selector_field_values(
 
 
 def apply_operator(values: jnp.ndarray, operator: SelectorOperator, value: Any) -> jnp.ndarray:
+    """Apply operator helper."""
     if isinstance(value, list):
         coerced = [coerce_selector_scalar(item) for item in value]
     else:
@@ -125,6 +128,7 @@ def evaluate_selector(
     *,
     selector_field_registry: SelectorFieldRegistry | None,
 ) -> tuple[jnp.ndarray, SlotScope]:
+    """Evaluate selector helper."""
     if isinstance(node, SelectorPredicate):
         values, scope = selector_field_values(
             state, node.field, selector_field_registry=selector_field_registry
@@ -170,6 +174,7 @@ def evaluate_selector(
 
 
 def coerce_number(value: Any) -> Decimal | None:
+    """Coerce number helper."""
     if isinstance(value, Decimal):
         return value
     if isinstance(value, int) and not isinstance(value, bool):
@@ -201,6 +206,7 @@ def check_constraints(
     state: Any,
     events: list[dict[str, Any]] | None = None,
 ) -> Any:
+    """Check constraints helper."""
     lowered_constraints: list[LoweredConstraint] = []
     for constraint_id in constraint_ids:
         if not isinstance(constraint_id, str):
@@ -252,6 +258,7 @@ def check_constraints(
 def validate_ops_compatibility(
     slot_id: str, rule_kind: MergeRuleKind, ops: Iterable[PatchOp]
 ) -> None:
+    """Validate ops compatibility."""
     for op in ops:
         if op.op == "add" and rule_kind != MergeRuleKind.SUM:
             raise ValueError(f"Patch op 'add' incompatible with merge rule for '{slot_id}'")
@@ -260,6 +267,7 @@ def validate_ops_compatibility(
 
 
 def apply_ops_for_slot(store: FileSystemCAS, base_value: Any, ops: Iterable[PatchOp]) -> Any:
+    """Apply ops for slot helper."""
     ops_list = list(ops)
     if not ops_list:
         return base_value
@@ -280,6 +288,7 @@ def apply_ops_for_slot(store: FileSystemCAS, base_value: Any, ops: Iterable[Patc
 
 
 def apply_op(store: FileSystemCAS, base_value: Any, op: PatchOp) -> Any:
+    """Apply op helper."""
     if op.value_ref is None:
         raise ValueError(f"Patch op '{op.op}' missing value_ref for slot '{op.slot_id}'")
     value = jnp.asarray(load_tensor(store, op.value_ref))
@@ -304,6 +313,7 @@ def apply_ops_to_state(
     slot_registry: SlotRegistry,
     merge_registry: MergeRuleRegistry,
 ) -> Any:
+    """Apply ops to state helper."""
     ops_by_slot: dict[str, list[PatchOp]] = {}
     for op in ops:
         ops_by_slot.setdefault(op.slot_id, []).append(op)

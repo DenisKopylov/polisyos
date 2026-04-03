@@ -1,3 +1,4 @@
+"""Public storage duckdb adapter module API."""
 from __future__ import annotations
 
 import re

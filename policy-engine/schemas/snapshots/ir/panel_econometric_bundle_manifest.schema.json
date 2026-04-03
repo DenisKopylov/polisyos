@@ -1,0 +1,179 @@
+{
+  "$defs": {
+    "BundleLineageRef": {
+      "additionalProperties": false,
+      "properties": {
+        "notes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Notes",
+          "type": "array"
+        },
+        "source_artifact": {
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Source Artifact",
+          "type": "string"
+        },
+        "source_confidence_tier": {
+          "$ref": "#/$defs/SourceConfidenceTier",
+          "default": "validated"
+        },
+        "source_family": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ObservationFamily"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "source_artifact"
+      ],
+      "title": "BundleLineageRef",
+      "type": "object"
+    },
+    "ContractCompatibilityTarget": {
+      "additionalProperties": false,
+      "properties": {
+        "contract_fqn": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Contract Fqn",
+          "type": "string"
+        },
+        "contract_id": {
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Contract Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "contract_id",
+        "contract_fqn"
+      ],
+      "title": "ContractCompatibilityTarget",
+      "type": "object"
+    },
+    "ObservationFamily": {
+      "enum": [
+        "budget_flows",
+        "procurement_flows",
+        "macro_state",
+        "firm_fundamentals",
+        "trade_exposure",
+        "labor_market",
+        "household_distribution",
+        "distress_enforcement",
+        "spatial_raster_exogenous",
+        "public_service_domain_flows",
+        "education_human_capital_supply",
+        "construction_capital_formation",
+        "logistics_friction"
+      ],
+      "title": "ObservationFamily",
+      "type": "string"
+    },
+    "RequiredColumnSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "anyOf": [
+            {
+              "maxLength": 255,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "dtype": {
+          "anyOf": [
+            {
+              "maxLength": 64,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Dtype"
+        },
+        "name": {
+          "maxLength": 120,
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "nullable": {
+          "default": false,
+          "title": "Nullable",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "RequiredColumnSpec",
+      "type": "object"
+    },
+    "SourceConfidenceTier": {
+      "enum": [
+        "core",
+        "validated",
+        "exploratory"
+      ],
+      "title": "SourceConfidenceTier",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "artifact_name": {
+      "const": "panel_econometric_bundle_v1.parquet",
+      "default": "panel_econometric_bundle_v1.parquet",
+      "title": "Artifact Name",
+      "type": "string"
+    },
+    "contract_target": {
+      "$ref": "#/$defs/ContractCompatibilityTarget"
+    },
+    "lineage": {
+      "items": {
+        "$ref": "#/$defs/BundleLineageRef"
+      },
+      "title": "Lineage",
+      "type": "array"
+    },
+    "required_columns": {
+      "items": {
+        "$ref": "#/$defs/RequiredColumnSpec"
+      },
+      "minItems": 1,
+      "title": "Required Columns",
+      "type": "array"
+    },
+    "schema_version": {
+      "default": "1.0",
+      "pattern": "^\\d+\\.\\d+$",
+      "title": "Schema Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "contract_target",
+    "required_columns"
+  ],
+  "title": "PanelEconometricBundleManifest",
+  "type": "object"
+}

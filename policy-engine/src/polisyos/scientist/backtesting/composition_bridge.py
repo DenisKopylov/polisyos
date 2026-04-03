@@ -1,3 +1,4 @@
+"""Public backtesting composition bridge module API."""
 from __future__ import annotations
 
 import logging
@@ -44,6 +45,7 @@ from polisyos.scientist.nodes.builtins.state_keys import (
 
 @dataclass(frozen=True)
 class CompositionReplayResult:
+    """Composition replay result data model."""
     node_status: str
     composition_status: str
     composition_structure_status: str
@@ -71,6 +73,7 @@ def replay_fragment_composition_case(
     direct_stitch_pairs: list[tuple[str, str]] | None = None,
     cas_root: str,
 ) -> CompositionReplayResult:
+    """Replay fragment composition case helper."""
     store = FileSystemCAS(Path(cas_root))
     registry_bundle = build_default_registry_bundle(store).bundle_ref
     run = RunContext.start(
@@ -206,6 +209,7 @@ def replay_fragment_composition_case(
 
 
 def normalize_alignment_report(report: Any) -> dict[str, Any]:
+    """Normalize alignment report helper."""
     return {
         "fragment_ids": list(report.fragment_ids),
         "overall_status": report.overall_status.value,
@@ -244,6 +248,7 @@ def normalize_alignment_report(report: Any) -> dict[str, Any]:
 
 
 def normalize_interface_mapping(mapping: Any) -> dict[str, Any]:
+    """Normalize interface mapping helper."""
     return {
         "fragment_ids": list(mapping.fragment_ids),
         "entries": [
@@ -274,6 +279,7 @@ def normalize_interface_mapping(mapping: Any) -> dict[str, Any]:
 
 
 def normalize_composition_certificate(certificate: Any) -> dict[str, Any]:
+    """Normalize composition certificate helper."""
     return {
         "status": certificate.status,
         "structure_status": certificate.structure_status,

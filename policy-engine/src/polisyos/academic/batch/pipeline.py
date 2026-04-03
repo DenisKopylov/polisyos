@@ -13,6 +13,7 @@ from polisyos.batch_common.thermal import cooldown
 
 @dataclass
 class PipelineStats:
+    """Pipeline stats public type."""
     elapsed_seconds: float = 0.0
     stage_times: dict[str, float] = field(default_factory=dict)
     metrics: dict[str, float | int | str] = field(default_factory=dict)

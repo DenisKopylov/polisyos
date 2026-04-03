@@ -13,6 +13,7 @@ from polisyos.core.security.exceptions import CellCapacityError, TenantNotFoundE
 
 
 class CellResolution(BaseModel):
+    """Cell resolution public type."""
     model_config = ConfigDict(frozen=True, extra="forbid")
 
     tenant_id: str

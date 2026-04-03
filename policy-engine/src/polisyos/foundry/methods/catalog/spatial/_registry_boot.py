@@ -1,3 +1,4 @@
+"""Public spatial registry boot module API."""
 from __future__ import annotations
 
 from typing import Sequence
@@ -21,6 +22,7 @@ from .analysis import (
 )
 
 def register_spatial_methods() -> Sequence[type]:
+    """Register spatial methods."""
     return (
         MoranIEstimator,
         GWREstimator,

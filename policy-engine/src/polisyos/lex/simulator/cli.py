@@ -1,3 +1,4 @@
+"""Public simulator cli module API."""
 from __future__ import annotations
 
 import json
@@ -12,6 +13,7 @@ from .report import NormImpactReport
 
 
 def load_norm_pack(cas: FileSystemCAS, ref_or_path: str) -> NormPack:
+    """Load norm pack."""
     path = Path(ref_or_path)
     if path.exists():
         payload = json.loads(path.read_text(encoding="utf-8"))
@@ -23,6 +25,7 @@ def load_norm_pack(cas: FileSystemCAS, ref_or_path: str) -> NormPack:
 
 
 def render_impact_markdown(report: NormImpactReport) -> str:
+    """Render impact markdown helper."""
     lines: list[str] = [
         "# Norm Impact Report",
         "",

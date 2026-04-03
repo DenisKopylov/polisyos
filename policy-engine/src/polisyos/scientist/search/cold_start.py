@@ -43,6 +43,7 @@ _BURN_IN_REPORT_SCHEMA = SchemaInfo(
 
 
 class BurnInCohort(str, Enum):
+    """Burn in cohort public type."""
     CALIBRATION = "calibration"
     LESSON_SEEDING = "lesson_seeding"
 
@@ -148,6 +149,7 @@ def persist_burn_in_report(
     *,
     inputs: list[InputRef] | None = None,
 ) -> ArtifactRef:
+    """Persist burn in report helper."""
     return store.put_json(
         report,
         PutOptions(
@@ -276,6 +278,7 @@ def run_burn_in(
 
 
 def load_burn_in_report(store: FileSystemCAS, ref: ArtifactRef | str) -> BurnInRunReport:
+    """Load burn in report."""
     return load_model_artifact(store, ref, BurnInRunReport)
 
 

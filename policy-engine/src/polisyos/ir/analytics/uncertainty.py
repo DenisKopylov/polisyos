@@ -1,3 +1,4 @@
+"""Public analytics uncertainty module API."""
 from __future__ import annotations
 
 import math
@@ -12,6 +13,8 @@ from polisyos.ir.refs import UncertaintyEnvelopeRef
 
 
 class UncertaintySource(str, Enum):
+    """Origin of the uncertainty interval carried in the IR."""
+
     CALIBRATION = "calibration"
     TRUST = "trust"
     CONFLICT_RESOLUTION = "conflict_resolution"
@@ -22,6 +25,8 @@ class UncertaintySource(str, Enum):
 
 
 class DistributionFamily(str, Enum):
+    """Distribution family assumed when interpreting an uncertainty interval."""
+
     NORMAL = "normal"
     BOOTSTRAP = "bootstrap"
     BAYESIAN = "bayesian"
@@ -31,6 +36,8 @@ class DistributionFamily(str, Enum):
 
 
 class PropagationMethod(str, Enum):
+    """Method used to propagate uncertainty into the reported interval."""
+
     DELTA_METHOD = "delta_method"
     MONTE_CARLO = "monte_carlo"
     ANALYTICAL = "analytical"
@@ -38,6 +45,8 @@ class PropagationMethod(str, Enum):
 
 
 class IntervalSemantics(str, Enum):
+    """Interpretation of the interval stored in an uncertainty envelope."""
+
     CONFIDENCE_INTERVAL = "confidence_interval"
     CREDIBLE_INTERVAL = "credible_interval"
     DETERMINISTIC_BOUNDS = "deterministic_bounds"
@@ -45,6 +54,13 @@ class IntervalSemantics(str, Enum):
 
 
 class UncertaintyEnvelope(BaseModel):
+    """Unified uncertainty contract shared across PolicyOS IR artifacts.
+
+    The envelope normalizes point estimates, intervals, statistical semantics,
+    and governance eligibility so analytics, calibration, and causal outputs can
+    be compared and gated consistently.
+    """
+
     model_config = ConfigDict(
         extra="forbid",
         frozen=True,
@@ -150,6 +166,7 @@ def persist_uncertainty_envelope(
     schema_name: str = "ir.uncertainty_envelope",
     schema_version: str = "1.0",
 ) -> UncertaintyEnvelopeRef:
+    """Persist uncertainty envelope helper."""
     ref = put_json_artifact(
         store,
         envelope.model_dump(mode="python"),
@@ -166,6 +183,7 @@ def load_uncertainty_envelope(
     store: ArtifactStore,
     ref: UncertaintyEnvelopeRef,
 ) -> UncertaintyEnvelope:
+    """Load uncertainty envelope."""
     payload = get_json_artifact(store, ref.artifact_id)
     return UncertaintyEnvelope.model_validate(payload)
 

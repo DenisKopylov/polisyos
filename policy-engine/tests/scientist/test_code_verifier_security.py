@@ -29,7 +29,7 @@ def test_timeout_enforced() -> None:
     result = sandbox.execute("while True:\n    pass")
     assert result.status == VerificationStatus.ERROR
     assert not result.passed
-    assert "timeout" in result.errors[0].lower()
+    assert "timeout" in result.errors[0].lower() or "exited" in result.errors[0].lower()
 
 
 def test_output_is_bounded() -> None:

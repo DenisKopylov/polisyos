@@ -1,3 +1,4 @@
+"""Public agent sim temporal mechanisms module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -15,6 +16,7 @@ from polisyos.foundry.contracts.fidelity import FidelityLevel
 
 @dataclass(frozen=True)
 class TemporalConsumptionMechanism(Mechanism):
+    """Temporal consumption mechanism public type."""
     actor_critic: ActorCritic
     horizon: int = 256
     min_consumption: float = 0.01

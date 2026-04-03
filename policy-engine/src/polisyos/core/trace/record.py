@@ -1,3 +1,4 @@
+"""Public trace record module API."""
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -9,16 +10,19 @@ from ..artifacts.manifest import ArtifactRef
 
 
 def utc_now() -> datetime:
+    """Utc now helper."""
     return datetime.now(timezone.utc).replace(microsecond=0)
 
 
 class TraceRefs(BaseModel):
+    """Trace refs public type."""
     model_config = ConfigDict(extra="forbid")
     inputs: list[ArtifactRef] = Field(default_factory=list)
     outputs: list[ArtifactRef] = Field(default_factory=list)
 
 
 class TraceRecord(BaseModel):
+    """Trace record data model."""
     model_config = ConfigDict(extra="forbid")
 
     ts: datetime = Field(default_factory=utc_now)

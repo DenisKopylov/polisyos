@@ -2,7 +2,7 @@
 name = "policy-engine"
 version = "0.1.0"
 description = "AI-driven Policy Simulation System using JAX and Unified Data Fabric"
-requires-python = ">=3.11"
+requires-python = ">=3.14"
 dependencies = [
     # Core Math & Sim
     "jax>=0.4.20",
@@ -26,6 +26,7 @@ dependencies = [
     "pydantic-settings>=2.0.0",
     "tiktoken",
     "orjson>=3.10.0",
+    "opt_einsum>=3.4.0",
     # Observability
     "opentelemetry-api>=1.20.0",
     "opentelemetry-sdk>=1.20.0",
@@ -48,6 +49,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+core = []
 kuzu = ["kuzu>=0.1.0"]
 analytics = [
     "scipy>=1.11.0",
@@ -70,7 +72,6 @@ optimization-advanced = [
     "cvxpy>=1.8.1",
 ]
 bayesian = [
-    "policy-engine[deep-learning]",
     "numpyro>=0.20.0",
     "arviz>=1.0.0",
 ]
@@ -85,7 +86,9 @@ causal = [
     "policy-engine[causal-dowhy]",
 ]
 causal-core = [
-    "econml>=0.15",
+    # EconML currently resolves to a scikit-learn build path without ready
+    # Python 3.14 wheels in the verified docs environment.
+    "econml>=0.16; python_version < '3.14'",
 ]
 causal-dowhy = [
     "dowhy>=0.13,<0.14; python_version < '3.13'",
@@ -115,10 +118,12 @@ causal-symbolic-r = [
     "rpy2>=3.5,<4.0",
 ]
 causal-full = [
-    "policy-engine[causal]",
-    "policy-engine[causal-nuisance]",
-    "policy-engine[causal-symbolic-y0]",
-    "policy-engine[causal-symbolic-r]",
+    "econml>=0.16; python_version < '3.14'",
+    "dowhy>=0.13,<0.14; python_version < '3.13'",
+    "cvxpy<1.5; python_version < '3.13'",
+    "lightgbm>=4.0",
+    "zepid>=0.9",
+    "y0>=0.2,<0.3",
 ]
 table-extraction = [
     "marker-pdf>=0.3.0",
@@ -197,13 +202,15 @@ hotreload = [
     "watchfiles>=0.21.0",
 ]
 agent-quality = [
-    "policy-engine[rag,sandbox]",
+    "faiss-cpu>=1.7.4,<2.0",
+    "RestrictedPython>=7.0,<8.0",
 ]
 test = [
     "pytest>=7.4.0",
     "pytest-asyncio>=0.23.0",
     "pytest-benchmark>=4.0.0",
     "hypothesis>=6.0.0",
+    "policy-engine[runtime-http]",
 ]
 dev = [
     "pytest>=7.4.0",
@@ -214,11 +221,35 @@ dev = [
     "pre-commit>=4.5.1",
     "ruff>=0.14.10",
     "types-requests>=2.32.4.20250913",
+    "mkdocs>=1.6.0",
+    "mkdocs-material>=9.6.0",
+    "mkdocstrings[python]>=0.30.0",
     "jupyterlab>=4.0.0",
     "matplotlib>=3.8.0",
     "seaborn>=0.13.0",
     "structlog>=24.0.0",
     "mutmut>=2.0",
+]
+# Curated umbrella used by docs/onboarding.
+# It intentionally excludes externally provisioned or highly platform-specific
+# paths such as `causal-symbolic-r`, plus unsupported Python 3.14 paths and
+# overlapping milestone bundles that slow pip's resolver dramatically without
+# adding new capability surface.
+all = [
+    "policy-engine[analytics]",
+    "policy-engine[bayesian]",
+    "policy-engine[causal-discovery]",
+    "policy-engine[causal-discovery-scale]",
+    "policy-engine[causal-full]",
+    "policy-engine[hotreload]",
+    "policy-engine[ml]",
+    "policy-engine[observability]",
+    "policy-engine[optimization-advanced]",
+    "policy-engine[runtime-http]",
+    "policy-engine[sensitivity]",
+    "policy-engine[shapesafe]",
+    "policy-engine[solvers]",
+    "policy-engine[structured-logging]",
 ]
 structured-logging = [
     "structlog>=24.0.0",
@@ -260,13 +291,16 @@ polisyos-foundry = "polisyos.foundry.methods.cli:main"
 
 [project.entry-points."polisyos.scientist_governance_passes"]
 "budget" = "polisyos.scientist.governance.pass_entrypoints:budget_pass_factory"
+"checkpoint" = "polisyos.scientist.governance.pass_entrypoints:checkpoint_pass_factory"
 "schema" = "polisyos.scientist.governance.pass_entrypoints:schema_pass_factory"
 "privacy" = "polisyos.scientist.governance.pass_entrypoints:privacy_pass_factory"
 "pii_check" = "polisyos.scientist.governance.pass_entrypoints:pii_check_pass_factory"
+"freshness" = "polisyos.scientist.governance.pass_entrypoints:freshness_pass_factory"
 "sutva_check" = "polisyos.scientist.governance.pass_entrypoints:sutva_check_pass_factory"
 "transportability_required" = "polisyos.scientist.governance.pass_entrypoints:transportability_required_pass_factory"
 "safety" = "polisyos.scientist.governance.pass_entrypoints:safety_pass_factory"
 "equity" = "polisyos.scientist.governance.pass_entrypoints:equity_pass_factory"
+"cross_graph_evidence" = "polisyos.scientist.governance.pass_entrypoints:cross_graph_evidence_pass_factory"
 "literature_gate" = "polisyos.scientist.governance.pass_entrypoints:literature_gate_pass_factory"
 "legal" = "polisyos.scientist.governance.pass_entrypoints:legal_pass_factory"
 "confidence" = "polisyos.scientist.governance.pass_entrypoints:confidence_pass_factory"

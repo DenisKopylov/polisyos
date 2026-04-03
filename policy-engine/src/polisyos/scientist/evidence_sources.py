@@ -1,3 +1,4 @@
+"""Public scientist evidence sources module API."""
 from __future__ import annotations
 
 from pathlib import Path

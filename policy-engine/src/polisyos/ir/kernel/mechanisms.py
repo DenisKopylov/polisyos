@@ -1,3 +1,4 @@
+"""Public kernel mechanisms module API."""
 from __future__ import annotations
 
 from decimal import Decimal
@@ -10,6 +11,7 @@ from .base import ID_PATTERN, KernelModel
 
 
 class ParamType(str, Enum):
+    """Param type public type."""
     DECIMAL = "decimal"
     INT = "int"
     BOOL = "bool"
@@ -24,6 +26,7 @@ class ParamType(str, Enum):
 
 
 class ParamSpec(KernelModel):
+    """Param spec data model."""
     param_id: str = Field(..., max_length=128)
     required: bool = False
     value_type: ParamType = ParamType.DECIMAL
@@ -40,6 +43,7 @@ class ParamSpec(KernelModel):
 
 
 class MechanismTypeSpec(KernelModel):
+    """Mechanism type spec data model."""
     mechanism_id: str = Field(..., pattern=ID_PATTERN)
     params: dict[str, ParamSpec] = Field(default_factory=dict)
     reads_slots: list[str] = Field(default_factory=list)
@@ -49,6 +53,7 @@ class MechanismTypeSpec(KernelModel):
 
 
 class MechanismTypeRegistry(KernelModel):
+    """Mechanism type registry implementation."""
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
     mechanisms: dict[str, MechanismTypeSpec] = Field(default_factory=dict)
     notes: list[str] = Field(default_factory=list)
@@ -205,6 +210,7 @@ DEFAULT_MECHANISM_REGISTRY = MechanismTypeRegistry(
 def resolve_mechanism_slots(
     mech: MechanismTypeSpec | None, params: dict[str, Any]
 ) -> tuple[list[str], list[str]]:
+    """Resolve mechanism slots."""
     if mech is None:
         return [], []
     if mech.mechanism_id != "adaptive_agent":

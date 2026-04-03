@@ -1,3 +1,4 @@
+"""Public normpack policies module API."""
 from __future__ import annotations
 
 DEFAULT_SELECTION_POLICY_ID = "lex.versioning_v1.effective_range_then_published_at"

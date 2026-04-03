@@ -13,6 +13,7 @@ from polisyos.scientist.autotune.models import (
 
 
 class ChampionRegistryContract(Protocol):
+    """Champion registry contract data model."""
     def get(self, loop_id: str) -> ChampionPointer | None: ...
 
     def consider_promotion(
@@ -29,6 +30,7 @@ class ChampionRegistryContract(Protocol):
 
 
 class ParetoRegistryContract(Protocol):
+    """Pareto registry contract data model."""
     def get_snapshot(self, loop_id: str) -> Any: ...
 
     def update(self, loop_id: str, **kwargs: Any) -> Any: ...
@@ -37,6 +39,7 @@ class ParetoRegistryContract(Protocol):
 
 
 class LessonRegistryContract(Protocol):
+    """Lesson registry contract data model."""
     def record_local(self, card: Any, *, context: Any) -> Any: ...
 
     def query(self, query: Any) -> list[Any]: ...
@@ -45,6 +48,7 @@ class LessonRegistryContract(Protocol):
 
 
 class BenchmarkRegistryContract(Protocol):
+    """Benchmark registry contract data model."""
     def record(
         self,
         split_type: str,
@@ -73,6 +77,7 @@ class BenchmarkRegistryContract(Protocol):
 
 
 class DiscoveryHypothesisRegistryContract(Protocol):
+    """Discovery hypothesis registry contract data model."""
     def publish(self, run_id: str, artifact_ref: ArtifactRef, *, metadata: dict[str, Any] | None = None) -> None: ...
 
     def latest(self, run_id: str) -> ArtifactRef | None: ...

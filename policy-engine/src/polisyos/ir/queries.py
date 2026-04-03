@@ -1,3 +1,4 @@
+"""Public ir queries module API."""
 from __future__ import annotations
 
 from typing import Annotated, Literal
@@ -10,6 +11,7 @@ from polisyos.ir.kernel.numbers import DecimalValue
 
 
 class ValidTimeRange(KernelModel):
+    """Valid time range public type."""
     model_config = ConfigDict(extra="forbid", frozen=True, populate_by_name=True)
 
     from_: str | None = Field(None, alias="from")
@@ -17,17 +19,20 @@ class ValidTimeRange(KernelModel):
 
 
 class QueryScope(KernelModel):
+    """Query scope public type."""
     jurisdiction: str | None = None
     valid_time: ValidTimeRange | None = None
     as_of: str | None = None
 
 
 class Pagination(KernelModel):
+    """Pagination public type."""
     limit: int = Field(100, ge=1, le=10000)
     cursor: str | None = None
 
 
 class QualityThresholds(KernelModel):
+    """Quality thresholds public type."""
     min_quality_tier: QualityTier | None = None
     min_trust_level: TrustLevel | None = None
     min_confidence: DecimalValue | None = None
@@ -37,12 +42,14 @@ QueryValue = Annotated[str | int | bool | DecimalValue, Field()]
 
 
 class DataFilter(KernelModel):
+    """Data filter public type."""
     column: str
     op: Literal["==", "!=", ">", "<", ">=", "<=", "in", "not_in"]
     value: QueryValue
 
 
 class DataViewRequest(KernelModel):
+    """Data view request data model."""
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
     request_id: str
     scope: QueryScope = Field(default_factory=QueryScope)
@@ -55,6 +62,7 @@ class DataViewRequest(KernelModel):
 
 
 class DocQuery(KernelModel):
+    """Doc query public type."""
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
     scope: QueryScope = Field(default_factory=QueryScope)
     source_types: list[str] | None = None
@@ -67,6 +75,7 @@ class DocQuery(KernelModel):
 
 
 class ClaimQuery(KernelModel):
+    """Claim query public type."""
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
     scope: QueryScope = Field(default_factory=QueryScope)
     predicate_id: str | None = None
@@ -77,6 +86,7 @@ class ClaimQuery(KernelModel):
 
 
 class NormQuery(KernelModel):
+    """Norm query public type."""
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
     jurisdiction: str | None = None
     effective_at: str | None = None

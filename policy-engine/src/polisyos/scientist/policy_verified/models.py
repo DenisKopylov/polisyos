@@ -1,3 +1,4 @@
+"""Public policy verified models module API."""
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -21,6 +22,7 @@ from polisyos.lex.knowledge.types import LegalFactResult, LegalProvisionResult, 
 
 
 class PolicyRequestFrame(BaseModel):
+    """Policy request frame public type."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -37,6 +39,7 @@ class PolicyRequestFrame(BaseModel):
 
 
 class LegalCandidatePack(BaseModel):
+    """Legal candidate pack public type."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -52,6 +55,7 @@ class LegalCandidatePack(BaseModel):
 
 
 class LegalSourcePack(BaseModel):
+    """Legal source pack public type."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -63,6 +67,7 @@ class LegalSourcePack(BaseModel):
 
 
 class VerifiedLegalClaim(BaseModel):
+    """Verified legal claim public type."""
     model_config = ConfigDict(extra="forbid")
 
     claim_id: str
@@ -82,6 +87,7 @@ class VerifiedLegalClaim(BaseModel):
 
 
 class SourceCoverageGap(BaseModel):
+    """Source coverage gap public type."""
     model_config = ConfigDict(extra="forbid")
 
     gap_id: str
@@ -94,6 +100,7 @@ class SourceCoverageGap(BaseModel):
 
 
 class SourceVerificationReport(BaseModel):
+    """Source verification report data model."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -111,6 +118,7 @@ class SourceVerificationReport(BaseModel):
 
 
 class PolicyEvidenceLink(BaseModel):
+    """Policy evidence link public type."""
     model_config = ConfigDict(extra="forbid")
 
     option_id: str
@@ -119,6 +127,7 @@ class PolicyEvidenceLink(BaseModel):
 
 
 class PolicyOption(BaseModel):
+    """Policy option public type."""
     model_config = ConfigDict(extra="forbid")
 
     option_id: str
@@ -135,6 +144,7 @@ class PolicyOption(BaseModel):
 
 
 class PolicyOptionSet(BaseModel):
+    """Policy option set public type."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -145,6 +155,7 @@ class PolicyOptionSet(BaseModel):
 
 
 class VerifiedPolicyReport(BaseModel):
+    """Verified policy report data model."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -193,6 +204,7 @@ def persist_policy_request_frame(
     *,
     inputs: list[InputRef] | None = None,
 ) -> PolicyRequestFrameRef:
+    """Persist policy request frame helper."""
     return PolicyRequestFrameRef.model_validate(
         _persist_model(
             store,
@@ -205,6 +217,7 @@ def persist_policy_request_frame(
 
 
 def load_policy_request_frame(store: FileSystemCAS, ref: PolicyRequestFrameRef) -> PolicyRequestFrame:
+    """Load policy request frame."""
     return PolicyRequestFrame.model_validate(from_canonical_bytes(store.get_bytes(ref.artifact_id)))
 
 
@@ -214,6 +227,7 @@ def persist_legal_candidate_pack(
     *,
     inputs: list[InputRef] | None = None,
 ) -> LegalCandidatePackRef:
+    """Persist legal candidate pack helper."""
     return LegalCandidatePackRef.model_validate(
         _persist_model(
             store,
@@ -226,6 +240,7 @@ def persist_legal_candidate_pack(
 
 
 def load_legal_candidate_pack(store: FileSystemCAS, ref: LegalCandidatePackRef) -> LegalCandidatePack:
+    """Load legal candidate pack."""
     return LegalCandidatePack.model_validate(from_canonical_bytes(store.get_bytes(ref.artifact_id)))
 
 
@@ -235,6 +250,7 @@ def persist_legal_source_pack(
     *,
     inputs: list[InputRef] | None = None,
 ) -> LegalSourcePackRef:
+    """Persist legal source pack helper."""
     return LegalSourcePackRef.model_validate(
         _persist_model(
             store,
@@ -247,6 +263,7 @@ def persist_legal_source_pack(
 
 
 def load_legal_source_pack(store: FileSystemCAS, ref: LegalSourcePackRef) -> LegalSourcePack:
+    """Load legal source pack."""
     return LegalSourcePack.model_validate(from_canonical_bytes(store.get_bytes(ref.artifact_id)))
 
 
@@ -256,6 +273,7 @@ def persist_source_verification_report(
     *,
     inputs: list[InputRef] | None = None,
 ) -> SourceVerificationReportRef:
+    """Persist source verification report helper."""
     return SourceVerificationReportRef.model_validate(
         _persist_model(
             store,
@@ -271,6 +289,7 @@ def load_source_verification_report(
     store: FileSystemCAS,
     ref: SourceVerificationReportRef,
 ) -> SourceVerificationReport:
+    """Load source verification report."""
     return SourceVerificationReport.model_validate(from_canonical_bytes(store.get_bytes(ref.artifact_id)))
 
 
@@ -280,6 +299,7 @@ def persist_policy_option_set(
     *,
     inputs: list[InputRef] | None = None,
 ) -> PolicyOptionSetRef:
+    """Persist policy option set helper."""
     return PolicyOptionSetRef.model_validate(
         _persist_model(
             store,
@@ -292,6 +312,7 @@ def persist_policy_option_set(
 
 
 def load_policy_option_set(store: FileSystemCAS, ref: PolicyOptionSetRef) -> PolicyOptionSet:
+    """Load policy option set."""
     return PolicyOptionSet.model_validate(from_canonical_bytes(store.get_bytes(ref.artifact_id)))
 
 
@@ -301,6 +322,7 @@ def persist_verified_policy_report(
     *,
     inputs: list[InputRef] | None = None,
 ) -> VerifiedPolicyReportRef:
+    """Persist verified policy report helper."""
     return VerifiedPolicyReportRef.model_validate(
         _persist_model(
             store,
@@ -316,6 +338,7 @@ def load_verified_policy_report(
     store: FileSystemCAS,
     ref: VerifiedPolicyReportRef,
 ) -> VerifiedPolicyReport:
+    """Load verified policy report."""
     return VerifiedPolicyReport.model_validate(from_canonical_bytes(store.get_bytes(ref.artifact_id)))
 
 

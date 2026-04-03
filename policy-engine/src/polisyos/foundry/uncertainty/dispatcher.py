@@ -1,3 +1,4 @@
+"""Public uncertainty dispatcher module API."""
 from __future__ import annotations
 
 from typing import Callable, Mapping
@@ -22,6 +23,7 @@ logger = get_logger(__name__)
 
 
 class PropagationDispatcher:
+    """Propagation dispatcher public type."""
     def __init__(self, config: PropagationConfig | None = None) -> None:
         self._config = config or PropagationConfig()
         self._analytical = AnalyticalPropagator()

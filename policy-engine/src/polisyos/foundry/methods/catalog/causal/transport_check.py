@@ -1,3 +1,4 @@
+"""Public causal transport check module API."""
 from __future__ import annotations
 
 from collections.abc import Mapping
@@ -45,6 +46,7 @@ from .transport_engine import solve_transportability
 
 
 class EliminationResult(BaseModel):
+    """Elimination result data model."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     can_eliminate: bool

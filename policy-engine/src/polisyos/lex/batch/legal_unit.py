@@ -12,9 +12,11 @@ from polisyos.lex.batch.patterns import (
     ACTION_INHERIT_APPROVAL_RE,
     ACTION_INHERIT_REMOVE_RE,
     AMENDMENT_CORE_RE,
+    AMENDMENT_PACKAGING_LEAD_RE,
     APPLICATION_BULLET_RE,
     APPLICATION_CORE_RE,
     APPLICATION_LEAD_RE,
+    APPROVAL_PACKAGING_LEAD_RE,
     APPROVAL_PASSIVE_RE,
     APPROVAL_CORE_RE,
     AREA_HEADER_RE,
@@ -56,6 +58,7 @@ _THRESHOLD_RE = THRESHOLD_CORE_RE
 _APPLICATION_RE = APPLICATION_CORE_RE
 _APPLICATION_BULLET_RE = APPLICATION_BULLET_RE
 _APPLICATION_LEAD_RE = APPLICATION_LEAD_RE
+_APPROVAL_PACKAGING_LEAD_RE = APPROVAL_PACKAGING_LEAD_RE
 _FORM_PLACEHOLDER_RE = FORM_PLACEHOLDER_RE
 _FORM_SECTION_HEADING_RE = FORM_SECTION_HEADING_RE
 _FORM_FIELD_LABEL_RE = FORM_FIELD_LABEL_RE
@@ -63,6 +66,7 @@ _FORM_LABEL_NOUN_RE = FORM_LABEL_NOUN_RE
 _ACTION_INHERIT_REMOVE_RE = ACTION_INHERIT_REMOVE_RE
 _ACTION_INHERIT_ADD_RE = ACTION_INHERIT_ADD_RE
 _ACTION_INHERIT_APPROVAL_RE = ACTION_INHERIT_APPROVAL_RE
+_AMENDMENT_PACKAGING_LEAD_RE = AMENDMENT_PACKAGING_LEAD_RE
 _FRONT_MATTER_RE = FRONT_MATTER_RE
 _REGISTRY_TITLE_RE = REGISTRY_TITLE_RE
 _SETTLEMENT_ITEM_RE = SETTLEMENT_ITEM_RE
@@ -77,6 +81,16 @@ _CONDITION_TAIL_RE = CONDITION_TAIL_RE
 _SCOPE_TAIL_RE = SCOPE_TAIL_RE
 _COMPLETION_TAIL_RE = COMPLETION_TAIL_RE
 _MAIN_DEONTIC_RE = MAIN_DEONTIC_RE
+_EXPLANATORY_SCAFFOLD_RE = re.compile(
+    r"^(?:у\s+граф[іи]|у\s+рядк(?:у|ах)|у\s+колонц(?:і|ях)|примітк(?:а|и)|"
+    r"приклад|наприклад|довідково|пояснення|зразок)\b",
+    re.IGNORECASE,
+)
+_EDITORIAL_NOTE_RE = re.compile(
+    r"\([^)]{0,260}(?:згідно\s+із|у\s+редакції|доповнено|виключено|"
+    r"зупинено|втратив(?:ла|ли)?\s+чинність|визнано|замінено|із\s+змінами)[^)]*\)",
+    re.IGNORECASE,
+)
 
 _SEARCH_ONLY_SECTION_ROLES = {
     "appendix_header",
@@ -111,6 +125,7 @@ _HIGH_PRIORITY_NORMATIVE_SUBTYPES = {
 
 @dataclass(frozen=True)
 class LegalUnitSignals:
+    """Legal unit signals public type."""
     legal_unit_subtype: str
     legal_unit_micro_subtype: str
     route_class: str
@@ -195,12 +210,17 @@ def _is_main_deontic(text: str, jurisdiction_plugin: JurisdictionPlugin | None) 
     )
 
 
+def _strip_editorial_notes(text: str) -> str:
+    return _compact(_EDITORIAL_NOTE_RE.sub(" ", text))
+
+
 def infer_doc_family_for_unit(
     *,
     doc_type: str = "",
     doc_name: str = "",
     provision_rows: list[dict] | None = None,
 ) -> str:
+    """Infer doc family for unit helper."""
     return classify_doc_family(
         doc_type=doc_type,
         doc_name=doc_name,
@@ -221,8 +241,11 @@ def detect_legal_unit_subtype(
     context_prefix: str = "",
     jurisdiction_plugin: JurisdictionPlugin | None = None,
 ) -> str:
+    """Detect legal unit subtype helper."""
     compact = _compact(text)
+    content_compact = _strip_editorial_notes(compact) or compact
     lower = compact.lower()
+    content_lower = content_compact.lower()
     title = (doc_title or "").strip()
     title_lower = title.lower()
     context = _compact(context_prefix)
@@ -254,6 +277,35 @@ def detect_legal_unit_subtype(
         and ("зареєстровано" in lower or "наказую" in lower or "затверджено" in lower)
     ):
         return "table_scaffold"
+    if _AMENDMENT_PACKAGING_LEAD_RE.match(compact):
+        return "amendment_bundle"
+    approval_packaging_like = bool(
+        _APPROVAL_PACKAGING_LEAD_RE.match(compact)
+        or (content_compact != compact and _APPROVAL_PACKAGING_LEAD_RE.match(content_compact))
+    )
+    substantive_content_like = bool(
+        _is_main_deontic(content_compact, jurisdiction_plugin)
+        or _is_threshold_like(content_compact, jurisdiction_plugin)
+        or (
+            struct_kind in {"article", "point", "paragraph", "enumeration_item"}
+            and len(content_compact.split()) >= 10
+            and (
+                "має право" in content_lower
+                or "мають право" in content_lower
+                or "вправі" in content_lower
+                or "повинен" in content_lower
+                or "зобов" in content_lower
+                or "не більше" in content_lower
+                or "не менше" in content_lower
+            )
+        )
+    )
+    editorial_body_like = bool(
+        content_compact != compact
+        and struct_kind in {"article", "point", "paragraph", "enumeration_item"}
+        and len(content_compact.split()) >= 10
+        and not _AMENDMENT_PACKAGING_LEAD_RE.match(content_compact)
+    )
     if section_role in {"appendix_header", "table_header", "attachment_inventory", "questionnaire_item", "form_field", "decorative_separator"}:
         if section_role == "attachment_inventory":
             return "inventory_only"
@@ -317,9 +369,35 @@ def detect_legal_unit_subtype(
         if _ACTION_INHERIT_APPROVAL_RE.search(context):
             return "approval_bundle"
     if _is_amendment_like(compact, jurisdiction_plugin):
-        return "amendment_bundle"
-    if (_is_approval_like(compact, jurisdiction_plugin) or _APPROVAL_PASSIVE_RE.search(compact)) and (
-        "додат" in lower or "положення" in lower or "порядок" in lower or title
+        if (
+            not _AMENDMENT_PACKAGING_LEAD_RE.match(content_compact)
+            and (substantive_content_like or editorial_body_like)
+            and not (
+                doc_family == "appendix_heavy"
+                and (
+                    _ACTION_INHERIT_REMOVE_RE.search(context)
+                    or _ACTION_INHERIT_ADD_RE.search(context)
+                )
+            )
+        ):
+            pass
+        else:
+            return "amendment_bundle"
+    if (
+        (_is_approval_like(compact, jurisdiction_plugin) or _APPROVAL_PASSIVE_RE.search(compact))
+        and (
+            approval_packaging_like
+            or (
+                doc_family == "appendix_heavy"
+                and (
+                    "додат" in lower
+                    or "положення" in lower
+                    or "порядок" in lower
+                    or _ACTION_INHERIT_APPROVAL_RE.search(context)
+                )
+            )
+        )
+        and not (substantive_content_like and not approval_packaging_like)
     ):
         return "approval_bundle"
     if threshold_like:
@@ -329,6 +407,27 @@ def detect_legal_unit_subtype(
         application_like = bool(_APPLICATION_RE.search(compact))
     if doc_family == "appendix_heavy" and application_like:
         return "application_requirement"
+    appendix_explanatory_like = (
+        doc_family == "appendix_heavy"
+        and struct_kind in {"paragraph", "enumeration_item", "point", "subpoint"}
+        and not _is_main_deontic(compact, jurisdiction_plugin)
+        and not _is_normative_like(compact, jurisdiction_plugin)
+        and not threshold_like
+        and not application_like
+        and not _is_amendment_like(compact, jurisdiction_plugin)
+        and not _is_approval_like(compact, jurisdiction_plugin)
+        and (
+            _EXPLANATORY_SCAFFOLD_RE.search(compact)
+            or (
+                _is_reference_like(compact, jurisdiction_plugin)
+                and not _SANCTION_RE.search(compact)
+                and not _EXCEPTION_RE.search(compact)
+                and not _TEMPORAL_RE.search(compact)
+            )
+        )
+    )
+    if appendix_explanatory_like:
+        return "table_scaffold"
     if not fallback_allowed_for_reasoning or section_role in _SEARCH_ONLY_SECTION_ROLES:
         if section_role in {"signature_block", "form_header", "form_field", "questionnaire_item"}:
             return "form_scaffold"
@@ -351,6 +450,14 @@ def detect_legal_unit_subtype(
         return "registry_catalog_row"
     if section_role in {"composition_member"}:
         return "composition_list"
+    if (
+        doc_family == "appendix_heavy"
+        and not _is_main_deontic(compact, jurisdiction_plugin)
+        and not _is_normative_like(compact, jurisdiction_plugin)
+        and not threshold_like
+        and (_is_reference_like(compact, jurisdiction_plugin) or compact.count(":") >= 2)
+    ):
+        return "table_scaffold"
     if doc_family in {"law", "treaty_protocol"} and struct_kind in {"article", "part", "point", "subpoint"}:
         return "core_normative_clause"
     if _is_normative_like(compact, jurisdiction_plugin) or _is_reference_like(compact, jurisdiction_plugin):
@@ -366,6 +473,7 @@ def detect_legal_unit_micro_subtype(
     threshold_bearing: bool,
     jurisdiction_plugin: JurisdictionPlugin | None = None,
 ) -> str:
+    """Detect legal unit micro subtype helper."""
     compact = _compact(text)
     if legal_unit_subtype != "core_normative_clause" or not compact:
         return ""
@@ -404,6 +512,7 @@ def build_legal_unit_signals(
     context_prefix: str = "",
     jurisdiction_plugin: JurisdictionPlugin | None = None,
 ) -> LegalUnitSignals:
+    """Build legal unit signals."""
     compact = _compact(text)
     lower = compact.lower()
     subtype = detect_legal_unit_subtype(

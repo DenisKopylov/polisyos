@@ -1,3 +1,4 @@
+"""Public spatial advanced module API."""
 from __future__ import annotations
 
 from typing import Any, ClassVar, Mapping
@@ -118,6 +119,7 @@ def _rbf_kernel(
     tags={"spatial", "kriging", "gaussian-process"},
 )
 class GaussianProcessKrigingEstimator:
+    """Gaussian process kriging estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
     method_variant: ClassVar[str] = "gaussian_process_kriging"
@@ -161,6 +163,10 @@ class GaussianProcessKrigingEstimator:
         description="Gaussian-process kriging over spatial coordinates using an RBF covariance kernel.",
         tags=frozenset({"spatial", "kriging", "gaussian-process"}),
         when_to_use="Interpolate field values at unsampled locations; optimal linear prediction with spatial covariance",
+        citations=(
+            "Cressie, N. (1993). Statistics for Spatial Data. Wiley.",
+            "Rasmussen, C. & Williams, C. (2006). Gaussian Processes for Machine Learning. MIT Press.",
+        ),
         when_not_to_use="Very large spatial datasets (>10k points) due to O(n³) cost; non-stationary spatial processes",
         output_interpretation="Kriged surface + prediction variance (kriging SE). Semivariogram fitted to characterize spatial dependence.",
     )
@@ -240,6 +246,7 @@ class GaussianProcessKrigingEstimator:
     tags={"spatial", "interpolation", "idw"},
 )
 class InverseDistanceWeightingEstimator:
+    """Inverse distance weighting estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
     method_variant: ClassVar[str] = "idw"
@@ -335,6 +342,7 @@ class InverseDistanceWeightingEstimator:
     tags={"spatial", "panel", "slx"},
 )
 class SpatialSLXPanelEstimator:
+    """Spatial SLX panel estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
     method_variant: ClassVar[str] = "slx"
@@ -382,6 +390,9 @@ class SpatialSLXPanelEstimator:
         description="Spatial-lag-of-X panel regression with time fixed effects and spillover coefficients.",
         tags=frozenset({"spatial", "panel", "slx"}),
         when_to_use="Panel regression with spatial spillovers; policy diffusion across jurisdictions; time and unit fixed effects",
+        citations=(
+            "Halleck Vega, S. & Elhorst, J. (2015). The SLX model. Journal of Regional Science, 55(3), 339-363.",
+        ),
         when_not_to_use="No panel structure; spatial weights not available; purely cross-sectional data",
         output_interpretation="ρ (spatial lag): spillover intensity. Direct + indirect (spillover) effects of each regressor.",
         typical_min_obs=50,
@@ -506,6 +517,7 @@ def _panel_spatial_lag(
     tags={"spatial", "panel", "sarar"},
 )
 class SpatialSARARPanelEstimator:
+    """Spatial SARAR panel estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
     method_variant: ClassVar[str] = "sarar"
@@ -550,6 +562,10 @@ class SpatialSARARPanelEstimator:
         description="Approximate SARAR panel regression with unit and time demeaning plus iterative lag/error updates.",
         tags=frozenset({"spatial", "panel", "sarar"}),
         when_to_use="Regression with both spatial lag and spatial error; panel data with correlated disturbances across units",
+        citations=(
+            "Anselin, L. (1988). Spatial Econometrics: Methods and Models. Kluwer Academic Publishers.",
+            "LeSage, J. & Pace, R. (2009). Introduction to Spatial Econometrics. CRC Press.",
+        ),
         when_not_to_use="No spatial structure; purely temporal panel; spatial weights matrix is dense",
         output_interpretation="Spatial autoregressive parameters (ρ for lag, λ for error). Coefficients on covariates are direct effects. RMSE on demeaned data.",
         typical_min_obs=50,
@@ -646,6 +662,7 @@ class SpatialSARARPanelEstimator:
     tags={"spatial", "accessibility", "two-step-fca"},
 )
 class TwoStepFCAAccessibilityEstimator:
+    """Two step FCA accessibility estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
     method_variant: ClassVar[str] = "two_step_fca"
@@ -705,6 +722,9 @@ class TwoStepFCAAccessibilityEstimator:
         description="Two-step floating catchment area accessibility model with optional distance decay.",
         tags=frozenset({"spatial", "accessibility", "two-step-fca"}),
         when_to_use="Measure spatial access to services (hospitals, jobs, schools); equity analysis of facility distribution",
+        citations=(
+            "Luo, W. & Wang, F. (2003). Measures of spatial accessibility to health care in a GIS environment. Environment and Planning B, 30(6), 865-884.",
+        ),
         when_not_to_use="No spatial coordinates; travel cost matrix unavailable; binary reachability sufficient",
         output_interpretation="Accessibility score per origin: higher = better access. Two-step accounts for supply capacity and demand competition.",
     )
@@ -768,6 +788,7 @@ class TwoStepFCAAccessibilityEstimator:
     tags={"spatial", "microsim", "smsm"},
 )
 class SpatialMicrosimulationEstimator:
+    """Spatial microsimulation estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
     method_variant: ClassVar[str] = "smsm"
@@ -815,6 +836,9 @@ class SpatialMicrosimulationEstimator:
         description="Spatial microsimulation via multiplicative reweighting to match area-level constraints.",
         tags=frozenset({"spatial", "microsim", "smsm"}),
         when_to_use="Align microsimulation outputs to aggregate control totals; demographic projection calibration",
+        citations=(
+            "Lovelace, R. & Dumont, M. (2016). Spatial Microsimulation with R. CRC Press.",
+        ),
         when_not_to_use="Control totals are inconsistent; area-level data unavailable; no spatial granularity needed",
         output_interpretation="Calibrated weights/probabilities. Check alignment tables: model vs target. RMSE across cells.",
     )
@@ -893,6 +917,7 @@ class SpatialMicrosimulationEstimator:
     tags={"spatial", "zone-design", "balanced-clustering"},
 )
 class ZoneBalanceDesignEstimator:
+    """Zone balance design estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
     method_variant: ClassVar[str] = "zone_balance"
@@ -930,6 +955,9 @@ class ZoneBalanceDesignEstimator:
         description="Balanced zone design that trades off spatial compactness and equalized zone totals.",
         tags=frozenset({"spatial", "zone-design", "balanced-clustering"}),
         when_to_use="Design administrative or analytical zones; balance compactness with population equality; electoral or service redistricting",
+        citations=(
+            "Openshaw, S. (1977). A geographical solution to scale and aggregation problems in region-building, partitioning and spatial modelling. Transactions of the Institute of British Geographers, 2(4), 459-472.",
+        ),
         when_not_to_use="Pre-defined fixed zones required; no spatial coordinates; purely aspatial grouping",
         output_interpretation="Zone assignments per unit. Compactness score and balance metric. Compare zone totals to targets.",
     )
@@ -1029,6 +1057,7 @@ def _kmeans_like_assignments(
     tags={"spatial", "design", "maup"},
 )
 class MAUPSensitivityProfileEstimator:
+    """MAUP sensitivity profile estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
     method_variant: ClassVar[str] = "maup_profile"
@@ -1066,6 +1095,10 @@ class MAUPSensitivityProfileEstimator:
         description="Profiles MAUP sensitivity by re-aggregating observations into alternative zone systems.",
         tags=frozenset({"spatial", "design", "maup"}),
         when_to_use="Assess sensitivity of spatial analysis results to choice of zone boundaries; MAUP diagnostics",
+        citations=(
+            "Openshaw, S. & Taylor, P. (1979). A million or so correlation coefficients: Three experiments on the modifiable areal unit problem. In Statistical Applications in the Spatial Sciences, Pion.",
+            "Fotheringham, A. & Wong, D. (1991). The modifiable areal unit problem in multivariate statistical analysis. Environment and Planning A, 23(7), 1025-1044.",
+        ),
         when_not_to_use="Fixed administrative zones that cannot be altered; no spatial coordinates available",
         output_interpretation="Sensitivity profile across zone systems. High variance across aggregations = MAUP-sensitive result. Guides robustness reporting.",
     )

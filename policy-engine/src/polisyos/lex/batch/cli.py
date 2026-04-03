@@ -1027,6 +1027,7 @@ def _count_table_rows(con, table_name: str) -> int:  # type: ignore[no-untyped-d
 
 
 def main() -> None:
+    """Main helper."""
     try:
         from dotenv import load_dotenv
 

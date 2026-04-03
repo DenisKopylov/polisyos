@@ -1,3 +1,4 @@
+"""Public lex api module API."""
 from __future__ import annotations
 
 from pathlib import Path
@@ -57,6 +58,21 @@ def ingest_legal_doc_bytes(
     options: LexIngestOptions | None = None,
     segment_name: str | None = None,
 ) -> LexIngestResult:
+    """Persist and optionally normalize raw legal document bytes.
+
+    Args:
+        cas: Artifact store used for raw and derived document payloads.
+        fact_log_root: Root directory for world-event and segment persistence.
+        source: Canonical metadata describing the document source.
+        raw_bytes: Raw document body.
+        mime: MIME type for the uploaded payload.
+        options: Optional stage toggles for normalization, structure, and chunking.
+        segment_name: Optional fact-log segment override.
+
+    Returns:
+        References to the raw document artifact and any derived Lex artifacts.
+    """
+
     return _ingest_legal_doc_bytes(
         cas=cas,
         fact_log_root=fact_log_root,
@@ -76,6 +92,8 @@ def build_legal_structure(
     options: LexStructureOptions | None = None,
     segment_name: str | None = None,
 ) -> LexStructureResult:
+    """Build provision structure for an ingested legal document artifact."""
+
     return _build_legal_structure(
         cas=cas,
         fact_log_root=fact_log_root,
@@ -93,6 +111,8 @@ def build_version_index(
     options: LexVersionIndexOptions | None = None,
     segment_name: str | None = None,
 ) -> LexVersionIndexResult:
+    """Compute the version-selection index for one legal document source."""
+
     return _build_version_index(
         cas=cas,
         fact_log_root=fact_log_root,
@@ -109,6 +129,8 @@ def resolve_active_version(
     as_of_iso: str,
     strategy: ActiveVersionStrategy | None = None,
 ) -> ActiveVersionResult:
+    """Resolve the legally active document version for a requested date."""
+
     return _resolve_active_version(
         cas=cas,
         doc_source_id=doc_source_id,
@@ -125,6 +147,8 @@ def assemble_norm_pack(
     db: SimulationDB | None = None,
     segment_name: str | None = None,
 ) -> NormPackBuildResult:
+    """Assemble a jurisdiction/date-specific `NormPack` from Lex corpus assets."""
+
     return _assemble_norm_pack(
         cas=cas,
         fact_log_root=fact_log_root,
@@ -141,6 +165,8 @@ def evaluate_legality(
     request: LegalEvaluationRequest,
     segment_name: str | None = None,
 ) -> tuple[LegalReportRef, list[ChangeProposalRef]]:
+    """Run the configured Lex legality evaluator and return report artifacts."""
+
     components_index, _ = build_components_index(
         groups=[ENTRY_POINT_GROUP_LEX_EVALUATORS],
         include_dev_scan=True,
@@ -168,6 +194,7 @@ def evaluate_transport_constraints(
     causal_graph: Any | None = None,
     legal_kg_db_path: Path | str | None = None,
 ) -> LegalConstraintSet:
+    """Evaluate transport constraints helper."""
     normalized_policy_spec = dict(policy_spec or {})
     if causal_graph is not None and "causal_graph" not in normalized_policy_spec:
         normalized_policy_spec["causal_graph"] = causal_graph
@@ -186,6 +213,8 @@ def propose_changes(
     based_on_report_ref: LegalReportRef,
     segment_name: str | None = None,
 ) -> list[ChangeProposalRef]:
+    """Generate change proposals from a previously produced legality report."""
+
     return _propose_changes_impl(
         cas=cas,
         fact_log_root=fact_log_root,

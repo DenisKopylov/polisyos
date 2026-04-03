@@ -1,3 +1,4 @@
+"""Public materialize rules module API."""
 from __future__ import annotations
 
 from enum import Enum
@@ -11,6 +12,7 @@ from polisyos.ir.world.predicates import (
 
 
 class MergeStrategy(str, Enum):
+    """Merge strategy data model."""
     ERROR_ON_CONFLICT = "error_on_conflict"
     PREFER_NON_NULL_LAST_TX = "prefer_non_null_last_tx"
     LAST_TX = "last_tx"

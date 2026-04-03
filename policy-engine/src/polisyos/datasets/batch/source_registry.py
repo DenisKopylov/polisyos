@@ -23,6 +23,7 @@ _VALID_RUN_PROFILES = frozenset(
 
 @dataclass(frozen=True, slots=True)
 class SourceSpec:
+    """Source spec data model."""
     name: str
     family: str
     wave: str
@@ -69,6 +70,7 @@ class SourceSpec:
 
 @dataclass(frozen=True, slots=True)
 class SourceRegistry:
+    """Source registry implementation."""
     version: int
     sources: tuple[SourceSpec, ...] = field(default_factory=tuple)
 

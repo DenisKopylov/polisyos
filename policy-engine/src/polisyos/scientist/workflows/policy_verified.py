@@ -1,9 +1,11 @@
+"""Public workflows policy verified module API."""
 from __future__ import annotations
 
 from polisyos.scientist.engine.workflow_spec import NodeInvocation, WorkflowSpec
 
 
 def policy_verified_workflow_spec() -> WorkflowSpec:
+    """Policy verified workflow spec helper."""
     return WorkflowSpec(
         workflow_id="scientist_policy_verified",
         error_policy="continue",

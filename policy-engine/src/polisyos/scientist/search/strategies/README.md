@@ -1,31 +1,37 @@
 # Search Strategies (`polisyos.scientist.search.strategies`)
 
-`search/strategies` — генераторы кандидатов и вспомогательные компоненты для `SearchController`.
+`search.strategies` содержит candidate generators и runtime helpers для
+sample-efficient policy search: от базовых random/grid вариантов до optional
+Bayesian и multi-objective контуров.
 
-## Базовые контракты
+## Роль в системе
 
-- `base.py` — `SearchStrategy` protocol и `BaseSearchStrategy`.
-- `types.py` — доменные типы (`PolicyCandidate`, `Evaluation`, `StrategyState`, bounds/acquisition enums).
-- `space.py` + `codec.py` — описание и кодирование параметрического пространства.
+- **Зависит от:** `search`, optional `torch`/`botorch`/`gpytorch`
+- **Используется в:** `SearchController`, policy-design optimization loops
+- Пакет отделяет пространство параметров и генерацию кандидатов от orchestration-кода `search.controller`.
 
-## Стратегии
+## Ключевые концепции
 
-- `random.py` — случайный поиск.
-- `grid.py` — детерминированный grid search.
-- `bayesian.py` — Bayesian optimizer (опциональные зависимости `torch/botorch/gpytorch`).
-- `multi_objective.py` — multi-objective Bayesian optimizer (также опциональные heavy deps).
-- `multi_fidelity.py` — multi-fidelity scheduling (например, successive halving).
+- **SearchStrategy** — базовый protocol для генераторов кандидатов.
+- **SearchSpace + codecs** — описание параметров и их приведение к runtime форме.
+- **Deterministic baselines** — `RandomSearchStrategy`, `GridSearchStrategy`.
+- **Advanced optimizers** — optional Bayesian и multi-objective backends.
+- **Resource arbitration** — лимиты памяти/ресурсов для дорогих strategy paths.
 
-## Runtime и интеграция
+## Public API
 
-- `adapter.py` — `StrategyAdapter` для подключения strategy к интерфейсу `SearchController`.
-- `objective_adapter.py` — bridge между objective API и strategy представлением целей.
-- `resource_arbiter.py` — лимиты/арбитраж ресурсов для дорогих стадий.
-- `runtime.py` — runtime-настройки для torch backend.
-- `normalization.py`, `surrogate.py`, `acquisition.py`, `rl_wrapper.py` — вспомогательные блоки для продвинутых контуров.
+- `SearchStrategy`, `BaseSearchStrategy`, `StrategyAdapter`
+- `SearchSpace`, `ParameterCodec`, `ScalarParameterCodec`
+- `PolicyCandidate`, `Evaluation`, `StrategyState`
+- `RandomSearchStrategy`, `GridSearchStrategy`
+- `ResourceArbiter`, `ResourceMode`, `memory_cleanup(...)`
+- optional: `BayesianConfig`, `BayesianOptimizer`, `MOConfig`, `MOBayesianOptimizer`
 
-## Связи
+Подробности: [Reference →](../../../../../docs/reference/scientist/index.md)
 
-- вызывается из `search/controller.py`;
-- используется опционально (default `run_experiment()` не включает search loop);
-- может работать поверх `workflows.engine_base.WorkflowEngine` через `ExpensiveStage`.
+## Текущее состояние
+
+- Последнее обновление: 2026-04-03
+- Python modules: 24
+- Exports: 18 base exports plus optional heavy-dependency strategy exports
+- README синхронизирован с текущим lazy/optional import поведением пакета

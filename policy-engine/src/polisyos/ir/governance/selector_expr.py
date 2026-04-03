@@ -1,3 +1,4 @@
+"""Public governance selector expr module API."""
 from __future__ import annotations
 
 from typing import Annotated, Literal
@@ -13,6 +14,7 @@ SelectorValue = SelectorScalar | list[SelectorScalar]
 
 
 class SelectorPredicate(KernelModel):
+    """Selector predicate public type."""
     kind: Literal["predicate"] = "predicate"
     field: str = Field(..., max_length=64)
     operator: SelectorOperator
@@ -33,16 +35,19 @@ class SelectorPredicate(KernelModel):
 
 
 class SelectorAll(KernelModel):
+    """Selector all public type."""
     kind: Literal["all_of"] = "all_of"
     clauses: list["SelectorExpr"]
 
 
 class SelectorAny(KernelModel):
+    """Selector any public type."""
     kind: Literal["any_of"] = "any_of"
     clauses: list["SelectorExpr"]
 
 
 class SelectorNot(KernelModel):
+    """Selector not public type."""
     kind: Literal["not"] = "not"
     clause: "SelectorExpr"
 

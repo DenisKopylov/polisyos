@@ -53,12 +53,14 @@ from polisyos.scientist.search.transfer_context import resolve_transfer_context
 
 
 class PolicySearchLevel(str, Enum):
+    """Policy search level public type."""
     STRUCTURE = "structure"
     PARAMETER = "parameter"
     NARRATIVE = "narrative"
 
 
 class HierarchicalSearchConfig(BaseModel):
+    """Hierarchical search config data model."""
     model_config = ConfigDict(extra="forbid")
 
     max_structure_candidates: int = Field(default=8, ge=1, le=64)
@@ -72,6 +74,7 @@ class HierarchicalSearchConfig(BaseModel):
 
 
 class StructureCandidate(BaseModel):
+    """Structure candidate public type."""
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
 
     structure_id: str = Field(min_length=1)
@@ -86,6 +89,7 @@ class StructureCandidate(BaseModel):
 
 
 class ParameterSearchSpec(BaseModel):
+    """Parameter search spec data model."""
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
 
     structure_id: str = Field(min_length=1)
@@ -98,6 +102,7 @@ class ParameterSearchSpec(BaseModel):
 
 @dataclass(slots=True)
 class OptimizerObjectiveSpec:
+    """Optimizer objective spec data model."""
     objective_names: list[str]
     directions: list[OptimizationDirection]
     frontier_projection_names: list[str]
@@ -105,6 +110,7 @@ class OptimizerObjectiveSpec:
 
 
 class NarrativeVariant(BaseModel):
+    """Narrative variant public type."""
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
 
     variant_id: str = Field(min_length=1)
@@ -116,6 +122,7 @@ class NarrativeVariant(BaseModel):
 
 
 class HierarchicalSearchState(BaseModel):
+    """Hierarchical search state data model."""
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
 
     current_level: PolicySearchLevel = PolicySearchLevel.STRUCTURE
@@ -126,6 +133,7 @@ class HierarchicalSearchState(BaseModel):
 
 
 class HierarchicalSearchResult(BaseModel):
+    """Hierarchical search result data model."""
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
 
     state: HierarchicalSearchState
@@ -134,6 +142,7 @@ class HierarchicalSearchResult(BaseModel):
 
 @dataclass(slots=True)
 class PolicyParameterCodec:
+    """Policy parameter codec public type."""
     parameter_paths: dict[str, str]
     template_values: dict[str, Any]
 

@@ -1,3 +1,4 @@
+"""Public causal policy learning module API."""
 from __future__ import annotations
 
 from typing import Any, ClassVar, Mapping
@@ -354,7 +355,7 @@ class OptimalPolicyLearner:
             "cate_estimates": cate_estimates.tolist(),
             "treatment_decisions": treatment_decisions.tolist(),
         }
-        strategic_summary, strategic_warnings, strategic_bundle = evaluate_strategic_hook(
+        strategic_summary, strategic_warnings, _strategic_bundle = evaluate_strategic_hook(
             params=params,
             baseline_policy_value=total_effect,
         )
@@ -366,8 +367,6 @@ class OptimalPolicyLearner:
             report.metadata["strategic_response"] = strategic_summary
             report.metadata["strategic_response_present"] = True
             extras["strategic_response_summary"] = strategic_summary
-            if strategic_bundle is not None:
-                extras["strategic_response_bundle"] = strategic_bundle
         return wrap_causal_output(
             report,
             warnings=warnings,

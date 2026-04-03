@@ -1,3 +1,4 @@
+"""Public scientist policy verified package API."""
 from .models import (
     LegalCandidatePack,
     LegalSourcePack,

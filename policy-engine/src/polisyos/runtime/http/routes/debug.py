@@ -1,3 +1,4 @@
+"""Public routes debug module API."""
 from __future__ import annotations
 
 from polisyos.core.contracts.runtime import (

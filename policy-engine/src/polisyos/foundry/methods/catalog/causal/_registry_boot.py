@@ -1,3 +1,4 @@
+"""Public causal registry boot module API."""
 from __future__ import annotations
 
 import importlib
@@ -162,6 +163,7 @@ def _optional_method_types(
 
 
 def register_causal_methods() -> Sequence[type]:
+    """Register causal methods."""
     methods: list[type] = [
         SyntheticControlMethod,
         ParallelTrendsCheck,

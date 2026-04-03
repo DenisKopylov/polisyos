@@ -1,3 +1,5 @@
+"""Discovery and filtering helpers for Scientist governance passes."""
+
 from __future__ import annotations
 
 from collections.abc import Callable
@@ -22,6 +24,7 @@ RUNTIME_ALLOWED_PASS_IDS: frozenset[str] = frozenset(
         "refutation",
         "literature_gate",
         "normative_arbitration",
+        "strategic_response",
         "sutva_check",
         "transportability_required",
         "human_review_required",
@@ -30,6 +33,13 @@ RUNTIME_ALLOWED_PASS_IDS: frozenset[str] = frozenset(
 
 
 def load_governance_passes() -> list[ValidatorPass]:
+    """Load governance validators from entry points with builtin fallbacks.
+
+    Returns:
+        Instantiated validator passes in discovery order, raising when two
+        providers claim the same ``pass_id`` or no validators can be resolved.
+    """
+
     entry_points = list(list_entry_points(group=ENTRY_POINT_GROUP_GOVERNANCE_PASSES))
     providers = _resolve_providers(entry_points)
 
@@ -55,10 +65,19 @@ def load_governance_passes() -> list[ValidatorPass]:
 
 
 def build_governance_pipeline() -> ValidationPipeline:
+    """Construct a validation pipeline from the discovered governance passes."""
+
     return ValidationPipeline(load_governance_passes())
 
 
 def runtime_profile(profile: ValidationProfile) -> ValidationProfile:
+    """Trim a validation profile down to runtime-safe pass identifiers.
+
+    Runtime execution intentionally omits passes that require offline-only
+    state or human review orchestration, while preserving thresholds and
+    short-circuit behavior from the source profile.
+    """
+
     return ValidationProfile(
         level=profile.level,
         pass_ids=frozenset(
@@ -72,14 +91,15 @@ def runtime_profile(profile: ValidationProfile) -> ValidationProfile:
 def _resolve_providers(
     entry_points: list[EntryPoint],
 ) -> list[tuple[str, Callable[[], ValidatorPass] | type[ValidatorPass]]]:
+    fallbacks = builtin_governance_pass_factories()
     if not entry_points:
-        fallbacks = builtin_governance_pass_factories()
         return [
             (f"fallback:{name}", factory)
             for name, factory in sorted(fallbacks.items(), key=lambda item: item[0])
         ]
 
     resolved: list[tuple[str, Callable[[], ValidatorPass] | type[ValidatorPass]]] = []
+    discovered_names: set[str] = set()
     for entry_point in entry_points:
         source_name = f"entry_point:{entry_point.name}"
         try:
@@ -87,7 +107,12 @@ def _resolve_providers(
         except Exception as exc:
             raise RuntimeError(f"Failed to load governance pass from {source_name}: {exc}") from exc
         provider = _coerce_provider(target=target, source_name=source_name)
+        discovered_names.add(entry_point.name)
         resolved.append((source_name, provider))
+    for name, factory in sorted(fallbacks.items(), key=lambda item: item[0]):
+        if name in discovered_names:
+            continue
+        resolved.append((f"fallback:{name}", factory))
     return resolved
 
 

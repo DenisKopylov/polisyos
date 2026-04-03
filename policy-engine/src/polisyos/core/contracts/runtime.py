@@ -1,3 +1,4 @@
+"""Public contracts runtime module API."""
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -29,6 +30,7 @@ def _utc_now() -> datetime:
 
 
 class ApiMeta(BaseModel):
+    """Api meta public type."""
     model_config = ConfigDict(extra="forbid")
 
     request_id: str
@@ -37,6 +39,7 @@ class ApiMeta(BaseModel):
 
 
 class AuthMeResponse(BaseModel):
+    """Auth me response data model."""
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -52,6 +55,7 @@ class AuthMeResponse(BaseModel):
 
 
 class RuntimeApiProblem(BaseModel):
+    """Runtime api problem public type."""
     model_config = ConfigDict(extra="forbid")
 
     type: str = Field(default="about:blank")
@@ -71,6 +75,7 @@ class RuntimeApiError(RuntimeApiProblem):
 
 
 class CursorPage(BaseModel):
+    """Cursor page public type."""
     model_config = ConfigDict(extra="forbid")
 
     limit: int = Field(default=50, ge=1, le=200)
@@ -81,6 +86,7 @@ class CursorPage(BaseModel):
 
 
 class RunRecordV1(BaseModel):
+    """Run record V 1 public type."""
     model_config = ConfigDict(extra="forbid")
 
     run_id: str
@@ -97,6 +103,7 @@ class RunRecordV1(BaseModel):
 
 
 class RunSummary(RunRecordV1):
+    """Run summary data model."""
     root_artifact_count: int = Field(default=0, ge=0)
     has_workflow_report: bool = False
     warnings: list[str] = Field(default_factory=list)
@@ -107,6 +114,7 @@ class RunSummary(RunRecordV1):
 
 
 class RunDetails(RunRecordV1):
+    """Run details public type."""
     manifest_ref: ArtifactRef | None = None
     trace_ref: ArtifactRef | None = None
     capability_manifest_ref: ArtifactRef | None = None
@@ -121,6 +129,7 @@ class RunDetails(RunRecordV1):
 
 
 class RunTimelineEvent(BaseModel):
+    """Run timeline event data model."""
     model_config = ConfigDict(extra="forbid")
 
     index: int = Field(ge=0)
@@ -137,6 +146,7 @@ class RunTimelineEvent(BaseModel):
 
 
 class RunTimelineSummary(BaseModel):
+    """Run timeline summary data model."""
     model_config = ConfigDict(extra="forbid")
 
     run_id: str
@@ -150,6 +160,7 @@ class RunTimelineSummary(BaseModel):
 
 
 class RunTimelineView(BaseModel):
+    """Run timeline view data model."""
     model_config = ConfigDict(extra="forbid")
 
     run_id: str
@@ -160,6 +171,7 @@ class RunTimelineView(BaseModel):
 
 
 class RunNodeRecord(BaseModel):
+    """Run node record data model."""
     model_config = ConfigDict(extra="forbid")
 
     alias: str
@@ -176,6 +188,7 @@ class RunNodeRecord(BaseModel):
 
 
 class NodeDebugView(BaseModel):
+    """Node debug view data model."""
     model_config = ConfigDict(extra="forbid")
 
     run_id: str
@@ -190,6 +203,7 @@ class NodeDebugView(BaseModel):
 
 
 class GovernanceDebugView(BaseModel):
+    """Governance debug view data model."""
     model_config = ConfigDict(extra="forbid")
 
     run_id: str
@@ -213,6 +227,7 @@ class GovernanceDebugView(BaseModel):
 
 
 class RunErrorView(BaseModel):
+    """Run error view data model."""
     model_config = ConfigDict(extra="forbid")
 
     source: Literal["manifest", "workflow_report", "trace", "runtime"]
@@ -224,6 +239,7 @@ class RunErrorView(BaseModel):
 
 
 class AgentPipelineStep(BaseModel):
+    """Agent pipeline step public type."""
     model_config = ConfigDict(extra="forbid")
 
     attempt: int = Field(default=1, ge=1)
@@ -244,6 +260,7 @@ class AgentPipelineStep(BaseModel):
 
 
 class AgentPipelineAttempt(BaseModel):
+    """Agent pipeline attempt public type."""
     model_config = ConfigDict(extra="forbid")
 
     attempt: int = Field(ge=1)
@@ -257,6 +274,7 @@ class AgentPipelineAttempt(BaseModel):
 
 
 class RetrievalPhaseTelemetry(BaseModel):
+    """Retrieval phase telemetry public type."""
     model_config = ConfigDict(extra="forbid")
 
     phase: str
@@ -268,6 +286,7 @@ class RetrievalPhaseTelemetry(BaseModel):
 
 
 class RetrievalTelemetryView(BaseModel):
+    """Retrieval telemetry view data model."""
     model_config = ConfigDict(extra="forbid")
 
     mode: str = "hybrid"
@@ -282,6 +301,7 @@ class RetrievalTelemetryView(BaseModel):
 
 
 class PreflightDiagnosticView(BaseModel):
+    """Preflight diagnostic view data model."""
     model_config = ConfigDict(extra="forbid")
 
     code: str
@@ -293,6 +313,7 @@ class PreflightDiagnosticView(BaseModel):
 
 
 class PreflightReportView(BaseModel):
+    """Preflight report view data model."""
     model_config = ConfigDict(extra="forbid")
 
     ready_to_run: bool = False
@@ -302,6 +323,7 @@ class PreflightReportView(BaseModel):
 
 
 class EvaluatorScoresView(BaseModel):
+    """Evaluator scores view data model."""
     model_config = ConfigDict(extra="forbid")
 
     kpi_score: float = Field(default=0.0, ge=0.0, le=1.0)
@@ -313,6 +335,7 @@ class EvaluatorScoresView(BaseModel):
 
 
 class EvaluatorReportView(BaseModel):
+    """Evaluator report view data model."""
     model_config = ConfigDict(extra="forbid")
 
     verdict: EvaluatorVerdict | None = None
@@ -325,6 +348,7 @@ class EvaluatorReportView(BaseModel):
 
 
 class IterationLifecycleView(BaseModel):
+    """Iteration lifecycle view data model."""
     model_config = ConfigDict(extra="forbid")
 
     iteration: int = Field(default=1, ge=1)
@@ -336,6 +360,7 @@ class IterationLifecycleView(BaseModel):
 
 
 class ReproducibilityView(BaseModel):
+    """Reproducibility view data model."""
     model_config = ConfigDict(extra="forbid")
 
     seed: int = Field(default=0, ge=0)
@@ -355,6 +380,7 @@ class ReproducibilityView(BaseModel):
 
 
 class RunEvidenceNeedView(BaseModel):
+    """Run evidence need view data model."""
     model_config = ConfigDict(extra="forbid")
 
     need_id: str
@@ -370,6 +396,7 @@ class RunEvidenceNeedView(BaseModel):
 
 
 class RunEvidencePlanView(BaseModel):
+    """Run evidence plan view data model."""
     model_config = ConfigDict(extra="forbid")
 
     plan_id: str
@@ -389,6 +416,7 @@ class RunEvidencePlanView(BaseModel):
 
 
 class RunEvidencePromotionView(BaseModel):
+    """Run evidence promotion view data model."""
     model_config = ConfigDict(extra="forbid")
 
     promotion_id: str
@@ -406,6 +434,7 @@ class RunEvidencePromotionView(BaseModel):
 
 
 class RunEvidenceContextView(BaseModel):
+    """Run evidence context view data model."""
     model_config = ConfigDict(extra="forbid")
 
     run_id: str
@@ -422,6 +451,7 @@ class RunEvidenceContextView(BaseModel):
 
 
 class AgentPipelineView(BaseModel):
+    """Agent pipeline view data model."""
     model_config = ConfigDict(extra="forbid")
 
     run_id: str
@@ -443,6 +473,7 @@ class AgentPipelineView(BaseModel):
 
 
 class RunWorkflowNodeView(BaseModel):
+    """Run workflow node view data model."""
     model_config = ConfigDict(extra="forbid")
 
     alias: str
@@ -460,6 +491,7 @@ class RunWorkflowNodeView(BaseModel):
 
 
 class RunWorkflowEdgeView(BaseModel):
+    """Run workflow edge view data model."""
     model_config = ConfigDict(extra="forbid")
 
     from_alias: str
@@ -467,6 +499,7 @@ class RunWorkflowEdgeView(BaseModel):
 
 
 class RunWorkflowSummary(BaseModel):
+    """Run workflow summary data model."""
     model_config = ConfigDict(extra="forbid")
 
     workflow_id: str | None = None
@@ -482,6 +515,7 @@ class RunWorkflowSummary(BaseModel):
 
 
 class RunWorkflowView(BaseModel):
+    """Run workflow view data model."""
     model_config = ConfigDict(extra="forbid")
 
     run_id: str
@@ -495,6 +529,7 @@ class RunWorkflowView(BaseModel):
 
 
 class ArtifactManifestView(BaseModel):
+    """Artifact manifest view data model."""
     model_config = ConfigDict(extra="forbid")
 
     artifact_id: str
@@ -511,6 +546,7 @@ class ArtifactManifestView(BaseModel):
 
 
 class ArtifactContentPreview(BaseModel):
+    """Artifact content preview public type."""
     model_config = ConfigDict(extra="forbid")
 
     artifact_id: str
@@ -524,6 +560,7 @@ class ArtifactContentPreview(BaseModel):
 
 
 class ArtifactLineageNode(BaseModel):
+    """Artifact lineage node implementation."""
     model_config = ConfigDict(extra="forbid")
 
     artifact_id: str
@@ -535,6 +572,7 @@ class ArtifactLineageNode(BaseModel):
 
 
 class ArtifactLineageEdge(BaseModel):
+    """Artifact lineage edge public type."""
     model_config = ConfigDict(extra="forbid")
 
     parent_artifact_id: str
@@ -543,6 +581,7 @@ class ArtifactLineageEdge(BaseModel):
 
 
 class ArtifactLineageView(BaseModel):
+    """Artifact lineage view data model."""
     model_config = ConfigDict(extra="forbid")
 
     root_artifact_ids: list[str] = Field(default_factory=list)
@@ -557,6 +596,7 @@ class ArtifactLineageView(BaseModel):
 
 
 class ArtifactSchemaView(BaseModel):
+    """Artifact schema view data model."""
     model_config = ConfigDict(extra="forbid")
 
     artifact_id: str
@@ -568,6 +608,7 @@ class ArtifactSchemaView(BaseModel):
 
 
 class RunFeedbackView(BaseModel):
+    """Run feedback view data model."""
     model_config = ConfigDict(extra="forbid")
 
     run_id: str
@@ -583,6 +624,7 @@ class RunFeedbackView(BaseModel):
 
 
 class RunCompareView(BaseModel):
+    """Run compare view data model."""
     model_config = ConfigDict(extra="forbid")
 
     left_run_id: str
@@ -591,6 +633,7 @@ class RunCompareView(BaseModel):
 
 
 class RunsListResponse(BaseModel):
+    """Runs list response data model."""
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -599,6 +642,7 @@ class RunsListResponse(BaseModel):
 
 
 class RunDetailsResponse(BaseModel):
+    """Run details response data model."""
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -606,6 +650,7 @@ class RunDetailsResponse(BaseModel):
 
 
 class RunTimelineResponse(BaseModel):
+    """Run timeline response data model."""
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -613,6 +658,7 @@ class RunTimelineResponse(BaseModel):
 
 
 class RunNodesResponse(BaseModel):
+    """Run nodes response data model."""
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -622,6 +668,7 @@ class RunNodesResponse(BaseModel):
 
 
 class RunLineageResponse(BaseModel):
+    """Run lineage response data model."""
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -630,6 +677,7 @@ class RunLineageResponse(BaseModel):
 
 
 class RunEvidenceContextResponse(BaseModel):
+    """Run evidence context response data model."""
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -637,6 +685,7 @@ class RunEvidenceContextResponse(BaseModel):
 
 
 class NodeDebugResponse(BaseModel):
+    """Node debug response data model."""
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -644,6 +693,7 @@ class NodeDebugResponse(BaseModel):
 
 
 class GovernanceDebugResponse(BaseModel):
+    """Governance debug response data model."""
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -651,6 +701,7 @@ class GovernanceDebugResponse(BaseModel):
 
 
 class RunErrorsResponse(BaseModel):
+    """Run errors response data model."""
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -659,6 +710,7 @@ class RunErrorsResponse(BaseModel):
 
 
 class AgentPipelineResponse(BaseModel):
+    """Agent pipeline response data model."""
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -666,6 +718,7 @@ class AgentPipelineResponse(BaseModel):
 
 
 class RunWorkflowResponse(BaseModel):
+    """Run workflow response data model."""
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -673,6 +726,7 @@ class RunWorkflowResponse(BaseModel):
 
 
 class ArtifactManifestResponse(BaseModel):
+    """Artifact manifest response data model."""
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -680,6 +734,7 @@ class ArtifactManifestResponse(BaseModel):
 
 
 class ArtifactContentResponse(BaseModel):
+    """Artifact content response data model."""
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -687,6 +742,7 @@ class ArtifactContentResponse(BaseModel):
 
 
 class ArtifactLineageResponse(BaseModel):
+    """Artifact lineage response data model."""
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -694,6 +750,7 @@ class ArtifactLineageResponse(BaseModel):
 
 
 class ArtifactSchemaResponse(BaseModel):
+    """Artifact schema response data model."""
     model_config = ConfigDict(extra="forbid", populate_by_name=True)
 
     meta: ApiMeta
@@ -701,6 +758,7 @@ class ArtifactSchemaResponse(BaseModel):
 
 
 class RunFeedbackResponse(BaseModel):
+    """Run feedback response data model."""
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -708,6 +766,7 @@ class RunFeedbackResponse(BaseModel):
 
 
 class RunCompareResponse(BaseModel):
+    """Run compare response data model."""
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -715,6 +774,7 @@ class RunCompareResponse(BaseModel):
 
 
 class FeedbackActionResponse(BaseModel):
+    """Feedback action response data model."""
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta

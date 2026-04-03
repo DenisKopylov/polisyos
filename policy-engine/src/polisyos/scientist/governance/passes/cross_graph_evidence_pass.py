@@ -1,3 +1,4 @@
+"""Public passes cross graph evidence pass module API."""
 from __future__ import annotations
 
 from typing import Any
@@ -19,6 +20,7 @@ from polisyos.ir.refs import CrossGraphEvidenceProfileRef
 
 
 class CrossGraphEvidencePass(ValidatorPass):
+    """Cross graph evidence pass implementation."""
     @property
     def pass_id(self) -> str:
         return "cross_graph_evidence"

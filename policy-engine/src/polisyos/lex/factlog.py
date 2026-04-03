@@ -1,3 +1,4 @@
+"""Public lex factlog module API."""
 from __future__ import annotations
 
 from pathlib import Path
@@ -19,6 +20,7 @@ def load_world_facts(
     read_error_cls: type[_E] | None = None,
     read_error_prefix: str = "failed to read fact segment",
 ) -> pd.DataFrame:
+    """Load world facts."""
     manifests = load_world_fact_manifests(fact_log_root)
     frames: list[pd.DataFrame] = []
     for manifest in manifests:

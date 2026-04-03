@@ -1,3 +1,4 @@
+"""Public causal graph reconciliation module API."""
 from __future__ import annotations
 
 import time
@@ -463,6 +464,7 @@ def compute_reconciliation_diagnostics(
     max_triangles: int = MAX_TRIANGLES,
     triangle_budget_ms: int = TRIANGLE_BUDGET_MS,
 ) -> ReconciliationDiagnostics:
+    """Compute reconciliation diagnostics helper."""
     if not edges:
         return ReconciliationDiagnostics()
 
@@ -711,6 +713,9 @@ class ReconcileCausalGraph:
             "cycle_handling": "Cycles are resolved via lagging first, removal as fallback.",
         },
         when_to_use="Merge data-driven causal discovery with literature priors and LLM structural hints; build reconciled DAG for SCM fitting",
+        citations=(
+            "Triantafillou, S. & Tsamardinos, I. (2015). Constraint-based causal discovery from multiple interventions over overlapping variable sets. JMLR, 16, 2147-2205.",
+        ),
         when_not_to_use="Purely data-driven discovery without prior knowledge; single evidence source only",
         output_interpretation="Reconciled DAG with combined edge confidences. Diagnostics: cyclic inconsistency norm and irreducible conflict norm indicate evidence quality. needs_expert_review flag triggers human review.",
     )
@@ -976,6 +981,10 @@ class ComposeSCMFragments:
             "repair": "No lagging, removal, or latent synthesis fallback is attempted.",
         },
         when_to_use="Compose SCM fragments after semantic alignment has already been verified.",
+        citations=(
+            "Pearl, J. (2009). Causality: Models, Reasoning, and Inference. Cambridge University Press.",
+            "Bareinboim, E. & Pearl, J. (2016). Causal inference and the data-fusion problem. PNAS, 113(27), 7345-7352.",
+        ),
         when_not_to_use="Use legacy prior reconciliation for data/literature/LLM edge fusion or any graph repair workflow.",
         output_interpretation="Returns composed_graph when structure is preserved and a CompositionCertificate describing preserved, deferred, or broken status.",
     )
@@ -1060,65 +1069,79 @@ class ComposeSCMFragments:
         for certificate in payload.alignment_report.per_variable_certificates:
             if certificate.reviewer is AlignmentReviewerState.PENDING_REVIEW:
                 needs_expert_review = True
+            if (certificate.metadata or {}).get("coverage_reason") == "unmatched_exposed_interface":
+                needs_expert_review = True
+
+        for _frag in payload.fragments:
+            for _var_name in sorted(_frag.latent_summary):
+                if _var_name in _frag.interface_variables:
+                    blocking_reasons.append(f"unobserved interface variable: {_var_name}")
 
         structure_status = "valid"
         composed_graph: CausalGraphModel | None = None
-        if not blocking_reasons:
-            merged_edges: dict[tuple[str, str, str, str, int], CausalEdge] = {}
-            node_set: set[str] = set()
-            for fragment in sorted(payload.fragments, key=lambda item: item.fragment_id):
-                graph = payload.fragment_graphs[fragment.fragment_id]
-                node_map: dict[str, str] = {}
-                for node in graph.nodes:
-                    mapped_node = binding_to_node.get((fragment.fragment_id, node))
-                    node_map[node] = mapped_node or f"{fragment.fragment_id}::{node}"
-                    node_set.add(node_map[node])
+        # Always attempt structural composition; only graph-level structural violations (cycles,
+        # bad edge marks, self-loops) prevent graph assembly here.  Alignment / topology blocking
+        # reasons mark the certificate broken/deferred but do not suppress the composed graph —
+        # that decision is made by the caller (e.g. ReconcileCausalGraphNode) based on certificate
+        # status.
+        merged_edges: dict[tuple[str, str, str, str, int], CausalEdge] = {}
+        node_set: set[str] = set()
+        structural_violations: list[str] = []
+        for fragment in sorted(payload.fragments, key=lambda item: item.fragment_id):
+            graph = payload.fragment_graphs[fragment.fragment_id]
+            node_map: dict[str, str] = {}
+            for node in graph.nodes:
+                mapped_node = binding_to_node.get((fragment.fragment_id, node))
+                node_map[node] = mapped_node or f"{fragment.fragment_id}::{node}"
+                node_set.add(node_map[node])
 
-                for edge in graph.edges:
-                    remapped = edge.model_copy(
-                        update={
-                            "src": node_map[edge.src],
-                            "dst": node_map[edge.dst],
-                        }
-                    )
-                    if remapped.src == remapped.dst:
-                        blocking_reasons.append(
-                            f"Composition collapsed {fragment.fragment_id}:{edge.src}->{edge.dst} into a self-loop."
-                        )
-                        continue
-                    edge_key = _composition_edge_key(remapped)
-                    merged_edges[edge_key] = _merge_composed_edge(merged_edges.get(edge_key), remapped)
-
-            merged_edge_list = [merged_edges[key] for key in sorted(merged_edges)]
-            if graph_type is GraphType.DAG and any(
-                edge.mark_src is not EdgeMark.TAIL or edge.mark_dst is not EdgeMark.ARROW
-                for edge in merged_edge_list
-            ):
-                blocking_reasons.append("DAG composition produced non-directed edges.")
-            if graph_type is GraphType.ADMG and any(
-                (edge.mark_src, edge.mark_dst) not in {
-                    (EdgeMark.TAIL, EdgeMark.ARROW),
-                    (EdgeMark.ARROW, EdgeMark.ARROW),
-                }
-                for edge in merged_edge_list
-            ):
-                blocking_reasons.append("ADMG composition produced unsupported edge endpoint marks.")
-            if _directed_cycle_present(merged_edge_list):
-                blocking_reasons.append("Fragment composition introduces a directed cycle.")
-
-            if not blocking_reasons:
-                composed_graph = CausalGraphModel(
-                    graph_type=graph_type,
-                    nodes=sorted(node_set),
-                    edges=merged_edge_list,
-                    discovery_method="scm_fragment_composition",
-                    metadata={
-                        "source_fragment_ids": sorted(fragment.fragment_id for fragment in payload.fragments),
-                        "interface_mapping_entry_ids": [
-                            entry.interface_id for entry in payload.interface_mapping.entries
-                        ],
-                    },
+            for edge in graph.edges:
+                remapped = edge.model_copy(
+                    update={
+                        "src": node_map[edge.src],
+                        "dst": node_map[edge.dst],
+                    }
                 )
+                if remapped.src == remapped.dst:
+                    structural_violations.append(
+                        f"Composition collapsed {fragment.fragment_id}:{edge.src}->{edge.dst} into a self-loop."
+                    )
+                    continue
+                edge_key = _composition_edge_key(remapped)
+                merged_edges[edge_key] = _merge_composed_edge(merged_edges.get(edge_key), remapped)
+
+        merged_edge_list = [merged_edges[key] for key in sorted(merged_edges)]
+        if graph_type is GraphType.DAG and any(
+            edge.mark_src is not EdgeMark.TAIL or edge.mark_dst is not EdgeMark.ARROW
+            for edge in merged_edge_list
+        ):
+            structural_violations.append("DAG composition produced non-directed edges.")
+        if graph_type is GraphType.ADMG and any(
+            (edge.mark_src, edge.mark_dst) not in {
+                (EdgeMark.TAIL, EdgeMark.ARROW),
+                (EdgeMark.ARROW, EdgeMark.ARROW),
+            }
+            for edge in merged_edge_list
+        ):
+            structural_violations.append("ADMG composition produced unsupported edge endpoint marks.")
+        if _directed_cycle_present(merged_edge_list):
+            structural_violations.append("Fragment composition introduces a directed cycle.")
+
+        blocking_reasons.extend(structural_violations)
+
+        if not structural_violations:
+            composed_graph = CausalGraphModel(
+                graph_type=graph_type,
+                nodes=sorted(node_set),
+                edges=merged_edge_list,
+                discovery_method="scm_fragment_composition",
+                metadata={
+                    "source_fragment_ids": sorted(fragment.fragment_id for fragment in payload.fragments),
+                    "interface_mapping_entry_ids": [
+                        entry.interface_id for entry in payload.interface_mapping.entries
+                    ],
+                },
+            )
 
         if blocking_reasons:
             structure_status = "invalid"

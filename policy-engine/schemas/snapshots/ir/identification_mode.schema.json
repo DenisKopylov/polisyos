@@ -1,0 +1,13 @@
+{
+  "enum": [
+    "bounds_only",
+    "interference_aware",
+    "partially_identified",
+    "point_identified",
+    "proxy_identified",
+    "sequential"
+  ],
+  "title": "IdentificationMode",
+  "type": "string",
+  "x-fqn": "polisyos.ir.observation.contracts.IdentificationMode"
+}

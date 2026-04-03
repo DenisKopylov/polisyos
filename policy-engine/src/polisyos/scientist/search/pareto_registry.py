@@ -27,6 +27,7 @@ from polisyos.scientist.search.voi_scheduler import ParetoSnapshot
 
 
 class ParetoView(str, Enum):
+    """Pareto view data model."""
     GLOBAL_FEASIBLE = "global_feasible"
     POLICY_FAMILY = "policy_family"
     EQUITY_AWARE = "equity_aware"

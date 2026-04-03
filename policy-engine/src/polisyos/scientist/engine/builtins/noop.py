@@ -1,3 +1,4 @@
+"""Public builtins noop module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -22,6 +23,7 @@ _NOOP_SPEC = NodeSpec(metadata=_NOOP_METADATA)
 
 @dataclass(frozen=True)
 class NoopNode:
+    """Noop node implementation."""
     @property
     def spec(self) -> NodeSpec:
         return _NOOP_SPEC

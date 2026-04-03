@@ -1,3 +1,4 @@
+"""Public simulator diff module API."""
 from __future__ import annotations
 
 import json
@@ -10,6 +11,8 @@ from polisyos.ir.norm_pack import NormPack, NormRule
 
 
 class NormChangeType(str, Enum):
+    """How one norm changed between two versions of a `NormPack`."""
+
     ADDED = "added"
     REMOVED = "removed"
     MODIFIED = "modified"
@@ -17,6 +20,7 @@ class NormChangeType(str, Enum):
 
 
 class FieldDelta(BaseModel):
+    """Field delta public type."""
     model_config = ConfigDict(extra="forbid")
 
     field_name: str
@@ -25,6 +29,8 @@ class FieldDelta(BaseModel):
 
 
 class NormChange(BaseModel):
+    """One per-norm diff record produced by `diff_norm_packs()`."""
+
     model_config = ConfigDict(extra="forbid")
 
     norm_id: str
@@ -35,6 +41,8 @@ class NormChange(BaseModel):
 
 
 class NormDiff(BaseModel):
+    """Structured diff between two `NormPack` snapshots."""
+
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = "1.0"
@@ -61,6 +69,8 @@ class NormDiff(BaseModel):
 
 
 def diff_norm_packs(old_pack: NormPack, new_pack: NormPack) -> NormDiff:
+    """Compute a deterministic rule-level diff between two norm packs."""
+
     old_index = _index_rules(old_pack.norms, pack_id=old_pack.pack_id)
     new_index = _index_rules(new_pack.norms, pack_id=new_pack.pack_id)
     all_norm_ids = sorted(set(old_index) | set(new_index))
@@ -165,4 +175,3 @@ def _serialize_delta_value(value: Any) -> str | None:
     if value is None:
         return None
     return json.dumps(value, ensure_ascii=True, sort_keys=True)
-

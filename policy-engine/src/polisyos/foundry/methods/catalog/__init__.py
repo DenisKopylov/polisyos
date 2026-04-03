@@ -1,3 +1,4 @@
+"""Public methods catalog package API."""
 from __future__ import annotations
 
 from polisyos.foundry.methods.registry import MethodRegistry
@@ -104,6 +105,7 @@ except ModuleNotFoundError:  # pragma: no cover - defensive for partial installs
 
 
 def ensure_all_methods_registered(registry: MethodRegistry | None = None) -> None:
+    """Ensure all methods registered helper."""
     reg = registry if registry is not None else MethodRegistry.get_instance()
     ensure_causal_methods_registered(reg)
     ensure_econometric_methods_registered(reg)

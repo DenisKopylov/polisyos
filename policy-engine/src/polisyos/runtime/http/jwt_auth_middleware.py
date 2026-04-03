@@ -39,6 +39,7 @@ _PUBLIC_PATHS = frozenset({"/health", "/ready", "/metrics", "/auth/callback"})
 
 
 def get_current_user() -> UserIdentityClaims | None:
+    """Return current user."""
     return _current_user.get()
 
 

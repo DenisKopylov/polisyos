@@ -1,3 +1,4 @@
+"""Public builtins data package API."""
 from __future__ import annotations
 
 from .bind_foundry_inputs import BindFoundryInputsNode

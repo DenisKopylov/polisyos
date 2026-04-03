@@ -1,3 +1,4 @@
+"""Public analysis distributional module API."""
 from __future__ import annotations
 
 from typing import Any, Sequence
@@ -65,6 +66,7 @@ def build_income_quintile_breakdown(
     primary_metric: str = "disposable_income_change_pct",
     vulnerable_quintiles: frozenset[int] = frozenset({0}),
 ) -> DimensionBreakdown:
+    """Build income quintile breakdown."""
     incomes_before = np.asarray(incomes_before, dtype=np.float64)
     incomes_after = np.asarray(incomes_after, dtype=np.float64)
     if incomes_before.shape != incomes_after.shape:
@@ -144,6 +146,7 @@ def build_geography_breakdown(
     primary_metric: str = "regional_income_change_pct",
     vulnerable_regions: frozenset[int] = frozenset(),
 ) -> DimensionBreakdown:
+    """Build geography breakdown."""
     region_ids = np.asarray(region_ids)
     metric_before = np.asarray(metric_before, dtype=np.float64)
     metric_after = np.asarray(metric_after, dtype=np.float64)
@@ -203,6 +206,7 @@ def build_winners_losers_table(
     neutral_threshold: float = 0.5,
     canonical_dimension: CohortDimension | None = CohortDimension.INCOME_QUINTILE,
 ) -> WinnersLosersTable:
+    """Build winners losers table."""
     winners: list[WinnersLosersEntry] = []
     losers: list[WinnersLosersEntry] = []
     neutral: list[WinnersLosersEntry] = []
@@ -250,6 +254,7 @@ def build_distributional_report(
     methodology: str = "agent_aggregation",
     metadata: dict[str, Any] | None = None,
 ) -> DistributionalReport:
+    """Build distributional report."""
     report_metadata = dict(metadata or {})
     overall_gini_before = None
     overall_gini_after = None

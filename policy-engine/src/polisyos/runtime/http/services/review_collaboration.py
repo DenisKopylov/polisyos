@@ -1,3 +1,4 @@
+"""Public services review collaboration module API."""
 from __future__ import annotations
 
 import asyncio
@@ -46,6 +47,7 @@ def _resolve_color(participant_id: str) -> str:
 
 @dataclass(slots=True)
 class ReviewCollaborationSession:
+    """Review collaboration session public type."""
     channel: ReviewChannel
     display_name: str
     participant_id: str
@@ -58,6 +60,7 @@ class ReviewCollaborationSession:
 
 @dataclass(slots=True)
 class ReviewCursorState:
+    """Review cursor state data model."""
     accent_color: str
     display_name: str
     hidden: bool
@@ -69,6 +72,7 @@ class ReviewCursorState:
 
 @dataclass(slots=True)
 class ReviewLockState:
+    """Review lock state data model."""
     accent_color: str
     acquired_at: datetime
     display_name: str
@@ -80,11 +84,13 @@ class ReviewLockState:
 
 @dataclass(slots=True)
 class OutboundReviewMessage:
+    """Outbound review message public type."""
     payload: dict[str, Any]
     recipients: list[WebSocket]
 
 
 class ReviewCollaborationHub:
+    """Review collaboration hub public type."""
     def __init__(self, *, lease_ttl_seconds: int = 25) -> None:
         self._lease_ttl_seconds = lease_ttl_seconds
         self._guard = asyncio.Lock()

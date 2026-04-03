@@ -1,3 +1,4 @@
+"""Public lex legal evaluation package API."""
 from __future__ import annotations
 
 from .change_proposals import propose_changes_impl

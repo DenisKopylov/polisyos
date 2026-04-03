@@ -65,6 +65,7 @@ def _build_config(args: argparse.Namespace, *, stages: frozenset[str]) -> Datase
         country_scope=getattr(args, "country_scope", "regional_extended"),
         active_countries=_parse_countries(getattr(args, "active_countries", None)),
         active_year_window=_parse_year_window(getattr(args, "year_window", None)),
+        observation_mode=getattr(args, "observation_mode", "all"),
         resume_mode=getattr(args, "resume_mode", "smart"),
         preflight_sources=_parse_sources(getattr(args, "preflight_sources", None)),
         preflight_only=bool(getattr(args, "preflight_only", False)),
@@ -193,6 +194,12 @@ def _build_parser() -> argparse.ArgumentParser:
     common.add_argument("--country-scope", default="regional_extended")
     common.add_argument("--active-countries", default=None, help="Comma-separated ISO2 country codes override")
     common.add_argument("--year-window", default=None, help="Observation/support year window as START:END")
+    common.add_argument(
+        "--observation-mode",
+        default="all",
+        choices=["all", "core", "backfill"],
+        help="Observation planner/runtime phase selection",
+    )
     common.add_argument("--resume-mode", default="smart", choices=["smart", "force", "off"])
     common.add_argument("--preflight-sources", default=None, help="Comma-separated source override for preflight")
     common.add_argument("--preflight-only", action="store_true")
@@ -253,6 +260,7 @@ def _build_parser() -> argparse.ArgumentParser:
 
 
 def main() -> None:
+    """Main helper."""
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
     parser = _build_parser()
     args = parser.parse_args()

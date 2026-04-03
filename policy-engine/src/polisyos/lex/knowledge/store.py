@@ -64,6 +64,12 @@ _FACT_SELECT_FIELDS: tuple[tuple[str, str], ...] = (
     ("top_domain", "''"),
     ("effective_from", "''"),
     ("effective_to", "''"),
+    ("temporal_state", "''"),
+    ("temporal_resolution_status", "'unknown'"),
+    ("temporal_source_scope", "''"),
+    ("temporal_source_kind", "''"),
+    ("temporal_confidence", "NULL"),
+    ("temporal_provenance_json", "'{}'"),
     ("doc_name", "''"),
     ("doc_reestr_code", "''"),
     ("provision_anchor", "''"),
@@ -186,9 +192,10 @@ class LegalKnowledgeStore:
             clauses.append(f"COALESCE({prefix}fused_confidence, {prefix}confidence, 0.0) >= ?")
             params.append(float(min_fused_confidence))
         if as_of:
-            clauses.append(
-                f"(COALESCE({prefix}effective_from, '') = '' OR {prefix}effective_from <= ?)"
-            )
+            if "temporal_resolution_status" in available_columns:
+                clauses.append(f"LOWER(COALESCE({prefix}temporal_resolution_status, 'unknown')) = 'resolved'")
+            clauses.append(f"COALESCE({prefix}effective_from, '') <> ''")
+            clauses.append(f"{prefix}effective_from <= ?")
             params.append(as_of)
             clauses.append(
                 f"(COALESCE({prefix}effective_to, '') = '' OR {prefix}effective_to >= ?)"
@@ -338,10 +345,16 @@ class LegalKnowledgeStore:
             top_domain=row[35] or "",
             effective_from=row[36] or "",
             effective_to=row[37] or "",
-            doc_name=row[38] or "",
-            doc_reestr_code=row[39] or "",
-            provision_anchor=row[40] or "",
-            provision_citation=row[41] or "",
+            temporal_state=row[38] or "",
+            temporal_resolution_status=row[39] or "unknown",
+            temporal_source_scope=row[40] or "",
+            temporal_source_kind=row[41] or "",
+            temporal_confidence=float(row[42]) if row[42] is not None else None,
+            temporal_provenance_json=row[43] or "{}",
+            doc_name=row[44] or "",
+            doc_reestr_code=row[45] or "",
+            provision_anchor=row[46] or "",
+            provision_citation=row[47] or "",
             similarity=similarity,
         )
 

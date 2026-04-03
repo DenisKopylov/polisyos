@@ -1,3 +1,4 @@
+"""Public components compliance module API."""
 from __future__ import annotations
 
 from collections.abc import Iterable
@@ -14,6 +15,7 @@ if TYPE_CHECKING:
 
 
 class HostAbi(BaseModel):
+    """Host abi public type."""
     model_config = ConfigDict(extra="forbid")
 
     versions: dict[str, str] = Field(default_factory=dict)
@@ -21,6 +23,7 @@ class HostAbi(BaseModel):
 
 
 class ComplianceIssue(BaseModel):
+    """Compliance issue data model."""
     model_config = ConfigDict(extra="forbid")
 
     severity: Literal["error", "warning"]
@@ -163,6 +166,7 @@ def validate_metadata(
 
 
 def has_errors(issues: Iterable[ComplianceIssue]) -> bool:
+    """Return whether has errors."""
     return any(issue.severity == "error" for issue in issues)
 
 

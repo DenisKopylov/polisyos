@@ -1,3 +1,4 @@
+"""Public uncertainty monte carlo module API."""
 from __future__ import annotations
 
 from typing import Any, Callable, Mapping
@@ -25,6 +26,7 @@ logger = get_logger(__name__)
 
 
 class MonteCarloPropagator:
+    """Monte carlo propagator public type."""
     def __init__(self, config: PropagationConfig | None = None) -> None:
         self._config = config or PropagationConfig()
 

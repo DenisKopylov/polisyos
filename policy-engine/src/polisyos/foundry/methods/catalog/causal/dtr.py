@@ -126,21 +126,37 @@ def _fit_q_function(
     return m
 
 
-def _q_value(q_model: LinearRegression, H_t: np.ndarray, a: "float | np.ndarray") -> np.ndarray:
-    """Predict Q_t(H_t, a) for all units under action a (scalar or per-unit array)."""
+def _q_value(
+    q_model: LinearRegression,
+    H_t: np.ndarray,
+    a: "float | np.ndarray",
+    n_cov: int = 0,
+) -> np.ndarray:
+    """Predict Q_t(H_t, a) for all units under action a (scalar or per-unit array).
+
+    When n_cov > 0 the last n_cov columns of H_t are treated as the current
+    covariates L_t and an A_t × L_t interaction block is appended so that the
+    feature layout matches models trained with interaction augmentation.
+    """
     a_arr = np.asarray(a)
     if a_arr.ndim == 0:
         a_col = np.full((H_t.shape[0], 1), float(a_arr))
     else:
         a_col = a_arr.reshape(-1, 1)
-    X = np.hstack([H_t, a_col])
+    if n_cov > 0:
+        L_t = H_t[:, -n_cov:]
+        X = np.hstack([H_t, a_col, a_col * L_t])
+    else:
+        X = np.hstack([H_t, a_col])
     return q_model.predict(X)
 
 
-def _optimal_q_action(q_model: LinearRegression, H_t: np.ndarray) -> np.ndarray:
+def _optimal_q_action(
+    q_model: LinearRegression, H_t: np.ndarray, n_cov: int = 0
+) -> np.ndarray:
     """Return argmax_a Q(H_t, a) ∈ {0, 1} for each unit."""
-    q1 = _q_value(q_model, H_t, 1.0)
-    q0 = _q_value(q_model, H_t, 0.0)
+    q1 = _q_value(q_model, H_t, 1.0, n_cov)
+    q0 = _q_value(q_model, H_t, 0.0, n_cov)
     return (q1 > q0).astype(float)
 
 
@@ -163,6 +179,7 @@ def _regime_from_q_models(
     q_models: list[LinearRegression],
     L_seq: np.ndarray,
     A_seq: np.ndarray,
+    n_cov: int = 0,
 ) -> DynamicTreatmentRegime:
     """Derive a DynamicTreatmentRegime from fitted Q-function models.
 
@@ -176,7 +193,7 @@ def _regime_from_q_models(
 
     # Check first stage: apply to all units
     H0 = _build_history_matrix(A_seq, L_seq, 0)
-    optimal_a0 = _optimal_q_action(q_models[0], H0)
+    optimal_a0 = _optimal_q_action(q_models[0], H0, n_cov)
     frac_treated = float(np.mean(optimal_a0))
 
     if frac_treated >= 0.95:
@@ -238,7 +255,7 @@ def _build_dtr_output(
     )
     extras: dict[str, Any] = {"dtr_result": dtr_result}
     if params:
-        strategic_summary, strategic_warnings, strategic_bundle = evaluate_strategic_hook(
+        strategic_summary, strategic_warnings, _strategic_bundle = evaluate_strategic_hook(
             params=params,
             baseline_policy_value=dtr_result.value_estimate,
         )
@@ -250,8 +267,6 @@ def _build_dtr_output(
             report.metadata["strategic_response"] = strategic_summary
             report.metadata["strategic_response_present"] = True
             extras["strategic_response_summary"] = strategic_summary
-            if strategic_bundle is not None:
-                extras["strategic_response_bundle"] = strategic_bundle
     return wrap_causal_output(report, warnings=warnings, extras=extras)
 
 
@@ -508,28 +523,38 @@ class QLearningDTR:
             )
             return wrap_causal_output(dummy, extras={"dtr_result": None})
 
+        _n_cov = L_seq.shape[2]
+
         def _run_q_learning(
             Y_b: np.ndarray, A_b: np.ndarray, L_b: np.ndarray
         ) -> tuple[float, list[LinearRegression]]:
-            """Return (value_estimate, list_of_Q_models)."""
+            """Return (value_estimate, list_of_Q_models).
+
+            Feature matrix at each stage is augmented with A_t × L_t interaction
+            terms so that linear Q-functions can capture state-conditional
+            treatment heterogeneity (e.g. 1.4*A*(L>0) - 0.7*A*(L<=0) patterns).
+            """
             pseudo_Y = Y_b.copy().astype(float)
             q_models: list[LinearRegression] = []
 
             for t in range(n_periods - 1, -1, -1):
                 H_t = _build_history_matrix(A_b, L_b, t)
-                X_t = np.hstack([H_t, A_b[:, t : t + 1]])
+                A_t = A_b[:, t : t + 1]
+                L_t = L_b[:, t, :]          # current covariates (also last _n_cov cols of H_t)
+                interact = A_t * L_t        # shape (n_units, n_cov)
+                X_t = np.hstack([H_t, A_t, interact])
                 q_t = _fit_q_function(X_t, pseudo_Y)
                 q_models.insert(0, q_t)
                 # Pseudo-Y for next stage = max_a Q_t(H_t, a)
-                q1 = _q_value(q_t, H_t, 1.0)
-                q0 = _q_value(q_t, H_t, 0.0)
+                q1 = _q_value(q_t, H_t, 1.0, _n_cov)
+                q0 = _q_value(q_t, H_t, 0.0, _n_cov)
                 pseudo_Y = np.maximum(q1, q0)
 
             # Estimate value: apply optimal regime from stage 0
             H0 = _build_history_matrix(A_b, L_b, 0)
-            a0 = _optimal_q_action(q_models[0], H0)
-            value = float(np.mean(_q_value(q_models[0], H0, 1.0) * a0
-                                  + _q_value(q_models[0], H0, 0.0) * (1 - a0)))
+            a0 = _optimal_q_action(q_models[0], H0, _n_cov)
+            value = float(np.mean(_q_value(q_models[0], H0, 1.0, _n_cov) * a0
+                                  + _q_value(q_models[0], H0, 0.0, _n_cov) * (1 - a0)))
             return value, q_models
 
         point_value, q_models_fit = _run_q_learning(Y, A_seq, L_seq)
@@ -545,7 +570,7 @@ class QLearningDTR:
         lo = min(float(ci[0]), point_value)
         hi = max(float(ci[1]), point_value)
 
-        optimal_regime = _regime_from_q_models(q_models_fit, L_seq, A_seq)
+        optimal_regime = _regime_from_q_models(q_models_fit, L_seq, A_seq, _n_cov)
         stage_coefs = tuple(
             tuple(float(c) for c in list(m.coef_) + [float(m.intercept_)])
             for m in q_models_fit

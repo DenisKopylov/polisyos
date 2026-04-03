@@ -11,6 +11,7 @@ _REGISTRY: dict[str, type[JurisdictionPlugin]] = {
 
 
 def get_jurisdiction_plugin(code: str | None) -> JurisdictionPlugin:
+    """Return jurisdiction plugin."""
     normalized = str(code or "UA").strip().upper() or "UA"
     plugin_cls = _REGISTRY.get(normalized, UkrainianJurisdiction)
     return plugin_cls()

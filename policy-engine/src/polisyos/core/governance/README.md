@@ -1,56 +1,32 @@
-# Governance — профили и валидационные pass'ы
+# Governance (`polisyos.core.governance`)
 
-`core.governance` задает общий каркас проверки для `scientist` и `lex`: профиль строгости, контекст pass execution и legal/safety проверки.
+`core.governance` is the shared validation-policy layer for `scientist` and `lex`. It defines
+validation profiles, pass execution context, and the small legal/safety backend stack used during
+preflight and runtime governance checks.
 
-## Состав
+## Role in System
 
-```text
-governance/
-├── profiles.py            # ValidationProfile + ProfileLevel (fast/mvp/strict)
-├── passes/base.py         # PassContext + ValidatorPass
-├── passes/safety_pass.py  # проверка механизмов интервенции
-├── passes/legal_pass.py   # legal pass с backend dispatcher
-└── legal/
-    ├── ast_policy.py      # whitelist AST policy
-    └── backends/
-        ├── stub.py        # безопасный placeholder backend
-        └── expr_ast.py    # AST-based expression evaluator
-```
+- **Depends on:** `core.contracts` for shared issue types and `core.backends` for backend dispatch.
+- **Used by:** `scientist` orchestration, `lex` policy checks, and any runtime path that needs shared validation gating.
+- **Boundary function:** keeps pass selection and strictness consistent across domains.
 
-## ValidationProfile
+## Key Concepts
 
-`ValidationProfile` управляет:
-- `pass_ids` (какие проверки запускать)
-- `thresholds` (числовые пороги)
-- `short_circuit_on_blocker`
+- **Validation profiles** - `FAST`, `MVP`, and `STRICT` encode which passes run and how blockers short-circuit.
+- **Pass context** - `PassContext` carries the IR, registry bundle, run id, and execution state for each validator.
+- **Safety/legal checks** - shared passes cover intervention safety, legal policy evaluation, and related gating logic.
+- **Backend dispatch** - legal evaluation can be routed through a stub or AST-based backend without `eval`/`exec`.
+- **Strategic response** - the profile sets now include `strategic_response` alongside the other governance gates.
 
-Профили:
-- `FAST`: быстрые preflight-checks
-- `MVP`: стандартный runtime набор
-- `STRICT`: полный набор (включая legal/quality/human-review) без short-circuit по умолчанию
+## Public API
 
-## Pass execution
+- `ProfileLevel`
+- `ValidationProfile`
+- pass modules under `passes/`
+- legal backends under `legal/backends/`
 
-`PassContext` содержит:
-- `ir` (`TrinityBundle`)
-- `state` (budget/usage/служебные данные)
-- `registry_bundle`
-- `profile`
-- `run_id`
+## Current State
 
-Любой pass реализует `ValidatorPass.validate(ctx) -> list[ComplianceIssue]`.
-
-## Legal backend слой
-
-`LegalPass` поддерживает backend режимы:
-- `stub` — always-safe заглушка
-- `expr_ast` — ограниченный AST evaluator (без `eval/exec`)
-
-По умолчанию legal-pass выполняется в `STRICT` профиле (или при явном включении).
-
-## Связи
-
-- `lex`: `ComplianceIssue`, legal norm evaluation
-- `scientist`: governance/preflight orchestration
-- `registry`: source для safety validation по механизмам
-- `backends`: generic `BackendDispatcher` для backend resolution
+- Last updated: 2026-04-03
+- `ValidationProfile.mvp()` and `ValidationProfile.strict()` both include the `strategic_response` pass.
+- The governance package still exposes only the profile types at package level; pass implementations remain module-local.

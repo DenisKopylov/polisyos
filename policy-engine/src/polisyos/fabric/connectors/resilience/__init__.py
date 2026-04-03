@@ -102,6 +102,7 @@ def resolve_resilience_config(
     *,
     cache_store: Any | None = None,
 ) -> ResilienceConfig | None:
+    """Resolve resilience config."""
     if raw is None:
         return None
     if isinstance(raw, ResilienceConfig):

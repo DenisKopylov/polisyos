@@ -1,3 +1,4 @@
+"""Public audit verifier module API."""
 from __future__ import annotations
 
 import json

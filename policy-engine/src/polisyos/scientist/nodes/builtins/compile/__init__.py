@@ -1,3 +1,4 @@
+"""Public builtins compile package API."""
 from __future__ import annotations
 
 from .compile_foundry import CompileFoundryNode

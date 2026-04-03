@@ -1,3 +1,4 @@
+"""Public calibration preflight module API."""
 from __future__ import annotations
 
 from typing import Any, Dict, Mapping, Tuple
@@ -81,6 +82,7 @@ def _resample_series(
 
 
 def resolve_steps(config: CalibrationConfig, raw_targets: Mapping[str, object]) -> int:
+    """Resolve steps."""
     if config.time_axis is not None:
         if config.steps is not None and len(config.time_axis) != config.steps:
             raise ValueError("config.steps must match length of config.time_axis")
@@ -110,6 +112,7 @@ def fetch_targets(
     udf_engine: Any | None = None,
     fetcher: Any | None = None,
 ) -> Dict[str, object]:
+    """Fetch targets helper."""
     if udf_engine is None and fetcher is None:
         raise ValueError("fetch_targets requires udf_engine or fetcher")
     raw_targets: Dict[str, object] = {}
@@ -126,6 +129,7 @@ def fetch_targets(
 
 
 def extract_fabric_series(result: Any, target: CalibrationTarget, request: DataViewRequest) -> object:
+    """Extract fabric series helper."""
     if isinstance(result, dict) and ("values" in result or "series" in result):
         return result
     if isinstance(result, tuple) and len(result) == 2:

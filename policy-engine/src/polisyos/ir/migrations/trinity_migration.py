@@ -7,12 +7,14 @@ from polisyos.ir.trinity import TrinityBundle
 
 
 def split_to_bundle(payload: TrinityBundle | Mapping[str, Any]) -> TrinityBundle:
+    """Split to bundle helper."""
     if isinstance(payload, TrinityBundle):
         return payload
     return TrinityBundle.model_validate(payload)
 
 
 def is_trinity_migrated(data: dict) -> bool:
+    """Return whether is trinity migrated."""
     try:
         TrinityBundle.model_validate(data)
         return True

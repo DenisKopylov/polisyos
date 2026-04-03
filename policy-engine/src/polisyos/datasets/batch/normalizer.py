@@ -532,6 +532,7 @@ def _with_execution_metadata(
 
 
 def extract_variables(raw: dict) -> list[str]:
+    """Extract variables helper."""
     variables: list[str] = []
     for key in ("id", "dataset_id", "indicator_id", "indicator_code", "code", "dataflow_id"):
         value = raw.get(key)
@@ -1195,10 +1196,12 @@ def normalize_raw_sources(config: DatasetBatchConfig, *, metrics_map: dict[str, 
 # Backward-compatible API used by existing tests
 
 def map_to_polisyos_metrics(raw: dict, metrics_map: dict[str, dict] | None = None) -> list[str]:
+    """Map to polisyos metrics helper."""
     return _map_metrics(raw, metrics_map)
 
 
 def normalize_ckan(raw: dict, source_portal: str, metrics_map: dict | None = None) -> DatasetRecord:
+    """Normalize ckan helper."""
     record = _normalize_ckan(
         raw,
         source=source_portal,
@@ -1221,6 +1224,7 @@ def normalize_ckan(raw: dict, source_portal: str, metrics_map: dict | None = Non
 
 
 def normalize_worldbank(raw: dict, metrics_map: dict | None = None) -> DatasetRecord:
+    """Normalize worldbank helper."""
     record = _normalize_worldbank(raw, metrics_map=metrics_map)
     return _with_execution_metadata(
         record,
@@ -1240,6 +1244,7 @@ def normalize_worldbank(raw: dict, metrics_map: dict | None = None) -> DatasetRe
 
 
 def normalize_to_dcat(raw: dict, source_portal: str, connector_type: str, metrics_map: dict | None = None) -> DatasetRecord:
+    """Normalize to dcat helper."""
     if connector_type == "worldbank":
         return normalize_worldbank(raw, metrics_map=metrics_map)
     if connector_type == "wvs":

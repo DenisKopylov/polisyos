@@ -1,3 +1,4 @@
+"""Public causal sensitivity metrics module API."""
 from __future__ import annotations
 
 import importlib

@@ -1,5 +1,7 @@
+"""Public sources unpd module API."""
 from __future__ import annotations
 
+import asyncio
 import json
 import os
 import time
@@ -36,12 +38,28 @@ _UNPD_FIELDS = (
 
 
 class UNPDConnector(HTTPConnectorBase[pd.DataFrame]):
-    """Production connector for UN Population Division data portal."""
+    """Connector for UN Population Division demographic datasets.
+
+    Pulls population and demographic series from the UNPD data portal with
+    bounded parallelism across location-specific slices.
+
+    Data source:
+        https://population.un.org/dataportal/
+    Protocol:
+        REST JSON
+    Auth:
+        None
+    Async support:
+        Standard async HTTP execution only
+    Profile:
+        ``unpd_dataportal``
+    """
 
     namespace: ClassVar[str] = "unpd"
     short_id: ClassVar[str] = "data"
     connector_id: ClassVar[str] = f"{namespace}.{short_id}"
     _BASE_URL: ClassVar[str] = "https://population.un.org/dataportalapi/api/v1"
+    _PARALLEL_LOCATION_LIMIT: ClassVar[int] = 4
     resilience_profile: ClassVar[HTTPResilienceProfile] = HTTPResilienceProfile(base_delay=1.8)
 
     capabilities: ClassVar[ConnectorCapability] = (
@@ -151,25 +169,33 @@ class UNPDConnector(HTTPConnectorBase[pd.DataFrame]):
         rows: list[dict[str, Any]] = []
         bytes_transferred = 0
         started = time.monotonic()
+        last_headers: dict[str, str] = {}
+        semaphore = asyncio.Semaphore(max(1, min(self._PARALLEL_LOCATION_LIMIT, len(location_ids))))
 
-        for location_id in location_ids:
+        async def _fetch_location(location_id: str) -> tuple[str, dict[str, Any], dict[str, str], bytes]:
             url = (
                 f"{self._base_url(handle)}/data/indicators/{indicator_id}"
                 f"/locations/{location_id}/start/{int(start_year)}/end/{int(end_year)}"
             )
-            body, headers, raw = await self._resilient_request_json(
-                handle,
-                url,
-                params={},
-                headers=auth_headers,
-            )
+            async with semaphore:
+                body, headers, raw = await self._resilient_request_json(
+                    handle,
+                    url,
+                    params={},
+                    headers=auth_headers,
+                )
+            return location_id, body, headers, raw
+
+        for location_id, body, headers, raw in await asyncio.gather(
+            *(_fetch_location(location_id) for location_id in location_ids)
+        ):
+            last_headers = headers
             payload_chunks.append(raw)
             bytes_transferred += len(raw)
             rows.extend(self._extract_rows(body, indicator_id=indicator_id, location_id=location_id))
 
         frame = pd.DataFrame(rows, columns=_UNPD_FIELDS) if rows else pd.DataFrame(columns=_UNPD_FIELDS)
         now = datetime.now(timezone.utc)
-        last_headers = headers if "headers" in locals() else {}
         return self._build_fetch_result(
             data=frame,
             row_count=len(frame),

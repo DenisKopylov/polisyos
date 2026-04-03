@@ -1,3 +1,4 @@
+"""Public survey weighting module API."""
 from __future__ import annotations
 
 from typing import Any, ClassVar, Mapping
@@ -38,6 +39,7 @@ def _vector(state: Mapping[str, Any], key: str) -> np.ndarray:
     tags={"survey", "weighting", "horvitz-thompson"},
 )
 class HorvitzThompsonEstimator:
+    """Horvitz thompson estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -70,6 +72,9 @@ class HorvitzThompsonEstimator:
         description="Horvitz-Thompson estimator for weighted totals and means.",
         tags=frozenset({"survey", "weighting", "horvitz-thompson"}),
         when_to_use="Estimate population totals/means from complex sample; HT for design-based; GREG for model-assisted",
+        citations=(
+            "Horvitz, D. & Thompson, D. (1952). A generalization of sampling without replacement from a finite universe. Journal of the American Statistical Association, 47(260), 663-685.",
+        ),
         output_interpretation="Calibrated estimates with SE. GREG uses auxiliary population totals to improve efficiency vs HT.",
     )
 
@@ -100,6 +105,7 @@ class HorvitzThompsonEstimator:
     tags={"survey", "weighting", "raking"},
 )
 class RakingEstimator:
+    """Raking estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -131,6 +137,10 @@ class RakingEstimator:
         description="Iterative proportional fitting for binary survey margins.",
         tags=frozenset({"survey", "weighting", "raking"}),
         when_to_use="Adjust survey weights so sample margins match known population totals; correct for non-response",
+        citations=(
+            "Deville, J. & Sarndal, C. (1992). Calibration estimators in survey sampling. Journal of the American Statistical Association, 87(418), 376-382.",
+            "Deming, W. & Stephan, F. (1940). On a least squares adjustment of a sampled frequency table when the expected marginal totals are known. Annals of Mathematical Statistics, 11(4), 427-444.",
+        ),
         output_interpretation="Calibrated weights. Weighted marginal distributions match census/register. Check effective sample size (ESS).",
     )
 
@@ -181,6 +191,7 @@ class RakingEstimator:
     tags={"survey", "weighting", "propensity"},
 )
 class PropensityWeightingEstimator:
+    """Propensity weighting estimator implementation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -212,6 +223,9 @@ class PropensityWeightingEstimator:
         description="Inverse propensity weighting for treatment and control populations.",
         tags=frozenset({"survey", "weighting", "propensity"}),
         when_to_use="Correct for non-random selection using propensity scores; observational study weighting",
+        citations=(
+            "Rosenbaum, P. & Rubin, D. (1983). The central role of the propensity score in observational studies for causal effects. Biometrika, 70(1), 41-55.",
+        ),
         typical_min_obs=100,
         output_interpretation="Inverse probability weights. Check weight distribution (trim extreme weights). Weighted covariate balance.",
     )

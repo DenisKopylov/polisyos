@@ -1,3 +1,4 @@
+"""Public data plane semantic diff module API."""
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
@@ -32,6 +33,7 @@ def compare_historical_rows(
     left_data_ref: str | None = None,
     right_data_ref: str | None = None,
 ) -> HistoricalSemanticDiffReport:
+    """Compare historical rows helper."""
     schema_report = SchemaEvolution().compare(left_schema, right_schema)
     key_fields, manual_review_required = _resolve_key_fields(left_schema, right_schema)
 
@@ -172,6 +174,7 @@ def persist_historical_semantic_diff_report(
     *,
     inputs: list[InputRef] | None = None,
 ) -> HistoricalSemanticDiffReportRef:
+    """Persist historical semantic diff report helper."""
     ref = store.put_json(
         report,
         PutOptions(

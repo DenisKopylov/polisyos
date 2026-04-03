@@ -1,3 +1,4 @@
+"""Public causal lp bounds module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -17,6 +18,7 @@ _MAX_EXACT_RESPONSE_TYPES = 5_000
 
 
 class DiscretizedVariable(BaseModel):
+    """Discretized variable public type."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     name: str
@@ -196,6 +198,7 @@ def build_query_objective(
     *,
     direction: str = "lower",
 ) -> np.ndarray:
+    """Build query objective."""
     if direction == "lower":
         return np.asarray(effect_values, dtype=float)
     if direction == "upper":

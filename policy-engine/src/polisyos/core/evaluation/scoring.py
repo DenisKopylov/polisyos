@@ -1,3 +1,4 @@
+"""Public evaluation scoring module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -7,11 +8,13 @@ T = TypeVar("T")
 
 
 def clamp01(value: float) -> float:
+    """Clamp 01 helper."""
     return max(0.0, min(1.0, float(value)))
 
 
 @dataclass(frozen=True)
 class WeightedScoreResult:
+    """Weighted score result data model."""
     score: float
     components: dict[str, float]
     contributions: dict[str, float]
@@ -69,11 +72,13 @@ class WeightedScorer:
 
 @dataclass(frozen=True)
 class ThresholdBand(Generic[T]):
+    """Threshold band public type."""
     min_score: float
     value: T
 
 
 class ThresholdMapper(Generic[T]):
+    """Threshold mapper public type."""
     def __init__(self, bands: list[ThresholdBand[T]], *, default: T) -> None:
         if not bands:
             raise ValueError("bands cannot be empty")

@@ -1,3 +1,4 @@
+"""Public testing jax suite module API."""
 from __future__ import annotations
 
 from typing import Any

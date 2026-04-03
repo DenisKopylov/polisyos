@@ -1,3 +1,4 @@
+"""Public passes equity pass module API."""
 from __future__ import annotations
 
 from typing import Any, List
@@ -13,6 +14,7 @@ from polisyos.ir.analytics.distributional import (
 
 
 class EquityPass(ValidatorPass):
+    """Equity pass implementation."""
     @property
     def pass_id(self) -> str:
         return "equity"

@@ -1,3 +1,4 @@
+"""Public connectors components module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -17,6 +18,7 @@ FABRIC_CONNECTORS_API_VERSION = ">=2.2.0,<3.0.0"
 
 @dataclass(frozen=True)
 class ConnectorComponent:
+    """Connector component public type."""
     metadata: ComponentMetadata
     connector_class: type
 
@@ -29,6 +31,7 @@ def connector_component_from_class(
     *,
     tags: list[str] | None = None,
 ) -> ConnectorComponent:
+    """Connector component from class helper."""
     connector_meta = connector_class.metadata
     connector_id = str(connector_meta.fully_qualified_id)
 

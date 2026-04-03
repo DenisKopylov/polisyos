@@ -284,6 +284,18 @@
       "default": null,
       "title": "Decision Packet Ref"
     },
+    "degraded": {
+      "default": false,
+      "title": "Degraded",
+      "type": "boolean"
+    },
+    "degraded_reasons": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Degraded Reasons",
+      "type": "array"
+    },
     "detected_biases": {
       "items": {
         "$ref": "#/$defs/SystematicBias"
@@ -413,6 +425,30 @@
       "default": null,
       "title": "Policy Spec Ref"
     },
+    "prediction_mode_effective": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Prediction Mode Effective"
+    },
+    "prediction_mode_requested": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Prediction Mode Requested"
+    },
     "report_id": {
       "minLength": 1,
       "title": "Report Id",
@@ -430,6 +466,11 @@
       "pattern": "^\\d+\\.\\d+$",
       "title": "Schema Version",
       "type": "string"
+    },
+    "trust_eligible": {
+      "default": true,
+      "title": "Trust Eligible",
+      "type": "boolean"
     },
     "trust_grade": {
       "anyOf": [

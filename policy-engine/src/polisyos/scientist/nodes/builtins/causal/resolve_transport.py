@@ -1,3 +1,4 @@
+"""Public causal resolve transport module API."""
 from __future__ import annotations
 
 import hashlib
@@ -147,6 +148,8 @@ _SPEC = NodeSpec(
 
 
 class ResolutionState(BaseModel):
+    """Immutable snapshot of one transportability-resolution loop iteration."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     round: int
@@ -233,6 +236,13 @@ class _LoopDatasetRegistry:
 
 
 class TransportabilityResolutionLoop:
+    """Resolve transportability across datasets, SKG evidence, and legal rules.
+
+    The loop caches expensive lookups across rounds, accumulates S-nodes and
+    data gaps, and determines whether the workflow can proceed with direct
+    transport, degraded transport, or expert-review escalation.
+    """
+
     MAX_ROUNDS: int = MAX_ROUNDS
 
     def __init__(
@@ -621,6 +631,13 @@ def _run_transport_solver(
 
 @dataclass(frozen=True)
 class RunTransportabilityNode:
+    """Execute the transportability resolution loop for the active workflow.
+
+    Consumes causal reports, contexts, legal constraints, and capability
+    metadata, then persists a ``TransportabilityResult`` together with any
+    updated causal report or capability contract artifacts.
+    """
+
     @property
     def spec(self) -> NodeSpec:
         return _SPEC

@@ -25,6 +25,7 @@ def test_load_governance_passes_contains_required_passes() -> None:
     pass_ids = {validator.pass_id for validator in load_governance_passes()}
     assert {
         "budget",
+        "checkpoint",
         "schema",
         "privacy",
         "pii_check",
@@ -32,6 +33,7 @@ def test_load_governance_passes_contains_required_passes() -> None:
         "transportability_required",
         "safety",
         "equity",
+        "freshness",
         "literature_gate",
         "legal",
         "normative_arbitration",

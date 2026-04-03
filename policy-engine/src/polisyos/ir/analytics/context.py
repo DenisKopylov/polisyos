@@ -1,3 +1,4 @@
+"""Public analytics context module API."""
 from __future__ import annotations
 
 from enum import Enum
@@ -7,12 +8,14 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 class ContextProfileInferenceLevel(str, Enum):
+    """Context profile inference level public type."""
     INFERRED_BASIC = "inferred_basic"
     ENRICHED = "enriched"
     MANUAL = "manual"
 
 
 class IncomeLevel(str, Enum):
+    """Income level public type."""
     LOW = "low"
     LOWER_MIDDLE = "lower_middle"
     UPPER_MIDDLE = "upper_middle"

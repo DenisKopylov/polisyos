@@ -2,10 +2,16 @@ __pycache__/
 *.pyc
 *.egg-info/
 .venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.cache/
+.uv-cache/
 .env
 .env.server_*
 uv.lock
 .DS_Store
+.benchmarks/
 # Data folders
 data/raw/*
 data/curated/*
@@ -39,6 +45,8 @@ benchmark-results/
 
 # Temporary directories
 .tmp/
+.tmp_*/
+tmp/
 .arch-freeze/
 
 # Frontend build artifacts
@@ -54,6 +62,33 @@ stale_sources_missing_paths.txt
 # Accidental shell redirection artifacts like `pip install foo>=1.2`
 /=*
 
-# Documentation (auto-generated or working docs)
+# Documentation
 docs/*
-!docs/CAUSAL_ENGINE_SOTA_PLAN.md
+!docs/DOCUMENTATION_SOTA_PLAN.md
+!docs/index.md
+!docs/style-guide.md
+!docs/adr/
+!docs/adr/**
+!docs/archive/
+!docs/archive/plans/
+!docs/archive/plans/**
+docs/archive/reports/
+docs/archive/reports/**
+!docs/connectors/
+!docs/connectors/**
+!docs/contracts/
+!docs/contracts/**
+!docs/explanation/
+!docs/explanation/**
+!docs/fedramp/
+!docs/fedramp/**
+!docs/how-to/
+!docs/how-to/**
+!docs/reference/
+!docs/reference/**
+!docs/tutorials/
+!docs/tutorials/**
+site/
+
+# Production data artifacts (large binary files from dataset pipeline)
+production_data/

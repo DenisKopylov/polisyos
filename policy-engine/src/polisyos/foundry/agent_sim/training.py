@@ -1,3 +1,4 @@
+"""Public agent sim training module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -25,6 +26,7 @@ from polisyos.foundry.runtime.fingerprint import DeterminismTier, EnvironmentFin
 
 @dataclass(frozen=True)
 class TrainingConfig(TrainingConfigBase):
+    """Training config data model."""
     log_interval: int = 10
 
 
@@ -36,6 +38,7 @@ def train_actor_critic(
     executor: PureExecutor | None = None,
     make_executor: Callable[[ActorCritic], PureExecutor] | None = None,
 ) -> ActorCritic:
+    """Train actor critic helper."""
     if executor is None and make_executor is None:
         raise ValueError("Provide either executor or make_executor.")
 
@@ -112,6 +115,7 @@ def collect_trajectory(
     actor_critic: ActorCritic,
     config: TrainingConfig,
 ) -> Trajectory:
+    """Collect trajectory helper."""
     mech = _find_temporal_mechanism(executor)
     salt = executor.prng_config.get(mech.spec.name, 0)
 

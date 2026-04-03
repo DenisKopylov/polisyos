@@ -1,8 +1,12 @@
 from __future__ import annotations
 
+import importlib.util
 import logging
 
 import numpy as np
+import pytest
+
+_PYGRAPHVIZ_INSTALLED = importlib.util.find_spec("pygraphviz") is not None
 
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
@@ -162,6 +166,7 @@ def test_causal_evaluation_node_persists_hte_result(tmp_path, monkeypatch) -> No
     assert ARTIFACT_HTE_RESULT_REF in outcome.state.artifacts_index
 
 
+@pytest.mark.skipif(not _PYGRAPHVIZ_INSTALLED, reason="pygraphviz not installed — dowhy cannot build causal graphs")
 def test_causal_evaluation_node_supports_graph_causal_data_v1(tmp_path) -> None:
     store = FileSystemCAS(tmp_path)
     registry_bundle = build_default_registry_bundle(store).bundle_ref
@@ -205,6 +210,7 @@ def test_causal_evaluation_node_supports_graph_causal_data_v1(tmp_path) -> None:
     assert report_payload["method"].startswith("dowhy_")
 
 
+@pytest.mark.skipif(not _PYGRAPHVIZ_INSTALLED, reason="pygraphviz not installed — dowhy cannot build causal graphs")
 def test_causal_evaluation_node_supports_graph_causal_data_v2(tmp_path) -> None:
     store = FileSystemCAS(tmp_path)
     registry_bundle = build_default_registry_bundle(store).bundle_ref

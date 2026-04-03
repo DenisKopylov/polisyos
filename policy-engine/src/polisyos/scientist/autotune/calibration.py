@@ -1,3 +1,4 @@
+"""Public autotune calibration module API."""
 from __future__ import annotations
 
 import json
@@ -29,6 +30,7 @@ CALIBRATION_LOOP_ID = "calibration_meta"
 
 
 class CalibrationMetaSearchConfig(MutationArtifact):
+    """Calibration meta search config data model."""
     model_config = ConfigDict(extra="forbid")
 
     loop_id: str = CALIBRATION_LOOP_ID
@@ -75,10 +77,12 @@ class CalibrationMetaSearchConfig(MutationArtifact):
 
 
 def build_baseline_calibration_meta_config(_context: dict[str, Any] | None = None) -> CalibrationMetaSearchConfig:
+    """Build baseline calibration meta config."""
     return CalibrationMetaSearchConfig()
 
 
 def default_calibration_policy() -> PromotionPolicy:
+    """Default calibration policy helper."""
     return PromotionPolicy(
         loop_id=CALIBRATION_LOOP_ID,
         primary_metric="aggregate_fit_quality",
@@ -96,12 +100,14 @@ def apply_calibration_meta_overrides(
     context: dict[str, Any] | None = None,
     loader: ChampionBackedRuntimeLoader[CalibrationMetaSearchConfig] | None = None,
 ) -> CalibrationConfig:
+    """Apply calibration meta overrides helper."""
     active_loader = loader or CalibrationMetaRuntimeLoader()
     active_config = active_loader.load(context)
     return active_config.apply_to_config(base_config)
 
 
 class CalibrationMetaEvaluator(BenchmarkedEvaluator):
+    """Calibration meta evaluator public type."""
     def __init__(
         self,
         *,
@@ -197,6 +203,7 @@ class CalibrationMetaEvaluator(BenchmarkedEvaluator):
 
 
 class CalibrationMetaRuntimeLoader(ChampionBackedRuntimeLoader[CalibrationMetaSearchConfig]):
+    """Calibration meta runtime loader implementation."""
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(
             loop_id=CALIBRATION_LOOP_ID,
@@ -213,6 +220,7 @@ def calibration_search_loop_spec(
     store: Any | None = None,
     registry: ChampionRegistry | None = None,
 ) -> SearchLoopSpec:
+    """Calibration search loop spec helper."""
     return SearchLoopSpec(
         loop_id=CALIBRATION_LOOP_ID,
         mutation_codec=PydanticMutationCodec(CalibrationMetaSearchConfig),

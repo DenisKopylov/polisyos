@@ -1,0 +1,108 @@
+{
+  "$defs": {
+    "GovernancePassAlias": {
+      "additionalProperties": false,
+      "properties": {
+        "canonical_pass_id": {
+          "maxLength": 120,
+          "minLength": 1,
+          "title": "Canonical Pass Id",
+          "type": "string"
+        },
+        "notes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Notes",
+          "type": "array"
+        },
+        "runtime_pass_id": {
+          "anyOf": [
+            {
+              "maxLength": 120,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Runtime Pass Id"
+        },
+        "status": {
+          "$ref": "#/$defs/GovernancePassAliasStatus"
+        }
+      },
+      "required": [
+        "canonical_pass_id",
+        "status"
+      ],
+      "title": "GovernancePassAlias",
+      "type": "object"
+    },
+    "GovernancePassAliasRegistry": {
+      "additionalProperties": false,
+      "properties": {
+        "aliases": {
+          "additionalProperties": {
+            "$ref": "#/$defs/GovernancePassAlias"
+          },
+          "title": "Aliases",
+          "type": "object"
+        },
+        "schema_version": {
+          "default": "1.0",
+          "pattern": "^\\d+\\.\\d+$",
+          "title": "Schema Version",
+          "type": "string"
+        }
+      },
+      "title": "GovernancePassAliasRegistry",
+      "type": "object"
+    },
+    "GovernancePassAliasStatus": {
+      "enum": [
+        "runtime",
+        "deferred"
+      ],
+      "title": "GovernancePassAliasStatus",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "alias_registry": {
+      "$ref": "#/$defs/GovernancePassAliasRegistry"
+    },
+    "artifact_name": {
+      "const": "governance_pass_mapping_v1.json",
+      "default": "governance_pass_mapping_v1.json",
+      "title": "Artifact Name",
+      "type": "string"
+    },
+    "family_passes": {
+      "additionalProperties": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "minProperties": 1,
+      "title": "Family Passes",
+      "type": "object"
+    },
+    "schema_version": {
+      "default": "1.0",
+      "pattern": "^\\d+\\.\\d+$",
+      "title": "Schema Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "family_passes",
+    "alias_registry"
+  ],
+  "title": "GovernancePassMappingBundle",
+  "type": "object"
+}

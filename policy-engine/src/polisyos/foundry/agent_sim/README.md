@@ -1,65 +1,40 @@
 # Agent Simulation (`polisyos.foundry.agent_sim`)
 
-`agent_sim` — подсистема Foundry для агентно-ориентированных симуляций, RL-обучения и динамики популяции/графа.
+`agent_sim` - micro-level ABM/RL subsystem Foundry for agent dynamics, population
+evolution, graph effects and training-heavy simulation workflows.
 
-Актуально по коду на 2026-03-03.
+## Role in System
 
-## Роль в системе
+- **Depends on:** `polisyos.foundry.contracts`, `polisyos.ir.observation`, JAX stack
+- **Used by:** `polisyos.foundry.plugins`, research flows that need direct low-level sim access
+- Canonical Foundry surface теперь дополняется `wiring/`, когда нужны contract-aware executors.
 
-`agent_sim` покрывает микроуровень (поведение агентов, обучение, демография, сетевые эффекты) и остается специализированным execution contour для low-level ABM/RL задач.
+## Key Concepts
 
-В Foundry V2 его canonical registry/discovery surface публикуется через `simulation.*` methods; direct `agent_sim` API нужен там, где важны training loops, кастомные executors и исследовательские прогоны.
+- **State-of-arrays runtime** - `AgentState`, `FirmState`, `MarketState`, `GlobalState`.
+- **Multiscale state** - `CellState`, `HouseholdCellState`, `ProcurementGraphState`, `AgentSimRuntimeState`.
+- **Execution layers** - pure, distribution, graph, population и temporal executors.
+- **Training stack** - actor-critic, RL, JIT training, MPC, VFI и evolution strategies.
+- **Wiring layer** - contracts-based executors and event batches for firm lifecycle / procurement shocks.
+- **Analytics** - distribution metrics, demographics, visualization and dashboard helpers.
 
-## Слои исполнения
+## Public API
 
-```text
-Mechanisms
-  -> PureExecutor
-  -> DistributionAwareExecutor
-  -> GraphAwareExecutor
-  -> PopulationAwareExecutor
-```
+| Type/Function | Description |
+|---|---|
+| `GlobalState` | Композиция agent, firm, market и optional multiscale state. |
+| `PureExecutor` | Базовый deterministic executor для agent-sim steps. |
+| `create_distribution_aware_executor()` | Создает executor с distribution metrics updates. |
+| `create_graph_aware_executor()` | Создает executor с graph-aware updates. |
+| `create_population_manager()` | Инициализирует population lifecycle and slot allocation. |
+| `ContractsPopulationAwareExecutor` | Contracts-aware executor для multiscale scenario wiring. |
+| `FirmLifecycleEventBatch` | Batch событий entry/exit/type transition для firms. |
+| `ProcurementShockBatch` | Batch shocks для procurement graph propagation. |
 
-Ключевые executors:
+→ Full reference: [docs/reference/foundry/index.md](../../../../docs/reference/foundry/index.md)
 
-- `executor.py`: deterministic ordering механизмов, `step`/`run`.
-- `distribution_executor.py`: обновление distribution metrics.
-- `graph_executor.py`: обновление графа и graph metrics.
-- `population_executor.py`: lifecycle (birth/death/migration/inheritance) + sync графа.
-- `temporal_executor.py`: temporal-aware конфигурация механизмов потребления.
+## Current State
 
-## Модель состояния
-
-`state.py` реализует state-of-arrays модель:
-
-- `AgentState` (доходы, богатство, ожидания, активность, связи);
-- `PolicyState` (policy параметры);
-- `AggregateState` (агрегаты популяции);
-- `GlobalState` (композиция всех подсистем + time/rng).
-
-Динамическая популяция ведется через fixed-size буферы и `active` маски.
-
-## Механизмы, обучение, аналитика
-
-- Механизмы: `mechanisms.py`, `distribution_mechanisms.py`, `graph_mechanisms.py`, `population_mechanisms.py`, `temporal_mechanisms.py`.
-- RL/оптимизация: `actor_critic.py`, `rl.py`, `training.py`, `jit_training.py`, `credit_assignment.py`, `modes.py`.
-- Альтернативные решатели: `evolution.py`, `vfi.py`, `mpc.py`.
-- Артефакты/репродуцируемость: `artifact.py`, `experiment.py`, `prng.py`.
-- Диагностика и визуализация: `metrics.py`, `analysis.py`, `demographics.py`, `visualization.py`, `dashboard.py`.
-
-## Связь с другими директориями
-
-`agent_sim` зависит от:
-
-- `foundry/contracts/fidelity.py`;
-- `foundry/runtime/fingerprint.py`;
-- `core/artifacts/*`, `core/observability/*`;
-- JAX/Equinox/Optax.
-
-Используется напрямую в ABM/RL сценариях и как низкоуровневая база для `foundry/plugins/*`.
-
-## Текущее состояние и ограничения
-
-- Для длинных и массовых прогонов предпочтителен `jit_training.py`; `training.py` остается простым debug-путем.
-- Популяционная динамика ограничена `max_agents` и allocator-механикой.
-- Интеграция с Trinity-контуром требует явной orchestration на уровне `scientist` или прикладного кода.
+- Last updated: 2026-04-03
+- Files: 42 Python files
+- Exports: 185

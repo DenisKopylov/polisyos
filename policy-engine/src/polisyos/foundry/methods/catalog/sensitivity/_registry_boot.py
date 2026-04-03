@@ -1,3 +1,4 @@
+"""Public sensitivity registry boot module API."""
 from __future__ import annotations
 
 from typing import Sequence
@@ -12,6 +13,7 @@ from .specification import SpecificationCurveEstimator
 
 
 def register_sensitivity_methods() -> Sequence[type]:
+    """Register sensitivity methods."""
     return (
         SobolFirstOrderEstimator,
         MorrisSensitivityEstimator,

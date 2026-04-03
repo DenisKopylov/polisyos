@@ -616,9 +616,11 @@ class SuperLearnerNuisanceModel:
         version="0.0.0",
         input_slots=frozenset([
             SlotSpec(name="covariates", slot_type=SlotType.MATRIX,
-                     description="(n, p) covariate matrix", unit=Unit("dimensionless", "")),
+                     description="(n, p) covariate matrix", unit=Unit("dimensionless", ""),
+                     shape=("n", "p")),
             SlotSpec(name="outcome", slot_type=SlotType.VECTOR,
-                     description="(n,) outcome vector", unit=Unit("dimensionless", "")),
+                     description="(n,) outcome vector", unit=Unit("dimensionless", ""),
+                     shape=("n",)),
         ]),
         output_slots=frozenset([
             SlotSpec(name="predictions", slot_type=SlotType.SCALAR,

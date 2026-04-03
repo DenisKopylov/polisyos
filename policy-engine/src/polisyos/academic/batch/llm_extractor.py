@@ -64,6 +64,7 @@ Abstract:
 
 @dataclass(frozen=True)
 class GateFeatures:
+    """Gate features public type."""
     text_len: int
     numeric_hits: int
     ambiguity_hits: int
@@ -74,6 +75,7 @@ class GateFeatures:
 
 @dataclass(frozen=True)
 class GateDecision:
+    """Gate decision public type."""
     route: str  # auto|llm|deferred|audit_llm
     score: float
     reason_codes: list[str]
@@ -81,6 +83,7 @@ class GateDecision:
 
 @dataclass
 class GateRuntime:
+    """Gate runtime public type."""
     threshold: float
     mode: str
     max_share: float
@@ -224,6 +227,7 @@ def _stable_sample(seed: str, sample_rate: float) -> bool:
 
 
 def build_gate_features(record: WorkRecord) -> GateFeatures:
+    """Build gate features."""
     text = record.abstract or ""
     return GateFeatures(
         text_len=len(text),
@@ -236,6 +240,7 @@ def build_gate_features(record: WorkRecord) -> GateFeatures:
 
 
 def irreducibility_score(features: GateFeatures) -> float:
+    """Irreducibility score helper."""
     length_factor = min(1.0, features.text_len / 2600.0)
     numeric_factor = min(1.0, features.numeric_hits / 12.0)
     ambiguity_factor = min(1.0, features.ambiguity_hits / 5.0)
@@ -265,6 +270,7 @@ def decide_route(
     audit_sample_rate: float,
     audit_seed: str,
 ) -> GateDecision:
+    """Decide route helper."""
     det_conf = features.deterministic_confidence
     score = irreducibility_score(features)
 

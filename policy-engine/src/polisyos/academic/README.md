@@ -1,84 +1,32 @@
-# Academic
+# Academic (`polisyos.academic`)
 
-`polisyos.academic` — офлайн-контур построения academic knowledge graph (AKG/SKG) на базе OpenAlex и read-only API для извлечения литературы, causal evidence и параметрических prior-ов.
+`polisyos.academic` is the offline academic knowledge-graph stack. It combines OpenAlex-based
+topic selection, staged extraction/publishing, and a read-only SKG query layer for literature,
+causal evidence, and parameter priors.
 
-## Роль в системе
+## Role in System
 
-`academic` закрывает два связанных контура:
+- **Depends on:** `batch_common`, `core.canon`, and `ir.analytics` for snapshot layout, stable ids, and evidence contracts.
+- **Used by:** `scientist`, `fabric`, and the academic runtime/query path.
+- **Boundary function:** separates batch graph construction from read-only knowledge access.
 
-1. ingestion/pipeline:
-`topics -> OpenAlex selection -> parsing -> streaming fulltext resolve + one-call extraction -> dedup -> DuckDB graph -> embeddings/QC/publish`.
-2. query/runtime:
-`DuckDB + HNSW -> поиск работ, causal evidence, priors и transportability-aware выбор параметров`.
+## Key Concepts
 
-Пакет связывает:
-- `polisyos.batch_common` (snapshot layout, manifests, QC helpers, thermal control);
-- `polisyos.ir.analytics.*` (контракты литературы/контекста/transportability);
-- `polisyos.core.canon.hashing` (stable hash/cache ключи);
-- `polisyos.academic.openalex`, `polisyos.academic.batch`, `polisyos.academic.knowledge`.
+- **OpenAlex selection** - topic-driven harvesting starts with cataloged topic files and selection heuristics.
+- **Fulltext-first extraction** - `resolve_extract` streams eligible papers, uses lazy JSONL reads, and keeps one extraction call per paper.
+- **DuckDB + HNSW** - the built graph supports both deterministic table lookup and semantic search.
+- **Canonical variables** - `knowledge` owns canonicalization, runtime aliasing, and transportability-aware selection.
+- **Trust scoring** - `trust.py` and batch adjudication turn design signals into usable literature confidence.
 
-## Архитектура директории
+## Public API
 
-| Подпакет | Назначение | Документация |
-|---|---|---|
-| `batch/` | Стадийный pipeline от отбора OpenAlex работ до построения графа и публикации | [`batch/README.md`](batch/README.md) |
-| `knowledge/` | Read-only API к DuckDB/HNSW, SKG query/selection/versioning, канонизация переменных | [`knowledge/README.md`](knowledge/README.md) |
-| `openalex/` | Клиент OpenAlex, загрузка каталога тем и алгоритм topic-based selection | [`openalex/README.md`](openalex/README.md) |
-| `trust.py` | Нормализация trust-score по дизайну исследования, цитируемости, свежести и sample size | этот файл |
+- `batch/README.md`
+- `knowledge/README.md`
+- `openalex/README.md`
+- package helpers in `trust.py`
 
-## Основной поток данных
+## Current State
 
-```text
-relevant_topics_*.csv
-    -> openalex.topic_catalog + openalex.selector
-    -> batch/topic_select.py
-    -> batch/harvester.py
-    -> batch/parser.py
-    -> batch/resolve_extract.py
-    -> batch/dedup.py
-    -> batch/graph_builder.py (+ SKG tables)
-    -> batch/embedder.py
-    -> batch/qc.py
-    -> batch/publish.py
-```
-
-## Артефакты snapshot-а
-
-Все stage output пишутся в `<snapshot_root>/academic`:
-- `topic_selection/`:
-  `topics_catalog.jsonl`, `selected_topic_works.jsonl`, `selected_global_works.jsonl`;
-- `raw/<topic_id>__<slug>/<timestamp>/payload.jsonl` + raw manifest;
-- `parsed/*.jsonl`, `extracted/*.jsonl`, `merged/all_records.jsonl`;
-- `fulltext_resolved.jsonl`, `resolve_extract_progress.json`, `resolve_extract_results.jsonl`, `resolve_extract_errors.jsonl`,
-  `fulltext_fetch_log.jsonl`, `llm_request_log.jsonl`, `raw_claim_candidates.jsonl`, `published_claims.jsonl`;
-- `merged/topic_links.jsonl`, `merged/duplicates_report.csv`;
-- `graph/scholar_knowledge.duckdb`;
-- `ac_work_embeddings.npz`, `ac_work_index.hnsw`;
-- `manifests/*.json`, `qc_report.json`, `publish/manifest.json`.
-
-## Текущее состояние и особенности
-
-- Источник тем по умолчанию:
-  `/Users/deniskopylov/polisyos/relevant_topics_domain_files` (`--topics-dir` для override).
-- Published graph layer строится только из `fulltext`-grounded claims; `abstract_only` живет только в raw/exploration layer.
-- `resolve_extract` использует shared multi-key scheduler и запускает LLM extraction сразу после появления eligible fulltext paper, без ожидания завершения полного fetch по теме.
-- Один paper получает ровно один LLM extraction call; final publish decision считается кодом, а не отдельной LLM adjudication стадией.
-- При отсутствии `GONKA_API_KEY` / `GONKA_API_KEY_<n>` stage `resolve_extract` завершается с метрикой `skipped_reason=no_api_keys`.
-- При merge применен явный приоритет extraction mode:
-  `resolve_extract > article_extract > llm_enriched > deterministic`.
-
-## Точки входа
-
-- CLI pipeline:
-  `python -m polisyos.academic.batch.cli run --snapshot-root <path>`.
-- Stage-by-stage запуск:
-  `python -m polisyos.academic.batch.cli <stage> --snapshot-root <path>`.
-- Query API:
-  `ScholarKnowledgeGraph`, `SKGQuery`, `ParameterSelector` (см. `knowledge/`).
-
-## Тесты
-
-Базовое покрытие расположено в:
-- `policy-engine/tests/academic/batch`;
-- `policy-engine/tests/academic/knowledge`;
-- `policy-engine/tests/integration/test_phase0_quality_validation.py`.
+- Last updated: 2026-04-03
+- `resolve_extract.py` now uses a lazy JSONL index and bounce/backpressure control for paper dispatch.
+- `claim_adjudicator.py` and `runtime_canonical_registry.py` both expanded their policy heuristics and canonical alias coverage.

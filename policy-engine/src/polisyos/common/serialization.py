@@ -1,3 +1,4 @@
+"""Public common serialization module API."""
 from __future__ import annotations
 
 import dataclasses
@@ -79,10 +80,12 @@ def to_python_data(value: Any, *, sort_keys: bool = False) -> Any:
 
 
 def strip_none(data: Mapping[str, Any]) -> dict[str, Any]:
+    """Strip none helper."""
     return {key: value for key, value in data.items() if value is not None}
 
 
 def stable_json_dumps(value: Any, *, ensure_ascii: bool = True, sort_keys: bool = True) -> str:
+    """Stable json dumps helper."""
     payload = to_python_data(value, sort_keys=sort_keys)
     if orjson is not None and not ensure_ascii:
         option = orjson.OPT_SORT_KEYS if sort_keys else 0
@@ -96,6 +99,7 @@ def stable_json_dumps(value: Any, *, ensure_ascii: bool = True, sort_keys: bool 
 
 
 def fast_json_dumps_bytes(value: Any, *, sort_keys: bool = False) -> bytes:
+    """Fast json dumps bytes helper."""
     payload = to_python_data(value, sort_keys=sort_keys)
     if orjson is not None:
         option = orjson.OPT_SORT_KEYS if sort_keys else 0
@@ -110,10 +114,12 @@ def fast_json_dumps_bytes(value: Any, *, sort_keys: bool = False) -> bytes:
 
 
 def fast_json_dumps(value: Any, *, sort_keys: bool = False) -> str:
+    """Fast json dumps helper."""
     return fast_json_dumps_bytes(value, sort_keys=sort_keys).decode("utf-8")
 
 
 def fast_json_loads(value: bytes | bytearray | memoryview | str) -> Any:
+    """Fast json loads helper."""
     if isinstance(value, str):
         if orjson is not None:
             return orjson.loads(value)

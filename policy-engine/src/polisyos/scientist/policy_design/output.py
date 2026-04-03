@@ -34,6 +34,7 @@ from polisyos.ir.analytics.distributional import (
     ImpactDirection,
 )
 from polisyos.scientist.doe.stress_report import StressTestReport
+from polisyos.scientist.governance.calibration_validation import CalibrationValidationBundle
 from polisyos.scientist.policy_design.objectives import PolicyEvaluationVector
 from polisyos.scientist.policy_design.schema import (
     MonitoringSignalSpec,
@@ -52,6 +53,7 @@ from polisyos.scientist.search.uncertainty import UncertaintyEnvelope
 
 
 class TradeoffRow(BaseModel):
+    """Tradeoff row public type."""
     model_config = ConfigDict(extra="forbid")
 
     axis: str = Field(min_length=1)
@@ -61,6 +63,7 @@ class TradeoffRow(BaseModel):
 
 
 class PolicyRiskNote(BaseModel):
+    """Policy risk note public type."""
     model_config = ConfigDict(extra="forbid")
 
     risk_id: str = Field(default_factory=lambda: f"risk_{uuid4().hex[:10]}")
@@ -72,6 +75,7 @@ class PolicyRiskNote(BaseModel):
 
 
 class RecommendedAction(BaseModel):
+    """Recommended action public type."""
     model_config = ConfigDict(extra="forbid")
 
     action_id: str = Field(default_factory=lambda: f"action_{uuid4().hex[:10]}")
@@ -81,6 +85,7 @@ class RecommendedAction(BaseModel):
 
 
 class PolicyBrief(ArtifactMinimalityMixin):
+    """Policy brief public type."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -105,6 +110,7 @@ class PolicyBrief(ArtifactMinimalityMixin):
 
 
 class ConstraintSatisfactionEntry(BaseModel):
+    """Constraint satisfaction entry data model."""
     model_config = ConfigDict(extra="forbid")
 
     constraint_name: str = Field(min_length=1)
@@ -116,6 +122,7 @@ class ConstraintSatisfactionEntry(BaseModel):
 
 
 class SubgroupImpactEntry(BaseModel):
+    """Subgroup impact entry data model."""
     model_config = ConfigDict(extra="forbid")
 
     subgroup_id: str = Field(min_length=1)
@@ -126,6 +133,7 @@ class SubgroupImpactEntry(BaseModel):
 
 
 class PolicyFrontierEntry(BaseModel):
+    """Policy frontier entry data model."""
     model_config = ConfigDict(extra="forbid")
 
     candidate_hash: str = Field(min_length=1)
@@ -139,6 +147,7 @@ class PolicyFrontierEntry(BaseModel):
 
 
 class PolicyFrontierReport(ArtifactMinimalityMixin):
+    """Policy frontier report data model."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -156,6 +165,7 @@ class PolicyFrontierReport(ArtifactMinimalityMixin):
 
 
 class ChampionPolicyDossier(ArtifactMinimalityMixin):
+    """Champion policy dossier public type."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -178,11 +188,13 @@ class ChampionPolicyDossier(ArtifactMinimalityMixin):
     transport_summary: dict[str, Any] = Field(default_factory=dict)
     governance_summary: dict[str, Any] = Field(default_factory=dict)
     stress_summary: dict[str, Any] = Field(default_factory=dict)
+    calibration_validation_summary: dict[str, Any] = Field(default_factory=dict)
     recommended_actions: list[RecommendedAction] = Field(default_factory=list)
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 
 class ConstraintSatisfactionReport(ArtifactMinimalityMixin):
+    """Constraint satisfaction report data model."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -200,6 +212,7 @@ class ConstraintSatisfactionReport(ArtifactMinimalityMixin):
 
 
 class SubgroupImpactReport(ArtifactMinimalityMixin):
+    """Subgroup impact report data model."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -216,6 +229,7 @@ class SubgroupImpactReport(ArtifactMinimalityMixin):
 
 
 class UncertaintyReport(ArtifactMinimalityMixin):
+    """Uncertainty report data model."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -233,6 +247,7 @@ class UncertaintyReport(ArtifactMinimalityMixin):
 
 
 class TransportabilityReport(ArtifactMinimalityMixin):
+    """Transportability report data model."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -249,6 +264,7 @@ class TransportabilityReport(ArtifactMinimalityMixin):
 
 
 class GovernanceGatePacket(ArtifactMinimalityMixin):
+    """Governance gate packet public type."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -271,6 +287,7 @@ class GovernanceGatePacket(ArtifactMinimalityMixin):
 
 
 class ImplementationPlan(ArtifactMinimalityMixin):
+    """Implementation plan data model."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -287,6 +304,7 @@ class ImplementationPlan(ArtifactMinimalityMixin):
 
 
 class RejectedAlternativeEntry(BaseModel):
+    """Rejected alternative entry data model."""
     model_config = ConfigDict(extra="forbid")
 
     candidate_hash: str = Field(min_length=1)
@@ -297,6 +315,7 @@ class RejectedAlternativeEntry(BaseModel):
 
 
 class RejectedAlternativesSummary(ArtifactMinimalityMixin):
+    """Rejected alternatives summary data model."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -311,6 +330,7 @@ class RejectedAlternativesSummary(ArtifactMinimalityMixin):
 
 
 class ReplayableAuditBundle(ArtifactMinimalityMixin):
+    """Replayable audit bundle data model."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -336,6 +356,7 @@ class ReplayableAuditBundle(ArtifactMinimalityMixin):
 
 
 class PolicyArtifactBundle(ArtifactMinimalityMixin):
+    """Policy artifact bundle data model."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -367,6 +388,7 @@ class PolicyArtifactBundle(ArtifactMinimalityMixin):
 
 
 class PolicyArtifactBuildInput(BaseModel):
+    """Policy artifact build input public type."""
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
 
     loop_id: str = Field(default="policy_mode", min_length=1)
@@ -386,6 +408,8 @@ class PolicyArtifactBuildInput(BaseModel):
     uncertainty_envelope: UncertaintyEnvelope | None = None
     stress_test_report: StressTestReport | None = None
     stress_test_report_ref: ArtifactRef | None = None
+    calibration_validation_bundle: CalibrationValidationBundle | None = None
+    calibration_validation_bundle_ref: ArtifactRef | None = None
     policy_brief: PolicyBrief | None = None
     translator_compliance: Any | None = None
     constraint_findings: list[str] = Field(default_factory=list)
@@ -980,8 +1004,20 @@ class PolicyArtifactBuilder:
                 if source.stress_test_report is not None
                 else {}
             ),
+            calibration_validation_summary=(
+                source.calibration_validation_bundle.readout_summary()
+                if source.calibration_validation_bundle is not None
+                else {}
+            ),
             recommended_actions=recommended_actions,
-            metadata={"candidate_metadata": dict(source.candidate.metadata)},
+            metadata={
+                "candidate_metadata": dict(source.candidate.metadata),
+                "calibration_validation_bundle_ref": (
+                    None
+                    if source.calibration_validation_bundle_ref is None
+                    else str(source.calibration_validation_bundle_ref.artifact_id)
+                ),
+            },
         )
 
     def _build_replayable_audit_bundle(
@@ -1022,6 +1058,7 @@ def persist_policy_frontier_report(
     *,
     inputs: list[InputRef] | None = None,
 ) -> PolicyFrontierReportRef:
+    """Persist policy frontier report helper."""
     return _persist_model(
         store,
         payload,
@@ -1038,6 +1075,7 @@ def persist_champion_policy_dossier(
     *,
     inputs: list[InputRef] | None = None,
 ) -> ChampionPolicyDossierRef:
+    """Persist champion policy dossier helper."""
     return _persist_model(
         store,
         payload,
@@ -1054,6 +1092,7 @@ def persist_policy_brief(
     *,
     inputs: list[InputRef] | None = None,
 ) -> PolicyBriefRef:
+    """Persist policy brief helper."""
     return _persist_model(
         store,
         payload,
@@ -1070,6 +1109,7 @@ def persist_constraint_satisfaction_report(
     *,
     inputs: list[InputRef] | None = None,
 ) -> ConstraintSatisfactionReportRef:
+    """Persist constraint satisfaction report helper."""
     return _persist_model(
         store,
         payload,
@@ -1086,6 +1126,7 @@ def persist_subgroup_impact_report(
     *,
     inputs: list[InputRef] | None = None,
 ) -> SubgroupImpactReportRef:
+    """Persist subgroup impact report helper."""
     return _persist_model(
         store,
         payload,
@@ -1102,6 +1143,7 @@ def persist_uncertainty_report(
     *,
     inputs: list[InputRef] | None = None,
 ) -> UncertaintyReportRef:
+    """Persist uncertainty report helper."""
     return _persist_model(
         store,
         payload,
@@ -1118,6 +1160,7 @@ def persist_transportability_report(
     *,
     inputs: list[InputRef] | None = None,
 ) -> TransportabilityReportRef:
+    """Persist transportability report helper."""
     return _persist_model(
         store,
         payload,
@@ -1134,6 +1177,7 @@ def persist_governance_gate_packet(
     *,
     inputs: list[InputRef] | None = None,
 ) -> GovernanceGatePacketRef:
+    """Persist governance gate packet helper."""
     return _persist_model(
         store,
         payload,
@@ -1150,6 +1194,7 @@ def persist_implementation_plan(
     *,
     inputs: list[InputRef] | None = None,
 ) -> ImplementationPlanRef:
+    """Persist implementation plan helper."""
     return _persist_model(
         store,
         payload,
@@ -1166,6 +1211,7 @@ def persist_rejected_alternatives_summary(
     *,
     inputs: list[InputRef] | None = None,
 ) -> RejectedAlternativesSummaryRef:
+    """Persist rejected alternatives summary helper."""
     return _persist_model(
         store,
         payload,
@@ -1182,6 +1228,7 @@ def persist_replayable_audit_bundle(
     *,
     inputs: list[InputRef] | None = None,
 ) -> ReplayableAuditBundleRef:
+    """Persist replayable audit bundle helper."""
     return _persist_model(
         store,
         payload,
@@ -1198,6 +1245,7 @@ def persist_policy_artifact_bundle(
     *,
     inputs: list[InputRef] | None = None,
 ) -> PolicyArtifactBundleRef:
+    """Persist policy artifact bundle helper."""
     return _persist_model(
         store,
         payload,
@@ -1212,6 +1260,7 @@ def load_policy_frontier_report(
     store: FileSystemCAS,
     ref: ArtifactRef,
 ) -> PolicyFrontierReport:
+    """Load policy frontier report."""
     return _load_model(store, ref, PolicyFrontierReport)
 
 
@@ -1219,6 +1268,7 @@ def load_champion_policy_dossier(
     store: FileSystemCAS,
     ref: ArtifactRef,
 ) -> ChampionPolicyDossier:
+    """Load champion policy dossier."""
     return _load_model(store, ref, ChampionPolicyDossier)
 
 
@@ -1226,6 +1276,7 @@ def load_policy_brief(
     store: FileSystemCAS,
     ref: ArtifactRef,
 ) -> PolicyBrief:
+    """Load policy brief."""
     return _load_model(store, ref, PolicyBrief)
 
 
@@ -1233,6 +1284,7 @@ def load_constraint_satisfaction_report(
     store: FileSystemCAS,
     ref: ArtifactRef,
 ) -> ConstraintSatisfactionReport:
+    """Load constraint satisfaction report."""
     return _load_model(store, ref, ConstraintSatisfactionReport)
 
 
@@ -1240,6 +1292,7 @@ def load_subgroup_impact_report(
     store: FileSystemCAS,
     ref: ArtifactRef,
 ) -> SubgroupImpactReport:
+    """Load subgroup impact report."""
     return _load_model(store, ref, SubgroupImpactReport)
 
 
@@ -1247,6 +1300,7 @@ def load_uncertainty_report(
     store: FileSystemCAS,
     ref: ArtifactRef,
 ) -> UncertaintyReport:
+    """Load uncertainty report."""
     return _load_model(store, ref, UncertaintyReport)
 
 
@@ -1254,6 +1308,7 @@ def load_transportability_report(
     store: FileSystemCAS,
     ref: ArtifactRef,
 ) -> TransportabilityReport:
+    """Load transportability report."""
     return _load_model(store, ref, TransportabilityReport)
 
 
@@ -1261,6 +1316,7 @@ def load_governance_gate_packet(
     store: FileSystemCAS,
     ref: ArtifactRef,
 ) -> GovernanceGatePacket:
+    """Load governance gate packet."""
     return _load_model(store, ref, GovernanceGatePacket)
 
 
@@ -1268,6 +1324,7 @@ def load_implementation_plan(
     store: FileSystemCAS,
     ref: ArtifactRef,
 ) -> ImplementationPlan:
+    """Load implementation plan."""
     return _load_model(store, ref, ImplementationPlan)
 
 
@@ -1275,6 +1332,7 @@ def load_rejected_alternatives_summary(
     store: FileSystemCAS,
     ref: ArtifactRef,
 ) -> RejectedAlternativesSummary:
+    """Load rejected alternatives summary."""
     return _load_model(store, ref, RejectedAlternativesSummary)
 
 
@@ -1282,6 +1340,7 @@ def load_replayable_audit_bundle(
     store: FileSystemCAS,
     ref: ArtifactRef,
 ) -> ReplayableAuditBundle:
+    """Load replayable audit bundle."""
     return _load_model(store, ref, ReplayableAuditBundle)
 
 
@@ -1289,6 +1348,7 @@ def load_policy_artifact_bundle(
     store: FileSystemCAS,
     ref: ArtifactRef,
 ) -> PolicyArtifactBundle:
+    """Load policy artifact bundle."""
     return _load_model(store, ref, PolicyArtifactBundle)
 
 
@@ -1332,6 +1392,13 @@ def _bundle_inputs(source: PolicyArtifactBuildInput) -> list[InputRef]:
             InputRef(
                 artifact_id=source.stress_test_report_ref.artifact_id,
                 role="stress_test_report",
+            )
+        )
+    if source.calibration_validation_bundle_ref is not None:
+        inputs.append(
+            InputRef(
+                artifact_id=source.calibration_validation_bundle_ref.artifact_id,
+                role="calibration_validation_bundle",
             )
         )
     for index, ref in enumerate(_dedupe_artifact_refs(source.audit_refs)):

@@ -1,3 +1,4 @@
+"""Public causal dagma discovery module API."""
 from __future__ import annotations
 
 import importlib
@@ -344,6 +345,12 @@ def run_dagma_discovery(
     state: TabularCausalDiscoveryData | Mapping[str, Any],
     params: Mapping[str, Any],
 ) -> dict[str, Any]:
+    """Run dagma discovery."""
+    from polisyos.foundry.methods.catalog.causal.constraint_discovery import (
+        _stamp_algebraic_constraint_audit,
+        _validate_algebraic_blocks,
+    )
+
     tab_data = (
         state
         if isinstance(state, TabularCausalDiscoveryData)
@@ -357,6 +364,7 @@ def run_dagma_discovery(
     max_iter = max(1, int(params.get("max_iter", 20_000) or 20_000))
     warm_iter = max(1, int(params.get("warm_iter", 1_000) or 1_000))
     seed = int(params.get("__seed__", 0) or 0)
+    algebraic_blocks = _validate_algebraic_blocks(params.get("algebraic_blocks"))
 
     started = time.perf_counter()
     warnings: list[str] = []
@@ -381,6 +389,14 @@ def run_dagma_discovery(
             elapsed_seconds=float(time.perf_counter() - started),
             params=params,
         )
+        report = _stamp_algebraic_constraint_audit(
+            report,
+            data=tab_data.data,
+            variable_names=tab_data.variable_names,
+            significance_level=significance_level,
+            seed=seed,
+            algebraic_blocks=algebraic_blocks,
+        )
         return {"report": report, "__determinism_tier__": DeterminismTier.STATISTICAL}
 
     try:
@@ -397,6 +413,14 @@ def run_dagma_discovery(
             warnings=warnings,
             elapsed_seconds=float(time.perf_counter() - started),
             params=params,
+        )
+        report = _stamp_algebraic_constraint_audit(
+            report,
+            data=tab_data.data,
+            variable_names=tab_data.variable_names,
+            significance_level=significance_level,
+            seed=seed,
+            algebraic_blocks=algebraic_blocks,
         )
         return {"report": report, "__determinism_tier__": DeterminismTier.STATISTICAL}
 
@@ -469,6 +493,14 @@ def run_dagma_discovery(
             "warm_iter": warm_iter,
         },
     )
+    report = _stamp_algebraic_constraint_audit(
+        report,
+        data=tab_data.data,
+        variable_names=tab_data.variable_names,
+        significance_level=significance_level,
+        seed=seed,
+        algebraic_blocks=algebraic_blocks,
+    )
     return {"report": report, "__determinism_tier__": DeterminismTier.STATISTICAL}
 
 
@@ -478,6 +510,7 @@ def run_dagma_discovery(
     tags={"causal", "discovery", "dagma", "scale"},
 )
 class DAGMADiscovery:
+    """DAGMA discovery public type."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
 
     signature: ClassVar[MethodSignature] = MethodSignature(
@@ -509,6 +542,7 @@ class DAGMADiscovery:
             ParameterSpec(name="lambda1", default=0.02),
             ParameterSpec(name="max_iter", default=20000),
             ParameterSpec(name="warm_iter", default=1000),
+            ParameterSpec(name="algebraic_blocks", default=None),
             ParameterSpec(name="n_bootstrap", default=0),
             ParameterSpec(name="timeout_seconds", default=600),
         ),

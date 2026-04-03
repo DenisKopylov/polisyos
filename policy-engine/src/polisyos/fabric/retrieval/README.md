@@ -1,46 +1,37 @@
-# Retrieval
+# Retrieval (`polisyos.fabric.retrieval`)
 
-`polisyos.fabric.retrieval` — слой resolve+execute для `DataNeed`: сначала строит `FetchPlan`, затем выполняет preview/full fetch с fallback.
+`retrieval` - resolve+execute layer that turns a `DataNeed` into fetch plans,
+previews, full fetches and promotion signals.
 
-## Логика lane-ов
+## Role in System
 
-```text
-DataResolveRequest
-  -> FastLane (catalog/source_bindings)
-  -> optional DatasetCatalog lane (если передан dataset_catalog)
-  -> optional ExploreLane (bounded live discovery)
-  -> FetchPlan[] (+ fallbacks)
-  -> execute_fetch_plans
-  -> DataContext + previews + promotion signals
-```
+- **Depends on:** `polisyos.fabric.catalog`, `polisyos.fabric.connectors`
+- **Used by:** data-access tooling and runtime consumers that need metric-driven fetches
+- Sits between deterministic fast-lane resolution and live exploration.
 
-## Основные компоненты
+## Key Concepts
 
-- [service.py](/Users/deniskopylov/polisyos/policy-engine/src/polisyos/fabric/retrieval/service.py)
-  `RetrievalService`: `resolve`, `discover`, `preview`, `execute_fetch_plans`, `search_catalog`, index stats, promotion queue management.
-- [executor.py](/Users/deniskopylov/polisyos/policy-engine/src/polisyos/fabric/retrieval/executor.py)
-  `FetchExecutor`: preview gate по `quality_min`, full fetch, fallback chain (`FetchPlanFallback`).
-- [explore_lane.py](/Users/deniskopylov/polisyos/policy-engine/src/polisyos/fabric/retrieval/explore_lane.py)
-  `ExploreLaneDiscovery`: live discovery через `list_datasets(...)` с бюджетами времени/кандидатов/источников.
+- **Fast lane** - deterministic catalog/source-binding resolution.
+- **Explore lane** - bounded live discovery when fast lane is insufficient.
+- **Execution** - preview gates, full fetches and fallback chains.
+- **Promotion** - candidate promotion queue with optional persistence.
 
-## Promotion и local index
+## Public API
 
-`RetrievalService` поддерживает:
+| Type/Function | Description |
+|---|---|
+| `RetrievalService` | Main resolve/discover/execute service. |
+| `FetchExecutor` | Executes fetch plans with preview/full gating. |
+| `ExploreLaneDiscovery` | Live discovery helper. |
+| `ExploreLaneLimits` | Limits for live discovery budgets. |
+| `DiscoverOutcome` | Resolve/discover result wrapper. |
+| `ResolveOutcome` | Resolve result wrapper. |
+| `ExecuteOutcome` | Execute result wrapper. |
 
-- локальный discovery index (docs total / size / coverage по источникам),
-- очередь promotion candidates,
-- ручные действия `approve_promotion(...)` / `reject_promotion(...)`,
-- optional persist promoted bindings в `SourceBindingRegistry`.
+→ Full reference: [docs/reference/fabric/index.md](../../../../docs/reference/fabric/index.md)
 
-## Feature flags
+## Current State
 
-- `POLISYOS_RETRIEVAL_FASTLANE_ENABLED`
-- `POLISYOS_RETRIEVAL_EXPLORE_ENABLED`
-- `POLISYOS_RETRIEVAL_PROMOTION_ENABLED`
-- `POLISYOS_RETRIEVAL_PROMOTION_PERSIST`
-
-## Связи
-
-- `fabric.catalog.resolver_fast_lane` и `fabric.catalog.source_bindings` — deterministic resolve.
-- `fabric.connectors.registry` + `fabric.connectors.profiles` — runtime fetch/discovery.
-- `polisyos.core.contracts.control` — `DataNeed`, `FetchPlan`, `DataContext`, `PromotionCandidate`.
+- Last updated: 2026-04-03
+- Files: 4 Python files
+- Exports: 9

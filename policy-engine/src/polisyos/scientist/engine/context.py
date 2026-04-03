@@ -1,3 +1,4 @@
+"""Public engine context module API."""
 from __future__ import annotations
 
 import logging
@@ -23,6 +24,7 @@ from polisyos.core.run.context import RunContext
 
 @runtime_checkable
 class FoundryPort(Protocol):
+    """Foundry port public type."""
     def compile(self, store: ArtifactStore, request: CompileRequest) -> CompileResult:  # pragma: no cover - protocol
         ...
 
@@ -32,18 +34,21 @@ class FoundryPort(Protocol):
 
 @runtime_checkable
 class FabricPort(Protocol):
+    """Fabric port public type."""
     def snapshot(self, store: ArtifactStore, request_ref: DataViewRequestRef) -> DataSnapshotRef:  # pragma: no cover - protocol
         ...
 
 
 @runtime_checkable
 class ScholarPort(Protocol):
+    """Scholar port public type."""
     def enrich(self, store: ArtifactStore, intent: ResearchIntent) -> KnowledgeBundleRef:  # pragma: no cover - protocol
         ...
 
 
 @runtime_checkable
 class LexPort(Protocol):
+    """Lex port public type."""
     def evaluate(
         self, store: ArtifactStore, context: LegalContext
     ) -> tuple[LegalReportRef, ChangeProposalRef | None]:  # pragma: no cover - protocol
@@ -52,6 +57,7 @@ class LexPort(Protocol):
 
 @runtime_checkable
 class Tracer(Protocol):
+    """Tracer public type."""
     def start_as_current_span(
         self, name: str, attributes: dict[str, Any] | None = None
     ) -> Any:  # pragma: no cover - protocol
@@ -60,6 +66,7 @@ class Tracer(Protocol):
 
 @dataclass(frozen=True)
 class ExecutionContext:
+    """Execution context public type."""
     store: ArtifactStore
     run: RunContext
     logger: logging.Logger

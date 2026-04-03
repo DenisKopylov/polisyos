@@ -1,3 +1,4 @@
+"""Public causal econml adapter module API."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -26,6 +27,7 @@ SHAP_MIN_ROWS_FOR_SUBSAMPLE = 500
 
 @dataclass(frozen=True)
 class HTEData:
+    """HTE data public type."""
     y: np.ndarray
     t: np.ndarray
     x: np.ndarray
@@ -35,6 +37,7 @@ class HTEData:
 
 
 def require_econml() -> None:
+    """Require econml helper."""
     if not ECONML_AVAILABLE:
         raise ImportError(
             "EconML is required for HTE methods. Install optional deps: "
@@ -43,6 +46,7 @@ def require_econml() -> None:
 
 
 def build_hte_data(state: Any) -> HTEData:
+    """Build hte data."""
     data = (
         state
         if isinstance(state, HTEObservationalData)
@@ -172,6 +176,13 @@ def _extract_tree_importances(
         raw = getattr(estimator.model_final, "feature_importances_", None)
     if raw is None:
         return []
+    if callable(raw):
+        try:
+            raw = raw()
+        except Exception:
+            return []
+    if raw is None:
+        return []
 
     values = np.asarray(raw, dtype=float).ravel()
     if values.size == 0:
@@ -270,6 +281,7 @@ def extract_feature_importances(
     method: str,
     rng: np.random.Generator,
 ) -> tuple[list[dict[str, Any]], list[str]]:
+    """Extract feature importances helper."""
     if method == "shap":
         shap_importances, shap_warnings = _extract_shap_importances(
             estimator, x, feature_names=feature_names, rng=rng
@@ -298,6 +310,7 @@ def extract_cate_from_estimator(
     feature_importance_method: str,
     rng: np.random.Generator,
 ) -> dict[str, Any]:
+    """Extract cate from estimator helper."""
     warnings: list[str] = []
     cate = _sanitize_effect(estimator.effect(x))
     n_samples = int(cate.shape[0])
@@ -393,6 +406,7 @@ def build_cate_quantile_subgroups(
     n_quantiles: int,
     alpha: float,
 ) -> list[dict[str, Any]]:
+    """Build cate quantile subgroups."""
     values = np.asarray(cate_values, dtype=float)
     if values.size == 0:
         return []

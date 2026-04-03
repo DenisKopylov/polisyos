@@ -37,6 +37,7 @@ _REJECTION_ALLOWED_REASON_CODES = {
 
 @dataclass(frozen=True)
 class TemporalThresholds:
+    """Temporal thresholds public type."""
     max_path_rmse: float | None = None
     max_path_mae: float | None = None
     max_endpoint_abs_error: float | None = None
@@ -46,6 +47,7 @@ class TemporalThresholds:
 
 @dataclass(frozen=True)
 class TemporalEvaluationResult:
+    """Temporal evaluation result data model."""
     scenario: BacktestScenario
     pointwise_metrics: dict[str, float]
     functional_metrics: dict[str, float]
@@ -380,6 +382,7 @@ def build_temporal_backtest_report(
 
 
 def allowed_temporal_rejection_reason_codes() -> tuple[str, ...]:
+    """Allowed temporal rejection reason codes helper."""
     return tuple(sorted(_REJECTION_ALLOWED_REASON_CODES))
 
 

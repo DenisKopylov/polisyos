@@ -1,81 +1,38 @@
-# Nodes Layer (`polisyos.scientist.nodes`)
+# Nodes (`polisyos.scientist.nodes`)
 
-`nodes` содержит исполняемые бизнес-ноды Scientist, которые `engine` запускает через `NodeRegistry`.
+`nodes` содержит builtin Scientist nodes, которые `engine` регистрирует и исполняет
+в workflow DAG. Именно здесь собран фактический runtime surface для data/planning/
+compile/causal/simulate/governance/decide этапов.
 
-## Группы builtin-нод
+## Роль в системе
 
-- `data/`
-  - `BuildDataSnapshotNode`
-  - `BindFoundryInputsNode`
-  - `EnrichKnowledgeNode` (опциональный scholar-контур)
-- `planning/`
-  - `BuildExecutionPlanNode`
-  - `BuildMethodCatalogSnapshotNode`
-  - `RunPreflightNode`
-  - `ReadyToRunNode`
-  - `RunEvaluatorNode`
-- `compile/`
-  - `LinkTrinityNode`
-  - `CompileFoundryNode`
-- `causal/`
-  - `BuildLiteraturePriorNode`
-  - `ReconcileCausalGraphNode`
-  - `ResolveParametersNode`
-  - `RunCausalQueriesNode`
-  - `RunCausalEnsembleNode`
-  - `RunABMConsistencyCheckNode`
-  - `RunTransportabilityNode`
-- `simulate/`
-  - `RunSimulationNode`
-  - `RunDistributionalAnalysisNode`
-  - `RunCausalEvaluationNode`
-  - `PropagateUncertaintyNode`
-- `governance/`
-  - `DataPlaneGateNode`
-  - `LegalCheckNode`
-  - `RunGovernanceNode`
-- `decide/`
-  - `BuildDecisionPacketNode`
+- **Зависит от:** `engine`, `adapters`, `compute`, `governance`, `kernel`, `ir`, `foundry`, `fabric`, `lex`
+- **Используется в:** `scientist.workflows`, `NodeRegistry`, runtime execution flows
+- Корневая точка входа пакета — `builtin_nodes()`, но основной объем логики живет в `builtins/*`.
 
-`builtin_nodes()` агрегирует весь встроенный набор для регистрации.
+## Ключевые концепции
 
-## Что исполняется в `scientist_default`
+- **NodeSpec** — декларация state reads/writes, produces и metadata для каждой ноды.
+- **Builtin families** — `data`, `planning`, `compile`, `causal`, `simulate`, `governance`, `decide`.
+- **Causal expansion** — добавлены `CounterfactualIdentificationGateNode`,
+  `RunCausalReadinessNode`, `RunCausalContractExecutionNode`.
+- **C6c planning path** — добавлен `RunHierarchicalPolicySearchNode` и supporting runtime helpers.
+- **State keys** — канонические artifact/report aliases живут в `state_keys.py`.
+- **Error contract** — shared node error codes живут в `errors.py`.
 
-В default-DAG используются:
-- data: `build_data_snapshot`, `bind_foundry_inputs`, `run_data_plane_gate`;
-- planning: `build_execution_plan`, `build_method_catalog_snapshot`, `run_preflight`, `ready_to_run`;
-- execute: `link_trinity`, `compile_foundry`, `resolve_parameters`, `run_simulation`;
-- analysis/governance: `run_distributional_analysis`, `propagate_uncertainty`, `run_causal_evaluation`, `run_governance`, `run_evaluator`;
-- finalize: `build_decision_packet`.
+## Public API
 
-## Что добавляется в `scientist_causal_full`
+- `builtin_nodes()` — возвращает полный builtin registry Scientist nodes.
+- Root package не re-export-ит отдельные node classes; они импортируются из
+  `polisyos.scientist.nodes.builtins.*`.
+- Ключевые новые causal nodes находятся в `builtins/causal/`.
 
-Дополнительно подключаются:
-- `build_literature_prior`
-- `reconcile_causal_graph`
-- `run_causal_queries`
-- `run_causal_ensemble`
-- `run_abm_consistency`
-- `run_transportability`
+Подробности: [Reference →](../../../../docs/reference/scientist/index.md)
 
-## Ключевые контракты
+## Текущее состояние
 
-- интерфейс ноды: `engine.protocol.Node` (`spec` + `execute`);
-- метаданные и state-контракт: `NodeSpec` (`state_reads/state_writes/produces`);
-- коды ошибок: `nodes/builtins/errors.py`;
-- канонические ключи state/artifacts/reports: `nodes/builtins/state_keys.py`.
-
-## Важные детали реализации
-
-- `BuildDataSnapshotNode` вызывает `FabricPort.snapshot()` только при `data_view_request_ref`; иначе использует уже предоставленный snapshot.
-- `RunPreflightNode` валидирует `ExecutionPlan` против live method catalog и возвращает `fail`, если `ready_to_run=False`.
-- `ReadyToRunNode` — hard gate перед compile-стадией.
-- `RunSimulationNode` пишет derived artifacts (`metrics`, `state_delta`, `environment_manifest`, `tee_attestation`, `sbom`) в `artifacts_index`.
-- `RunGovernanceNode` поддерживает typed human-gate lifecycle (`GateRequest`/`GateDecision`) и runtime subset governance passes.
-
-## Связи
-
-- `adapters/` — bridge к `foundry` и `fabric`;
-- `compute/` — method jobs в causal-контурах;
-- `governance/` + `kernel/` — pass pipeline и human gate protocol;
-- контракты `ir`/`foundry`/`fabric`/`lex`/`scholar`.
+- Последнее обновление: 2026-04-03
+- Python modules: 63
+- Root exports: 1 (`builtin_nodes`)
+- Недавний delta: causal family теперь покрывает readiness, counterfactual gate
+  и contract execution; planning family получила hierarchical policy search

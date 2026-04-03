@@ -1,3 +1,4 @@
+"""Public causal common module API."""
 from __future__ import annotations
 
 from typing import Any
@@ -17,6 +18,7 @@ def bootstrap_ci(
     estimates: np.ndarray,
     confidence_level: float = 0.95,
 ) -> tuple[float, float]:
+    """Bootstrap ci helper."""
     alpha = 1.0 - confidence_level
     lower = np.percentile(estimates, 100.0 * alpha / 2.0)
     upper = np.percentile(estimates, 100.0 * (1.0 - alpha / 2.0))
@@ -24,6 +26,7 @@ def bootstrap_ci(
 
 
 def compute_rmspe(actual: np.ndarray, predicted: np.ndarray) -> float:
+    """Compute rmspe helper."""
     return float(np.sqrt(np.mean((actual - predicted) ** 2)))
 
 
@@ -32,6 +35,7 @@ def compute_cohen_d(
     treated_outcome: np.ndarray,
     control_outcome: np.ndarray,
 ) -> float:
+    """Compute cohen d helper."""
     pooled_std = np.sqrt((np.var(treated_outcome) + np.var(control_outcome)) / 2.0)
     return float(effect / pooled_std) if pooled_std > 0 else 0.0
 
@@ -52,6 +56,7 @@ def build_success_report(
     diagnostics: list[DiagnosticTest] | None = None,
     **kwargs: Any,
 ) -> CausalEffectReport:
+    """Build success report."""
     payload = dict(kwargs)
     payload.setdefault("diagnostics", diagnostics or [])
     point = float(point_estimate)
@@ -96,6 +101,7 @@ def build_failure_report(
     diagnostics: list[DiagnosticTest] | None = None,
     **kwargs: Any,
 ) -> CausalEffectReport:
+    """Build failure report."""
     payload = dict(kwargs)
     payload.setdefault("diagnostics", diagnostics or [])
     meta = dict(payload.get("metadata", {}))
@@ -123,6 +129,7 @@ def wrap_causal_output(
     warnings: list[str] | None = None,
     extras: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
+    """Wrap causal output helper."""
     output: dict[str, Any] = {
         "report": report,
         "envelope": report.to_uncertainty_envelope(),

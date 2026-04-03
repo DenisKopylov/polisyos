@@ -1,3 +1,4 @@
+"""Public world events module API."""
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -38,6 +39,7 @@ def build_deterministic_world_event(
     started_at: datetime | None = None,
     ended_at: datetime | None = None,
 ) -> WorldEvent:
+    """Build deterministic world event."""
     started = started_at or datetime.now(timezone.utc)
     ended = ended_at or started
     agent = ProvAgent(
@@ -82,6 +84,7 @@ def persist_world_event_with_facts(
     event: WorldEvent,
     facts: list[Any],
 ) -> str:
+    """Persist world event with facts helper."""
     event_ref = persist_world_event(cas, event)
     event_artifact_id = str(event_ref.artifact_id)
     facts.extend(

@@ -1,3 +1,4 @@
+"""Public observability pricing module API."""
 from __future__ import annotations
 
 import os
@@ -7,6 +8,7 @@ from typing import Mapping
 
 @dataclass(frozen=True)
 class LLMPrice:
+    """LLM price public type."""
     input_per_token_usd: float
     output_per_token_usd: float
 
@@ -52,6 +54,7 @@ def estimate_llm_cost_usd(
     prompt_tokens: int,
     completion_tokens: int,
 ) -> float:
+    """Estimate llm cost usd helper."""
     table = pricing_table()
     price = table.get(model, table["default"])
     prompt_cost = max(prompt_tokens, 0) * price.input_per_token_usd

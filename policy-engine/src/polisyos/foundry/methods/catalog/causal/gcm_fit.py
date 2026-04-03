@@ -1,3 +1,4 @@
+"""Public causal gcm fit module API."""
 from __future__ import annotations
 
 from collections.abc import Mapping
@@ -316,6 +317,9 @@ class HybridSCMFit:
             "law_h": "Mechanism params must remain JSON-serializable.",
         },
         when_to_use="Fit Graphical Causal Model to data given known DAG structure; estimate mechanisms for causal queries",
+        citations=(
+            "Pearl, J. (2009). Causality: Models, Reasoning, and Inference. Cambridge University Press.",
+        ),
         when_not_to_use="DAG unknown and no prior to guide structure; no software dependency on dowhy-gcm",
         typical_min_obs=200,
         output_interpretation="Fitted causal mechanisms (noise models) per node. Use downstream for counterfactual/attribution queries.",

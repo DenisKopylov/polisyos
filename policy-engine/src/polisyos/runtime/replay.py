@@ -1,3 +1,4 @@
+"""Public runtime replay module API."""
 from __future__ import annotations
 
 import random
@@ -38,18 +39,21 @@ logger = get_logger(__name__)
 
 
 class ReplayStrategy(str, Enum):
+    """Replay strategy data model."""
     FOUNDRY = "foundry"
     SCIENTIST = "scientist"
     NONE = "none"
 
 
 class CompletenessLevel(str, Enum):
+    """Completeness level public type."""
     COMPLETE = "complete"
     RECOVERABLE = "recoverable"
     INCOMPLETE = "incomplete"
 
 
 class VerificationMode(str, Enum):
+    """Verification mode public type."""
     BIT_EXACT = "bit_exact"
     CI_BOUNDED = "ci_bounded"
     SKIP = "skip"
@@ -57,12 +61,14 @@ class VerificationMode(str, Enum):
 
 @dataclass(frozen=True)
 class SeedResolution:
+    """Seed resolution public type."""
     value: int
     source: str
 
 
 @dataclass(frozen=True)
 class MissingArtifact:
+    """Missing artifact public type."""
     artifact_id: str
     role: str
     kind: str | None
@@ -72,6 +78,7 @@ class MissingArtifact:
 
 @dataclass
 class CompletenessReport:
+    """Completeness report data model."""
     level: CompletenessLevel
     strategy: ReplayStrategy
     total_artifacts: int
@@ -103,6 +110,7 @@ class CompletenessReport:
 
 @dataclass(frozen=True)
 class VerificationConfig:
+    """Verification config data model."""
     mode: VerificationMode = VerificationMode.BIT_EXACT
     relative_tolerance: float = 1e-6
     confidence_level: float = 0.95
@@ -110,6 +118,7 @@ class VerificationConfig:
 
 @dataclass
 class VerificationResult:
+    """Verification result data model."""
     passed: bool
     mode: VerificationMode
     details: dict[str, Any] = field(default_factory=dict)
@@ -119,6 +128,7 @@ class VerificationResult:
 
 @dataclass
 class ReplayPlan:
+    """Replay plan data model."""
     packet_ref: ArtifactID
     strategy: ReplayStrategy
     seed: SeedResolution
@@ -128,6 +138,7 @@ class ReplayPlan:
 
 @dataclass(frozen=True)
 class ReplayBundleMeasurement:
+    """Replay bundle measurement public type."""
     replay_bundle_ref: ArtifactRef
     completeness: CompletenessReport
     verification_mode: str
@@ -138,6 +149,7 @@ class ReplayBundleMeasurement:
 
 
 def set_global_seeds(seed: int) -> None:
+    """Set global seeds helper."""
     random.seed(seed)
     try:
         import numpy as np
@@ -148,6 +160,7 @@ def set_global_seeds(seed: int) -> None:
 
 
 def normalize_artifact_id(value: str) -> ArtifactID:
+    """Normalize artifact ID helper."""
     if _SHA256_PREF_RE.fullmatch(value):
         return ArtifactID.model_validate(value)
     if _SHA256_HEX_RE.fullmatch(value):
@@ -156,6 +169,7 @@ def normalize_artifact_id(value: str) -> ArtifactID:
 
 
 def try_parse_artifact_id(value: Any) -> ArtifactID | None:
+    """Try parse artifact ID helper."""
     if not isinstance(value, str):
         return None
     try:
@@ -165,6 +179,7 @@ def try_parse_artifact_id(value: Any) -> ArtifactID | None:
 
 
 def determine_replay_strategy(payload: dict[str, Any]) -> ReplayStrategy:
+    """Determine replay strategy helper."""
     inputs = payload.get("inputs") if isinstance(payload.get("inputs"), dict) else {}
     artifacts = payload.get("artifacts") if isinstance(payload.get("artifacts"), dict) else {}
     has_exec_plan = isinstance(artifacts.get("exec_plan_ref"), str)
@@ -188,6 +203,7 @@ def resolve_effective_seed(
     store: FileSystemCAS | None = None,
     default: int = 0,
 ) -> SeedResolution:
+    """Resolve effective seed."""
     replay_block = payload.get("replay")
     if isinstance(replay_block, dict):
         replay_seed = replay_block.get("effective_seed")
@@ -223,6 +239,7 @@ def compare_current_environment(
     store: FileSystemCAS,
     payload: dict[str, Any],
 ) -> list[EnvironmentDiff]:
+    """Compare current environment helper."""
     inputs = payload.get("inputs") if isinstance(payload.get("inputs"), dict) else {}
     env_ref = try_parse_artifact_id(inputs.get("environment_manifest_ref"))
     if env_ref is None:
@@ -238,6 +255,7 @@ def compare_current_environment(
 
 
 def build_replay_plan(store: FileSystemCAS, packet_ref: ArtifactID) -> ReplayPlan:
+    """Build replay plan."""
     payload = _load_packet_payload(store, packet_ref)
     completeness = completeness_check(store, packet_ref, payload=payload)
     strategy = determine_replay_strategy(payload)
@@ -255,6 +273,7 @@ def measure_replayable_audit_bundle(
     store: FileSystemCAS,
     replay_bundle_ref: ArtifactRef,
 ) -> ReplayBundleMeasurement:
+    """Measure replayable audit bundle helper."""
     from polisyos.scientist.policy_design.output import load_replayable_audit_bundle
 
     bundle = load_replayable_audit_bundle(store, replay_bundle_ref)
@@ -479,6 +498,7 @@ def completeness_check(
     max_nodes: int = 10_000,
     verify_integrity: bool = True,
 ) -> CompletenessReport:
+    """Completeness check helper."""
     reasons: list[str] = []
     try:
         packet_payload = payload or _load_packet_payload(store, packet_ref)
@@ -589,6 +609,7 @@ def verify_replay(
     replay_simulation_ref: ArtifactID | None,
     config: VerificationConfig,
 ) -> VerificationResult:
+    """Verify replay helper."""
     if config.mode == VerificationMode.SKIP:
         return VerificationResult(
             passed=True,

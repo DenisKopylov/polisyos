@@ -46,7 +46,22 @@ from polisyos.ir.connectors import (
 
 
 class CKANResourceConnector(HTTPConnectorBase[pd.DataFrame]):
-    """Download and parse individual CKAN resources."""
+    """Connector for downloading and parsing CKAN resource payloads.
+
+    Complements ``CKANCatalogConnector`` by resolving individual resource URLs
+    and normalizing tabular payloads into Fabric fetch results.
+
+    Data source:
+        CKAN-compatible portals
+    Protocol:
+        CKAN metadata + direct resource download
+    Auth:
+        Profile-driven per portal
+    Async support:
+        Standard async HTTP execution only
+    Profile:
+        Any ``connector_family='ckan'`` resource profile
+    """
 
     namespace: ClassVar[str] = "ckan"
     short_id: ClassVar[str] = "resource"

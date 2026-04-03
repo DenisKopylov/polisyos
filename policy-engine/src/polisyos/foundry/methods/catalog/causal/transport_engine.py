@@ -1,3 +1,4 @@
+"""Public causal transport engine module API."""
 from __future__ import annotations
 
 from collections.abc import Iterable
@@ -43,6 +44,7 @@ def solve_transportability(
     pag_seed: int = 0,
     capability_contract: CausalCapabilityContract | None = None,
 ) -> TransportabilityResult:
+    """Solve transportability helper."""
     contract = capability_contract or build_causal_capability_contract()
     mode = _normalize_solver_mode(solver_mode)
     trace = [

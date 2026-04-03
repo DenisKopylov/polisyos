@@ -1,0 +1,50 @@
+{
+  "family": "interaction_contracts",
+  "visibility": "public",
+  "revision": "2.1",
+  "cases": [
+    {
+      "case_id": "interaction_contracts::pairwise_projection_public",
+      "case_class": "pairwise_projection",
+      "inputs_ref": "fixture://interaction_contracts/pairwise_projection_public",
+      "oracle_ref": "oracle://interaction_contracts/pairwise_projection_public",
+      "baseline_overlap": [],
+      "gates": {
+        "claim_eligible": true,
+        "unsupported_is_valid": false
+      },
+      "tags": ["pairwise", "certificate"],
+      "nodes": ["a", "b", "c"],
+      "hyperedges": [["a", "b"]],
+      "simplices": [["a", "b", "c"]],
+      "supported_query_family": "pairwise_spillover",
+      "exposure_assumptions": ["pairwise_projection_is_lossless"],
+      "fallback_mode": "pairwise",
+      "expected_metrics": {
+        "certificate_completeness_rate": 1.0,
+        "unsupported_failure_correctness": 1.0,
+        "interference_regression_rate": 1.0
+      }
+    },
+    {
+      "case_id": "interaction_contracts::unsupported_hypergraph_public",
+      "case_class": "unsupported_hypergraph",
+      "inputs_ref": "fixture://interaction_contracts/unsupported_hypergraph_public",
+      "oracle_ref": "oracle://interaction_contracts/unsupported_hypergraph_public",
+      "baseline_overlap": [],
+      "gates": {
+        "claim_eligible": true,
+        "unsupported_is_valid": true
+      },
+      "tags": ["unsupported", "hypergraph"],
+      "supported_query_family": "hypergraph_exposure",
+      "exposure_assumptions": ["unsupported_full_complex"],
+      "fallback_mode": "unsupported",
+      "expected_metrics": {
+        "certificate_completeness_rate": 1.0,
+        "unsupported_failure_correctness": 1.0,
+        "interference_regression_rate": 1.0
+      }
+    }
+  ]
+}

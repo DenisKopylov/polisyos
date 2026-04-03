@@ -14,6 +14,7 @@ class QCCheck:
 
     name: str
     passed: bool
+    group: str = ""
     severity: str = "critical"  # critical | warning
     value: float | int | str | None = None
     threshold: float | int | str | None = None
@@ -42,6 +43,7 @@ class QCReport:
                 {
                     "name": c.name,
                     "passed": c.passed,
+                    "group": c.group,
                     "severity": c.severity,
                     "value": c.value,
                     "threshold": c.threshold,
@@ -55,6 +57,7 @@ class QCReport:
 
 
 def write_qc_report(path: Path, report: QCReport) -> Path:
+    """Write QC report helper."""
     path.parent.mkdir(parents=True, exist_ok=True)
     with open(path, "w", encoding="utf-8") as fh:
         json.dump(report.to_dict(), fh, ensure_ascii=False, indent=2)

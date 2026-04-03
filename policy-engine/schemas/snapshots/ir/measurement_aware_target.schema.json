@@ -1,0 +1,132 @@
+{
+  "$defs": {
+    "IdentificationMode": {
+      "enum": [
+        "point_identified",
+        "partially_identified",
+        "bounds_only",
+        "proxy_identified",
+        "interference_aware",
+        "sequential"
+      ],
+      "title": "IdentificationMode",
+      "type": "string"
+    },
+    "ObservationFamily": {
+      "enum": [
+        "budget_flows",
+        "procurement_flows",
+        "macro_state",
+        "firm_fundamentals",
+        "trade_exposure",
+        "labor_market",
+        "household_distribution",
+        "distress_enforcement",
+        "spatial_raster_exogenous",
+        "public_service_domain_flows",
+        "education_human_capital_supply",
+        "construction_capital_formation",
+        "logistics_friction"
+      ],
+      "title": "ObservationFamily",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "base_weight": {
+      "default": 1.0,
+      "minimum": 0.0,
+      "title": "Base Weight",
+      "type": "number"
+    },
+    "censoring_field": {
+      "default": "censoring_mask",
+      "maxLength": 120,
+      "minLength": 1,
+      "title": "Censoring Field",
+      "type": "string"
+    },
+    "coverage_field": {
+      "default": "coverage_estimate",
+      "maxLength": 120,
+      "minLength": 1,
+      "title": "Coverage Field",
+      "type": "string"
+    },
+    "identification_mode": {
+      "$ref": "#/$defs/IdentificationMode"
+    },
+    "lag_days_field": {
+      "default": "lag_days_estimate",
+      "maxLength": 120,
+      "minLength": 1,
+      "title": "Lag Days Field",
+      "type": "string"
+    },
+    "metric_id": {
+      "maxLength": 120,
+      "minLength": 1,
+      "title": "Metric Id",
+      "type": "string"
+    },
+    "notes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Notes",
+      "type": "array"
+    },
+    "observation_family": {
+      "$ref": "#/$defs/ObservationFamily"
+    },
+    "observed_value_field": {
+      "default": "observed_value",
+      "maxLength": 120,
+      "minLength": 1,
+      "title": "Observed Value Field",
+      "type": "string"
+    },
+    "schema_regime_field": {
+      "default": "schema_regime_id",
+      "maxLength": 120,
+      "minLength": 1,
+      "title": "Schema Regime Field",
+      "type": "string"
+    },
+    "schema_version": {
+      "default": "1.0",
+      "pattern": "^\\d+\\.\\d+$",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "shock_mask_field": {
+      "default": "shock_mask",
+      "maxLength": 120,
+      "minLength": 1,
+      "title": "Shock Mask Field",
+      "type": "string"
+    },
+    "target_id": {
+      "maxLength": 120,
+      "minLength": 1,
+      "title": "Target Id",
+      "type": "string"
+    },
+    "trust_weight_field": {
+      "default": "trust_weight",
+      "maxLength": 120,
+      "minLength": 1,
+      "title": "Trust Weight Field",
+      "type": "string"
+    }
+  },
+  "required": [
+    "target_id",
+    "observation_family",
+    "metric_id",
+    "identification_mode"
+  ],
+  "title": "MeasurementAwareTarget",
+  "type": "object"
+}

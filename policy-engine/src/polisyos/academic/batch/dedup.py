@@ -169,6 +169,7 @@ def _merge_records(base: WorkRecord, incoming: WorkRecord) -> WorkRecord:
 
 
 def merge_and_dedup(config: AcademicBatchConfig) -> MergeStats:
+    """Merge and dedup helper."""
     started_at = datetime.now(UTC).isoformat()
     merged: list[WorkRecord] = []
     seen: dict[str, WorkRecord] = {}

@@ -1,4 +1,9 @@
-"""Public claims normalize module API."""
+"""Claim normalization stage for canonical ids, units, numeric values, and provenance edges.
+
+This stage loads an extracted claim set, rewrites predicates/units/value text into canonical form,
+recomputes deterministic ``claim_id`` values, deduplicates equivalent claims, persists a new
+claim-set artifact, and emits ``PROV_WAS_DERIVED_FROM`` edges when ids change.
+"""
 from __future__ import annotations
 
 from dataclasses import asdict
@@ -156,7 +161,23 @@ def normalize_claims(
     options: ClaimNormalizeOptions | None = None,
     segment_name: str | None = None,
 ) -> ClaimNormalizeResult:
-    """Normalize claims helper."""
+    """Normalize one extracted claim set and persist the canonicalized successor artifact.
+
+    Args:
+        cas: Artifact store containing the input claim-set artifact and individual claim payloads.
+        fact_log_root: Fact-log root where normalized claim facts and the world segment are written.
+        claim_set_artifact_id: Extracted claim-set artifact produced by ``extract_claims_from_doc``.
+        options: Optional canonicalization and invalid-row handling policy.
+        segment_name: Optional world segment name.
+
+    Returns:
+        Normalized claim-set artifact id, canonical claim ids, derived-id edges, optional evidence
+        bundle reference, and provenance event/segment identifiers.
+
+    Raises:
+        ClaimValidationError: If the input claim-set payload is malformed, claim ids mismatch, or
+            normalization produces invalid canonical values while ``drop_invalid`` is false.
+    """
     opts = options or ClaimNormalizeOptions()
 
     claim_set_payload = load_json_artifact(cas, claim_set_artifact_id)

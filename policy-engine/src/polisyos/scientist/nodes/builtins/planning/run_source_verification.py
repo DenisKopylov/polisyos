@@ -56,7 +56,12 @@ _SPEC = NodeSpec(
 
 @dataclass(frozen=True)
 class RunSourceVerificationNode:
-    """Run source verification node implementation."""
+    """Planning DAG node that verifies cited legal claims and records unresolved evidence gaps.
+
+    Reads the request frame plus legal candidate/source packs, then writes the
+    source-verification report ref and updated verification-cycle counters used
+    by drafting, gap review, and governance.
+    """
     @property
     def spec(self) -> NodeSpec:
         return _SPEC

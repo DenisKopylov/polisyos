@@ -8,8 +8,12 @@ export const FALLBACK_CAPABILITY_MANIFEST: CapabilityManifestPayload = {
   },
   runtime_api_version: "1.0.0",
   shell_flavor: "atlas",
+  default_execution_profile: "dev",
   default_locale: "en",
+  supported_execution_profiles: ["dev", "research", "governed", "production"],
   supported_locales: ["en", "uk"],
+  state_store_backend: "sqlite",
+  worker_backend: "embedded",
   workspaces: [
     "command_center",
     "scenario_composer",

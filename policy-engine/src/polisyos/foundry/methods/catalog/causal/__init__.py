@@ -1,4 +1,4 @@
-"""Public catalog causal package API."""
+"""Expose causal estimators, diagnostics, and discovery methods under the `causal.*` namespaces."""
 from __future__ import annotations
 
 from polisyos.foundry.methods.exceptions import MethodAlreadyRegisteredError
@@ -171,7 +171,7 @@ from .protocols import FairnessObservationalData
 
 
 def ensure_causal_methods_registered(registry: MethodRegistry | None = None) -> None:
-    """Ensure causal methods registered helper."""
+    """Register all built-in causal methods into `registry` or the global singleton."""
     reg = registry if registry is not None else MethodRegistry.get_instance()
     for method_class in register_causal_methods():
         try:

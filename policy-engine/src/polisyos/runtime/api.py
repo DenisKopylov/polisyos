@@ -1,4 +1,4 @@
-"""Public runtime api module API."""
+"""Write and finalize lightweight run manifests and artifact references on disk."""
 from __future__ import annotations
 
 import uuid
@@ -50,7 +50,19 @@ def start_run(
     budgets: Optional[Dict[str, float]] = None,
     base_dir: Path = Path("runs"),
 ) -> RunManifest:
-    """Start run helper."""
+    """Create a new run manifest under `base_dir` and return the persisted model.
+
+    Args:
+        run_id: Optional caller-supplied run identifier. When omitted, a short
+            UUID-based ID is generated.
+        parent_run_id: Optional parent run for replay/resume lineage.
+        generator: Optional producer metadata stored in the manifest.
+        budgets: Optional budget limits copied into the new manifest.
+        base_dir: Root directory where run state is stored.
+
+    Returns:
+        The initialized `RunManifest` persisted to `<base_dir>/<run_id>/manifest.json`.
+    """
     run_id = run_id or str(uuid.uuid4())[:8]
     manifest = RunManifest(
         run_id=run_id,
@@ -75,7 +87,12 @@ def log_artifact(
     filename: Optional[str] = None,
     base_dir: Path = Path("runs"),
 ) -> ArtifactRef:
-    """Log artifact helper."""
+    """Write a run-local artifact file and append its reference to the manifest.
+
+    Raises:
+        OSError: If the artifact directory or file cannot be created.
+        ValueError: If `environment_ref` payload metadata is malformed.
+    """
     run_dir = _run_dir(base_dir, run_id)
     artifact_dir = run_dir / "artifacts" / artifact_type
     artifact_dir.mkdir(parents=True, exist_ok=True)
@@ -125,7 +142,7 @@ def append_audit(
     record: Dict[str, Any],
     base_dir: Path = Path("runs"),
 ) -> None:
-    """Append audit helper."""
+    """Append one JSONL audit record and ensure the manifest references the audit trail."""
     run_dir = _run_dir(base_dir, run_id)
     audit_path = run_dir / "audit.jsonl"
     run_dir.mkdir(parents=True, exist_ok=True)
@@ -164,7 +181,7 @@ def finalize_run(
     pruning_reason: Optional[Dict[str, Any]] = None,
     base_dir: Path = Path("runs"),
 ) -> None:
-    """Finalize run helper."""
+    """Mark the run terminal, persist finish time, and store an optional pruning reason."""
     manifest = _load_manifest(base_dir, run_id)
     manifest.status = status
     manifest.finished_at = datetime.now(timezone.utc).isoformat()
@@ -175,13 +192,15 @@ def finalize_run(
 def resolve_artifact_path(
     ref: ArtifactRef, *, base_dir: Path = Path("runs"), run_root: Optional[Path] = None
 ) -> Path:
-    """
-    Возвращает абсолютный путь к артефакту, опираясь на relative_path/path и run_root.
+    """Resolve a run artifact reference to an absolute filesystem path.
 
-    Приоритет:
-    1. ref.relative_path, собранный с run_root или base_dir
-    2. ref.path, если он абсолютный — возвращаем как есть
-       если относительный — собираем с run_root или base_dir
+    Resolution order:
+    1. `ref.relative_path` joined with `run_root` or `base_dir`
+    2. `ref.path` as-is when absolute, otherwise joined with `run_root` or
+       `base_dir`
+
+    Raises:
+        ValueError: If the reference does not contain either path field.
     """
     if ref.relative_path:
         root = run_root or base_dir

@@ -1,4 +1,4 @@
-"""Public conflicts key module API."""
+"""Key functions for grouping claims that may contradict each other."""
 from __future__ import annotations
 
 import re
@@ -15,7 +15,7 @@ _WS_RE = re.compile(r"\s+")
 
 
 def normalize_text_v1(value: str) -> str:
-    """Normalize text v 1 helper."""
+    """Normalize free-text values before conflict bucketing and comparison."""
     return _WS_RE.sub(" ", value.strip()).casefold()
 
 
@@ -57,13 +57,13 @@ def conflict_key_payload_v1(claim: Claim) -> dict[str, Any]:
 
 
 def conflict_key_v1(claim: Claim) -> str:
-    """Conflict key v 1 helper."""
+    """Hash the subject/predicate/scope payload used to bucket comparable claims."""
     canonical = to_canonical_bytes(conflict_key_payload_v1(claim))
     return content_hash(canonical)
 
 
 def value_signature_v1(claim: Claim) -> str:
-    """Value signature v 1 helper."""
+    """Serialize the observed claim value so resolution can spot duplicates versus mismatches."""
     if claim.value_decimal is not None:
         unit = claim.unit_id or "none"
         return f"num:{str(claim.value_decimal)}:{unit}"
@@ -93,7 +93,7 @@ def _interval_disjoint(
 
 
 def compare_v1(a: Claim, b: Claim, *, tolerance: Decimal) -> ConflictKind:
-    """Compare v 1 helper."""
+    """Classify the conflict kind between two claims that share the same bucket."""
     tol = tolerance if tolerance >= Decimal("0") else Decimal("0")
 
     if _interval_disjoint(a.valid_from, a.valid_to, b.valid_from, b.valid_to):

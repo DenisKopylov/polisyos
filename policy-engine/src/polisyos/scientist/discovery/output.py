@@ -714,7 +714,7 @@ def persist_discovery_task_profile(
     *,
     inputs: list[InputRef] | None = None,
 ) -> DiscoveryTaskProfileRef:
-    """Persist discovery task profile helper."""
+    """Persist the discovery task profile describing the run's objectives, contexts, and assumptions."""
     return _put_model(
         store,
         payload,
@@ -739,7 +739,7 @@ def persist_graph_hypothesis_set(
     *,
     inputs: list[InputRef] | None = None,
 ) -> GraphHypothesisSetRef:
-    """Persist graph hypothesis set helper."""
+    """Persist the ranked set of graph hypotheses emitted by the discovery workflow."""
     return _put_model(
         store,
         payload,
@@ -764,7 +764,7 @@ def persist_refutation_report(
     *,
     inputs: list[InputRef] | None = None,
 ) -> RefutationReportRef:
-    """Persist refutation report helper."""
+    """Persist the report describing which discovery hypotheses survived refutation checks."""
     return _put_model(
         store,
         payload,
@@ -789,7 +789,7 @@ def persist_reproducibility_report(
     *,
     inputs: list[InputRef] | None = None,
 ) -> ReproducibilityReportRef:
-    """Persist reproducibility report helper."""
+    """Persist the reproducibility report covering replay, seeds, and stability checks."""
     return _put_model(
         store,
         payload,
@@ -814,7 +814,7 @@ def persist_active_disambiguation_plan(
     *,
     inputs: list[InputRef] | None = None,
 ) -> ActiveDisambiguationPlanRef:
-    """Persist active disambiguation plan helper."""
+    """Persist the active-disambiguation plan that schedules follow-up data collection or labeling."""
     return _put_model(
         store,
         payload,
@@ -839,7 +839,7 @@ def persist_discovery_audit_bundle(
     *,
     inputs: list[InputRef] | None = None,
 ) -> DiscoveryAuditBundleRef:
-    """Persist discovery audit bundle helper."""
+    """Persist the audit bundle that makes a discovery run replayable end to end."""
     return _put_model(
         store,
         payload,
@@ -864,7 +864,7 @@ def persist_discovery_artifact_bundle(
     *,
     inputs: list[InputRef] | None = None,
 ) -> DiscoveryArtifactBundleRef:
-    """Persist discovery artifact bundle helper."""
+    """Persist the top-level discovery bundle linking hypotheses, reports, and audit refs."""
     return _put_model(
         store,
         payload,
@@ -1015,7 +1015,7 @@ def merge_latent_discovery_hypotheses(
     ranking_order: list[str],
     shortlist: list[str],
 ) -> LatentDiscoveryBundle | None:
-    """Merge latent discovery hypotheses helper."""
+    """Merge latent discovery hypotheses while preserving stronger evidence and metadata."""
     order = _ordered_hypothesis_ids(
         hypotheses,
         ranking_order=ranking_order,

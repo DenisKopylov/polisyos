@@ -41,37 +41,37 @@ StopReason = Literal[
 
 
 class ExecutionPlanRef(ArtifactRef):
-    """Execution plan ref data model."""
+    """Artifact reference for the execution plan driving a Scientist iteration."""
     kind: Literal["scientist.execution_plan"] = "scientist.execution_plan"
     media_type: Literal["application/json"] = "application/json"
 
 
 class MethodCatalogSnapshotRef(ArtifactRef):
-    """Method catalog snapshot ref data model."""
+    """Artifact reference for the method-catalog snapshot available during planning."""
     kind: Literal["foundry.method_catalog_snapshot"] = "foundry.method_catalog_snapshot"
     media_type: Literal["application/json"] = "application/json"
 
 
 class PreflightReportRef(ArtifactRef):
-    """Preflight report ref data model."""
+    """Artifact reference for readiness diagnostics generated before execution starts."""
     kind: Literal["scientist.preflight_report"] = "scientist.preflight_report"
     media_type: Literal["application/json"] = "application/json"
 
 
 class EvaluatorReportRef(ArtifactRef):
-    """Evaluator report ref data model."""
+    """Artifact reference for the evaluator verdict emitted after an iteration runs."""
     kind: Literal["scientist.evaluator_report"] = "scientist.evaluator_report"
     media_type: Literal["application/json"] = "application/json"
 
 
 class IterationStateRef(ArtifactRef):
-    """Iteration state ref data model."""
+    """Artifact reference for persisted lifecycle state of one planning iteration."""
     kind: Literal["scientist.iteration_state"] = "scientist.iteration_state"
     media_type: Literal["application/json"] = "application/json"
 
 
 class ReproducibilityManifestRef(ArtifactRef):
-    """Reproducibility manifest ref data model."""
+    """Artifact reference for the hashes and seeds required to replay an iteration."""
     kind: Literal["scientist.reproducibility_manifest"] = "scientist.reproducibility_manifest"
     media_type: Literal["application/json"] = "application/json"
 
@@ -90,7 +90,7 @@ class PlanDataNeed(BaseModel):
 
 
 class MethodDagNode(BaseModel):
-    """Method dag node implementation."""
+    """One planned method invocation in the execution DAG, including dependencies and slots."""
     model_config = ConfigDict(extra="forbid")
 
     node_id: str = Field(..., min_length=1, max_length=128)
@@ -116,7 +116,7 @@ class MethodDagEdge(BaseModel):
 
 
 class BudgetSpec(BaseModel):
-    """Budget spec data model."""
+    """Budget ceilings that bound iterations, spend, wall time, and token consumption."""
     model_config = ConfigDict(extra="forbid")
 
     max_iterations: int = Field(default=3, ge=1, le=100)
@@ -148,7 +148,7 @@ class GovernanceConstraint(BaseModel):
 
 
 class ExpectedOutputSpec(BaseModel):
-    """Expected output spec data model."""
+    """Target metric and tolerance that the planned run is expected to satisfy."""
     model_config = ConfigDict(extra="forbid")
 
     output_id: str = Field(..., min_length=1, max_length=128)
@@ -187,7 +187,7 @@ class ExecutionPlan(BaseModel):
 
 
 class MethodCatalogEntry(BaseModel):
-    """Method catalog entry data model."""
+    """Semantically rich description of one runnable method candidate exposed to the planner."""
     model_config = ConfigDict(extra="forbid")
 
     fqn: str = Field(..., min_length=1)
@@ -235,7 +235,7 @@ class MethodCatalogEntry(BaseModel):
 
 
 class MethodCatalogSnapshot(BaseModel):
-    """Method catalog snapshot data model."""
+    """Point-in-time inventory of the methods and capabilities available to a run planner."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("2.0", pattern=r"^\d+\.\d+$")
@@ -267,7 +267,7 @@ class PreflightDiagnostic(BaseModel):
 
 
 class PreflightReport(BaseModel):
-    """Preflight report data model."""
+    """Readiness diagnostics indicating whether a plan can execute or must be replanned."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -291,7 +291,7 @@ class EvaluatorScores(BaseModel):
 
 
 class EvaluatorReport(BaseModel):
-    """Evaluator report data model."""
+    """Evaluator verdict plus scores, reasons, and replanning hints for an iteration."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -304,7 +304,7 @@ class EvaluatorReport(BaseModel):
 
 
 class IterationState(BaseModel):
-    """Iteration state data model."""
+    """Persisted lifecycle state for one execution-plan iteration within a run."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -322,7 +322,7 @@ class IterationState(BaseModel):
 
 
 class ReproducibilityManifest(BaseModel):
-    """Reproducibility manifest data model."""
+    """Hashes, refs, and seed material required to replay one iteration deterministically."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")

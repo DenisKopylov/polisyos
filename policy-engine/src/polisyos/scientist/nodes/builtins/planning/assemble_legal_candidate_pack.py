@@ -48,7 +48,12 @@ _SPEC = NodeSpec(
 
 @dataclass(frozen=True)
 class AssembleLegalCandidatePackNode:
-    """Assemble legal candidate pack node implementation."""
+    """Planning DAG node that turns a policy request into candidate legal queries and anchors.
+
+    Reads the request frame and optional cross-graph evidence profile, then writes
+    `legal_candidate_pack_ref` plus the persisted candidate-pack artifact consumed
+    by source expansion and verification.
+    """
     @property
     def spec(self) -> NodeSpec:
         return _SPEC

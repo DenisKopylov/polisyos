@@ -1,4 +1,4 @@
-"""Public agent sim rl module API."""
+"""Store rollout tensors and compute PPO training targets for agent-simulation learning."""
 from __future__ import annotations
 
 import chex
@@ -45,7 +45,7 @@ def compute_returns_and_advantages(
     gae_lambda: float = 0.95,
     active_mask: Bool[Array, "T n_agents"] | None = None,
 ) -> tuple[Float[Array, "T n_agents"], Float[Array, "T n_agents"]]:
-    """Compute returns and advantages helper."""
+    """Compute PPO returns and generalized-advantage estimates over one trajectory."""
     rewards = trajectory.rewards
     values = trajectory.values
     dones = trajectory.dones
@@ -90,7 +90,7 @@ def ppo_loss(
     entropy_coef: float = 0.01,
     active_mask: Bool[Array, "T n_agents"] | None = None,
 ) -> tuple[Float[Array, ""], dict[str, Array]]:
-    """Ppo loss helper."""
+    """Evaluate PPO policy, value, and entropy losses over a collected trajectory."""
     observations = trajectory.observations
     actions = trajectory.actions
     T, n_agents, obs_dim = observations.shape

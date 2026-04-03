@@ -1,4 +1,4 @@
-"""Public core discovery package API."""
+"""Exports plugin and entry-point discovery primitives used by runtime registries."""
 from .base import (
     BaseDiscovery,
     DiscoveryError,
@@ -22,4 +22,3 @@ __all__ = [
     "list_entry_points",
     "load_module_from_file",
 ]
-

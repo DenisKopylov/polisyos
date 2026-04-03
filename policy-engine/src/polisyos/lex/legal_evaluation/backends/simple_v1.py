@@ -1,4 +1,4 @@
-"""Public backends simple v 1 module API."""
+"""Baseline backend for turning one norm rule plus observation into a legal finding."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -138,7 +138,7 @@ def evaluate_rule_simple_v1(
     observation: RuleObservation,
     strict: bool,
 ) -> tuple[RuleFinding, list[dict[str, Any]]]:
-    """Evaluate rule simple v 1 helper."""
+    """Evaluate one norm rule against observed evidence and return the finding plus quality issues."""
     norm_citations = _sorted_norm_citations(rule)
     evidence_refs = _evidence_refs(observation)
 

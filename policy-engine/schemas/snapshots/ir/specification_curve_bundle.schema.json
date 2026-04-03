@@ -1,6 +1,7 @@
 {
   "$defs": {
     "ObservationFamily": {
+      "description": "Classify raw evidence into stable observation families for routing.\n\nFamilies partition raw evidence into domains such as budget flows, firm\nfundamentals, or household distribution so measurement rules, governance\ndefaults, and contract compilers can branch on a stable domain label.",
       "enum": [
         "budget_flows",
         "procurement_flows",
@@ -21,6 +22,7 @@
     },
     "SpecificationCurveSource": {
       "additionalProperties": false,
+      "description": "One source-combination entry inside a specification-curve bundle.",
       "properties": {
         "included_families": {
           "items": {
@@ -60,12 +62,25 @@
     }
   },
   "additionalProperties": false,
+  "description": "Persist source combinations and estimates for specification-curve analysis.\n\nScientist robustness tooling reads this bundle to rank specification choices,\nrecompute curve diagnostics, and preserve the observation-family mix behind\neach estimate.",
   "properties": {
     "artifact_name": {
       "const": "specification_curve_input_v1.json",
       "default": "specification_curve_input_v1.json",
       "title": "Artifact Name",
       "type": "string"
+    },
+    "contract_payload": {
+      "additionalProperties": true,
+      "title": "Contract Payload",
+      "type": "object"
+    },
+    "estimates": {
+      "items": {
+        "type": "number"
+      },
+      "title": "Estimates",
+      "type": "array"
     },
     "schema_version": {
       "default": "1.0",
@@ -79,6 +94,20 @@
       },
       "minItems": 1,
       "title": "Source Specifications",
+      "type": "array"
+    },
+    "specification_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Specification Ids",
+      "type": "array"
+    },
+    "standard_errors": {
+      "items": {
+        "type": "number"
+      },
+      "title": "Standard Errors",
       "type": "array"
     }
   },

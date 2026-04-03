@@ -110,7 +110,7 @@ class PolicyBrief(ArtifactMinimalityMixin):
 
 
 class ConstraintSatisfactionEntry(BaseModel):
-    """Constraint satisfaction entry data model."""
+    """One feasibility row showing how a single policy constraint was evaluated."""
     model_config = ConfigDict(extra="forbid")
 
     constraint_name: str = Field(min_length=1)
@@ -122,7 +122,7 @@ class ConstraintSatisfactionEntry(BaseModel):
 
 
 class SubgroupImpactEntry(BaseModel):
-    """Subgroup impact entry data model."""
+    """Distributional impact row for one subgroup touched by a candidate policy."""
     model_config = ConfigDict(extra="forbid")
 
     subgroup_id: str = Field(min_length=1)
@@ -133,7 +133,7 @@ class SubgroupImpactEntry(BaseModel):
 
 
 class PolicyFrontierEntry(BaseModel):
-    """Policy frontier entry data model."""
+    """One candidate on the shared policy frontier, including objectives and constraint status."""
     model_config = ConfigDict(extra="forbid")
 
     candidate_hash: str = Field(min_length=1)
@@ -147,7 +147,7 @@ class PolicyFrontierEntry(BaseModel):
 
 
 class PolicyFrontierReport(ArtifactMinimalityMixin):
-    """Policy frontier report data model."""
+    """Frontier snapshot used to compare candidate families and preserve cross-run search context."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -194,7 +194,7 @@ class ChampionPolicyDossier(ArtifactMinimalityMixin):
 
 
 class ConstraintSatisfactionReport(ArtifactMinimalityMixin):
-    """Constraint satisfaction report data model."""
+    """Candidate-level feasibility report showing which constraints still block rollout."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -212,7 +212,7 @@ class ConstraintSatisfactionReport(ArtifactMinimalityMixin):
 
 
 class SubgroupImpactReport(ArtifactMinimalityMixin):
-    """Subgroup impact report data model."""
+    """Candidate-level equity summary covering harmed groups, beneficiaries, and inequality shift."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -229,7 +229,7 @@ class SubgroupImpactReport(ArtifactMinimalityMixin):
 
 
 class UncertaintyReport(ArtifactMinimalityMixin):
-    """Uncertainty report data model."""
+    """Readiness-oriented summary of the uncertainty channels still binding a candidate."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -247,7 +247,7 @@ class UncertaintyReport(ArtifactMinimalityMixin):
 
 
 class TransportabilityReport(ArtifactMinimalityMixin):
-    """Transportability report data model."""
+    """Assessment of whether supporting evidence transfers to the target deployment context."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -287,7 +287,7 @@ class GovernanceGatePacket(ArtifactMinimalityMixin):
 
 
 class ImplementationPlan(ArtifactMinimalityMixin):
-    """Implementation plan data model."""
+    """Rollout plan that turns a candidate into ordered steps, monitors, and fallback actions."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -304,7 +304,7 @@ class ImplementationPlan(ArtifactMinimalityMixin):
 
 
 class RejectedAlternativeEntry(BaseModel):
-    """Rejected alternative entry data model."""
+    """Near-frontier policy alternative annotated with why it lost to the selected candidate."""
     model_config = ConfigDict(extra="forbid")
 
     candidate_hash: str = Field(min_length=1)
@@ -315,7 +315,7 @@ class RejectedAlternativeEntry(BaseModel):
 
 
 class RejectedAlternativesSummary(ArtifactMinimalityMixin):
-    """Rejected alternatives summary data model."""
+    """Search-memory summary of rejected alternatives and their dominant failure modes."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -330,7 +330,7 @@ class RejectedAlternativesSummary(ArtifactMinimalityMixin):
 
 
 class ReplayableAuditBundle(ArtifactMinimalityMixin):
-    """Replayable audit bundle data model."""
+    """Replay package that pins runtime inputs, outputs, and reports needed for later audit."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -356,7 +356,7 @@ class ReplayableAuditBundle(ArtifactMinimalityMixin):
 
 
 class PolicyArtifactBundle(ArtifactMinimalityMixin):
-    """Policy artifact bundle data model."""
+    """Top-level bundle stitching together frontier, governance, rollout, and replay artifacts."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -1058,7 +1058,7 @@ def persist_policy_frontier_report(
     *,
     inputs: list[InputRef] | None = None,
 ) -> PolicyFrontierReportRef:
-    """Persist policy frontier report helper."""
+    """Persist the policy frontier snapshot and return its typed artifact reference."""
     return _persist_model(
         store,
         payload,
@@ -1075,7 +1075,7 @@ def persist_champion_policy_dossier(
     *,
     inputs: list[InputRef] | None = None,
 ) -> ChampionPolicyDossierRef:
-    """Persist champion policy dossier helper."""
+    """Persist the champion dossier used for promotion and downstream briefing flows."""
     return _persist_model(
         store,
         payload,
@@ -1092,7 +1092,7 @@ def persist_policy_brief(
     *,
     inputs: list[InputRef] | None = None,
 ) -> PolicyBriefRef:
-    """Persist policy brief helper."""
+    """Persist the reader-facing policy brief assembled for external or analyst consumption."""
     return _persist_model(
         store,
         payload,
@@ -1109,7 +1109,7 @@ def persist_constraint_satisfaction_report(
     *,
     inputs: list[InputRef] | None = None,
 ) -> ConstraintSatisfactionReportRef:
-    """Persist constraint satisfaction report helper."""
+    """Persist the candidate feasibility report and return its typed artifact reference."""
     return _persist_model(
         store,
         payload,
@@ -1126,7 +1126,7 @@ def persist_subgroup_impact_report(
     *,
     inputs: list[InputRef] | None = None,
 ) -> SubgroupImpactReportRef:
-    """Persist subgroup impact report helper."""
+    """Persist the subgroup-impact review used by equity and governance gates."""
     return _persist_model(
         store,
         payload,
@@ -1143,7 +1143,7 @@ def persist_uncertainty_report(
     *,
     inputs: list[InputRef] | None = None,
 ) -> UncertaintyReportRef:
-    """Persist uncertainty report helper."""
+    """Persist the uncertainty summary that feeds readiness and promotion decisions."""
     return _persist_model(
         store,
         payload,
@@ -1160,7 +1160,7 @@ def persist_transportability_report(
     *,
     inputs: list[InputRef] | None = None,
 ) -> TransportabilityReportRef:
-    """Persist transportability report helper."""
+    """Persist the transportability assessment for the candidate's supporting evidence."""
     return _persist_model(
         store,
         payload,
@@ -1177,7 +1177,7 @@ def persist_governance_gate_packet(
     *,
     inputs: list[InputRef] | None = None,
 ) -> GovernanceGatePacketRef:
-    """Persist governance gate packet helper."""
+    """Persist the governance packet that captures readiness, warnings, and escalation needs."""
     return _persist_model(
         store,
         payload,
@@ -1194,7 +1194,7 @@ def persist_implementation_plan(
     *,
     inputs: list[InputRef] | None = None,
 ) -> ImplementationPlanRef:
-    """Persist implementation plan helper."""
+    """Persist the rollout and monitoring plan for the selected policy candidate."""
     return _persist_model(
         store,
         payload,
@@ -1211,7 +1211,7 @@ def persist_rejected_alternatives_summary(
     *,
     inputs: list[InputRef] | None = None,
 ) -> RejectedAlternativesSummaryRef:
-    """Persist rejected alternatives summary helper."""
+    """Persist the rejected-alternatives summary used for learning across future search loops."""
     return _persist_model(
         store,
         payload,
@@ -1228,7 +1228,7 @@ def persist_replayable_audit_bundle(
     *,
     inputs: list[InputRef] | None = None,
 ) -> ReplayableAuditBundleRef:
-    """Persist replayable audit bundle helper."""
+    """Persist the replayable audit bundle that rehydrates a policy decision end to end."""
     return _persist_model(
         store,
         payload,
@@ -1245,7 +1245,7 @@ def persist_policy_artifact_bundle(
     *,
     inputs: list[InputRef] | None = None,
 ) -> PolicyArtifactBundleRef:
-    """Persist policy artifact bundle helper."""
+    """Persist the final policy artifact bundle that ties all promotion outputs together."""
     return _persist_model(
         store,
         payload,

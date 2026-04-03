@@ -1,4 +1,4 @@
-"""Public scholar policies module API."""
+"""Define Scholar enrichment budgets, extraction defaults, and freshness policy knobs."""
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -16,7 +16,7 @@ from polisyos.ir.world.trust import TrustTier
 
 @dataclass(frozen=True)
 class ScholarBudgetsDefaults:
-    """Scholar budgets defaults public type."""
+    """Bound document and claim volume for one enrichment run."""
     max_docs: int = 16
     max_bytes_total: int = 20_000_000
     max_claims_total: int = 2_000
@@ -25,13 +25,13 @@ class ScholarBudgetsDefaults:
 
 @dataclass(frozen=True)
 class ScholarThresholdsDefaults:
-    """Scholar thresholds defaults public type."""
+    """Define trust thresholds used to filter evidence sources."""
     min_doc_trust_tier: TrustTier = TrustTier.MEDIUM
 
 
 @dataclass(frozen=True)
 class ScholarDocsDefaults:
-    """Scholar docs defaults public type."""
+    """Provide default normalization/structure/chunking options for document ingestion."""
     normalize_options: DocNormalizeOptions = field(default_factory=DocNormalizeOptions)
     structure_options: DocStructureOptions = field(default_factory=DocStructureOptions)
     chunk_options: DocChunkOptions = field(
@@ -41,7 +41,7 @@ class ScholarDocsDefaults:
 
 @dataclass(frozen=True)
 class ScholarClaimsDefaults:
-    """Scholar claims defaults public type."""
+    """Provide default claim extraction, normalization, and conflict resolution options."""
     extractor_id: str = "explicit_lines_v1"
     extract_options: ClaimExtractOptions = field(default_factory=ClaimExtractOptions)
     normalize_options: ClaimNormalizeOptions = field(default_factory=ClaimNormalizeOptions)
@@ -50,20 +50,20 @@ class ScholarClaimsDefaults:
 
 @dataclass(frozen=True)
 class ScholarConflictPolicyDefaults:
-    """Scholar conflict policy defaults public type."""
+    """Select the default conflict-resolution policy identifier recorded in bundle metadata."""
     policy_id: str = "policy.conflicts.default_v1"
 
 
 @dataclass(frozen=True)
 class ScholarAcquireDefaults:
-    """Scholar acquire defaults public type."""
+    """Configure HTTP/file acquisition timeouts and user-agent identity."""
     timeout_s: float = 10.0
     user_agent: str = "polisyos-scholar/1.0"
 
 
 @dataclass(frozen=True)
 class ScholarFreshnessThreshold:
-    """Scholar freshness threshold public type."""
+    """Define stale/expired/cooldown cutoffs for one domain or fallback policy."""
     staleness_days: int = 30
     expiry_days: int = 90
     cooldown_seconds: int = 3600
@@ -110,13 +110,14 @@ _DEFAULT_DOMAIN_THRESHOLDS: Mapping[str, ScholarFreshnessThreshold] = MappingPro
 
 @dataclass(frozen=True)
 class ScholarFreshnessDefaults:
-    """Scholar freshness defaults public type."""
+    """Resolve domain-specific freshness thresholds with a global fallback."""
     default: ScholarFreshnessThreshold = field(default_factory=ScholarFreshnessThreshold)
     domains: Mapping[str, ScholarFreshnessThreshold] = field(
         default_factory=lambda: _DEFAULT_DOMAIN_THRESHOLDS
     )
 
     def resolve(self, domain: str | None) -> ScholarFreshnessThreshold:
+        """Return domain-specific freshness thresholds or the global fallback."""
         key = (domain or "").strip().lower()
         if key and key in self.domains:
             return self.domains[key]
@@ -125,7 +126,7 @@ class ScholarFreshnessDefaults:
 
 @dataclass(frozen=True)
 class ScholarPolicy:
-    """Scholar policy data model."""
+    """Group all Scholar enrichment defaults into one orchestrator policy object."""
     budgets: ScholarBudgetsDefaults = field(default_factory=ScholarBudgetsDefaults)
     thresholds: ScholarThresholdsDefaults = field(default_factory=ScholarThresholdsDefaults)
     docs: ScholarDocsDefaults = field(default_factory=ScholarDocsDefaults)

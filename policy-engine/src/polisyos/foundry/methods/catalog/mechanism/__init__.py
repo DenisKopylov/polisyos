@@ -1,4 +1,4 @@
-"""Public catalog mechanism package API."""
+"""Expose executable mechanism methods and register them into the Foundry catalog."""
 from __future__ import annotations
 
 from polisyos.foundry.methods.exceptions import MethodAlreadyRegisteredError
@@ -15,7 +15,7 @@ from .runtime import (
 
 
 def ensure_mechanism_methods_registered(registry: MethodRegistry | None = None) -> None:
-    """Ensure mechanism methods registered helper."""
+    """Populate `registry` with mechanism methods used by compile and execute pipelines."""
     reg = registry if registry is not None else MethodRegistry.get_instance()
     for method_class in register_mechanism_methods():
         try:

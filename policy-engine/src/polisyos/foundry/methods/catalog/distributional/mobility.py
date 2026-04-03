@@ -53,7 +53,7 @@ def _values_payload(state: Any, *, key: str = "values") -> np.ndarray:
     tags={"distributional", "mobility", "transition", "cross-section"},
 )
 class MobilityMatrixEstimator:
-    """Mobility matrix estimator implementation."""
+    """Estimate transition matrices that summarize movement across income ranks."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -154,7 +154,7 @@ class MobilityMatrixEstimator:
     tags={"distributional", "mobility", "intergenerational", "ige", "cross-section"},
 )
 class IntergenerationalElasticityEstimator:
-    """Intergenerational elasticity estimator implementation."""
+    """Estimate parent-child income elasticity for intergenerational mobility audits."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 

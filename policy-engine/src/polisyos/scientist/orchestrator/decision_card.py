@@ -56,7 +56,7 @@ class DiagnosticBadge:
 
 @dataclass(frozen=True)
 class IssuesSummary:
-    """Issues summary data model."""
+    """Counts and blocked-pass ids that explain why governance approved, warned, or blocked a run."""
     blocker_count: int = 0
     warning_count: int = 0
     info_count: int = 0
@@ -75,7 +75,7 @@ class CohortSummaryRow:
 
 @dataclass(frozen=True)
 class DistributionalSummary:
-    """Distributional summary data model."""
+    """Compact distributional-impact snapshot rendered on the final decision card."""
     breakdowns: list[tuple[str, list[CohortSummaryRow]]]
     gini_before: float | None = None
     gini_after: float | None = None

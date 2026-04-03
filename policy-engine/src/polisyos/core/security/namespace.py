@@ -30,7 +30,7 @@ def _validate_segment(value: str, name: str) -> None:
 
 
 def namespaced_artifact_id(tenant_id: str, cell_id: str | None, base_id: str) -> str:
-    """Prefix an artifact ID with tenant namespace."""
+    """Prefix an artifact id with validated tenant/cell namespace segments."""
     _validate_segment(tenant_id, "tenant_id")
     if cell_id is not None:
         _validate_segment(cell_id, "cell_id")
@@ -39,7 +39,7 @@ def namespaced_artifact_id(tenant_id: str, cell_id: str | None, base_id: str) ->
 
 
 def namespaced_run_id(tenant_id: str, cell_id: str | None, base_run_id: str) -> str:
-    """Prefix a run ID with tenant namespace."""
+    """Prefix a run id with validated tenant/cell namespace segments."""
     _validate_segment(tenant_id, "tenant_id")
     if cell_id is not None:
         _validate_segment(cell_id, "cell_id")
@@ -48,7 +48,7 @@ def namespaced_run_id(tenant_id: str, cell_id: str | None, base_run_id: str) -> 
 
 
 def namespaced_lock_key(tenant_id: str, cell_id: str | None, key: str) -> str:
-    """Prefix a lock key with tenant namespace."""
+    """Prefix a lock key with validated tenant/cell namespace segments."""
     _validate_segment(tenant_id, "tenant_id")
     if cell_id is not None:
         _validate_segment(cell_id, "cell_id")
@@ -87,26 +87,33 @@ class NamespacedArtifactStore:
         return namespaced_artifact_id(self._tenant_id, self._cell_id, artifact_id)
 
     def has(self, artifact_id: str) -> bool:
+        """Return whether a tenant-local artifact exists in the wrapped store."""
         return self._inner.has(self._ns(artifact_id))
 
     def get_bytes(self, artifact_id: str) -> bytes:
+        """Read namespaced artifact bytes from the wrapped store."""
         return self._inner.get_bytes(self._ns(artifact_id))
 
     def get_manifest(self, artifact_id: str) -> Any:
+        """Read a namespaced artifact manifest from the wrapped store."""
         return self._inner.get_manifest(self._ns(artifact_id))
 
     def put_bytes(self, data: bytes, opts: Any | None = None) -> Any:
+        """Persist artifact bytes using the wrapped store's native write contract."""
         ref = self._inner.put_bytes(data, opts)
         return ref
 
     def put_json(self, obj: Any, opts: Any | None = None, canon_spec: Any | None = None) -> Any:
+        """Persist a JSON artifact using the wrapped store's native write contract."""
         ref = self._inner.put_json(obj, opts, canon_spec)
         return ref
 
     def verify(self, artifact_id: str) -> Any:
+        """Run integrity verification for a tenant-local artifact id."""
         return self._inner.verify(self._ns(artifact_id))
 
     def iter_artifact_ids(self) -> list[str]:
+        """Yield tenant-local ids with the namespace prefix stripped."""
         prefix = namespaced_artifact_id(self._tenant_id, self._cell_id, "")
         return [
             aid[len(prefix):]

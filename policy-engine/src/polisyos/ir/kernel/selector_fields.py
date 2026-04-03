@@ -1,4 +1,4 @@
-"""Public kernel selector fields module API."""
+"""Selector-field definitions that bind targeting selectors to slot scopes and state paths."""
 from __future__ import annotations
 
 from pydantic import Field, model_validator
@@ -8,7 +8,7 @@ from .slots import SlotScope
 
 
 class SelectorFieldSpec(KernelModel):
-    """Selector field spec data model."""
+    """Describe one target selector field that interventions may use to address entities."""
     field_id: str = Field(..., pattern=ID_PATTERN)
     scope: SlotScope
     state_path: str | None = Field(None, max_length=200)
@@ -16,7 +16,7 @@ class SelectorFieldSpec(KernelModel):
 
 
 class SelectorFieldRegistry(KernelModel):
-    """Selector field registry implementation."""
+    """Registry of selector fields that ``link_trinity`` uses to validate targeting payloads."""
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
     fields: dict[str, SelectorFieldSpec] = Field(default_factory=dict)
     notes: list[str] = Field(default_factory=list)

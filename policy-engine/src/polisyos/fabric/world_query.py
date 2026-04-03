@@ -1,4 +1,10 @@
-"""Public fabric world query module API."""
+"""Read-only query helpers for Fabric world materializations.
+
+These helpers query canonical world tables populated by ``fabric.world.materialize`` and apply
+request-time contract normalization plus column allow-listing/masking. They are intentionally
+read-only: provenance, conflict resolution, and claim normalization happen earlier during
+document/claim ingestion, then this module exposes the materialized result tables.
+"""
 from __future__ import annotations
 
 import re
@@ -47,7 +53,16 @@ class WorldQueryError(ValueError):
 
 @dataclass(frozen=True)
 class WorldQueryRequest:
-    """World query request data model."""
+    """Validated request contract for one materialized-world table scan.
+
+    Attributes:
+        table: Logical table alias such as ``claims`` or ``world_events``.
+        columns: Requested output columns. ``("*",)`` means all columns before masking.
+        where: Equality filters compiled into parameterized SQL.
+        order_by: Sort expressions using ``column`` or ``column ASC|DESC``.
+        limit: Maximum number of rows to return. Must be between ``1`` and ``100000``.
+        allowed_columns: Optional allow-list; unauthorized columns are rejected or masked out.
+    """
     table: str
     columns: tuple[str, ...] = ("*",)
     where: Mapping[str, Any] | None = None
@@ -60,7 +75,24 @@ def execute_world_query(
     db: SimulationDB | DatabaseBackend,
     request: WorldQueryRequest,
 ) -> pd.DataFrame:
-    """Execute world query."""
+    """Execute one normalized world query against a materialized Fabric backend.
+
+    Args:
+        db: ``SimulationDB`` or ``DatabaseBackend`` with a compatible fetch API.
+        request: Logical query contract to validate and compile.
+
+    Returns:
+        DataFrame with authorized columns only; disallowed columns are masked by the security
+        layer when an allow-list is provided.
+
+    Raises:
+        WorldQueryError: If table names, columns, filters, sort expressions, or limits are invalid.
+        TypeError: If ``db`` does not provide a supported execution backend.
+
+    Example:
+        >>> request = WorldQueryRequest(table="claims", where={"predicate_id": "kpi.gdp"})
+        >>> frame = execute_world_query(db, request)
+    """
     table_sql = _resolve_table(request.table)
     allowed_columns = normalize_allowed_columns(request.allowed_columns)
     try:
@@ -96,7 +128,7 @@ def query_world_table(
     limit: int = 1_000,
     allowed_columns: Sequence[str] | None = None,
 ) -> pd.DataFrame:
-    """Query world table helper."""
+    """Build and execute a ``WorldQueryRequest`` for a logical world-table alias."""
     request = WorldQueryRequest(
         table=table,
         columns=tuple(columns) if columns else ("*",),
@@ -116,7 +148,7 @@ def query_claims(
     limit: int = 1_000,
     allowed_columns: Sequence[str] | None = None,
 ) -> pd.DataFrame:
-    """Query claims helper."""
+    """Query normalized claim rows ordered by ``claim_id``."""
     return query_world_table(
         db,
         table="claims",
@@ -136,7 +168,7 @@ def query_events(
     limit: int = 1_000,
     allowed_columns: Sequence[str] | None = None,
 ) -> pd.DataFrame:
-    """Query events helper."""
+    """Query persisted world events ordered by newest ``updated_at`` first."""
     return query_world_table(
         db,
         table="world_events",

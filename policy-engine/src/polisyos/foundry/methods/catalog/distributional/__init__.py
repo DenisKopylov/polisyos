@@ -1,4 +1,4 @@
-"""Public catalog distributional package API."""
+"""Expose distributional methods and register them into the Foundry catalog."""
 from __future__ import annotations
 
 from polisyos.foundry.methods.exceptions import MethodAlreadyRegisteredError
@@ -28,7 +28,7 @@ from .poverty_advanced import MultidimensionalPovertyEstimator
 
 
 def ensure_distributional_methods_registered(registry: MethodRegistry | None = None) -> None:
-    """Ensure distributional methods registered helper."""
+    """Populate `registry` with inequality, poverty, and mobility methods."""
     reg = registry if registry is not None else MethodRegistry.get_instance()
     for method_class in register_distributional_methods():
         try:

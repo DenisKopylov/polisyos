@@ -1,0 +1,23 @@
+# Repository-root CODEOWNERS for the canonical product root under `policy-engine/`.
+# GitHub evaluates CODEOWNERS from the repository root, so product paths are
+# prefixed with `/policy-engine/` even though `policy-engine/` is the canonical
+# product root.
+#
+# Current enforceable reviewer on this personal repository: @DenisKopylov
+# Logical owner groups are documented in `policy-engine/docs/reference/ownership.md`.
+
+/.github/CODEOWNERS                  @DenisKopylov
+/.github/**                          @DenisKopylov
+/SECURITY.md                         @DenisKopylov
+/SUPPORT.md                          @DenisKopylov
+/CODE_OF_CONDUCT.md                  @DenisKopylov
+/policy-engine/src/polisyos/core/**       @DenisKopylov
+/policy-engine/src/polisyos/ir/**         @DenisKopylov
+/policy-engine/src/polisyos/fabric/**     @DenisKopylov
+/policy-engine/src/polisyos/foundry/**    @DenisKopylov
+/policy-engine/src/polisyos/scientist/**  @DenisKopylov
+/policy-engine/src/polisyos/lex/**        @DenisKopylov
+/policy-engine/src/polisyos/runtime/**    @DenisKopylov
+/policy-engine/frontend/**                @DenisKopylov
+/policy-engine/docs/**                    @DenisKopylov
+/policy-engine/ops/**                     @DenisKopylov

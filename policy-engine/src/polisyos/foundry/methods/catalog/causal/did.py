@@ -1,4 +1,4 @@
-"""Public causal did module API."""
+"""Estimate average treatment effects with panel Difference-in-Differences designs."""
 from __future__ import annotations
 
 import math
@@ -389,7 +389,7 @@ def _run_staggered_did(data: PanelObservationalData, params: Mapping[str, Any]) 
     },
 )
 class DifferenceInDifferences:
-    """Difference in differences public type."""
+    """Estimate ATT under parallel trends and stable composition; avoid staggered-timing bias unless using modern DiD variants."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 

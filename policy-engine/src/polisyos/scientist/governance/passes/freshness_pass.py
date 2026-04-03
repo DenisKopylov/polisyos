@@ -1,4 +1,4 @@
-"""Governance pass: validate data and knowledge freshness."""
+"""Validate data and knowledge timestamps against freshness warning/block thresholds."""
 
 from __future__ import annotations
 
@@ -10,11 +10,13 @@ from polisyos.core.governance.passes.base import PassContext, ValidatorPass
 
 
 class FreshnessPass(ValidatorPass):
-    """Validate that input data and knowledge sources are not stale.
+    """Warn on stale timestamps and block critically old evidence.
 
     Checks last_updated timestamps against configurable staleness
     thresholds. Emits warnings for stale data and blockers for
-    critically outdated sources.
+    critically outdated sources. Reads `data_sources` and `knowledge_metadata`
+    from state, emits `FRESHNESS_NO_TIMESTAMP` info findings when timestamps are
+    absent, and applies constructor thresholds rather than profile thresholds.
     """
 
     def __init__(

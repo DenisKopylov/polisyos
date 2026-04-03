@@ -1,6 +1,7 @@
 {
   "$defs": {
     "AlignmentCertificateType": {
+      "description": "Alignment certificate type public type.",
       "enum": [
         "exact",
         "scale_link",

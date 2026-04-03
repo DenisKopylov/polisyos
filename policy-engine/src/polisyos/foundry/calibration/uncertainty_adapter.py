@@ -1,4 +1,4 @@
-"""Public calibration uncertainty adapter module API."""
+"""Translate calibration Hessian diagnostics into governance-ready envelopes."""
 from __future__ import annotations
 
 import math
@@ -27,7 +27,21 @@ def envelope_from_calibration_param(
     *,
     confidence_level: float = 0.95,
 ) -> UncertaintyEnvelope | None:
-    """Envelope from calibration param helper."""
+    """Build a normal-approximation uncertainty envelope for one calibrated parameter.
+
+    Args:
+        report: Calibration report containing point estimates and optional
+            `CalibrationUncertainty` diagnostics.
+        param_name: Parameter key in `report.calibrated_params`.
+        confidence_level: Two-sided confidence level in `(0, 1)`.
+
+    Returns:
+        `UncertaintyEnvelope` for the requested parameter, or `None` when the
+        report does not contain enough finite uncertainty information.
+
+    Raises:
+        ValueError: If `confidence_level` is outside `(0, 1)`.
+    """
     if report.uncertainties is None:
         return None
 
@@ -91,7 +105,7 @@ def envelopes_from_calibration(
     *,
     confidence_level: float = 0.95,
 ) -> Mapping[str, UncertaintyEnvelope]:
-    """Envelopes from calibration helper."""
+    """Build uncertainty envelopes for every calibrated parameter with usable Hessian stats."""
     result: dict[str, UncertaintyEnvelope] = {}
     for param_name in report.calibrated_params:
         env = envelope_from_calibration_param(

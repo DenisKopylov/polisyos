@@ -1,4 +1,12 @@
-"""Public planning run hierarchical policy search module API."""
+"""Planning node that generates candidate policies, evaluates them, and installs a champion.
+
+The node sits between policy formalization and Foundry compilation in the
+`scientist_policy_design` DAG. It resolves an initial candidate from
+`params.policy_candidate_schema`, `params.lex_policy_bundle_input`, or the
+current Trinity input, runs hierarchical structure/parameter search, evaluates
+candidate payloads through the compile/readiness/simulation subpipeline, and
+persists a frontier report plus the selected champion Trinity bundle.
+"""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -134,11 +142,23 @@ class _CandidateEvaluationRecord:
 
 @dataclass(frozen=True)
 class RunHierarchicalPolicySearchNode:
-    """Builtin node that runs hierarchical policy search and installs the champion.
+    """Generate and evaluate policy candidates, then install the champion candidate.
 
-    Reads a typed policy candidate or Lex bundle, evaluates candidate payloads
-    through the compile/readiness/simulation subpipeline, and writes the
-    selected candidate plus frontier report back into experiment state.
+    Upstream assumptions: policy drafting/formalization has produced either a
+    typed `params.policy_candidate_schema`, a `params.lex_policy_bundle_input`,
+    or an `inputs.trinity_bundle_ref`; compilation inputs and graph/evidence
+    artifacts required by the inner candidate-evaluation pipeline must already be
+    present in `inputs`, `artifacts_index`, and `reports_index`.
+
+    Reads from state:
+        `run_id`, policy-search params, `inputs.trinity_bundle_ref`, and the
+        current `inputs`/`artifacts_index`/`reports_index` snapshots.
+
+    Writes to state:
+        `params.policy_candidate_schema`,
+        `params.policy_search_result`,
+        `inputs.trinity_bundle_ref`,
+        `artifacts_index.policy_frontier_report_ref`.
     """
 
     @property
@@ -146,6 +166,13 @@ class RunHierarchicalPolicySearchNode:
         return _SPEC
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
+        """Run hierarchical search and persist the selected champion/frontier artifacts.
+
+        Returns:
+            `skip` when no candidate source exists, `fail` when the adapter or
+            inner candidate evaluation raises, otherwise `ok` with the champion
+            Trinity ref and optional frontier report ref.
+        """
         candidate = _resolve_search_candidate(ctx, state)
         if candidate is None:
             return NodeOutcome(

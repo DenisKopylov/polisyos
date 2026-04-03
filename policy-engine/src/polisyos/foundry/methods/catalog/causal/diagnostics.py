@@ -1,4 +1,4 @@
-"""Public causal diagnostics module API."""
+"""Run validity diagnostics such as placebo and parallel-trends checks."""
 from __future__ import annotations
 
 from typing import Any, ClassVar, Mapping
@@ -39,7 +39,7 @@ def _panel_payload(state: Any) -> dict[str, Any]:
     tags={"causal", "diagnostics", "parallel-trends"},
 )
 class ParallelTrendsCheck:
-    """Parallel trends check public type."""
+    """Store pre-trend diagnostics for DiD designs under a no-differential-trends assumption."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("statsmodels", "numpy")
 

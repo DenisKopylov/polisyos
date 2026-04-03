@@ -1,4 +1,4 @@
-"""Public doe designs module API."""
+"""Design-of-experiments models for sensitivity studies, adversarial sweeps, and stress inputs."""
 from __future__ import annotations
 
 from enum import Enum
@@ -14,7 +14,7 @@ class ScenarioSweep(BaseModel):
 
 
 class AblationPlan(BaseModel):
-    """Ablation plan data model."""
+    """List of mechanisms or components to remove when running ablation comparisons."""
     model_config = ConfigDict(extra="forbid")
 
     targets: list[str] = Field(default_factory=list)
@@ -36,14 +36,14 @@ class ParameterDist(str, Enum):
 
 
 class RunFailurePolicy(str, Enum):
-    """Run failure policy data model."""
+    """Policy for handling failed simulator runs inside a DOE batch."""
     FAIL_FAST = "fail_fast"
     DROP_FAILED = "drop_failed"
     IMPUTE_BASELINE = "impute_baseline"
 
 
 class ParameterSpec(BaseModel):
-    """Parameter spec data model."""
+    """Search-space definition for one tunable parameter in sensitivity or adversarial analysis."""
     model_config = ConfigDict(extra="forbid")
 
     name: str
@@ -70,7 +70,7 @@ class ParameterSpec(BaseModel):
 
 
 class SensitivityPlan(BaseModel):
-    """Sensitivity plan data model."""
+    """Execution plan for Morris, Sobol, or FAST sensitivity analysis with runtime guardrails."""
     model_config = ConfigDict(extra="forbid")
 
     # Legacy field preserved for backward compatibility.
@@ -133,7 +133,7 @@ class SensitivityPlan(BaseModel):
 
 
 class SensitivityResult(BaseModel):
-    """Sensitivity result data model."""
+    """Sensitivity-analysis output containing ranked effects, confidence bands, and run accounting."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = "1.0"
@@ -159,14 +159,14 @@ class SensitivityResult(BaseModel):
 
 
 class AdversarialStrategy(str, Enum):
-    """Adversarial strategy data model."""
+    """Sampling strategy used to generate adversarial stress scenarios."""
     SEARCH_LOOP = "search_loop"
     GRID_EXTREME = "grid_extreme"
     RANDOM_TAIL = "random_tail"
 
 
 class AdversarialPlan(BaseModel):
-    """Adversarial plan data model."""
+    """Runtime plan for adversarial sweeps over vulnerable parameter regions."""
     model_config = ConfigDict(extra="forbid")
 
     parameter_specs: list[ParameterSpec] = Field(default_factory=list)

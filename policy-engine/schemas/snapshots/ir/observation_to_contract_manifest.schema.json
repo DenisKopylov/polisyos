@@ -1,7 +1,47 @@
 {
   "$defs": {
+    "BundleLineageRef": {
+      "additionalProperties": false,
+      "description": "Lineage edge from a bundle back to an upstream observation artifact.",
+      "properties": {
+        "notes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Notes",
+          "type": "array"
+        },
+        "source_artifact": {
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Source Artifact",
+          "type": "string"
+        },
+        "source_confidence_tier": {
+          "$ref": "#/$defs/SourceConfidenceTier",
+          "default": "validated"
+        },
+        "source_family": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ObservationFamily"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "source_artifact"
+      ],
+      "title": "BundleLineageRef",
+      "type": "object"
+    },
     "ContractCompatibilityTarget": {
       "additionalProperties": false,
+      "description": "Identifier of a downstream contract that an observation bundle targets.",
       "properties": {
         "contract_fqn": {
           "maxLength": 255,
@@ -24,6 +64,7 @@
       "type": "object"
     },
     "IdentificationMode": {
+      "description": "Declare the causal identification contract assumed by records and bundles.\n\nThese modes distinguish point-identified data from partially identified,\nproxy-based, interference-aware, or sequential settings so downstream\ncomponents can enforce the right guardrails. The value is read by\n:class:`polisyos.ir.observation.measurement.IdentificationModeRouter`,\nobservation contract compilers, and causal-readiness checks to select\nfallback paths or block unsafe execution.",
       "enum": [
         "point_identified",
         "partially_identified",
@@ -35,8 +76,81 @@
       "title": "IdentificationMode",
       "type": "string"
     },
+    "ObservationContractArtifact": {
+      "additionalProperties": false,
+      "description": "Manifest entry describing one compiled observation artifact.",
+      "properties": {
+        "artifact_name": {
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Artifact Name",
+          "type": "string"
+        },
+        "blocking_reason": {
+          "anyOf": [
+            {
+              "maxLength": 255,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Blocking Reason"
+        },
+        "compiler_id": {
+          "maxLength": 120,
+          "minLength": 1,
+          "title": "Compiler Id",
+          "type": "string"
+        },
+        "lineage": {
+          "items": {
+            "$ref": "#/$defs/BundleLineageRef"
+          },
+          "title": "Lineage",
+          "type": "array"
+        },
+        "notes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Notes",
+          "type": "array"
+        },
+        "status": {
+          "default": "compiled",
+          "enum": [
+            "compiled",
+            "blocked",
+            "skipped"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "target_contract": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ContractCompatibilityTarget"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "compiler_id",
+        "artifact_name"
+      ],
+      "title": "ObservationContractArtifact",
+      "type": "object"
+    },
     "ObservationContractRoute": {
       "additionalProperties": false,
+      "description": "Route from an observation family and identification mode to a contract target.",
       "properties": {
         "family": {
           "$ref": "#/$defs/ObservationFamily"
@@ -64,6 +178,7 @@
       "type": "object"
     },
     "ObservationFamily": {
+      "description": "Classify raw evidence into stable observation families for routing.\n\nFamilies partition raw evidence into domains such as budget flows, firm\nfundamentals, or household distribution so measurement rules, governance\ndefaults, and contract compilers can branch on a stable domain label.",
       "enum": [
         "budget_flows",
         "procurement_flows",
@@ -81,15 +196,33 @@
       ],
       "title": "ObservationFamily",
       "type": "string"
+    },
+    "SourceConfidenceTier": {
+      "description": "Declare the raw provenance tier consumed by measurement trust normalization.\n\n:class:`polisyos.ir.observation.measurement.MeasurementRegistry` maps this\nsource-side tier and coverage metadata into a ``MeasurementTrustTier`` used\nby calibration losses and readiness routing.",
+      "enum": [
+        "core",
+        "validated",
+        "exploratory"
+      ],
+      "title": "SourceConfidenceTier",
+      "type": "string"
     }
   },
   "additionalProperties": false,
+  "description": "Index of compiled observation artifacts and their contract routes.\n\nThis manifest is the high-level handshake between observation evidence and\ndownstream contracts: it records what was compiled, where it routes, and\nwhich lineage edges were preserved.",
   "properties": {
     "artifact_name": {
       "const": "observation_to_contract_manifest.json",
       "default": "observation_to_contract_manifest.json",
       "title": "Artifact Name",
       "type": "string"
+    },
+    "artifacts": {
+      "items": {
+        "$ref": "#/$defs/ObservationContractArtifact"
+      },
+      "title": "Artifacts",
+      "type": "array"
     },
     "routes": {
       "items": {

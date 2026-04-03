@@ -40,7 +40,10 @@ All governance validators implement `validate(ctx: PassContext) -> list[Complian
 
 ## Registry API
 
+::: polisyos.scientist.governance
+
 ::: polisyos.scientist.governance.pass_registry
 
-::: polisyos.scientist.governance.passes.strategic_response_pass
+::: polisyos.scientist.governance.passes
 
+::: polisyos.scientist.governance.passes.strategic_response_pass

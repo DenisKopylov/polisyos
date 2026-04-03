@@ -1,4 +1,11 @@
-"""Public backends protocol module API."""
+"""Define the runner protocol and result envelope for concrete method backends.
+
+`MethodRunner` is the execution-side counterpart to the declarative
+`MethodSignature` ABI. Runners accept a protocol-compliant method class plus
+materialized state/params, invoke the implementation on a concrete backend,
+and return `MethodResult` with timing, solver status, and reproducibility
+metadata.
+"""
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -10,7 +17,7 @@ from polisyos.foundry.methods.base import ComputeBackend, MethodSignature
 
 
 class SolverStatus(str, Enum):
-    """Solver status public type."""
+    """Normalize solver termination statuses reported by optimization backends."""
     OPTIMAL = "optimal"
     FEASIBLE = "feasible"
     INFEASIBLE = "infeasible"
@@ -22,7 +29,8 @@ class SolverStatus(str, Enum):
 
 @dataclass(frozen=True, slots=True)
 class MethodTiming:
-    """Method timing public type."""
+    """Record wall/CPU/compile timings for one method execution."""
+
     wall_time_ms: float
     cpu_time_ms: float | None = None
     compile_time_ms: float | None = None
@@ -30,7 +38,8 @@ class MethodTiming:
 
 @dataclass(frozen=True, slots=True)
 class ReproducibilityInfo:
-    """Reproducibility info data model."""
+    """Capture backend, determinism, seed, and solver metadata for replay audits."""
+
     backend: ComputeBackend
     determinism_tier: DeterminismTier
     seed: int | None = None
@@ -44,7 +53,14 @@ class ReproducibilityInfo:
 
 @dataclass(frozen=True, slots=True)
 class MethodResult:
-    """Method result data model."""
+    """Wrap backend output together with declared slot outputs and diagnostics.
+
+    `output` is the backend-native return value from `pure_step`, while
+    `slot_outputs` is the optional dematerialized view aligned to
+    `MethodSignature.output_slots`. `artifacts` carries backend-specific
+    sidecar payloads that can later be persisted as provenance evidence.
+    """
+
     output: Any
     timing: MethodTiming
     reproducibility: ReproducibilityInfo
@@ -54,7 +70,13 @@ class MethodResult:
 
 
 class MethodRunner(Protocol):
-    """Method runner public type."""
+    """Execute one method class on a concrete backend runtime.
+
+    Implementations should be deterministic according to the advertised
+    `ReproducibilityInfo.determinism_tier` for identical state, params, seed,
+    and runtime stack.
+    """
+
     @property
     def supported_backends(self) -> frozenset[ComputeBackend]:
         ...
@@ -71,4 +93,5 @@ class MethodRunner(Protocol):
         params: Mapping[str, Any],
         seed: int,
     ) -> MethodResult:
+        """Run one method invocation and return a structured result envelope."""
         ...

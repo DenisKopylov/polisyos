@@ -70,6 +70,7 @@
     },
     "EValueResult": {
       "additionalProperties": false,
+      "description": "E value result data model.",
       "properties": {
         "ci_crosses_null": {
           "default": false,
@@ -128,6 +129,7 @@
     }
   },
   "additionalProperties": false,
+  "description": "Sensitivity result data model.",
   "properties": {
     "benchmark_covariates": {
       "items": {

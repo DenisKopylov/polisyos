@@ -1,10 +1,13 @@
 # PolicyOS Policy Engine
 
-[![CI](https://github.com/DenisKopylov/polisyos/actions/workflows/arch.yml/badge.svg)](https://github.com/DenisKopylov/polisyos/actions/workflows/arch.yml)
+[![CI](https://github.com/DenisKopylov/polisyos/actions/workflows/ci.yml/badge.svg)](https://github.com/DenisKopylov/polisyos/actions/workflows/ci.yml)
 ![Python 3.14](https://img.shields.io/badge/python-3.14-blue.svg)
 ![License](https://img.shields.io/badge/license-proprietary-lightgrey.svg)
 
 _AI-driven Policy Simulation System using JAX and Unified Data Fabric_
+
+> Canonical product root: эта директория. Workspace root выше по дереву является
+> только gateway и repo control plane.
 
 ## Motivation
 
@@ -17,28 +20,28 @@ translation steps.
 
 ## Key Capabilities
 
-- **IR**: 160 public exports in the lazy facade, ABI-oriented contracts, and 82 snapshot JSON
-  Schemas in `schemas/snapshots/ir/`.
-- **Foundry**: JAX-based `compile() -> execute()` pipeline, measurement-aware calibration, and
-  agent simulation wiring for policy experiments.
-- **Scientist**: workflow orchestration, 19 built-in governance pass factories, policy search, and
-  causal ensemble / transportability surfaces.
-- **Lex**: legal corpus -> NormPack pipeline, SPO extraction, hallucination detection, amendment
-  handling, and temporal resolution for legal evaluation.
-- **Fabric**: 14 production connector families, 32 built-in source profiles, `SourceExecutionPolicy`
-  normalization, and async-fetch-aware ingestion paths.
-- **Observation**: 133+ observation and contract models, causal-readiness bundles, and measurement
-  trust tiers used by calibration and governance flows.
-- **Runtime**: FastAPI runtime surface with 52 HTTP route handlers, control-plane services, and a
-  React dashboard for operators.
+- **IR**: lazy public facade, ABI-oriented contracts, and committed schema snapshots used as
+  compatibility checkpoints.
+- **Foundry**: JAX-oriented `compile() -> execute()` pipeline, measurement-aware calibration, and
+  agent-simulation support for policy experiments.
+- **Scientist**: workflow orchestration, governance pass registry, policy search, and
+  causal/transportability surfaces.
+- **Lex**: legal corpus -> NormPack pipeline, SPO extraction, amendment handling, temporal
+  resolution, and policy-facing intervention compilation.
+- **Fabric**: production connector families, built-in source profiles, `SourceExecutionPolicy`
+  normalization, and async-ingestion-aware data-plane paths.
+- **Observation**: observation contracts, causal-readiness bundles, and measurement-trust tiers
+  used by calibration and governance flows.
+- **Runtime**: FastAPI runtime surface, control-plane services, and a React dashboard for
+  operators.
 
 ## Architecture Diagram
 
 ```mermaid
 graph LR
-  IR["IR<br/>160 exports"] --> Foundry["Foundry<br/>JAX compute"]
+  IR["IR<br/>Contracts"] --> Foundry["Foundry<br/>JAX compute"]
   IR --> Scientist["Scientist<br/>orchestration"]
-  Fabric["Fabric<br/>14 connectors"] --> Foundry
+  Fabric["Fabric<br/>Connectors"] --> Foundry
   Fabric --> Lex["Lex<br/>legal corpus"]
   Foundry --> Scientist
   Scientist --> Runtime["Runtime<br/>HTTP API"]
@@ -50,9 +53,15 @@ graph LR
 
 ```bash
 git clone https://github.com/DenisKopylov/polisyos.git && cd polisyos/policy-engine
-pip install -e ".[all]"
-polisyos --version
+./scripts/bootstrap
+./scripts/doctor
+uv run polisyos --version
 ```
+
+Contributor baseline зафиксирован как Python `3.14.x`, Node `22.x`, `uv 0.9.21` как
+канонический Python environment manager. Для fast local gate используйте
+`./scripts/verify`. Для более тяжёлой локальной проверки, близкой к CI,
+используйте `./scripts/ci-parity --skip-browser`.
 
 The snippet below builds a trivial fiscal `ProblemFrame(problem_id="demo", domain=FISCAL)` plus one
 tax intervention, then calls Foundry `compile()` and `execute()` end to end:
@@ -93,10 +102,38 @@ print({"compiled": compiled.ok, "executed": executed.ok})
 ## Development Setup
 
 ```bash
-pip install -e ".[dev,test]"
-pytest tests/ -x --tb=short
-mkdocs serve
+./scripts/bootstrap
+./scripts/doctor
+./scripts/verify --backend-only
+uv run --extra docs python -m mkdocs serve
 ```
+
+## Contributor Command Map
+
+```bash
+./scripts/bootstrap
+./scripts/doctor
+./scripts/verify
+./scripts/acceptance-audit
+python3 tools/architecture/guardrails.py check
+python3 tools/architecture/scaffold.py --help
+PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/check_runtime_api_contract.py
+PYTHONPATH=src:. uv run --extra ml python tools/diagnostics/gen_schema.py --check
+```
+
+## If You Need to Change X, Start Here
+
+| Change | Start here |
+|---|---|
+| Public package facade / supported imports | `architecture/public_surface.toml`, `src/polisyos/*/__init__.py`, `docs/reference/public-surface.md` |
+| Generated contract artifact | `architecture/generated_artifacts.toml`, `docs/reference/generated-artifacts.md`, then the source generator |
+| New connector | `python3 tools/architecture/scaffold.py connector --name MySource --type REST --dry-run`, `docs/connectors/CONTRIBUTING.md` |
+| New governance pass | `python3 tools/architecture/scaffold.py governance-pass --name my_pass --output ... --test-output ... --dry-run`, `docs/how-to/write-governance-pass.md` |
+| New runtime route | `python3 tools/architecture/scaffold.py runtime-route --name my_route --output ... --dry-run`, `src/polisyos/runtime/http/routes/README.md` |
+| New benchmark | `python3 tools/architecture/scaffold.py benchmark --suite causal --name my_case --output ... --dry-run`, `docs/how-to/run-benchmarks.md` |
+| New subsystem / major surface | `docs/reference/ratchet-policy.md`, `python3 tools/architecture/scaffold.py package-readme --module ... --output ... --dry-run` |
+| Repo-wide acceptance closeout | `docs/reference/operations/platform-acceptance-audit.md`, `./scripts/acceptance-audit` |
+| New ADR / runbook | `python3 tools/architecture/scaffold.py adr ...` or `python3 tools/architecture/scaffold.py runbook ...` |
 
 ## Documentation
 
@@ -106,7 +143,12 @@ mkdocs serve
 | Tutorials | [Tutorials](https://deniskopylov.github.io/polisyos/tutorials/) |
 | How-to | [How-to Guides](https://deniskopylov.github.io/polisyos/how-to/) |
 | Reference | [Reference](https://deniskopylov.github.io/polisyos/reference/) |
+| Explanation | [Explanation](https://deniskopylov.github.io/polisyos/explanation/) |
 | ADRs | [ADRs](https://deniskopylov.github.io/polisyos/adr/) |
+| Public Surface | [Public Surface](https://deniskopylov.github.io/polisyos/reference/public-surface/) |
+| Generated Artifacts | [Generated Artifacts](https://deniskopylov.github.io/polisyos/reference/generated-artifacts/) |
+| Ratchet Policy | [Ratchet Policy](https://deniskopylov.github.io/polisyos/reference/ratchet-policy/) |
+| Platform Acceptance Audit | [Platform Acceptance Audit](https://deniskopylov.github.io/polisyos/reference/operations/platform-acceptance-audit/) |
 
 ## License
 

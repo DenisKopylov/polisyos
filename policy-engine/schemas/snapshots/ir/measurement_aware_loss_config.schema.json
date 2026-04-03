@@ -1,5 +1,6 @@
 {
   "additionalProperties": false,
+  "description": "Configure how weak, stale, or regime-shifted observations downweight loss.\n\nThe discounts are multiplicative and applied after clipping trust and\ncoverage to `[0, 1]`; anchors with zero coverage receive zero effective\nweight regardless of other fields.",
   "properties": {
     "censoring_discount": {
       "default": 0.5,

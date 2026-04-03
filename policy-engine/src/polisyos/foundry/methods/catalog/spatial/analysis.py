@@ -93,7 +93,7 @@ def _spatial_weights(data: SpatialData, *, decay: float = 1.0) -> np.ndarray:
     tags={"spatial", "moran-i"},
 )
 class MoranIEstimator:
-    """Moran I estimator implementation."""
+    """Estimate Moran's I for spatial autocorrelation diagnostics."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy", "scipy")
 
@@ -172,7 +172,7 @@ class MoranIEstimator:
     tags={"spatial", "gwr"},
 )
 class GWREstimator:
-    """GWR estimator implementation."""
+    """Fit geographically weighted regressions when coefficients vary across space."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy", "scipy")
 
@@ -252,7 +252,7 @@ class GWREstimator:
     tags={"spatial", "spatial-durbin"},
 )
 class SpatialDurbinEstimator:
-    """Spatial durbin estimator implementation."""
+    """Fit spatial Durbin models when spillovers enter both outcome and covariates."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("statsmodels", "numpy")
 
@@ -332,7 +332,7 @@ class SpatialDurbinEstimator:
     tags={"spatial", "gravity-model"},
 )
 class GravityModelEstimator:
-    """Gravity model estimator implementation."""
+    """Estimate gravity-model flows between origins and destinations."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("statsmodels", "numpy", "scipy")
 
@@ -424,7 +424,7 @@ class GravityModelEstimator:
     tags={"spatial", "accessibility-index"},
 )
 class AccessibilityIndexEstimator:
-    """Accessibility index estimator implementation."""
+    """Estimate accessibility scores to jobs or services over a spatial network."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy", "scipy")
 

@@ -1,4 +1,9 @@
-"""Public observation compiler module API."""
+"""Compile raw observation panels into measurement-aware calibration bundles.
+
+This module consumes ``ObservationPanel`` records plus routing/measurement
+registries, assigns split labels, and emits ``CalibrationTargetBundle``
+payloads and negative-control specs for Foundry calibration and falsification.
+"""
 from __future__ import annotations
 
 from collections import Counter, defaultdict

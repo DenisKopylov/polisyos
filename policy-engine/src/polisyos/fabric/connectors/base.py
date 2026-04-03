@@ -1,4 +1,9 @@
-"""SourceConnector Protocol and core abstractions."""
+"""Connector protocol, connection contracts, and shared runtime models.
+
+This module defines the capability boundary for all Fabric connectors: concrete implementations
+must expose ``SourceConnector`` semantics and may extend ``BaseConnector`` while planners and
+profile resolvers pass immutable ``ConnectionConfig`` / ``ConnectionHandle`` objects at runtime.
+"""
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -45,7 +50,11 @@ DataT = TypeVar("DataT")
 
 @dataclass(frozen=True, slots=True)
 class ConnectionConfig:
-    """Immutable connection configuration."""
+    """Immutable runtime connection settings for one connector endpoint.
+
+    ``ConnectionConfig`` carries transport/auth/retry/rate-limit knobs only; planner-facing
+    capability semantics live in ``SourceExecutionPolicy`` and connector ``capabilities``.
+    """
 
     url: str
     headers: dict[str, str] = field(default_factory=dict)
@@ -110,7 +119,7 @@ class ConnectionConfig:
 
 @dataclass(frozen=True, slots=True)
 class ConnectionHandle:
-    """Handle representing an active connection."""
+    """Ephemeral connection/session handle created by ``SourceConnector.connect``."""
 
     connector_id: str
     config: ConnectionConfig
@@ -241,7 +250,11 @@ class AsyncFetchLease(BaseModel):
 
 @runtime_checkable
 class SourceConnector(Protocol[DataT]):
-    """Protocol for all external data source connectors."""
+    """Protocol implemented by connector families such as SDMX, CKAN, REST, and Socrata.
+
+    ``capabilities`` is the hard contract planners should inspect before calling optional methods:
+    unsupported async, streaming, or schema operations may raise ``CapabilityError``.
+    """
 
     connector_id: ClassVar[str]
     capabilities: ClassVar[ConnectorCapability]
@@ -316,7 +329,7 @@ class SourceConnector(Protocol[DataT]):
 
 
 class BaseConnector(Generic[DataT]):
-    """Base class providing common functionality for connectors."""
+    """Shared connector helpers for capability checks and default dataset descriptions."""
 
     connector_id: ClassVar[str] = "base.connector"
     capabilities: ClassVar[ConnectorCapability] = ConnectorCapability(0)

@@ -1,4 +1,10 @@
-"""Public backends dispatch module API."""
+"""Route protocol-compliant methods to backend runners with fallback and telemetry.
+
+`MethodDispatcher` chooses the concrete runner declared by
+`MethodSignature.backend`, applies circuit-breaker/fallback policy, records
+selection-history telemetry, and returns the `MethodResult` produced by the
+backend runtime.
+"""
 from __future__ import annotations
 
 import threading
@@ -69,7 +75,7 @@ def _record_execution(
 
 @dataclass(frozen=True)
 class BackendNotAvailableError(RuntimeError):
-    """Backend not available error exception."""
+    """Signal that the requested backend runtime is not installed or healthy."""
     backend: ComputeBackend
 
     def __str__(self) -> str:
@@ -81,7 +87,7 @@ class BackendNotAvailableError(RuntimeError):
 
 @runtime_checkable
 class FallbackStrategy(Protocol):
-    """Strategy for choosing fallback backend when primary fails."""
+    """Choose a compatible fallback backend when the primary runner is unavailable."""
 
     def select_fallback(
         self,
@@ -92,7 +98,7 @@ class FallbackStrategy(Protocol):
 
 
 class SignatureAwareFallback:
-    """Default fallback: check signature compatibility before falling back."""
+    """Fallback policy that only downgrades to backends compatible with the signature."""
 
     FALLBACK_ORDER = [ComputeBackend.NUMPY]
 
@@ -119,7 +125,7 @@ class SignatureAwareFallback:
 
 
 class MethodDispatcher:
-    """Thread-safe singleton dispatcher for compute backend routing."""
+    """Thread-safe singleton dispatcher that resolves and invokes backend runners."""
 
     _instance: MethodDispatcher | None = None
     _instance_lock = threading.Lock()
@@ -150,11 +156,13 @@ class MethodDispatcher:
             cls._instance = None
 
     def register_runner(self, runner: MethodRunner) -> None:
+        """Register one runner implementation under all backends it supports."""
         with self._runner_lock:
             for backend in runner.supported_backends:
                 self._dispatcher.register(backend, runner)
 
     def available_backends(self) -> frozenset[ComputeBackend]:
+        """Return the set of currently available backend runtimes."""
         with self._runner_lock:
             return self._dispatcher.available_backends()
 
@@ -167,6 +175,26 @@ class MethodDispatcher:
         params: Mapping[str, Any],
         seed: int,
     ) -> MethodResult:
+        """Dispatch one method invocation to the declared backend with fallback.
+
+        Args:
+            method_class: Protocol-compliant method class to execute.
+            signature: Method ABI and backend declaration.
+            state: Materialized input payload/state for the method.
+            params: Runtime parameters merged by the caller.
+            seed: Backend seed used for reproducible stochastic execution.
+
+        Returns:
+            `MethodResult` from the selected runner.
+
+        Raises:
+            BackendCircuitOpenError: If the primary backend circuit is open and
+                no compatible fallback succeeds.
+            BackendNotAvailableError: If the requested backend has no available
+                runner implementation.
+            Exception: Propagates backend execution failures after telemetry is
+                recorded.
+        """
         runner = self._resolve_runner(signature.backend)
         breaker = get_circuit_breaker_registry().get(signature.backend.value)
         n_obs = _infer_n_obs(state)

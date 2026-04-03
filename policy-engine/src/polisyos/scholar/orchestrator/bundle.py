@@ -1,4 +1,4 @@
-"""Public orchestrator bundle module API."""
+"""Builds and persists Scholar knowledge bundles plus their world-event side effects."""
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -41,7 +41,7 @@ def compute_bundle_id(
     claim_ids: list[str],
     policy_ids_used: dict[str, str],
 ) -> str:
-    """Compute bundle ID helper."""
+    """Derive a deterministic bundle identifier from intent, documents, claims, and policies."""
     payload = {
         "intent_core": intent_core,
         "doc_version_ids": sorted(set(doc_version_ids)),
@@ -120,7 +120,7 @@ def persist_bundle_and_event(
     segment_name: str | None = None,
     persist_report: bool = True,
 ) -> tuple[KnowledgeBundleRef, EnrichmentReportV1, EnrichmentReportRef | None]:
-    """Persist bundle and event helper."""
+    """Write the knowledge bundle, optional report, and corresponding world event to storage."""
     bundle_ref = cas.put_json(
         bundle_payload.model_dump(mode="python"),
         opts=PutOptions(

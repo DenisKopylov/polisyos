@@ -11,7 +11,7 @@ from polisyos.foundry.methods.base import MethodSignature
 
 @dataclass(frozen=True, slots=True)
 class NumpySuiteResult:
-    """Numpy suite result data model."""
+    """Report whether a NumPy-backend output passed lightweight backend checks."""
     passed: bool
     message: str = ""
 
@@ -32,4 +32,3 @@ class NumpyMethodTestSuite:
         if isinstance(output, np.ndarray) and output.dtype == object:
             return NumpySuiteResult(False, "object dtype arrays are not allowed")
         return NumpySuiteResult(True)
-

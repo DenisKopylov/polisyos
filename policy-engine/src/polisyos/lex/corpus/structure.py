@@ -1,4 +1,9 @@
-"""Public corpus structure module API."""
+"""Lex corpus structuring stage for provision anchors and citation-ready fragments.
+
+The stage reads normalized document text, applies jurisdiction-specific article/part/point rules,
+persists ``DocFragment`` records, writes a provision index artifact, and annotates ``DocMeta``
+with ``props['lex']['provision_index_ref']`` for NormPack assembly.
+"""
 from __future__ import annotations
 
 import re
@@ -483,7 +488,24 @@ def build_legal_structure(
     options: LexStructureOptions | None = None,
     segment_name: str | None = None,
 ) -> LexStructureResult:
-    """Build legal structure."""
+    """Extract hierarchical provision anchors from a normalized legal document.
+
+    Args:
+        cas: Artifact store containing the input ``DocMeta`` and normalized text artifact.
+        fact_log_root: Fact-log root for fragment facts and the ``STRUCTURE_DOC`` event segment.
+        doc_meta_artifact_id: Artifact id of the current document metadata record.
+        options: Optional jurisdiction override and extraction-depth toggles.
+        segment_name: Optional world segment name prefix.
+
+    Returns:
+        Fragment ids, provision-index artifact id, updated ``DocMeta`` artifact id, emitted
+        provenance references, and any non-blocking quality issues.
+
+    Raises:
+        LexNotReadyError: If ``DocMeta.normalized_ref`` is absent.
+        LexValidationError: If the normalized payload or jurisdiction ruleset is invalid.
+        LexStructureError: If provision extraction or persistence fails.
+    """
     opts = options or LexStructureOptions()
 
     try:

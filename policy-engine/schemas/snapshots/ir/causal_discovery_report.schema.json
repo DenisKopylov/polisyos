@@ -1,6 +1,7 @@
 {
   "$defs": {
     "AlgebraicConstraintFamily": {
+      "description": "Select the family of algebraic test implied by a graph or latent-factor block.",
       "enum": [
         "ci",
         "tetrad",
@@ -11,6 +12,7 @@
     },
     "AlgebraicConstraintReport": {
       "additionalProperties": false,
+      "description": "Summarize implied/violated algebraic constraints and suggested graph repairs.",
       "properties": {
         "families_run": {
           "items": {
@@ -116,6 +118,7 @@
     },
     "ArtifactRefModel": {
       "additionalProperties": false,
+      "description": "Provide the common mapping-compatible base contract for artifact refs.",
       "properties": {
         "artifact_id": {
           "$ref": "#/$defs/ArtifactID"
@@ -139,6 +142,7 @@
     },
     "CausalEdge": {
       "additionalProperties": false,
+      "description": "Causal edge public type.",
       "properties": {
         "combined_confidence": {
           "anyOf": [
@@ -362,6 +366,7 @@
     },
     "ConstraintEvaluationResult": {
       "additionalProperties": false,
+      "description": "Store the test outcome for one implied or user-declared algebraic constraint.",
       "properties": {
         "adjusted_p_value": {
           "anyOf": [
@@ -454,6 +459,7 @@
       "type": "object"
     },
     "EdgeMark": {
+      "description": "Edge mark public type.",
       "enum": [
         "tail",
         "arrow",
@@ -463,6 +469,7 @@
       "type": "string"
     },
     "EdgeSource": {
+      "description": "Edge source public type.",
       "enum": [
         "data",
         "literature",
@@ -474,6 +481,7 @@
       "type": "string"
     },
     "GraphType": {
+      "description": "Graph type public type.",
       "enum": [
         "dag",
         "cpdag",
@@ -486,6 +494,7 @@
     },
     "ImpliedConstraintSpec": {
       "additionalProperties": false,
+      "description": "Represent one graph-implied constraint and its optional conditioning set.",
       "properties": {
         "conditioning_set": {
           "default": [],
@@ -544,6 +553,7 @@
     },
     "LatentAssumptionCard": {
       "additionalProperties": false,
+      "description": "Document one latent-variable assumption and its falsification hook.",
       "properties": {
         "assumption_id": {
           "minLength": 1,
@@ -595,6 +605,7 @@
     },
     "LatentDiscoveryBundle": {
       "additionalProperties": false,
+      "description": "Disclose proposed latent nodes, test hooks, and promotion limits.",
       "properties": {
         "assumption_cards": {
           "items": {
@@ -673,6 +684,7 @@
       "type": "object"
     },
     "LatentTrustLevel": {
+      "description": "Declare whether a proposed latent structure is research-only, conditional, or validated.",
       "enum": [
         "research",
         "conditional",
@@ -682,6 +694,7 @@
       "type": "string"
     },
     "PAGIdentificationPolicy": {
+      "description": "PAG identification policy data model.",
       "enum": [
         "conservative",
         "optimistic",
@@ -692,6 +705,7 @@
     }
   },
   "additionalProperties": false,
+  "description": "Output of a causal-discovery run, including optional latent diagnostics.",
   "properties": {
     "algebraic_constraints": {
       "anyOf": [

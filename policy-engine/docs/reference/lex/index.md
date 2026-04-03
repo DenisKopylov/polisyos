@@ -1,15 +1,16 @@
 # Lex
 Related explanation: [Lex Pipeline](../../explanation/lex-pipeline.md).
 
-`polisyos.lex` is the legal-text layer: it ingests source acts, resolves active
-versions, assembles `NormPack` snapshots, builds a searchable knowledge graph,
-and compiles legal interventions into policy-ready contracts.
+`polisyos.lex` is the legal-text layer for the stage flow `ingest -> structure -> version index
+-> normpack -> legal evaluation`. It ingests source acts, structures provision anchors, resolves
+active document versions, assembles `NormPack` snapshots, builds a searchable legal knowledge
+graph, and compiles legal interventions into policy-ready contracts.
 
 ## Page Map
 
 | Page | Scope | Primary modules |
 |------|-------|-----------------|
-| [Batch Pipeline](batch-pipeline.md) | SPO extraction QC, amendment detection, hallucination checks, temporal resolution | `lex.batch.*` |
+| [Batch Pipeline](batch-pipeline.md) | SPO extraction, amendment handling, hallucination/quality checks, temporal resolution | `lex.batch.*` |
 | [Knowledge](knowledge.md) | DuckDB/HNSW search surface and legal graph result types | `lex.knowledge.*` |
 | [NormPack](normpack.md) | Ingest, structure, versioning, legality, diff, mutation, impact analysis | `lex.api`, `lex.types`, `lex.simulator.*` |
 | [Interventions](interventions.md) | Provision mappings, knobs, temporal sequencing, policy bundle inputs | `lex.interventions`, `lex.intervention_artifacts` |

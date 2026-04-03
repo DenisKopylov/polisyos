@@ -1,4 +1,4 @@
-"""Public artifacts store module API."""
+"""Implement the filesystem CAS boundary for blobs, manifests, lineage, and signatures."""
 from __future__ import annotations
 
 import json
@@ -52,7 +52,7 @@ from .signing import (
 
 @dataclass(frozen=True)
 class PutOptions:
-    """Put options data model."""
+    """Control manifest metadata attached when writing a new CAS artifact."""
     kind: str
     media_type: str
     schema: SchemaInfo | None = None
@@ -63,7 +63,7 @@ class PutOptions:
 
 
 class VerificationReport(BaseModel):
-    """Verification report data model."""
+    """Report byte-level CAS integrity for one artifact/blob-manifest pair."""
     model_config = ConfigDict(extra="forbid")
 
     ok: bool
@@ -76,7 +76,7 @@ class VerificationReport(BaseModel):
 
 @dataclass(frozen=True)
 class ExportReport:
-    """Export report data model."""
+    """Summarize CAS bundle export results and missing dependencies."""
     exported_artifacts: int
     total_bytes: int
     output_path: Path
@@ -86,7 +86,7 @@ class ExportReport:
 
 @dataclass(frozen=True)
 class ImportReport:
-    """Import report data model."""
+    """Summarize a CAS bundle import and integrity verification results."""
     imported_files: int
     imported_artifacts: int
     total_bytes: int
@@ -96,10 +96,17 @@ class ImportReport:
 
 
 class FileSystemCAS:
-    """
-    CAS layout:
-      <root>/artifacts/sha256/ab/cd/<hex>.blob
-      <root>/artifacts/sha256/ab/cd/<hex>.manifest.json
+    """Store immutable artifacts in a sharded filesystem content-addressed store.
+
+    The stable on-disk ABI is:
+    - `<root>/artifacts/sha256/ab/cd/<hex>.blob`
+    - `<root>/artifacts/sha256/ab/cd/<hex>.manifest.json`
+    - `<root>/artifacts/sha256/ab/cd/<hex>.sig` for optional detached signatures
+
+    `put_json` and `put_bytes` derive `ArtifactID` from payload bytes, persist an
+    `ArtifactManifest` sidecar, and optionally sign on write according to
+    `SigningConfig`. Read/verify helpers raise standard Python IO/validation
+    exceptions for missing or malformed artifacts.
     """
 
     CONNECTOR_CACHE_NAMESPACE = "connector_cache"
@@ -129,7 +136,7 @@ class FileSystemCAS:
         return blob, manifest
 
     def get_paths(self, artifact_id: ArtifactID) -> tuple[Path, Path]:
-        """Public path helper for CAS tooling."""
+        """Return deterministic blob/manifest paths for external CAS tooling."""
         return self._paths(artifact_id)
 
     def _sig_path(self, artifact_id: ArtifactID) -> Path:
@@ -164,6 +171,7 @@ class FileSystemCAS:
             raise SigningError(f"Failed to sign artifact on put: {exc}") from exc
 
     def has(self, artifact_id: ArtifactID) -> bool:
+        """Return whether both the blob and manifest sidecar exist for `artifact_id`."""
         blob, manifest = self._paths(artifact_id)
         exists = blob.exists() and manifest.exists()
         if self._hpc_enabled and self._metrics:
@@ -174,6 +182,12 @@ class FileSystemCAS:
         return exists
 
     def get_bytes(self, artifact_id: ArtifactID) -> bytes:
+        """Read artifact blob bytes and emit CAS read metrics/traces when enabled.
+
+        Raises:
+            FileNotFoundError: If the blob file is missing.
+            OSError: If the blob file cannot be read.
+        """
         blob, _ = self._paths(artifact_id)
         if not self._hpc_enabled or self._tracer is None:
             return blob.read_bytes()
@@ -223,14 +237,27 @@ class FileSystemCAS:
             return data
 
     def get_manifest(self, artifact_id: ArtifactID) -> ArtifactManifest:
+        """Load and validate the manifest sidecar for one artifact.
+
+        Raises:
+            FileNotFoundError: If the manifest file is missing.
+            ValueError: If the manifest JSON does not match `ArtifactManifest`.
+        """
         _, manp = self._paths(artifact_id)
         return ArtifactManifest.model_validate_json(manp.read_text("utf-8"))
 
     def get_manifest_bytes(self, artifact_id: ArtifactID) -> bytes:
+        """Return raw manifest bytes for signature verification/export paths."""
         _, manp = self._paths(artifact_id)
         return manp.read_bytes()
 
     def put_signature(self, artifact_id: ArtifactID, signature: DetachedSignature) -> Path:
+        """Write a detached signature sidecar after validating the artifact binding.
+
+        Raises:
+            ValueError: If `signature.artifact_id` does not match `artifact_id`.
+            OSError: If the sidecar cannot be written atomically.
+        """
         if signature.artifact_id != str(artifact_id):
             raise ValueError("signature artifact_id mismatch")
         path = self._sig_path(artifact_id)
@@ -243,12 +270,14 @@ class FileSystemCAS:
         return path
 
     def get_signature(self, artifact_id: ArtifactID) -> DetachedSignature | None:
+        """Load a detached signature sidecar or return `None` when unsigned."""
         path = self._sig_path(artifact_id)
         if not path.exists():
             return None
         return DetachedSignature.model_validate_json(path.read_text("utf-8"))
 
     def has_signature(self, artifact_id: ArtifactID) -> bool:
+        """Return whether a detached signature sidecar exists for `artifact_id`."""
         return self._sig_path(artifact_id).exists()
 
     def sign_artifact(
@@ -258,6 +287,7 @@ class FileSystemCAS:
         *,
         signer_identity: str | None = None,
     ) -> DetachedSignature:
+        """Sign one stored artifact's blob+manifest pair and persist its sidecar."""
         blob_data = self.get_bytes(artifact_id)
         manifest_data = self.get_manifest_bytes(artifact_id)
         signature = signer.sign(
@@ -276,6 +306,7 @@ class FileSystemCAS:
         *,
         strict_identity: bool | None = None,
     ) -> SignatureVerificationResult:
+        """Verify content integrity and detached signature trust/revocation/identity state."""
         integrity = self.verify(artifact_id)
         if not integrity.ok:
             return SignatureVerificationResult(
@@ -325,6 +356,7 @@ class FileSystemCAS:
         only_unsigned: bool = True,
         max_workers: int = 8,
     ) -> BulkSigningReport:
+        """Sign many artifacts concurrently and summarize signed/skipped/error counts."""
         ids = list(artifact_ids) if artifact_ids is not None else self.iter_artifact_ids()
         details: list[ArtifactSigningResult] = []
         signer_lock = threading.Lock()
@@ -383,6 +415,7 @@ class FileSystemCAS:
         max_workers: int = 8,
         strict_identity: bool | None = None,
     ) -> BulkVerificationReport:
+        """Verify many artifact signatures concurrently and summarize verifier outcomes."""
         ids = list(artifact_ids) if artifact_ids is not None else self.iter_artifact_ids()
         details: list[SignatureVerificationResult] = []
 
@@ -414,6 +447,7 @@ class FileSystemCAS:
         )
 
     def put_bytes(self, data: bytes, opts: PutOptions) -> ArtifactRef:
+        """Store raw bytes under their content hash and create the immutable manifest sidecar."""
         sha = content_hash(data)
         aid = ArtifactID.from_sha256_hex(sha)
         blob, manp = self._paths(aid)
@@ -519,6 +553,7 @@ class FileSystemCAS:
         opts: PutOptions,
         canon_spec: CanonSpec | None = None,
     ) -> ArtifactRef:
+        """Canonicalize a JSON-like payload, persist it as CAS bytes, and return its ref."""
         canon_spec = canon_spec or CanonSpec()
         data = to_canonical_bytes(obj, canon_spec)
         canon = opts.canon or CanonInfo.from_spec(canon_spec)
@@ -534,6 +569,7 @@ class FileSystemCAS:
         return self.put_bytes(data, opts2)
 
     def verify(self, artifact_id: ArtifactID) -> VerificationReport:
+        """Check blob presence, manifest presence, content digest, and manifest integrity."""
         if not self._hpc_enabled or self._tracer is None:
             return self._verify_impl(artifact_id)
 
@@ -635,6 +671,7 @@ class FileSystemCAS:
         os.replace(tmp, path)
 
     def iter_artifact_ids(self) -> list[ArtifactID]:
+        """List all artifact IDs that have manifest sidecars under this CAS root."""
         ids: list[ArtifactID] = []
         for manifest_path in sorted(self.base.rglob("*.manifest.json")):
             name = manifest_path.name
@@ -654,6 +691,7 @@ class FileSystemCAS:
         compress: bool = True,
         include_manifests: bool = True,
     ) -> ExportReport:
+        """Export a CAS subgraph to a tarball or directory using the stable CAS layout."""
         missing_artifacts: list[str] = []
         missing_manifests: list[str] = []
         total_bytes = 0
@@ -758,6 +796,7 @@ class FileSystemCAS:
         *,
         verify_integrity: bool = False,
     ) -> ImportReport:
+        """Import a CAS export from a directory/tarball and optionally re-verify integrity."""
         imported_files = 0
         imported_artifacts: set[str] = set()
         total_bytes = 0

@@ -1,4 +1,4 @@
-"""Public artifacts registry module API."""
+"""Define CAS payload contracts for composed IR registry bundles."""
 from __future__ import annotations
 
 from pydantic import BaseModel, ConfigDict
@@ -7,7 +7,7 @@ from .manifest import ArtifactRef
 
 
 class RegistryBundlePayload(BaseModel):
-    """Registry bundle payload public type."""
+    """Reference each registry artifact that forms one immutable bundle snapshot."""
     model_config = ConfigDict(extra="forbid")
     slot_registry: ArtifactRef
     merge_registry: ArtifactRef
@@ -22,7 +22,7 @@ class RegistryBundlePayload(BaseModel):
 
 
 class RegistryBundle(RegistryBundlePayload):
-    """Registry bundle data model."""
+    """Attach the bundle artifact reference to its decomposed registry payload."""
     model_config = ConfigDict(extra="forbid")
 
     bundle_ref: ArtifactRef

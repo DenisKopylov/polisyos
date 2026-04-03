@@ -1,4 +1,4 @@
-"""Public econometrics discrete choice module API."""
+"""Estimate binary and multinomial discrete-choice models for choice probabilities."""
 from __future__ import annotations
 
 from typing import Any, ClassVar, Mapping
@@ -38,7 +38,7 @@ def _ols_coef(X: np.ndarray, y: np.ndarray) -> np.ndarray:
     tags={"econometrics", "discrete-choice", "logit", "cross-section"},
 )
 class LogitEstimator:
-    """Logit estimator implementation."""
+    """Estimate binary choice probabilities under a logistic latent-index model; avoid strong IIA violations in multinomial settings."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -120,7 +120,7 @@ class LogitEstimator:
     tags={"econometrics", "discrete-choice", "probit", "cross-section"},
 )
 class ProbitEstimator:
-    """Probit estimator implementation."""
+    """Estimate binary choice probabilities under a Gaussian latent-index model; avoid when a heavy-tailed link is required."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -200,7 +200,7 @@ class ProbitEstimator:
     tags={"econometrics", "discrete-choice", "multinomial-logit", "cross-section"},
 )
 class MultinomialLogitEstimator:
-    """Multinomial logit estimator implementation."""
+    """Estimate multi-class choice shares under IIA; avoid nested-substitution patterns that violate IIA."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -295,7 +295,7 @@ class MultinomialLogitEstimator:
     tags={"econometrics", "discrete-choice", "mixed-logit", "cross-section"},
 )
 class MixedLogitEstimator:
-    """Mixed logit estimator implementation."""
+    """Estimate random-coefficient choice heterogeneity; avoid tiny samples where simulation noise dominates."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -383,7 +383,7 @@ class MixedLogitEstimator:
     tags={"econometrics", "discrete-choice", "blp", "demand", "cross-section"},
 )
 class BLPEstimator:
-    """BLP estimator implementation."""
+    """Estimate differentiated-product demand with endogenous prices and instruments; avoid weak instruments or missing market shares."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 

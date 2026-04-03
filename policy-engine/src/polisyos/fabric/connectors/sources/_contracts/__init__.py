@@ -1,4 +1,4 @@
-"""Public sources contracts package API."""
+"""Curated source contracts that pin external provider schemas to internal connector expectations."""
 from __future__ import annotations
 
 from .eurostat_contracts import (

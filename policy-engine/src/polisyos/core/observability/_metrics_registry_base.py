@@ -19,7 +19,7 @@ from opentelemetry.sdk.metrics.export import (
 )
 from opentelemetry.sdk.resources import Resource
 
-from ..observability._metrics_helpers import GaugeProxy, HistogramTimer
+from ..observability._metrics_helpers import GaugeProxy
 from ..observability.config import (
     MetricsExporterType,
     OTelConfig,
@@ -151,6 +151,8 @@ class _MetricsRegistryBase:
     runtime_api_requests_total: Optional[metrics.Counter] = None
     runtime_api_duration_seconds: Optional[metrics.Histogram] = None
     runtime_api_errors_total: Optional[metrics.Counter] = None
+    control_plane_job_admissions_total: Optional[metrics.Counter] = None
+    control_plane_job_admission_duration_seconds: Optional[metrics.Histogram] = None
 
     # -- Singleton ----------------------------------------------------------
 
@@ -823,6 +825,16 @@ class _MetricsRegistryBase:
             name="polisyos_runtime_api_errors_total",
             description="Runtime API HTTP error responses (status >= 400)",
             unit="1",
+        )
+        self.control_plane_job_admissions_total = self._meter.create_counter(
+            name="polisyos_control_plane_job_admissions_total",
+            description="Control-plane durable job admission attempts by kind/profile/outcome",
+            unit="1",
+        )
+        self.control_plane_job_admission_duration_seconds = self._meter.create_histogram(
+            name="polisyos_control_plane_job_admission_duration_seconds",
+            description="Control-plane durable job admission latency",
+            unit="s",
         )
 
     # -- Lifecycle ----------------------------------------------------------

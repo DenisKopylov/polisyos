@@ -1,4 +1,4 @@
-"""Public simulator diff module API."""
+"""Rule-level NormPack diff contracts and deterministic comparison helpers."""
 from __future__ import annotations
 
 import json
@@ -20,7 +20,7 @@ class NormChangeType(str, Enum):
 
 
 class FieldDelta(BaseModel):
-    """Field delta public type."""
+    """Serialized value change for one ``NormRule`` field."""
     model_config = ConfigDict(extra="forbid")
 
     field_name: str

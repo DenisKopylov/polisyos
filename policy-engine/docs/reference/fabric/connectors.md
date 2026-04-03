@@ -1,7 +1,11 @@
 # Fabric Connectors
 Related explanation: [Data Fabric](../../explanation/data-fabric.md).
 
-Fabric ships 14 concrete connector classes in `polisyos.fabric.connectors.sources`. They share `HTTPConnectorBase` for authentication, retries, rate limiting, and normalized `FetchResult` construction.
+Fabric ships 14 concrete connector classes in `polisyos.fabric.connectors.sources`. They share
+`HTTPConnectorBase` for authentication, retries, rate limiting, circuit breaking, and normalized
+`FetchResult` construction. Connector capabilities are a hard runtime contract; source profiles add
+planner hints and transport preferences but do not guarantee that unsupported async/schema methods
+exist on every connector family.
 
 ## Connector Catalog
 
@@ -68,4 +72,3 @@ Fabric ships 14 concrete connector classes in `polisyos.fabric.connectors.source
 ::: polisyos.fabric.connectors.sources.sparql
 
 ::: polisyos.fabric.connectors.sources.rest_json
-

@@ -1,4 +1,4 @@
-"""Public uncertainty protocol module API."""
+"""Define the result and strategy contracts for Foundry uncertainty propagation."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -9,7 +9,7 @@ from polisyos.ir.analytics.uncertainty import PropagationMethod, UncertaintyEnve
 
 @dataclass(frozen=True)
 class PropagationResult:
-    """Propagation result data model."""
+    """Capture one propagated envelope plus the diagnostics needed for replay and audit."""
     metric_id: str
     envelope: UncertaintyEnvelope
     input_envelopes_used: list[str]
@@ -18,7 +18,7 @@ class PropagationResult:
 
 
 class PropagationStrategy(Protocol):
-    """Propagation strategy data model."""
+    """Protocol implemented by uncertainty backends that propagate input envelopes forward."""
     @property
     def method(self) -> PropagationMethod: ...
 

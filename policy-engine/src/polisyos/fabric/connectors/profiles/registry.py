@@ -1,4 +1,9 @@
-"""SourceProfileRegistry — in-memory registry of available source profiles."""
+"""In-memory registry of built-in and test-provided ``SourceProfile`` definitions.
+
+The registry is a metadata catalog only: it resolves profile ids and connector families but does
+not validate live endpoint health, enforce throttling, or guarantee that a connector family
+supports every capability hinted by a profile.
+"""
 
 from __future__ import annotations
 

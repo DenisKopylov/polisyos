@@ -1,4 +1,4 @@
-"""Public agent sim graphs module API."""
+"""Create, mutate, and aggregate graph structures used by agent-simulation mechanisms."""
 from __future__ import annotations
 
 import chex
@@ -8,7 +8,7 @@ from jaxtyping import Array, Bool, Float, Int
 
 
 class EdgeType:
-    """Edge type public type."""
+    """Enumerate the social, economic, and informational edge labels used in runtime graphs."""
     SOCIAL_FRIEND = 0
     SOCIAL_FAMILY = 1
     ECONOMIC_EMPLOYER = 2
@@ -19,7 +19,7 @@ class EdgeType:
 
 @chex.dataclass(frozen=True)
 class EdgeList:
-    """Edge list public type."""
+    """Store a sparse graph as parallel sender and receiver arrays for JAX execution."""
     senders: Int[Array, "n_edges"]
     receivers: Int[Array, "n_edges"]
     weights: Float[Array, "n_edges"]
@@ -31,7 +31,7 @@ class EdgeList:
 
 @chex.dataclass(frozen=True)
 class FixedSizeEdgeList:
-    """Fixed size edge list public type."""
+    """Store a capacity-bounded graph that can be mutated in-place during simulation."""
     senders: Int[Array, "max_edges"]
     receivers: Int[Array, "max_edges"]
     weights: Float[Array, "max_edges"]
@@ -44,7 +44,7 @@ class FixedSizeEdgeList:
 
 @chex.dataclass(frozen=True)
 class GraphState:
-    """Graph state data model."""
+    """Track graph structure plus degree caches used by runtime executors."""
     edges: EdgeList | FixedSizeEdgeList
     node_to_edges_start: Int[Array, "n_nodes_plus_one"]
     sorted_by_receiver: Bool[Array, ""]
@@ -75,7 +75,7 @@ class GraphState:
 
 @chex.dataclass(frozen=True)
 class MultiEdgeList:
-    """Multi edge list public type."""
+    """Provide per-edge-type views over a shared runtime edge list."""
     all_edges: EdgeList
 
     def get_edges_by_type(self, edge_type: int) -> EdgeList:
@@ -326,7 +326,7 @@ def aggregate_messages(
     aggregation: str = "sum",
     active: jnp.ndarray | None = None,
 ) -> jnp.ndarray:
-    """Aggregate messages helper."""
+    """Aggregate sender features onto receivers for graph-based mechanism updates."""
     senders = edges.senders
     receivers = edges.receivers
     weights = edges.weights
@@ -374,7 +374,7 @@ def scatter_messages(
     operation: str = "add",
     active: jnp.ndarray | None = None,
 ) -> jnp.ndarray:
-    """Scatter messages helper."""
+    """Scatter source features across edges before receiver-side accumulation."""
     senders = edges.senders
     receivers = edges.receivers
     weights = edges.weights
@@ -400,7 +400,7 @@ def scatter_messages(
 
 
 def segment_softmax(scores: jnp.ndarray, segment_ids: jnp.ndarray, n_segments: int) -> jnp.ndarray:
-    """Segment softmax helper."""
+    """Normalize edge scores within each receiver segment for attention layers."""
     max_scores = jax.ops.segment_max(scores, segment_ids, num_segments=n_segments)
     shifted = scores - max_scores[segment_ids]
     exp_scores = jnp.exp(shifted)
@@ -416,7 +416,7 @@ def apply_edge_attention(
     key_features: jnp.ndarray,
     temperature: float = 1.0,
 ) -> jnp.ndarray:
-    """Apply edge attention helper."""
+    """Weight edge messages by receiver-local attention scores."""
     queries = query_features[edges.receivers]
     keys = key_features[edges.senders]
     scores = jnp.sum(queries * keys, axis=-1) / temperature
@@ -433,7 +433,7 @@ def multi_hop_aggregation(
     decay: float = 0.5,
     active: jnp.ndarray | None = None,
 ) -> jnp.ndarray:
-    """Multi hop aggregation helper."""
+    """Propagate messages across repeated hops with exponential decay."""
     def body(hop, carry):
         current, aggregated = carry
         messages = aggregate_messages(
@@ -452,7 +452,7 @@ def multi_hop_aggregation(
 
 
 def compute_degree_centrality(edges: EdgeList | FixedSizeEdgeList) -> jnp.ndarray:
-    """Compute degree centrality helper."""
+    """Compute normalized total-degree centrality for each node."""
     n_nodes = int(edges.n_nodes)
     in_degrees, out_degrees = compute_degrees(edges)
     total_degree = in_degrees + out_degrees
@@ -466,7 +466,7 @@ def compute_pagerank(
     damping: float = 0.85,
     n_iterations: int = 20,
 ) -> jnp.ndarray:
-    """Compute pagerank helper."""
+    """Estimate PageRank-style influence scores over the current graph."""
     n_nodes = int(edges.n_nodes)
     weights = edges.weights
     edge_mask = jnp.ones(weights.shape[0], dtype=jnp.bool_)
@@ -490,7 +490,7 @@ def compute_graph_metrics(
     edges: EdgeList | FixedSizeEdgeList,
     active: jnp.ndarray,
 ) -> dict[str, jnp.ndarray]:
-    """Compute graph metrics helper."""
+    """Summarize density and degree dispersion for the active graph."""
     n_nodes = int(edges.n_nodes)
     edge_mask = active[edges.senders] & active[edges.receivers]
     if hasattr(edges, "active"):
@@ -519,7 +519,7 @@ def compute_graph_metrics(
 
 
 def compute_degrees(edges: EdgeList | FixedSizeEdgeList) -> tuple[jnp.ndarray, jnp.ndarray]:
-    """Compute degrees helper."""
+    """Compute in-degree and out-degree arrays for the current edge set."""
     n_nodes = int(edges.n_nodes)
     edge_mask = jnp.ones(edges.senders.shape[0], dtype=jnp.float32)
     if hasattr(edges, "active"):
@@ -530,7 +530,7 @@ def compute_degrees(edges: EdgeList | FixedSizeEdgeList) -> tuple[jnp.ndarray, j
 
 
 class DynamicGraphUpdater:
-    """Dynamic graph updater public type."""
+    """Evolve graph structure by removing stale edges and sampling new ones."""
     def __init__(
         self,
         *,

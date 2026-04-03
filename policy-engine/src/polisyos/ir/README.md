@@ -36,6 +36,13 @@ registry-aware governance модели, world/analytics артефакты, CAS 
 
 Full reference: [docs/reference/ir/](../../../docs/reference/ir/index.md)
 
+## Where to Start
+
+- Public facade / compatibility: `src/polisyos/ir/__init__.py` and `docs/reference/public-surface.md`
+- ABI registry / snapshot ownership: `schemas/abi_models.py`, `schemas/snapshots/`, `tools/diagnostics/gen_schema.py`
+- Trinity / policy contracts: `src/polisyos/ir/trinity/` and `src/polisyos/ir/governance/`
+- Observation and analytics expansion: `src/polisyos/ir/observation/` and `src/polisyos/ir/analytics/`
+
 ## Текущее состояние
 
 - Последнее обновление: 2026-04-03

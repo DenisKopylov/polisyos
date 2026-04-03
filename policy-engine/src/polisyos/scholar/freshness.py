@@ -1,4 +1,4 @@
-"""Public scholar freshness module API."""
+"""Evaluate and report knowledge-bundle freshness against policy thresholds."""
 from __future__ import annotations
 
 import time
@@ -28,7 +28,7 @@ _DOMAIN_DAYS_DEFAULTS: dict[str, tuple[int, int, int]] = {
 
 @dataclass(frozen=True)
 class DomainThresholds:
-    """Domain thresholds public type."""
+    """Carry normalized stale/expired/cooldown cutoffs in seconds."""
     staleness_seconds: int
     expiry_seconds: int
     cooldown_seconds: int
@@ -36,7 +36,7 @@ class DomainThresholds:
 
 @dataclass(frozen=True)
 class FreshnessCheckResult:
-    """Freshness check result data model."""
+    """Return the freshness verdict and refresh/cooldown decision for one bundle."""
     bundle_ref: str
     status: FreshnessStatus
     age_seconds: int
@@ -48,6 +48,7 @@ class FreshnessCheckResult:
 
     @property
     def blocked_by_cooldown(self) -> bool:
+        """Report whether refresh is suppressed solely by the cooldown window."""
         return self.cooldown_active
 
 
@@ -120,7 +121,7 @@ def build_freshness_metadata(
 
 
 class FreshnessPolicy:
-    """Freshness policy data model."""
+    """Decide whether a bundle should refresh, continue, or block execution."""
     def __init__(
         self,
         *,
@@ -141,6 +142,7 @@ class FreshnessPolicy:
         now: datetime | None = None,
         external_drift_signals: Mapping[str, bool] | None = None,
     ) -> FreshnessCheckResult:
+        """Evaluate age, expiry, external drift, and runtime cooldown state."""
         now_utc = now or datetime.now(timezone.utc)
         status = freshness.compute_status(now_utc)
         age_seconds = freshness.age_seconds(now_utc)
@@ -198,7 +200,7 @@ class FreshnessPolicy:
 
 
 def emit_freshness_metrics(result: FreshnessCheckResult) -> None:
-    """Emit freshness metrics helper."""
+    """Publish the freshness verdict to the configured metrics backend."""
     metrics = get_metrics()
     record = getattr(metrics, "record_knowledge_freshness_check", None)
     if callable(record):
@@ -241,7 +243,7 @@ def timed_freshness_check(
     now: datetime | None = None,
     external_drift_signals: Mapping[str, bool] | None = None,
 ) -> FreshnessCheckResult:
-    """Timed freshness check helper."""
+    """Run a freshness check, record latency/status metrics, and return the verdict."""
     started = time.perf_counter()
     result = policy.check(
         bundle_ref=bundle_ref,

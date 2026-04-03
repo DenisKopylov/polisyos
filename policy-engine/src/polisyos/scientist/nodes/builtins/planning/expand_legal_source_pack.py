@@ -47,7 +47,11 @@ _SPEC = NodeSpec(
 
 @dataclass(frozen=True)
 class ExpandLegalSourcePackNode:
-    """Expand legal source pack node implementation."""
+    """Planning DAG node that expands legal candidates into source bundles ready for verification.
+
+    Requires a candidate pack, respects source-depth params, and writes the
+    `legal_source_pack_ref` artifact that later verification and gap-review nodes reuse.
+    """
     @property
     def spec(self) -> NodeSpec:
         return _SPEC

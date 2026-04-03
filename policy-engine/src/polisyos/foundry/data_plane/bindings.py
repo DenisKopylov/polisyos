@@ -1,4 +1,11 @@
-"""Public data plane bindings module API."""
+"""Bind Fabric snapshots into Foundry state snapshots and input-binding reports.
+
+The public functions in this module implement the data-plane boundary consumed
+by `polisyos.foundry.execute.api.execute`: they resolve Fabric snapshot
+payloads, materialize a `GlobalState`, persist `FoundryInputBindings`, and
+return the bound `StateSnapshotRef` that execution should use as its base
+synthetic runtime state.
+"""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -37,7 +44,17 @@ _HOUSEHOLD_CELL_PREFIX = "household_cells."
 
 @dataclass(frozen=True)
 class InputBindingsBuildResult:
-    """References produced when a data snapshot is bound into Foundry state."""
+    """Collect the CAS refs emitted by `build_input_bindings()`.
+
+    Attributes:
+        input_bindings_ref: Boundary artifact consumed later by `execute()`.
+        input_binding_report_ref: Human-readable report describing applied
+            rules and warnings from the materialization step.
+        bound_state_snapshot_ref: Synthetic `GlobalState` snapshot produced
+            from the Fabric data payload and binding rules.
+        applied_binding_ids: IDs of binding rules that were successfully
+            applied to the state snapshot.
+    """
 
     input_bindings_ref: FoundryInputBindingsRef
     input_binding_report_ref: FoundryInputBindingReportRef
@@ -54,7 +71,50 @@ def build_input_bindings(
     quality_report_ref: ArtifactRef | None = None,
     notes: list[str] | None = None,
 ) -> InputBindingsBuildResult:
-    """Bind a fabric data snapshot into a concrete `GlobalState` snapshot."""
+    """Bind a Fabric snapshot into a concrete `GlobalState` runtime snapshot.
+
+    Explicit `rules` are validated against the registry slot schema; when no
+    rules are supplied, bindings are inferred from payload paths that match
+    slot IDs or slot `state_path` values. The function writes
+    `foundry.input_bindings`, `foundry.input_binding_report`, and a bound
+    `foundry.state_snapshot` artifact into CAS.
+
+    Args:
+        store: CAS containing the Fabric `DataSnapshot` and registry bundle and
+            receiving the bound state and binding artifacts.
+        data_snapshot_ref: Artifact reference to the Fabric data snapshot, or
+            a snapshot wrapper around an existing `foundry.state_snapshot`.
+        registry_bundle_ref: Registry bundle used to validate slot IDs,
+            infer entity sizes, and resolve `state_path` mappings.
+        rules: Optional explicit binding rules. If omitted, rules are inferred
+            from payload paths.
+        quality_report_ref: Optional quality report to attach to the generated
+            `FoundryInputBindings` artifact.
+        notes: Optional free-form notes copied into the persisted bindings.
+
+    Returns:
+        `InputBindingsBuildResult` with the boundary artifact refs needed by
+        `execute()`.
+
+    Raises:
+        ValueError: If a binding rule references an unknown slot, duplicates a
+            `binding_id`, or required source values cannot be materialized into
+            the target state path.
+
+    Example:
+        ```python
+        from polisyos.foundry.data_plane.bindings import build_input_bindings
+
+        built = build_input_bindings(
+            store,
+            data_snapshot_ref=data_snapshot_ref,
+            registry_bundle_ref=registry_bundle_ref,
+        )
+        execute_request = execute_request.model_copy(
+            update={"input_bindings_ref": built.input_bindings_ref}
+        )
+        ```
+    """
 
     snapshot = _load_data_snapshot(store, data_snapshot_ref)
     registry = load_registry_bundle_content(store, registry_bundle_ref)
@@ -176,7 +236,16 @@ def load_input_bindings(
     store: FileSystemCAS,
     ref: FoundryInputBindingsRef | ArtifactRef,
 ) -> FoundryInputBindings:
-    """Load a persisted Foundry input-binding artifact from CAS."""
+    """Load a persisted `FoundryInputBindings` boundary artifact from CAS.
+
+    Args:
+        store: CAS containing the serialized bindings artifact.
+        ref: Either a typed `FoundryInputBindingsRef` or a plain artifact ref
+            whose `artifact_id` points to a `foundry.input_bindings` payload.
+
+    Returns:
+        Parsed `FoundryInputBindings` model.
+    """
 
     payload = from_canonical_bytes(store.get_bytes(ref.artifact_id))
     return FoundryInputBindings.model_validate(payload)
@@ -186,7 +255,20 @@ def resolve_bound_state_snapshot_ref(
     store: FileSystemCAS,
     ref: FoundryInputBindingsRef | ArtifactRef,
 ) -> StateSnapshotRef:
-    """Resolve the bound state snapshot produced by an input-binding artifact."""
+    """Resolve the bound `StateSnapshotRef` and validate referenced artifacts.
+
+    Args:
+        store: CAS containing the input-binding artifact and the bound snapshot.
+        ref: Input-binding artifact reference returned by
+            `build_input_bindings()`.
+
+    Returns:
+        `StateSnapshotRef` that `execute()` can use as the simulation base.
+
+    Raises:
+        Exception: Propagates CAS read failures when either the original data
+            snapshot or the bound state snapshot is missing.
+    """
 
     bindings = load_input_bindings(store, ref)
     _ensure_artifact_readable(store, bindings.data_snapshot_ref)

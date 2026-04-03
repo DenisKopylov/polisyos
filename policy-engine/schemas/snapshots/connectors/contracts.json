@@ -213,6 +213,146 @@
       "dataset_id": "*",
       "schema_version": "1.0.0"
     },
+    "sdmx.generic": {
+      "connector_id": "sdmx.source",
+      "content_hash": "sha256:ad65e77fd766109b86841005c0c07335d1a0bc6885cc17660bd96b019da39b0d",
+      "contract": {
+        "completeness_scope": "latest_window",
+        "completeness_window_rows": 500,
+        "connector_id": "sdmx.source",
+        "contract_id": "sdmx.generic",
+        "created_by": "wave1",
+        "dataset_id": "*",
+        "description": "Wildcard contract for SDMX dataflows (dynamic dimension columns).",
+        "expected_row_count_range": [
+          null,
+          null
+        ],
+        "field_completeness": {
+          "value": 0.7
+        },
+        "field_mappings": [
+          {
+            "source_path": "value",
+            "target_field": "value",
+            "transform": "float"
+          },
+          {
+            "source_path": "TIME_PERIOD",
+            "target_field": "time_period",
+            "transform": null
+          },
+          {
+            "source_path": "FREQ",
+            "target_field": "freq",
+            "transform": null
+          }
+        ],
+        "max_staleness_hours": null,
+        "min_completeness": 0.6,
+        "schema": {
+          "allowed_null_fields": [
+            "freq",
+            "time_period",
+            "value"
+          ],
+          "created_at": null,
+          "description": "Generic SDMX schema with minimal fixed columns. Dimension columns are dynamic and depend on the specific dataflow.",
+          "fields": [
+            {
+              "additivity": "semi_additive",
+              "allowed_values": null,
+              "bounds": [
+                null,
+                null
+              ],
+              "data_type": "float64",
+              "description": "",
+              "display_unit": null,
+              "element_type": null,
+              "expected_completeness": 0.85,
+              "max_length": null,
+              "name": "value",
+              "nullable": true,
+              "pattern": null,
+              "precision": null,
+              "scale": null,
+              "semantic_type": null,
+              "source_name": "",
+              "tags": [],
+              "unit": null
+            },
+            {
+              "additivity": null,
+              "allowed_values": null,
+              "bounds": [
+                null,
+                null
+              ],
+              "data_type": "string",
+              "description": "",
+              "display_unit": null,
+              "element_type": null,
+              "expected_completeness": 0.9,
+              "max_length": 32,
+              "name": "time_period",
+              "nullable": true,
+              "pattern": null,
+              "precision": null,
+              "scale": null,
+              "semantic_type": "temporal",
+              "source_name": "",
+              "tags": [],
+              "unit": null
+            },
+            {
+              "additivity": null,
+              "allowed_values": null,
+              "bounds": [
+                null,
+                null
+              ],
+              "data_type": "string",
+              "description": "",
+              "display_unit": null,
+              "element_type": null,
+              "expected_completeness": 0.0,
+              "max_length": 8,
+              "name": "freq",
+              "nullable": true,
+              "pattern": null,
+              "precision": null,
+              "scale": null,
+              "semantic_type": "code",
+              "source_name": "",
+              "tags": [],
+              "unit": null
+            }
+          ],
+          "geo_dimension": null,
+          "geo_granularity": null,
+          "grain_dims": [],
+          "primary_key": [],
+          "required_completeness": 0.7,
+          "schema_id": "sdmx.generic",
+          "source": "SDMX REST API",
+          "tags": [
+            "multi-agency",
+            "sdmx",
+            "statistical"
+          ],
+          "time_dimension": "time_period",
+          "time_granularity": "quarterly",
+          "version": {
+            "major": 1,
+            "minor": 0,
+            "patch": 0
+          }
+        }
+      },
+      "dataset_id": "*",
+      "schema_version": "1.0.0"
+    },
     "ukons.datasets.generic": {
       "connector_id": "ukons.datasets",
       "content_hash": "sha256:24762f7d20e2a4761cce5e53eecbb2af20e58e26f111fd6e57e1878a08aa78d2",
@@ -684,6 +824,301 @@
             "worldbank"
           ],
           "time_dimension": "year",
+          "time_granularity": "annual",
+          "version": {
+            "major": 1,
+            "minor": 0,
+            "patch": 0
+          }
+        }
+      },
+      "dataset_id": "*",
+      "schema_version": "1.0.0"
+    },
+    "wvs.wave7.generic": {
+      "connector_id": "wvs.wave7",
+      "content_hash": "sha256:388a6114e2f173307d35ab37d0026e297f78f903b95d8f39102599c05c89ce8a",
+      "contract": {
+        "completeness_scope": "full_dataset",
+        "completeness_window_rows": null,
+        "connector_id": "wvs.wave7",
+        "contract_id": "wvs.wave7.generic",
+        "created_by": "phase0b",
+        "dataset_id": "*",
+        "description": "Wildcard contract for WVS wave-based indicator observations.",
+        "expected_row_count_range": [
+          null,
+          null
+        ],
+        "field_completeness": {
+          "country_code": 1.0,
+          "indicator_code": 1.0,
+          "survey_year": 1.0,
+          "value": 0.55,
+          "wave": 1.0
+        },
+        "field_mappings": [
+          {
+            "source_path": "country_code",
+            "target_field": "country_code",
+            "transform": null
+          },
+          {
+            "source_path": "country_name",
+            "target_field": "country_name",
+            "transform": null
+          },
+          {
+            "source_path": "survey_year",
+            "target_field": "survey_year",
+            "transform": "int"
+          },
+          {
+            "source_path": "wave",
+            "target_field": "wave",
+            "transform": "int"
+          },
+          {
+            "source_path": "indicator_code",
+            "target_field": "indicator_code",
+            "transform": null
+          },
+          {
+            "source_path": "indicator_label",
+            "target_field": "indicator_label",
+            "transform": null
+          },
+          {
+            "source_path": "value",
+            "target_field": "value",
+            "transform": "float"
+          },
+          {
+            "source_path": "sample_size",
+            "target_field": "sample_size",
+            "transform": "int"
+          }
+        ],
+        "max_staleness_hours": null,
+        "min_completeness": 0.55,
+        "schema": {
+          "allowed_null_fields": [
+            "country_name",
+            "indicator_label",
+            "sample_size",
+            "value"
+          ],
+          "created_at": null,
+          "description": "Normalized survey-wave schema for World Values Survey connector.",
+          "fields": [
+            {
+              "additivity": null,
+              "allowed_values": null,
+              "bounds": [
+                null,
+                null
+              ],
+              "data_type": "string",
+              "description": "",
+              "display_unit": null,
+              "element_type": null,
+              "expected_completeness": 1.0,
+              "max_length": 3,
+              "name": "country_code",
+              "nullable": false,
+              "pattern": null,
+              "precision": null,
+              "scale": null,
+              "semantic_type": "code",
+              "source_name": "",
+              "tags": [],
+              "unit": null
+            },
+            {
+              "additivity": null,
+              "allowed_values": null,
+              "bounds": [
+                null,
+                null
+              ],
+              "data_type": "string",
+              "description": "",
+              "display_unit": null,
+              "element_type": null,
+              "expected_completeness": 0.7,
+              "max_length": 256,
+              "name": "country_name",
+              "nullable": true,
+              "pattern": null,
+              "precision": null,
+              "scale": null,
+              "semantic_type": null,
+              "source_name": "",
+              "tags": [],
+              "unit": null
+            },
+            {
+              "additivity": null,
+              "allowed_values": null,
+              "bounds": [
+                1990.0,
+                2100.0
+              ],
+              "data_type": "int64",
+              "description": "",
+              "display_unit": null,
+              "element_type": null,
+              "expected_completeness": 1.0,
+              "max_length": null,
+              "name": "survey_year",
+              "nullable": false,
+              "pattern": null,
+              "precision": null,
+              "scale": null,
+              "semantic_type": "temporal",
+              "source_name": "",
+              "tags": [],
+              "unit": null
+            },
+            {
+              "additivity": null,
+              "allowed_values": null,
+              "bounds": [
+                1.0,
+                20.0
+              ],
+              "data_type": "int64",
+              "description": "",
+              "display_unit": null,
+              "element_type": null,
+              "expected_completeness": 1.0,
+              "max_length": null,
+              "name": "wave",
+              "nullable": false,
+              "pattern": null,
+              "precision": null,
+              "scale": null,
+              "semantic_type": "index",
+              "source_name": "",
+              "tags": [],
+              "unit": null
+            },
+            {
+              "additivity": null,
+              "allowed_values": null,
+              "bounds": [
+                null,
+                null
+              ],
+              "data_type": "string",
+              "description": "",
+              "display_unit": null,
+              "element_type": null,
+              "expected_completeness": 1.0,
+              "max_length": 64,
+              "name": "indicator_code",
+              "nullable": false,
+              "pattern": null,
+              "precision": null,
+              "scale": null,
+              "semantic_type": null,
+              "source_name": "",
+              "tags": [],
+              "unit": null
+            },
+            {
+              "additivity": null,
+              "allowed_values": null,
+              "bounds": [
+                null,
+                null
+              ],
+              "data_type": "string",
+              "description": "",
+              "display_unit": null,
+              "element_type": null,
+              "expected_completeness": 0.7,
+              "max_length": 512,
+              "name": "indicator_label",
+              "nullable": true,
+              "pattern": null,
+              "precision": null,
+              "scale": null,
+              "semantic_type": null,
+              "source_name": "",
+              "tags": [],
+              "unit": null
+            },
+            {
+              "additivity": "semi_additive",
+              "allowed_values": null,
+              "bounds": [
+                null,
+                null
+              ],
+              "data_type": "float64",
+              "description": "",
+              "display_unit": null,
+              "element_type": null,
+              "expected_completeness": 0.6,
+              "max_length": null,
+              "name": "value",
+              "nullable": true,
+              "pattern": null,
+              "precision": null,
+              "scale": null,
+              "semantic_type": null,
+              "source_name": "",
+              "tags": [],
+              "unit": null
+            },
+            {
+              "additivity": null,
+              "allowed_values": null,
+              "bounds": [
+                null,
+                null
+              ],
+              "data_type": "int64",
+              "description": "",
+              "display_unit": null,
+              "element_type": null,
+              "expected_completeness": 0.2,
+              "max_length": null,
+              "name": "sample_size",
+              "nullable": true,
+              "pattern": null,
+              "precision": null,
+              "scale": null,
+              "semantic_type": null,
+              "source_name": "",
+              "tags": [],
+              "unit": null
+            }
+          ],
+          "geo_dimension": "country_code",
+          "geo_granularity": null,
+          "grain_dims": [
+            "country_code",
+            "survey_year",
+            "wave",
+            "indicator_code"
+          ],
+          "primary_key": [
+            "country_code",
+            "survey_year",
+            "wave",
+            "indicator_code"
+          ],
+          "required_completeness": 0.6,
+          "schema_id": "wvs.wave7.generic",
+          "source": "World Values Survey",
+          "tags": [
+            "survey",
+            "values",
+            "wvs"
+          ],
+          "time_dimension": "survey_year",
           "time_granularity": "annual",
           "version": {
             "major": 1,

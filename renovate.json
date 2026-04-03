@@ -1,0 +1,135 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:best-practices"],
+  "timezone": "Europe/Kiev",
+  "dependencyDashboard": true,
+  "rangeStrategy": "replace",
+  "labels": ["dependencies"],
+  "schedule": ["* 3 1-7,15-21 * 1"],
+  "updateNotScheduled": false,
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": ["* 3 * * 1"]
+  },
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "labels": ["dependencies", "security"]
+  },
+  "packageRules": [
+    {
+      "description": "Python tooling moves weekly",
+      "matchFileNames": ["policy-engine/pyproject.toml", "policy-engine/uv.lock"],
+      "matchPackageNames": [
+        "mypy",
+        "pre-commit",
+        "ruff",
+        "types-requests",
+        "pytest",
+        "pytest-asyncio",
+        "pytest-benchmark",
+        "hypothesis",
+        "mkdocs",
+        "mkdocs-material",
+        "mkdocstrings",
+        "jupyterlab",
+        "matplotlib",
+        "seaborn",
+        "mutmut"
+      ],
+      "groupName": "python tooling",
+      "labels": ["dependencies", "python", "tooling"],
+      "schedule": ["* 3 * * 1"]
+    },
+    {
+      "description": "Security-sensitive Python runtime libraries stay grouped",
+      "matchFileNames": ["policy-engine/pyproject.toml", "policy-engine/uv.lock"],
+      "matchPackageNames": [
+        "aiohttp",
+        "boto3",
+        "cryptography",
+        "fastapi",
+        "httpx",
+        "openai",
+        "pydantic",
+        "pydantic-settings",
+        "PyJWT",
+        "sigstore",
+        "uvicorn"
+      ],
+      "groupName": "security-sensitive runtime libraries",
+      "labels": ["dependencies", "python", "security"]
+    },
+    {
+      "description": "Frontend build and lint tooling moves weekly",
+      "matchFileNames": ["policy-engine/frontend/runtime-dashboard/package.json"],
+      "matchPackageNames": [
+        "@eslint/js",
+        "@lhci/cli",
+        "@tailwindcss/postcss",
+        "@tailwindcss/vite",
+        "@testing-library/jest-dom",
+        "@testing-library/react",
+        "@testing-library/user-event",
+        "@types/node",
+        "@types/react",
+        "@types/react-dom",
+        "@vitejs/plugin-react",
+        "@vitest/coverage-v8",
+        "@vitest/eslint-plugin",
+        "dependency-cruiser",
+        "eslint",
+        "eslint-config-prettier",
+        "eslint-import-resolver-typescript",
+        "eslint-plugin-boundaries",
+        "eslint-plugin-import",
+        "eslint-plugin-jsx-a11y",
+        "eslint-plugin-react-hooks",
+        "eslint-plugin-testing-library",
+        "eslint-plugin-unused-imports",
+        "globals",
+        "jsdom",
+        "lefthook",
+        "msw",
+        "openapi-typescript",
+        "postcss",
+        "prettier",
+        "prettier-plugin-tailwindcss",
+        "rollup-plugin-visualizer",
+        "tailwindcss",
+        "typescript",
+        "typescript-eslint",
+        "vite",
+        "vitest",
+        "vitest-axe",
+        "web-vitals"
+      ],
+      "groupName": "frontend tooling",
+      "labels": ["dependencies", "frontend", "tooling"],
+      "schedule": ["* 3 * * 1"]
+    },
+    {
+      "description": "Playwright and Storybook stay in their own weekly batch",
+      "matchFileNames": ["policy-engine/frontend/runtime-dashboard/package.json"],
+      "matchPackageNames": [
+        "@axe-core/playwright",
+        "@playwright/test",
+        "@storybook/addon-a11y",
+        "@storybook/addon-vitest",
+        "@storybook/react-vite",
+        "@vitest/browser-playwright",
+        "eslint-plugin-storybook",
+        "storybook"
+      ],
+      "groupName": "playwright and storybook",
+      "labels": ["dependencies", "frontend", "browser"],
+      "schedule": ["* 3 * * 1"]
+    },
+    {
+      "description": "GitHub Actions stay in one weekly batch",
+      "matchManagers": ["github-actions"],
+      "groupName": "github actions",
+      "labels": ["dependencies", "github-actions"],
+      "schedule": ["* 3 * * 1"]
+    }
+  ]
+}

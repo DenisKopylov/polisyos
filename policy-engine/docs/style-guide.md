@@ -82,6 +82,163 @@ class ProblemFrame(BaseModel):
 
 ---
 
+## Semantic Docstring Quality
+
+Phase 7 требует не только "наличие docstring", но и **содержательное описание публичного API**.
+Для user-facing, governance-critical и reference-visible символов docstring должен объяснять
+роль объекта в предметной модели, условия корректного использования, границы контракта и связь
+с соседними слоями.
+
+### Что запрещено
+
+Placeholder one-liners, которые формально существуют, но не дают контекста:
+
+```python
+"""Public core security package API."""
+```
+
+```python
+def parse_rows(payload: bytes) -> list[Row]:
+    """Parse rows helper."""
+```
+
+```python
+class RoutingState(BaseModel):
+    """Routing state data model."""
+```
+
+```python
+class Registry:
+    """Registry implementation."""
+```
+
+### Что писать вместо этого
+
+#### Module / package facade
+
+```python
+"""Expose tenant-security contracts through a lazy package facade.
+
+`polisyos.core.security` is the stable authorization boundary for runtime
+services and control-plane tooling. Exports stay lazy so docs and CLI bootstrap
+paths can inspect auth contracts without eagerly initializing OPA, TEE, or
+storage backends.
+
+Treat names in `__all__` as the supported public surface; non-exported helpers
+remain module-private.
+"""
+```
+
+#### Class / Pydantic model
+
+```python
+class RoutingState(BaseModel):
+    """Track cursor ownership for collaborative review sessions.
+
+    The state is persisted per `(run_id, artifact_ref)` pair and must be updated
+    atomically with lock ownership checks so stale clients cannot overwrite a
+    newer cursor. Runtime HTTP review routes serialize this model directly.
+
+    Attributes:
+        cursor_token: Opaque cursor identifier issued by the active reviewer.
+        updated_at: UTC timestamp of the latest successful cursor write.
+    """
+
+    cursor_token: str
+    updated_at: datetime
+```
+
+#### Function / method
+
+```python
+def parse_rows(payload: bytes, *, source_name: str) -> list[Row]:
+    """Parse a connector payload into canonical row objects.
+
+    Use this parser for trusted source adapters that already passed transport
+    validation. The function normalizes field order and rejects malformed row
+    envelopes instead of silently dropping records.
+
+    Args:
+        payload: Raw UTF-8 encoded payload returned by the connector backend.
+        source_name: Human-readable source label used in validation errors.
+
+    Returns:
+        Canonical row objects ready for persistence into the world fact log.
+
+    Raises:
+        ValueError: If the payload is not valid JSON or row envelopes are malformed.
+    """
+```
+
+### Минимальный semantic checklist
+
+- One-line summary объясняет **роль или действие**, а не повторяет имя символа.
+- Для классов/моделей указан lifecycle или инварианты, а не только список полей.
+- Для boundary objects явно назван соседний контракт/слой, который их читает или пишет.
+- Для публичных функций есть `Args`, `Returns`, `Raises`, а для entrypoints/loaders/compile
+  APIs — ещё и `Example`.
+- Если API тривиален и реально не заслуживает длинного описания, лучше сделать короткий,
+  но предметный summary, чем писать `... helper.`.
+
+### Allowlist / pragma
+
+Автоматический gate: `tools/validation/check_docstring_quality.py`.
+
+Для редких тривиальных wrappers допустимы точечные исключения:
+
+- добавить fully qualified symbol в `tools/validation/docstring_quality_allowlist.txt`;
+- или поставить inline pragma рядом с определением:
+
+```python
+# docstring-quality: ignore
+def passthrough(value: str) -> str:
+    """Return the input unchanged."""
+    return value
+```
+
+Не используйте allowlist для user-facing API, фасадов пакетов, compile/execute/load entrypoints,
+governance passes и boundary models.
+
+---
+
+## Docs Reality & Publishability
+
+Documentation должна совпадать с текущей реальностью репозитория, а не с историческими планами.
+
+### Базовые правила
+
+- Не оставляйте repo placeholders в опубликованных docs.
+- Не ссылайтесь на удалённые GitHub Actions workflows; используйте только реально существующие
+  файлы из `.github/workflows/`.
+- Не вставляйте локальные filesystem links (`/Users/...`, `file://...`) в markdown docs.
+- Абсолютные ссылки на docs site должны соответствовать `mkdocs.yml:site_url`.
+- Внутренние markdown links должны реально резолвиться из текущего дерева `docs/`.
+
+### Автоматическая проверка
+
+CI docs-quality gate запускает:
+
+- `uv run --extra docs python -m mkdocs build --strict`
+- `python3 tools/validation/check_docs_accuracy.py --repo-root .`
+- `uv run --extra docs python tools/validation/check_docstring_quality.py --repo-root . --allowlist tools/validation/docstring_quality_allowlist.txt`
+
+Semantic coverage gate применяется к top-level public surface (module/class/function exports and
+reference-visible symbols). Method-level gaps остаются в отчёте как отдельный second-pass backlog
+и не должны скрываться под allowlist без явной причины.
+
+---
+
+## README Freshness Policy
+
+- Любое изменение package facade, рекомендуемого entrypoint, generated/reference artifact location
+  или subsystem navigation должно обновлять ближайший `README.md`.
+- Каждый package README должен содержать freshness marker:
+  - `- Last updated: YYYY-MM-DD`
+  - или `- Последнее обновление: YYYY-MM-DD`
+- Major subsystem README должен содержать раздел `## Where to Start`.
+- Если пакет владеет committed generated artifacts или важными reference docs, README должен явно
+  указывать их расположение и каноническую точку входа.
+
 ## README Template (per-module)
 
 Каждый модуль в `src/polisyos/` должен иметь `README.md` следующей структуры:
@@ -105,11 +262,21 @@ One paragraph: что делает модуль, какую проблему р�
 
 ## Public API
 
-Основные экспорты модуля. Подробная документация: [Reference →](../../docs/reference/module/)
+Основные экспорты модуля. Подробная документация: `docs/reference/<module>/`
+
+## Where to Start
+
+- Как менять public facade
+- Какой файл/директория является канонической точкой входа
+- Где искать ближайшие generated/reference artifacts
+
+## Generated / Reference Artifacts
+
+- `<artifact family>` — `<path>` — `<regen command>`
 
 ## Текущее состояние
 
-Последнее обновление: YYYY-MM-DD
+- Last updated: YYYY-MM-DD
 ```
 
 ### Правила

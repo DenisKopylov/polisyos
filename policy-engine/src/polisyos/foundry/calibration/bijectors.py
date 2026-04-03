@@ -1,4 +1,9 @@
-"""Public calibration bijectors module API."""
+"""Map bounded trainable parameters to unconstrained optimizer coordinates.
+
+`Calibrator` optimizes in unconstrained space and then projects values back to
+mechanism parameter domains through these bijectors. The helpers are pure JAX
+transformations and do not touch CAS or mutate mechanism state in place.
+"""
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -10,7 +15,17 @@ import jax.numpy as jnp
 
 @dataclass
 class Bijector:
-    """Bijector public type."""
+    """Pair forward/inverse transforms for one optimizer parameter block.
+
+    Attributes:
+        forward: Map an unconstrained optimizer value into the constrained
+            mechanism parameter domain.
+        inverse: Map a constrained parameter value back to unconstrained
+            coordinates.
+        log_det_jacobian: Optional log-Jacobian term for future Bayesian or
+            density-aware calibration extensions.
+    """
+
     forward: Callable[[jnp.ndarray], jnp.ndarray]
     inverse: Callable[[jnp.ndarray], jnp.ndarray]
     log_det_jacobian: Callable[[jnp.ndarray], jnp.ndarray] | None = None
@@ -25,7 +40,17 @@ def _identity() -> Bijector:
 
 
 def make_bijector(lower: float | None, upper: float | None, eps: float = 1e-6) -> Bijector:
-    """Строим простую биекцию для ограничения параметров."""
+    """Build a box-constraint bijector for a trainable parameter.
+
+    Args:
+        lower: Inclusive lower bound, or `None` for no lower constraint.
+        upper: Inclusive upper bound, or `None` for no upper constraint.
+        eps: Numerical stabilizer used by inverse transforms near boundaries.
+
+    Returns:
+        Identity, softplus, reverse-softplus, or logistic box bijector matching
+        the supplied bounds.
+    """
     if lower is None and upper is None:
         return _identity()
     if lower is not None and upper is None:
@@ -44,8 +69,7 @@ def make_bijector(lower: float | None, upper: float | None, eps: float = 1e-6) -
         )
     if lower is not None and upper is not None:
         width = upper - lower
-        # "Температура" для sigmoid-параметризации: меньшие значения дают более сильный
-        # градиент в ограниченном пространстве (полезно для быстрой сходимости калибратора).
+        # Lower sigmoid temperature sharpens gradients inside the bounded domain.
         temperature = 0.5
         return Bijector(
             forward=lambda u: jax.nn.sigmoid(u / temperature) * width + lower,
@@ -149,12 +173,12 @@ def inverse_bijector(b: Bijector) -> Bijector:
 
 
 def to_unconstrained(values: Sequence[jnp.ndarray], bijectors: Sequence[Bijector]) -> List[jnp.ndarray]:
-    """Convert to unconstrained."""
+    """Transform constrained parameter values into optimizer coordinates."""
     return [b.inverse(v) for b, v in zip(bijectors, values)]
 
 
 def from_unconstrained(
     unconstrained: Sequence[jnp.ndarray], bijectors: Sequence[Bijector]
 ) -> List[jnp.ndarray]:
-    """Create from unconstrained."""
+    """Transform optimizer coordinates back into constrained parameter values."""
     return [b.forward(u) for b, u in zip(bijectors, unconstrained)]

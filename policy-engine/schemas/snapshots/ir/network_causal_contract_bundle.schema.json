@@ -2,6 +2,7 @@
   "$defs": {
     "ContractCompatibilityTarget": {
       "additionalProperties": false,
+      "description": "Identifier of a downstream contract that an observation bundle targets.",
       "properties": {
         "contract_fqn": {
           "maxLength": 255,
@@ -24,6 +25,7 @@
       "type": "object"
     },
     "MultiplexGraphLayerId": {
+      "description": "Select the graph layer consumed by network compilers and interference checks.",
       "enum": [
         "budget",
         "procurement",
@@ -36,12 +38,18 @@
     }
   },
   "additionalProperties": false,
+  "description": "Manifest and payload wrapper for interference-aware network causal inputs.\n\nNetwork causal estimators consume ``contract_payload`` according to\n``contract_target`` while readiness and governance layers inspect\n``supported_layers`` and ``interference_required`` to enforce SUTVA-related\nguardrails.",
   "properties": {
     "artifact_name": {
       "const": "network_causal_contract_bundle_v1.json",
       "default": "network_causal_contract_bundle_v1.json",
       "title": "Artifact Name",
       "type": "string"
+    },
+    "contract_payload": {
+      "additionalProperties": true,
+      "title": "Contract Payload",
+      "type": "object"
     },
     "contract_target": {
       "$ref": "#/$defs/ContractCompatibilityTarget"

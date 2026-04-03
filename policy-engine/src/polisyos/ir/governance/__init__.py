@@ -1,4 +1,10 @@
-"""Governance and policy framing IR models."""
+"""Expose the governance-side IR contracts for Trinity policy authoring.
+
+This package facade groups the ``ProblemFrame`` objective vocabulary,
+``PolicySpec`` intervention contracts, selector expressions, schedules, and
+gate payloads. Public names are resolved lazily to keep the stable authoring
+surface available without importing every governance submodule at package load.
+"""
 
 from __future__ import annotations
 
@@ -136,6 +142,7 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
 
 
 def __getattr__(name: str) -> Any:
+    """Resolve a lazily exported governance contract by public name."""
     if name in _LAZY_IMPORTS:
         module_name, attr = _LAZY_IMPORTS[name]
         module = importlib.import_module(module_name)
@@ -146,4 +153,5 @@ def __getattr__(name: str) -> Any:
 
 
 def __dir__() -> list[str]:
+    """Return eagerly defined names plus lazily exported governance symbols."""
     return sorted(list(globals().keys()) + list(_LAZY_IMPORTS.keys()))

@@ -1,4 +1,4 @@
-"""Public ir portfolio module API."""
+"""Represent candidate policy portfolios and pairwise interaction assumptions."""
 from __future__ import annotations
 
 from enum import Enum
@@ -157,7 +157,12 @@ MAX_PORTFOLIO_POLICIES = 20
 
 
 class PolicyPortfolio(KernelModel):
-    """Portfolio-level IR artifact for multi-policy optimization."""
+    """Bundle a feasible policy set plus pairwise interaction rules for portfolio search.
+
+    Use ``policies`` for inline candidate specs, ``policy_refs`` when candidates
+    are stored externally, and ``interaction_matrix`` plus cardinality/exclusion
+    constraints to evaluate portfolio feasibility and total benefit.
+    """
 
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
 

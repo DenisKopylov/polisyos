@@ -54,7 +54,7 @@ def _distributional_output_slot() -> frozenset[SlotSpec]:
     tags={"distributional", "inequality", "lorenz", "cross-section"},
 )
 class LorenzCurveEstimator:
-    """Lorenz curve estimator implementation."""
+    """Trace Lorenz-curve coordinates for inequality diagnostics and downstream plotting."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -114,7 +114,7 @@ class LorenzCurveEstimator:
     tags={"distributional", "inequality", "atkinson", "cross-section"},
 )
 class AtkinsonIndexEstimator:
-    """Atkinson index estimator implementation."""
+    """Estimate Atkinson inequality indices when welfare aversion matters."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -173,7 +173,7 @@ class AtkinsonIndexEstimator:
     tags={"distributional", "inequality", "generalized-entropy", "cross-section"},
 )
 class GeneralizedEntropyEstimator:
-    """Generalized entropy estimator implementation."""
+    """Estimate generalized-entropy indices for decomposable inequality audits."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -225,7 +225,7 @@ class GeneralizedEntropyEstimator:
     tags={"distributional", "poverty", "fgt", "cross-section"},
 )
 class FGTPovertyEstimator:
-    """FGT poverty estimator implementation."""
+    """Estimate Foster-Greer-Thorbecke poverty gaps for poverty-oriented policy comparisons."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 

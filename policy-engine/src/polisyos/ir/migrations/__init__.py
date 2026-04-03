@@ -1,4 +1,4 @@
-"""Public ir migrations package API."""
+"""Versioned entrypoints for migrating canonical policy IR payloads between schema releases."""
 from __future__ import annotations
 
 import re
@@ -14,7 +14,7 @@ _VERSION_RE = re.compile(r"^(?P<major>\d+)\.(?P<minor>\d+)$")
 
 
 def parse_version(version: str) -> tuple[int, int]:
-    """Parse version helper."""
+    """Parse a schema version string into ``(major, minor)`` for migration comparisons."""
     match = _VERSION_RE.match(version)
     if not match:
         raise ValueError(f"Invalid schema version '{version}'. Expected MAJOR.MINOR.")

@@ -1,4 +1,4 @@
-"""Public sources wvs module API."""
+"""World Values Survey connector implementation for wave-aware survey indicator retrieval."""
 from __future__ import annotations
 
 import logging

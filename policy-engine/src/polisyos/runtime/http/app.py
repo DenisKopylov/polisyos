@@ -1,4 +1,4 @@
-"""Public http app module API."""
+"""Assembles the FastAPI runtime surface, middleware chain, and OpenAPI contract."""
 from __future__ import annotations
 
 import time
@@ -70,7 +70,9 @@ def create_runtime_api_app(
         authz_shadow_mode=authz_shadow_mode,
         security_chain_available=security_chain_available,
     )
-    security_middlewares_enabled = enable_security_middlewares or deployment_policy.security_required
+    security_middlewares_enabled = (
+        enable_security_middlewares or deployment_policy.security_required
+    )
     runtime_ctx = build_runtime_api_context(
         cas_root=normalized_cas_root,
         core_runs_root=normalized_core_runs_root,
@@ -163,11 +165,19 @@ def _install_request_telemetry_middleware(app: Any) -> None:
             try:
                 response = await call_next(request)
                 status_code = int(getattr(response, "status_code", 500))
-            except (AttributeError, KeyError, OSError, RuntimeError, TimeoutError, TypeError, ValueError):
+            except (
+                AttributeError,
+                KeyError,
+                OSError,
+                RuntimeError,
+                TimeoutError,
+                TypeError,
+                ValueError,
+            ):
                 status_code = 500
                 _record_runtime_api_metric(
                     metrics=metrics,
-                    route=request.url.path,
+                    route=_resolve_runtime_route_label(request),
                     method=request.method,
                     status_code=status_code,
                     duration_seconds=time.perf_counter() - started,
@@ -177,13 +187,21 @@ def _install_request_telemetry_middleware(app: Any) -> None:
         duration_seconds = time.perf_counter() - started
         _record_runtime_api_metric(
             metrics=metrics,
-            route=request.url.path,
+            route=_resolve_runtime_route_label(request),
             method=request.method,
             status_code=status_code,
             duration_seconds=duration_seconds,
         )
         response.headers["X-Request-ID"] = request_id
         return response
+
+
+def _resolve_runtime_route_label(request: Request) -> str:
+    route = request.scope.get("route")
+    route_path = getattr(route, "path", None)
+    if isinstance(route_path, str) and route_path:
+        return route_path
+    return "unmatched"
 
 
 def _record_runtime_api_metric(
@@ -205,7 +223,7 @@ def _record_runtime_api_metric(
 
 
 def export_runtime_openapi_schema(*, app: Any | None = None) -> dict[str, Any]:
-    """Export runtime openapi schema helper."""
+    """Return the runtime API OpenAPI document from the supplied or freshly built app."""
     runtime_app = app or create_runtime_api_app()
     return runtime_app.openapi()
 

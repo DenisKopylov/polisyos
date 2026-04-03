@@ -1,6 +1,7 @@
 {
   "$defs": {
     "CohortDimension": {
+      "description": "Select the cohort axis used when slicing winners/losers summaries.",
       "enum": [
         "income_quintile",
         "income_decile",
@@ -17,6 +18,7 @@
     },
     "CohortImpact": {
       "additionalProperties": false,
+      "description": "Distributional impact summary for one cohort within a breakdown.",
       "properties": {
         "cohort_id": {
           "minLength": 1,
@@ -73,6 +75,7 @@
     },
     "DimensionBreakdown": {
       "additionalProperties": false,
+      "description": "Distributional comparison grouped by one cohort dimension.",
       "properties": {
         "cohorts": {
           "items": {
@@ -150,6 +153,7 @@
       "type": "object"
     },
     "ImpactDirection": {
+      "description": "Coarse direction of a cohort or KPI impact.",
       "enum": [
         "positive",
         "negative",
@@ -160,6 +164,7 @@
       "type": "string"
     },
     "MetricUnit": {
+      "description": "Declare how distributional magnitudes should be rendered downstream.",
       "enum": [
         "percent",
         "ratio",
@@ -170,6 +175,7 @@
     },
     "WinnersLosersEntry": {
       "additionalProperties": false,
+      "description": "Flattened cohort record used in winners/losers summaries.",
       "properties": {
         "cohort_id": {
           "title": "Cohort Id",
@@ -224,6 +230,7 @@
     },
     "WinnersLosersTable": {
       "additionalProperties": false,
+      "description": "Partition of affected cohorts into winners, losers, and neutral groups.",
       "properties": {
         "canonical_dimension": {
           "anyOf": [

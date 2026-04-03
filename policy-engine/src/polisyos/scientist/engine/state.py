@@ -1,4 +1,10 @@
-"""Public engine state module API."""
+"""Typed state container exchanged between Scientist nodes and workflow runners.
+
+`ExperimentState` is the primary boundary object for the engine DAG: builtin
+nodes declare which keys they read/write, governance nodes materialize verdicts
+into `params` and `reports_index`, and decision nodes persist the final packet
+into `artifacts_index`.
+"""
 from __future__ import annotations
 
 from decimal import Decimal
@@ -14,7 +20,25 @@ JsonScalar = JsonPrimitive
 
 
 class ExperimentState(BaseModel):
-    """Minimal experiment state for Scientist workflows."""
+    """Carry workflow inputs, produced artifacts, reports, and mutable run params.
+
+    Instances are copied between node executions and validated with
+    `extra="forbid"`, so user-facing entrypoints must migrate unknown fields into
+    `params`, `inputs`, `artifacts_index`, or `reports_index` instead of adding new
+    top-level keys. Node implementations may mutate a copied state object only on
+    keys declared by their `NodeSpec.state_writes`.
+
+    Attributes:
+        schema_version: Version of the state envelope contract.
+        run_id: Stable run identifier shared with CAS manifests, checkpoints,
+            and provenance records.
+        inputs: Boundary artifact refs supplied by the caller or upstream nodes.
+        artifacts_index: CAS refs for machine-readable artifacts produced during the DAG.
+        reports_index: CAS refs for human/audit reports such as governance outputs.
+        params: JSON-compatible orchestration state, planner hints, and governance flags.
+        budgets: Named Decimal budgets consumed by execution and governance layers.
+        last_checkpoint_ref: Latest replay checkpoint emitted by the executor.
+    """
 
     model_config = ConfigDict(extra="forbid")
 

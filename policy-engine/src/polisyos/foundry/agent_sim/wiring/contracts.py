@@ -1,4 +1,10 @@
-"""Public wiring contracts module API."""
+"""Define vectorized intervention payloads consumed by agent-sim executors.
+
+These classes are the public boundary objects between compiled intervention
+metadata and synthetic runtime state updates. They normalize firm lifecycle,
+procurement shock, tax, and transfer inputs before executor classes mutate a
+`GlobalState` snapshot.
+"""
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
@@ -16,7 +22,7 @@ from polisyos.lex.interventions import CompiledLexIntervention
 
 
 class FirmLifecycleEventType(IntEnum):
-    """Event codes used by population-aware firm lifecycle updates."""
+    """Enumerate lifecycle event codes accepted by `FirmLifecycleEventBatch`."""
 
     ENTRY = 0
     EXIT = 1
@@ -44,7 +50,12 @@ def multiplex_layer_code(layer: MultiplexGraphLayerId | str) -> int:
 
 @chex.dataclass(frozen=True)
 class FirmLifecycleEventBatch:
-    """Vectorized batch of firm entry, exit, and type-transition events."""
+    """Carry firm lifecycle events as aligned JAX arrays for vectorized updates.
+
+    All fields must share the same leading `n_events` dimension. Missing
+    optional numeric values are represented with `NaN` so executors can keep
+    existing firm-state values when a record omits an update.
+    """
 
     event_type: Int[Array, "n_events"]
     firm_id: Int[Array, "n_events"]
@@ -61,6 +72,7 @@ class FirmLifecycleEventBatch:
 
     @classmethod
     def empty(cls) -> "FirmLifecycleEventBatch":
+        """Return a zero-length batch that preserves dtypes expected by executors."""
         empty_i = jnp.zeros((0,), dtype=jnp.int32)
         empty_f = jnp.zeros((0,), dtype=jnp.float32)
         return cls(
@@ -83,6 +95,15 @@ class FirmLifecycleEventBatch:
         cls,
         records: Sequence[Mapping[str, Any]],
     ) -> "FirmLifecycleEventBatch":
+        """Build a vectorized lifecycle batch from dict-like records.
+
+        Args:
+            records: Sequence of mappings containing `event_type` and optional
+                firm state fields.
+
+        Returns:
+            `FirmLifecycleEventBatch` with one array per lifecycle attribute.
+        """
         if not records:
             return cls.empty()
         return cls(
@@ -139,7 +160,7 @@ class FirmLifecycleEventBatch:
 
 @chex.dataclass(frozen=True)
 class ProcurementShockBatch:
-    """Vectorized procurement-shock inputs for graph-aware execution."""
+    """Carry supply-chain shock seeds for propagation over the procurement graph."""
 
     origin_firm_id: Int[Array, "n_shocks"]
     magnitude: Float[Array, "n_shocks"]
@@ -148,6 +169,7 @@ class ProcurementShockBatch:
 
     @classmethod
     def empty(cls) -> "ProcurementShockBatch":
+        """Return an empty shock batch with executor-compatible dtypes."""
         empty_i = jnp.zeros((0,), dtype=jnp.int32)
         empty_f = jnp.zeros((0,), dtype=jnp.float32)
         return cls(
@@ -162,6 +184,7 @@ class ProcurementShockBatch:
         cls,
         records: Sequence[Mapping[str, Any]],
     ) -> "ProcurementShockBatch":
+        """Build a procurement shock batch from dict-like shock records."""
         if not records:
             return cls.empty()
         return cls(
@@ -229,7 +252,12 @@ def _resolve_str(
 
 @dataclass(frozen=True)
 class InterventionMechanismConfig:
-    """Normalized intervention parameters for agent-sim distribution mechanisms."""
+    """Normalize tax, transfer, and targeting parameters for distribution mechanisms.
+
+    This object is the control side of agent simulation; synthetic state lives
+    in `GlobalState`, while this config only declares which agents/firms/cells
+    are eligible and how policy parameters should be interpreted.
+    """
 
     base_tax_rate: float = 0.0
     tax_progressivity: float = 0.0
@@ -250,6 +278,7 @@ class InterventionMechanismConfig:
         *,
         metadata: Mapping[str, Any] | None = None,
     ) -> "InterventionMechanismConfig":
+        """Normalize loose intervention params/metadata into a strict runtime config."""
         resolved = dict(params or {})
         extra = dict(metadata or {})
         return cls(
@@ -313,6 +342,7 @@ class InterventionMechanismConfig:
         cls,
         compiled: CompiledLexIntervention,
     ) -> "InterventionMechanismConfig":
+        """Create a runtime config from a compiled Lex intervention contract."""
         params = dict(compiled.intervention.params)
         metadata = dict(compiled.metadata)
         kind = compiled.intervention.kind
@@ -354,9 +384,11 @@ class InterventionMechanismConfig:
         )
 
     def has_tax(self) -> bool:
+        """Return `True` when the config activates a tax mechanism."""
         return self.base_tax_rate > 0.0 or self.tax_progressivity > 0.0
 
     def has_transfer(self) -> bool:
+        """Return `True` when the config activates a transfer mechanism."""
         return self.total_transfer_budget > 0.0
 
 

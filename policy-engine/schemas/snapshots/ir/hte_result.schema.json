@@ -1,6 +1,7 @@
 {
   "$defs": {
     "CausalMethod": {
+      "description": "Declare which estimator family produced a ``CausalEffectReport``.\n\nReporting, diagnostics, and uncertainty conversion use this enum to explain\nestimator provenance and to select method-specific governance checks.",
       "enum": [
         "synthetic_control",
         "difference_in_differences",
@@ -33,6 +34,7 @@
     },
     "FeatureImportance": {
       "additionalProperties": false,
+      "description": "Ranking signal for a feature used in heterogeneous-effect modeling.",
       "properties": {
         "feature_name": {
           "minLength": 1,
@@ -69,6 +71,7 @@
     },
     "SubgroupEffect": {
       "additionalProperties": false,
+      "description": "Estimated conditional treatment effect for one labeled subgroup.",
       "properties": {
         "cate_ci_lower": {
           "title": "Cate Ci Lower",
@@ -166,6 +169,7 @@
     }
   },
   "additionalProperties": false,
+  "description": "Canonical artifact for heterogeneous treatment effect estimation.",
   "properties": {
     "ate": {
       "title": "Ate",

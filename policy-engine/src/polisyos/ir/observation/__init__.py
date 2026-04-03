@@ -1,4 +1,11 @@
-"""Public ir observation package API."""
+"""Expose the observation contract stack through a lazy package facade.
+
+The stable surface spans raw records/panels, family governance policy,
+measurement routing, bundle manifests, compiler-facing contracts, and
+readiness/execution artifacts. Names in ``__all__`` are imported lazily so
+callers can depend on IR schemas without eagerly loading every compiler or
+runtime protocol dependency.
+"""
 from __future__ import annotations
 
 import importlib
@@ -623,6 +630,7 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
 
 
 def __getattr__(name: str) -> Any:
+    """Resolve a lazily exported observation contract by public name."""
     if name in _LAZY_IMPORTS:
         module_name, attr = _LAZY_IMPORTS[name]
         module = importlib.import_module(module_name)
@@ -633,4 +641,5 @@ def __getattr__(name: str) -> Any:
 
 
 def __dir__() -> list[str]:
+    """Return eagerly defined names plus lazily exported observation symbols."""
     return sorted(list(globals().keys()) + list(_LAZY_IMPORTS.keys()))

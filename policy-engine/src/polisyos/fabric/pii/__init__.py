@@ -1,4 +1,4 @@
-"""Public fabric pii package API."""
+"""PII detection surface for screening ingested fabric payloads before wider use."""
 from polisyos.fabric.pii.detector import PresidioConfig, PresidioDetector
 from polisyos.fabric.pii.models import PIIEntity, PIIEntityType, PIIScanResult, PIISeverity
 from polisyos.fabric.pii.stage import PIIDetectionStage

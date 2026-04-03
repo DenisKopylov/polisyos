@@ -1,139 +1,20 @@
-name: Frontend Quality
+name: Frontend Quality (Archived)
 
 on:
-  pull_request:
-    paths:
-      - ".github/workflows/frontend-quality.yml"
-      - "policy-engine/frontend/runtime-dashboard/**"
-      - "policy-engine/pyproject.toml"
-      - "policy-engine/uv.lock"
-      - "policy-engine/src/**"
-  push:
-    branches:
-      - main
-    paths:
-      - ".github/workflows/frontend-quality.yml"
-      - "policy-engine/frontend/runtime-dashboard/**"
-      - "policy-engine/pyproject.toml"
-      - "policy-engine/uv.lock"
-      - "policy-engine/src/**"
-
-concurrency:
-  group: frontend-quality-${{ github.ref }}
-  cancel-in-progress: true
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  coverage:
+  archival-notice:
+    name: Archived / Frontend quality legacy surface
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: policy-engine/frontend/runtime-dashboard
     steps:
-      - uses: actions/checkout@v4
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-          cache: npm
-          cache-dependency-path: policy-engine/frontend/runtime-dashboard/package-lock.json
-      - name: Install dashboard dependencies
-        run: npm ci
-      - name: Run coverage ratchet
-        run: npm run test:coverage
-      - name: Verify contract fixtures
-        run: npm run contracts:verify
-      - name: Upload coverage artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: runtime-dashboard-coverage
-          path: |
-            policy-engine/frontend/runtime-dashboard/coverage
-          if-no-files-found: warn
-
-  a11y:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: policy-engine
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-          cache: npm
-          cache-dependency-path: policy-engine/frontend/runtime-dashboard/package-lock.json
-      - name: Install uv
-        uses: astral-sh/setup-uv@v3
-        with:
-          version: latest
-      - name: Sync backend fixture environment
-        run: uv sync --frozen --extra dev --extra test --extra runtime-http
-      - name: Install dashboard dependencies
-        working-directory: policy-engine/frontend/runtime-dashboard
-        run: npm ci
-      - name: Install Playwright browsers
-        working-directory: policy-engine/frontend/runtime-dashboard
-        run: npx playwright install --with-deps chromium
-      - name: Run accessibility suites
-        working-directory: policy-engine/frontend/runtime-dashboard
-        run: npm run test:a11y
-      - name: Upload accessibility artifacts
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: runtime-dashboard-a11y
-          path: |
-            policy-engine/frontend/runtime-dashboard/playwright-report
-            policy-engine/frontend/runtime-dashboard/test-results
-          if-no-files-found: warn
-
-  e2e:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: policy-engine
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-          cache: npm
-          cache-dependency-path: policy-engine/frontend/runtime-dashboard/package-lock.json
-      - name: Install uv
-        uses: astral-sh/setup-uv@v3
-        with:
-          version: latest
-      - name: Sync backend fixture environment
-        run: uv sync --frozen --extra dev --extra test --extra runtime-http
-      - name: Install dashboard dependencies
-        working-directory: policy-engine/frontend/runtime-dashboard
-        run: npm ci
-      - name: Install Playwright browsers
-        working-directory: policy-engine/frontend/runtime-dashboard
-        run: npx playwright install --with-deps chromium
-      - name: Run journey e2e suite
-        working-directory: policy-engine/frontend/runtime-dashboard
-        run: npm run test:e2e
-      - name: Upload e2e artifacts
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: runtime-dashboard-e2e
-          path: |
-            policy-engine/frontend/runtime-dashboard/playwright-report
-            policy-engine/frontend/runtime-dashboard/test-results
-          if-no-files-found: warn
+      - name: Explain archival state
+        run: |
+          echo "This workflow is archival only."
+          echo "Canonical paths now live in:"
+          echo "  - .github/workflows/abi.yml (PR Fast)"
+          echo "  - .github/workflows/ci.yml (PR Standard)"
+          echo "  - .github/workflows/frontend-nightly.yml (Nightly Platform)"

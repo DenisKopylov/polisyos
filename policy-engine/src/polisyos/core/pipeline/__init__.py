@@ -1,4 +1,4 @@
-"""Public core pipeline package API."""
+"""Exports linear and DAG pipeline primitives for deterministic stage orchestration."""
 from __future__ import annotations
 
 from .base import (

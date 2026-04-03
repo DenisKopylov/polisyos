@@ -1,4 +1,10 @@
-"""Public methods catalog package API."""
+"""Register all built-in Foundry method families into a `MethodRegistry`.
+
+Each `ensure_*_methods_registered()` function loads one family namespace on
+demand. The package-level `ensure_all_methods_registered()` helper is the
+catalog bootstrap entrypoint used by tooling, tutorials, and registry cache
+rebuilds.
+"""
 from __future__ import annotations
 
 from polisyos.foundry.methods.registry import MethodRegistry
@@ -105,7 +111,7 @@ except ModuleNotFoundError:  # pragma: no cover - defensive for partial installs
 
 
 def ensure_all_methods_registered(registry: MethodRegistry | None = None) -> None:
-    """Ensure all methods registered helper."""
+    """Register every built-in method family into `registry` or the singleton registry."""
     reg = registry if registry is not None else MethodRegistry.get_instance()
     ensure_causal_methods_registered(reg)
     ensure_econometric_methods_registered(reg)

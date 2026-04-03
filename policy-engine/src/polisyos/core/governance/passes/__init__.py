@@ -1,4 +1,4 @@
-"""Public governance passes package API."""
+"""Exports base governance-pass interfaces plus lazily loaded legal and safety passes."""
 from __future__ import annotations
 
 from typing import Any

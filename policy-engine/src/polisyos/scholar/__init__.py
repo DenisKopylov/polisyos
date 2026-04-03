@@ -1,4 +1,12 @@
-"""Public scholar package API."""
+"""Expose Scholar enrichment entrypoints and contracts via lazy imports.
+
+The Scholar package facade is intentionally narrow: it exports enrichment
+results, policy knobs, domain-specific exceptions, and the `ScholarService`
+boundary used by runtime and CLI callers. Lazy imports avoid loading the
+document/claim pipeline until a caller actually invokes Scholar APIs.
+
+Names listed in `__all__` are the supported package-level surface.
+"""
 from __future__ import annotations
 
 import importlib
@@ -40,6 +48,7 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
 
 
 def __getattr__(name: str) -> Any:
+    """Resolve one exported Scholar symbol and cache it on the package."""
     if name not in _LAZY_IMPORTS:
         raise AttributeError(f"module 'polisyos.scholar' has no attribute '{name}'")
     module_name, attr_name = _LAZY_IMPORTS[name]
@@ -50,4 +59,5 @@ def __getattr__(name: str) -> Any:
 
 
 def __dir__() -> list[str]:
+    """Return loaded globals plus deferred Scholar exports."""
     return sorted(list(globals().keys()) + list(_LAZY_IMPORTS.keys()))

@@ -1,4 +1,4 @@
-"""Public pii models module API."""
+"""PII detection result models used by fabric privacy gates."""
 from __future__ import annotations
 
 from enum import Enum
@@ -65,7 +65,7 @@ class PIIEntity(BaseModel):
 
 
 class PIIScanResult(BaseModel):
-    """PII scan result data model."""
+    """Aggregate scan counts, severities, and sampled entities for one PII pass."""
     model_config = ConfigDict(extra="forbid")
 
     total_records_scanned: int = Field(0, ge=0)

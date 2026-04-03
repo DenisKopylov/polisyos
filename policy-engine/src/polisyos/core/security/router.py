@@ -12,7 +12,7 @@ TENANT_HEADER = "X-Tenant-ID"
 
 @dataclass(frozen=True)
 class RoutingResult:
-    """Routing result data model."""
+    """Tenant-to-cell routing decision derived from request headers and the cell registry."""
     tenant_id: str
     cell_id: str
     cell_slug: str

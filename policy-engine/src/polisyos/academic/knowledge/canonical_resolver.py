@@ -26,7 +26,7 @@ _PENDING_REVIEW_THRESHOLD = 0.75
 
 @dataclass(frozen=True)
 class ResolutionResult:
-    """Resolution result data model."""
+    """Record how one raw academic variable mention resolved against the canonical registry."""
     raw_name: str
     canonical_name: str | None
     method: str

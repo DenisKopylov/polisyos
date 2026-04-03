@@ -1,6 +1,7 @@
 {
   "$defs": {
     "IdentificationMode": {
+      "description": "Declare the causal identification contract assumed by records and bundles.\n\nThese modes distinguish point-identified data from partially identified,\nproxy-based, interference-aware, or sequential settings so downstream\ncomponents can enforce the right guardrails. The value is read by\n:class:`polisyos.ir.observation.measurement.IdentificationModeRouter`,\nobservation contract compilers, and causal-readiness checks to select\nfallback paths or block unsafe execution.",
       "enum": [
         "point_identified",
         "partially_identified",
@@ -13,6 +14,7 @@
       "type": "string"
     },
     "ObservationFamily": {
+      "description": "Classify raw evidence into stable observation families for routing.\n\nFamilies partition raw evidence into domains such as budget flows, firm\nfundamentals, or household distribution so measurement rules, governance\ndefaults, and contract compilers can branch on a stable domain label.",
       "enum": [
         "budget_flows",
         "procurement_flows",
@@ -33,6 +35,7 @@
     },
     "ObservationFamilyPolicy": {
       "additionalProperties": false,
+      "description": "Declare default identification semantics and mandatory passes for one family.\n\nEncodes the preferred identification mode, fallback conditions, and the\nmandatory governance passes that must clear before the family can be used\nin causal execution.",
       "properties": {
         "fallback_identification_mode": {
           "anyOf": [
@@ -108,6 +111,7 @@
     }
   },
   "additionalProperties": false,
+  "description": "Provide total family coverage for observation governance defaults.\n\nValidators require one policy entry per :class:`ObservationFamily`, so\nrouting code can rely on deterministic lookup without ad-hoc fallback logic.",
   "properties": {
     "policies": {
       "additionalProperties": {

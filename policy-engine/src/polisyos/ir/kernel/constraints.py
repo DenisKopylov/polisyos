@@ -1,4 +1,4 @@
-"""Public kernel constraints module API."""
+"""Constraint registry definitions used by problem framing and Trinity linking."""
 from __future__ import annotations
 
 from typing import Literal
@@ -9,7 +9,7 @@ from .base import ID_PATTERN, SLOT_ID_PATTERN, KernelModel
 
 
 class ConstraintSpec(KernelModel):
-    """Constraint spec data model."""
+    """Declare one named bound or legal/accounting rule that downstream linkers can validate."""
     constraint_id: str = Field(..., pattern=ID_PATTERN)
     unit_id: str | None = Field(None, pattern=ID_PATTERN)
     slot_id: str | None = Field(None, pattern=SLOT_ID_PATTERN)
@@ -21,7 +21,7 @@ class ConstraintSpec(KernelModel):
 
 
 class ConstraintRegistry(KernelModel):
-    """Constraint registry implementation."""
+    """Registry of reusable constraints that ``link_trinity`` and governance checks resolve by id."""
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
     constraints: dict[str, ConstraintSpec] = Field(default_factory=dict)
     notes: list[str] = Field(default_factory=list)

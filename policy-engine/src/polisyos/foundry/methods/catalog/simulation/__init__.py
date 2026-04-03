@@ -1,4 +1,4 @@
-"""Public catalog simulation package API."""
+"""Expose simulation dynamics and inference methods for synthetic runtime outputs."""
 from __future__ import annotations
 
 from polisyos.foundry.methods.exceptions import MethodAlreadyRegisteredError
@@ -20,7 +20,7 @@ from .inference import (
 
 
 def ensure_simulation_methods_registered(registry: MethodRegistry | None = None) -> None:
-    """Ensure simulation methods registered helper."""
+    """Register built-in simulation methods into `registry` or the global singleton."""
     reg = registry if registry is not None else MethodRegistry.get_instance()
     for method_class in register_simulation_methods():
         try:

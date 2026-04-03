@@ -1,5 +1,6 @@
 {
   "additionalProperties": false,
+  "description": "Execution and risk context presented to a governance approver.",
   "properties": {
     "artifact_refs": {
       "anyOf": [

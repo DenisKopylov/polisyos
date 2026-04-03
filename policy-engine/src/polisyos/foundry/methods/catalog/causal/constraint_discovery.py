@@ -1,4 +1,4 @@
-"""Public causal constraint discovery module API."""
+"""Discover causal graph structure from conditional-independence or score constraints."""
 from __future__ import annotations
 
 import math
@@ -1883,7 +1883,7 @@ def _run_constraint_discovery(
     tags={"causal", "discovery", "constraint-based", "pc"},
 )
 class PCDiscovery:
-    """PC discovery public type."""
+    """Run PC discovery under causal sufficiency and faithfulness; avoid hidden confounding or very small samples."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
 
     signature: ClassVar[MethodSignature] = MethodSignature(
@@ -1956,7 +1956,7 @@ class PCDiscovery:
     tags={"causal", "discovery", "constraint-based", "fci"},
 )
 class FCIDiscovery:
-    """FCI discovery public type."""
+    """Run FCI discovery when latent confounding may exist; avoid unstable CI tests on tiny samples."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
 
     signature: ClassVar[MethodSignature] = MethodSignature(
@@ -2029,7 +2029,7 @@ class FCIDiscovery:
     tags={"causal", "discovery", "score-based", "ges"},
 )
 class GESDiscovery:
-    """GES discovery public type."""
+    """Run score-based GES DAG search; avoid misspecified scores for strongly nonlinear or non-Gaussian data."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
 
     signature: ClassVar[MethodSignature] = MethodSignature(

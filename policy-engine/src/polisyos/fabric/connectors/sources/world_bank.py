@@ -1,4 +1,4 @@
-"""Public sources world bank module API."""
+"""World Bank WDI connector implementation for REST JSON indicator fetches."""
 from __future__ import annotations
 
 import time

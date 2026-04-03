@@ -1,4 +1,4 @@
-"""Public causal temporal estimand compiler module API."""
+"""Compile continuous-time causal queries into executable temporal plans."""
 from __future__ import annotations
 
 import math
@@ -22,26 +22,26 @@ from polisyos.ir.analytics.dynamic_regime import (
 
 
 class TemporalBackendTarget(str, Enum):
-    """Temporal backend target public type."""
+    """Declare which temporal backend should execute a compiled causal plan."""
     LINEAR_SDE = "linear_sde"
     ODE = "ode"
     DISCRETE_FALLBACK = "discrete_fallback"
 
 
 class TemporalComparatorSemantics(str, Enum):
-    """Temporal comparator semantics public type."""
+    """Capture how untreated comparators and event-time baselines are interpreted."""
     UNTREATED_COUNTERFACTUAL = "untreated_counterfactual"
     NEVER_TREAT_BASELINE = "never_treat_baseline"
 
 
 class TemporalFallbackMode(str, Enum):
-    """Temporal fallback mode public type."""
+    """Describe whether temporal execution should fail closed or use discrete fallback."""
     NONE = "none"
     DISCRETE_TIME = "discrete_time"
 
 
 class TemporalDataContract(str, Enum):
-    """Temporal data contract data model."""
+    """Declare which temporal data bundle a compiled causal plan expects at execution time."""
     PANEL_OBSERVATIONAL = "panel_observational_data"
     DYNAMIC_TREATMENT = "dynamic_treatment_data"
 

@@ -1,0 +1,50 @@
+{
+  "name": "polisyos-policy-engine",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu-24.04",
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "configureZshAsDefaultShell": "false",
+      "installZsh": "false",
+      "username": "vscode"
+    },
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "3.14"
+    },
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "22"
+    }
+  },
+  "workspaceFolder": "/workspaces/policy-engine",
+  "remoteUser": "vscode",
+  "forwardPorts": [8000, 5173, 6006],
+  "containerEnv": {
+    "UV_CACHE_DIR": "/home/vscode/.cache/uv",
+    "NPM_CONFIG_CACHE": "/home/vscode/.npm",
+    "PLAYWRIGHT_BROWSERS_PATH": "/home/vscode/.cache/ms-playwright",
+    "POLISYOS_BENCHMARK_ROOT": "/workspaces/policy-engine/.benchmarks"
+  },
+  "mounts": [
+    "source=polisyos-uv-cache,target=/home/vscode/.cache/uv,type=volume",
+    "source=polisyos-npm-cache,target=/home/vscode/.npm,type=volume",
+    "source=polisyos-playwright-cache,target=/home/vscode/.cache/ms-playwright,type=volume",
+    "source=polisyos-benchmark-cache,target=/workspaces/policy-engine/.benchmarks,type=volume"
+  ],
+  "postCreateCommand": "./scripts/bootstrap --profile runtime --skip-hooks --skip-doctor --skip-playwright",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "ms-python.debugpy",
+        "charliermarsh.ruff",
+        "ms-playwright.playwright",
+        "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/usr/local/python/current/bin/python",
+        "python.terminal.activateEnvironment": true
+      }
+    }
+  }
+}

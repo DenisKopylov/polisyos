@@ -39,7 +39,7 @@ class BenchmarkScholarQuery(BaseModel):
 
 
 class BenchmarkCredibilityPolicy(BaseModel):
-    """Benchmark credibility policy data model."""
+    """Thresholds that decide when academic evidence is strong enough to count in benchmark review."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     min_confidence: float = Field(default=0.7, ge=0.0, le=1.0)
@@ -122,7 +122,7 @@ def build_need_backlog(
 
 
 def write_need_backlog(path: Path, items: list[dict[str, Any]]) -> None:
-    """Write need backlog helper."""
+    """Write prioritized evidence needs to a JSONL backlog for offline sourcing or analyst triage."""
     path.parent.mkdir(parents=True, exist_ok=True)
     with open(path, "w", encoding="utf-8") as fh:
         for item in items:
@@ -164,7 +164,7 @@ def evaluate_benchmark_suite(
     *,
     scholar_graph: ScholarKnowledgeGraph | None = None,
 ) -> dict[str, Any]:
-    """Evaluate benchmark suite helper."""
+    """Score a benchmark suite against the compiled evidence profile and optional scholar coverage."""
     scenario_results: list[dict[str, Any]] = []
     summary = {
         "scenarios": len(suite.scenarios),

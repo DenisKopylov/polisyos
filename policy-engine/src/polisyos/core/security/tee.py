@@ -1,4 +1,4 @@
-"""Public security tee module API."""
+"""Verify TEE attestation reports and enforce confidential-compute policy gates."""
 from __future__ import annotations
 
 import json
@@ -15,14 +15,14 @@ from polisyos.core.canon import content_hash, truncated_hash
 
 
 class TEEPlatform(str, Enum):
-    """TEE platform public type."""
+    """Enumerate supported attestation platforms for verifier selection."""
     SEV_SNP = "sev-snp"
     TDX = "tdx"
     NITRO = "nitro"
 
 
 class AttestationStatus(str, Enum):
-    """Attestation status public type."""
+    """Describe whether a verifier trusted, rejected, skipped, or could not fetch a report."""
     VERIFIED = "verified"
     FAILED = "failed"
     SKIPPED = "skipped"
@@ -51,9 +51,11 @@ class AttestationReport(BaseModel):
     collected_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     def normalized_measurement(self) -> str:
+        """Return the report measurement lowercased and stripped for policy comparison."""
         return self.measurement.strip().lower()
 
     def normalized_host_data(self) -> str | None:
+        """Return normalized host-data payload or `None` when unset/blank."""
         if self.host_data is None:
             return None
         value = self.host_data.strip().lower()
@@ -61,7 +63,11 @@ class AttestationReport(BaseModel):
 
 
 class AttestationPolicy(BaseModel):
-    """Attestation policy data model."""
+    """Constrain report freshness, measurements, platform family, and signature checks.
+
+    `fail_closed=True` means missing/invalid attestation should deny protected
+    execution paths instead of silently downgrading trust.
+    """
     model_config = ConfigDict(extra="forbid")
 
     enabled: bool = True
@@ -76,9 +82,11 @@ class AttestationPolicy(BaseModel):
     fail_closed: bool = True
 
     def normalized_measurements(self) -> tuple[str, ...]:
+        """Return normalized expected measurements, dropping blank entries."""
         return tuple(item.strip().lower() for item in self.expected_measurements if item.strip())
 
     def normalized_expected_host_data(self) -> str | None:
+        """Return normalized expected host-data payload or `None` when unset/blank."""
         if self.expected_host_data is None:
             return None
         value = self.expected_host_data.strip().lower()
@@ -86,7 +94,7 @@ class AttestationPolicy(BaseModel):
 
 
 class AttestationResult(BaseModel):
-    """Attestation result data model."""
+    """Return verifier status plus normalized report facts and policy digest."""
     model_config = ConfigDict(extra="forbid")
 
     status: AttestationStatus
@@ -101,12 +109,14 @@ class AttestationResult(BaseModel):
 
     @property
     def is_trusted(self) -> bool:
+        """Return `True` only when attestation status is `VERIFIED`."""
         return self.status == AttestationStatus.VERIFIED
 
 
 @runtime_checkable
 class AttestationVerifier(Protocol):
-    """Attestation verifier public type."""
+    """Fetch and verify attestation reports for one platform family."""
+
     @abstractmethod
     def fetch_report(
         self,
@@ -114,6 +124,7 @@ class AttestationVerifier(Protocol):
         nonce: bytes | None = None,
         timeout_seconds: float = 10.0,
     ) -> AttestationReport:
+        """Fetch a platform-native report and optionally bind it to a nonce challenge."""
         ...
 
     @abstractmethod
@@ -124,11 +135,12 @@ class AttestationVerifier(Protocol):
         *,
         nonce: bytes | None = None,
     ) -> AttestationResult:
+        """Validate a report against the supplied policy and optional nonce challenge."""
         ...
 
 
 class TEEError(RuntimeError):
-    """Base TEE error."""
+    """Base exception for attestation fetch/verification failures."""
 
 
 class TEEUnavailableError(TEEError):
@@ -156,6 +168,7 @@ class SEVSNPVerifier:
         nonce: bytes | None = None,
         timeout_seconds: float = 10.0,
     ) -> AttestationReport:
+        """Load an attestation report from `POLISYOS_TEE_REPORT_PATH` or fail if no provider exists."""
         del timeout_seconds
         path = self._resolve_report_path()
         if path is not None:
@@ -186,6 +199,7 @@ class SEVSNPVerifier:
         *,
         nonce: bytes | None = None,
     ) -> AttestationResult:
+        """Evaluate SEV-SNP report fields against the configured attestation policy."""
         errors: list[str] = []
 
         if report.platform != TEEPlatform.SEV_SNP:
@@ -255,6 +269,7 @@ class NoOpVerifier:
         nonce: bytes | None = None,
         timeout_seconds: float = 10.0,
     ) -> AttestationReport:
+        """Raise `TEEUnavailableError` because attestation is intentionally disabled."""
         del nonce
         del timeout_seconds
         raise TEEUnavailableError("TEE is disabled")
@@ -266,6 +281,7 @@ class NoOpVerifier:
         *,
         nonce: bytes | None = None,
     ) -> AttestationResult:
+        """Return a skipped attestation result for non-confidential execution tiers."""
         del report
         del policy
         del nonce
@@ -278,7 +294,11 @@ def create_verifier(
     platform: TEEPlatform = TEEPlatform.SEV_SNP,
     report_path: Path | None = None,
 ) -> AttestationVerifier:
-    """Create verifier."""
+    """Create a platform-specific verifier or `NoOpVerifier` for non-TEE tiers.
+
+    Raises:
+        ValueError: If `enabled=True` and `platform` is not supported.
+    """
     if not enabled:
         return NoOpVerifier()
     if platform == TEEPlatform.SEV_SNP:

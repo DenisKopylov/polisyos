@@ -1057,7 +1057,12 @@ def _pseudo_tei_xml(*, title: str, sections: list[dict[str, Any]]) -> str:
 
 
 async def run_doc_normalize(config: AcademicBatchConfig) -> dict[str, int]:
-    """Run doc normalize."""
+    """Build structured document-substrate artifacts from selected academic works.
+
+    The stage resolves full text, extracts sections/tables/figures/references/appendix blocks,
+    emits TEI or pseudo-TEI payloads, routes each document into claim/numeric/context/mechanism
+    lanes, and writes JSONL artifacts consumed by later extraction and QC stages.
+    """
     started_at = datetime.now(UTC).isoformat()
     selected_rows = _load_selected_rows(config.selected_global_works_path)
     if not selected_rows:

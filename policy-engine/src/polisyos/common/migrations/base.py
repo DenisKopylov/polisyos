@@ -1,4 +1,4 @@
-"""Public migrations base module API."""
+"""Registers and executes version-to-version migrations for persisted artifacts."""
 from __future__ import annotations
 
 from typing import Callable, Dict, Tuple
@@ -18,7 +18,7 @@ def register_migration(artifact: str, from_version: str, to_version: str):
 
 
 def migrate_artifact(data: dict, artifact: str, target_version: str) -> dict:
-    """Migrate artifact helper."""
+    """Apply the registered migration chain until an artifact reaches ``target_version``."""
     if "schema_version" not in data:
         raise ValueError(f"Missing schema_version for artifact '{artifact}'")
     current_version = data["schema_version"]

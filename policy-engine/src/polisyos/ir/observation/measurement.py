@@ -1,4 +1,11 @@
-"""Public observation measurement module API."""
+"""Normalize source trust, regime boundaries, and identification routing.
+
+This module bridges raw observation metadata and compiler-ready routing
+decisions. ``MeasurementRegistry`` converts source confidence and coverage into
+measurement trust tiers, schema/regime calendars mark unsafe boundary windows,
+and ``IdentificationModeRouter`` chooses the effective causal identification
+mode for a family or record before readiness checks are assembled.
+"""
 from __future__ import annotations
 
 import math
@@ -30,7 +37,13 @@ _FREQUENCY_BUFFER_DAYS = {
 
 
 class MeasurementTrustTier(str, Enum):
-    """Normalized trust bucket used by measurement-aware calibration."""
+    """Represent the normalized trust bucket consumed by calibration and routing.
+
+    ``MeasurementRegistry.tier_for_record`` derives this enum from raw
+    observation metadata. Calibration losses and readiness manifests use the
+    resulting tier to downweight proxies, cap weak anchors, or preserve
+    authoritative high-coverage sources.
+    """
 
     AUTHORITATIVE_HIGH_COVERAGE = "authoritative_high_coverage"
     AUTHORITATIVE_PARTIAL_COVERAGE = "authoritative_partial_coverage"
@@ -40,7 +53,7 @@ class MeasurementTrustTier(str, Enum):
 
 
 class MeasurementTierRule(KernelModel):
-    """Normalization rule for one measurement trust tier."""
+    """Parameterize trust-weight normalization for one ``MeasurementTrustTier``."""
 
     tier: MeasurementTrustTier
     trust_cap: float = Field(..., ge=0.0)
@@ -57,7 +70,7 @@ class MeasurementTierRule(KernelModel):
 
 
 class ProxyMappingRule(KernelModel):
-    """Default proxy-source mapping for families that rely on latent measures."""
+    """Declare the default proxy source/metric for one latent family pathway."""
 
     family: ObservationFamily
     proxy_source_id: str = Field(..., min_length=1, max_length=120)
@@ -66,7 +79,11 @@ class ProxyMappingRule(KernelModel):
 
 
 class SchemaChangepoint(KernelModel):
-    """Explicit boundary where a source schema or publication regime changes."""
+    """Mark a schema or publication-regime boundary that should trigger holdouts.
+
+    Calibration split planning and schema-regime boundary checks consult these
+    changepoints to avoid leakage around discontinuities.
+    """
 
     changepoint_id: str = Field(..., pattern=ID_PATTERN)
     effective_date: date
@@ -84,7 +101,7 @@ class SchemaChangepoint(KernelModel):
 
 
 class SchemaRegimeSpec(KernelModel):
-    """Validity window for a concrete schema regime identifier."""
+    """Describe the validity window and boundary buffer for one schema regime."""
 
     schema_regime_id: str = Field(..., min_length=1, max_length=120)
     source_id: str | None = Field(None, min_length=1, max_length=120)
@@ -187,7 +204,12 @@ class RegimeCalendar(KernelModel):
 
 
 class ShockCalendar(KernelModel):
-    """Calendar of shocks that can invalidate standard identification assumptions."""
+    """Track exogenous shock windows that can force fallback identification modes.
+
+    ``IdentificationModeRouter`` and calibration splitting logic can use shock
+    masks derived from this calendar to activate bounds/proxy fallbacks or to
+    exclude unsafe periods near shock boundaries.
+    """
 
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     entries: list[ShockCalendarEntry] = Field(default_factory=list)
@@ -225,7 +247,7 @@ class ShockCalendar(KernelModel):
 
 
 class SchemaRegimeRegistry(KernelModel):
-    """Registry of schema regimes and known publication changepoints."""
+    """Index schema regimes and changepoints for boundary-aware observation checks."""
 
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     regimes: dict[str, SchemaRegimeSpec] = Field(default_factory=dict)
@@ -285,7 +307,7 @@ class SchemaRegimeRegistry(KernelModel):
 
 
 class MeasurementRegistry(KernelModel):
-    """Measurement-aware normalization policy for observation records.
+    """Normalize raw observation trust, coverage thresholds, and proxy defaults.
 
     The registry converts raw source metadata into trust tiers, family-specific
     coverage thresholds, and proxy defaults that downstream calibration and
@@ -311,12 +333,23 @@ class MeasurementRegistry(KernelModel):
         return self
 
     def coverage_threshold_for_family(self, family: ObservationFamily) -> float:
+        """Return the minimum trusted coverage required for a family."""
         return float(self.coverage_rules[family.value])
 
     def proxy_mapping_for_family(self, family: ObservationFamily) -> ProxyMappingRule | None:
+        """Return the default proxy mapping for ``family`` if one is registered."""
         return self.proxy_mappings.get(family.value)
 
     def tier_for_record(self, record: ObservationRecord) -> MeasurementTrustTier:
+        """Map raw observation metadata to a normalized trust tier.
+
+        Args:
+            record: Raw observation row whose source tier, coverage, bias flags,
+                and proxy metadata should be normalized.
+
+        Returns:
+            The measurement trust tier used by calibration and readiness routing.
+        """
         threshold = self.coverage_threshold_for_family(record.family)
         if record.identification_mode == IdentificationMode.PROXY_IDENTIFIED or record.proxy_source_id:
             return MeasurementTrustTier.DERIVED_PROXY
@@ -334,6 +367,18 @@ class MeasurementRegistry(KernelModel):
         *,
         tier: MeasurementTrustTier,
     ) -> float:
+        """Apply tier-specific caps and multipliers to a raw trust weight.
+
+        Args:
+            trust_weight: Source-provided non-negative trust score.
+            tier: Normalized measurement tier controlling cap and multiplier.
+
+        Returns:
+            A bounded non-negative trust weight suitable for downstream losses.
+
+        Raises:
+            ValueError: If ``trust_weight`` is negative or non-finite.
+        """
         if not math.isfinite(trust_weight):
             raise ValueError("trust_weight must be finite")
         if trust_weight < 0.0:
@@ -343,10 +388,12 @@ class MeasurementRegistry(KernelModel):
         return max(0.0, min(normalized, rule.trust_cap))
 
     def normalize_record_trust(self, record: ObservationRecord) -> float:
+        """Normalize one record's trust weight using its derived measurement tier."""
         return self.normalize_trust_weight(record.trust_weight, tier=self.tier_for_record(record))
 
     @classmethod
     def default(cls) -> "MeasurementRegistry":
+        """Build the built-in family coverage, tier, and proxy defaults."""
         trust_tiers = {
             MeasurementTrustTier.AUTHORITATIVE_HIGH_COVERAGE.value: MeasurementTierRule(
                 tier=MeasurementTrustTier.AUTHORITATIVE_HIGH_COVERAGE,
@@ -416,7 +463,12 @@ class MeasurementRegistry(KernelModel):
 
 
 class IdentificationRoute(KernelModel):
-    """Resolved identification decision for a family or concrete record."""
+    """Return the effective identification mode selected for one family/record.
+
+    ``fallback_triggered`` tells contract compilers and readiness checks whether
+    observed coverage, censoring, bias, or shocks forced a policy fallback away
+    from the family primary mode.
+    """
 
     family: ObservationFamily
     selected_mode: IdentificationMode
@@ -451,6 +503,20 @@ class IdentificationModeRouter(KernelModel):
         shock_mask: bool = False,
         explicit_mode: IdentificationMode | None = None,
     ) -> IdentificationRoute:
+        """Choose the effective identification mode for one family under observed conditions.
+
+        Args:
+            family: Observation family being routed.
+            coverage_estimate: Observed population coverage in ``[0, 1]``.
+            censoring_mask: Whether censoring is present for the family slice.
+            measurement_bias_flag: Whether known measurement bias should trigger
+                fallback semantics.
+            shock_mask: Whether an exogenous shock window should trigger fallback.
+            explicit_mode: Optional mode supplied by a concrete record or caller.
+
+        Returns:
+            A resolved route with selected, primary, fallback, and reason fields.
+        """
         policy = self.family_policy_registry.for_family(family)
         selected = policy.primary_identification_mode
         reason = "primary_policy"
@@ -490,6 +556,7 @@ class IdentificationModeRouter(KernelModel):
         )
 
     def route_record(self, record: ObservationRecord) -> IdentificationRoute:
+        """Route one concrete observation record using its metadata and explicit mode."""
         return self.route_family(
             record.family,
             coverage_estimate=record.coverage_estimate,

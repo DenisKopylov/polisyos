@@ -2,6 +2,7 @@
   "$defs": {
     "CausalEdge": {
       "additionalProperties": false,
+      "description": "Causal edge public type.",
       "properties": {
         "combined_confidence": {
           "anyOf": [
@@ -151,6 +152,7 @@
       "type": "object"
     },
     "EdgeMark": {
+      "description": "Edge mark public type.",
       "enum": [
         "tail",
         "arrow",
@@ -160,6 +162,7 @@
       "type": "string"
     },
     "EdgeSource": {
+      "description": "Edge source public type.",
       "enum": [
         "data",
         "literature",
@@ -171,6 +174,7 @@
       "type": "string"
     },
     "GraphType": {
+      "description": "Graph type public type.",
       "enum": [
         "dag",
         "cpdag",
@@ -182,6 +186,7 @@
       "type": "string"
     },
     "PAGIdentificationPolicy": {
+      "description": "PAG identification policy data model.",
       "enum": [
         "conservative",
         "optimistic",

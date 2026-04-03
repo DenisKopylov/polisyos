@@ -1,4 +1,4 @@
-"""Public claims conflicts package API."""
+"""Conflict detection and resolution surface for normalized claims about the same fact."""
 from __future__ import annotations
 
 from .detect import detect_conflicts

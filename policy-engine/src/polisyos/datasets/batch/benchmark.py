@@ -84,7 +84,11 @@ class BenchmarkOutcome:
 
 
 def readiness_thresholds_for_profile(run_profile: str) -> dict[str, float]:
-    """Readiness thresholds for profile helper."""
+    """Return benchmark readiness thresholds for a dataset run profile.
+
+    ``preflight_core`` keeps the same source-preflight threshold but later skips transport and
+    Foundry-readiness gates through ``active_readiness_thresholds_for_profile``.
+    """
     thresholds = dict(READINESS_THRESHOLDS)
     profile = str(run_profile or "prod_full").strip() or "prod_full"
     if profile == "preflight_core":
@@ -93,7 +97,7 @@ def readiness_thresholds_for_profile(run_profile: str) -> dict[str, float]:
 
 
 def active_readiness_thresholds_for_profile(run_profile: str) -> dict[str, float]:
-    """Active readiness thresholds for profile helper."""
+    """Return only the benchmark thresholds that should be enforced for ``run_profile``."""
     thresholds = readiness_thresholds_for_profile(run_profile)
     skipped = _PROFILE_THRESHOLD_SKIPS.get(str(run_profile or "prod_full").strip() or "prod_full", frozenset())
     return {name: value for name, value in thresholds.items() if name not in skipped}

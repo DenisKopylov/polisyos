@@ -1,4 +1,4 @@
-"""Public analytics causal queries module API."""
+"""Define persisted causal query requests and their Monte-Carlo result payloads."""
 from __future__ import annotations
 
 import math
@@ -255,7 +255,11 @@ class CausalQueryResult(BaseModel):
 
 
 class CausalInterventionSpec(InterventionSpec):
-    """Backward-compatible named alias for `InterventionSpec`."""
+    """Expose the causal-query intervention payload under the legacy public name.
+
+    The semantics are identical to :class:`InterventionSpec`; this alias exists
+    so older callers can migrate without changing payload structure.
+    """
 
 
 def persist_causal_query_result(
@@ -266,7 +270,7 @@ def persist_causal_query_result(
     schema_name: str = "ir.causal_query_result",
     schema_version: str = "1.0",
 ) -> CausalQueryResultRef:
-    """Persist causal query result helper."""
+    """Persist a causal query result and return a typed artifact reference."""
     ref = put_json_artifact(
         store,
         result.model_dump(mode="json"),

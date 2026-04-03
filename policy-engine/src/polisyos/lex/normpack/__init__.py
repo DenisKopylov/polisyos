@@ -1,4 +1,4 @@
-"""Public lex normpack package API."""
+"""Facade for assembling jurisdiction- and date-scoped norm packs from corpus artifacts."""
 from __future__ import annotations
 
 from polisyos.lex.normpack.assemble_pack import assemble_norm_pack

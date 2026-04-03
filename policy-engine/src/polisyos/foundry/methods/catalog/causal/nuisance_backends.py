@@ -1,4 +1,4 @@
-"""Public causal nuisance backends module API."""
+"""Select and seed nuisance-model backends for orthogonal causal estimators."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -37,7 +37,7 @@ except Exception:  # pragma: no cover - optional dependency
 
 @dataclass(frozen=True)
 class BackendSelection:
-    """Backend selection public type."""
+    """Describe the chosen nuisance backend plus fallback and tuning metadata."""
     name: str
     model: Any
     stabilizer: Any | None = None

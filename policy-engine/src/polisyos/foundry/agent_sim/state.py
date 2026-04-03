@@ -181,7 +181,7 @@ def compute_aggregates(
     *,
     compute_gini: bool = False,
 ) -> AggregateState:
-    """Compute aggregates helper."""
+    """Aggregate total wealth, mean consumption, and optional inequality for the current state."""
     active = agents.active.astype(jnp.float32)
     active_count = jnp.sum(active)
     safe_count = jnp.maximum(active_count, 1.0)

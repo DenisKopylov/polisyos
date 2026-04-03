@@ -1,4 +1,4 @@
-"""Public passes strategic response pass module API."""
+"""Validate strategic-response evidence, fallback modes, and multiplicity review state."""
 from __future__ import annotations
 
 from typing import Any

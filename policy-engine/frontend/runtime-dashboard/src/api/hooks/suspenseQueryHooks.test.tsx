@@ -20,6 +20,50 @@ import { useSuspenseRunTimeline } from "@/api/hooks/useRunTimeline";
 import { useSuspenseRunWorkflow } from "@/api/hooks/useRunWorkflow";
 import { queryKeys } from "@/api/queryKeys";
 
+function useHealthSuspenseFixture() {
+  return useSuspenseHealth();
+}
+
+function useDataIndexStatsSuspenseFixture() {
+  return useSuspenseDataIndexStats();
+}
+
+function useDataPromotionCandidatesSuspenseFixture() {
+  return useSuspenseDataPromotionCandidates();
+}
+
+function useGovernanceDebugSuspenseFixture(runId: string) {
+  return useSuspenseGovernanceDebug(runId);
+}
+
+function useLexGraphStatsSuspenseFixture(outputDir: string) {
+  return useSuspenseLexGraphStats(outputDir);
+}
+
+function useRunAgentsSuspenseFixture(runId: string) {
+  return useSuspenseRunAgents(runId);
+}
+
+function useRunErrorsSuspenseFixture(runId: string) {
+  return useSuspenseRunErrors(runId);
+}
+
+function useRunLineageSuspenseFixture(runId: string) {
+  return useSuspenseRunLineage(runId);
+}
+
+function useRunNodesSuspenseFixture(runId: string) {
+  return useSuspenseRunNodes(runId);
+}
+
+function useRunTimelineSuspenseFixture(runId: string) {
+  return useSuspenseRunTimeline(runId);
+}
+
+function useRunWorkflowSuspenseFixture(runId: string) {
+  return useSuspenseRunWorkflow(runId);
+}
+
 function createSuspenseWrapper(
   queryKey: readonly unknown[],
   data: unknown,
@@ -46,73 +90,79 @@ function createSuspenseWrapper(
   return Wrapper;
 }
 
+type SuspenseScenario = {
+  useHook: () => { data: unknown };
+  payload: unknown;
+  queryKey: readonly unknown[];
+};
+
 describe("suspense query hooks", () => {
   it("reads prefetched payloads through suspense wrappers", () => {
     const runId = "R_suspense_001";
     const outputDir = "data/lex";
-    const scenarios = [
+    const scenarios: SuspenseScenario[] = [
       {
-        hook: () => useSuspenseHealth(),
+        useHook: useHealthSuspenseFixture,
         payload: { status: "ok" },
         queryKey: queryKeys.health(),
       },
       {
-        hook: () => useSuspenseDataIndexStats(),
+        useHook: useDataIndexStatsSuspenseFixture,
         payload: { datasets_total: 12 },
         queryKey: queryKeys.dataIndexStats(),
       },
       {
-        hook: () => useSuspenseDataPromotionCandidates(),
+        useHook: useDataPromotionCandidatesSuspenseFixture,
         payload: { candidates: [{ promotion_id: "promo-1" }] },
         queryKey: queryKeys.dataPromotionCandidates(),
       },
       {
-        hook: () => useSuspenseGovernanceDebug(runId),
+        useHook: () => useGovernanceDebugSuspenseFixture(runId),
         payload: { debug: { run_id: runId, notes: [] } },
         queryKey: queryKeys.runGovernanceDebug(runId),
       },
       {
-        hook: () => useSuspenseLexGraphStats(outputDir),
+        useHook: () => useLexGraphStatsSuspenseFixture(outputDir),
         payload: { output_dir: outputDir, nodes_total: 42 },
         queryKey: queryKeys.lexGraphStats(outputDir),
       },
       {
-        hook: () => useSuspenseRunAgents(runId),
+        useHook: () => useRunAgentsSuspenseFixture(runId),
         payload: { pipeline: { attempts: [] }, run_id: runId },
         queryKey: queryKeys.runAgents(runId),
       },
       {
-        hook: () => useSuspenseRunErrors(runId),
+        useHook: () => useRunErrorsSuspenseFixture(runId),
         payload: { errors: [], run_id: runId },
         queryKey: queryKeys.runErrors(runId),
       },
       {
-        hook: () => useSuspenseRunLineage(runId),
+        useHook: () => useRunLineageSuspenseFixture(runId),
         payload: { lineage: { nodes: [], edges: [] }, run_id: runId },
         queryKey: queryKeys.runLineage(runId),
       },
       {
-        hook: () => useSuspenseRunNodes(runId),
+        useHook: () => useRunNodesSuspenseFixture(runId),
         payload: { nodes: [], run_id: runId },
         queryKey: queryKeys.runNodes(runId),
       },
       {
-        hook: () => useSuspenseRunTimeline(runId),
+        useHook: () => useRunTimelineSuspenseFixture(runId),
         payload: { timeline: { events: [], notes: [] }, run_id: runId },
         queryKey: queryKeys.runTimeline(runId),
       },
       {
-        hook: () => useSuspenseRunWorkflow(runId),
+        useHook: () => useRunWorkflowSuspenseFixture(runId),
         payload: {
           run_id: runId,
           workflow: { edges: [], nodes: [], notes: [] },
         },
         queryKey: queryKeys.runWorkflow(runId),
       },
-    ] as const;
+    ];
 
     for (const scenario of scenarios) {
-      const { result, unmount } = renderHook(scenario.hook, {
+      const { result, unmount } = renderHook(scenario.useHook, {
         wrapper: createSuspenseWrapper(scenario.queryKey, scenario.payload),
       });
 

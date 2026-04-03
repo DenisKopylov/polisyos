@@ -1,4 +1,10 @@
-"""Public common config module API."""
+"""Apply process-wide JAX/Torch/logging safeguards from env vars at import time.
+
+Import this module only in entrypoints that intentionally want environment
+mutation before the first JAX import. Library code that only needs helpers
+should import `polisyos.common.env_parsing`, `serialization`, or `timestamps`
+instead of this module.
+"""
 import multiprocessing
 import os
 import sys
@@ -12,8 +18,9 @@ os.environ["JAX_ENABLE_X64"] = "false"
 os.environ["JAX_DISABLE_MOST_OPTIMIZATIONS"] = "true"
 os.environ["JAX_CHECK_TRACER_LEAKS"] = "false"
 
-# 1. Загружаем переменные из .env
-load_dotenv()
+# 1. Локальный `.env` это только developer convenience layer; уже заданные
+# deployment/CI env vars всегда остаются источником истины.
+load_dotenv(override=False)
 
 # --- HARDWARE SAFEGUARDS (Защита железа) ---
 

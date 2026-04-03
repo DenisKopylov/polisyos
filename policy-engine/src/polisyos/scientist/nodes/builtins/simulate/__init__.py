@@ -1,4 +1,4 @@
-"""Public builtins simulate package API."""
+"""Simulation-stage builtin nodes for execution, uncertainty propagation, and runtime analysis."""
 from __future__ import annotations
 
 from .run_simulation import RunSimulationNode

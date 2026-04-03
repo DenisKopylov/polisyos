@@ -1,4 +1,4 @@
-"""Public catalog microsim package API."""
+"""Expose microsimulation methods and register them into the Foundry catalog."""
 from __future__ import annotations
 
 from polisyos.foundry.methods.exceptions import MethodAlreadyRegisteredError
@@ -25,7 +25,7 @@ from .static import StaticMicrosimEstimator
 
 
 def ensure_microsim_methods_registered(registry: MethodRegistry | None = None) -> None:
-    """Ensure microsim methods registered helper."""
+    """Populate `registry` with microsimulation methods and their result contracts."""
     reg = registry if registry is not None else MethodRegistry.get_instance()
     for method_class in register_microsim_methods():
         try:

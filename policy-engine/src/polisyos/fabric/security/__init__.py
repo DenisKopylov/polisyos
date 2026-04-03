@@ -1,4 +1,4 @@
-"""Public fabric security package API."""
+"""Defense-in-depth helpers for enforcing column-level authorization on fabric outputs."""
 from polisyos.fabric.security.column_mask import (
     apply_requested_column_guard,
     mask_dataframe_columns,

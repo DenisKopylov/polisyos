@@ -1,4 +1,10 @@
-"""Method artifacts facade assembled from decomposed sub-modules."""
+"""Persist method, chain, and execution-evidence artifacts with CAS provenance edges.
+
+These helpers answer "what code/signature/specialization ran, in what chain,
+over which input/output state artifacts, with which RNG/device context?" They
+complement backend runners (execution) and specialization/cache (compiled
+variant selection) by writing immutable provenance receipts.
+"""
 
 from __future__ import annotations
 
@@ -54,7 +60,7 @@ def store_method_artifact(
     cas: "FileSystemCAS",
     artifact: MethodArtifact,
 ) -> ArtifactRef:
-    """Store a MethodArtifact in CAS."""
+    """Persist one `MethodArtifact` describing code identity and specialization."""
     from polisyos.core.artifacts.store import PutOptions
 
     content = artifact.to_canonical_bytes()
@@ -79,7 +85,7 @@ def store_chain_artifact(
     cas: "FileSystemCAS",
     artifact: ChainArtifact,
 ) -> ArtifactRef:
-    """Store a ChainArtifact in CAS."""
+    """Persist a `ChainArtifact` and link it to its component method artifacts."""
     from polisyos.core.artifacts.store import PutOptions
 
     content = artifact.to_canonical_bytes()
@@ -109,7 +115,7 @@ def store_execution_evidence(
     cas: "FileSystemCAS",
     evidence: ExecutionEvidence,
 ) -> ArtifactRef:
-    """Store ExecutionEvidence in CAS."""
+    """Persist an `ExecutionEvidence` receipt linked to chain/input/output refs."""
     from polisyos.core.artifacts.store import PutOptions
 
     content = evidence.to_canonical_bytes()

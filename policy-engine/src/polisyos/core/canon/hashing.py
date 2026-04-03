@@ -1,4 +1,4 @@
-"""Public canon hashing module API."""
+"""Hashing helpers built on canonical JSON so artifact IDs stay stable across runtimes."""
 from __future__ import annotations
 
 import hashlib
@@ -68,10 +68,10 @@ def fingerprint(
     digest_size: int | None = None,
 ) -> str:
     """
-    Canonical-object hash helper.
+    Hash a structured value after normalizing it through canonical JSON encoding.
 
-    Uses PolisyOS canonical JSON to normalize dict/model/dataclass payloads
-    before hashing.
+    This is the default path for stable artifact fingerprints because it removes
+    representation differences between dicts, models, and dataclasses.
     """
 
     canonical = to_canonical_bytes(value, canon_spec)

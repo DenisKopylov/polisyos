@@ -1,4 +1,4 @@
-"""Public trace record module API."""
+"""Trace-record schema used to persist run events, refs, metrics, warnings, and errors."""
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -10,7 +10,7 @@ from ..artifacts.manifest import ArtifactRef
 
 
 def utc_now() -> datetime:
-    """Utc now helper."""
+    """Return a second-granularity UTC timestamp for new trace events."""
     return datetime.now(timezone.utc).replace(microsecond=0)
 
 
@@ -22,7 +22,7 @@ class TraceRefs(BaseModel):
 
 
 class TraceRecord(BaseModel):
-    """Trace record data model."""
+    """One structured execution event emitted into the run trace stream."""
     model_config = ConfigDict(extra="forbid")
 
     ts: datetime = Field(default_factory=utc_now)

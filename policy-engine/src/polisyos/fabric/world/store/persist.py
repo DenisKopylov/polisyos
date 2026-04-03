@@ -1,4 +1,4 @@
-"""Public store persist module API."""
+"""Persist world-domain artifacts so later stages can materialize and query them."""
 from __future__ import annotations
 
 from polisyos.core.artifacts.ids import ArtifactID
@@ -35,7 +35,7 @@ def _to_input_ref(artifact_id: str, *, role: str) -> InputRef:
 
 
 def persist_doc_meta(store: FileSystemCAS, meta: DocMeta) -> ArtifactRef:
-    """Persist doc meta helper."""
+    """Persist `DocMeta` produced by ingest and structure stages with upstream artifact links."""
     inputs = [_to_input_ref(meta.raw_ref, role="raw_ref")]
     if meta.normalized_ref is not None:
         inputs.append(_to_input_ref(meta.normalized_ref, role="normalized_ref"))
@@ -55,7 +55,7 @@ def persist_doc_meta(store: FileSystemCAS, meta: DocMeta) -> ArtifactRef:
 
 
 def persist_doc_fragment(store: FileSystemCAS, fragment: DocFragment) -> ArtifactRef:
-    """Persist doc fragment helper."""
+    """Persist a structured document fragment so claims and corpus stages can cite it."""
     inputs = [_to_input_ref(fragment.text_hash, role="text_hash")]
     return store.put_json(
         fragment.model_dump(),
@@ -69,7 +69,7 @@ def persist_doc_fragment(store: FileSystemCAS, fragment: DocFragment) -> Artifac
 
 
 def persist_claim(store: FileSystemCAS, claim: Claim) -> ArtifactRef:
-    """Persist claim helper."""
+    """Persist a normalized claim with evidence inputs so conflict and trust stages can reload it."""
     inputs: list[InputRef] = []
     if claim.source_kind == ClaimSourceKind.DOC:
         seen: set[str] = set()
@@ -96,7 +96,7 @@ def persist_claim(store: FileSystemCAS, claim: Claim) -> ArtifactRef:
 
 
 def persist_conflict_set(store: FileSystemCAS, conflict_set: ConflictSet) -> ArtifactRef:
-    """Persist conflict set helper."""
+    """Persist a detected conflict set before resolution and intervention mapping."""
     return store.put_json(
         conflict_set.model_dump(),
         opts=PutOptions(
@@ -110,7 +110,7 @@ def persist_conflict_set(store: FileSystemCAS, conflict_set: ConflictSet) -> Art
 def persist_trust_assessment(
     store: FileSystemCAS, assessment: TrustAssessment
 ) -> ArtifactRef:
-    """Persist trust assessment helper."""
+    """Persist trust-scoring output for a world object or claim family."""
     return store.put_json(
         assessment.model_dump(),
         opts=PutOptions(
@@ -122,7 +122,7 @@ def persist_trust_assessment(
 
 
 def persist_quality_report(store: FileSystemCAS, report: QualityReport) -> ArtifactRef:
-    """Persist quality report helper."""
+    """Persist fabric quality metrics that summarize ingestion or retrieval health."""
     return store.put_json(
         report.model_dump(),
         opts=PutOptions(
@@ -134,7 +134,7 @@ def persist_quality_report(store: FileSystemCAS, report: QualityReport) -> Artif
 
 
 def persist_world_event(store: FileSystemCAS, event: WorldEvent) -> ArtifactRef:
-    """Persist world event helper."""
+    """Persist a provenance event linking workflow inputs, outputs, and emitted artifacts."""
     inputs: list[InputRef] = []
     seen: set[str] = set()
     if event.evidence_ref is not None:

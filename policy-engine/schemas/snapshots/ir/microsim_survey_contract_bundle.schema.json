@@ -2,6 +2,7 @@
   "$defs": {
     "ContractCompatibilityTarget": {
       "additionalProperties": false,
+      "description": "Identifier of a downstream contract that an observation bundle targets.",
       "properties": {
         "contract_fqn": {
           "maxLength": 255,
@@ -24,6 +25,7 @@
       "type": "object"
     },
     "ObservationFamily": {
+      "description": "Classify raw evidence into stable observation families for routing.\n\nFamilies partition raw evidence into domains such as budget flows, firm\nfundamentals, or household distribution so measurement rules, governance\ndefaults, and contract compilers can branch on a stable domain label.",
       "enum": [
         "budget_flows",
         "procurement_flows",
@@ -44,12 +46,18 @@
     }
   },
   "additionalProperties": false,
+  "description": "Bundle carrying survey-microdata payloads for microsimulation methods.",
   "properties": {
     "artifact_name": {
       "const": "microsim_survey_contract_v1.json",
       "default": "microsim_survey_contract_v1.json",
       "title": "Artifact Name",
       "type": "string"
+    },
+    "contract_payload": {
+      "additionalProperties": true,
+      "title": "Contract Payload",
+      "type": "object"
     },
     "contract_target": {
       "$ref": "#/$defs/ContractCompatibilityTarget"

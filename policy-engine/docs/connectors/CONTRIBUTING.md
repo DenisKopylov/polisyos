@@ -9,8 +9,8 @@ the shared test harness.
 
 ## Prerequisites
 
-- Python 3.11+
-- The Policy OS repository checked out and dependencies installed (`pip install -e ".[dev]"`)
+- Python 3.14.x
+- The Policy OS repository checked out and contributor dependencies prepared via `./scripts/bootstrap`
 - Familiarity with the SourceConnector protocol (see `src/polisyos/fabric/connectors/base.py`)
 
 ---
@@ -21,6 +21,12 @@ Use the scaffold CLI to generate a compliant starting point:
 
 ```bash
 python tools/connectors/scaffold.py create --name "MyDataSource" --type REST
+```
+
+Unified Phase 5 golden path also exposes the same flow through:
+
+```bash
+python tools/architecture/scaffold.py connector --name "MyDataSource" --type REST --dry-run
 ```
 
 **`--type` options:**

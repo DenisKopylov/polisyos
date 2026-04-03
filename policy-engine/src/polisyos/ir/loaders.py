@@ -1,4 +1,4 @@
-"""Public ir loaders module API."""
+"""Load canonical Trinity bundles from dict, JSON, YAML, or bytes payloads."""
 from __future__ import annotations
 
 import json
@@ -8,7 +8,7 @@ from polisyos.ir.trinity import TrinityBundle
 
 
 class PolicyLoadError(ValueError):
-    """Policy load error exception."""
+    """Raise when a payload cannot be parsed or validated as a Trinity bundle."""
     pass
 
 
@@ -56,7 +56,25 @@ def load_policy(
     auto_migrate: bool = True,
     fmt: str = "auto",
 ) -> TrinityBundle:
-    """Load policy payload as canonical TrinityBundle."""
+    """Parse and validate a policy payload as a canonical ``TrinityBundle``.
+
+    Args:
+        payload: Existing ``TrinityBundle``, mapping, JSON/YAML string, or UTF-8
+            bytes payload.
+        auto_migrate: Preserve the public loader signature; malformed payloads
+            currently raise ``PolicyLoadError`` instead of applying migrations.
+        fmt: ``"json"``, ``"yaml"``, or ``"auto"`` format hint for string/bytes
+            payloads.
+
+    Returns:
+        The validated canonical Trinity bundle.
+
+    Raises:
+        PolicyLoadError: If the payload cannot be decoded, parsed, or validated.
+
+    Example:
+        >>> bundle = load_policy('{"schema_version": "1.0", "problem_frame": {...}}', fmt="json")
+    """
     bundle, _ = load_trinity_bundle(payload, fmt=fmt, auto_migrate=auto_migrate)
     return bundle
 

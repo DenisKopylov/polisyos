@@ -1,4 +1,4 @@
-"""Public fabric world package API."""
+"""Facade for emitting, validating, persisting, and materializing world facts."""
 from __future__ import annotations
 
 from polisyos.fabric.world.store import (

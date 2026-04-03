@@ -1,4 +1,4 @@
-"""Public core canon package API."""
+"""Exports canonical JSON helpers and hashing utilities for stable artifact identities."""
 from .canon_json import (
     CanonSpec,
     CanonViolation,

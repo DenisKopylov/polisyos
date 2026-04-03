@@ -1,4 +1,9 @@
-"""Shared utilities for staged batch pipelines."""
+"""Expose stable batch-pipeline helpers for manifests, QC, and thermal pacing.
+
+This package is the shared platform layer for staged offline pipelines such as
+Lex and Scholar batch runs. The exports are imported eagerly because they are
+pure helper modules with no import-time hardware or network side effects.
+"""
 
 from __future__ import annotations
 

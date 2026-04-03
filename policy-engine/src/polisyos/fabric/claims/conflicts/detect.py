@@ -1,4 +1,4 @@
-"""Public conflicts detect module API."""
+"""Detect claim groups that conflict and emit the corresponding world artifacts and facts."""
 from __future__ import annotations
 
 from decimal import Decimal
@@ -123,7 +123,7 @@ def detect_conflicts(
     options: ConflictDetectOptions | None = None,
     segment_name: str | None = None,
 ) -> ConflictDetectResult:
-    """Detect conflicts helper."""
+    """Group comparable claims into conflict sets, persist them, and write world-event outputs."""
     del policy_id  # conflict detection is policy-agnostic in v1
     resolved_db = _resolve_simulation_db(storage=storage, db=db)
     opts = options or ConflictDetectOptions()

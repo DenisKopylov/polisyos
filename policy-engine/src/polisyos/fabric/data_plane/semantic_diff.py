@@ -33,7 +33,7 @@ def compare_historical_rows(
     left_data_ref: str | None = None,
     right_data_ref: str | None = None,
 ) -> HistoricalSemanticDiffReport:
-    """Compare historical rows helper."""
+    """Compare two historical extracts at semantic grain to surface material revisions."""
     schema_report = SchemaEvolution().compare(left_schema, right_schema)
     key_fields, manual_review_required = _resolve_key_fields(left_schema, right_schema)
 
@@ -174,7 +174,7 @@ def persist_historical_semantic_diff_report(
     *,
     inputs: list[InputRef] | None = None,
 ) -> HistoricalSemanticDiffReportRef:
-    """Persist historical semantic diff report helper."""
+    """Persist a schema-aware historical diff report for regression and audit workflows."""
     ref = store.put_json(
         report,
         PutOptions(

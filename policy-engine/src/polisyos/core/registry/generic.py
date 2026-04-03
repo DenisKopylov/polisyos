@@ -1,4 +1,4 @@
-"""Public registry generic module API."""
+"""Implement a thread-safe registry with optional secondary indices."""
 from __future__ import annotations
 
 import threading
@@ -16,7 +16,7 @@ Indexer = Callable[[T], I | Iterable[I] | None]
 
 @dataclass(frozen=True, slots=True)
 class GenericRegistrySnapshot(Generic[K, T]):
-    """Generic registry snapshot data model."""
+    """Capture an immutable point-in-time copy of registry keys and values."""
     keys: tuple[K, ...]
     values: tuple[T, ...]
 

@@ -68,17 +68,17 @@ src/polisyos/runtime/http/app.py
 
 ```bash
 # Проверка baseline без изменений
-python3 tools/diagnostics/gen_schema.py --check
-python3 tools/connectors/check_contracts.py --check
-python3 tools/runtime/check_runtime_api_contract.py
+PYTHONPATH=src:. uv run --extra ml python tools/diagnostics/gen_schema.py --check
+uv run python tools/connectors/check_contracts.py --check
+PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/check_runtime_api_contract.py
 ```
 
 ```bash
 # Обновление baseline
-python3 tools/diagnostics/gen_schema.py
-python3 tools/connectors/check_contracts.py --update
-python3 tools/runtime/export_runtime_openapi.py --output schemas/runtime_api_v1.openapi.json
-python3 tools/runtime/generate_runtime_client.py
+PYTHONPATH=src:. uv run --extra ml python tools/diagnostics/gen_schema.py
+uv run python tools/connectors/check_contracts.py --update
+PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/export_runtime_openapi.py --output schemas/runtime_api_v1.openapi.json
+PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/generate_runtime_client.py --openapi schemas/runtime_api_v1.openapi.json --out-ts frontend/runtime-api-client/runtimeApiClient.ts --out-js frontend/runtime-api-client/runtimeApiClient.js
 ```
 
 ```bash

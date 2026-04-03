@@ -1,4 +1,9 @@
-"""Public services debug module API."""
+"""Assemble redacted debug, governance, workflow, and evidence views for runs.
+
+The service merges data from run manifests, CAS artifacts, trace timelines, and
+decision-validity state. Sensitive keys are sanitized before DTOs cross the HTTP
+boundary.
+"""
 from __future__ import annotations
 
 import hashlib
@@ -80,7 +85,7 @@ logger = get_logger(__name__)
 
 
 class DebugService:
-    """Debug service implementation."""
+    """Expose read-only runtime debug projections for one indexed run."""
     def __init__(
         self,
         *,
@@ -94,6 +99,7 @@ class DebugService:
         self._sensitive_keys = tuple(key.lower() for key in sensitive_keys)
 
     def list_run_nodes(self, run: IndexedRunRecord) -> list[RunNodeRecord]:
+        """List workflow nodes by merging workflow-report rows with trace events."""
         timeline_events = self._timeline_service.build_for_run(run).timeline.events
         workflow_nodes = self._load_workflow_nodes(run.workflow_report_ref)
         if not workflow_nodes:
@@ -101,6 +107,11 @@ class DebugService:
         return _merge_workflow_nodes_with_timeline(workflow_nodes, timeline_events)
 
     def get_node_debug(self, run: IndexedRunRecord, *, alias: str) -> NodeDebugView:
+        """Return per-node timeline, cache, and artifact details.
+
+        Raises:
+            KeyError: If `alias` does not match any node in the run.
+        """
         nodes = self.list_run_nodes(run)
         by_alias = {node.alias: node for node in nodes}
         record = by_alias.get(alias)
@@ -142,6 +153,12 @@ class DebugService:
         )
 
     def get_governance_debug(self, run: IndexedRunRecord) -> GovernanceDebugView:
+        """Return governance verdict, issue summaries, and decision-validity state.
+
+        When a governance report artifact is missing, the service falls back to
+        the governance block embedded in the decision packet payload and marks
+        that fallback in the response.
+        """
         report_ref = None
         validation_trace = None
         fallback = False
@@ -248,6 +265,7 @@ class DebugService:
         )
 
     def get_run_errors(self, run: IndexedRunRecord) -> list[RunErrorView]:
+        """Collect sanitized manifest, workflow, and trace errors for one run."""
         errors: list[RunErrorView] = []
 
         for item in run.manifest_errors:
@@ -296,6 +314,12 @@ class DebugService:
         return errors
 
     def get_run_agents(self, run: IndexedRunRecord) -> AgentPipelineView:
+        """Build the agent-pipeline view from decision packet, state, and trace data.
+
+        The method prefers `decision_packet.audit_trail`, then timeline events,
+        then reflexion-terminal payloads, and appends iteration/preflight/
+        evaluator/reproducibility metadata when those artifacts are available.
+        """
         notes: list[str] = []
         source: str | None = None
 
@@ -467,6 +491,7 @@ class DebugService:
         )
 
     def get_run_evidence_context(self, run: IndexedRunRecord) -> RunEvidenceContextView:
+        """Return data-needs, fetch-plan, promotion, and related-artifact context."""
         warnings: list[str] = []
         state_payload = self._load_experiment_state_payload(run.experiment_state_ref)
         decision_packet_payload = self._load_json_artifact(run.decision_packet_ref)
@@ -673,6 +698,7 @@ class DebugService:
         )
 
     def get_run_workflow(self, run: IndexedRunRecord) -> RunWorkflowView:
+        """Return a DAG-like workflow projection with node depths, edges, and heat."""
         notes: list[str] = []
         timeline_events = self._timeline_service.build_for_run(run).timeline.events
         timeline_by_alias = {

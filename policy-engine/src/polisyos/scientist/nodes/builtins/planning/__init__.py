@@ -1,4 +1,4 @@
-"""Public builtins planning package API."""
+"""Planning-stage builtin nodes for request framing, sourcing, execution prep, and evaluator control."""
 from __future__ import annotations
 
 from polisyos.scientist.nodes.builtins.planning.build_execution_plan import BuildExecutionPlanNode

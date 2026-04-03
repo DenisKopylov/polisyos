@@ -30,7 +30,7 @@ def _result_slot() -> frozenset[SlotSpec]:
     tags={"sensitivity", "specification", "multiverse", "robustness", "tabular"},
 )
 class SpecificationCurveEstimator:
-    """Specification curve estimator implementation."""
+    """Evaluate how conclusions shift across a full specification-curve sweep."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 

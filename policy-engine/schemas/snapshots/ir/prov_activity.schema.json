@@ -1,6 +1,7 @@
 {
   "$defs": {
     "ProvActivityType": {
+      "description": "Prov activity type public type.",
       "enum": [
         "fetch_doc",
         "normalize_doc",
@@ -23,6 +24,7 @@
     }
   },
   "additionalProperties": false,
+  "description": "Prov activity public type.",
   "properties": {
     "activity_id": {
       "pattern": "^[a-z][a-z0-9_.-]*$",

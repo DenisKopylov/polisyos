@@ -1,4 +1,4 @@
-"""Public foundry agent sim package API."""
+"""Re-export the stable agent-simulation surface used by Foundry runtimes and tooling."""
 from __future__ import annotations
 
 import importlib

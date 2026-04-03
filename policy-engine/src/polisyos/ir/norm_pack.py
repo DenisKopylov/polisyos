@@ -1,4 +1,4 @@
-"""Public ir norm pack module API."""
+"""Represent normative provisions and deontic rules used during policy review."""
 from __future__ import annotations
 
 import ast
@@ -15,7 +15,12 @@ SCHEMA_VERSION_PATTERN = r"^\d+\.\d+$"
 
 
 class RuleType(str, Enum):
-    """Deontic classification of normative rules."""
+    """Classify how a provision constrains policy actions in a norm pack.
+
+    Downstream compliance and reporting logic can treat obligations,
+    prohibitions, and permissions differently when explaining policy feasibility
+    or legal conflict.
+    """
 
     OBLIGATION = "obligation"
     PROHIBITION = "prohibition"
@@ -23,7 +28,13 @@ class RuleType(str, Enum):
 
 
 class NormRef(KernelModel):
-    """Reference to a normative document provision."""
+    """Reference a source provision that grounds one normative rule.
+
+    Prefer ``citations`` for content-addressed provenance; legacy
+    ``source_document`` and ``version`` fields remain accepted for migration.
+    Validators require at least one provenance path so a rule cannot be orphaned
+    from its source text.
+    """
 
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     provision_id: str = Field(..., pattern=ID_PATTERN)
@@ -58,7 +69,12 @@ class BackendExpr(KernelModel):
 
 
 class NormRule(KernelModel):
-    """Single rule within a norm pack."""
+    """Declare one machine-readable norm and its source-backed applicability scope.
+
+    ``backend_exprs`` can carry backend-specific execution forms, while
+    ``rule_type`` and ``applicability`` preserve IR-level semantics for
+    governance and explanation layers.
+    """
 
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     norm_id: str = Field(..., pattern=ID_PATTERN)

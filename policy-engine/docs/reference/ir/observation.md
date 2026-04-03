@@ -8,6 +8,26 @@ It turns heterogeneous evidence into typed records and panels, routes that
 evidence through governance and measurement-aware rules, and materializes the
 bundle manifests that Scientist and Foundry exchange.
 
+## Contract Layers
+
+- Raw observations: `ObservationRecord` and `ObservationPanel` hold normalized
+  source measurements plus entity/time locators and explicit identification
+  metadata. They are the evidence rows before family policy or readiness
+  preflight is applied.
+- Observation family policy: `ObservationFamilyPolicy*` declares default
+  identification modes, fallback semantics, and mandatory governance passes per
+  family. `GovernancePassAlias*` maps stable IR pass ids to runtime pass names.
+- Measurement trust and routing: `MeasurementRegistry` converts raw source
+  confidence, coverage, bias flags, and proxy metadata into
+  `MeasurementTrustTier`; `IdentificationModeRouter` then resolves the effective
+  mode and fallback reason that compilers/readiness checks should honor.
+- Readiness manifests: `CausalReadinessBundle` records proxy,
+  transportability, counterfactual, interference, and strategic-response
+  preflight outcomes before execution is allowed.
+- Execution manifests: `BoundsEstimationTask`, `TemporalDTRTask`, and
+  `CausalExecutionBundle` represent the task/result boundary after readiness
+  passes and are the artifacts that downstream governance/reporting should read.
+
 ## Source Modules
 
 | Module | Focus | Top-level IR exports |

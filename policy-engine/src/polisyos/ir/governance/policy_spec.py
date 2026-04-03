@@ -1,8 +1,10 @@
-"""
-PolicySpec: The "What" artifact - interventions, parameters, schedule.
+"""Define the Trinity intervention/governance artifact and its action vocabulary.
 
-This artifact captures the policy actions to be taken, which can be
-iterated and optimized while the ProblemFrame remains constant.
+``PolicySpec`` is the policy-side boundary object in the Trinity contract: it
+declares interventions, mechanism bindings, tunable parameters, and execution
+schedules that should be evaluated against a fixed ``ProblemFrame`` and one or
+more ``ModelSpec`` world models. Use this module when authoring the "what
+should be changed" layer, not the "how the world evolves" layer.
 """
 from __future__ import annotations
 
@@ -35,10 +37,11 @@ MAX_SELECTOR_NODES = 50
 
 
 class MechanismBinding(KernelModel):
-    """
-    Binding between an intervention and a mechanism from the registry.
+    """Bind one or more interventions to an executable mechanism registry entry.
 
-    Links policy interventions to executable mechanisms.
+    This is the handshake between authored interventions and runtime mechanism
+    implementations: search, compilation, and execution layers can override
+    mechanism configuration without mutating the intervention payload itself.
     """
 
     binding_id: str = Field(..., pattern=ID_PATTERN)
@@ -54,11 +57,13 @@ class MechanismBinding(KernelModel):
 
 
 class InterventionSpec(KernelModel):
-    """
-    Policy intervention specification.
+    """Declare one policy action, its target selector, timing, and mechanism inputs.
 
-    Defines a single policy action with targeting, timing, and parameters.
-    Compatible with existing InterventionSpec in surface.py.
+    In Trinity terms this is an intervention/governance object, not a causal
+    query intervention. It is used by policy compilation and schedule execution,
+    while observation routing reads ``identification_mode`` and
+    ``transmission_channels`` to decide which readiness checks and governance
+    passes must run before evaluation.
     """
 
     intervention_id: str = Field(..., pattern=ID_PATTERN)
@@ -92,7 +97,12 @@ class InterventionSpec(KernelModel):
 
 
 class TemporalInterventionStep(KernelModel):
-    """One dated step inside a temporal intervention sequence."""
+    """Declare one activation point in a sequential intervention program.
+
+    Steps are sorted by ``effective_date`` inside
+    ``TemporalInterventionSequence`` and may override mechanism parameters for a
+    dynamic treatment regime run.
+    """
 
     step_id: str = Field(..., pattern=ID_PATTERN)
     effective_date: str = Field(
@@ -106,7 +116,13 @@ class TemporalInterventionStep(KernelModel):
 
 
 class TemporalInterventionSequence(KernelModel):
-    """Ordered sequence of intervention activations for dynamic treatment regimes."""
+    """Group ordered intervention steps for sequential or DTR-style execution.
+
+    The sequence is consumed by observation compilers and causal runners that
+    require ``IdentificationMode.SEQUENTIAL`` semantics. Validators enforce
+    unique ``step_id`` values and monotone ``effective_date`` ordering so the
+    runtime can replay the intervention path deterministically.
+    """
 
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     sequence_id: str = Field(..., pattern=ID_PATTERN)
@@ -129,10 +145,11 @@ class TemporalInterventionSequence(KernelModel):
 
 
 class ParameterSpec(KernelModel):
-    """
-    Tunable parameter specification with bounds and metadata.
+    """Expose one tunable intervention parameter to calibration and search.
 
-    Supports calibration and sensitivity analysis.
+    ``param_path`` points into ``InterventionSpec.params`` and optional bounds
+    constrain feasible updates. Scientist calibration and sensitivity tooling
+    should only mutate parameters marked ``tunable=True``.
     """
 
     param_id: str = Field(..., pattern=ID_PATTERN)
@@ -150,12 +167,25 @@ class ParameterSpec(KernelModel):
 
 
 class PolicySpec(KernelModel):
-    """
-    PolicySpec: The "What" artifact.
+    """Define the Trinity intervention/governance contract for policy proposals.
 
-    Specifies the policy interventions, mechanism bindings, and parameters.
-    This artifact is iterated during policy optimization while the ProblemFrame
-    remains constant.
+    ``PolicySpec`` answers "which intervention is being proposed and under what
+    execution semantics?" It should reference a stable ``ProblemFrame`` and can
+    be iterated by search, optimization, or human authoring while ``ModelSpec``
+    supplies alternative world-model assumptions. Use ``interventions`` for the
+    authored action set, ``mechanism_bindings`` for runtime mechanism mapping,
+    and ``parameters`` for calibration/search knobs.
+
+    Attributes:
+        policy_id: Stable identifier for the proposal candidate.
+        problem_frame_ref: Optional content-addressed link to the ``ProblemFrame``
+            this proposal is meant to satisfy.
+        interventions: Concrete actions with selector, schedule, and mechanism
+            parameters.
+        mechanism_bindings: Explicit runtime mechanism bindings for one or more
+            interventions.
+        parameters: Tunable knobs exposed to calibration and sensitivity passes.
+        global_schedule: Optional schedule override shared by all interventions.
     """
 
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)

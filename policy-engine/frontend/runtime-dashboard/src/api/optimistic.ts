@@ -121,6 +121,9 @@ export function createOptimisticRun(tempId: string): RunSummary {
     root_artifact_count: 0,
     has_workflow_report: false,
     warnings: [],
+    control_job_id: null,
+    decision_review_required: false,
+    execution_profile: null,
     cell_id: null,
   };
 }
@@ -142,6 +145,9 @@ export function buildLaunchedRunSummary(
     root_artifact_count: 0,
     has_workflow_report: false,
     warnings: [],
+    control_job_id: response.job_id,
+    decision_review_required: false,
+    execution_profile: response.effective_execution_profile,
     cell_id: null,
   };
 }

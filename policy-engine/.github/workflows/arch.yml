@@ -16,33 +16,36 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: "3.14"
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: "22"
-      - name: Install dependencies
-        run: |
-          pip install -e ".[dev,test,causal-discovery]"
+      - name: Install uv
+        run: pip install uv
+      - name: Sync Python dependencies
+        run: uv sync --frozen --extra lint --extra test --extra runtime --extra causal-discovery
       - name: Install frontend dashboard dependencies
         working-directory: frontend/runtime-dashboard
-        run: npm install
+        run: npm ci
       - name: Run import gate
-        run: python tools/lint/lint_imports.py --policy import_policy.toml --exceptions import_exceptions.toml
+        run: uv run python tools/lint/lint_imports.py --policy import_policy.toml --exceptions import_exceptions.toml
       - name: Run Foundry backend lint policy
-        run: python tools/lint/lint_foundry.py --repo-root .
+        run: uv run python tools/lint/lint_foundry.py --repo-root .
       - name: Check Scientist state_reads contract
-        run: python tools/diagnostics/check_state_reads.py
+        run: uv run python tools/diagnostics/check_state_reads.py
       - name: Require Scientist node version bumps
-        run: python tools/diagnostics/check_scientist_node_version_bump.py
+        run: uv run python tools/diagnostics/check_scientist_node_version_bump.py
       - name: Verify Scholar storage boundary
-        run: python tools/lint/check_scholar_imports.py
+        run: uv run python tools/lint/check_scholar_imports.py
       - name: Verify connector contracts
-        run: python tools/connectors/check_contracts.py --check
+        run: uv run python tools/connectors/check_contracts.py --check
       - name: Verify ABI schema snapshots
-        run: python3 tools/diagnostics/gen_schema.py --check
+        run: uv run --extra ml python tools/diagnostics/gen_schema.py --check
+      - name: Verify architecture guardrails
+        run: uv run python tools/architecture/guardrails.py check
       - name: Verify Runtime API contract drift
-        run: python3 tools/runtime/check_runtime_api_contract.py
+        run: uv run --extra ml python tools/runtime/check_runtime_api_contract.py
       - name: Verify frontend API types are current
         working-directory: frontend/runtime-dashboard
         run: |

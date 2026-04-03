@@ -1,4 +1,4 @@
-"""Public causal ci backends module API."""
+"""Select conditional-independence and interval backends for causal discovery and inference."""
 from __future__ import annotations
 
 import importlib
@@ -38,7 +38,7 @@ _VALID_DISCOVERY_CI_BACKENDS: frozenset[str] = frozenset({"auto", "numpy", "jax"
 
 @dataclass(frozen=True)
 class CIBackendSelection:
-    """CI backend selection public type."""
+    """Describe the chosen CI backend plus fallback and availability metadata."""
     requested: str
     used: str
     fallback_reason: str | None = None

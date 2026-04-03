@@ -1,4 +1,4 @@
-"""Public fabric claims package API."""
+"""Facade for document-to-claim extraction, normalization, and conflict handling."""
 from __future__ import annotations
 
 try:

@@ -34,7 +34,7 @@ SourceKind = Literal["local_file", "bytes", "url"]
 
 
 class SourceSpec(BaseModel):
-    """Source spec data model."""
+    """Descriptor for one Scholar source to ingest from a file, bytes blob, or URL."""
     model_config = ConfigDict(extra="forbid")
 
     kind: SourceKind
@@ -144,13 +144,13 @@ class ResearchIntent(BaseModel):
 
 
 class ResearchIntentRef(ArtifactRef):
-    """Research intent ref data model."""
+    """Artifact reference for the original Scholar research-intent request."""
     kind: Literal["scholar.research_intent"] = "scholar.research_intent"
     media_type: Literal["application/json"] = "application/json"
 
 
 class KnowledgeBundleRef(ArtifactRef):
-    """Knowledge bundle ref data model."""
+    """Artifact reference for the normalized Scholar knowledge bundle output."""
     kind: Literal["scholar.knowledge_bundle"] = "scholar.knowledge_bundle"
     media_type: Literal["application/json"] = "application/json"
 
@@ -220,7 +220,7 @@ class FreshnessMetadata(BaseModel):
 
 
 class KnowledgeBundle(BaseModel):
-    """Knowledge bundle data model."""
+    """Persisted Scholar bundle containing the request context, payload, and freshness metadata."""
     model_config = ConfigDict(extra="forbid")
 
     intent: ResearchIntent | None = None

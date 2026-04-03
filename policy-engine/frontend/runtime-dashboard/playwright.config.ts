@@ -9,16 +9,22 @@ const fixtureMetadataPath = path.resolve(
   dashboardRoot,
   ".tmp/fixture-runtime.json",
 );
+const includeQuarantine = process.env.PLAYWRIGHT_INCLUDE_QUARANTINE === "1";
+const configuredRetries = Number.parseInt(
+  process.env.PLAYWRIGHT_RETRIES ?? "0",
+  10,
+);
 
 export default defineConfig({
   testDir: "./e2e",
   fullyParallel: false,
   timeout: 60_000,
   workers: 1,
+  grepInvert: includeQuarantine ? undefined : /@quarantine/,
   reporter: process.env.CI
     ? [["github"], ["html", { open: "never" }]]
     : [["list"]],
-  retries: process.env.CI ? 1 : 0,
+  retries: Number.isNaN(configuredRetries) ? 0 : configuredRetries,
   use: {
     baseURL: "http://127.0.0.1:5173",
     trace: "retain-on-failure",

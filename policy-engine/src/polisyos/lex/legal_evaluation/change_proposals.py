@@ -1,4 +1,4 @@
-"""Public legal evaluation change proposals module API."""
+"""Derive actionable change proposals from failed legal-evaluation findings."""
 from __future__ import annotations
 
 from decimal import Decimal
@@ -221,7 +221,7 @@ def propose_changes_impl(
     based_on_report_ref: LegalReportRef,
     segment_name: str | None = None,
 ) -> list[ChangeProposalRef]:
-    """Propose changes impl helper."""
+    """Load a legal report artifact and persist any policy or instrumentation proposals it implies."""
     del fact_log_root
     del segment_name
 

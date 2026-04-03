@@ -1,4 +1,4 @@
-"""Public core evaluation package API."""
+"""Exports scoring utilities used by evaluators and governance passes."""
 from .scoring import ThresholdBand, ThresholdMapper, WeightedScorer, WeightedScoreResult, clamp01
 
 __all__ = [
@@ -8,4 +8,3 @@ __all__ = [
     "WeightedScorer",
     "clamp01",
 ]
-

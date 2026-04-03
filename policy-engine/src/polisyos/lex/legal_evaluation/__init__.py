@@ -1,4 +1,4 @@
-"""Public lex legal evaluation package API."""
+"""Facade for evaluating policy artifacts against norm packs and proposing remediations."""
 from __future__ import annotations
 
 from .change_proposals import propose_changes_impl

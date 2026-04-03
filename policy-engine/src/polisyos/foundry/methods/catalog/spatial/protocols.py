@@ -183,7 +183,7 @@ class AccessibilityData(BaseModel):
 
 
 class SpatialResult(BaseModel):
-    """Spatial result data model."""
+    """Carry coefficients, fit diagnostics, and spatial effects emitted by spatial estimators."""
     contract_id: ClassVar[str] = "foundry.spatial.result.v1"
     model_config = ConfigDict(extra="forbid", frozen=True, arbitrary_types_allowed=True)
 

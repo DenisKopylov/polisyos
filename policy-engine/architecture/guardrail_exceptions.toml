@@ -1,0 +1,34 @@
+# Architecture guardrail exceptions.
+#
+# Rules:
+# - id / check / owner / reason / expires are mandatory.
+# - expires must be ISO date (YYYY-MM-DD).
+# - every id must be listed in guardrail_exceptions_registry.md.
+# - supported `check` values currently include:
+#   - deep_import
+#   - public_surface
+#   - generated_artifact
+#   - workflow_config
+#   - readme_policy
+# - use `subject_glob` + optional `detail_glob` for non-deep-import checks.
+# - use `source_module_glob` + `target_module_glob` for deep-import checks.
+#
+# Example: deep-import exception
+# [[exception]]
+# id = "GX-2026-04-DEEP-001"
+# check = "deep_import"
+# owner = "team-polisyos"
+# reason = "Temporary direct import until a stable facade is extracted"
+# expires = "2026-06-30"
+# source_module_glob = "polisyos.scientist.*"
+# target_module_glob = "polisyos.foundry.methods.catalog.*"
+#
+# Example: workflow/config exception
+# [[exception]]
+# id = "GX-2026-04-WORKFLOW-001"
+# check = "workflow_config"
+# owner = "team-polisyos"
+# reason = "Temporary bootstrap mismatch while the CI image is being upgraded"
+# expires = "2026-05-15"
+# subject_glob = ".github/workflows/arch.yml"
+# detail_glob = "python_baseline"

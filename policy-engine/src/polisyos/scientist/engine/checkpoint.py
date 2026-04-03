@@ -1,4 +1,4 @@
-"""Public engine checkpoint module API."""
+"""Checkpoint, locking, and resume primitives for Scientist workflow execution."""
 from __future__ import annotations
 
 import json
@@ -69,7 +69,7 @@ class CheckpointSchemaError(CheckpointCorruptedError):
 
 
 class CheckpointMetadata(BaseModel):
-    """Checkpoint metadata data model."""
+    """Replay metadata recorded after a node commits a recoverable workflow transition."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field(CHECKPOINT_SCHEMA_VERSION, pattern=r"^\d+\.\d+$")
@@ -112,7 +112,7 @@ class CheckpointHead(BaseModel):
 
 @dataclass(frozen=True)
 class CheckpointWriteResult:
-    """Checkpoint write result data model."""
+    """Summary of a checkpoint write, including the persisted artifact ref and latency."""
     checkpoint_ref: ArtifactRef
     sequence_number: int
     duration_ms: int
@@ -315,7 +315,7 @@ class CASCheckpointHook:
 
 
 def normalize_checkpoint_policy(value: str | None) -> CheckpointPolicy:
-    """Normalize checkpoint policy helper."""
+    """Normalize user-facing checkpoint policy strings into engine-supported literals."""
     raw = (value or "strict").strip().lower()
     if raw not in {"off", "strict", "best_effort"}:
         raise ValueError("checkpoint_policy must be one of: off, strict, best_effort")
@@ -323,7 +323,7 @@ def normalize_checkpoint_policy(value: str | None) -> CheckpointPolicy:
 
 
 def compute_workflow_fingerprint(workflow: WorkflowSpec) -> str:
-    """Compute workflow fingerprint helper."""
+    """Hash the functional workflow shape used to validate checkpoint compatibility."""
     payload = workflow.model_dump(mode="python", by_alias=True, exclude_none=False)
     # Exclude operational fields (retry, timeout_s) from fingerprint —
     # they don't affect functional outputs and contain floats that violate
@@ -423,7 +423,7 @@ def update_checkpoint_head(
     writer_pid: int,
     writer_hostname: str,
 ) -> None:
-    """Update checkpoint head helper."""
+    """Atomically rewrite the local checkpoint head pointer for the latest completed node."""
     run_dir.mkdir(parents=True, exist_ok=True)
     head = CheckpointHead(
         run_id=run_id,
@@ -522,7 +522,7 @@ def acquire_run_lock(
     max_attempts: int = 1,
     retry_delay_s: float = 1.0,
 ) -> RunLockHandle:
-    """Acquire run lock helper."""
+    """Acquire the per-run filesystem lock that prevents concurrent execute or resume workers."""
     try:
         import fcntl
     except Exception as exc:  # pragma: no cover
@@ -585,7 +585,7 @@ def acquire_run_lock(
 
 
 def read_run_lock_metadata(lock_path: Path) -> dict[str, Any] | None:
-    """Read run lock metadata helper."""
+    """Read best-effort metadata describing the process currently holding a run lock."""
     if not lock_path.exists():
         return None
     try:
@@ -615,7 +615,7 @@ def resume_from_checkpoint(
     run_dir: Path | None = None,
 ):
     # Local imports avoid circular dependency at module import time.
-    """Resume from checkpoint helper."""
+    """Resume a run from its latest checkpoint after lock, schema, and workflow checks."""
     from polisyos.scientist.engine.executor import WorkflowExecutor
     from polisyos.scientist.nodes.builtins.state_keys import INPUT_REGISTRY_BUNDLE_REF
     from polisyos.scientist.workflows.builder import (

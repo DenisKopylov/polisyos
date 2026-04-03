@@ -1,4 +1,4 @@
-"""Public agent sim analysis module API."""
+"""Inspect agent-policy behavior, clustering, and counterfactual sensitivity over runs."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -13,7 +13,7 @@ from polisyos.foundry.agent_sim.state import GlobalState
 
 @dataclass
 class AgentCluster:
-    """Agent cluster public type."""
+    """Describe one behavior cluster extracted from active agents in a simulation snapshot."""
     indices: jnp.ndarray
     centroid: jnp.ndarray
     size: int
@@ -23,7 +23,7 @@ class AgentCluster:
 
 
 class BehaviorAnalyzer:
-    """Behavior analyzer implementation."""
+    """Compute behavioral summaries and counterfactual diagnostics for trained policies."""
     @staticmethod
     def compute_action_statistics(
         actor: ActorCritic,

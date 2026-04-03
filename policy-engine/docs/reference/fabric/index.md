@@ -3,7 +3,10 @@ Related explanation: [Data Fabric](../../explanation/data-fabric.md).
 
 > Data acquisition and world-materialization layer for PolicyOS.
 
-`polisyos.fabric` normalizes external data access behind connector contracts, source profiles, and data-plane orchestration. It powers both direct world queries and reproducible ingestion flows that persist evidence into CAS.
+`polisyos.fabric` normalizes external data access behind connector contracts, source profiles,
+document/claim normalization stages, and data-plane orchestration. It powers both direct world
+queries over materialized tables and reproducible ingestion flows that persist evidence,
+provenance, and conflict-resolution artifacts into CAS.
 
 ## Current Surface
 
@@ -12,7 +15,7 @@ Related explanation: [Data Fabric](../../explanation/data-fabric.md).
 | Connector classes | 14 concrete connector classes exported from `connectors.sources` | [connectors.md](connectors.md) |
 | Entry-point registrations | 11 connector entry points currently declared in `pyproject.toml` | [connectors.md](connectors.md) |
 | Built-in profiles | 32 builtin `SourceProfile` instances across 13 connector families | [profiles.md](profiles.md) |
-| Data plane | Orchestrator, execution modes, watermark policy | [data-plane.md](data-plane.md) |
+| Data plane | Orchestrator, execution modes, watermark policy, docs/claims/world-query semantics | [data-plane.md](data-plane.md) |
 
 ## Root API
 
@@ -36,4 +39,3 @@ Fabric also lazy-loads contract and search types from `polisyos.fabric.catalog`,
 | Concrete vs entry-point connectors | `WHOConnector`, `UNPDConnector`, and `UNESCOUISConnector` are concrete exported classes today, but they are not yet wired into the `polisyos.fabric_connectors` entry-point section in `pyproject.toml` |
 | Profile counts | The current `builtin_profiles.py` defines 32 profiles. This diverges from earlier planning notes that mentioned 63 |
 | Bindings location | Fabric’s deprecated bindings live under `connectors/bindings/`; the active multiscale binding logic referenced elsewhere lives in Foundry, not under `polisyos.fabric.data_plane.bindings` |
-

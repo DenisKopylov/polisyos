@@ -1,7 +1,12 @@
 """
-Foundry Methods Core Types & Protocol.
+Expose the stable Foundry Methods ABI, runners, registry, and catalog helpers.
 
-Phase 3.2 Public API.
+This package is the facade for method authors and orchestration code:
+`MethodSignature`/`FoundryMethod` define the method protocol, backend runners
+execute implementations, specialization/cache objects control deterministic
+compilation reuse, and artifact helpers persist provenance/evidence. Optional
+JAX compiler and artifact modules are imported defensively so the facade
+remains usable in partial installs.
 """
 from __future__ import annotations
 

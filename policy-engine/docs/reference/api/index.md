@@ -23,6 +23,8 @@ The runtime HTTP layer is tenancy-aware, but the committed OpenAPI snapshot does
 - Production-style deployments are expected to front the API with bearer/JWT auth and inject request claims into `request.state`.
 - Runtime routes read resolved identity and access scope from request state, then enforce tenant access on run and artifact resources.
 - `GET /api/v1/auth/me` reflects the resolved identity. If no claims are present, it falls back to a fixture analyst identity for local/dev use.
+- Service-to-service authorization uses SPIFFE peer identity plus JWT-derived user scope when available.
+- When OPA authorization is enabled in enforce mode and the sidecar is unreachable or returns an invalid shape, the authz client fails closed and returns deny-by-default.
 
 ## Common Headers
 

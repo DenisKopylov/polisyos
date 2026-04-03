@@ -122,13 +122,13 @@ class SentinelObservation(BaseModel):
 
 
 def extract_sentinel_metadata(candidate: dict[str, Any]) -> dict[str, Any] | None:
-    """Extract sentinel metadata helper."""
+    """Return sentinel-only metadata attached to a candidate without mutating the candidate."""
     raw = candidate.get(SENTINEL_METADATA_KEY)
     return raw if isinstance(raw, dict) else None
 
 
 def strip_internal_candidate_metadata(candidate: dict[str, Any]) -> dict[str, Any]:
-    """Strip internal candidate metadata helper."""
+    """Remove sentinel-private metadata before a candidate leaves internal search infrastructure."""
     return {
         key: value
         for key, value in candidate.items()
@@ -142,7 +142,7 @@ def persist_sentinel_set(
     *,
     inputs: list[InputRef] | None = None,
 ) -> ArtifactRef:
-    """Persist sentinel set helper."""
+    """Persist the sentinel set used to probe regressions and hidden-holdout behavior."""
     return store.put_json(
         sentinel_set,
         PutOptions(

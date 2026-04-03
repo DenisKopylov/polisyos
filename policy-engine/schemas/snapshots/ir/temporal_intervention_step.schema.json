@@ -1,5 +1,6 @@
 {
   "additionalProperties": false,
+  "description": "Declare one activation point in a sequential intervention program.\n\nSteps are sorted by ``effective_date`` inside\n``TemporalInterventionSequence`` and may override mechanism parameters for a\ndynamic treatment regime run.",
   "properties": {
     "effective_date": {
       "description": "ISO-like YYYY-MM or YYYY-MM-DD activation marker for the step.",

@@ -38,7 +38,7 @@
 ## Типовой запуск
 
 ```bash
-PYTHONPATH=src:. uv run python tools/diagnostics/gen_schema.py --check
+PYTHONPATH=src:. uv run --extra ml python tools/diagnostics/gen_schema.py --check
 PYTHONPATH=src:. uv run python tools/diagnostics/abi_diff.py --baseline /tmp/baseline --current /tmp/current --format markdown
 PYTHONPATH=src:. uv run python tools/diagnostics/check_state_reads.py
 PYTHONPATH=src:. uv run python tools/diagnostics/check_scientist_node_version_bump.py --base-ref origin/main

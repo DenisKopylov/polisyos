@@ -1,4 +1,4 @@
-"""Public econometrics advanced module API."""
+"""Estimate non-linear, event-study, volatility, and structural-break econometric models."""
 from __future__ import annotations
 
 import math
@@ -114,7 +114,7 @@ def _build_regression_result(
     tags={"econometrics", "quantile-regression"},
 )
 class QuantileRegressionEstimator:
-    """Quantile regression estimator implementation."""
+    """Estimate conditional quantiles under asymmetric loss; avoid tiny samples or sparse tails."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("statsmodels", "numpy")
 
@@ -196,7 +196,7 @@ class QuantileRegressionEstimator:
     tags={"econometrics", "event-study"},
 )
 class EventStudyEstimator:
-    """Event study estimator implementation."""
+    """Estimate dynamic event-time effects under a valid control trend; avoid contaminated controls or weak pre-period support."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -326,7 +326,7 @@ class EventStudyEstimator:
     tags={"econometrics", "local-projections"},
 )
 class LocalProjectionsEstimator:
-    """Local projections estimator implementation."""
+    """Estimate impulse responses horizon-by-horizon; avoid short samples with too many horizons or weak shock identification."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("statsmodels", "numpy")
 
@@ -435,7 +435,7 @@ class LocalProjectionsEstimator:
     tags={"econometrics", "garch"},
 )
 class GARCHEstimator:
-    """GARCH estimator implementation."""
+    """Estimate conditional volatility dynamics under GARCH-style persistence; avoid nearly homoskedastic series or too few observations."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("arch", "numpy")
 
@@ -519,7 +519,7 @@ class GARCHEstimator:
     tags={"econometrics", "change-point"},
 )
 class ChangePointEstimator:
-    """Change point estimator implementation."""
+    """Detect structural breaks in a time series; avoid using it as a causal effect estimator without an intervention design."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("ruptures", "numpy")
 

@@ -448,7 +448,7 @@ def link_methods(
     strict_shape: bool = False,
     allow_unsafe_shapes: bool = False,
 ) -> LinkResult:
-    """Link methods helper."""
+    """Validate slot bindings before accepting a method chain or DAG edge."""
     config = LinkerConfig(
         strict_shape=strict_shape,
         allow_unsafe_shapes=allow_unsafe_shapes,
@@ -461,7 +461,7 @@ def check_linkable(
     source: MethodSignature,
     target: MethodSignature,
 ) -> bool:
-    """Check linkable helper."""
+    """Return whether two method signatures can be chained without linker errors."""
     try:
         result = link_methods(source, target)
         return result.binding_count > 0

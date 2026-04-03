@@ -1,4 +1,4 @@
-"""Public adapters foundry bridge module API."""
+"""Default Foundry port implementation used by workflow builders and simulation nodes."""
 from __future__ import annotations
 
 import json
@@ -24,7 +24,13 @@ from polisyos.scientist.engine.context import FoundryPort
 
 
 class DefaultFoundryPort(FoundryPort):
-    """Default Foundry adapter for Scientist engine (E1.7)."""
+    """Bridge Scientist node requests to Foundry compile/execute APIs with optional TEE/SBOM artifacts.
+
+    `compile()` forwards `CompileRequest` contracts to Foundry unchanged.
+    `execute()` optionally enforces TEE attestation, injects attestation details
+    into the process environment for downstream runtime hooks, and appends
+    derived attestation/SBOM refs to the returned `ExecuteResult`.
+    """
 
     def __init__(
         self,
@@ -38,9 +44,11 @@ class DefaultFoundryPort(FoundryPort):
             self._gatekeeper = TEEGatekeeper.from_settings(settings=self._settings)
 
     def compile(self, store: FileSystemCAS, request: CompileRequest) -> CompileResult:
+        """Compile a Trinity/registry request through `polisyos.foundry.compile.api.compile`."""
         return compile_foundry(store, request)
 
     def execute(self, store: FileSystemCAS, request: ExecuteRequest) -> ExecuteResult:
+        """Execute a lowered program through Foundry and attach TEE/SBOM derived artifacts."""
         attestation: AttestationResult | None = None
         if self._gatekeeper is not None:
             attestation = self._gatekeeper.enforce(

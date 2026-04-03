@@ -1,4 +1,4 @@
-"""Public causal nuisance layer module API."""
+"""Fit cross-fitted nuisance functions and outcome scaling for orthogonal learners."""
 from __future__ import annotations
 
 import dataclasses
@@ -38,7 +38,7 @@ class NuisanceConfig:
 
 @dataclasses.dataclass(frozen=True)
 class OutcomeScaler:
-    """Outcome scaler public type."""
+    """Store affine outcome-scaling parameters shared by nuisance and target learners."""
     mean: float
     scale: float
     applied: bool
@@ -47,7 +47,7 @@ class OutcomeScaler:
 
 @dataclasses.dataclass
 class CrossFitNuisanceOutputs:
-    """Cross fit nuisance outputs public type."""
+    """Carry fold-wise nuisance predictions, propensity scores, and split metadata."""
     propensity: np.ndarray
     mu1: np.ndarray
     mu0: np.ndarray

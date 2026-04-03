@@ -1,4 +1,4 @@
-"""Public registry loader module API."""
+"""Load registry bundle payloads and dereference their member registries from CAS."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -44,7 +44,7 @@ def _load_model(store: FileSystemCAS, ref: ArtifactRef | ArtifactID | str, model
 
 @dataclass(frozen=True)
 class RegistryBundleContent:
-    """Registry bundle content public type."""
+    """Hold the fully materialized registry objects referenced by one bundle."""
     bundle_ref: ArtifactRef
     slot_registry: SlotRegistry
     merge_registry: MergeRuleRegistry
@@ -59,7 +59,7 @@ class RegistryBundleContent:
 def load_registry_bundle_payload(
     store: FileSystemCAS, bundle_ref: ArtifactRef | ArtifactID | str
 ) -> RegistryBundlePayload:
-    """Load registry bundle payload."""
+    """Load only the bundle payload graph without dereferencing member registries."""
     data = store.get_bytes(_artifact_id(bundle_ref))
     payload = from_canonical_bytes(data)
     return RegistryBundlePayload.model_validate(payload)
@@ -68,7 +68,7 @@ def load_registry_bundle_payload(
 def load_registry_bundle(
     store: FileSystemCAS, bundle_ref: ArtifactRef | ArtifactID | str
 ) -> RegistryBundle:
-    """Load registry bundle."""
+    """Load the bundle payload and normalize the bundle reference ABI."""
     payload = load_registry_bundle_payload(store, bundle_ref)
     ref = _artifact_ref(
         bundle_ref,
@@ -81,7 +81,7 @@ def load_registry_bundle(
 def load_registry_bundle_content(
     store: FileSystemCAS, bundle_ref: ArtifactRef | ArtifactID | str
 ) -> RegistryBundleContent:
-    """Load registry bundle content."""
+    """Load a bundle and materialize all referenced registry objects from CAS."""
     bundle = load_registry_bundle(store, bundle_ref)
     slot_registry = _load_model(store, bundle.slot_registry, SlotRegistry)
     merge_registry = _load_model(store, bundle.merge_registry, MergeRuleRegistry)

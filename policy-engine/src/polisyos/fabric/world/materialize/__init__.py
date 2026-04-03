@@ -1,4 +1,4 @@
-"""Public world materialize package API."""
+"""Project segmented world facts into DuckDB and optional Kuzu query stores."""
 from __future__ import annotations
 
 from polisyos.fabric.world.materialize.duckdb import (

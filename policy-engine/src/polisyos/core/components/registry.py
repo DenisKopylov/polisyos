@@ -1,4 +1,4 @@
-"""Public components registry module API."""
+"""Store discovered components and resolve versions by metadata indices."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -14,14 +14,14 @@ from .protocols import Component
 
 
 class DuplicateComponentIdPolicy(str, Enum):
-    """Duplicate component ID policy data model."""
+    """Control how duplicate component IDs are handled during registration."""
     WARN = "warn"
     ERROR = "error"
     IGNORE = "ignore"
 
 
 class ResolvePolicy(str, Enum):
-    """Resolve policy data model."""
+    """Select which version of a component base ID should be returned."""
     EXACT = "exact"
     LATEST = "latest"
     LATEST_COMPATIBLE = "latest_compatible"
@@ -29,20 +29,20 @@ class ResolvePolicy(str, Enum):
 
 @dataclass(slots=True, frozen=True)
 class SourcePrecedencePolicy:
-    """Source precedence policy data model."""
+    """Prefer dev-scan declarations over entry points when duplicates appear."""
     dev_scan_wins_over_entry_points: bool = True
 
 
 @dataclass(slots=True)
 class ComponentEntry:
-    """Component entry data model."""
+    """Store component metadata, runtime object, and optional discovery provenance."""
     metadata: ComponentMetadata
     component: Component
     source: object | None = None
 
 
 class ComponentRegistry(BaseRegistry[str, ComponentEntry]):
-    """Multi-version registry for discovered components."""
+    """Index multi-version components by base ID, kind, domains, and tags."""
 
     def __init__(self) -> None:
         super().__init__(
@@ -63,6 +63,7 @@ class ComponentRegistry(BaseRegistry[str, ComponentEntry]):
         on_duplicate: DuplicateComponentIdPolicy = DuplicateComponentIdPolicy.ERROR,
         source_precedence: SourcePrecedencePolicy | None = None,
     ) -> None:
+        """Register one component entry while applying duplicate and source-precedence policy."""
         component_id = str(entry.metadata.component_id)
 
         existing = self.get(component_id)
@@ -82,12 +83,14 @@ class ComponentRegistry(BaseRegistry[str, ComponentEntry]):
         raise ValueError(f"Duplicate component_id: {component_id}")
 
     def list_all(self) -> list[ComponentEntry]:
+        """Return all entries sorted by base ID and descending version."""
         rows: list[ComponentEntry] = []
         for base_id in sorted(str(value) for value in self.index_values("base_id")):
             rows.extend(self.list(base_id))
         return rows
 
     def list(self, base_id: str) -> list[ComponentEntry]:
+        """Return all versions for one base ID sorted from newest to oldest."""
         rows = self.find("base_id", base_id)
         return sorted(
             rows,
@@ -96,6 +99,7 @@ class ComponentRegistry(BaseRegistry[str, ComponentEntry]):
         )
 
     def get(self, component_id: ComponentId | str) -> ComponentEntry | None:
+        """Return one exact component version by `ComponentId` or boundary string."""
         comp = ComponentId.parse(component_id) if isinstance(component_id, str) else component_id
         return super().get(str(comp))
 
@@ -106,6 +110,7 @@ class ComponentRegistry(BaseRegistry[str, ComponentEntry]):
         policy: ResolvePolicy = ResolvePolicy.LATEST,
         constraint: SemverRange | str | None = None,
     ) -> ComponentEntry | None:
+        """Resolve one component version according to `policy` and optional semver constraint."""
         entries = self.matching_entries(base_id, constraint=constraint)
         if not entries:
             return None
@@ -141,6 +146,7 @@ class ComponentRegistry(BaseRegistry[str, ComponentEntry]):
         capabilities: Capability | None = None,
         tags: Sequence[str] | None = None,
     ) -> list[ComponentEntry]:
+        """Filter entries by kind, domain, jurisdiction, capabilities, and tags."""
         results: list[ComponentEntry] = []
         required_tags = set(tags or [])
 
@@ -171,6 +177,7 @@ class ComponentRegistry(BaseRegistry[str, ComponentEntry]):
         constraint: SemverRange | str | None = None,
         kind: ComponentKind | None = None,
     ) -> list[ComponentEntry]:
+        """Return candidate versions that satisfy `constraint` and optional kind filtering."""
         rows = self.find("base_id", base_id)
         if not rows:
             return []

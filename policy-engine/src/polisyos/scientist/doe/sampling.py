@@ -9,7 +9,7 @@ from .designs import AdversarialPlan, AdversarialStrategy, SensitivityMethod, Se
 
 
 def generate_sensitivity_samples(plan: SensitivityPlan) -> np.ndarray:
-    """Generate sensitivity samples helper."""
+    """Generate parameter samples for the configured sensitivity plan."""
     _set_numpy_seed(plan.seed)
     problem = _plan_to_salib_problem(plan)
 
@@ -45,7 +45,7 @@ def generate_sensitivity_samples(plan: SensitivityPlan) -> np.ndarray:
 
 
 def generate_adversarial_samples(plan: AdversarialPlan) -> np.ndarray:
-    """Generate adversarial samples helper."""
+    """Generate adversarial parameter settings that stress the configured vulnerability region."""
     _set_numpy_seed(plan.seed)
     n_params = len(plan.parameter_specs)
     bounds = np.array(
@@ -96,4 +96,3 @@ def _plan_to_salib_problem(plan: SensitivityPlan) -> dict:
 def _set_numpy_seed(seed: int | None) -> None:
     if seed is not None:
         np.random.seed(seed)
-

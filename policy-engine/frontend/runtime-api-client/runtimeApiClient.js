@@ -119,6 +119,11 @@ export class RuntimeApiClient {
     return this.request('GET', path);
   }
 
+  async getPacketDecisionValidity(params) {
+    const path = `/api/v1/control/decision-packets/${encodeURIComponent(String(params.decision_packet_ref))}/decision-validity`;
+    return this.request('GET', path);
+  }
+
   async getControlJobStatus(params) {
     const path = `/api/v1/control/jobs/${encodeURIComponent(String(params.job_id))}`;
     return this.request('GET', path);
@@ -140,6 +145,28 @@ export class RuntimeApiClient {
   async listLlmProfiles() {
     const path = `/api/v1/control/llm/profiles`;
     return this.request('GET', path);
+  }
+
+  async listControlOutbox(params) {
+    const path = `/api/v1/control/outbox`;
+    const query = this.buildQuery({
+      state: params?.state,
+      limit: params?.limit,
+    });
+    return this.request('GET', path, query);
+  }
+
+  async getRunDecisionValidity(params) {
+    const path = `/api/v1/control/runs/${encodeURIComponent(String(params.run_id))}/decision-validity`;
+    return this.request('GET', path);
+  }
+
+  async listControlWorkers(params) {
+    const path = `/api/v1/control/workers`;
+    const query = this.buildQuery({
+      active_only: params?.active_only,
+    });
+    return this.request('GET', path, query);
   }
 
   async getRunCompare(params) {

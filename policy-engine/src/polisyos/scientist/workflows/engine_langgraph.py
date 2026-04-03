@@ -1,4 +1,4 @@
-"""Public workflows engine langgraph module API."""
+"""LangGraph-backed adapter that satisfies the legacy `WorkflowEngine` protocol."""
 from __future__ import annotations
 
 from typing import Any, Dict
@@ -9,10 +9,11 @@ from polisyos.scientist.kernel.fsm import Phase
 
 
 class LangGraphEngine:
-    """
-    LangGraph adapter implementing WorkflowEngine protocol.
+    """Wrap a compiled LangGraph DAG behind the `WorkflowEngine` interface.
 
-    Wraps existing workflow.py build_workflow() with protocol-compliant interface.
+    This adapter exists for legacy integrations that still expect a stateful
+    engine object. New production Scientist runs should prefer the engine DAG in
+    `polisyos.scientist.workflows.builder`.
     """
 
     def __init__(self, compiled_graph: CompiledGraph):
@@ -22,7 +23,7 @@ class LangGraphEngine:
         self._last_state: Dict[str, Any] | None = None
 
     def run(self, initial_state: Dict[str, Any]) -> Dict[str, Any]:
-        """Run workflow to completion."""
+        """Invoke the compiled graph once and return the final merged state."""
         result = self._graph.invoke(initial_state)
         self._last_state = result
         self._current_phase = result.get("phase", Phase.DECIDE.value)
@@ -64,21 +65,21 @@ class LangGraphEngine:
         return self._current_node
 
     def reset(self) -> None:
-        """Reset engine state."""
+        """Reset cached phase/node pointers so the adapter can be reused."""
         self._current_phase = Phase.INTAKE.value
         self._current_node = None
         self._last_state = None
 
     @classmethod
     def from_existing_workflow(cls) -> "LangGraphEngine":
-        """Legacy adapter entrypoint removed."""
+        """Reject the removed legacy builder path and point callers to engine DAGs."""
         raise RuntimeError(
             "LangGraph legacy workflow was removed. Use polisyos.scientist.run_experiment() engine DAG."
         )
 
 
 class LangGraphEngineFactory:
-    """Factory for LangGraph engines."""
+    """Create `LangGraphEngine` wrappers from a supplied graph builder callback."""
 
     def __init__(self, build_func=None):
         self._build_func = build_func

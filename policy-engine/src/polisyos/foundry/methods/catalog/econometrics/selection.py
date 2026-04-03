@@ -1,4 +1,4 @@
-"""Public econometrics selection module API."""
+"""Estimate sample-selection and limited-dependent-variable econometric models."""
 from __future__ import annotations
 
 from typing import Any, ClassVar, Mapping
@@ -38,7 +38,7 @@ def _normal_pdf(z: np.ndarray) -> np.ndarray:
     tags={"econometrics", "selection", "heckman", "cross-section"},
 )
 class HeckmanSelectionEstimator:
-    """Heckman selection estimator implementation."""
+    """Correct sample-selection bias with a Heckman two-step model; avoid weak exclusion variables or non-normal selection errors."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -133,7 +133,7 @@ class HeckmanSelectionEstimator:
     tags={"econometrics", "selection", "tobit", "cross-section"},
 )
 class TobitEstimator:
-    """Tobit estimator implementation."""
+    """Estimate censored outcomes under a latent-normal Tobit model; avoid truncation designs that need a different likelihood."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -208,7 +208,7 @@ class TobitEstimator:
     tags={"econometrics", "selection", "truncated", "cross-section"},
 )
 class TruncatedRegressionEstimator:
-    """Truncated regression estimator implementation."""
+    """Estimate outcomes observed only within a truncation region; avoid censoring cases where boundary values are observed."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 

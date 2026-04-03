@@ -1,4 +1,4 @@
-"""Public ml survival module API."""
+"""Estimate survival/time-to-event models and expose curves plus risk scores."""
 from __future__ import annotations
 
 from typing import Any, ClassVar, Mapping
@@ -42,7 +42,7 @@ def _survival_payload(state: Any) -> dict[str, Any]:
     tags={"ml", "survival", "cox"},
 )
 class SurvivalAnalysisEstimator:
-    """Survival analysis estimator implementation."""
+    """Estimate event-time risk under censored observations; avoid when censoring/event semantics are undefined."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("lifelines", "pandas", "numpy")
 

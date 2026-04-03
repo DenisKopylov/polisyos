@@ -33,7 +33,7 @@
 - Runtime behavior: `test_transform_pipeline.py`, `test_quality_system.py`, `test_cache_system.py`, `test_resilience.py`, `test_federation.py`.
 - Sources/reference: `sources/test_*.py`, `reference/test_*.py`.
 
-Только `reference/test_*.py` помечены `@pytest.mark.integration`.
+`fabric/connectors/reference/*` auto-classified как `integration`; явный `@pytest.mark.integration` остаётся допустимым, но больше не обязателен.
 
 ## Связи с кодом
 

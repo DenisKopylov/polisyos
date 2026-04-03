@@ -1,6 +1,7 @@
 {
   "$defs": {
     "AnchorKind": {
+      "description": "Anchor kind public type.",
       "enum": [
         "article",
         "section",
@@ -258,7 +259,7 @@
     }
   },
   "additionalProperties": false,
-  "description": "Reference to a normative document provision.",
+  "description": "Reference a source provision that grounds one normative rule.\n\nPrefer ``citations`` for content-addressed provenance; legacy\n``source_document`` and ``version`` fields remain accepted for migration.\nValidators require at least one provenance path so a rule cannot be orphaned\nfrom its source text.",
   "properties": {
     "citations": {
       "items": {

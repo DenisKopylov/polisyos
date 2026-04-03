@@ -1,4 +1,10 @@
-"""Public facade for Fabric world-query, catalog, and ingestion APIs."""
+"""Stable Fabric facade for connector ingestion, world-query, and catalog APIs.
+
+The package exports the supported entry points for connector-backed acquisition and materialized
+world reads while keeping heavy dependencies lazy. ``__all__`` defines the stable facade; catalog
+contracts are still available through lazy attribute loading, and ``world`` is exposed as a lazy
+subpackage for lower-level materialization utilities.
+"""
 
 from __future__ import annotations
 
@@ -45,6 +51,11 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
 
 
 def __getattr__(name: str) -> Any:
+    """Load Fabric exports or the ``world`` subpackage lazily.
+
+    Raises:
+        AttributeError: If ``name`` is not a supported Fabric facade symbol.
+    """
     if name == "world":
         module = importlib.import_module("polisyos.fabric.world")
         globals()[name] = module
@@ -59,4 +70,5 @@ def __getattr__(name: str) -> Any:
 
 
 def __dir__() -> list[str]:
+    """Return eager globals plus lazily exported Fabric symbols."""
     return sorted(list(globals().keys()) + list(_LAZY_IMPORTS.keys()))

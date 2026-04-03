@@ -1,8 +1,10 @@
 """
-Compilation specialization for deterministic caching (Law H).
+Build deterministic specialization keys that separate method ABI from runtime shape/backend context.
 
-This module implements deterministic cache keys for JAX compilation by
-capturing all compilation-affecting factors in a frozen dataclass.
+Specialization answers "which compiled variant do we need for this method and
+input shape/backend context?" It does not execute the method and does not
+store artifacts itself; those concerns belong to backend runners and
+`methods.artifacts`.
 """
 from __future__ import annotations
 
@@ -33,11 +35,7 @@ __all__ = [
 
 @dataclass(frozen=True, slots=True)
 class ShapeSpec:
-    """
-    Shape specification for an input slot.
-
-    Captures array shape and dtype, which affect XLA compilation.
-    """
+    """Capture the concrete shape and dtype of one input slot for compile caching."""
 
     shape: tuple[int, ...]
     dtype: str
@@ -121,11 +119,7 @@ def _config_fingerprint() -> str:
 
 @dataclass(frozen=True, slots=True)
 class BackendSpec:
-    """
-    JAX backend specification.
-
-    Captures platform, devices, precision, and config that affect compilation.
-    """
+    """Fingerprint the JAX runtime details that can change compiled code reuse."""
 
     platform: str
     device_count: int
@@ -142,9 +136,7 @@ class BackendSpec:
         precision: str = "float32",
         xla_flags: Sequence[str] | None = None,
     ) -> "BackendSpec":
-        """
-        Create BackendSpec from current JAX environment.
-        """
+        """Capture the current JAX backend/platform/device fingerprint."""
         backend = jax.default_backend()
         devices = jax.devices()
         device_kinds = tuple(sorted({getattr(d, "device_kind", str(d)) for d in devices}))
@@ -219,10 +211,12 @@ class BackendSpec:
 
 @dataclass(frozen=True, slots=True)
 class Specialization:
-    """
-    Complete specialization key for method compilation.
+    """Key one compiled method variant by FQN, static params, input shape, and backend.
 
-    Identical Specialization => identical compiled function.
+    Two invocations with identical `Specialization` values should resolve to
+    the same cache entry; changing static params, JIT/vmap flags, donation
+    settings, input shapes, or backend fingerprint intentionally creates a new
+    compilation variant.
     """
 
     method_fqn: str

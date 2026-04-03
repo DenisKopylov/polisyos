@@ -1,4 +1,4 @@
-"""Public network protocols module API."""
+"""Define network input/output contracts for graph and multiplex estimators."""
 from __future__ import annotations
 
 from typing import Any, ClassVar
@@ -14,7 +14,7 @@ def _to_numpy(value: Any) -> np.ndarray:
 
 
 class NetworkData(BaseModel):
-    """Network data public type."""
+    """Carry a weighted adjacency matrix, optional node states, and node labels."""
     contract_id: ClassVar[str] = "foundry.network.data.v1"
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
 
@@ -60,7 +60,7 @@ class NetworkData(BaseModel):
 
 
 class MultiplexNetworkData(BaseModel):
-    """Multiplex network data public type."""
+    """Carry aligned adjacency layers and optional node states for multiplex graph methods."""
     contract_id: ClassVar[str] = "foundry.network.multiplex_data.v1"
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
 
@@ -100,7 +100,7 @@ class MultiplexNetworkData(BaseModel):
 
 
 class NetworkResult(BaseModel):
-    """Network result data model."""
+    """Store graph metrics, node scores/labels, trajectories, and method metadata."""
     contract_id: ClassVar[str] = "foundry.network.result.v1"
     model_config = ConfigDict(extra="forbid", frozen=True, arbitrary_types_allowed=True)
 

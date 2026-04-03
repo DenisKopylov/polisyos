@@ -60,7 +60,7 @@ class PolicySearchLevel(str, Enum):
 
 
 class HierarchicalSearchConfig(BaseModel):
-    """Hierarchical search config data model."""
+    """Controls the breadth, LLM budget, and seed policy of the structure-to-narrative search loop."""
     model_config = ConfigDict(extra="forbid")
 
     max_structure_candidates: int = Field(default=8, ge=1, le=64)
@@ -89,7 +89,7 @@ class StructureCandidate(BaseModel):
 
 
 class ParameterSearchSpec(BaseModel):
-    """Parameter search spec data model."""
+    """Parameter-search bundle for one structure candidate, including codec paths and search space."""
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
 
     structure_id: str = Field(min_length=1)
@@ -102,7 +102,7 @@ class ParameterSearchSpec(BaseModel):
 
 @dataclass(slots=True)
 class OptimizerObjectiveSpec:
-    """Optimizer objective spec data model."""
+    """Objective mapping that tells the optimizer which signals define the shared frontier."""
     objective_names: list[str]
     directions: list[OptimizationDirection]
     frontier_projection_names: list[str]
@@ -122,7 +122,7 @@ class NarrativeVariant(BaseModel):
 
 
 class HierarchicalSearchState(BaseModel):
-    """Hierarchical search state data model."""
+    """Mutable snapshot of the structure, parameter, and narrative stages for one search run."""
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
 
     current_level: PolicySearchLevel = PolicySearchLevel.STRUCTURE
@@ -133,7 +133,7 @@ class HierarchicalSearchState(BaseModel):
 
 
 class HierarchicalSearchResult(BaseModel):
-    """Hierarchical search result data model."""
+    """Final coordinator output containing the stage state and published shared frontier."""
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
 
     state: HierarchicalSearchState

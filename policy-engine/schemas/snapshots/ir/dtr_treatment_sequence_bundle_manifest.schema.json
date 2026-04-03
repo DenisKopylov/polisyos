@@ -2,6 +2,7 @@
   "$defs": {
     "BundleAxisSemantic": {
       "additionalProperties": false,
+      "description": "Human-readable meaning attached to one bundle axis.",
       "properties": {
         "axis": {
           "maxLength": 64,
@@ -25,6 +26,7 @@
     },
     "BundleLineageRef": {
       "additionalProperties": false,
+      "description": "Lineage edge from a bundle back to an upstream observation artifact.",
       "properties": {
         "notes": {
           "items": {
@@ -63,6 +65,7 @@
     },
     "ContractCompatibilityTarget": {
       "additionalProperties": false,
+      "description": "Identifier of a downstream contract that an observation bundle targets.",
       "properties": {
         "contract_fqn": {
           "maxLength": 255,
@@ -85,6 +88,7 @@
       "type": "object"
     },
     "ObservationFamily": {
+      "description": "Classify raw evidence into stable observation families for routing.\n\nFamilies partition raw evidence into domains such as budget flows, firm\nfundamentals, or household distribution so measurement rules, governance\ndefaults, and contract compilers can branch on a stable domain label.",
       "enum": [
         "budget_flows",
         "procurement_flows",
@@ -105,6 +109,7 @@
     },
     "RequiredArraySpec": {
       "additionalProperties": false,
+      "description": "Manifest entry describing a required dense array payload.",
       "properties": {
         "axes": {
           "items": {
@@ -160,6 +165,7 @@
       "type": "object"
     },
     "SourceConfidenceTier": {
+      "description": "Declare the raw provenance tier consumed by measurement trust normalization.\n\n:class:`polisyos.ir.observation.measurement.MeasurementRegistry` maps this\nsource-side tier and coverage metadata into a ``MeasurementTrustTier`` used\nby calibration losses and readiness routing.",
       "enum": [
         "core",
         "validated",
@@ -170,6 +176,7 @@
     }
   },
   "additionalProperties": false,
+  "description": "Describe the tensor payload required by sequential/DTR estimators.\n\n``TemporalDTRTask`` may reference this manifest directly, so axis semantics\nand required-array declarations must be complete enough for deterministic\nreconstruction of treatment, covariate, and outcome tensors.",
   "properties": {
     "artifact_name": {
       "const": "dtr_treatment_sequence_bundle_v1.npz",
@@ -184,6 +191,11 @@
       "minItems": 1,
       "title": "Axis Semantics",
       "type": "array"
+    },
+    "contract_payload": {
+      "additionalProperties": true,
+      "title": "Contract Payload",
+      "type": "object"
     },
     "contract_target": {
       "$ref": "#/$defs/ContractCompatibilityTarget"

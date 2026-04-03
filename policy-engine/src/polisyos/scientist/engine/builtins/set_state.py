@@ -29,7 +29,7 @@ _ALLOWED_TYPES = (str, int, bool, Decimal)
 
 @dataclass(frozen=True)
 class SetStateNode:
-    """Set state node implementation."""
+    """Bootstrap node that writes a scalar value into `state.params` for downstream binds."""
     params: dict[str, JsonScalar] | None = None
 
     @property

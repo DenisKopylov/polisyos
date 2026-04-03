@@ -1,4 +1,4 @@
-"""Public discover http fetch module API."""
+"""Fetches URL-backed Scholar seed sources into the normalized acquire payload shape."""
 from __future__ import annotations
 
 from urllib.error import HTTPError, URLError
@@ -40,7 +40,7 @@ def fetch_url(
     user_agent: str,
     max_bytes: int | None,
 ) -> AcquireResult:
-    """Fetch url helper."""
+    """Download a URL seed source, enforce byte limits, and return an ``AcquireResult``."""
     if source.kind != "url":
         raise ScholarValidationError(
             "fetch_url expects kind=url",

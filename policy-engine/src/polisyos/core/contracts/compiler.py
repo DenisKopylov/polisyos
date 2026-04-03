@@ -1,4 +1,4 @@
-"""Public contracts compiler module API."""
+"""Artifact-reference types shared by compiler, linker, and downstream runtime surfaces."""
 from __future__ import annotations
 
 from typing import Literal
@@ -9,13 +9,13 @@ from ..artifacts.manifest import ArtifactRef
 
 
 class LinkReportRef(ArtifactRef):
-    """Link report ref data model."""
+    """Artifact reference for a linker report produced while wiring a policy graph."""
     kind: Literal["compiler.link_report"] = "compiler.link_report"
     media_type: Literal["application/json"] = "application/json"
 
 
 class CompileReportRef(ArtifactRef):
-    """Compile report ref data model."""
+    """Artifact reference for the high-level report emitted by Foundry compilation."""
     kind: Literal["compiler.compile_report"] = "compiler.compile_report"
     media_type: Literal["application/json"] = "application/json"
 

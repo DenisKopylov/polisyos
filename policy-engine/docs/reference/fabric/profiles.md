@@ -1,7 +1,10 @@
 # Fabric Profiles
 Related explanation: [Data Fabric](../../explanation/data-fabric.md).
 
-`SourceProfile` describes a source endpoint in planner-friendly terms, while `SourceExecutionPolicy` is the normalized runtime subset used by schedulers, capability caches, and backfill planning.
+`SourceProfile` describes a source endpoint in planner-friendly terms, while
+`SourceExecutionPolicy` is the normalized runtime subset used by schedulers, capability caches, and
+backfill planning. TTL fields control capability-cache freshness only; they do not imply HTTP
+response caching unless a connector cache layer is configured separately.
 
 ## Key Fields
 
@@ -51,4 +54,3 @@ The current `builtin_profiles.py` defines 32 builtin profiles.
 ::: polisyos.fabric.connectors.profiles.resolver
 
 ::: polisyos.fabric.connectors.profiles.registry
-

@@ -8,7 +8,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 class MaskingStrategy(str, Enum):
-    """Masking strategy data model."""
+    """How temporal backtests hide post-intervention observations from the evaluator."""
     DROP_POST = "drop_post"
     REPLACE_NAN = "replace_nan"
     TRUNCATE = "truncate"

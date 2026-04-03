@@ -1,4 +1,4 @@
-"""Public causal modern did module API."""
+"""Estimate modern staggered-adoption DiD variants with robust cohort/event-time aggregation."""
 from __future__ import annotations
 
 from typing import Any, ClassVar, Mapping
@@ -41,7 +41,7 @@ def _panel_did_slots() -> frozenset[SlotSpec]:
     tags={"causal", "did", "callaway-santanna"},
 )
 class CallawaySantAnnaEstimator:
-    """Callaway sant anna estimator implementation."""
+    """Estimate group-time ATTs under conditional parallel trends; avoid tiny cohorts with poor overlap."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -156,7 +156,7 @@ class CallawaySantAnnaEstimator:
     tags={"causal", "did", "sun-abraham"},
 )
 class SunAbrahamEstimator:
-    """Sun abraham estimator implementation."""
+    """Estimate interaction-weighted event-study effects that avoid TWFE contamination; avoid unsupported control structures."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -270,7 +270,7 @@ class SunAbrahamEstimator:
     tags={"causal", "did", "dechaisemartin"},
 )
 class DeChaisemartinDHaultfoeuilleEstimator:
-    """De chaisemartin D haultfoeuille estimator implementation."""
+    """Estimate heterogeneous-effect DiD contrasts with explicit weighting diagnostics; avoid sparse switcher cells."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -383,7 +383,7 @@ class DeChaisemartinDHaultfoeuilleEstimator:
     tags={"causal", "did", "borusyak-jaravel-spiess"},
 )
 class BorusyakJaravelSpiessEstimator:
-    """Borusyak jaravel spiess estimator implementation."""
+    """Estimate imputation-based DiD effects under untreated-trend extrapolation; avoid weak pre-period fit."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 

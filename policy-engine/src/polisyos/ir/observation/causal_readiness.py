@@ -1,4 +1,10 @@
-"""Public observation causal readiness module API."""
+"""Persist pre-execution causal-readiness checks for observation-derived bundles.
+
+Readiness bundles sit between compiled observation manifests and full Scientist
+execution: they record proxy identification, transportability, strategic
+response, counterfactual, and interference preflight outcomes so downstream
+runners can block, downgrade, or proceed with a causal execution bundle.
+"""
 from __future__ import annotations
 
 from typing import Any, Literal
@@ -17,7 +23,12 @@ _CAUSAL_READINESS_SCHEMA_VERSION = "1.0"
 
 
 class ProxyIdentificationEntry(KernelModel):
-    """Readiness result for a proxy-identification pathway."""
+    """Record whether a proxy pathway is identified or requires oracle support.
+
+    The ``status`` field is read by readiness orchestration before proxy-based
+    estimators run; ``oracle_needed`` should trigger escalation or fallback to a
+    bounds-only route.
+    """
 
     family: ObservationFamily
     proxy_variable: str = Field(..., min_length=1, max_length=120)
@@ -33,7 +44,12 @@ class ProxyIdentificationEntry(KernelModel):
 
 
 class TransportabilityCheckEntry(KernelModel):
-    """Readiness result for one transportability check."""
+    """Store one transportability preflight result and its blocking S-nodes.
+
+    Scientist readiness gates use ``status`` and ``result_ref`` to decide whether
+    a transported estimand can proceed, must fall back to partial identification,
+    or is blocked by unresolved selection shifts.
+    """
 
     check_id: str = Field(..., min_length=1, max_length=120)
     family: ObservationFamily | None = None
@@ -48,7 +64,12 @@ class TransportabilityCheckEntry(KernelModel):
 
 
 class StrategicResponseEntry(KernelModel):
-    """Readiness result for a strategic-response channel or intervention kind."""
+    """Summarize whether a strategic-response channel is ready or blocked.
+
+    ``status`` and ``fallback_mode`` are consumed by strategic-response runners
+    and policy governance to decide whether naive evaluation is safe or whether
+    a strategic SCM/bundle must be used instead.
+    """
 
     channel: StrategicResponseChannel
     intervention_kind: str | None = Field(default=None, max_length=120)
@@ -63,7 +84,7 @@ class StrategicResponseEntry(KernelModel):
 
 
 class CounterfactualCheckEntry(KernelModel):
-    """Readiness result for a counterfactual query request."""
+    """Store counterfactual query preflight metadata and identification status."""
 
     query_id: str = Field(..., min_length=1, max_length=120)
     family: ObservationFamily | None = None
@@ -79,7 +100,7 @@ class CounterfactualCheckEntry(KernelModel):
 
 
 class InterferenceReadinessEntry(KernelModel):
-    """Readiness descriptor for an interference-aware loss target."""
+    """Declare whether an interference-aware loss target can be materialized."""
 
     spec_id: str = Field(..., min_length=1, max_length=120)
     family: ObservationFamily
@@ -90,7 +111,7 @@ class InterferenceReadinessEntry(KernelModel):
 
 
 class CausalReadinessBundle(KernelModel):
-    """Persistable bundle of causal-readiness checks.
+    """Persist the complete pre-execution readiness ledger for causal runners.
 
     Collects the proxy, transportability, strategic-response, counterfactual,
     and interference checks that must pass before Scientist launches a full
@@ -125,7 +146,18 @@ def persist_causal_readiness_bundle(
     schema_name: str = _CAUSAL_READINESS_SCHEMA_NAME,
     schema_version: str = _CAUSAL_READINESS_SCHEMA_VERSION,
 ) -> CausalReadinessBundleRef:
-    """Persist a causal-readiness bundle to the artifact store."""
+    """Persist readiness checks as a content-addressed IR artifact.
+
+    Args:
+        store: Artifact store that owns the JSON artifact payload.
+        bundle: Readiness results to serialize.
+        inputs: Optional upstream artifact refs for lineage.
+        schema_name: Schema identifier written to artifact metadata.
+        schema_version: Schema version written to artifact metadata.
+
+    Returns:
+        A typed artifact reference for the stored readiness bundle.
+    """
 
     ref = put_json_artifact(
         store,
@@ -143,7 +175,15 @@ def load_causal_readiness_bundle(
     store: ArtifactStore,
     ref: CausalReadinessBundleRef,
 ) -> CausalReadinessBundle:
-    """Load a persisted causal-readiness bundle from the artifact store."""
+    """Load and validate a persisted readiness bundle from artifact storage.
+
+    Args:
+        store: Artifact store containing the bundle payload.
+        ref: Typed reference returned by ``persist_causal_readiness_bundle``.
+
+    Returns:
+        The validated readiness bundle.
+    """
 
     payload = get_json_artifact(store, ref.artifact_id)
     return CausalReadinessBundle.model_validate(payload)

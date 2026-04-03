@@ -204,25 +204,25 @@ SuiteSpec(
 
 ## 7. Интеграция с CI
 
-Здесь важно не смешивать две разные CI-истории.
+Здесь важно не смешивать локальный benchmark registry и текущий CI reality.
 
 ### Benchmark registry workflow
 
 Registry и `run_all_benchmarks.sh` — это canonical suite system для benchmark circuits и release summaries.
 
-### `perf.yml`
+### Что есть в CI сейчас
 
-`.github/workflows/perf.yml` — это отдельный GitHub Actions workflow для performance regression.
-Сейчас он в основном смотрит на:
+В текущем дереве нет отдельного legacy performance-regression workflow.
+Это означает:
 
-- `tests/performance/test_overhead.py`
-- сравнение baseline-vs-current
-- threshold-based regression reporting
+- benchmark registry остаётся главным способом локально прогонять suites и читать JSON reports;
+- performance regression policy, если она нужна для конкретного change set, должна оформляться
+  отдельным PR/workflow решением, а не предполагаться как уже существующий repo-wide gate.
 
 То есть:
 
-- `perf.yml` не является прямой обёрткой над `benchmarks/run_all_benchmarks.sh`
-- benchmark registry и GitHub perf workflow связаны, но это не одна и та же система
+- benchmark registry и CI quality gates сейчас не являются одной и той же системой;
+- `run_all_benchmarks.sh` остаётся canonical entrypoint для benchmark circuits.
 
 ## Советы
 

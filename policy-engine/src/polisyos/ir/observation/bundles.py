@@ -1,4 +1,10 @@
-"""Public observation bundles module API."""
+"""Declare bundle manifests that connect observation evidence to runtime contracts.
+
+Bundle models are the compiler output layer above raw observations and family
+policy. They describe which persisted payload was materialized, which Foundry
+or Scientist protocol it satisfies, and which lineage/governance metadata must
+travel with the artifact before readiness and execution stages consume it.
+"""
 from __future__ import annotations
 
 from datetime import date
@@ -228,7 +234,7 @@ class LessonRegistrySeedEntry(KernelModel):
 
 
 class CalibrationTargetBundleManifest(KernelModel):
-    """Manifest for a measurement-aware calibration target bundle.
+    """Declare calibration tensors, axis semantics, and provenance lineage.
 
     The manifest declares the downstream contract, required tensors, axis
     meanings, and observation-family lineage for the NPZ payload consumed by
@@ -274,7 +280,13 @@ class NetworkContractBundle(KernelModel):
 
 
 class NetworkCausalContractBundle(KernelModel):
-    """Bundle describing interference-aware network causal inputs."""
+    """Manifest and payload wrapper for interference-aware network causal inputs.
+
+    Network causal estimators consume ``contract_payload`` according to
+    ``contract_target`` while readiness and governance layers inspect
+    ``supported_layers`` and ``interference_required`` to enforce SUTVA-related
+    guardrails.
+    """
 
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     artifact_name: Literal["network_causal_contract_bundle_v1.json"] = "network_causal_contract_bundle_v1.json"
@@ -293,7 +305,12 @@ class NetworkCausalContractBundle(KernelModel):
 
 
 class CausalPanelBundleManifest(KernelModel):
-    """Manifest for a panel-observational table consumed by causal estimators."""
+    """Describe a compiled panel table that satisfies a causal estimator contract.
+
+    Use ``required_columns`` and ``contract_target`` as the schema handshake,
+    ``lineage`` to preserve observation provenance, and ``contract_payload`` for
+    estimator-specific materialized data.
+    """
 
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     artifact_name: Literal["causal_panel_bundle_monthly.parquet"] = "causal_panel_bundle_monthly.parquet"
@@ -341,7 +358,12 @@ class ObservationToContractManifest(KernelModel):
 
 
 class BoundsEstimationBundle(KernelModel):
-    """Bundle describing which bounds strategies are available for each family."""
+    """Declare available bounds strategies and fallback reasons by observation family.
+
+    Bounds runners read ``channels`` to choose estimator families, while
+    readiness checks can surface ``fallback_reason`` when a family drops from
+    point identification to bounds-only execution.
+    """
 
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     artifact_name: Literal["bounds_estimation_bundle_v1.json"] = "bounds_estimation_bundle_v1.json"
@@ -353,7 +375,12 @@ class BoundsEstimationBundle(KernelModel):
 
 
 class ProxyIdentificationBundle(KernelModel):
-    """Bundle describing proxy-identification channels and payloads."""
+    """Package proxy-identification channels and the compiler payload they target.
+
+    This bundle bridges latent-variable observation families to
+    ``ProxyMeasurementData``-style contracts and is consumed by proxy readiness
+    checks before proxy-based estimators run.
+    """
 
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     artifact_name: Literal["proxy_identification_bundle_v1.json"] = "proxy_identification_bundle_v1.json"
@@ -364,7 +391,12 @@ class ProxyIdentificationBundle(KernelModel):
 
 
 class DTRTreatmentSequenceBundleManifest(KernelModel):
-    """Manifest for a dynamic-treatment-regime tensor bundle."""
+    """Describe the tensor payload required by sequential/DTR estimators.
+
+    ``TemporalDTRTask`` may reference this manifest directly, so axis semantics
+    and required-array declarations must be complete enough for deterministic
+    reconstruction of treatment, covariate, and outcome tensors.
+    """
 
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     artifact_name: Literal["dtr_treatment_sequence_bundle_v1.npz"] = "dtr_treatment_sequence_bundle_v1.npz"
@@ -376,7 +408,7 @@ class DTRTreatmentSequenceBundleManifest(KernelModel):
 
 
 class PanelEconometricBundleManifest(KernelModel):
-    """Manifest for panel-econometric tabular payloads."""
+    """Describe panel-econometric tables consumed by fixed-effects/IV estimators."""
 
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     artifact_name: Literal["panel_econometric_bundle_v1.parquet"] = "panel_econometric_bundle_v1.parquet"
@@ -388,7 +420,7 @@ class PanelEconometricBundleManifest(KernelModel):
 
 
 class SurvivalDataBundleManifest(KernelModel):
-    """Manifest for survival-analysis tabular payloads."""
+    """Describe survival-analysis tables consumed by hazard or duration models."""
 
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     artifact_name: Literal["survival_data_bundle_v1.parquet"] = "survival_data_bundle_v1.parquet"
@@ -400,7 +432,7 @@ class SurvivalDataBundleManifest(KernelModel):
 
 
 class AgentFactorEmbeddingsBundleManifest(KernelModel):
-    """Agent factor embeddings bundle manifest data model."""
+    """Describe latent agent-factor arrays and embedding method provenance."""
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     artifact_name: Literal["agent_factor_embeddings_v1.npz"] = "agent_factor_embeddings_v1.npz"
     required_arrays: list[RequiredArraySpec] = Field(..., min_length=1)
@@ -411,7 +443,7 @@ class AgentFactorEmbeddingsBundleManifest(KernelModel):
 
 
 class CellPrototypeEmbeddingsBundleManifest(KernelModel):
-    """Cell prototype embeddings bundle manifest data model."""
+    """Describe prototype-cell embedding arrays and clustering provenance."""
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     artifact_name: Literal["cell_prototype_embeddings_v1.npz"] = "cell_prototype_embeddings_v1.npz"
     required_arrays: list[RequiredArraySpec] = Field(..., min_length=1)
@@ -422,7 +454,7 @@ class CellPrototypeEmbeddingsBundleManifest(KernelModel):
 
 
 class BilevelProblemBundle(KernelModel):
-    """Bilevel problem bundle data model."""
+    """Persist an optimization-ready bilevel problem snapshot and result summary."""
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     artifact_name: Literal["bilevel_problem_bundle_v1.json"] = "bilevel_problem_bundle_v1.json"
     optimization_target: str = Field(default="optimization.bilevel.bilevel@1.0.0", min_length=1, max_length=120)
@@ -438,7 +470,7 @@ class BilevelProblemBundle(KernelModel):
 
 
 class HeckmanCorrectionBundle(KernelModel):
-    """Heckman correction bundle data model."""
+    """Describe selection-correction tables and payloads for Heckman estimators."""
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     artifact_name: Literal["heckman_correction_bundle_v1.parquet"] = "heckman_correction_bundle_v1.parquet"
     contract_target: ContractCompatibilityTarget
@@ -449,7 +481,7 @@ class HeckmanCorrectionBundle(KernelModel):
 
 
 class SurvivalHazardBundle(KernelModel):
-    """Survival hazard bundle data model."""
+    """Describe hazard-model tables and payloads for survival estimators."""
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     artifact_name: Literal["survival_hazard_bundle_v1.parquet"] = "survival_hazard_bundle_v1.parquet"
     contract_target: ContractCompatibilityTarget
@@ -460,7 +492,7 @@ class SurvivalHazardBundle(KernelModel):
 
 
 class SobolDiagnosticsBundle(KernelModel):
-    """Sobol diagnostics bundle data model."""
+    """Persist Sobol indices and target/specification axes for sensitivity diagnostics."""
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     artifact_name: Literal["sobol_diagnostics_bundle_v1.json"] = "sobol_diagnostics_bundle_v1.json"
     target_names: list[str] = Field(..., min_length=1)
@@ -471,7 +503,7 @@ class SobolDiagnosticsBundle(KernelModel):
 
 
 class SpecificationCurveDiagnosticsBundle(KernelModel):
-    """Specification curve diagnostics bundle data model."""
+    """Persist sorted estimates and stability metrics for specification-curve review."""
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     artifact_name: Literal["specification_curve_diagnostics_v1.json"] = "specification_curve_diagnostics_v1.json"
     specification_ids: list[str] = Field(..., min_length=1)
@@ -482,7 +514,12 @@ class SpecificationCurveDiagnosticsBundle(KernelModel):
 
 
 class SpecificationCurveBundle(KernelModel):
-    """Input bundle for specification-curve sensitivity analysis."""
+    """Persist source combinations and estimates for specification-curve analysis.
+
+    Scientist robustness tooling reads this bundle to rank specification choices,
+    recompute curve diagnostics, and preserve the observation-family mix behind
+    each estimate.
+    """
 
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     artifact_name: Literal["specification_curve_input_v1.json"] = "specification_curve_input_v1.json"
@@ -514,7 +551,7 @@ class LeontiefIOBundle(KernelModel):
 
 
 class StrategicResponseSpecsBundle(KernelModel):
-    """Collection of strategic-response expectations for policy interventions."""
+    """Bundle intervention-level strategic-response expectations for readiness checks."""
 
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     artifact_name: Literal["strategic_response_specs_v1.json"] = "strategic_response_specs_v1.json"
@@ -546,7 +583,7 @@ class InterferenceLossSpecBundle(KernelModel):
 
 
 class GovernancePassMappingBundle(KernelModel):
-    """Persisted observation-family to governance-pass mapping.
+    """Persist resolved family-to-pass routing together with alias metadata.
 
     Bundles the concrete pass mapping with the alias registry that resolves
     canonical IR pass ids to the runtime pass names available in Scientist.

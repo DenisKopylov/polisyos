@@ -266,7 +266,7 @@ def persist_graph_hypothesis(
     *,
     inputs: list[InputRef] | None = None,
 ) -> GraphHypothesisRef:
-    """Persist graph hypothesis helper."""
+    """Persist a single graph hypothesis and return its typed artifact reference."""
     ref = store.put_json(
         hypothesis,
         PutOptions(

@@ -1,4 +1,10 @@
-"""Public lex types module API."""
+"""Boundary contracts for Lex corpus, versioning, and NormPack stages.
+
+These dataclasses and Pydantic models are the payloads returned by ``polisyos.lex.api`` and
+persisted alongside legal corpus artifacts. They intentionally carry provenance references and
+selection explanations so downstream legal-evaluation and intervention code can reason about
+which document revision, provision set, and claim set formed a ``NormPack``.
+"""
 from __future__ import annotations
 
 import warnings
@@ -200,7 +206,15 @@ class ActiveVersionResult:
 
 
 class ResolveCandidate(BaseModel):
-    """Resolve candidate public type."""
+    """Candidate row exposed when ``ActiveVersionStrategy.include_candidates`` is enabled.
+
+    Attributes:
+        doc_version_id: Candidate legal revision id.
+        doc_meta_artifact_id: Artifact id of the candidate ``DocMeta`` payload.
+        published_at: Publication date carried from the document metadata.
+        effective_from: Inclusive effectivity start date.
+        effective_to: Inclusive effectivity end date, or ``None`` for open-ended versions.
+    """
     model_config = ConfigDict(extra="forbid")
 
     doc_version_id: str
@@ -238,7 +252,12 @@ class NormPackBuildRequest:
 
 @dataclass(frozen=True)
 class SelectedDocVersion:
-    """Selected doc version public type."""
+    """One selected document revision included in a ``NormPack`` assembly.
+
+    The row records both the winning ``doc_version_id`` and the selection policy/index that
+    justified it, which lets downstream audit tooling distinguish explicit claim-set selection
+    from temporal source resolution.
+    """
     doc_source_id: str
     doc_version_id: str
     doc_meta_artifact_id: str

@@ -1,4 +1,9 @@
-"""Public docs ingestion module API."""
+"""Raw document ingestion stage for Fabric document pipelines.
+
+The stage persists source bytes in CAS, creates a canonical ``DocMeta`` object, emits document
+facts and a ``FETCH_DOC`` world event, and appends a fact segment that later materialization jobs
+can replay.
+"""
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -70,7 +75,24 @@ def ingest_doc_bytes(
     options: DocIngestOptions | None = None,
     segment_name: str | None = None,
 ) -> DocIngestResult:
-    """Ingest doc bytes helper."""
+    """Persist raw document bytes and emit the initial document provenance event.
+
+    Args:
+        cas: Artifact store for raw payloads and ``DocMeta`` artifacts.
+        fact_log_root: Fact-log root where emitted document facts and segment manifests are stored.
+        source: Source identity, license, and optional jurisdiction/language metadata.
+        raw_bytes: Original document payload.
+        mime: MIME type recorded on ``DocMeta`` and consumed by normalization backends.
+        options: Optional persistence limits and provenance identifiers.
+        segment_name: Optional world segment name.
+
+    Returns:
+        Canonical document ids, raw/meta artifact ids, and ``FETCH_DOC`` world-event references.
+
+    Raises:
+        DocValidationError: If source identity/license contracts fail or the payload exceeds
+            ``enforce_max_bytes``.
+    """
     opts = options or DocIngestOptions()
 
     if opts.enforce_max_bytes is not None and len(raw_bytes) > opts.enforce_max_bytes:

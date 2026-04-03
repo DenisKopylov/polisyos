@@ -3,6 +3,7 @@
     "schemas": {
       "AgentPipelineAttempt": {
         "additionalProperties": false,
+        "description": "Agent pipeline attempt public type.",
         "properties": {
           "attempt": {
             "minimum": 1.0,
@@ -84,6 +85,7 @@
       },
       "AgentPipelineResponse": {
         "additionalProperties": false,
+        "description": "Response envelope returned by the agent-pipeline endpoint.",
         "properties": {
           "meta": {
             "$ref": "#/components/schemas/ApiMeta"
@@ -101,6 +103,7 @@
       },
       "AgentPipelineStep": {
         "additionalProperties": false,
+        "description": "Agent pipeline step public type.",
         "properties": {
           "action": {
             "title": "Action",
@@ -251,6 +254,7 @@
       },
       "AgentPipelineView": {
         "additionalProperties": false,
+        "description": "Composite runtime view of agent attempts, retrieval, evaluation, and iteration state.",
         "properties": {
           "attempts": {
             "items": {
@@ -403,6 +407,7 @@
       },
       "ApiMeta": {
         "additionalProperties": false,
+        "description": "Api meta public type.",
         "properties": {
           "generated_at": {
             "format": "date-time",
@@ -430,6 +435,7 @@
       },
       "ArtifactContentPreview": {
         "additionalProperties": false,
+        "description": "Artifact content preview public type.",
         "properties": {
           "artifact_id": {
             "title": "Artifact Id",
@@ -484,6 +490,7 @@
       },
       "ArtifactContentResponse": {
         "additionalProperties": false,
+        "description": "Response envelope returned by the artifact preview/content endpoint.",
         "properties": {
           "artifact": {
             "$ref": "#/components/schemas/ArtifactContentPreview"
@@ -500,12 +507,13 @@
         "type": "object"
       },
       "ArtifactID": {
-        "description": "Format: sha256:<64hex>",
+        "description": "Represent a normalized CAS identifier in `sha256:<64hex>` form.\n\nThe `sha256:` prefix and lowercase 64-hex digest are part of the stable ABI\nused in manifests, runtime URLs, CLI arguments, and signature statements.",
         "title": "ArtifactID",
         "type": "string"
       },
       "ArtifactLineageEdge": {
         "additionalProperties": false,
+        "description": "Artifact lineage edge public type.",
         "properties": {
           "child_artifact_id": {
             "title": "Child Artifact Id",
@@ -530,6 +538,7 @@
       },
       "ArtifactLineageNode": {
         "additionalProperties": false,
+        "description": "One node in the artifact-lineage graph with status, size, role, and depth.",
         "properties": {
           "artifact_id": {
             "title": "Artifact Id",
@@ -583,6 +592,7 @@
       },
       "ArtifactLineageResponse": {
         "additionalProperties": false,
+        "description": "Response envelope returned by the artifact lineage endpoint.",
         "properties": {
           "lineage": {
             "$ref": "#/components/schemas/ArtifactLineageView"
@@ -600,6 +610,7 @@
       },
       "ArtifactLineageView": {
         "additionalProperties": false,
+        "description": "Artifact lineage graph plus completeness and corruption indicators.",
         "properties": {
           "corrupted_artifact_ids": {
             "items": {
@@ -665,6 +676,7 @@
       },
       "ArtifactManifestResponse": {
         "additionalProperties": false,
+        "description": "Response envelope returned by the artifact manifest endpoint.",
         "properties": {
           "artifact": {
             "$ref": "#/components/schemas/ArtifactManifestView"
@@ -682,6 +694,7 @@
       },
       "ArtifactManifestView": {
         "additionalProperties": false,
+        "description": "Metadata returned when a client inspects a stored artifact manifest.",
         "properties": {
           "artifact_id": {
             "title": "Artifact Id",
@@ -774,6 +787,7 @@
       },
       "ArtifactRef": {
         "additionalProperties": false,
+        "description": "Reference an artifact across service, registry, and governance boundaries.",
         "properties": {
           "artifact_id": {
             "$ref": "#/components/schemas/ArtifactID"
@@ -797,6 +811,7 @@
       },
       "ArtifactSchemaResponse": {
         "additionalProperties": false,
+        "description": "Response envelope returned by the artifact schema endpoint.",
         "properties": {
           "meta": {
             "$ref": "#/components/schemas/ApiMeta"
@@ -814,6 +829,7 @@
       },
       "ArtifactSchemaView": {
         "additionalProperties": false,
+        "description": "Schema metadata exposed for an artifact's serialized payload.",
         "properties": {
           "artifact_id": {
             "title": "Artifact Id",
@@ -867,6 +883,7 @@
       },
       "AuthMeResponse": {
         "additionalProperties": false,
+        "description": "Authenticated principal payload returned by the runtime ``/auth/me`` endpoint.",
         "properties": {
           "cell_id": {
             "anyOf": [
@@ -942,6 +959,7 @@
       },
       "BindingProfileInfo": {
         "additionalProperties": false,
+        "description": "Describe one schema-binding profile used to normalize ingested datasets.",
         "properties": {
           "description": {
             "default": "",
@@ -995,6 +1013,7 @@
       },
       "BindingProfilesListResponse": {
         "additionalProperties": false,
+        "description": "Return binding profile metadata with standard API metadata.",
         "properties": {
           "meta": {
             "$ref": "#/components/schemas/ApiMeta"
@@ -1015,6 +1034,7 @@
       },
       "CacheEntryInfo": {
         "additionalProperties": false,
+        "description": "Expose one materialized data-cache entry and its validity window.",
         "properties": {
           "cache_key": {
             "title": "Cache Key",
@@ -1067,6 +1087,7 @@
       },
       "CacheStatusResponse": {
         "additionalProperties": false,
+        "description": "Return cache inventory and aggregate storage usage.",
         "properties": {
           "entries": {
             "items": {
@@ -1097,6 +1118,7 @@
       },
       "CapabilityFeatureInfo": {
         "additionalProperties": false,
+        "description": "Describe one runtime feature flag and its rollout stage/disable reason.",
         "properties": {
           "category": {
             "title": "Category",
@@ -1152,6 +1174,7 @@
       },
       "CapabilityManifestResponse": {
         "additionalProperties": false,
+        "description": "Expose stable runtime capabilities, defaults, security posture, and limits.",
         "properties": {
           "constraints": {
             "additionalProperties": true,
@@ -1258,6 +1281,7 @@
       },
       "CompareDeltaSection": {
         "additionalProperties": false,
+        "description": "Compare delta section public type.",
         "properties": {
           "changed": {
             "default": false,
@@ -1294,6 +1318,7 @@
       },
       "ConnectorInfo": {
         "additionalProperties": false,
+        "description": "Describe one discovered connector and the datasets/profiles it exposes.",
         "properties": {
           "available_profiles": {
             "items": {
@@ -1349,6 +1374,7 @@
       },
       "ConnectorsListResponse": {
         "additionalProperties": false,
+        "description": "Return all visible connectors with standard API metadata.",
         "properties": {
           "connectors": {
             "items": {
@@ -1369,6 +1395,7 @@
       },
       "ControlJobResponse": {
         "additionalProperties": false,
+        "description": "Represent one durable control-plane job and its progress/error state.",
         "properties": {
           "capability_manifest_ref": {
             "anyOf": [
@@ -1520,6 +1547,7 @@
       },
       "ControlOutboxEventInfo": {
         "additionalProperties": false,
+        "description": "Describe one durable outbox event and its publish retry state.",
         "properties": {
           "attempt": {
             "default": 0,
@@ -1616,6 +1644,7 @@
       },
       "ControlOutboxEventsResponse": {
         "additionalProperties": false,
+        "description": "Return outbox events filtered by publish state.",
         "properties": {
           "events": {
             "items": {
@@ -1652,6 +1681,7 @@
       },
       "ControlWorkerLeaseInfo": {
         "additionalProperties": false,
+        "description": "Expose one worker lease heartbeat and currently leased job.",
         "properties": {
           "active_job_id": {
             "anyOf": [
@@ -1722,6 +1752,7 @@
       },
       "ControlWorkersResponse": {
         "additionalProperties": false,
+        "description": "Return worker leases filtered by active-only mode.",
         "properties": {
           "active_only": {
             "default": true,
@@ -1747,6 +1778,7 @@
       },
       "CursorPage": {
         "additionalProperties": false,
+        "description": "Cursor page public type.",
         "properties": {
           "count": {
             "default": 0,
@@ -1801,6 +1833,7 @@
       },
       "DataCatalogSearchResponse": {
         "additionalProperties": false,
+        "description": "Return catalog search matches and the total result count for a query.",
         "properties": {
           "matches": {
             "items": {
@@ -1832,6 +1865,7 @@
       },
       "DataDiscoverRequest": {
         "additionalProperties": false,
+        "description": "Request explore-lane candidate discovery within explicit time/cost budgets.",
         "properties": {
           "cost_budget_usd": {
             "default": 0.0,
@@ -1884,6 +1918,7 @@
       },
       "DataDiscoverResponse": {
         "additionalProperties": false,
+        "description": "Return discovery candidates plus index telemetry and soft warning messages.",
         "properties": {
           "candidates": {
             "items": {
@@ -1927,6 +1962,7 @@
       },
       "DataNeed": {
         "additionalProperties": false,
+        "description": "Describe one metric/geography/time requirement to resolve into fetch plans.",
         "properties": {
           "geography": {
             "anyOf": [
@@ -1999,6 +2035,7 @@
       },
       "DataPreviewRequest": {
         "additionalProperties": false,
+        "description": "Request a bounded preview for one fetch plan with optional fallback handling.",
         "properties": {
           "allow_fallback": {
             "default": true,
@@ -2017,6 +2054,7 @@
       },
       "DataPreviewResponse": {
         "additionalProperties": false,
+        "description": "Wrap one `FetchPreview` payload with standard API metadata.",
         "properties": {
           "meta": {
             "$ref": "#/components/schemas/ApiMeta"
@@ -2034,6 +2072,7 @@
       },
       "DataResolveRequest": {
         "additionalProperties": false,
+        "description": "Request fastlane/hybrid resolution of data needs into concrete fetch plans.",
         "properties": {
           "allow_explore_fallback": {
             "default": true,
@@ -2067,6 +2106,7 @@
       },
       "DataResolveResponse": {
         "additionalProperties": false,
+        "description": "Return selected fetch plans, ranked candidates, and resolver warnings.",
         "properties": {
           "candidates": {
             "items": {
@@ -2152,6 +2192,7 @@
       },
       "DatasetFetchSpecRequest": {
         "additionalProperties": false,
+        "description": "Describe one direct connector/dataset fetch request for data ingestion.",
         "properties": {
           "connector_id": {
             "title": "Connector Id",
@@ -2203,6 +2244,7 @@
       },
       "DecisionCompareReport": {
         "additionalProperties": false,
+        "description": "Decision compare report data model.",
         "properties": {
           "deltas": {
             "additionalProperties": {
@@ -2271,6 +2313,7 @@
       },
       "DecisionDependencyEvent": {
         "additionalProperties": false,
+        "description": "Represent one append-only dependency event emitted into the control-plane log.",
         "properties": {
           "dedupe_key": {
             "title": "Dedupe Key",
@@ -2342,6 +2385,7 @@
       },
       "DecisionLifecycleJob": {
         "additionalProperties": false,
+        "description": "Describe a scheduled or completed control-plane follow-up job.",
         "properties": {
           "completed_at": {
             "anyOf": [
@@ -2440,6 +2484,7 @@
       },
       "DecisionMonitoringContract": {
         "additionalProperties": false,
+        "description": "Decision monitoring contract data model.",
         "properties": {
           "anchor_at": {
             "format": "date-time",
@@ -2519,6 +2564,7 @@
       },
       "DecisionMonitoringReport": {
         "additionalProperties": false,
+        "description": "Decision monitoring report data model.",
         "properties": {
           "anchor_at": {
             "anyOf": [
@@ -2610,6 +2656,7 @@
       },
       "DecisionReissuePlan": {
         "additionalProperties": false,
+        "description": "Decision reissue plan data model.",
         "properties": {
           "calibration_config_ref": {
             "anyOf": [
@@ -2722,6 +2769,7 @@
       },
       "DecisionTriggerRecord": {
         "additionalProperties": false,
+        "description": "Record one evaluated trigger and its resulting packet status.",
         "properties": {
           "dependency_key": {
             "anyOf": [
@@ -2770,6 +2818,7 @@
         "type": "object"
       },
       "DecisionTriggerType": {
+        "description": "Identify the external or internal event that changed packet validity.",
         "enum": [
           "law_change",
           "dataset_superseded",
@@ -2788,6 +2837,7 @@
       },
       "DecisionValidityEventRequest": {
         "additionalProperties": false,
+        "description": "Request an append-only decision-validity event and lifecycle re-evaluation.",
         "properties": {
           "dedupe_key": {
             "anyOf": [
@@ -2858,6 +2908,7 @@
       },
       "DecisionValidityEventResponse": {
         "additionalProperties": false,
+        "description": "Return the persisted event identity and aggregate impact of the update.",
         "properties": {
           "affected_packets": {
             "items": {
@@ -2900,6 +2951,7 @@
       },
       "DecisionValidityLifecycleSummary": {
         "additionalProperties": false,
+        "description": "Return event history, transitions, scheduled jobs, and reissue candidates.",
         "properties": {
           "events": {
             "items": {
@@ -2954,6 +3006,7 @@
       },
       "DecisionValidityPendingReview": {
         "additionalProperties": false,
+        "description": "Describe one unresolved human-review gate for a decision packet.",
         "properties": {
           "event_id": {
             "title": "Event Id",
@@ -2982,6 +3035,7 @@
         "type": "object"
       },
       "DecisionValidityStatus": {
+        "description": "Enumerate lifecycle states assigned to a decision packet evaluation.",
         "enum": [
           "active",
           "warning",
@@ -2995,6 +3049,7 @@
       },
       "DecisionValiditySummaryResponse": {
         "additionalProperties": false,
+        "description": "Expose the current decision-validity verdict and its lifecycle context.",
         "properties": {
           "checked_at": {
             "format": "date-time",
@@ -3095,6 +3150,7 @@
       },
       "DecisionValidityTransition": {
         "additionalProperties": false,
+        "description": "Capture one status transition for a tracked decision packet.",
         "properties": {
           "current_status": {
             "$ref": "#/components/schemas/DecisionValidityStatus"
@@ -3176,6 +3232,7 @@
       },
       "DiscoveryCandidate": {
         "additionalProperties": false,
+        "description": "Represent one explore-lane candidate discovered from source metadata search.",
         "properties": {
           "candidate_id": {
             "title": "Candidate Id",
@@ -3296,6 +3353,7 @@
       },
       "EvaluatorReportView": {
         "additionalProperties": false,
+        "description": "API view of evaluator verdicts, scores, reasons, and replanning hints.",
         "properties": {
           "diagnostics": {
             "items": {
@@ -3362,6 +3420,7 @@
       },
       "EvaluatorScoresView": {
         "additionalProperties": false,
+        "description": "Normalized evaluator score breakdown exposed by runtime agent-pipeline views.",
         "properties": {
           "budget_score": {
             "default": 0.0,
@@ -3411,6 +3470,7 @@
       },
       "FeedbackActionResponse": {
         "additionalProperties": false,
+        "description": "Outcome payload returned after evaluating feedback or reissuing a decision.",
         "properties": {
           "action": {
             "enum": [
@@ -3493,6 +3553,7 @@
       },
       "FetchPlan": {
         "additionalProperties": false,
+        "description": "Encode one executable data-fetch plan produced by resolver/discovery flows.",
         "properties": {
           "connector_id": {
             "minLength": 1,
@@ -3624,6 +3685,7 @@
       },
       "FetchPlanFallback": {
         "additionalProperties": false,
+        "description": "Describe one connector/dataset fallback to try when the primary plan fails.",
         "properties": {
           "connector_id": {
             "title": "Connector Id",
@@ -3664,6 +3726,7 @@
       },
       "FetchPreview": {
         "additionalProperties": false,
+        "description": "Return a bounded sample, quality flags, and coverage status for one plan.",
         "properties": {
           "completeness": {
             "default": 0.0,
@@ -3761,6 +3824,7 @@
       },
       "GovernanceDebugResponse": {
         "additionalProperties": false,
+        "description": "Response envelope returned by the governance debug endpoint.",
         "properties": {
           "debug": {
             "$ref": "#/components/schemas/GovernanceDebugView"
@@ -3778,6 +3842,7 @@
       },
       "GovernanceDebugView": {
         "additionalProperties": false,
+        "description": "Detailed governance payload exposing verdicts, report refs, and contract warnings.",
         "properties": {
           "contract_warnings": {
             "items": {
@@ -3985,6 +4050,7 @@
       },
       "IndexStats": {
         "additionalProperties": false,
+        "description": "Report catalog index size, source coverage, and last-update counters.",
         "properties": {
           "docs_added_last_run": {
             "default": 0,
@@ -4035,6 +4101,7 @@
       },
       "IndexStatsResponse": {
         "additionalProperties": false,
+        "description": "Wrap catalog index telemetry with standard API metadata.",
         "properties": {
           "meta": {
             "$ref": "#/components/schemas/ApiMeta"
@@ -4147,6 +4214,7 @@
       },
       "IngestResponse": {
         "additionalProperties": false,
+        "description": "Return ingestion outputs, warning messages, and replay/cursor references.",
         "properties": {
           "cursor_ref": {
             "anyOf": [
@@ -4253,6 +4321,7 @@
       },
       "InputRef": {
         "additionalProperties": false,
+        "description": "Declare one upstream artifact edge in a manifest lineage DAG.",
         "properties": {
           "artifact_id": {
             "$ref": "#/components/schemas/ArtifactID"
@@ -4271,6 +4340,7 @@
       },
       "IterationLifecycleView": {
         "additionalProperties": false,
+        "description": "Current iteration state with stop reason and latest evaluator verdict.",
         "properties": {
           "iteration": {
             "default": 1,
@@ -4354,6 +4424,7 @@
       },
       "LexGraphStatsResponse": {
         "additionalProperties": false,
+        "description": "Return graph-cardinality and top-distribution telemetry for the Lex store.",
         "properties": {
           "db_exists": {
             "default": false,
@@ -4436,6 +4507,7 @@
       },
       "LexPipelineStatusResponse": {
         "additionalProperties": false,
+        "description": "Expose Lex pipeline state, stage progress counters, and failure text.",
         "properties": {
           "error_message": {
             "anyOf": [
@@ -4513,6 +4585,7 @@
       },
       "LexSearchResponse": {
         "additionalProperties": false,
+        "description": "Return ranked Lex fact matches for a text query.",
         "properties": {
           "meta": {
             "$ref": "#/components/schemas/ApiMeta"
@@ -4543,6 +4616,7 @@
       },
       "LexSearchResultItem": {
         "additionalProperties": false,
+        "description": "Represent one ranked Lex fact hit with citation and canonicalized metadata.",
         "properties": {
           "action_canon": {
             "default": "",
@@ -4712,6 +4786,7 @@
       },
       "LexTriggerResponse": {
         "additionalProperties": false,
+        "description": "Return accepted/rejected Lex pipeline launch metadata.",
         "properties": {
           "effective_execution_profile": {
             "enum": [
@@ -4760,6 +4835,7 @@
       },
       "MetricCandidate": {
         "additionalProperties": false,
+        "description": "Represent one catalog-backed source candidate for a requested metric.",
         "properties": {
           "candidate_id": {
             "minLength": 1,
@@ -4886,6 +4962,7 @@
       },
       "ModelProfileInfo": {
         "additionalProperties": false,
+        "description": "Describe one LLM model profile exposed to NL control-plane requests.",
         "properties": {
           "base_url": {
             "title": "Base Url",
@@ -4968,6 +5045,7 @@
       },
       "ModelProfilesListResponse": {
         "additionalProperties": false,
+        "description": "Return all enabled model profiles with standard API metadata.",
         "properties": {
           "meta": {
             "$ref": "#/components/schemas/ApiMeta"
@@ -4988,6 +5066,7 @@
       },
       "MonitoredMetric": {
         "additionalProperties": false,
+        "description": "Monitored metric public type.",
         "properties": {
           "baseline_value": {
             "title": "Baseline Value",
@@ -5045,6 +5124,7 @@
       },
       "MonitoringMetricResult": {
         "additionalProperties": false,
+        "description": "Monitoring metric result data model.",
         "properties": {
           "actual_value": {
             "anyOf": [
@@ -5122,6 +5202,7 @@
       },
       "MonitoringRange": {
         "additionalProperties": false,
+        "description": "Monitoring range public type.",
         "properties": {
           "lower": {
             "anyOf": [
@@ -5150,6 +5231,7 @@
         "type": "object"
       },
       "MonitoringVerdict": {
+        "description": "Monitoring verdict public type.",
         "enum": [
           "pending",
           "confirmed",
@@ -5163,6 +5245,7 @@
       },
       "MonitoringWindow": {
         "additionalProperties": false,
+        "description": "Monitoring window public type.",
         "properties": {
           "end_offset_days": {
             "default": 30,
@@ -5365,6 +5448,7 @@
       },
       "NodeDebugResponse": {
         "additionalProperties": false,
+        "description": "Response envelope returned by the node debug endpoint.",
         "properties": {
           "debug": {
             "$ref": "#/components/schemas/NodeDebugView"
@@ -5382,6 +5466,7 @@
       },
       "NodeDebugView": {
         "additionalProperties": false,
+        "description": "Detailed node-debug payload with timeline slices, cache activity, and notes.",
         "properties": {
           "alias": {
             "title": "Alias",
@@ -5443,6 +5528,7 @@
       },
       "PolicyFlags": {
         "additionalProperties": false,
+        "description": "Carry opt-in execution relaxations requested by the client.\n\n`allow_mock_fallback=True` is privileged in governed/production profiles and\nmay be rejected by the runtime execution-policy resolver.",
         "properties": {
           "allow_mock_fallback": {
             "default": false,
@@ -5455,6 +5541,7 @@
       },
       "PreflightDiagnosticView": {
         "additionalProperties": false,
+        "description": "API view of one preflight diagnostic surfaced to runtime clients.",
         "properties": {
           "code": {
             "title": "Code",
@@ -5498,6 +5585,7 @@
       },
       "PreflightReportView": {
         "additionalProperties": false,
+        "description": "API view of preflight readiness, diagnostics, and the persisted report reference.",
         "properties": {
           "diagnostics": {
             "items": {
@@ -5534,6 +5622,7 @@
       },
       "PromotionCandidate": {
         "additionalProperties": false,
+        "description": "Represent one explore-lane source proposed for promotion into fastlane.",
         "properties": {
           "confidence": {
             "default": 0.0,
@@ -5625,6 +5714,7 @@
       },
       "PromotionCandidatesResponse": {
         "additionalProperties": false,
+        "description": "Return pending/approved/rejected source-promotion candidates.",
         "properties": {
           "candidates": {
             "items": {
@@ -5645,6 +5735,7 @@
       },
       "PromotionDecisionRequest": {
         "additionalProperties": false,
+        "description": "Capture an optional reviewer reason for approving or rejecting promotion.",
         "properties": {
           "reason": {
             "anyOf": [
@@ -5663,6 +5754,7 @@
       },
       "PromotionDecisionResponse": {
         "additionalProperties": false,
+        "description": "Return the stored promotion status and whether bindings were updated.",
         "properties": {
           "binding_updated": {
             "default": false,
@@ -5700,6 +5792,7 @@
       },
       "ReproducibilityView": {
         "additionalProperties": false,
+        "description": "Hashes, seeds, and missing refs used to assess whether a run can be replayed.",
         "properties": {
           "data_snapshot_hash": {
             "anyOf": [
@@ -5843,6 +5936,7 @@
       },
       "RetrievalPhaseTelemetry": {
         "additionalProperties": false,
+        "description": "Retrieval phase telemetry public type.",
         "properties": {
           "candidates_selected": {
             "default": 0,
@@ -5892,6 +5986,7 @@
       },
       "RetrievalTelemetryView": {
         "additionalProperties": false,
+        "description": "Retrieval telemetry summary for agent pipelines, including lane and phase counters.",
         "properties": {
           "candidates_filtered": {
             "default": 0,
@@ -5953,6 +6048,7 @@
       },
       "RunCompareResponse": {
         "additionalProperties": false,
+        "description": "Response envelope returned by the run comparison endpoint.",
         "properties": {
           "compare": {
             "$ref": "#/components/schemas/RunCompareView"
@@ -5970,6 +6066,7 @@
       },
       "RunCompareView": {
         "additionalProperties": false,
+        "description": "Side-by-side comparison payload for two runtime runs.",
         "properties": {
           "left_run_id": {
             "title": "Left Run Id",
@@ -5993,6 +6090,7 @@
       },
       "RunDetails": {
         "additionalProperties": false,
+        "description": "Run details public type.",
         "properties": {
           "capability_manifest_ref": {
             "anyOf": [
@@ -6199,6 +6297,7 @@
       },
       "RunDetailsResponse": {
         "additionalProperties": false,
+        "description": "Response envelope returned when a client requests one run's detailed record.",
         "properties": {
           "meta": {
             "$ref": "#/components/schemas/ApiMeta"
@@ -6216,6 +6315,7 @@
       },
       "RunErrorView": {
         "additionalProperties": false,
+        "description": "Normalized error record assembled from manifests, traces, reports, or runtime faults.",
         "properties": {
           "code": {
             "title": "Code",
@@ -6274,6 +6374,7 @@
       },
       "RunErrorsResponse": {
         "additionalProperties": false,
+        "description": "Response envelope returned by the run errors endpoint.",
         "properties": {
           "errors": {
             "items": {
@@ -6299,6 +6400,7 @@
       },
       "RunEvidenceContextResponse": {
         "additionalProperties": false,
+        "description": "Response envelope returned by the run evidence-context endpoint.",
         "properties": {
           "context": {
             "$ref": "#/components/schemas/RunEvidenceContextView"
@@ -6316,6 +6418,7 @@
       },
       "RunEvidenceContextView": {
         "additionalProperties": false,
+        "description": "Joined evidence context linking plans, snapshots, promotions, and related artifacts.",
         "properties": {
           "data_needs": {
             "items": {
@@ -6411,6 +6514,7 @@
       },
       "RunEvidenceNeedView": {
         "additionalProperties": false,
+        "description": "One evidence need derived from the execution plan for retrieval and promotion flows.",
         "properties": {
           "geography": {
             "anyOf": [
@@ -6494,6 +6598,7 @@
       },
       "RunEvidencePlanView": {
         "additionalProperties": false,
+        "description": "Fetch plan describing how a connector/profile can satisfy a run evidence need.",
         "properties": {
           "connector_id": {
             "title": "Connector Id",
@@ -6609,6 +6714,7 @@
       },
       "RunEvidencePromotionView": {
         "additionalProperties": false,
+        "description": "Candidate evidence promotion surfaced while reviewing retrieved data options.",
         "properties": {
           "confidence": {
             "default": 0.0,
@@ -6701,6 +6807,7 @@
       },
       "RunFeedbackResponse": {
         "additionalProperties": false,
+        "description": "Response envelope returned by the run feedback endpoint.",
         "properties": {
           "feedback": {
             "$ref": "#/components/schemas/RunFeedbackView"
@@ -6718,6 +6825,7 @@
       },
       "RunFeedbackView": {
         "additionalProperties": false,
+        "description": "Runtime view of monitoring, compare, and reissue artifacts attached to a run.",
         "properties": {
           "compare_report": {
             "anyOf": [
@@ -6819,6 +6927,7 @@
       },
       "RunLaunchResponse": {
         "additionalProperties": false,
+        "description": "Return the accepted/rejected control-job id and effective execution profile.",
         "properties": {
           "effective_execution_profile": {
             "enum": [
@@ -6867,6 +6976,7 @@
       },
       "RunLineageResponse": {
         "additionalProperties": false,
+        "description": "Response envelope returned by the run artifact-lineage endpoint.",
         "properties": {
           "lineage": {
             "$ref": "#/components/schemas/ArtifactLineageView"
@@ -6889,6 +6999,7 @@
       },
       "RunNodeRecord": {
         "additionalProperties": false,
+        "description": "Per-node execution summary used by node listings and debug surfaces.",
         "properties": {
           "alias": {
             "title": "Alias",
@@ -6990,6 +7101,7 @@
       },
       "RunNodesResponse": {
         "additionalProperties": false,
+        "description": "Response envelope returned by the run nodes endpoint.",
         "properties": {
           "meta": {
             "$ref": "#/components/schemas/ApiMeta"
@@ -7021,6 +7133,7 @@
       },
       "RunSummary": {
         "additionalProperties": false,
+        "description": "List-view projection of a run with artifact counts, warnings, and decision status.",
         "properties": {
           "cell_id": {
             "anyOf": [
@@ -7186,6 +7299,7 @@
       },
       "RunTimelineEvent": {
         "additionalProperties": false,
+        "description": "One timestamped event emitted into the runtime timeline for a run.",
         "properties": {
           "error_count": {
             "default": 0,
@@ -7279,6 +7393,7 @@
       },
       "RunTimelineResponse": {
         "additionalProperties": false,
+        "description": "Response envelope returned by the run timeline endpoint.",
         "properties": {
           "meta": {
             "$ref": "#/components/schemas/ApiMeta"
@@ -7296,6 +7411,7 @@
       },
       "RunTimelineSummary": {
         "additionalProperties": false,
+        "description": "Aggregate counters and latency totals derived from a run's timeline events.",
         "properties": {
           "cache_bypasses": {
             "default": 0,
@@ -7360,6 +7476,7 @@
       },
       "RunTimelineView": {
         "additionalProperties": false,
+        "description": "Timeline payload returned by runtime endpoints, including summary and ordered events.",
         "properties": {
           "events": {
             "items": {
@@ -7398,6 +7515,7 @@
       },
       "RunWorkflowEdgeView": {
         "additionalProperties": false,
+        "description": "Run workflow edge view data model.",
         "properties": {
           "from_alias": {
             "title": "From Alias",
@@ -7417,6 +7535,7 @@
       },
       "RunWorkflowNodeView": {
         "additionalProperties": false,
+        "description": "Workflow graph node annotated with runtime status, duration, and artifact IO.",
         "properties": {
           "alias": {
             "title": "Alias",
@@ -7521,6 +7640,7 @@
       },
       "RunWorkflowResponse": {
         "additionalProperties": false,
+        "description": "Response envelope returned by the workflow graph endpoint.",
         "properties": {
           "meta": {
             "$ref": "#/components/schemas/ApiMeta"
@@ -7538,6 +7658,7 @@
       },
       "RunWorkflowSummary": {
         "additionalProperties": false,
+        "description": "Summary statistics for the workflow graph executed by a run.",
         "properties": {
           "critical_path_duration_ms": {
             "anyOf": [
@@ -7626,6 +7747,7 @@
       },
       "RunWorkflowView": {
         "additionalProperties": false,
+        "description": "Workflow graph payload returned by runtime explorer endpoints.",
         "properties": {
           "edges": {
             "items": {
@@ -7691,6 +7813,7 @@
       },
       "RunsListResponse": {
         "additionalProperties": false,
+        "description": "Paginated response envelope returned by the runs listing endpoint.",
         "properties": {
           "meta": {
             "$ref": "#/components/schemas/ApiMeta"
@@ -7715,6 +7838,7 @@
       },
       "RuntimeApiProblem": {
         "additionalProperties": false,
+        "description": "Runtime api problem public type.",
         "properties": {
           "code": {
             "title": "Code",
@@ -7794,6 +7918,7 @@
       },
       "SourceProfileInfo": {
         "additionalProperties": false,
+        "description": "Describe one curated data-source profile available to retrieval flows.",
         "properties": {
           "auth_policy": {
             "default": "none",
@@ -7861,6 +7986,7 @@
       },
       "SourceProfilesListResponse": {
         "additionalProperties": false,
+        "description": "Return all curated source profiles with standard API metadata.",
         "properties": {
           "meta": {
             "$ref": "#/components/schemas/ApiMeta"

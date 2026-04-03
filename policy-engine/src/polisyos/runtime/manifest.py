@@ -1,4 +1,9 @@
-"""Public runtime manifest module API."""
+"""Define the on-disk run manifest written by runtime entrypoints.
+
+This schema predates the newer `core.contracts.runtime` API DTOs and remains a
+stable boundary for persisted run directories, local debugging, and replay
+bootstrap.
+"""
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -10,7 +15,7 @@ from polisyos.core.contracts.foundry import EnvironmentManifestRef
 
 
 class ArtifactRef(BaseModel):
-    """Artifact ref data model."""
+    """Reference one run-local artifact path and its logical type/media metadata."""
     artifact_type: str
     path: Optional[str] = None
     relative_path: Optional[str] = None
@@ -23,7 +28,7 @@ class ArtifactRef(BaseModel):
 
 
 class RunManifest(BaseModel):
-    """Run manifest data model."""
+    """Persist run lifecycle state, produced artifacts, budgets, and environment refs."""
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
     run_id: str
     parent_run_id: Optional[str] = None

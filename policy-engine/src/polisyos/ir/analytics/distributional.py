@@ -1,4 +1,4 @@
-"""Public analytics distributional module API."""
+"""Define cohort-level distribution shifts, coupling diagnostics, and report refs."""
 from __future__ import annotations
 
 import math
@@ -89,14 +89,14 @@ def _load_distributional_leaf(store: ArtifactStore, ref: ArtifactRefModel, model
 
 
 class DistributionalJustification(str, Enum):
-    """Distributional justification public type."""
+    """Declare whether a distributional claim is identified, bounded, or scenario-based."""
     IDENTIFIED = "identified"
     BOUNDED = "bounded"
     SCENARIO = "scenario"
 
 
 class CohortDimension(str, Enum):
-    """Supported axes for distributional cohort breakdowns."""
+    """Select the cohort axis used when slicing winners/losers summaries."""
 
     INCOME_QUINTILE = "income_quintile"
     INCOME_DECILE = "income_decile"
@@ -119,7 +119,7 @@ class ImpactDirection(str, Enum):
 
 
 class MetricUnit(str, Enum):
-    """Display semantics for primary distributional metrics."""
+    """Declare how distributional magnitudes should be rendered downstream."""
 
     PERCENT = "percent"
     RATIO = "ratio"
@@ -127,7 +127,7 @@ class MetricUnit(str, Enum):
 
 
 class CouplingDiagnostics(BaseModel):
-    """Coupling diagnostics public type."""
+    """Summarize optimal-transport coupling quality and identifiability assumptions."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     mass_conservation_error: float = Field(ge=0.0)
@@ -157,7 +157,7 @@ class CouplingDiagnostics(BaseModel):
 
 
 class DistributionBin(BaseModel):
-    """Distribution bin public type."""
+    """Store one histogram bin in a normalized discrete distribution summary."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     index: int = Field(ge=0)
@@ -181,7 +181,7 @@ class DistributionBin(BaseModel):
 
 
 class DiscreteDistributionSummary(BaseModel):
-    """Discrete distribution summary data model."""
+    """Describe a weighted discrete outcome distribution over histogram bins."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -212,7 +212,7 @@ class DiscreteDistributionSummary(BaseModel):
 
 
 class QuantileShiftEntry(BaseModel):
-    """Quantile shift entry data model."""
+    """Store one baseline-to-counterfactual shift at a specific quantile."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     quantile: float = Field(ge=0.0, le=1.0)
@@ -228,7 +228,7 @@ class QuantileShiftEntry(BaseModel):
 
 
 class QuantileShiftSummary(BaseModel):
-    """Quantile shift summary data model."""
+    """Collect sorted quantile-shift entries for one outcome variable."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -246,7 +246,7 @@ class QuantileShiftSummary(BaseModel):
 
 
 class TailRiskDeltaEntry(BaseModel):
-    """Tail risk delta entry data model."""
+    """Store the exceedance and expected-shortfall delta at one baseline quantile."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     baseline_quantile: float = Field(ge=0.0, le=1.0)
@@ -275,7 +275,7 @@ class TailRiskDeltaEntry(BaseModel):
 
 
 class TailRiskDeltaSummary(BaseModel):
-    """Tail risk delta summary data model."""
+    """Collect tail-risk deltas for one outcome variable."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -290,7 +290,7 @@ class TailRiskDeltaSummary(BaseModel):
 
 
 class OTCouplingSummary(BaseModel):
-    """OT coupling summary data model."""
+    """Store a transport matrix and support diagnostics for optimal-transport analysis."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -330,7 +330,7 @@ class OTCouplingSummary(BaseModel):
 
 
 class SubgroupDistributionComparison(BaseModel):
-    """Subgroup distribution comparison public type."""
+    """Compare baseline and counterfactual distributions for one subgroup."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -358,7 +358,7 @@ class SubgroupDistributionComparison(BaseModel):
 
 
 class DistributionalEffectBundle(BaseModel):
-    """Distributional effect bundle data model."""
+    """Persist the leaf artifact refs that make up a full distributional analysis bundle."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -581,7 +581,7 @@ def persist_discrete_distribution_summary(
     *,
     inputs: list[InputRef] | None = None,
 ) -> ArtifactRefModel:
-    """Persist discrete distribution summary helper."""
+    """Persist a discrete distribution summary as a JSON leaf artifact."""
     return _persist_distributional_leaf(
         store,
         summary,
@@ -606,7 +606,7 @@ def persist_ot_coupling_summary(
     *,
     inputs: list[InputRef] | None = None,
 ) -> ArtifactRefModel:
-    """Persist ot coupling summary helper."""
+    """Persist an optimal-transport coupling summary as a JSON leaf artifact."""
     return _persist_distributional_leaf(
         store,
         summary,
@@ -631,7 +631,7 @@ def persist_quantile_shift_summary(
     *,
     inputs: list[InputRef] | None = None,
 ) -> ArtifactRefModel:
-    """Persist quantile shift summary helper."""
+    """Persist a quantile-shift summary as a JSON leaf artifact."""
     return _persist_distributional_leaf(
         store,
         summary,
@@ -656,7 +656,7 @@ def persist_tail_risk_delta_summary(
     *,
     inputs: list[InputRef] | None = None,
 ) -> ArtifactRefModel:
-    """Persist tail risk delta summary helper."""
+    """Persist a tail-risk delta summary as a JSON leaf artifact."""
     return _persist_distributional_leaf(
         store,
         summary,
@@ -681,7 +681,7 @@ def persist_subgroup_distribution_comparison(
     *,
     inputs: list[InputRef] | None = None,
 ) -> ArtifactRefModel:
-    """Persist subgroup distribution comparison helper."""
+    """Persist one subgroup distribution comparison as a JSON leaf artifact."""
     return _persist_distributional_leaf(
         store,
         comparison,
@@ -706,7 +706,7 @@ def persist_distributional_effect_bundle(
     *,
     inputs: list[InputRef] | None = None,
 ) -> DistributionalEffectBundleRef:
-    """Persist distributional effect bundle helper."""
+    """Persist a distributional leaf-ref bundle and return its typed artifact ref."""
     ref = put_json_artifact(
         store,
         bundle.model_dump(mode="json"),
@@ -736,7 +736,7 @@ def persist_distributional_report(
     schema_name: str = _DISTRIBUTIONAL_REPORT_SCHEMA_NAME,
     schema_version: str = _DISTRIBUTIONAL_REPORT_SCHEMA_VERSION,
 ) -> DistributionalReportRef:
-    """Persist distributional report helper."""
+    """Persist a top-level distributional report and return its typed artifact ref."""
     ref = put_json_artifact(
         store,
         report.model_dump(mode="json"),

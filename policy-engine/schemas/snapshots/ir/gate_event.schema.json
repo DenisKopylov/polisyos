@@ -1,6 +1,7 @@
 {
   "$defs": {
     "GateEventType": {
+      "description": "Audit-log event type emitted by the gate subsystem.",
       "enum": [
         "GATE_REQUESTED",
         "GATE_DECIDED",
@@ -12,6 +13,7 @@
     }
   },
   "additionalProperties": false,
+  "description": "Audit event emitted for gate lifecycle transitions.",
   "properties": {
     "event_type": {
       "$ref": "#/$defs/GateEventType"

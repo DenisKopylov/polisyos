@@ -58,3 +58,63 @@ groups:
             sum by (connector_id, env) (rate(polisyos_slo_connector_requests_total[5m])),
             1e-9
           )
+
+      - record: polisyos:runtime_api_requests:rate30m
+        expr: |
+          sum by (route, method, env) (rate(polisyos_runtime_api_requests_total[30m]))
+
+      - record: polisyos:runtime_api_success_rate:rate30m
+        expr: |
+          sum by (route, method, env) (
+            rate(polisyos_runtime_api_requests_total{status!~"5.."}[30m])
+          )
+          /
+          clamp_min(
+            sum by (route, method, env) (
+              rate(polisyos_runtime_api_requests_total[30m])
+            ),
+            1e-9
+          )
+
+      - record: polisyos:runtime_api_p95_latency_seconds:5m
+        expr: |
+          histogram_quantile(0.95,
+            sum by (le, route, method, env) (
+              rate(polisyos_runtime_api_duration_seconds_bucket[5m])
+            )
+          )
+
+      - record: polisyos:runtime_api_p99_latency_seconds:5m
+        expr: |
+          histogram_quantile(0.99,
+            sum by (le, route, method, env) (
+              rate(polisyos_runtime_api_duration_seconds_bucket[5m])
+            )
+          )
+
+      - record: polisyos:control_plane_job_admissions:rate30m
+        expr: |
+          sum by (job_kind, effective_profile, env) (
+            rate(polisyos_control_plane_job_admissions_total[30m])
+          )
+
+      - record: polisyos:control_plane_job_admission_success_rate:rate30m
+        expr: |
+          sum by (job_kind, effective_profile, env) (
+            rate(polisyos_control_plane_job_admissions_total{status="success"}[30m])
+          )
+          /
+          clamp_min(
+            sum by (job_kind, effective_profile, env) (
+              rate(polisyos_control_plane_job_admissions_total[30m])
+            ),
+            1e-9
+          )
+
+      - record: polisyos:control_plane_job_admission_p95_latency_seconds:5m
+        expr: |
+          histogram_quantile(0.95,
+            sum by (le, job_kind, effective_profile, env) (
+              rate(polisyos_control_plane_job_admission_duration_seconds_bucket[5m])
+            )
+          )

@@ -53,14 +53,18 @@ class DataSourceBinding(BaseModel):
 
 
 class PolicyFlags(BaseModel):
-    """Policy flags public type."""
+    """Carry opt-in execution relaxations requested by the client.
+
+    `allow_mock_fallback=True` is privileged in governed/production profiles and
+    may be rejected by the runtime execution-policy resolver.
+    """
     model_config = ConfigDict(extra="forbid")
 
     allow_mock_fallback: bool = False
 
 
 class DecisionValidityEventRequest(BaseModel):
-    """Decision validity event request data model."""
+    """Request an append-only decision-validity event and lifecycle re-evaluation."""
     model_config = ConfigDict(extra="forbid")
 
     trigger_type: DecisionTriggerType
@@ -74,7 +78,7 @@ class DecisionValidityEventRequest(BaseModel):
 
 
 class DecisionValidityEventResponse(BaseModel):
-    """Decision validity event response data model."""
+    """Return the persisted event identity and aggregate impact of the update."""
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -86,7 +90,7 @@ class DecisionValidityEventResponse(BaseModel):
 
 
 class DecisionValidityPendingReview(BaseModel):
-    """Decision validity pending review public type."""
+    """Describe one unresolved human-review gate for a decision packet."""
     model_config = ConfigDict(extra="forbid")
 
     event_id: str
@@ -96,7 +100,7 @@ class DecisionValidityPendingReview(BaseModel):
 
 
 class DecisionValidityLifecycleSummary(BaseModel):
-    """Decision validity lifecycle summary data model."""
+    """Return event history, transitions, scheduled jobs, and reissue candidates."""
     model_config = ConfigDict(extra="forbid")
 
     events: list[DecisionDependencyEvent] = Field(default_factory=list)
@@ -108,7 +112,7 @@ class DecisionValidityLifecycleSummary(BaseModel):
 
 
 class DecisionValiditySummaryResponse(BaseModel):
-    """Decision validity summary response data model."""
+    """Expose the current decision-validity verdict and its lifecycle context."""
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -188,7 +192,7 @@ class NaturalLanguageRunRequest(BaseModel):
 
 
 class RunLaunchResponse(BaseModel):
-    """Run launch response data model."""
+    """Return the accepted/rejected control-job id and effective execution profile."""
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -205,7 +209,7 @@ class RunLaunchResponse(BaseModel):
 
 
 class DatasetFetchSpecRequest(BaseModel):
-    """Dataset fetch spec request data model."""
+    """Describe one direct connector/dataset fetch request for data ingestion."""
     model_config = ConfigDict(extra="forbid")
 
     connector_id: str
@@ -241,7 +245,7 @@ class IngestRequest(BaseModel):
 
 
 class IngestResponse(BaseModel):
-    """Ingest response data model."""
+    """Return ingestion outputs, warning messages, and replay/cursor references."""
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -263,7 +267,7 @@ class IngestResponse(BaseModel):
 
 
 class DataNeed(BaseModel):
-    """Data need public type."""
+    """Describe one metric/geography/time requirement to resolve into fetch plans."""
     model_config = ConfigDict(extra="forbid")
 
     metric: str = Field(..., min_length=1, max_length=256)
@@ -276,7 +280,7 @@ class DataNeed(BaseModel):
 
 
 class MetricCandidate(BaseModel):
-    """Metric candidate public type."""
+    """Represent one catalog-backed source candidate for a requested metric."""
     model_config = ConfigDict(extra="forbid")
 
     candidate_id: str = Field(..., min_length=1)
@@ -297,7 +301,7 @@ class MetricCandidate(BaseModel):
 
 
 class DiscoveryCandidate(BaseModel):
-    """Discovery candidate public type."""
+    """Represent one explore-lane candidate discovered from source metadata search."""
     model_config = ConfigDict(extra="forbid")
 
     candidate_id: str
@@ -317,7 +321,7 @@ class DiscoveryCandidate(BaseModel):
 
 
 class FetchPlanFallback(BaseModel):
-    """Fetch plan fallback public type."""
+    """Describe one connector/dataset fallback to try when the primary plan fails."""
     model_config = ConfigDict(extra="forbid")
 
     connector_id: str
@@ -327,7 +331,7 @@ class FetchPlanFallback(BaseModel):
 
 
 class FetchPlan(BaseModel):
-    """Fetch plan data model."""
+    """Encode one executable data-fetch plan produced by resolver/discovery flows."""
     model_config = ConfigDict(extra="forbid")
 
     plan_id: str = Field(..., min_length=1)
@@ -348,7 +352,7 @@ class FetchPlan(BaseModel):
 
 
 class FetchPreview(BaseModel):
-    """Fetch preview public type."""
+    """Return a bounded sample, quality flags, and coverage status for one plan."""
     model_config = ConfigDict(extra="forbid", populate_by_name=True)
 
     status: PreviewStatus = "ok"
@@ -366,7 +370,7 @@ class FetchPreview(BaseModel):
 
 
 class DataContextMetric(BaseModel):
-    """Data context metric public type."""
+    """Summarize one fetched metric included in a data-context payload."""
     model_config = ConfigDict(extra="forbid")
 
     metric_id: str
@@ -380,7 +384,7 @@ class DataContextMetric(BaseModel):
 
 
 class DataContext(BaseModel):
-    """Data context public type."""
+    """Aggregate fetched metrics and catalog index counters for an agent run."""
     model_config = ConfigDict(extra="forbid")
 
     metrics: list[DataContextMetric] = Field(default_factory=list)
@@ -390,7 +394,7 @@ class DataContext(BaseModel):
 
 
 class PromotionCandidate(BaseModel):
-    """Promotion candidate public type."""
+    """Represent one explore-lane source proposed for promotion into fastlane."""
     model_config = ConfigDict(extra="forbid")
 
     promotion_id: str
@@ -407,7 +411,7 @@ class PromotionCandidate(BaseModel):
 
 
 class IndexStats(BaseModel):
-    """Index stats public type."""
+    """Report catalog index size, source coverage, and last-update counters."""
     model_config = ConfigDict(extra="forbid")
 
     index_docs_total: int = Field(default=0, ge=0)
@@ -419,7 +423,7 @@ class IndexStats(BaseModel):
 
 
 class DataResolveRequest(BaseModel):
-    """Data resolve request data model."""
+    """Request fastlane/hybrid resolution of data needs into concrete fetch plans."""
     model_config = ConfigDict(extra="forbid")
 
     data_needs: list[DataNeed] = Field(..., min_length=1)
@@ -428,7 +432,7 @@ class DataResolveRequest(BaseModel):
 
 
 class DataResolveResponse(BaseModel):
-    """Data resolve response data model."""
+    """Return selected fetch plans, ranked candidates, and resolver warnings."""
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -439,7 +443,7 @@ class DataResolveResponse(BaseModel):
 
 
 class DataDiscoverRequest(BaseModel):
-    """Data discover request data model."""
+    """Request explore-lane candidate discovery within explicit time/cost budgets."""
     model_config = ConfigDict(extra="forbid")
 
     data_needs: list[DataNeed] = Field(..., min_length=1)
@@ -451,7 +455,7 @@ class DataDiscoverRequest(BaseModel):
 
 
 class DataDiscoverResponse(BaseModel):
-    """Data discover response data model."""
+    """Return discovery candidates plus index telemetry and soft warning messages."""
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -462,7 +466,7 @@ class DataDiscoverResponse(BaseModel):
 
 
 class DataPreviewRequest(BaseModel):
-    """Data preview request data model."""
+    """Request a bounded preview for one fetch plan with optional fallback handling."""
     model_config = ConfigDict(extra="forbid")
 
     fetch_plan: FetchPlan
@@ -470,7 +474,7 @@ class DataPreviewRequest(BaseModel):
 
 
 class DataPreviewResponse(BaseModel):
-    """Data preview response data model."""
+    """Wrap one `FetchPreview` payload with standard API metadata."""
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -478,7 +482,7 @@ class DataPreviewResponse(BaseModel):
 
 
 class DataCatalogSearchResponse(BaseModel):
-    """Data catalog search response data model."""
+    """Return catalog search matches and the total result count for a query."""
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -488,7 +492,7 @@ class DataCatalogSearchResponse(BaseModel):
 
 
 class IndexStatsResponse(BaseModel):
-    """Index stats response data model."""
+    """Wrap catalog index telemetry with standard API metadata."""
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -496,7 +500,7 @@ class IndexStatsResponse(BaseModel):
 
 
 class PromotionCandidatesResponse(BaseModel):
-    """Promotion candidates response data model."""
+    """Return pending/approved/rejected source-promotion candidates."""
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -504,14 +508,14 @@ class PromotionCandidatesResponse(BaseModel):
 
 
 class PromotionDecisionRequest(BaseModel):
-    """Promotion decision request data model."""
+    """Capture an optional reviewer reason for approving or rejecting promotion."""
     model_config = ConfigDict(extra="forbid")
 
     reason: str | None = None
 
 
 class PromotionDecisionResponse(BaseModel):
-    """Promotion decision response data model."""
+    """Return the stored promotion status and whether bindings were updated."""
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -527,7 +531,7 @@ class PromotionDecisionResponse(BaseModel):
 
 
 class ConnectorInfo(BaseModel):
-    """Connector info data model."""
+    """Describe one discovered connector and the datasets/profiles it exposes."""
     model_config = ConfigDict(extra="forbid")
 
     connector_id: str
@@ -540,7 +544,7 @@ class ConnectorInfo(BaseModel):
 
 
 class ConnectorsListResponse(BaseModel):
-    """Connectors list response data model."""
+    """Return all visible connectors with standard API metadata."""
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -553,7 +557,7 @@ class ConnectorsListResponse(BaseModel):
 
 
 class SourceProfileInfo(BaseModel):
-    """Source profile info data model."""
+    """Describe one curated data-source profile available to retrieval flows."""
     model_config = ConfigDict(extra="forbid")
 
     profile_id: str
@@ -569,7 +573,7 @@ class SourceProfileInfo(BaseModel):
 
 
 class SourceProfilesListResponse(BaseModel):
-    """Source profiles list response data model."""
+    """Return all curated source profiles with standard API metadata."""
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -582,7 +586,7 @@ class SourceProfilesListResponse(BaseModel):
 
 
 class ModelProfileInfo(BaseModel):
-    """Model profile info data model."""
+    """Describe one LLM model profile exposed to NL control-plane requests."""
     model_config = ConfigDict(extra="forbid")
 
     profile_id: str
@@ -599,7 +603,7 @@ class ModelProfileInfo(BaseModel):
 
 
 class ModelProfilesListResponse(BaseModel):
-    """Model profiles list response data model."""
+    """Return all enabled model profiles with standard API metadata."""
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -612,7 +616,7 @@ class ModelProfilesListResponse(BaseModel):
 
 
 class BindingProfileInfo(BaseModel):
-    """Binding profile info data model."""
+    """Describe one schema-binding profile used to normalize ingested datasets."""
     model_config = ConfigDict(extra="forbid")
 
     profile_id: str
@@ -626,7 +630,7 @@ class BindingProfileInfo(BaseModel):
 
 
 class BindingProfilesListResponse(BaseModel):
-    """Binding profiles list response data model."""
+    """Return binding profile metadata with standard API metadata."""
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -639,7 +643,7 @@ class BindingProfilesListResponse(BaseModel):
 
 
 class CacheEntryInfo(BaseModel):
-    """Cache entry info data model."""
+    """Expose one materialized data-cache entry and its validity window."""
     model_config = ConfigDict(extra="forbid")
 
     cache_key: str
@@ -652,7 +656,7 @@ class CacheEntryInfo(BaseModel):
 
 
 class CacheStatusResponse(BaseModel):
-    """Cache status response data model."""
+    """Return cache inventory and aggregate storage usage."""
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -670,7 +674,7 @@ IngestRequest.model_rebuild()
 
 
 class CapabilityFeatureInfo(BaseModel):
-    """Capability feature info data model."""
+    """Describe one runtime feature flag and its rollout stage/disable reason."""
     model_config = ConfigDict(extra="forbid")
 
     key: str
@@ -683,7 +687,7 @@ class CapabilityFeatureInfo(BaseModel):
 
 
 class CapabilityManifestResponse(BaseModel):
-    """Capability manifest response data model."""
+    """Expose stable runtime capabilities, defaults, security posture, and limits."""
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -705,7 +709,7 @@ class CapabilityManifestResponse(BaseModel):
 
 
 class ControlJobResponse(BaseModel):
-    """Control job response data model."""
+    """Represent one durable control-plane job and its progress/error state."""
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -725,7 +729,7 @@ class ControlJobResponse(BaseModel):
 
 
 class ControlWorkerLeaseInfo(BaseModel):
-    """Control worker lease info data model."""
+    """Expose one worker lease heartbeat and currently leased job."""
     model_config = ConfigDict(extra="forbid")
 
     worker_id: str
@@ -740,7 +744,7 @@ class ControlWorkerLeaseInfo(BaseModel):
 
 
 class ControlWorkersResponse(BaseModel):
-    """Control workers response data model."""
+    """Return worker leases filtered by active-only mode."""
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -749,7 +753,7 @@ class ControlWorkersResponse(BaseModel):
 
 
 class ControlOutboxEventInfo(BaseModel):
-    """Control outbox event info data model."""
+    """Describe one durable outbox event and its publish retry state."""
     model_config = ConfigDict(extra="forbid")
 
     event_id: str
@@ -766,7 +770,7 @@ class ControlOutboxEventInfo(BaseModel):
 
 
 class ControlOutboxEventsResponse(BaseModel):
-    """Control outbox events response data model."""
+    """Return outbox events filtered by publish state."""
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -811,7 +815,7 @@ class LexTriggerRequest(BaseModel):
 
 
 class LexTriggerResponse(BaseModel):
-    """Lex trigger response data model."""
+    """Return accepted/rejected Lex pipeline launch metadata."""
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -823,7 +827,7 @@ class LexTriggerResponse(BaseModel):
 
 
 class LexPipelineStatusResponse(BaseModel):
-    """Lex pipeline status response data model."""
+    """Expose Lex pipeline state, stage progress counters, and failure text."""
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -834,7 +838,7 @@ class LexPipelineStatusResponse(BaseModel):
 
 
 class LexGraphStatsResponse(BaseModel):
-    """Lex graph stats response data model."""
+    """Return graph-cardinality and top-distribution telemetry for the Lex store."""
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -857,7 +861,7 @@ class LexSearchRequest(BaseModel):
 
 
 class LexSearchResultItem(BaseModel):
-    """Lex search result item public type."""
+    """Represent one ranked Lex fact hit with citation and canonicalized metadata."""
     model_config = ConfigDict(extra="forbid")
 
     fact_id: str
@@ -880,7 +884,7 @@ class LexSearchResultItem(BaseModel):
 
 
 class LexSearchResponse(BaseModel):
-    """Lex search response data model."""
+    """Return ranked Lex fact matches for a text query."""
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta

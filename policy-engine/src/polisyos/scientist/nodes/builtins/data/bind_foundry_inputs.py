@@ -60,7 +60,12 @@ _SPEC = NodeSpec(
 
 @dataclass(frozen=True)
 class BindFoundryInputsNode:
-    """Bind foundry inputs node implementation."""
+    """Data-stage DAG node that converts data snapshots and registry rules into Foundry input bindings.
+
+    Requires a data snapshot and registry bundle, optionally enforces ModelSpec
+    consistency, and writes the input-bindings ref, bound state snapshot, and
+    input-binding report needed by simulation and compile stages.
+    """
     strict_model_spec_match: bool = True
 
     @property

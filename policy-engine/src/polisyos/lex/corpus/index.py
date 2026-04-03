@@ -1,4 +1,4 @@
-"""Public corpus index module API."""
+"""Corpus index artifacts that connect structured legal text to later norm-pack assembly."""
 from __future__ import annotations
 
 from typing import Literal
@@ -101,7 +101,7 @@ class DocSourcePropsV1(KernelModel):
 
 
 def persist_provision_index(cas: FileSystemCAS, payload: ProvisionIndexV1) -> str:
-    """Persist provision index helper."""
+    """Persist the provision index derived from structured fragments for norm-pack lookup."""
     try:
         ref = cas.put_json(
             payload.model_dump(mode="python"),
@@ -117,7 +117,7 @@ def persist_provision_index(cas: FileSystemCAS, payload: ProvisionIndexV1) -> st
 
 
 def persist_version_index(cas: FileSystemCAS, payload: VersionIndexV1) -> str:
-    """Persist version index helper."""
+    """Persist the document-version index used to resolve the active text at an as-of date."""
     try:
         ref = cas.put_json(
             payload.model_dump(mode="python"),
@@ -133,7 +133,7 @@ def persist_version_index(cas: FileSystemCAS, payload: VersionIndexV1) -> str:
 
 
 def persist_doc_source_props(cas: FileSystemCAS, payload: DocSourcePropsV1) -> str:
-    """Persist doc source props helper."""
+    """Persist per-source corpus metadata that links a source to its version index artifact."""
     try:
         ref = cas.put_json(
             payload.model_dump(mode="python"),

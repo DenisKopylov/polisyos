@@ -1,8 +1,12 @@
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+
 [project]
 name = "policy-engine"
 version = "0.1.0"
 description = "AI-driven Policy Simulation System using JAX and Unified Data Fabric"
-requires-python = ">=3.14"
+requires-python = ">=3.14,<3.15"
 dependencies = [
     # Core Math & Sim
     "jax>=0.4.20",
@@ -41,15 +45,37 @@ dependencies = [
     "cryptography>=42.0.0",
     "loguru>=0.7.2",
     "packaging>=23.0",
-    "jax-metal>=0.1.1; sys_platform == 'darwin'",
     "chex>=0.1.91",
-    "streamlit>=1.52.2",
-    "plotly>=6.5.0",
-    "hypothesis>=6.151.2",
 ]
 
 [project.optional-dependencies]
 core = []
+lint = [
+    "mypy>=1.19.1",
+    "pre-commit>=4.5.1",
+    "ruff>=0.14.10",
+    "types-requests>=2.32.4.20250913",
+]
+docs = [
+    "mkdocs>=1.6.0",
+    "mkdocs-material>=9.6.0",
+    "mkdocstrings[python]>=0.30.0",
+]
+notebooks = [
+    "jupyterlab>=4.0.0",
+    "matplotlib>=3.8.0",
+    "seaborn>=0.13.0",
+]
+mutation = [
+    "mutmut>=2.0",
+]
+agent-sim = [
+    "plotly>=6.5.0",
+    "streamlit>=1.52.2",
+]
+apple-metal = [
+    "jax-metal>=0.1.1; sys_platform == 'darwin'",
+]
 kuzu = ["kuzu>=0.1.0"]
 analytics = [
     "scipy>=1.11.0",
@@ -64,10 +90,9 @@ ml = [
     "lifelines>=0.30.0",
     "mapie>=1.0.0",
 ]
-deep-learning = [
-    "jax>=0.7.0",
-    "jaxlib>=0.7.0",
-]
+# Compatibility alias: the core JAX stack already lives in the base install.
+# Accelerator-specific backends such as Apple Metal stay opt-in extras.
+deep-learning = []
 optimization-advanced = [
     "cvxpy>=1.8.1",
 ]
@@ -154,10 +179,6 @@ methods-milestone4 = [
     "policy-engine[bayesian]",
 ]
 observability = [
-    "opentelemetry-api>=1.20.0",
-    "opentelemetry-sdk>=1.20.0",
-    "opentelemetry-exporter-otlp-proto-grpc>=1.20.0",
-    "opentelemetry-exporter-prometheus>=0.41b0",
     "prometheus-client>=0.17.0",
 ]
 runtime-http = [
@@ -166,13 +187,15 @@ runtime-http = [
     "httpx>=0.27.0",
     "PyJWT>=2.8.0",
 ]
+runtime = [
+    "policy-engine[runtime-http]",
+    "policy-engine[observability]",
+    "policy-engine[structured-logging]",
+]
 multi-tenant = [
+    "policy-engine[runtime-http]",
     "psycopg[binary]>=3.1.0",
     "asyncpg>=0.29.0",
-    "fastapi>=0.109.0",
-    "uvicorn[standard]>=0.27.0",
-    "httpx>=0.27.0",
-    "PyJWT>=2.8.0",
 ]
 security = [
     "httpx>=0.27.0",
@@ -201,6 +224,18 @@ shapesafe = [
 hotreload = [
     "watchfiles>=0.21.0",
 ]
+research = [
+    "policy-engine[analytics]",
+    "policy-engine[bayesian]",
+    "policy-engine[causal-discovery]",
+    "policy-engine[causal-discovery-scale]",
+    "policy-engine[causal-full]",
+    "policy-engine[ml]",
+    "policy-engine[optimization-advanced]",
+    "policy-engine[sensitivity]",
+    "policy-engine[solvers]",
+    "policy-engine[academic-skg]",
+]
 agent-quality = [
     "faiss-cpu>=1.7.4,<2.0",
     "RestrictedPython>=7.0,<8.0",
@@ -213,43 +248,24 @@ test = [
     "policy-engine[runtime-http]",
 ]
 dev = [
-    "pytest>=7.4.0",
-    "pytest-asyncio>=0.23.0",
-    "pytest-benchmark>=4.0.0",
-    "hypothesis>=6.0.0",
-    "mypy>=1.19.1",
-    "pre-commit>=4.5.1",
-    "ruff>=0.14.10",
-    "types-requests>=2.32.4.20250913",
-    "mkdocs>=1.6.0",
-    "mkdocs-material>=9.6.0",
-    "mkdocstrings[python]>=0.30.0",
-    "jupyterlab>=4.0.0",
-    "matplotlib>=3.8.0",
-    "seaborn>=0.13.0",
-    "structlog>=24.0.0",
-    "mutmut>=2.0",
+    "policy-engine[docs]",
+    "policy-engine[lint]",
+    "policy-engine[mutation]",
+    "policy-engine[notebooks]",
+    "policy-engine[structured-logging]",
 ]
 # Curated umbrella used by docs/onboarding.
 # It intentionally excludes externally provisioned or highly platform-specific
-# paths such as `causal-symbolic-r`, plus unsupported Python 3.14 paths and
-# overlapping milestone bundles that slow pip's resolver dramatically without
-# adding new capability surface.
+# paths such as `apple-metal`, `causal-bcf`, and `causal-symbolic-r`, plus
+# heavyweight local-only tooling and overlap-heavy milestone bundles that slow
+# pip's resolver dramatically without adding new capability surface.
 all = [
-    "policy-engine[analytics]",
-    "policy-engine[bayesian]",
-    "policy-engine[causal-discovery]",
-    "policy-engine[causal-discovery-scale]",
-    "policy-engine[causal-full]",
+    "policy-engine[research]",
     "policy-engine[hotreload]",
-    "policy-engine[ml]",
-    "policy-engine[observability]",
-    "policy-engine[optimization-advanced]",
-    "policy-engine[runtime-http]",
-    "policy-engine[sensitivity]",
+    "policy-engine[rag]",
+    "policy-engine[runtime]",
+    "policy-engine[security]",
     "policy-engine[shapesafe]",
-    "policy-engine[solvers]",
-    "policy-engine[structured-logging]",
 ]
 structured-logging = [
     "structlog>=24.0.0",
@@ -309,12 +325,28 @@ polisyos-foundry = "polisyos.foundry.methods.cli:main"
 "quality" = "polisyos.scientist.governance.pass_entrypoints:quality_gate_pass_factory"
 "normative_arbitration" = "polisyos.scientist.governance.pass_entrypoints:normative_arbitration_pass_factory"
 
+[tool.hatch.build.targets.wheel]
+packages = ["src/polisyos"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "src/polisyos",
+    "benchmarks",
+    "docs",
+    "ops",
+    "schemas",
+    "tools",
+    "CHANGELOG.md",
+    "README.md",
+    "pyproject.toml",
+]
+
 # --- Tool Configurations ---
 
 # 1. Настройка Ruff (Линтер + Форматер)
 [tool.ruff]
 line-length = 100
-target-version = "py311"
+target-version = "py314"
 
 [tool.ruff.lint]
 select = [
@@ -338,20 +370,27 @@ ignore = []
 
 # 2. Настройка Mypy (Типизация)
 [tool.mypy]
-python_version = "3.11"
+python_version = "3.14"
 strict = true
 ignore_missing_imports = true # Для библиотек без типов (некоторые ML либы)
 plugins = ["pydantic.mypy", "polisyos.foundry.methods.mypy_plugin"] # Плагин для корректной работы с Pydantic v2
 
 [tool.pytest.ini_options]
 minversion = "6.0"
-addopts = "-ra -q --import-mode=importlib"
+addopts = "-ra -q --import-mode=importlib --strict-markers"
 testpaths = ["tests"]
 asyncio_mode = "auto"
 markers = [
-    "integration: slow or DB-backed workflow tests",
-    "benchmark: performance regression benchmarks (requires pytest-benchmark)",
+    "unit: fast isolated tests; applied by default when no broader taxonomy class matches",
+    "contract: compatibility and schema-boundary tests for stable cross-layer surfaces",
     "property: hypothesis property-based tests",
+    "integration: multi-component or runtime-boundary tests that cross subsystem seams",
+    "performance: runtime, benchmark, and regression-cost tests",
+    "benchmark: performance regression benchmarks (requires pytest-benchmark)",
+    "smoke: minimal confidence tests for local and CI fast paths",
+    "slow: intentionally higher-cost tests excluded from the fastest loops",
+    "flaky: unstable tests that require explicit owner follow-up",
+    "quarantine: temporarily de-gated tests tracked in tests/quarantine.toml",
 ]
 
 # ---------------------------------------------------------------------------

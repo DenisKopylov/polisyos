@@ -34,6 +34,13 @@ world materialization, retrieval and connector orchestration.
 
 → Full reference: [docs/reference/fabric/index.md](../../../docs/reference/fabric/index.md)
 
+## Where to Start
+
+- Public facade / supported imports: `src/polisyos/fabric/__init__.py` and `docs/reference/public-surface.md`
+- New connector: `python3 tools/architecture/scaffold.py connector --name MySource --type REST --dry-run`
+- Connector implementation details: `src/polisyos/fabric/connectors/README.md`
+- Recorded fixtures and generated artifacts: `tests/fabric/connectors/sources/fixtures/` and `docs/reference/generated-artifacts.md`
+
 ## Current State
 
 - Last updated: 2026-04-03

@@ -35,7 +35,7 @@ def _result_slot() -> frozenset[SlotSpec]:
     tags={"policy", "evaluation", "budget-impact", "fiscal", "structural"},
 )
 class BudgetImpactEstimator:
-    """Budget impact estimator implementation."""
+    """Estimate the fiscal budget impact of a proposed policy change."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -111,7 +111,7 @@ class BudgetImpactEstimator:
     tags={"policy", "evaluation", "scorecard", "structural"},
 )
 class PolicyScorecardEstimator:
-    """Policy scorecard estimator implementation."""
+    """Build multi-metric scorecards for comparing policy alternatives."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -187,7 +187,7 @@ class PolicyScorecardEstimator:
     tags={"policy", "evaluation", "ex-ante", "counterfactual", "structural"},
 )
 class ExAnteSimulationEstimator:
-    """Ex ante simulation estimator implementation."""
+    """Project candidate policy outcomes by replaying interventions before deployment."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 

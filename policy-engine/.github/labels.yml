@@ -1,0 +1,51 @@
+- name: kind:architecture
+  color: "1f6feb"
+  description: Boundary, architecture, ADR, or ownership change.
+- name: kind:contract-schema
+  color: "0e8a16"
+  description: IR schema, OpenAPI, ABI snapshot, or generated client change.
+- name: kind:runtime-behavior
+  color: "5319e7"
+  description: Runtime/control-plane behavior or operator-visible backend change.
+- name: kind:frontend
+  color: "fbca04"
+  description: Dashboard UX, frontend contracts, or browser-facing change.
+- name: kind:docs
+  color: "006b75"
+  description: Docs, reference, tutorials, or contributor guidance change.
+- name: kind:ops-security
+  color: "b60205"
+  description: Workflow, deployment, secret, signing, or security change.
+- name: kind:dependency-upgrade
+  color: "d93f0b"
+  description: Dependency, lockfile, or toolchain upgrade.
+- name: compat:breaking
+  color: "b60205"
+  description: Supported consumers or operators must change behavior.
+- name: compat:additive
+  color: "0e8a16"
+  description: Backward-compatible addition to an existing supported surface.
+- name: compat:internal
+  color: "6a737d"
+  description: Internal-only change with no supported-surface impact.
+- name: release:breaking
+  color: "b60205"
+  description: Release notes should call out a breaking change.
+- name: release:feature
+  color: "1d76db"
+  description: Release notes should call out a feature/addition.
+- name: release:fix
+  color: "0e8a16"
+  description: Release notes should call out a fix.
+- name: release:docs
+  color: "006b75"
+  description: Release notes should call out a docs change.
+- name: release:ops
+  color: "5319e7"
+  description: Release notes should call out workflow/deployment/ops change.
+- name: release:security
+  color: "b60205"
+  description: Release notes should call out a security or supply-chain change.
+- name: release:none
+  color: "6a737d"
+  description: No release-note entry is normally needed.

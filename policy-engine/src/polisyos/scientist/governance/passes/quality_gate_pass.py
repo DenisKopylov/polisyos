@@ -1,4 +1,4 @@
-"""Public passes quality gate pass module API."""
+"""Validate data-quality and evidence readiness signals before governed execution."""
 from __future__ import annotations
 
 import logging
@@ -23,13 +23,14 @@ from polisyos.fabric.quality import (
 
 
 class QualityGatePass(ValidatorPass):
-    """
-    Validates data quality before simulation execution.
+    """Build a data-fitness report and emit quality/evidence findings.
 
-    Behavior by profile:
-    - FAST: Skip entirely (not in pass_ids)
-    - MVP: Skip entirely (not in pass_ids)
-    - STRICT: Run and block on POOR or UNUSABLE quality
+    Expected state fields include `data_quality_report`, `evidence_bundle`,
+    `catalog_registry`, and `metric_refs`; the pass also writes
+    `ctx.state["data_fitness_report"]`. Thresholds come from the active profile
+    and `quality_*` overrides. FAST/MVP profiles usually exclude this pass
+    unless `force_run=True`; STRICT blocks on POOR/UNUSABLE quality while other
+    findings may remain warnings.
     """
 
     def __init__(

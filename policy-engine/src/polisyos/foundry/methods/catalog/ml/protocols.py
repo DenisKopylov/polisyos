@@ -1,4 +1,4 @@
-"""Public ml protocols module API."""
+"""Define ML catalog input/output contracts for tabular, clustering, embedding, and survival tasks."""
 from __future__ import annotations
 
 from typing import Any, ClassVar
@@ -22,7 +22,7 @@ def _to_numpy(value: Any) -> np.ndarray:
 
 
 class TabularData(BaseModel):
-    """Tabular data public type."""
+    """Carry tabular features, optional targets, feature names, and sample IDs."""
     contract_id: ClassVar[str] = "foundry.ml.tabular_data.v1"
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
 
@@ -67,7 +67,7 @@ class TabularData(BaseModel):
 
 
 class SurvivalData(BaseModel):
-    """Survival data public type."""
+    """Carry survival durations, event indicators, and covariates for hazard/time-to-event models."""
     contract_id: ClassVar[str] = "foundry.ml.survival_data.v1"
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
 
@@ -105,7 +105,7 @@ class SurvivalData(BaseModel):
 
 
 class PredictionResult(BaseModel):
-    """Prediction result data model."""
+    """Store point predictions, observed targets, metrics, and model metadata."""
     contract_id: ClassVar[str] = "foundry.ml.prediction_result.v1"
     model_config = ConfigDict(extra="forbid", frozen=True, arbitrary_types_allowed=True)
 
@@ -166,7 +166,7 @@ class PredictionResult(BaseModel):
 
 
 class PredictionIntervalResult(BaseModel):
-    """Prediction interval result data model."""
+    """Store prediction bands, coverage, and metadata emitted by interval-producing ML methods."""
     contract_id: ClassVar[str] = "foundry.ml.prediction_interval_result.v1"
     model_config = ConfigDict(extra="forbid", frozen=True, arbitrary_types_allowed=True)
 
@@ -191,7 +191,7 @@ class PredictionIntervalResult(BaseModel):
 
 
 class ClusteringResult(BaseModel):
-    """Clustering result data model."""
+    """Store cluster labels, centroids, scores, and clustering metadata."""
     contract_id: ClassVar[str] = "foundry.ml.clustering_result.v1"
     model_config = ConfigDict(extra="forbid", frozen=True, arbitrary_types_allowed=True)
 
@@ -216,7 +216,7 @@ class ClusteringResult(BaseModel):
 
 
 class EmbeddingResult(BaseModel):
-    """Embedding result data model."""
+    """Store low-dimensional embeddings, explained variance, and transformer metadata."""
     contract_id: ClassVar[str] = "foundry.ml.embedding_result.v1"
     model_config = ConfigDict(extra="forbid", frozen=True, arbitrary_types_allowed=True)
 
@@ -241,7 +241,7 @@ class EmbeddingResult(BaseModel):
 
 
 class SurvivalResult(BaseModel):
-    """Survival result data model."""
+    """Store survival curves, risk scores, concordance metrics, and hazard-model metadata."""
     contract_id: ClassVar[str] = "foundry.ml.survival_result.v1"
     model_config = ConfigDict(extra="forbid", frozen=True, arbitrary_types_allowed=True)
 

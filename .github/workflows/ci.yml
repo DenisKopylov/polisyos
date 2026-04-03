@@ -1,682 +1,361 @@
-name: CI
+name: PR Standard
 
 on:
-  push:
   pull_request:
+  push:
+    branches:
+      - main
 
 permissions:
   contents: read
-  pull-requests: write
+
+concurrency:
+  group: pr-standard-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  quality-and-unit:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: policy-engine
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-      - name: Install uv
-        uses: astral-sh/setup-uv@v3
-        with:
-          version: "latest"
-      - name: Sync environment
-        run: uv sync --frozen --extra dev --extra test
-      - name: lint_imports
-        run: uv run python tools/lint/lint_imports.py --policy import_policy.toml --exceptions import_exceptions.toml
-      - name: lint_foundry
-        run: uv run python tools/lint/lint_foundry.py --repo-root .
-      - name: check_state_reads
-        run: uv run python tools/diagnostics/check_state_reads.py
-      - name: check_scientist_node_version_bump
-        run: uv run python tools/diagnostics/check_scientist_node_version_bump.py
-      - name: check_scholar_imports
-        run: uv run python tools/lint/check_scholar_imports.py
-      - name: check_connector_contracts
-        run: uv run python tools/connectors/check_contracts.py --check
-      - name: gen_schema --check
-        run: uv run python tools/diagnostics/gen_schema.py --check
-      - name: pytest unit/contract (no integration)
-        run: uv run pytest -m "not integration" --ignore=tests/runtime/http
-
   runtime-http:
+    name: Standard PR / Runtime HTTP
     runs-on: ubuntu-latest
-    needs: quality-and-unit
+    timeout-minutes: 20
     defaults:
       run:
         working-directory: policy-engine
     steps:
-      - uses: actions/checkout@v4
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Setup Policy Engine Python
+        uses: ./.github/actions/setup-policy-engine-python
         with:
-          python-version: "3.11"
-      - name: Install uv
-        uses: astral-sh/setup-uv@v3
-        with:
-          version: "latest"
-      - name: Sync environment
-        run: uv sync --frozen --extra dev --extra test --extra runtime-http
+          profile: runtime
+
       - name: Verify runtime HTTP dependencies
         run: uv run python -c "import fastapi, jwt"
-      - name: pytest runtime/http
-        run: uv run pytest tests/runtime/http
+
+      - name: Run runtime HTTP suite
+        run: |
+          mkdir -p .tmp/test-reports
+          uv run pytest tests/runtime/http -m "not quarantine" --durations=25 --junitxml=.tmp/test-reports/runtime-http.xml
+
+      - name: Upload runtime HTTP JUnit
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: junit-runtime-http
+          path: policy-engine/.tmp/test-reports/runtime-http.xml
+          if-no-files-found: warn
+          retention-days: 14
 
   frontend-quality:
+    name: Standard PR / Frontend quality
     runs-on: ubuntu-latest
-    needs: quality-and-unit
+    timeout-minutes: 25
     defaults:
       run:
         working-directory: policy-engine/frontend/runtime-dashboard
     steps:
-      - uses: actions/checkout@v4
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Setup Policy Engine Python
+        uses: ./.github/actions/setup-policy-engine-python
         with:
-          node-version: "22"
-          cache: "npm"
-          cache-dependency-path: policy-engine/frontend/runtime-dashboard/package-lock.json
-      - name: Install dashboard dependencies
-        run: npm ci
+          profile: runtime
+
+      - name: Setup runtime dashboard
+        uses: ./.github/actions/setup-runtime-dashboard
+        with:
+          install-playwright: "true"
+
       - name: Typecheck dashboard
         run: npm run typecheck
+
       - name: Lint dashboard
         run: npm run lint
+
       - name: Check formatting
         run: npm run format:check
+
       - name: Check frontend architecture
         run: npm run check:architecture
+
       - name: Run coverage suite
         run: npm run test:coverage
+
       - name: Run accessibility suite
         run: npm run test:a11y
 
-  frontend-build:
+      - name: Upload accessibility artifacts
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: runtime-dashboard-a11y
+          path: |
+            policy-engine/frontend/runtime-dashboard/playwright-report
+            policy-engine/frontend/runtime-dashboard/test-results
+          if-no-files-found: warn
+          retention-days: 14
+
+  frontend-components:
+    name: Standard PR / Frontend component smoke
     runs-on: ubuntu-latest
-    needs: frontend-quality
+    timeout-minutes: 20
     defaults:
       run:
         working-directory: policy-engine/frontend/runtime-dashboard
     steps:
-      - uses: actions/checkout@v4
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Setup runtime dashboard
+        uses: ./.github/actions/setup-runtime-dashboard
         with:
-          node-version: "22"
-          cache: "npm"
-          cache-dependency-path: policy-engine/frontend/runtime-dashboard/package-lock.json
-      - name: Install dashboard dependencies
-        run: npm ci
+          install-playwright: "true"
+
+      - name: Build Storybook
+        run: npm run build-storybook
+
+      - name: Run Storybook interaction tests
+        run: npm run test:storybook
+
+  frontend-contracts:
+    name: Standard PR / Frontend contract drift
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: policy-engine
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Setup Policy Engine Python
+        uses: ./.github/actions/setup-policy-engine-python
+        with:
+          profile: runtime
+
+      - name: Setup runtime dashboard
+        uses: ./.github/actions/setup-runtime-dashboard
+
+      - name: Validate Playwright quarantine registry
+        run: uv run python tools/testing/check_playwright_quarantines.py
+
+      - name: Verify Runtime API contract drift
+        run: uv run --extra runtime --extra ml python tools/runtime/check_runtime_api_contract.py
+
+      - name: Verify dashboard API types are current
+        working-directory: policy-engine/frontend/runtime-dashboard
+        run: |
+          npm run generate:api
+          git diff --exit-code -- src/api/types.ts
+
+      - name: Verify runtime contract fixtures
+        working-directory: policy-engine/frontend/runtime-dashboard
+        run: npm run contracts:verify
+
       - name: Build dashboard
+        working-directory: policy-engine/frontend/runtime-dashboard
         env:
           SENTRY_AUTH_TOKEN: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && secrets.SENTRY_AUTH_TOKEN || '' }}
           SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
           SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
           VITE_SENTRY_RELEASE: ${{ github.sha }}
         run: npm run build
-      - name: Upload frontend security artifacts
-        uses: actions/upload-artifact@v4
+
+      - name: Upload frontend build security artifacts
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: frontend-build-security
           path: policy-engine/frontend/runtime-dashboard/dist/security
           if-no-files-found: warn
+          retention-days: 14
 
-  frontend-storybook:
+  frontend-smoke:
+    name: Standard PR / Frontend smoke
     runs-on: ubuntu-latest
-    needs: frontend-quality
-    defaults:
-      run:
-        working-directory: policy-engine/frontend/runtime-dashboard
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-          cache: "npm"
-          cache-dependency-path: policy-engine/frontend/runtime-dashboard/package-lock.json
-      - name: Install dashboard dependencies
-        run: npm ci
-      - name: Build Storybook
-        run: npm run build-storybook
-
-  frontend-storybook-tests:
-    runs-on: ubuntu-latest
-    needs: frontend-quality
-    defaults:
-      run:
-        working-directory: policy-engine/frontend/runtime-dashboard
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-          cache: "npm"
-          cache-dependency-path: policy-engine/frontend/runtime-dashboard/package-lock.json
-      - name: Install dashboard dependencies
-        run: npm ci
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium
-      - name: Run Storybook interaction tests
-        run: npm run test:storybook
-
-  frontend-bundle:
-    runs-on: ubuntu-latest
-    needs: frontend-quality
-    defaults:
-      run:
-        working-directory: policy-engine/frontend/runtime-dashboard
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-          cache: "npm"
-          cache-dependency-path: policy-engine/frontend/runtime-dashboard/package-lock.json
-      - name: Install dashboard dependencies
-        run: npm ci
-      - name: Build dashboard for bundle budgets
-        run: npm run build
-      - name: Check bundle budgets
-        run: npm run check:bundle
-
-  frontend-contracts:
-    runs-on: ubuntu-latest
-    needs:
-      - quality-and-unit
-      - frontend-quality
-    defaults:
-      run:
-        working-directory: policy-engine
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-          cache: "npm"
-          cache-dependency-path: policy-engine/frontend/runtime-dashboard/package-lock.json
-      - name: Install uv
-        uses: astral-sh/setup-uv@v3
-        with:
-          version: "latest"
-      - name: Sync environment
-        run: uv sync --frozen --extra dev --extra test --extra runtime-http
-      - name: Verify Runtime API contract drift
-        run: uv run python tools/runtime/check_runtime_api_contract.py
-      - name: Install dashboard dependencies
-        working-directory: policy-engine/frontend/runtime-dashboard
-        run: npm ci
-      - name: Verify dashboard API types are current
-        working-directory: policy-engine/frontend/runtime-dashboard
-        run: |
-          npm run generate:api
-          git diff --exit-code -- src/api/types.ts
-      - name: Verify runtime contract fixtures
-        working-directory: policy-engine/frontend/runtime-dashboard
-        run: npm run contracts:verify
-      - name: Build dashboard
-        working-directory: policy-engine/frontend/runtime-dashboard
-        run: npm run build
-
-  frontend-e2e-smoke:
-    runs-on: ubuntu-latest
+    timeout-minutes: 25
     needs:
       - runtime-http
-      - frontend-build
       - frontend-contracts
     defaults:
       run:
         working-directory: policy-engine
     steps:
-      - uses: actions/checkout@v4
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Setup Policy Engine Python
+        uses: ./.github/actions/setup-policy-engine-python
         with:
-          python-version: "3.11"
-      - name: Setup Node
-        uses: actions/setup-node@v4
+          profile: runtime
+
+      - name: Setup runtime dashboard
+        uses: ./.github/actions/setup-runtime-dashboard
         with:
-          node-version: "22"
-          cache: "npm"
-          cache-dependency-path: policy-engine/frontend/runtime-dashboard/package-lock.json
-      - name: Install uv
-        uses: astral-sh/setup-uv@v3
-        with:
-          version: "latest"
-      - name: Sync environment
-        run: uv sync --frozen --extra dev --extra test --extra runtime-http
-      - name: Install dashboard dependencies
-        working-directory: policy-engine/frontend/runtime-dashboard
-        run: npm ci
-      - name: Install Playwright browsers
-        working-directory: policy-engine/frontend/runtime-dashboard
-        run: npx playwright install --with-deps chromium
+          install-playwright: "true"
+
       - name: Run Playwright smoke tests
         working-directory: policy-engine/frontend/runtime-dashboard
         run: npm run test:e2e:smoke
 
-  frontend-visual:
-    runs-on: ubuntu-latest
-    needs:
-      - runtime-http
-      - frontend-build
-      - frontend-contracts
-    defaults:
-      run:
-        working-directory: policy-engine
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - name: Upload smoke artifacts
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          python-version: "3.11"
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-          cache: "npm"
-          cache-dependency-path: policy-engine/frontend/runtime-dashboard/package-lock.json
-      - name: Install uv
-        uses: astral-sh/setup-uv@v3
-        with:
-          version: "latest"
-      - name: Sync environment
-        run: uv sync --frozen --extra dev --extra test --extra runtime-http
-      - name: Install dashboard dependencies
-        working-directory: policy-engine/frontend/runtime-dashboard
-        run: npm ci
-      - name: Install Playwright browsers
-        working-directory: policy-engine/frontend/runtime-dashboard
-        run: npx playwright install --with-deps chromium
-      - name: Run Playwright visual tests
-        id: run_visual
-        working-directory: policy-engine/frontend/runtime-dashboard
-        run: |
-          export CI=1
-          npm run test:visual
-      - name: Summarize visual regression output
-        if: always()
-        working-directory: policy-engine/frontend/runtime-dashboard
-        run: npm run visual:report
-      - name: Upload visual regression artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: visual-diff-artifacts
+          name: runtime-dashboard-smoke
           path: |
             policy-engine/frontend/runtime-dashboard/playwright-report
             policy-engine/frontend/runtime-dashboard/test-results
-            policy-engine/frontend/runtime-dashboard/visual-regression-summary.md
           if-no-files-found: warn
-      - name: Comment visual regression summary
-        if: always() && github.event_name == 'pull_request'
-        uses: actions/github-script@v7
-        env:
-          SUMMARY_PATH: policy-engine/frontend/runtime-dashboard/visual-regression-summary.md
-        with:
-          script: |
-            const fs = require("fs");
-            const path = process.env.SUMMARY_PATH;
-            if (!fs.existsSync(path)) {
-              return;
-            }
-            const marker = "<!-- runtime-dashboard-visual -->";
-            const body = `${marker}\n${fs.readFileSync(path, "utf8")}\n\nArtifact: \`visual-diff-artifacts\``;
-            const { data: comments } = await github.rest.issues.listComments({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-            });
-            const existing = comments.find((comment) => comment.body?.includes(marker));
-            if (existing) {
-              await github.rest.issues.updateComment({
-                body,
-                comment_id: existing.id,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-              });
-              return;
-            }
-            await github.rest.issues.createComment({
-              body,
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-            });
+          retention-days: 14
 
-  frontend-lighthouse:
-    if: github.event_name == 'pull_request'
+  performance:
+    name: Standard PR / Performance
     runs-on: ubuntu-latest
-    needs:
-      - runtime-http
-      - frontend-quality
-      - frontend-contracts
+    timeout-minutes: 40
     defaults:
       run:
         working-directory: policy-engine
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-          cache: "npm"
-          cache-dependency-path: policy-engine/frontend/runtime-dashboard/package-lock.json
-      - name: Install uv
-        uses: astral-sh/setup-uv@v3
-        with:
-          version: "latest"
-      - name: Sync environment
-        run: uv sync --frozen --extra dev --extra test --extra runtime-http
-      - name: Install dashboard dependencies
-        working-directory: policy-engine/frontend/runtime-dashboard
-        run: npm ci
-      - name: Build dashboard for Lighthouse
-        working-directory: policy-engine/frontend/runtime-dashboard
-        env:
-          VITE_RUNTIME_API_URL: http://127.0.0.1:8000
-          VITE_DISABLE_RUNS_LIVE: "true"
-          VITE_SENTRY_RELEASE: ${{ github.sha }}
-        run: npm run build
-      - name: Start fixture runtime API
-        run: |
-          mkdir -p frontend/runtime-dashboard/.tmp
-          PYTHONPATH=src:. uv run --extra runtime-http python frontend/runtime-dashboard/scripts/serve_fixture_runtime_api.py --port 8000 --metadata-file frontend/runtime-dashboard/.tmp/fixture-runtime.json &
-          echo $! > /tmp/runtime-dashboard-fixture.pid
-      - name: Start dashboard preview server
-        working-directory: policy-engine/frontend/runtime-dashboard
-        env:
-          VITE_RUNTIME_API_URL: http://127.0.0.1:8000
-          VITE_DISABLE_RUNS_LIVE: "true"
-        run: |
-          npm run preview -- --host 127.0.0.1 --port 4173 &
-          echo $! > /tmp/runtime-dashboard-preview.pid
-      - name: Wait for Lighthouse servers
-        run: |
-          for target in http://127.0.0.1:8000/health http://127.0.0.1:4173; do
-            for attempt in $(seq 1 60); do
-              if curl -fsS "$target" >/dev/null; then
-                break
-              fi
-              if [ "$attempt" -eq 60 ]; then
-                echo "Timed out waiting for $target"
-                exit 1
-              fi
-              sleep 2
-            done
-          done
-      - name: Run Lighthouse CI
-        id: lighthouse
-        continue-on-error: true
-        working-directory: policy-engine/frontend/runtime-dashboard
-        run: npm run lighthouse:ci
-      - name: Summarize Lighthouse report
-        if: always()
-        working-directory: policy-engine/frontend/runtime-dashboard
-        run: npm run lighthouse:report
-      - name: Upload Lighthouse artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: lighthouse-report
-          path: |
-            policy-engine/frontend/runtime-dashboard/lighthouse-report
-            policy-engine/frontend/runtime-dashboard/lighthouse-summary.md
-          if-no-files-found: warn
-      - name: Comment Lighthouse summary
-        if: always() && github.event_name == 'pull_request'
-        uses: actions/github-script@v7
-        env:
-          SUMMARY_PATH: policy-engine/frontend/runtime-dashboard/lighthouse-summary.md
-        with:
-          script: |
-            const fs = require("fs");
-            const path = process.env.SUMMARY_PATH;
-            if (!fs.existsSync(path)) {
-              return;
-            }
-            const marker = "<!-- runtime-dashboard-lighthouse -->";
-            const body = `${marker}\n${fs.readFileSync(path, "utf8")}\n\nArtifact: \`lighthouse-report\``;
-            const { data: comments } = await github.rest.issues.listComments({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-            });
-            const existing = comments.find((comment) => comment.body?.includes(marker));
-            if (existing) {
-              await github.rest.issues.updateComment({
-                body,
-                comment_id: existing.id,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-              });
-              return;
-            }
-            await github.rest.issues.createComment({
-              body,
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-            });
-      - name: Stop Lighthouse services
-        if: always()
-        run: |
-          if [ -f /tmp/runtime-dashboard-preview.pid ]; then kill "$(cat /tmp/runtime-dashboard-preview.pid)" || true; fi
-          if [ -f /tmp/runtime-dashboard-fixture.pid ]; then kill "$(cat /tmp/runtime-dashboard-fixture.pid)" || true; fi
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-  frontend-bundle-diff:
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    needs: frontend-quality
-    defaults:
-      run:
-        working-directory: policy-engine/frontend/runtime-dashboard
-    steps:
-      - uses: actions/checkout@v4
+      - name: Setup Policy Engine Python
+        uses: ./.github/actions/setup-policy-engine-python
         with:
-          fetch-depth: 0
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-          cache: "npm"
-          cache-dependency-path: policy-engine/frontend/runtime-dashboard/package-lock.json
-      - name: Install dashboard dependencies
-        run: npm ci
-      - name: Build PR bundle stats
-        env:
-          VITE_SENTRY_RELEASE: ${{ github.sha }}
-        run: |
-          npm run build
-          node ./scripts/emit-bundle-stats.mjs ./dist/bundle-stats-head.json
-      - name: Prepare base worktree
-        working-directory: policy-engine
-        run: |
-          git fetch origin ${{ github.event.pull_request.base.sha }} --depth=1
-          git worktree add /tmp/runtime-dashboard-base ${{ github.event.pull_request.base.sha }}
-      - name: Install base dashboard dependencies
-        working-directory: /tmp/runtime-dashboard-base/policy-engine/frontend/runtime-dashboard
-        run: npm ci
-      - name: Build base bundle stats
-        working-directory: /tmp/runtime-dashboard-base/policy-engine/frontend/runtime-dashboard
-        env:
-          VITE_SENTRY_RELEASE: ${{ github.event.pull_request.base.sha }}
-        run: |
-          npm run build
-          node ./scripts/emit-bundle-stats.mjs ./dist/bundle-stats-base.json
-      - name: Compare bundle stats
-        run: |
-          node ./scripts/compare-bundle-stats.mjs /tmp/runtime-dashboard-base/policy-engine/frontend/runtime-dashboard/dist/bundle-stats-base.json ./dist/bundle-stats-head.json ./bundle-diff-summary.md
-      - name: Upload bundle diff artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: bundle-diff
-          path: |
-            policy-engine/frontend/runtime-dashboard/dist/bundle-stats-head.json
-            policy-engine/frontend/runtime-dashboard/bundle-diff-summary.md
-            /tmp/runtime-dashboard-base/policy-engine/frontend/runtime-dashboard/dist/bundle-stats-base.json
-          if-no-files-found: warn
-      - name: Comment bundle diff summary
-        if: always()
-        uses: actions/github-script@v7
-        env:
-          SUMMARY_PATH: policy-engine/frontend/runtime-dashboard/bundle-diff-summary.md
-        with:
-          script: |
-            const fs = require("fs");
-            const path = process.env.SUMMARY_PATH;
-            if (!fs.existsSync(path)) {
-              return;
-            }
-            const marker = "<!-- runtime-dashboard-bundle-diff -->";
-            const body = `${marker}\n${fs.readFileSync(path, "utf8")}\n\nArtifact: \`bundle-diff\``;
-            const { data: comments } = await github.rest.issues.listComments({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-            });
-            const existing = comments.find((comment) => comment.body?.includes(marker));
-            if (existing) {
-              await github.rest.issues.updateComment({
-                body,
-                comment_id: existing.id,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-              });
-              return;
-            }
-            await github.rest.issues.createComment({
-              body,
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-            });
-      - name: Remove base worktree
-        if: always()
-        working-directory: policy-engine
-        run: git worktree remove /tmp/runtime-dashboard-base --force
+          profile: runtime
 
-  frontend-audit:
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    needs: frontend-quality
-    defaults:
-      run:
-        working-directory: policy-engine/frontend/runtime-dashboard
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-          cache: "npm"
-          cache-dependency-path: policy-engine/frontend/runtime-dashboard/package-lock.json
-      - name: Install dashboard dependencies
-        run: npm ci
-      - name: Run npm audit
+      - name: Run performance suite
         run: |
-          npm audit --omit=dev --audit-level=high --json > npm-audit-raw.json || true
-      - name: Summarize dependency audit
-        run: npm run audit:ci
-      - name: Upload dependency audit artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: npm-audit-report
-          path: |
-            policy-engine/frontend/runtime-dashboard/npm-audit-raw.json
-            policy-engine/frontend/runtime-dashboard/npm-audit-report.json
-            policy-engine/frontend/runtime-dashboard/npm-audit-summary.md
-          if-no-files-found: warn
-      - name: Comment dependency audit summary
-        if: always()
-        uses: actions/github-script@v7
-        env:
-          SUMMARY_PATH: policy-engine/frontend/runtime-dashboard/npm-audit-summary.md
-        with:
-          script: |
-            const fs = require("fs");
-            const path = process.env.SUMMARY_PATH;
-            if (!fs.existsSync(path)) {
-              return;
-            }
-            const marker = "<!-- runtime-dashboard-audit -->";
-            const body = `${marker}\n${fs.readFileSync(path, "utf8")}\n\nArtifact: \`npm-audit-report\``;
-            const { data: comments } = await github.rest.issues.listComments({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-            });
-            const existing = comments.find((comment) => comment.body?.includes(marker));
-            if (existing) {
-              await github.rest.issues.updateComment({
-                body,
-                comment_id: existing.id,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-              });
-              return;
-            }
-            await github.rest.issues.createComment({
-              body,
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-            });
+          mkdir -p .tmp/test-reports
+          uv run pytest tests/performance -m "performance and not quarantine" --durations=25 --junitxml=.tmp/test-reports/performance.xml
 
-  frontend-gate:
-    runs-on: ubuntu-latest
-    needs:
-      - frontend-quality
-      - frontend-build
-      - frontend-storybook
-      - frontend-storybook-tests
-      - frontend-bundle
-      - frontend-contracts
-      - frontend-e2e-smoke
-      - frontend-visual
-    steps:
-      - name: Frontend gate complete
-        run: echo "frontend checks passed"
+      - name: Upload performance JUnit
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: junit-performance
+          path: policy-engine/.tmp/test-reports/performance.xml
+          if-no-files-found: warn
+          retention-days: 14
 
   integration:
+    name: Standard PR / Integration
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs:
-      - quality-and-unit
       - runtime-http
-      - frontend-gate
+      - frontend-smoke
     defaults:
       run:
         working-directory: policy-engine
     steps:
-      - uses: actions/checkout@v4
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Setup Policy Engine Python
+        uses: ./.github/actions/setup-policy-engine-python
         with:
-          python-version: "3.11"
-      - name: Install uv
-        uses: astral-sh/setup-uv@v3
+          profile: runtime
+
+      - name: Run integration suite
+        run: |
+          mkdir -p .tmp/test-reports
+          uv run pytest -m "integration and not quarantine" --ignore=tests/runtime/http --durations=25 --junitxml=.tmp/test-reports/integration.xml
+
+      - name: Upload integration JUnit
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          version: "latest"
-      - name: Sync environment
-        run: uv sync --frozen --extra dev --extra test --extra runtime-http
-      - name: pytest integration
-        run: uv run pytest -m integration
+          name: junit-integration
+          path: policy-engine/.tmp/test-reports/integration.xml
+          if-no-files-found: warn
+          retention-days: 14
+
+  test-economics:
+    name: Standard PR / Test economics
+    if: always()
+    runs-on: ubuntu-latest
+    needs:
+      - runtime-http
+      - performance
+      - integration
+    defaults:
+      run:
+        working-directory: policy-engine
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Setup Policy Engine Python
+        uses: ./.github/actions/setup-policy-engine-python
+        with:
+          profile: runtime
+
+      - name: Download runtime HTTP JUnit
+        if: always()
+        continue-on-error: true
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: junit-runtime-http
+          path: policy-engine/.tmp/test-reports
+
+      - name: Download performance JUnit
+        if: always()
+        continue-on-error: true
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: junit-performance
+          path: policy-engine/.tmp/test-reports
+
+      - name: Download integration JUnit
+        if: always()
+        continue-on-error: true
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: junit-integration
+          path: policy-engine/.tmp/test-reports
+
+      - name: Render economics summary
+        run: |
+          uv run python tools/testing/report_test_economics.py \
+            --report runtime-http=.tmp/test-reports/runtime-http.xml \
+            --report performance=.tmp/test-reports/performance.xml \
+            --report integration=.tmp/test-reports/integration.xml \
+            --allow-missing \
+            --output .tmp/test-reports/test-economics-summary.md
+          cat .tmp/test-reports/test-economics-summary.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload economics summary
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: test-economics-summary
+          path: policy-engine/.tmp/test-reports/test-economics-summary.md
+          if-no-files-found: warn
+          retention-days: 14
+
+  standard-pr-gate:
+    name: Standard PR / Gate
+    if: always()
+    runs-on: ubuntu-latest
+    needs:
+      - runtime-http
+      - frontend-quality
+      - frontend-components
+      - frontend-contracts
+      - frontend-smoke
+      - performance
+      - integration
+      - test-economics
+    steps:
+      - name: Enforce standard tier
+        env:
+          RESULTS: ${{ join(needs.*.result, ',') }}
+        run: |
+          echo "Standard tier results: ${RESULTS}"
+          if [[ "${RESULTS}" == *"failure"* || "${RESULTS}" == *"cancelled"* ]]; then
+            echo "::error::Standard PR gate failed."
+            exit 1
+          fi

@@ -1,39 +1,293 @@
-name: Frontend Nightly
+name: Nightly Platform
 
 on:
   schedule:
     - cron: "0 3 * * *"
+  workflow_dispatch:
 
 permissions:
   contents: read
 
+concurrency:
+  group: nightly-platform
+  cancel-in-progress: true
+
 jobs:
-  frontend-audit-nightly:
+  workflow-audit:
+    name: Nightly / Workflow audit
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Install actionlint
+        id: actionlint
+        run: |
+          echo "bin=$(policy-engine/tools/ci/install_actionlint.sh)" >> "$GITHUB_OUTPUT"
+
+      - name: Run actionlint
+        run: |
+          "${{ steps.actionlint.outputs.bin }}" -color
+
+      - name: Review workflow policy
+        run: python3 policy-engine/tools/ci/check_workflow_policy.py --repo-root . --summary .github/workflow-policy-summary-nightly.md
+
+      - name: Upload workflow audit summary
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: nightly-workflow-audit
+          path: .github/workflow-policy-summary-nightly.md
+          if-no-files-found: error
+          retention-days: 30
+
+  action-freshness:
+    name: Nightly / Action freshness
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Audit pinned action freshness
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 policy-engine/tools/ci/check_action_freshness.py \
+            --workflows-root .github/workflows \
+            --summary /tmp/nightly-action-freshness.md \
+            --json-output /tmp/nightly-action-freshness.json
+
+      - name: Upload action freshness audit
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: nightly-action-freshness
+          path: |
+            /tmp/nightly-action-freshness.md
+            /tmp/nightly-action-freshness.json
+          if-no-files-found: error
+          retention-days: 30
+
+  benchmark-contours:
+    name: Nightly / Benchmark contours
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    defaults:
+      run:
+        working-directory: policy-engine
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Setup Policy Engine Python
+        uses: ./.github/actions/setup-policy-engine-python
+        with:
+          extras: "all"
+
+      - name: Run benchmark contours
+        env:
+          BENCH_MODE: smoke
+          BENCH_JSON_ROOT: /tmp/polisyos-benchmarks/nightly
+        run: bash tools/validation/run_benchmark_contours.sh
+
+      - name: Upload benchmark summaries
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: nightly-benchmark-contours
+          path: /tmp/polisyos-benchmarks/nightly
+          if-no-files-found: error
+          retention-days: 30
+
+  frontend-lighthouse-and-bundle:
+    name: Nightly / Frontend lighthouse and bundle
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: policy-engine
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Setup Policy Engine Python
+        uses: ./.github/actions/setup-policy-engine-python
+        with:
+          profile: runtime
+
+      - name: Setup runtime dashboard
+        uses: ./.github/actions/setup-runtime-dashboard
+
+      - name: Build dashboard for bundle budgets
+        working-directory: policy-engine/frontend/runtime-dashboard
+        env:
+          VITE_RUNTIME_API_URL: http://127.0.0.1:8000
+          VITE_DISABLE_RUNS_LIVE: "true"
+          VITE_SENTRY_RELEASE: ${{ github.sha }}
+        run: npm run build
+
+      - name: Check bundle budgets
+        working-directory: policy-engine/frontend/runtime-dashboard
+        run: npm run check:bundle
+
+      - name: Start fixture runtime API
+        run: |
+          mkdir -p frontend/runtime-dashboard/.tmp
+          PYTHONPATH=src:. uv run --extra runtime-http python frontend/runtime-dashboard/scripts/serve_fixture_runtime_api.py --port 8000 --metadata-file frontend/runtime-dashboard/.tmp/fixture-runtime.json &
+          echo $! > /tmp/runtime-dashboard-fixture.pid
+
+      - name: Start dashboard preview server
+        working-directory: policy-engine/frontend/runtime-dashboard
+        env:
+          VITE_RUNTIME_API_URL: http://127.0.0.1:8000
+          VITE_DISABLE_RUNS_LIVE: "true"
+        run: |
+          npm run preview -- --host 127.0.0.1 --port 4173 &
+          echo $! > /tmp/runtime-dashboard-preview.pid
+
+      - name: Wait for Lighthouse services
+        run: |
+          set -euo pipefail
+          for target in http://127.0.0.1:8000/health http://127.0.0.1:4173; do
+            for attempt in $(seq 1 60); do
+              if curl -fsS "${target}" >/dev/null; then
+                break
+              fi
+              if [[ "${attempt}" -eq 60 ]]; then
+                echo "Timed out waiting for ${target}"
+                exit 1
+              fi
+              sleep 2
+            done
+          done
+
+      - name: Run Lighthouse CI
+        working-directory: policy-engine/frontend/runtime-dashboard
+        run: npm run lighthouse:ci
+
+      - name: Summarize Lighthouse report
+        if: always()
+        working-directory: policy-engine/frontend/runtime-dashboard
+        run: npm run lighthouse:report
+
+      - name: Upload nightly frontend benchmark artifacts
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: nightly-frontend-benchmarks
+          path: |
+            policy-engine/frontend/runtime-dashboard/lighthouse-report
+            policy-engine/frontend/runtime-dashboard/lighthouse-summary.md
+            policy-engine/frontend/runtime-dashboard/dist/security
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Stop Lighthouse services
+        if: always()
+        run: |
+          if [[ -f /tmp/runtime-dashboard-preview.pid ]]; then kill "$(cat /tmp/runtime-dashboard-preview.pid)" || true; fi
+          if [[ -f /tmp/runtime-dashboard-fixture.pid ]]; then kill "$(cat /tmp/runtime-dashboard-fixture.pid)" || true; fi
+
+  dependency-audit:
+    name: Nightly / Supply-chain audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Install supply-chain tooling
+        id: tools
+        run: |
+          echo "bin=$(policy-engine/tools/ci/install_supply_chain_tools.sh)" >> "$GITHUB_OUTPUT"
+
+      - name: Generate repository SBOM
+        run: |
+          "${{ steps.tools.outputs.bin }}/syft" dir:. -o cyclonedx-json=/tmp/nightly-sbom.cdx.json
+
+      - name: Generate vulnerability report
+        run: |
+          "${{ steps.tools.outputs.bin }}/grype" sbom:/tmp/nightly-sbom.cdx.json -o json > /tmp/nightly-grype.json
+
+      - name: Evaluate vulnerability policy
+        run: python3 policy-engine/tools/release/evaluate_vuln_report.py --report /tmp/nightly-grype.json --exceptions policy-engine/release/cve-exceptions.toml --summary /tmp/nightly-vulnerability-policy.md
+
+      - name: Upload supply-chain audit artifacts
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: nightly-supply-chain-audit
+          path: |
+            /tmp/nightly-sbom.cdx.json
+            /tmp/nightly-grype.json
+            /tmp/nightly-vulnerability-policy.md
+          if-no-files-found: error
+          retention-days: 30
+
+  frontend-dependency-audit:
+    name: Nightly / Frontend dependency audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
     defaults:
       run:
         working-directory: policy-engine/frontend/runtime-dashboard
     steps:
-      - uses: actions/checkout@v4
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-          cache: "npm"
-          cache-dependency-path: policy-engine/frontend/runtime-dashboard/package-lock.json
-      - name: Install dashboard dependencies
-        run: npm ci
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Setup runtime dashboard
+        uses: ./.github/actions/setup-runtime-dashboard
+
       - name: Run full npm audit
-        run: |
-          npm audit --audit-level=high --json > npm-audit-raw.json || true
+        run: npm audit --audit-level=high --json > npm-audit-raw.json || true
+
       - name: Summarize nightly dependency audit
         run: npm run audit:ci
-      - name: Upload nightly audit artifacts
-        uses: actions/upload-artifact@v4
+
+      - name: Upload frontend dependency audit artifacts
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: npm-audit-report-nightly
+          name: nightly-frontend-dependency-audit
           path: |
             policy-engine/frontend/runtime-dashboard/npm-audit-raw.json
             policy-engine/frontend/runtime-dashboard/npm-audit-report.json
             policy-engine/frontend/runtime-dashboard/npm-audit-summary.md
           if-no-files-found: warn
+          retention-days: 30
+
+  scorecard:
+    name: Nightly / OpenSSF Scorecard
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Run OpenSSF Scorecard
+        uses: ossf/scorecard-action@99c09fe975337306107572b4fdf4db224cf8e2f2 # v2.4.3
+        with:
+          results_file: /tmp/scorecard.sarif
+          results_format: sarif
+          publish_results: false
+
+      - name: Upload SARIF to GitHub Security
+        uses: github/codeql-action/upload-sarif@3e6af16ff035267728e2ebc35df5d4c4cf249f81 # v3.30.3
+        with:
+          sarif_file: /tmp/scorecard.sarif
+
+      - name: Upload Scorecard SARIF
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: nightly-scorecard
+          path: /tmp/scorecard.sarif
+          if-no-files-found: error
+          retention-days: 30

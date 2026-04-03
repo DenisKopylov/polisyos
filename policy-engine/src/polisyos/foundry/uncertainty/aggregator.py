@@ -1,4 +1,4 @@
-"""Public uncertainty aggregator module API."""
+"""Combine multiple uncertainty envelopes into one downstream-facing summary envelope."""
 from __future__ import annotations
 
 import math
@@ -18,7 +18,7 @@ from .covariance import extract_std
 
 
 class AggregationStrategy(str, Enum):
-    """Aggregation strategy data model."""
+    """Choose how competing uncertainty envelopes should be merged for downstream use."""
     WIDEST = "widest"
     PRECISION_WEIGHTED = "precision_weighted"
     BAYESIAN_COMBINATION = "bayesian_combination"
@@ -30,7 +30,7 @@ def aggregate_envelopes(
     method: str = "widest",
     confidence_level: float = 0.95,
 ) -> UncertaintyEnvelope:
-    """Aggregate envelopes helper."""
+    """Merge several envelopes into one summary interval for reports or gates."""
     if not envelopes:
         raise ValueError("Cannot aggregate empty envelope list")
     if len(envelopes) == 1:

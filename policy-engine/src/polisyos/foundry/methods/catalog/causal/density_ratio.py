@@ -47,7 +47,7 @@ DEFAULT_DISTRIBUTIONAL_TAIL_PROBS = (0.90, 0.95)
 
 @dataclass(frozen=True)
 class ScalarDiscreteMeasure:
-    """Scalar discrete measure public type."""
+    """Represent one finite-support scalar distribution used by transport/density-ratio utilities."""
     bin_edges: np.ndarray
     support: np.ndarray
     probabilities: np.ndarray

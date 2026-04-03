@@ -1,4 +1,4 @@
-"""Public bayesian protocols module API."""
+"""Define posterior-result contracts and small sampling utilities for Bayesian methods."""
 from __future__ import annotations
 
 from typing import Any, ClassVar, Mapping
@@ -16,7 +16,7 @@ from polisyos.ir.analytics.uncertainty import (
 
 
 class PosteriorResult(BaseModel):
-    """Posterior result data model."""
+    """Store posterior draws, intervals, diagnostics, and model metadata."""
     contract_id: ClassVar[str] = "foundry.bayesian.posterior_result.v1"
     model_config = ConfigDict(extra="forbid", frozen=True, arbitrary_types_allowed=True)
 

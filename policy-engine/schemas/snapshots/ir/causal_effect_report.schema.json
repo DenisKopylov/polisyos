@@ -1,6 +1,7 @@
 {
   "$defs": {
     "BoundMethod": {
+      "description": "Bound method public type.",
       "enum": [
         "manski_bounds",
         "transport_bounds",
@@ -21,6 +22,7 @@
       "type": "string"
     },
     "CausalMethod": {
+      "description": "Declare which estimator family produced a ``CausalEffectReport``.\n\nReporting, diagnostics, and uncertainty conversion use this enum to explain\nestimator provenance and to select method-specific governance checks.",
       "enum": [
         "synthetic_control",
         "difference_in_differences",
@@ -53,6 +55,7 @@
     },
     "DataGap": {
       "additionalProperties": false,
+      "description": "Data gap public type.",
       "properties": {
         "available_proxies": {
           "items": {
@@ -94,6 +97,7 @@
     },
     "DiagnosticTest": {
       "additionalProperties": false,
+      "description": "Named diagnostic emitted alongside a causal estimate.",
       "properties": {
         "details": {
           "additionalProperties": true,
@@ -143,6 +147,7 @@
       "type": "object"
     },
     "DistributionType": {
+      "description": "Distribution type public type.",
       "enum": [
         "point",
         "empirical",
@@ -154,6 +159,7 @@
       "type": "string"
     },
     "EstimationStatus": {
+      "description": "Report whether a causal run produced decision-grade output or failed a gate.\n\n``CausalEffectReport`` and its uncertainty conversion read this enum to\ndecide whether an estimate is gate-eligible or should emit a non-actionable\nfailure envelope.",
       "enum": [
         "success",
         "input_invalid",
@@ -164,6 +170,7 @@
       "type": "string"
     },
     "PAGIdentificationPolicy": {
+      "description": "PAG identification policy data model.",
       "enum": [
         "conservative",
         "optimistic",
@@ -505,6 +512,7 @@
     },
     "PlaceboResult": {
       "additionalProperties": false,
+      "description": "Per-unit placebo diagnostic for synthetic-control style methods.",
       "properties": {
         "effect_estimate": {
           "title": "Effect Estimate",
@@ -617,6 +625,7 @@
     },
     "RefutationResult": {
       "additionalProperties": false,
+      "description": "Outcome of a single causal refutation or robustness check.",
       "properties": {
         "details": {
           "additionalProperties": true,
@@ -668,6 +677,7 @@
       "type": "object"
     },
     "RefutationTestType": {
+      "description": "Identify which robustness/refutation check generated a diagnostic result.",
       "enum": [
         "placebo_treatment",
         "random_common_cause",
@@ -680,6 +690,7 @@
     },
     "SNode": {
       "additionalProperties": false,
+      "description": "S node implementation.",
       "properties": {
         "context_dimension": {
           "title": "Context Dimension",
@@ -764,6 +775,7 @@
       "type": "object"
     },
     "SNodeOrigin": {
+      "description": "Classify why a selection node appears in a transportability diagram.",
       "enum": [
         "context_delta",
         "legal",
@@ -773,6 +785,7 @@
       "type": "string"
     },
     "SNodeRole": {
+      "description": "Declare the causal role used when deciding whether an S-node is adjustable.",
       "enum": [
         "pre_treatment_covariate",
         "mediator",
@@ -784,6 +797,7 @@
     },
     "StratificationVariable": {
       "additionalProperties": false,
+      "description": "Stratification variable public type.",
       "properties": {
         "condition_on_treatment": {
           "anyOf": [
@@ -819,6 +833,7 @@
     },
     "TransportFormula": {
       "additionalProperties": false,
+      "description": "Transport formula public type.",
       "properties": {
         "adjustment_type": {
           "default": "direct",
@@ -865,6 +880,7 @@
       "type": "object"
     },
     "TransportMode": {
+      "description": "Describe the execution path implied by a ``TransportabilityResult``.",
       "enum": [
         "direct",
         "transport_formula",
@@ -876,7 +892,7 @@
     },
     "TransportabilityResult": {
       "additionalProperties": false,
-      "description": "Phase 13 transportability contract with legacy-read compatibility.",
+      "description": "Persist the transportability decision, formula, and fallback diagnostics.\n\nReadiness gates and reporting layers inspect ``status`` and\n``transport_mode`` to decide whether a query can be transported directly,\nrequires a transport formula, falls back to bounds, or is unsupported. The\nmodel also upgrades legacy payload aliases so older persisted artifacts can\nstill be read during migration.",
       "properties": {
         "algorithm_version": {
           "default": "trso_v2",
@@ -1261,6 +1277,7 @@
       "type": "object"
     },
     "TransportabilityStatus": {
+      "description": "Report whether transportability is identified, bounded, or blocked.\n\nReadiness gates and reporting code inspect this status to decide whether a\ntransported estimate can proceed directly, requires partial-identification\nfallback, or must be treated as unsupported.",
       "enum": [
         "identified",
         "partially_identified",
@@ -1272,6 +1289,7 @@
     }
   },
   "additionalProperties": false,
+  "description": "Canonical causal effect artifact emitted by Foundry methods.\n\nCombines the estimand, point estimate, uncertainty, diagnostics, placebo\nchecks, and transportability context needed by Scientist governance and\ndownstream reporting.",
   "properties": {
     "assumptions": {
       "additionalProperties": {

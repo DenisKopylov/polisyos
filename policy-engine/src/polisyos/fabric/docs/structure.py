@@ -1,4 +1,9 @@
-"""Public docs structure module API."""
+"""Generic document structure stage for heading and section anchors.
+
+The stage reads ``DocMeta.normalized_ref``, extracts lightweight anchors, persists
+``DocFragment`` rows, stores a structure artifact, and emits provenance so downstream claim
+extractors can cite document spans deterministically.
+"""
 from __future__ import annotations
 
 import re
@@ -155,7 +160,12 @@ def structure_doc(
     options: DocStructureOptions | None = None,
     segment_name: str | None = None,
 ) -> DocStructureResult:
-    """Structure doc helper."""
+    """Extract generic section anchors from normalized text and persist ``DocFragment`` rows.
+
+    Raises:
+        DocNotReadyError: If ``DocMeta.normalized_ref`` is missing.
+        DocValidationError: If the normalized payload is malformed.
+    """
     opts = options or DocStructureOptions()
 
     meta = _load_doc_meta(cas, doc_meta_artifact_id)

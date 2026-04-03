@@ -16,7 +16,8 @@ The `polisyos.scientist.causal` package provides pure runner-style APIs used by 
 
 ## Execution API
 
+::: polisyos.scientist.causal
+
 ::: polisyos.scientist.causal.execution
 
 ::: polisyos.scientist.causal.readiness
-

@@ -1,4 +1,4 @@
-"""Public world event module API."""
+"""Provenance-event contracts for world graph agents, activities, inputs, and outputs."""
 from __future__ import annotations
 
 from datetime import datetime
@@ -98,7 +98,7 @@ class ProvActivity(KernelModel):
 
 
 class WorldObjectRef(KernelModel):
-    """World object ref data model."""
+    """Point a provenance edge at either a world object id or the artifact that produced it."""
     world_id: str | None = Field(None, pattern=ID_PATTERN)
     artifact_id: str | None = Field(None, pattern=ARTIFACT_ID_PATTERN)
 
@@ -110,7 +110,7 @@ class WorldObjectRef(KernelModel):
 
 
 class WorldEvent(KernelModel):
-    """World event data model."""
+    """Capture one immutable pipeline event after its ids, inputs, and outputs are stable enough to persist."""
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     event_id: str = Field(..., pattern=ID_PATTERN)
     event_kind: EventKind

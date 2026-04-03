@@ -1,4 +1,4 @@
-"""Public ml regression module API."""
+"""Estimate tabular regression models and return prediction/error summaries."""
 from __future__ import annotations
 
 from typing import Any, ClassVar, Mapping
@@ -96,7 +96,7 @@ def _build_prediction_result(
     tags={"ml", "regression", "elastic-net"},
 )
 class ElasticNetEstimator:
-    """Elastic net estimator implementation."""
+    """Fit sparse linear regression with L1/L2 regularization; avoid strongly nonlinear response surfaces without feature engineering."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("scikit-learn", "numpy")
 
@@ -183,7 +183,7 @@ class ElasticNetEstimator:
     tags={"ml", "regression", "random-forest"},
 )
 class RandomForestEstimator:
-    """Random forest estimator implementation."""
+    """Fit nonlinear tabular regression with tree ensembles; avoid extrapolation far outside training support."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("scikit-learn", "numpy")
 
@@ -273,7 +273,7 @@ class RandomForestEstimator:
     tags={"ml", "regression", "gradient-boosting"},
 )
 class GradientBoostingEstimator:
-    """Gradient boosting estimator implementation."""
+    """Fit boosted-tree regression for nonlinear tabular structure; avoid tiny noisy datasets that overfit shallow trees."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("scikit-learn", "numpy")
 

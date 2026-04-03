@@ -47,7 +47,7 @@ class TemporalThresholds:
 
 @dataclass(frozen=True)
 class TemporalEvaluationResult:
-    """Temporal evaluation result data model."""
+    """Evaluation readout comparing a predicted temporal path to expected effects and gating checks."""
     scenario: BacktestScenario
     pointwise_metrics: dict[str, float]
     functional_metrics: dict[str, float]
@@ -382,7 +382,7 @@ def build_temporal_backtest_report(
 
 
 def allowed_temporal_rejection_reason_codes() -> tuple[str, ...]:
-    """Allowed temporal rejection reason codes helper."""
+    """Return the rejection reason codes treated as safe or expected for temporal backtests."""
     return tuple(sorted(_REJECTION_ALLOWED_REASON_CODES))
 
 

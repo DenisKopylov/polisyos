@@ -616,7 +616,7 @@ _VAR_SPLIT_RE = re.compile(r"[^a-z0-9]+")
 
 @dataclass
 class ResolveExtractStats:
-    """Resolve extract stats public type."""
+    """Cumulative counters and latency samples for resolve/extract passes."""
     records: int = 0
     fulltext_resolved: int = 0
     abstract_only: int = 0
@@ -659,7 +659,7 @@ class ResolveExtractStats:
 
 @dataclass
 class WorkItem:
-    """Work item public type."""
+    """Selected OpenAlex work plus topic routing metadata for resolve/extract scheduling."""
     work: dict[str, Any]
     work_id: str
     topic_id: str
@@ -671,7 +671,7 @@ class WorkItem:
 
 @dataclass
 class EligibleItem:
-    """Eligible item public type."""
+    """Full-text work payload annotated with source quality and LLM/context eligibility flags."""
     work_item: WorkItem
     text: str
     source_kind: str
@@ -684,7 +684,7 @@ class EligibleItem:
 
 @dataclass(frozen=True)
 class EligibilityDecision:
-    """Eligibility decision public type."""
+    """Binary routing decision and rejection reasons for one resolve/extract candidate."""
     llm_eligible: bool
     context_eligible: bool
     rejection_reasons: list[str]
@@ -692,7 +692,7 @@ class EligibilityDecision:
 
 @dataclass
 class ProviderResponse:
-    """Provider response data model."""
+    """Normalized LLM provider response, retry metadata, and parse status for one extraction call."""
     parsed: dict[str, Any]
     usage: dict[str, Any]
     http_status: int
@@ -4182,7 +4182,12 @@ async def _run_targeted_extraction_pass(config: AcademicBatchConfig) -> dict[str
 
 
 async def run_resolve_extract(config: AcademicBatchConfig) -> dict[str, float | int]:
-    """Run resolve extract."""
+    """Run one or more resolve/extract passes with retry throttling and targeted follow-up.
+
+    The function aggregates per-pass metrics, halves retry-lane concurrency/rate limits for
+    follow-up passes, persists timeout retry queues when enabled, and can enqueue benchmark-driven
+    targeted extraction for unsupported causal pairs.
+    """
     started_at = datetime.now(UTC).isoformat()
     max_followup_passes = max(0, int(config.article_retryable_followup_passes))
     followup_delay_seconds = max(0.0, float(config.article_retryable_followup_delay_seconds))

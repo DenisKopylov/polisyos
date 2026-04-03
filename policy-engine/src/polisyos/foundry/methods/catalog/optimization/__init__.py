@@ -1,4 +1,4 @@
-"""Public catalog optimization package API."""
+"""Expose optimization methods and register them into the shared Foundry catalog."""
 from __future__ import annotations
 
 from polisyos.foundry.methods.exceptions import MethodAlreadyRegisteredError
@@ -30,7 +30,7 @@ from .protocols import (
 
 
 def ensure_optimization_methods_registered(registry: MethodRegistry | None = None) -> None:
-    """Ensure optimization methods registered helper."""
+    """Populate `registry` with optimization methods for planners and catalog snapshots."""
     reg = registry if registry is not None else MethodRegistry.get_instance()
     for method_class in register_optimization_methods():
         try:

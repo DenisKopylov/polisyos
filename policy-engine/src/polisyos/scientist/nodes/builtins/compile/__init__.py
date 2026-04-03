@@ -1,4 +1,4 @@
-"""Public builtins compile package API."""
+"""Compile-stage node facade for Trinity linking, policy formalization, and Foundry compilation."""
 from __future__ import annotations
 
 from .compile_foundry import CompileFoundryNode

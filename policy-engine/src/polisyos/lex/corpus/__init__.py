@@ -1,4 +1,4 @@
-"""Public lex corpus package API."""
+"""Facade for legal-document ingest, structure, and corpus indexing artifacts."""
 from __future__ import annotations
 
 from .index import (

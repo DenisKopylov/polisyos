@@ -1,6 +1,7 @@
 {
   "$defs": {
     "TrustTier": {
+      "description": "Trust tier public type.",
       "enum": [
         "high",
         "medium",
@@ -11,6 +12,7 @@
     }
   },
   "additionalProperties": false,
+  "description": "Trust assessment public type.",
   "properties": {
     "algorithm_version": {
       "title": "Algorithm Version",

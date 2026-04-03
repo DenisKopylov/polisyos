@@ -1,4 +1,11 @@
-"""Public compile api module API."""
+"""Compile Trinity policy bundles into CAS-backed Foundry execution plans.
+
+This module owns the public `compile()` entrypoint used by Scientist runtime
+nodes and tutorials. It accepts only `CompileRequest` payloads whose
+`policy_ref.kind` points to an `ir.trinity_bundle`, resolves the Trinity
+compiler backend deterministically, and persists a `CompileReport` failure
+envelope when compilation cannot produce an executable plan.
+"""
 from __future__ import annotations
 
 from polisyos.core.artifacts.manifest import InputRef
@@ -11,8 +18,40 @@ def compile(store: FileSystemCAS, request: CompileRequest) -> CompileResult:
     """Compile a Trinity bundle into a Foundry execution plan.
 
     The current public surface accepts only Trinity-backed compile requests and
-    returns a structured `CompileResult`, including a failure report when
-    compilation cannot complete.
+    returns a structured `CompileResult`. Successful compilation writes
+    `foundry.program_graph`, `foundry.exec_plan`, `foundry.slot_layout`,
+    `foundry.treasury_plan`, and a `CompileReport` artifact into CAS. Failures
+    are converted into `CompileResult(ok=False, exec_plan_ref=None, ...)`
+    envelopes with a persisted `compile_report_ref`.
+
+    Compilation is expected to be deterministic for identical CAS inputs and
+    compile flags. Requests with unsupported `policy_ref.kind` or
+    `input_kind` do not raise to callers; they return a failure result whose
+    report notes include the validation error.
+
+    Args:
+        store: Content-addressed artifact store that contains the Trinity
+            bundle and optional registry bundle, and receives derived compile
+            artifacts.
+        request: Compile contract referencing the policy bundle, registry
+            bundle, validation flags, and compile-time determinism settings.
+
+    Returns:
+        `CompileResult` with `ok=True` and `exec_plan_ref` on success, or
+        `ok=False` plus `compile_report_ref` and explanatory `notes` on any
+        compile failure.
+
+    Example:
+        ```python
+        from polisyos.core.contracts.foundry import CompileRequest
+        from polisyos.foundry import compile
+
+        result = compile(store, CompileRequest(policy_ref=trinity_bundle_ref))
+        if not result.ok:
+            report = store.get_bytes(result.compile_report_ref.artifact_id)
+        else:
+            exec_plan_ref = result.exec_plan_ref
+        ```
     """
 
     try:
@@ -25,7 +64,12 @@ def compile(store: FileSystemCAS, request: CompileRequest) -> CompileResult:
 
 
 def _resolve_compiler(request: CompileRequest) -> str:
-    """Resolve compiler backend for Trinity-only Foundry pipeline."""
+    """Resolve the compiler backend for the Trinity-only Foundry pipeline.
+
+    Raises:
+        ValueError: If `request.policy_ref.kind` is not `ir.trinity_bundle` or
+            `request.input_kind` is neither `trinity` nor `auto`.
+    """
     kind = request.policy_ref.kind
     if kind != "ir.trinity_bundle":
         raise ValueError(
@@ -41,6 +85,7 @@ def _resolve_compiler(request: CompileRequest) -> str:
 def _compile_exception(
     store: FileSystemCAS, request: CompileRequest, exc: Exception
 ) -> CompileResult:
+    """Persist a compile failure report and return the corresponding envelope."""
     notes = [f"compile_exception:{type(exc).__name__}:{exc}"]
     compile_report = CompileReport(
         ok=False,

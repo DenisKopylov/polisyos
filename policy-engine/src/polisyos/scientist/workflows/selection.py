@@ -1,4 +1,9 @@
-"""Public workflows selection module API."""
+"""Workflow-routing rules that map `ExperimentState` into a builtin DAG id.
+
+The selector treats explicit `params.workflow_id` as authoritative when it
+matches a supported DAG, otherwise it escalates based on execution profile,
+policy/discovery inputs, and evidence/transport hints.
+"""
 from __future__ import annotations
 
 from typing import Any, Mapping
@@ -23,7 +28,15 @@ _SERIOUS_EXECUTION_PROFILES: frozenset[str] = frozenset({"research", "governed",
 
 
 def resolve_workflow_id(initial_state: ExperimentState) -> str:
-    """Resolve workflow id."""
+    """Infer the best builtin workflow for the supplied state payload.
+
+    Args:
+        initial_state: State envelope containing `inputs`, `params`, and
+            optional `execution_profile` hints.
+
+    Returns:
+        Builtin workflow id consumed by `polisyos.scientist.workflows.builder`.
+    """
     explicit = str(initial_state.params.get("workflow_id", "") or "").strip().lower()
     if explicit == "scientist_discovery":
         return "scientist_discovery"

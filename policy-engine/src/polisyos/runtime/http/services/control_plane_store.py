@@ -1,4 +1,4 @@
-"""Public services control plane store module API."""
+"""Persist durable control jobs, worker leases, and outbox events in SQLite/PostgreSQL."""
 from __future__ import annotations
 
 import json
@@ -46,7 +46,7 @@ def _job_event_topic(event_type: str) -> str:
 
 @dataclass(frozen=True)
 class ControlJobRecord:
-    """Control job record data model."""
+    """Represent one durable background job and its execution/profile metadata."""
     job_id: str
     kind: ControlJobKind
     state: ControlJobState
@@ -68,6 +68,7 @@ class ControlJobRecord:
     progress: dict[str, Any]
 
     def to_response(self, *, request_id: str | None = None) -> ControlJobResponse:
+        """Convert a durable row snapshot into the public `ControlJobResponse` contract."""
         manifest_ref = None
         if self.capability_manifest_ref:
             manifest_ref = ArtifactRef(
@@ -95,7 +96,7 @@ class ControlJobRecord:
 
 @dataclass(frozen=True)
 class ControlWorkerLeaseRecord:
-    """Control worker lease record data model."""
+    """Report one worker heartbeat/lease row exposed by control-plane diagnostics."""
     worker_id: str
     state: str
     backend: str | None
@@ -109,7 +110,7 @@ class ControlWorkerLeaseRecord:
 
 @dataclass(frozen=True)
 class ControlOutboxRecord:
-    """Control outbox record data model."""
+    """Represent one deduplicated durable outbox event awaiting publication."""
     event_id: str
     topic: str
     event_key: str | None
@@ -124,7 +125,12 @@ class ControlOutboxRecord:
 
 
 class ControlPlaneStore:
-    """Control plane store implementation."""
+    """Store control jobs and leases with a backend-specific SQL schema.
+
+    The store appends job lifecycle events, maintains idempotent outbox rows,
+    and returns domain records consumed by `ControlPlaneService` and
+    `/api/v1/control/*` routes.
+    """
     def __init__(
         self,
         *,
@@ -165,6 +171,7 @@ class ControlPlaneStore:
         payload_ref: str | None,
         submitted_by: str | None,
     ) -> ControlJobRecord:
+        """Insert a pending job, initialize progress/event rows, and enqueue a created outbox event."""
         created_at = _utc_now()
         progress = {}
         sql = """
@@ -204,6 +211,7 @@ class ControlPlaneStore:
         return record
 
     def get_job(self, job_id: str) -> ControlJobRecord | None:
+        """Return one job record by ID or `None` when absent."""
         row = self._fetchone(
             """
             SELECT
@@ -237,6 +245,7 @@ class ControlPlaneStore:
         return self._row_to_record(row)
 
     def get_job_by_pipeline(self, pipeline_id: str) -> ControlJobRecord | None:
+        """Return the job record associated with one Lex pipeline ID."""
         row = self._fetchone(
             """
             SELECT
@@ -270,6 +279,7 @@ class ControlPlaneStore:
         return self._row_to_record(row)
 
     def append_event(self, *, job_id: str, event_type: str, payload: dict[str, Any]) -> None:
+        """Append one immutable job lifecycle/progress event row."""
         self._execute(
             """
             INSERT INTO control_job_events (job_id, event_type, payload_json, created_at)
@@ -279,6 +289,7 @@ class ControlPlaneStore:
         )
 
     def upsert_progress(self, *, job_id: str, progress: dict[str, Any]) -> None:
+        """Create or replace the latest JSON progress snapshot for one job."""
         now = _iso(_utc_now())
         progress_json = json.dumps(progress, sort_keys=True)
         if self.backend == "sqlite":
@@ -310,6 +321,7 @@ class ControlPlaneStore:
         worker_id: str,
         lease_seconds: int = 60,
     ) -> ControlJobRecord | None:
+        """Lease the next pending/expired job for one worker and emit a running event."""
         if self.backend == "sqlite":
             record = self._lease_next_sqlite(worker_id=worker_id, lease_seconds=lease_seconds)
         else:
@@ -329,6 +341,7 @@ class ControlPlaneStore:
         return record
 
     def mark_running(self, *, job_id: str, worker_id: str, lease_seconds: int = 60) -> None:
+        """Force a specific job into `running` state and assign a lease owner."""
         now = _utc_now()
         lease_expires_at = now + timedelta(seconds=max(lease_seconds, 1))
         self._execute(
@@ -370,6 +383,7 @@ class ControlPlaneStore:
         capability_manifest_ref: str | None = None,
         progress: dict[str, Any] | None = None,
     ) -> None:
+        """Mark one job completed, clear lease/error state, and emit completion events."""
         now = _utc_now()
         self._execute(
             """
@@ -400,6 +414,7 @@ class ControlPlaneStore:
         capability_manifest_ref: str | None = None,
         progress: dict[str, Any] | None = None,
     ) -> None:
+        """Mark one job failed, persist a truncated error message, and emit failure events."""
         now = _utc_now()
         self._execute(
             """
@@ -430,6 +445,7 @@ class ControlPlaneStore:
             )
 
     def update_manifest_ref(self, *, job_id: str, capability_manifest_ref: str) -> None:
+        """Update the persisted capability-manifest ref for an existing job."""
         self._execute(
             "UPDATE control_jobs SET capability_manifest_ref = ? WHERE job_id = ?",
             (capability_manifest_ref, job_id),
@@ -443,6 +459,7 @@ class ControlPlaneStore:
         progress: dict[str, Any],
         error_message: str | None = None,
     ) -> None:
+        """Update progress/error state and emit a `job_progress` event/outbox row."""
         self.upsert_progress(job_id=job_id, progress=progress)
         self._execute(
             "UPDATE control_jobs SET error_message = COALESCE(?, error_message) WHERE job_id = ?",
@@ -464,6 +481,7 @@ class ControlPlaneStore:
         worker_id: str,
         lease_seconds: int = 60,
     ) -> None:
+        """Extend a running job lease when the heartbeat still matches `worker_id`."""
         lease_expires_at = _utc_now() + timedelta(seconds=max(lease_seconds, 1))
         self._execute(
             """
@@ -484,6 +502,7 @@ class ControlPlaneStore:
         active_job_id: str | None = None,
         metadata: dict[str, Any] | None = None,
     ) -> None:
+        """Upsert the worker heartbeat row and lease expiration metadata."""
         now = _utc_now()
         lease_expires_at = now + timedelta(seconds=max(lease_seconds, 1))
         metadata_json = json.dumps(metadata or {}, sort_keys=True)
@@ -547,6 +566,7 @@ class ControlPlaneStore:
         )
 
     def release_worker(self, *, worker_id: str, state: str = "stopped") -> None:
+        """Mark a worker lease inactive and clear its active job binding."""
         now = _utc_now()
         self._execute(
             """
@@ -558,6 +578,7 @@ class ControlPlaneStore:
         )
 
     def list_worker_leases(self, *, active_only: bool = True) -> list[ControlWorkerLeaseRecord]:
+        """List worker leases, optionally filtering to non-expired active leases."""
         sql = """
             SELECT
                 worker_id,
@@ -588,6 +609,7 @@ class ControlPlaneStore:
         run_id: str | None = None,
         event_key: str | None = None,
     ) -> ControlOutboxRecord:
+        """Insert a deduplicated pending outbox event keyed by `(topic, event_key)`."""
         if event_key:
             existing = self._get_outbox_event_by_key(topic=topic, event_key=event_key)
             if existing is not None:
@@ -619,6 +641,7 @@ class ControlPlaneStore:
         return record
 
     def get_outbox_event(self, event_id: str) -> ControlOutboxRecord | None:
+        """Return one outbox event row by ID."""
         row = self._fetchone(
             """
             SELECT
@@ -648,6 +671,7 @@ class ControlPlaneStore:
         state: str | None = "pending",
         limit: int = 100,
     ) -> list[ControlOutboxRecord]:
+        """List outbox events by state in creation order with a hard page-size cap."""
         page_size = max(1, min(int(limit), 500))
         sql = """
             SELECT
@@ -676,6 +700,7 @@ class ControlPlaneStore:
         return [self._row_to_outbox_record(row) for row in rows]
 
     def mark_outbox_published(self, *, event_id: str) -> None:
+        """Mark one outbox event published and increment its attempt counter."""
         now = _utc_now()
         self._execute(
             """

@@ -1,4 +1,9 @@
-"""Public common jax env module API."""
+"""Apply process-wide JAX backend defaults for safe local execution.
+
+Importing this module is side-effect free; call `apply_jax_env_defaults()`
+before importing JAX-heavy stacks if the process should avoid accidental Metal
+backend selection on macOS.
+"""
 from __future__ import annotations
 
 import os
@@ -28,4 +33,3 @@ def apply_jax_env_defaults() -> None:
     if not requested or "metal" in requested:
         os.environ.setdefault("JAX_PLATFORMS", "cpu")
         os.environ.setdefault("JAX_PLATFORM_NAME", "cpu")
-

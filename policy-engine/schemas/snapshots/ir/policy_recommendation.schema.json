@@ -2,6 +2,7 @@
   "$defs": {
     "TargetingRule": {
       "additionalProperties": false,
+      "description": "Operational rule for targeting treatment to high-value units.",
       "properties": {
         "cumulative_budget_share": {
           "maximum": 1.0,
@@ -70,6 +71,7 @@
     }
   },
   "additionalProperties": false,
+  "description": "Budget-aware targeting recommendation derived from an HTE result.",
   "properties": {
     "budget_constraint": {
       "anyOf": [

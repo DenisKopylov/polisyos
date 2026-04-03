@@ -17,7 +17,12 @@ from polisyos.core.components import ComponentKind
 
 
 def main(argv: list[str] | None = None) -> int:
-    """Main helper."""
+    """Dispatch the `polisyos` console script and return a process exit code.
+
+    Command handlers are imported lazily after argument parsing so importing
+    `polisyos.core.components.cli_parts` is safe in docs/tests that only need
+    parser metadata. `--version` exits early without loading subcommand modules.
+    """
     argv = list(sys.argv[1:] if argv is None else argv)
     if "--version" in argv:
         print(f"polisyos {_cli_version()}")

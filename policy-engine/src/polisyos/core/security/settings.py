@@ -1,4 +1,4 @@
-"""Public security settings module API."""
+"""Resolve Zero Trust, OPA, TEE, SBOM, and multi-tenant settings from env vars."""
 from __future__ import annotations
 
 import os
@@ -71,6 +71,7 @@ class SecuritySettings:
 
     @lru_cache(maxsize=1)
     def allowed_regions(self) -> frozenset[str]:
+        """Return normalized region allowlist values used by cell/tenant routing."""
         return frozenset(
             region.strip()
             for region in self.POLISYOS_ALLOWED_REGIONS.split(",")
@@ -79,6 +80,7 @@ class SecuritySettings:
 
     @lru_cache(maxsize=1)
     def trusted_delegators(self) -> frozenset[str]:
+        """Return SPIFFE/service principals allowed to forward delegation context."""
         return frozenset(
             item.strip()
             for item in self.POLISYOS_TRUSTED_DELEGATORS.split(",")
@@ -87,6 +89,7 @@ class SecuritySettings:
 
     @lru_cache(maxsize=1)
     def required_mfa_roles(self) -> frozenset[str]:
+        """Return lowercased role names that require MFA in JWT validation."""
         return frozenset(
             item.strip().lower()
             for item in self.POLISYOS_JWT_REQUIRED_MFA_ROLES.split(",")
@@ -95,6 +98,7 @@ class SecuritySettings:
 
     @lru_cache(maxsize=1)
     def tee_expected_measurements(self) -> tuple[str, ...]:
+        """Return normalized launch measurements accepted by TEE attestation policy."""
         return tuple(
             item.strip().lower()
             for item in self.POLISYOS_TEE_EXPECTED_MEASUREMENTS.split(",")
@@ -103,6 +107,7 @@ class SecuritySettings:
 
     @lru_cache(maxsize=1)
     def tee_enforce_tiers(self) -> frozenset[str]:
+        """Return cell tiers that must pass the TEE gatekeeper."""
         return frozenset(
             item.strip().lower()
             for item in self.POLISYOS_TEE_ENFORCE_TIERS.split(",")
@@ -111,6 +116,7 @@ class SecuritySettings:
 
     @lru_cache(maxsize=1)
     def sbom_allowed_cves(self) -> frozenset[str]:
+        """Return uppercase CVE IDs exempted from SBOM gate failures."""
         return frozenset(
             item.strip().upper()
             for item in self.POLISYOS_SBOM_ALLOWED_CVES.split(",")
@@ -119,14 +125,17 @@ class SecuritySettings:
 
     @property
     def authz_enforce(self) -> bool:
+        """Return `True` when OPA decisions should block requests."""
         return self.POLISYOS_AUTHZ_MODE.strip().lower() == "enforce"
 
     @property
     def authz_shadow(self) -> bool:
+        """Return `True` when OPA decisions are logged but not enforced."""
         return self.POLISYOS_AUTHZ_MODE.strip().lower() == "shadow"
 
     @property
     def normalized_env(self) -> str:
+        """Normalize `POLISYOS_ENV` into `dev`, `prod`, or `airgap`."""
         env = self.POLISYOS_ENV.strip().lower()
         if env in {"production", "prod"}:
             return "prod"
@@ -136,18 +145,22 @@ class SecuritySettings:
 
     @property
     def is_prod(self) -> bool:
+        """Return `True` for production posture."""
         return self.normalized_env == "prod"
 
     @property
     def is_airgap(self) -> bool:
+        """Return `True` for air-gapped deployment posture."""
         return self.normalized_env == "airgap"
 
     @property
     def is_dev(self) -> bool:
+        """Return `True` for developer/local posture."""
         return self.normalized_env == "dev"
 
     @property
     def db_backend(self) -> str:
+        """Return explicit DB backend or derive a safe default from deployment posture."""
         explicit = self.POLISYOS_DB_BACKEND.strip().lower()
         if explicit:
             return explicit
@@ -155,10 +168,12 @@ class SecuritySettings:
 
     @property
     def tee_enabled(self) -> bool:
+        """Return whether TEE checks should run for this process."""
         return self.POLISYOS_TEE_ENABLED or self.is_prod
 
     @property
     def tee_required(self) -> bool:
+        """Return whether TEE failures must block execution for this process."""
         if self.POLISYOS_TEE_REQUIRED:
             return True
         return self.tee_enabled and self.is_prod
@@ -166,7 +181,12 @@ class SecuritySettings:
 
 @lru_cache(maxsize=1)
 def get_security_settings() -> SecuritySettings:
-    """Return security settings."""
+    """Return cached security settings resolved from `POLISYOS_*` env vars.
+
+    The resolver derives safe defaults from `POLISYOS_ENV`: production enables
+    authn/authz/TEE/SBOM by default, while dev keeps those controls optional
+    unless explicitly turned on.
+    """
     env_name = os.getenv("POLISYOS_ENV", "dev").strip().lower()
     default_tee_enabled = env_name in {"prod", "production"}
     default_tee_required = env_name in {"prod", "production"}

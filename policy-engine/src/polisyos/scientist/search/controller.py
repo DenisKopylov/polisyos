@@ -1,4 +1,4 @@
-"""Public search controller module API."""
+"""Legacy iterative search controller that separates candidate generation from evaluator feedback."""
 from __future__ import annotations
 
 import os
@@ -34,7 +34,7 @@ def _as_bool(raw: str | None, default: bool = False) -> bool:
 
 
 class SearchStatus(str, Enum):
-    """Status of the search process."""
+    """Track the lifecycle state of a legacy search loop run."""
 
     NOT_STARTED = "not_started"
     RUNNING = "running"
@@ -45,7 +45,7 @@ class SearchStatus(str, Enum):
 
 @dataclass
 class SearchIteration:
-    """Record of a single search iteration."""
+    """Record one ask/evaluate step and the evaluator feedback used for future proposals."""
 
     iteration: int
     candidate: Dict[str, Any]
@@ -61,7 +61,7 @@ class SearchIteration:
 
 @dataclass
 class SearchResult:
-    """Final result of a search run."""
+    """Return the final champion candidate, full history, and evaluation counters."""
 
     search_id: str
     status: SearchStatus
@@ -78,7 +78,7 @@ class SearchResult:
 
 
 class CandidateGenerator(Protocol):
-    """Protocol for generating next policy candidate."""
+    """Generate the next candidate proposal from search history and context."""
 
     def generate(
         self,
@@ -86,16 +86,20 @@ class CandidateGenerator(Protocol):
         current_best: Dict[str, Any] | None,
         context: Dict[str, Any],
     ) -> Dict[str, Any]:
-        """
-        Generate next policy candidate based on search history.
+        """Propose one candidate payload for the next evaluator round.
 
-        This is where the Reflexion/Agent-as-optimizer logic lives.
-        The agent reviews past attempts and produces a refined policy.
+        Args:
+            history: Prior iterations with objective values and Stage B feedback.
+            current_best: Current best candidate payload, if any.
+            context: Planner/runtime context assembled by the caller.
+
+        Returns:
+            JSON-compatible candidate payload accepted by the Stage A/B evaluators.
         """
 
 
 class BatchCandidateGenerator(CandidateGenerator, Protocol):
-    """Optional protocol for batch candidate generation."""
+    """Generate a batch of candidate proposals for parallel Stage B evaluation."""
 
     def generate_batch(
         self,
@@ -109,7 +113,7 @@ class BatchCandidateGenerator(CandidateGenerator, Protocol):
 
 @dataclass
 class SearchConfig:
-    """Configuration for the search controller."""
+    """Configure candidate generation, objective evaluation, stopping, and warm start."""
 
     stopping: StoppingCriterion
     objective: CompositeObjective
@@ -125,14 +129,11 @@ class SearchConfig:
 
 
 class SearchController:
-    """
-    Main search loop controller.
+    """Coordinate a legacy ask/evaluate loop over one Stage A and one Stage B evaluator.
 
-    Orchestrates the iterative refinement of policies by:
-    1. Generating candidate policies (via CandidateGenerator/Agent)
-    2. Evaluating through Two-Stage filter
-    3. Tracking history and best results
-    4. Checking stopping criteria
+    Candidate generation is delegated to `CandidateGenerator`, evaluator feedback
+    is captured in `SearchIteration`, optional transfer/Pareto/diversity state is
+    injected into generation context, and stopping criteria terminate the loop.
     """
 
     def __init__(
@@ -174,15 +175,16 @@ class SearchController:
         initial_context: Dict[str, Any],
         initial_candidate: Dict[str, Any] | None = None,
     ) -> SearchResult:
-        """
-        Execute the search loop.
+        """Execute ask/evaluate iterations until the stopping criterion fires.
 
         Args:
-            initial_context: Context passed to candidate generator
-            initial_candidate: Optional starting policy
+            initial_context: Base context passed into each generation call.
+            initial_candidate: Optional candidate evaluated first before asking
+                the generator for new proposals.
 
         Returns:
-            SearchResult with best policy and history
+            `SearchResult` with the best candidate, full iteration history,
+            Pareto snapshot, evaluator counts, and telemetry.
         """
         search_id = str(uuid4())[:8]
         start_time = datetime.now(UTC)

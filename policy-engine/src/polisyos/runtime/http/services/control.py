@@ -20,7 +20,6 @@ from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.control import (
     BindingProfileInfo,
     BindingProfilesListResponse,
-    CacheEntryInfo,
     CacheStatusResponse,
     CapabilityFeatureInfo,
     CapabilityManifestResponse,
@@ -60,8 +59,9 @@ from polisyos.core.contracts.control import (
     SourceProfilesListResponse,
     WorkflowRunRequest,
 )
-from polisyos.core.contracts.runtime import ApiMeta
 from polisyos.core.contracts.decision_validity import DecisionDependencyEvent
+from polisyos.core.contracts.runtime import ApiMeta
+from polisyos.core.observability import get_metrics
 from polisyos.runtime.http.errors import forbidden, unprocessable_entity
 from polisyos.runtime.http.execution_policy import (
     ExecutionProfileError,
@@ -137,7 +137,7 @@ _OPTIONAL_INPUT_KEYS = {
 
 def _resolve_data_source(binding: DataSourceBinding) -> tuple[str, str]:
     """Return (state_key, ref_string) for the provided data source."""
-    for field_name, kind in _DATA_SOURCE_KEYS.items():
+    for field_name, _kind in _DATA_SOURCE_KEYS.items():
         value = getattr(binding, field_name, None)
         if value:
             return field_name, value
@@ -195,6 +195,24 @@ def _dedupe_models(values: list[str]) -> list[str]:
 
 def _now_ms() -> int:
     return int(time.time() * 1000)
+
+
+def _record_control_plane_job_admission_metric(
+    *,
+    job_kind: str,
+    effective_profile: str,
+    status: str,
+    duration_seconds: float,
+) -> None:
+    metrics = get_metrics()
+    recorder = getattr(metrics, "record_control_plane_job_admission", None)
+    if callable(recorder):
+        recorder(
+            job_kind=job_kind,
+            effective_profile=effective_profile,
+            status=status,
+            duration_seconds=duration_seconds,
+        )
 
 
 def _resolve_curated_dir() -> Path:
@@ -281,7 +299,7 @@ def _decision_validity_dedupe_payload(
 # ---------------------------------------------------------------------------
 
 class ControlPlaneService:
-    """Orchestrates control-plane operations (run launch, data ingestion)."""
+    """Bridge HTTP control requests to durable jobs, Scientist runs, Fabric ingestion, and Lex pipelines."""
 
     def __init__(self, *, cas_root: Path, core_runs_root: Path) -> None:
         from polisyos.fabric.retrieval import RetrievalService
@@ -420,28 +438,44 @@ class ControlPlaneService:
         payload: dict[str, Any],
         policy: ResolvedExecutionPolicy,
     ) -> ControlJobRecord:
-        payload_ref = self._persist_job_payload(job_kind=job_kind, payload=payload)
-        capability_manifest_ref = self._persist_capability_manifest(
-            policy=policy,
-            job_id=job_id,
-            run_id=run_id,
-            pipeline_id=pipeline_id,
-            payload_ref=payload_ref,
+        started = time.perf_counter()
+        try:
+            payload_ref = self._persist_job_payload(job_kind=job_kind, payload=payload)
+            capability_manifest_ref = self._persist_capability_manifest(
+                policy=policy,
+                job_id=job_id,
+                run_id=run_id,
+                pipeline_id=pipeline_id,
+                payload_ref=payload_ref,
+            )
+            record = self._control_store.create_job(
+                job_id=job_id,
+                kind=job_kind,  # type: ignore[arg-type]
+                run_id=run_id,
+                pipeline_id=pipeline_id,
+                requested_execution_profile=policy.requested_profile,
+                effective_execution_profile=policy.effective_profile,
+                policy_flags=policy.policy_flags.model_dump(mode="json"),
+                capability_manifest_ref=capability_manifest_ref,
+                payload_ref=payload_ref,
+                submitted_by=str(policy.actor.get("subject") or "anonymous"),
+            )
+            if self._worker is not None:
+                self._worker.wake()
+        except Exception:
+            _record_control_plane_job_admission_metric(
+                job_kind=job_kind,
+                effective_profile=policy.effective_profile,
+                status="error",
+                duration_seconds=time.perf_counter() - started,
+            )
+            raise
+        _record_control_plane_job_admission_metric(
+            job_kind=job_kind,
+            effective_profile=policy.effective_profile,
+            status="success",
+            duration_seconds=time.perf_counter() - started,
         )
-        record = self._control_store.create_job(
-            job_id=job_id,
-            kind=job_kind,  # type: ignore[arg-type]
-            run_id=run_id,
-            pipeline_id=pipeline_id,
-            requested_execution_profile=policy.requested_profile,
-            effective_execution_profile=policy.effective_profile,
-            policy_flags=policy.policy_flags.model_dump(mode="json"),
-            capability_manifest_ref=capability_manifest_ref,
-            payload_ref=payload_ref,
-            submitted_by=str(policy.actor.get("subject") or "anonymous"),
-        )
-        if self._worker is not None:
-            self._worker.wake()
         return record
 
     def get_job_status(
@@ -450,6 +484,7 @@ class ControlPlaneService:
         *,
         request_id: str | None = None,
     ) -> ControlJobResponse:
+        """Return durable job state or raise `KeyError` so the route renders a 404 problem."""
         record = self._control_store.get_job(job_id)
         if record is None:
             raise KeyError(job_id)
@@ -461,6 +496,7 @@ class ControlPlaneService:
         active_only: bool = True,
         request_id: str | None = None,
     ) -> ControlWorkersResponse:
+        """Return active/all worker leases from the control-plane store."""
         workers = self._control_store.list_worker_leases(active_only=active_only)
         return ControlWorkersResponse(
             meta=_build_api_meta(request_id),
@@ -488,6 +524,7 @@ class ControlPlaneService:
         limit: int = 100,
         request_id: str | None = None,
     ) -> ControlOutboxEventsResponse:
+        """Return durable outbox events filtered by state and capped to 500 rows."""
         events = self._control_store.list_outbox_events(state=state, limit=limit)
         return ControlOutboxEventsResponse(
             meta=_build_api_meta(request_id),
@@ -691,6 +728,12 @@ class ControlPlaneService:
         request_id: str | None = None,
         principal: RuntimePrincipal | None = None,
     ) -> RunLaunchResponse:
+        """Persist a workflow payload/capability manifest and queue a durable `workflow_run` job.
+
+        Raises:
+            RuntimeHTTPError: If profile resolution fails or no data source ref is
+                present in `request.data_source`.
+        """
         from polisyos.core.run.context import new_run_id
 
         run_id = new_run_id()
@@ -748,6 +791,7 @@ class ControlPlaneService:
         *,
         request_id: str | None = None,
     ) -> DecisionValidityEventResponse:
+        """Record a decision-dependency event and enqueue one deduplicated outbox notification."""
         dependency_keys = [item.strip() for item in request.dependency_keys if str(item).strip()]
         dedupe_key = request.dedupe_key or self._derive_decision_validity_dedupe_key(
             request,
@@ -807,6 +851,7 @@ class ControlPlaneService:
         run_id: str | None = None,
         request_id: str | None = None,
     ) -> DecisionValiditySummaryResponse:
+        """Read the latest decision-validity lifecycle summary for a decision packet ref."""
         service = DecisionValidityService(self._artifact_store)
         summary = service.get_summary(packet_ref)
         lifecycle_payload = dict(summary.get("lifecycle") or {})
@@ -863,6 +908,7 @@ class ControlPlaneService:
         request_id: str | None = None,
         principal: RuntimePrincipal | None = None,
     ) -> dict[str, str | None]:
+        """Prepare a human-gated reissue payload and enqueue the replacement workflow run."""
         from .feedback import FeedbackService
         from .run_index import RunIndexService
 
@@ -923,6 +969,7 @@ class ControlPlaneService:
         request_id: str | None = None,
         principal: RuntimePrincipal | None = None,
     ) -> RunLaunchResponse:
+        """Queue a natural-language agent run and apply execution-policy fallback constraints."""
         from polisyos.core.run.context import new_run_id
 
         run_id = new_run_id()
@@ -2450,6 +2497,7 @@ class ControlPlaneService:
         *,
         request_id: str | None = None,
     ) -> IngestResponse:
+        """Execute connector ingestion synchronously and return refs/status for produced artifacts."""
         from polisyos.fabric.ingestion import ConnectorManifestSpec, DatasetFetchSpec
 
         datasets = [
@@ -2611,6 +2659,7 @@ class ControlPlaneService:
         *,
         request_id: str | None = None,
     ) -> DataResolveResponse:
+        """Resolve `DataNeed[]` into concrete fetch plans via the retrieval service."""
         result = self._retrieval.resolve(request)
         return DataResolveResponse(
             meta=_build_api_meta(request_id),
@@ -2626,6 +2675,7 @@ class ControlPlaneService:
         *,
         request_id: str | None = None,
     ) -> DataDiscoverResponse:
+        """Run bounded discovery over connector metadata and return ranked candidates."""
         result = self._retrieval.discover(
             data_needs=request.data_needs,
             max_sources_per_query=request.max_sources_per_query,
@@ -2648,6 +2698,7 @@ class ControlPlaneService:
         *,
         request_id: str | None = None,
     ) -> DataPreviewResponse:
+        """Preview one fetch plan through quality/retrieval fallback semantics."""
         result = self._retrieval.preview(
             request.fetch_plan,
             allow_fallback=request.allow_fallback,
@@ -2665,6 +2716,7 @@ class ControlPlaneService:
         limit: int = 25,
         request_id: str | None = None,
     ) -> DataCatalogSearchResponse:
+        """Search local metric catalog candidates by metric text and optional geography."""
         matches = self._retrieval.search_catalog(
             metric_query=metric_query,
             geography=geography,
@@ -2678,6 +2730,7 @@ class ControlPlaneService:
         )
 
     def get_data_index_stats(self, *, request_id: str | None = None) -> IndexStatsResponse:
+        """Return retrieval index statistics for `/control/data/index/stats`."""
         return IndexStatsResponse(
             meta=_build_api_meta(request_id),
             stats=self._retrieval.get_index_stats(),
@@ -2688,6 +2741,7 @@ class ControlPlaneService:
         *,
         request_id: str | None = None,
     ) -> PromotionCandidatesResponse:
+        """Return current PromotionLane candidates from the retrieval service."""
         return PromotionCandidatesResponse(
             meta=_build_api_meta(request_id),
             candidates=self._retrieval.list_promotion_candidates(),
@@ -2700,6 +2754,7 @@ class ControlPlaneService:
         *,
         request_id: str | None = None,
     ) -> PromotionDecisionResponse:
+        """Approve one promotion candidate and report whether source bindings changed."""
         updated = self._retrieval.approve_promotion(promotion_id, reason=request.reason)
         status = "approved" if updated else "rejected"
         return PromotionDecisionResponse(
@@ -2721,6 +2776,7 @@ class ControlPlaneService:
         *,
         request_id: str | None = None,
     ) -> PromotionDecisionResponse:
+        """Reject one promotion candidate and preserve an audit-friendly response shape."""
         updated = self._retrieval.reject_promotion(promotion_id, reason=request.reason)
         return PromotionDecisionResponse(
             meta=_build_api_meta(request_id),
@@ -2760,6 +2816,7 @@ class ControlPlaneService:
     # ---- Connectors listing -----------------------------------------------
 
     def list_connectors(self, *, request_id: str | None = None) -> ConnectorsListResponse:
+        """List discovered Fabric connectors and available source profiles per family."""
         from polisyos.fabric.connectors.profiles import SourceProfileRegistry
         from polisyos.fabric.connectors.registry import ConnectorRegistry
 
@@ -2792,6 +2849,7 @@ class ControlPlaneService:
     def list_source_profiles(
         self, *, request_id: str | None = None
     ) -> SourceProfilesListResponse:
+        """List source profiles and mark whether each connector family is currently available."""
         from polisyos.fabric.connectors.profiles import SourceProfileRegistry
         from polisyos.fabric.connectors.registry import ConnectorRegistry
 
@@ -2830,6 +2888,7 @@ class ControlPlaneService:
     def list_model_profiles(
         self, *, request_id: str | None = None
     ) -> ModelProfilesListResponse:
+        """List registered LLM model profiles and pricing/capability metadata."""
         from polisyos.scientist.llm.profiles import ModelProfileRegistry
 
         profile_reg = ModelProfileRegistry.get_instance()
@@ -2860,6 +2919,7 @@ class ControlPlaneService:
     def list_binding_profiles(
         self, *, request_id: str | None = None
     ) -> BindingProfilesListResponse:
+        """List input-binding profiles exposed to control-plane ingestion requests."""
         from polisyos.fabric.connectors.bindings import BindingProfileRegistry
 
         registry = BindingProfileRegistry.get_instance()
@@ -2885,6 +2945,7 @@ class ControlPlaneService:
     # ---- Cache status -----------------------------------------------------
 
     def get_cache_status(self, *, request_id: str | None = None) -> CacheStatusResponse:
+        """Return a cache status placeholder until ConnectorCacheStore-backed stats are wired."""
         # CacheStore uses SQLite; for now return a basic response
         # Production version should query ConnectorCacheStore
         return CacheStatusResponse(
@@ -2899,6 +2960,7 @@ class ControlPlaneService:
     def get_capabilities(
         self, *, request_id: str | None = None
     ) -> CapabilityManifestResponse:
+        """Return the control-plane capability manifest, execution profiles, and feature gates."""
         causal_contract = build_causal_capability_contract()
         resolved_policy = self._policy_resolver.resolve(
             requested_profile=None,
@@ -3065,6 +3127,7 @@ class ControlPlaneService:
         request_id: str | None = None,
         principal: RuntimePrincipal | None = None,
     ) -> "LexTriggerResponse":
+        """Queue a Lex batch pipeline job and reject empty stage selections."""
         from polisyos.core.contracts.control import LexTriggerResponse
 
         pipeline_id = f"lex_{uuid.uuid4().hex[:12]}"
@@ -3185,6 +3248,7 @@ class ControlPlaneService:
         *,
         request_id: str | None = None,
     ) -> "LexPipelineStatusResponse":
+        """Return durable Lex pipeline state merged with file-backed progress summaries."""
         from polisyos.core.contracts.control import LexPipelineStatusResponse
 
         record = self._control_store.get_job_by_pipeline(pipeline_id)
@@ -3223,6 +3287,7 @@ class ControlPlaneService:
         *,
         request_id: str | None = None,
     ) -> "LexGraphStatsResponse":
+        """Inspect a Lex DuckDB graph database and return aggregate/top-k statistics."""
         import duckdb
 
         from polisyos.core.contracts.control import LexGraphStatsResponse
@@ -3281,6 +3346,7 @@ class ControlPlaneService:
         *,
         request_id: str | None = None,
     ) -> "LexSearchResponse":
+        """Run a Lex text search against the generated knowledge graph and return ranked facts."""
         from polisyos.core.contracts.control import (
             LexSearchResponse,
             LexSearchResultItem,

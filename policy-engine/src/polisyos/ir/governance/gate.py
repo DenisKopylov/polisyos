@@ -1,4 +1,8 @@
-"""Public governance gate module API."""
+"""Define approval requests, decisions, and audit events for governance gates.
+
+These contracts are emitted when execution pauses for automated or human review
+and are consumed by the gate subsystem, audit logs, and replay/reporting tools.
+"""
 from __future__ import annotations
 
 import enum

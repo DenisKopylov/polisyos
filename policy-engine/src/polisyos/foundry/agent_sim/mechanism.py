@@ -12,7 +12,7 @@ from polisyos.foundry.contracts.fidelity import FidelityLevel
 
 
 class MechanismSpec(NamedTuple):
-    """Mechanism spec data model."""
+    """Declare what a mechanism reads, writes, and samples inside executor scheduling."""
     name: str
     reads: frozenset[str]
     writes: frozenset[str]

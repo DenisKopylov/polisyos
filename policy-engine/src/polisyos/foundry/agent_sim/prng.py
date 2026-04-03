@@ -9,7 +9,7 @@ from jaxtyping import Array, Int
 
 @chex.dataclass(frozen=True)
 class PRNGState:
-    """PRNG state data model."""
+    """Track the master key and logical step counter for deterministic sampling."""
     master_key: chex.PRNGKey
     step_counter: Int[Array, ""]
 
@@ -25,5 +25,5 @@ def get_mechanism_key(
 
 
 def advance_prng(prng: PRNGState) -> PRNGState:
-    """Advance prng helper."""
+    """Advance the logical PRNG counter after a simulation step or mechanism cycle."""
     return prng.replace(step_counter=prng.step_counter + 1)

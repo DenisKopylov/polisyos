@@ -32,7 +32,7 @@ class MLP(eqx.Module):
 
 
 class SharedPolicy(eqx.Module):
-    """Shared policy data model."""
+    """Apply one shared network to every agent when behavior is homogeneous."""
     network: MLP
 
     def __init__(

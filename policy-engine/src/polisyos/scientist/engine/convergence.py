@@ -40,7 +40,7 @@ __all__ = [
 
 
 class ConvergenceStrategy(str, Enum):
-    """Convergence strategy data model."""
+    """Named stopping heuristics supported by the Scientist convergence detector."""
     ABSOLUTE_DELTA = "absolute_delta"
     RELATIVE_DELTA = "relative_delta"
     SEMANTIC_SIMILARITY = "semantic_similarity"

@@ -1,4 +1,10 @@
-"""Public governance calibration validation module API."""
+"""Execute C5b replay validation and persist promotion bundles for calibration candidates.
+
+The runner composes historical backtest replay, stress-scenario evaluation, and
+leaderboard scoring into one `CalibrationValidationBundle`. If C5a governance
+already short-circuited, the bundle is persisted as `blocked_by_governance`
+without running replay so downstream promotion logic can audit the stop reason.
+"""
 from __future__ import annotations
 
 from typing import Any
@@ -29,7 +35,12 @@ from polisyos.scientist.governance.stress_scenarios import (
 
 
 class CalibrationValidationRunnerInput(BaseModel):
-    """Input payload for C5b calibration validation and promotion scoring."""
+    """Input payload for C5b calibration validation and promotion scoring.
+
+    The bundle links the candidate artifact, C5a governance report, replay
+    inputs, baseline metrics, and optional strategic/interference summaries that
+    feed leaderboard metrics and lesson publication.
+    """
 
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
 
@@ -53,7 +64,12 @@ class CalibrationValidationRunnerInput(BaseModel):
 
 
 class CalibrationValidationBundle(BaseModel):
-    """Persisted bundle combining backtest, stress, and leaderboard validation."""
+    """Persisted bundle combining backtest, stress, and leaderboard validation.
+
+    This is the durable decision artifact consumed by promotion dashboards and
+    downstream orchestration. `status` records whether replay ran or governance
+    blocked first, while the nested report refs preserve the audit trail.
+    """
 
     model_config = ConfigDict(extra="forbid")
 
@@ -108,7 +124,7 @@ class CalibrationValidationBundle(BaseModel):
 
 
 class CalibrationValidationRunnerResult(BaseModel):
-    """Typed pair of persisted validation ref and in-memory bundle."""
+    """Pair the persisted bundle ref with the in-memory validation payload."""
 
     model_config = ConfigDict(extra="forbid")
 
@@ -212,7 +228,11 @@ class CalibrationValidationRunner:
 
 
 class CalibrationValidationLessonPublisher:
-    """Publisher that writes calibration-validation lessons into local memory."""
+    """Publish C5b replay outcomes as lessons for future policy search.
+
+    Missing validation channels become remediation hints so later candidate
+    generation can prioritize evidence gaps uncovered during replay.
+    """
 
     def publish(
         self,
@@ -276,7 +296,16 @@ def persist_calibration_validation_bundle(
     *,
     inputs: list[InputRef] | None = None,
 ) -> CalibrationValidationBundleRef:
-    """Persist a calibration validation bundle to the artifact store."""
+    """Persist a calibration validation bundle to the artifact store.
+
+    Args:
+        store: CAS backend used for durable bundle storage.
+        bundle: Validation payload to serialize.
+        inputs: Optional provenance links to upstream candidate artifacts.
+
+    Returns:
+        Typed artifact ref for the stored bundle.
+    """
 
     ref = store.put_json(
         bundle,
@@ -298,7 +327,15 @@ def load_calibration_validation_bundle(
     store: FileSystemCAS,
     ref: ArtifactRef | CalibrationValidationBundleRef,
 ) -> CalibrationValidationBundle:
-    """Load a persisted calibration validation bundle from the artifact store."""
+    """Load a persisted calibration validation bundle from the artifact store.
+
+    Args:
+        store: CAS backend that stores the serialized bundle.
+        ref: Generic or typed artifact ref pointing at the bundle payload.
+
+    Returns:
+        Parsed `CalibrationValidationBundle`.
+    """
 
     artifact_id = ref.artifact_id if isinstance(ref, ArtifactRef) else ref.artifact_id
     payload = from_canonical_bytes(store.get_bytes(artifact_id))

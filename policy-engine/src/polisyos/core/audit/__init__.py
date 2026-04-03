@@ -1,4 +1,4 @@
-"""Public core audit package API."""
+"""Exports audit-package assembly, verification, and PROV rendering utilities."""
 from polisyos.core.audit.assembler import AuditPackageAssembler
 from polisyos.core.audit.models import (
     AuditExportResult,

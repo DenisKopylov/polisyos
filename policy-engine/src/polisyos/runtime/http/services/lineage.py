@@ -1,4 +1,4 @@
-"""Public services lineage module API."""
+"""Resolve artifact dependency DAGs into runtime lineage response DTOs."""
 from __future__ import annotations
 
 from polisyos.core.artifacts.graph import NodeStatus, resolve_dependency_graph
@@ -12,7 +12,12 @@ from polisyos.core.contracts.runtime import (
 
 
 class LineageService:
-    """Lineage service implementation."""
+    """Build bounded upstream dependency graphs from CAS manifests.
+
+    Traversal is capped by `default_max_depth` and `default_max_nodes` to keep
+    API responses predictable. Missing or corrupted dependencies are surfaced in
+    the returned `ArtifactLineageView` rather than raised as hard failures.
+    """
     def __init__(
         self,
         *,
@@ -31,6 +36,7 @@ class LineageService:
         max_depth: int | None = None,
         max_nodes: int | None = None,
     ) -> ArtifactLineageView:
+        """Return a merged lineage graph for one or more root artifacts."""
         if not artifact_ids:
             return ArtifactLineageView(root_artifact_ids=[])
 
@@ -122,4 +128,3 @@ def _merge_nodes(lhs: ArtifactLineageNode, rhs: ArtifactLineageNode) -> Artifact
         byte_size=max(lhs.byte_size, rhs.byte_size),
         depth=min(lhs.depth, rhs.depth),
     )
-

@@ -21,7 +21,7 @@ logger = get_logger("polisyos.security.authz")
 
 
 class AuthzDecision(str, Enum):
-    """Authz decision public type."""
+    """Represent the policy decision returned by OPA or the fail-closed fallback."""
     ALLOW = "allow"
     DENY = "deny"
     ERROR = "error"
@@ -29,7 +29,7 @@ class AuthzDecision(str, Enum):
 
 @dataclass(frozen=True, slots=True)
 class AuthzResult:
-    """Authz result data model."""
+    """Return one authorization decision plus latency/cache/audit metadata."""
     decision: AuthzDecision
     policy: str
     reasons: tuple[str, ...] = ()
@@ -39,12 +39,17 @@ class AuthzResult:
 
     @property
     def is_allowed(self) -> bool:
+        """Return `True` when OPA/fallback decision is `allow`."""
         return self.decision == AuthzDecision.ALLOW
 
 
 @dataclass(frozen=True, slots=True)
 class AuthzInput:
-    """Authz input public type."""
+    """Serialize caller, peer, request, and resource facts into the OPA input schema.
+
+    JWT-backed user scope is encoded in `identity_*` fields, while SPIFFE
+    service identity is encoded in `identity_spiffe_id` and `peer_spiffe_id`.
+    """
     request_method: str
     request_path: str
     request_headers: dict[str, str]
@@ -84,6 +89,7 @@ class AuthzInput:
         resource_columns: tuple[dict[str, str], ...] = (),
         resource_requires_anonymization: bool = False,
     ) -> "AuthzInput":
+        """Build the default OPA input from a resolved request scope and HTTP metadata."""
         return cls(
             request_method=request_method,
             request_path=request_path,
@@ -117,6 +123,7 @@ class AuthzInput:
         owner_tenant_id: str,
         peer_spiffe_id: str = "",
     ) -> "AuthzInput":
+        """Build a CAS-specific authorization input bound to artifact ownership."""
         return cls.for_http_request(
             request_method=request_method,
             request_path=request_path,
@@ -142,6 +149,7 @@ class AuthzInput:
         requires_anonymization: bool = False,
         peer_spiffe_id: str = "",
     ) -> "AuthzInput":
+        """Build a data-plane authorization input with PII and column-level context."""
         return cls.for_http_request(
             request_method=request_method,
             request_path=request_path,
@@ -157,6 +165,7 @@ class AuthzInput:
         )
 
     def to_opa_input(self) -> dict[str, Any]:
+        """Return the JSON object posted to `/v1/data/<policy_path>`."""
         return {
             "request": {
                 "method": self.request_method,
@@ -187,6 +196,7 @@ class AuthzInput:
         }
 
     def cache_key(self) -> str:
+        """Return a deterministic short hash for TTL caching identical OPA checks."""
         raw = json.dumps(self.to_opa_input(), sort_keys=True, separators=(",", ":"))
         return truncated_hash(raw, length=16)
 
@@ -226,6 +236,20 @@ class OPAClient:
             )
 
     async def check(self, authz_input: AuthzInput) -> AuthzResult:
+        """Evaluate one authorization request and deny by default on OPA failures.
+
+        Args:
+            authz_input: Fully populated request/identity/resource context.
+
+        Returns:
+            `AuthzResult` with `decision=ALLOW|DENY` and optional OPA-provided
+            deny reasons/audit metadata. Cache hits are returned with
+            `cached=True` and zero latency.
+
+        Notes:
+            OPA/network/shape errors are converted to `DENY` with
+            `reasons=("OPA_UNREACHABLE",)` to preserve fail-closed semantics.
+        """
         cache_key = authz_input.cache_key()
         cached = self._cache.get(cache_key)
         if cached is not None:
@@ -316,6 +340,7 @@ class OPAClient:
             return result
 
     async def close(self) -> None:
+        """Close the underlying `aiohttp` session if one was opened."""
         if self._session is not None and not self._session.closed:
             await self._session.close()
 

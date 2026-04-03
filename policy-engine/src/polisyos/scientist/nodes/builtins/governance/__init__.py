@@ -1,4 +1,4 @@
-"""Public builtins governance package API."""
+"""Lazy governance-node facade for legal, data-plane, arbitration, and pass-runner stages."""
 from __future__ import annotations
 
 from typing import Any

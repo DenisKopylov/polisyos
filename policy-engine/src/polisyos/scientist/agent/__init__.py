@@ -7,7 +7,7 @@ Exports protocol interfaces, mock implementations, and legacy helpers.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 # =============================================================================
 # PROTOCOLS (Type Interfaces)
@@ -148,7 +148,7 @@ __all__ = [
 __version__ = "2.0.0"
 
 
-def __getattr__(name: str):
+def __getattr__(name: str) -> Any:
     """
     Lazy export resolver.
 

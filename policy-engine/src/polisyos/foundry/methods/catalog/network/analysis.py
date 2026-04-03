@@ -1,4 +1,4 @@
-"""Public network analysis module API."""
+"""Estimate network structure, diffusion, contagion, and multiplex diagnostics."""
 from __future__ import annotations
 
 from typing import Any, ClassVar, Mapping
@@ -76,7 +76,7 @@ def _symmetrize(adjacency: np.ndarray) -> np.ndarray:
     tags={"network", "community-detection"},
 )
 class CommunityDetectionEstimator:
-    """Community detection estimator implementation."""
+    """Detect spectral communities in a weighted adjacency matrix; avoid networks without clear block structure or a plausible `k`."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("scikit-learn", "numpy")
 
@@ -155,7 +155,7 @@ class CommunityDetectionEstimator:
     tags={"network", "input-output-network"},
 )
 class InputOutputNetworkEstimator:
-    """Input output network estimator implementation."""
+    """Estimate Leontief-style linkage centrality from economic flow matrices; avoid adjacency matrices that are not interpretable as flows."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -224,7 +224,7 @@ class InputOutputNetworkEstimator:
     tags={"network", "diffusion"},
 )
 class NetworkDiffusionEstimator:
-    """Network diffusion estimator implementation."""
+    """Simulate DeGroot-style diffusion from initial node states; avoid stochastic contagion questions that require SIS/SIR dynamics."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -300,7 +300,7 @@ class NetworkDiffusionEstimator:
     tags={"network", "contagion-model"},
 )
 class ContagionModelEstimator:
-    """Contagion model estimator implementation."""
+    """Simulate SIS/SIR contagion over a weighted network; avoid homogeneous-mixing settings where compartmental ODEs are simpler."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -394,7 +394,7 @@ class ContagionModelEstimator:
     tags={"network", "multiplex-network"},
 )
 class MultiplexNetworkEstimator:
-    """Multiplex network estimator implementation."""
+    """Summarize multi-layer network structure across aligned adjacency layers; avoid layer sets with incompatible node universes."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 

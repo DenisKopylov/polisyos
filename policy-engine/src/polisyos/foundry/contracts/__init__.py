@@ -1,4 +1,4 @@
-"""Public foundry contracts package API."""
+"""Re-export public Foundry state and fidelity contracts shared across subsystems."""
 from __future__ import annotations
 
 import importlib

@@ -46,7 +46,12 @@ _SPEC = NodeSpec(
 
 @dataclass(frozen=True)
 class FormalizeVerifiedPolicyNode:
-    """Formalize verified policy node implementation."""
+    """Compile-stage DAG node that materializes a Trinity bundle from verified policy artifacts.
+
+    It only runs when a Trinity input is missing, requires a persisted policy
+    request frame and policy option set, and writes `inputs.trinity_bundle_ref`
+    plus a `policy_trinity_generated` marker for downstream compile stages.
+    """
     @property
     def spec(self) -> NodeSpec:
         return _SPEC

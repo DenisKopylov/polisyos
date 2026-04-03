@@ -1,4 +1,4 @@
-"""Public llm response module API."""
+"""Normalizes provider-specific LLM responses into one PolicyOS telemetry shape."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -21,7 +21,7 @@ class LLMResponseData:
 
 
 def extract_llm_response_data(response: Any) -> LLMResponseData:
-    """Extract llm response data helper."""
+    """Extract content, usage, model, and cost fields from heterogeneous LLM SDK responses."""
     content = response.content if hasattr(response, "content") else str(response)
     prompt_tokens = 0
     completion_tokens = 0
@@ -88,4 +88,3 @@ def _as_str(value: Any) -> str | None:
         stripped = value.strip()
         return stripped or None
     return None
-

@@ -1,4 +1,4 @@
-"""Public analytics structural causal model module API."""
+"""Describe serializable SCM graph-plus-mechanism contracts and persistence helpers."""
 from __future__ import annotations
 
 import json
@@ -133,7 +133,7 @@ def persist_structural_causal_model_spec(
     schema_name: str = "ir.structural_causal_model_spec",
     schema_version: str = "1.0",
 ) -> StructuralCausalModelSpecRef:
-    """Persist structural causal model spec helper."""
+    """Persist a structural causal model spec and return its typed artifact ref."""
     ref = put_json_artifact(
         store,
         scm_spec.model_dump(mode="json"),

@@ -1,4 +1,9 @@
-"""Workflow spec for the full Scientist causal orchestration DAG."""
+"""Canonical causal workflow DAG for graph reconciliation, simulation, and governance.
+
+The spec starts from Trinity/registry inputs, materializes data and literature
+priors, reconciles the causal graph, runs readiness and transport checks, then
+emits a decision packet after evaluator and governance stages.
+"""
 
 from __future__ import annotations
 
@@ -6,11 +11,15 @@ from polisyos.scientist.engine.workflow_spec import NodeInvocation, WorkflowSpec
 
 
 def causal_full_workflow_spec() -> WorkflowSpec:
-    """Build the canonical end-to-end causal workflow.
+    """Build the canonical end-to-end causal workflow spec.
 
     The workflow links literature-prior assembly, graph reconciliation,
     readiness checks, Foundry compilation, simulation, causal evaluation, and
     governance into one reproducible DAG used by ``run_experiment``.
+
+    Returns:
+        `WorkflowSpec` with required Trinity/registry binds and ordered node
+        aliases for the `scientist_causal_full` DAG.
     """
 
     return WorkflowSpec(

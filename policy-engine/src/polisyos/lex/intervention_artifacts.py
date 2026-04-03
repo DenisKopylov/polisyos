@@ -1,4 +1,10 @@
-"""Public lex intervention artifacts module API."""
+"""Artifact loaders and registries for Lex provision-to-policy mappings.
+
+The registry objects in this module sit between legal extraction and intervention compilation:
+JSON/parquet artifacts describe provision mappings, knob dictionaries, and program crosswalks,
+then ``LexProvisionMappingRegistry.resolve`` materializes a ``LexProvisionDirective`` that can
+be compiled into IR intervention contracts.
+"""
 from __future__ import annotations
 
 import json
@@ -77,7 +83,15 @@ class ProvisionProgramCrosswalkEntry(KernelModel):
 
 
 class LexPolicyBundleInput(KernelModel):
-    """Bundle used to hand Lex-compiled interventions into policy workflows."""
+    """Bundle used to hand Lex-compiled interventions into Scientist and Foundry workflows.
+
+    Attributes:
+        trinity_bundle: Problem/policy/model context that anchors the candidate policy family.
+        compiled_interventions: ``CompiledLexIntervention`` payloads or mapping-compatible rows.
+        temporal_sequences: Optional ordered treatment sequences for DTR tasks.
+        strategic_response_bundle: Optional expectations bundle for performative-response handling.
+        metadata: Runtime/search metadata forwarded into candidate and search-plan generation.
+    """
 
     trinity_bundle: TrinityBundle
     compiled_interventions: list[Any] = Field(default_factory=list)
@@ -158,6 +172,7 @@ class LexProvisionMappingRegistry:
         knob_dictionary_path: str | Path,
         crosswalk_path: str | Path | None = None,
     ) -> "LexProvisionMappingRegistry":
+        """Build a registry from exported mapping, knob, and optional crosswalk artifacts."""
         return cls(
             intervention_map_entries=load_lex_intervention_map_entries(intervention_map_path),
             knob_dictionary_entries=load_intervention_knob_dictionary_entries(
@@ -174,6 +189,7 @@ class LexProvisionMappingRegistry:
         self,
         entry: LexInterventionMapEntry | Mapping[str, Any],
     ) -> LexInterventionMapEntry:
+        """Register one provision mapping and reject duplicate ``provision_ref`` keys."""
         resolved = (
             entry
             if isinstance(entry, LexInterventionMapEntry)
@@ -190,6 +206,7 @@ class LexProvisionMappingRegistry:
         self,
         entry: InterventionKnobDictionaryEntry | Mapping[str, Any],
     ) -> InterventionKnobDictionaryEntry:
+        """Register one knob definition and reject duplicate ``knob_id`` keys."""
         resolved = (
             entry
             if isinstance(entry, InterventionKnobDictionaryEntry)
@@ -204,6 +221,7 @@ class LexProvisionMappingRegistry:
         self,
         entry: ProvisionProgramCrosswalkEntry | Mapping[str, Any],
     ) -> ProvisionProgramCrosswalkEntry:
+        """Register one provision-to-program crosswalk and reject duplicate provision refs."""
         resolved = (
             entry
             if isinstance(entry, ProvisionProgramCrosswalkEntry)
@@ -217,24 +235,29 @@ class LexProvisionMappingRegistry:
         return resolved
 
     def get_mapping(self, provision_ref: str) -> LexInterventionMapEntry | None:
+        """Return the mapping entry for ``provision_ref`` or ``None`` if it is not registered."""
         return self._intervention_map_entries.get(provision_ref)
 
     def require_mapping(self, provision_ref: str) -> LexInterventionMapEntry:
+        """Return the mapping entry for ``provision_ref`` or raise ``KeyError``."""
         resolved = self.get_mapping(provision_ref)
         if resolved is None:
             raise KeyError(f"intervention mapping not found for provision_ref '{provision_ref}'")
         return resolved
 
     def get_knob(self, knob_id: str) -> InterventionKnobDictionaryEntry | None:
+        """Return a knob dictionary entry by ``knob_id`` or ``None``."""
         return self._knob_dictionary_entries.get(knob_id)
 
     def require_knob(self, knob_id: str) -> InterventionKnobDictionaryEntry:
+        """Return a knob dictionary entry by ``knob_id`` or raise ``KeyError``."""
         resolved = self.get_knob(knob_id)
         if resolved is None:
             raise KeyError(f"knob dictionary entry not found for knob_id '{knob_id}'")
         return resolved
 
     def get_crosswalk(self, provision_ref: str) -> ProvisionProgramCrosswalkEntry | None:
+        """Return the delivery-program crosswalk for a provision if one is available."""
         return self._crosswalk_entries.get(provision_ref)
 
     def resolve(
@@ -256,6 +279,15 @@ class LexProvisionMappingRegistry:
         notes: Sequence[str] = (),
         metadata: Mapping[str, Any] | None = None,
     ) -> Any:
+        """Materialize a ``LexProvisionDirective`` from registry entries and caller overrides.
+
+        Returns:
+            Fully populated directive ready for ``LexInterventionCompiler.compile``.
+
+        Raises:
+            KeyError: If ``provision_ref`` is unknown or ``knob_value_overrides`` contains unknown
+                knob ids.
+        """
         from polisyos.lex.interventions import InterventionKnobSpec, LexProvisionDirective
 
         resolved_map = self.require_mapping(provision_ref)

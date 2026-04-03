@@ -1,4 +1,4 @@
-"""Public slsa config module API."""
+"""Environment-driven configuration for Sigstore-backed SLSA attestation workflows."""
 from __future__ import annotations
 
 import os
@@ -19,7 +19,7 @@ class SlsaMode(str, Enum):
 
 
 class SlsaPolicy(str, Enum):
-    """Slsa policy data model."""
+    """Whether SLSA signing is optional or must succeed before a run is accepted."""
     BEST_EFFORT = "best_effort"
     REQUIRED = "required"
 

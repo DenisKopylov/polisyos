@@ -1,4 +1,8 @@
-"""Public simulator engine module API."""
+"""Execute governance passes on old/new NormPacks and summarize legal-impact deltas.
+
+``NormImpactAnalyzer`` compares rule-level mutations with pass-level compliance transitions and
+produces a ``NormImpactReport`` that downstream review or decision tooling can inspect.
+"""
 from __future__ import annotations
 
 from collections import defaultdict
@@ -45,6 +49,19 @@ class NormImpactAnalyzer:
         decision_packet_ref: str | None = None,
         persist: bool = True,
     ) -> NormImpactReport:
+        """Compare two NormPacks, run governance passes, and persist an impact report.
+
+        Args:
+            old_pack: Baseline NormPack before a proposed mutation.
+            new_pack: Candidate NormPack after mutation.
+            context: Optional pass context state such as IR payloads or registry bundles.
+            decision_packet_ref: Optional governance artifact reference to attach to the report.
+            persist: Whether to persist ``NormDiff`` and ``NormImpactReport`` artifacts in CAS.
+
+        Returns:
+            Impact report with norm-change counts, compliance deltas, inferred KPI impact, and
+            optional CAS artifact references.
+        """
         runtime_context = context or {}
         diff = diff_norm_packs(old_pack, new_pack)
         old_issues = self._run_passes(old_pack, runtime_context)

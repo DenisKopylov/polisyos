@@ -71,7 +71,7 @@ class SurveyMicroData(BaseModel):
 
 
 class MicrosimResult(BaseModel):
-    """Microsim result data model."""
+    """Carry household income outputs and summary metrics emitted by static microsimulation runs."""
     contract_id: ClassVar[str] = "foundry.microsim.result.v1"
     model_config = ConfigDict(extra="forbid", frozen=True, arbitrary_types_allowed=True)
 
@@ -109,7 +109,7 @@ class MicrosimResult(BaseModel):
 
 
 class ReweightingResult(BaseModel):
-    """Reweighting result data model."""
+    """Record calibrated weights plus target-versus-achieved moment gaps for replay and audit."""
     contract_id: ClassVar[str] = "foundry.microsim.reweighting_result.v1"
     model_config = ConfigDict(extra="forbid", frozen=True, arbitrary_types_allowed=True)
 
@@ -132,7 +132,7 @@ class ReweightingResult(BaseModel):
 
 
 class TaxBenefitResult(BaseModel):
-    """Tax benefit result data model."""
+    """Capture disposable-income, tax-rate, and revenue outputs from tax-benefit simulations."""
     contract_id: ClassVar[str] = "foundry.microsim.tax_benefit_result.v1"
     model_config = ConfigDict(extra="forbid", frozen=True, arbitrary_types_allowed=True)
 
@@ -186,7 +186,7 @@ class TaxBenefitResult(BaseModel):
 
 
 class BehavioralResponseResult(BaseModel):
-    """Behavioral response result data model."""
+    """Capture post-reform incomes and elasticity diagnostics emitted by behavioral-response runs."""
     contract_id: ClassVar[str] = "foundry.microsim.behavioral_response_result.v1"
     model_config = ConfigDict(extra="forbid", frozen=True, arbitrary_types_allowed=True)
 
@@ -222,7 +222,7 @@ class BehavioralResponseResult(BaseModel):
 
 
 class ImputationResult(BaseModel):
-    """Imputation result data model."""
+    """Record imputed incomes and training-quality metadata for missing-data repair."""
     contract_id: ClassVar[str] = "foundry.microsim.imputation_result.v1"
     model_config = ConfigDict(extra="forbid", frozen=True, arbitrary_types_allowed=True)
 
@@ -244,7 +244,7 @@ class ImputationResult(BaseModel):
 
 
 class DynamicMicrosimResult(BaseModel):
-    """Dynamic microsim result data model."""
+    """Carry final outcomes and time paths emitted by dynamic microsimulation runs."""
     contract_id: ClassVar[str] = "foundry.microsim.dynamic_result.v1"
     model_config = ConfigDict(extra="forbid", frozen=True, arbitrary_types_allowed=True)
 

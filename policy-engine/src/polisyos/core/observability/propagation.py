@@ -1,5 +1,4 @@
-"""
-Context Propagation Utilities.
+"""Propagate OpenTelemetry context across threads, async tasks, and HTTP boundaries.
 
 Provides utilities for propagating trace context across:
 - Thread boundaries (ThreadPoolExecutor)
@@ -7,7 +6,7 @@ Provides utilities for propagating trace context across:
 - Cross-service calls (HTTP headers)
 - Message queues
 
-Usage:
+Example:
     from polisyos.core.observability.propagation import (
         propagate_context,
         with_trace_context,
@@ -70,7 +69,7 @@ def extract_headers(headers: dict[str, str]) -> Context:
 @contextmanager
 def propagate_context() -> Any:
     """
-    Context manager that preserves the current trace context.
+    Preserve the current OTel context while entering a manually managed scope.
 
     Useful for manually propagating context across thread boundaries.
     """
@@ -113,7 +112,7 @@ def with_trace_context(func: Callable[P, T]) -> Callable[P, T]:
 
 def with_context_vars(func: Callable[P, T]) -> Callable[P, T]:
     """
-    Wrap a function to copy all context vars (including trace context).
+    Wrap a function and restore the full `contextvars` snapshot at call time.
 
     This uses Python's copy_context() for complete context propagation.
     """
@@ -128,9 +127,9 @@ def with_context_vars(func: Callable[P, T]) -> Callable[P, T]:
 
 class TracedExecutorWrapper:
     """
-    Wrapper for concurrent.futures executors that propagates trace context.
+    Wrap an executor so `submit`/`map` preserve the caller's trace context.
 
-    Usage:
+    Example:
         from concurrent.futures import ThreadPoolExecutor
 
         with ThreadPoolExecutor() as executor:
@@ -157,15 +156,17 @@ class TracedExecutorWrapper:
         *iterables: Any,
         **kwargs: Any,
     ) -> Any:
-        """Map with trace context propagation."""
+        """Call `executor.map()` with a context-preserving wrapper around `fn`."""
         wrapped = with_trace_context(fn)
         return self._executor.map(wrapped, *iterables, **kwargs)
 
     def __enter__(self) -> "TracedExecutorWrapper":
+        """Enter the wrapped executor context and return the tracing wrapper."""
         self._executor.__enter__()
         return self
 
     def __exit__(self, *args: Any) -> Any:
+        """Delegate context-manager teardown to the wrapped executor."""
         return self._executor.__exit__(*args)
 
 
@@ -174,12 +175,12 @@ def create_child_context(
     attributes: dict[str, Any] | None = None,
 ) -> tuple[Context, trace.Span]:
     """
-    Create a child context for parallel execution.
+    Create a child span/context pair for manually managed parallel work.
 
     This creates a new span as a child of the current span,
     and returns both the context and span for manual management.
 
-    Usage:
+    Example:
         ctx, span = create_child_context("parallel_task")
         try:
             token = attach(ctx)

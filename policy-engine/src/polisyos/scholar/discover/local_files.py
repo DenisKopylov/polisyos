@@ -1,4 +1,4 @@
-"""Public discover local files module API."""
+"""Loads local-file Scholar seed sources into the normalized acquire payload shape."""
 from __future__ import annotations
 
 from pathlib import Path
@@ -37,7 +37,7 @@ def _doc_source_from_source(
 
 
 def read_local_file(source: SourceSpec, *, max_bytes: int | None) -> AcquireResult:
-    """Read local file helper."""
+    """Read a local Scholar source, validate size and MIME, and return an ``AcquireResult``."""
     if source.kind != "local_file":
         raise ScholarValidationError(
             "read_local_file expects kind=local_file",

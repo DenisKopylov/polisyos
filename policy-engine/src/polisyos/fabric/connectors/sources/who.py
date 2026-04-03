@@ -1,4 +1,4 @@
-"""Public sources who module API."""
+"""WHO Global Health Observatory connector implementation for indicator and observation APIs."""
 from __future__ import annotations
 
 import json

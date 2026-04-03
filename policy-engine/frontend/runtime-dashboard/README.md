@@ -74,12 +74,13 @@ Guardrails:
 ## Команды
 
 ```bash
-npm ci
+npm ci --ignore-scripts
 npm run generate:api
 npm run typecheck
 npm run lint
 npm run format:check
 npm run check:architecture
+npm run test:components
 npm run test:coverage
 npm run test:a11y
 npm run build
@@ -92,14 +93,37 @@ npm run dev
 npm run preview
 npm run dev:mock
 npm run build-storybook
-npm run test:e2e
-npm run test:e2e:smoke
+npm run test:journeys
+npm run test:journeys:smoke
 npm run test:visual
 npm run analyze:bundle
 npm run check:bundle
 npm run bundle:stats
 npm run lighthouse:ci
 npm run audit:ci
+```
+
+## Test Taxonomy
+
+- `frontend component`: `npm run test:components`
+- `frontend journey`: `npm run test:journeys`
+- `visual`: `npm run test:visual`
+
+Shared Playwright semantics:
+
+- `@smoke`: smallest representative confidence slice
+- `@slow`: intentionally outside the fastest loop
+- `@flaky`: unstable and needs owner follow-up
+- `@quarantine`: excluded by default; opt in with `PLAYWRIGHT_INCLUDE_QUARANTINE=1`
+
+If a Playwright test uses `@flaky` or `@quarantine`, the exact tagged test title must also appear as a `runner = "playwright"` selector in [`tests/quarantine.toml`](/Users/deniskopylov/polisyos/policy-engine/tests/quarantine.toml). CI validates this mapping.
+
+Explicit quarantine selectors:
+
+```bash
+npm run test:journeys:quarantine
+npm run test:journeys:flaky
+npm run test:visual:quarantine
 ```
 
 `dev:mock` только выставляет `VITE_USE_MOCKS=true`; встроенных mock-handlers в репозитории нет.
@@ -119,7 +143,7 @@ Frontend CI теперь должен проверять:
 - `bundle diff` PR summary
 - `Lighthouse CI` PR summary
 - `dependency audit` PR artifact/comment
-- `test:e2e:smoke`
+- `test:journeys:smoke`
 - `test:visual` + diff artifacts
 - `generate:api` drift against checked-in `src/api/types.ts`
 
@@ -151,6 +175,7 @@ Frontend CI теперь должен проверять:
 - Переменная `RUNTIME_API_URL` меняет proxy target в dev-сервере.
 - Переменная `VITE_RUNTIME_API_URL` задает базовый URL напрямую для `openapi-fetch`.
 - `VITE_AUTH_REFRESH_URL` включает silent refresh flow; refresh token остаётся backend-managed `HttpOnly` cookie.
+- `frontend/runtime-dashboard/.env.example` — безопасная стартовая точка только для public `VITE_*` config; CI/release secrets вроде `SENTRY_AUTH_TOKEN` в frontend `.env` не хранятся.
 
 ## Observability и security artifacts
 

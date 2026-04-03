@@ -36,7 +36,7 @@ READINESS_THRESHOLDS: dict[str, float] = {
 
 @dataclass(frozen=True)
 class BenchmarkOutcome:
-    """Benchmark outcome public type."""
+    """Readiness report emitted by the academic runtime benchmark stage."""
     report_path: Path
     metrics: dict[str, float | int]
     passed: bool
@@ -679,7 +679,12 @@ def _quality_weighted_parameter_score(
 
 
 def run_benchmark(config: AcademicBatchConfig) -> BenchmarkOutcome:
-    """Run benchmark."""
+    """Run the SKG benchmark suite and persist readiness/backlog artifacts.
+
+    The benchmark probes canonical-name resolution, causal-edge support, parameter availability,
+    scholar-query coverage, and transport evidence quality, then writes a need backlog for missing
+    runtime demands.
+    """
     if not config.db_path.exists():
         raise FileNotFoundError(f"Academic knowledge graph not found: {config.db_path}")
 

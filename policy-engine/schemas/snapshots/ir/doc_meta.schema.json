@@ -1,5 +1,6 @@
 {
   "additionalProperties": false,
+  "description": "Doc meta public type.",
   "properties": {
     "canonical_url": {
       "anyOf": [

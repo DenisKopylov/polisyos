@@ -1,4 +1,9 @@
-"""Public claims extraction module API."""
+"""Chunk-based claim extraction stage for document-backed source claims.
+
+Extractor backends read normalized text chunks, emit ``ClaimCandidate`` rows, this module
+canonicalizes ids/units enough to build deterministic ``Claim`` payloads, deduplicates candidates,
+persists a claim-set artifact, and attaches optional evidence/provenance metadata.
+"""
 from __future__ import annotations
 
 import re
@@ -258,7 +263,24 @@ def extract_claims_from_doc(
     options: ClaimExtractOptions | None = None,
     segment_name: str | None = None,
 ) -> ClaimExtractResult:
-    """Extract claims from doc helper."""
+    """Extract source claims from a normalized/chunked document artifact.
+
+    Args:
+        cas: Artifact store containing ``DocMeta``, normalized text, and chunk artifacts.
+        fact_log_root: Fact-log root for claim facts and extraction world events.
+        doc_meta_artifact_id: Document metadata artifact to extract from.
+        extractor_id: Registered extractor backend id.
+        options: Optional extraction limits, chunk requirements, and evidence settings.
+        segment_name: Optional world segment name.
+
+    Returns:
+        Persisted claim-set artifact id, emitted claim ids, optional evidence reference, and
+        world-event/segment provenance.
+
+    Raises:
+        ClaimNotReadyError: If normalization/chunking prerequisites are missing.
+        ClaimValidationError: If options, chunks, or generated claim payloads are invalid.
+    """
     opts = options or ClaimExtractOptions()
 
     if opts.max_chunks is not None and opts.max_chunks < 0:

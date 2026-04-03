@@ -1,4 +1,4 @@
-"""Public causal symbolic identify module API."""
+"""Attempt symbolic causal identification and return formula/proof metadata."""
 from __future__ import annotations
 
 from collections.abc import Mapping
@@ -287,7 +287,7 @@ def _state_payload(
     tags={"causal", "transportability", "symbolic", "y0"},
 )
 class SymbolicIdentify:
-    """Symbolic identify public type."""
+    """Run symbolic ID over a graph/query contract; avoid treating identification output as an estimator without data support."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STRICT_CPU
 
     signature: ClassVar[MethodSignature] = MethodSignature(

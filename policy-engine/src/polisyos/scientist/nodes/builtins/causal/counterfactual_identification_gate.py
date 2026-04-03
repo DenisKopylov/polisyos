@@ -1,4 +1,10 @@
-"""Public causal counterfactual identification gate module API."""
+"""Simulation gate that blocks policy candidates with unidentified counterfactual queries.
+
+The node runs after `RunCausalReadinessNode` and before simulation. It reads the
+persisted readiness bundle and an optional allow-list of required query ids,
+then writes a compact gate summary into `state.params` for downstream search and
+governance diagnostics.
+"""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -45,7 +51,13 @@ _SPEC = NodeSpec(
 
 @dataclass(frozen=True)
 class CounterfactualGateDecision:
-    """Normalized gate decision derived from readiness-bundle query results."""
+    """Represent the normalized pass/fail decision for required counterfactual queries.
+
+    Attributes:
+        blocked: Whether simulation must stop for the current candidate.
+        summary: JSON-compatible explanation containing checked query ids,
+            failure metadata, or a skip reason.
+    """
 
     blocked: bool
     summary: dict[str, Any]
@@ -53,13 +65,24 @@ class CounterfactualGateDecision:
 
 @dataclass(frozen=True)
 class CounterfactualIdentificationGateNode:
-    """Stop simulation when required counterfactual queries are not identified."""
+    """Fail the DAG branch when required counterfactual checks are not identified.
+
+    Upstream assumptions: `artifacts_index.causal_readiness_bundle_ref` should
+    contain the bundle emitted by `RunCausalReadinessNode`; if it is absent the
+    gate records a skipped summary and lets the DAG continue. Required query ids
+    are read from `params.required_counterfactual_query_ids`.
+
+    Writes to state:
+        `params.counterfactual_gate_blocked` and
+        `params.counterfactual_gate_summary`.
+    """
 
     @property
     def spec(self) -> NodeSpec:
         return _SPEC
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
+        """Evaluate the gate and convert blocked decisions into a failing `NodeOutcome`."""
         decision = evaluate_counterfactual_gate(ctx, state)
         new_state = state.model_copy(deep=True)
         new_state.params["counterfactual_gate_blocked"] = decision.blocked
@@ -100,7 +123,16 @@ def evaluate_counterfactual_gate(
     ctx: ExecutionContext,
     state: ExperimentState,
 ) -> CounterfactualGateDecision:
-    """Evaluate the counterfactual gate using readiness artifacts in state."""
+    """Evaluate the counterfactual gate using readiness artifacts already in state.
+
+    Args:
+        ctx: Execution context used to load the persisted readiness bundle.
+        state: Current DAG state containing `artifacts_index` and `params`.
+
+    Returns:
+        `CounterfactualGateDecision` with either a pass/skip summary or a
+        blocker payload for the first failing required query.
+    """
 
     readiness_ref = state.artifacts_index.get(ARTIFACT_CAUSAL_READINESS_BUNDLE_REF)
     required_query_ids = _required_query_ids(state.params)
@@ -141,7 +173,15 @@ def evaluate_counterfactual_readiness_bundle(
     *,
     required_query_ids: tuple[str, ...] = (),
 ) -> CounterfactualGateDecision:
-    """Assess whether a readiness bundle clears required counterfactual queries."""
+    """Check the supplied readiness bundle against required counterfactual query ids.
+
+    Args:
+        bundle: Readiness bundle emitted by `RunCausalReadinessNode`.
+        required_query_ids: Optional subset of query ids that must be identified.
+
+    Returns:
+        Gate decision summarizing pass, skip, or blocked status.
+    """
 
     results = list(bundle.counterfactual_results)
     if required_query_ids:

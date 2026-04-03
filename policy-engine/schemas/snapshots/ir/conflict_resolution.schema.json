@@ -2,6 +2,7 @@
   "$defs": {
     "ConflictResolutionCandidate": {
       "additionalProperties": false,
+      "description": "Conflict resolution candidate public type.",
       "properties": {
         "claim_id": {
           "pattern": "^[a-z][a-z0-9_.-]*$",
@@ -30,6 +31,7 @@
     },
     "ConflictResolutionInputs": {
       "additionalProperties": false,
+      "description": "Conflict resolution inputs public type.",
       "properties": {
         "claim_ids": {
           "items": {
@@ -61,6 +63,7 @@
     }
   },
   "additionalProperties": false,
+  "description": "Conflict resolution public type.",
   "properties": {
     "algorithm_version": {
       "title": "Algorithm Version",

@@ -51,7 +51,7 @@ def _weighted_gini(values: np.ndarray, weights: np.ndarray) -> float:
     tags={"microsim", "simulation", "survey"},
 )
 class StaticMicrosimEstimator:
-    """Static microsim estimator implementation."""
+    """Run a one-period microsimulation over household tax and transfer rules."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 

@@ -1,4 +1,9 @@
-"""Public corpus ingest module API."""
+"""Lex corpus ingest stage that wraps Fabric document ingestion with legal metadata semantics.
+
+The stage stores raw bytes through ``fabric.docs.ingest_doc_bytes``, optionally chains normalize /
+structure / chunk steps, then merges Lex-specific temporal and jurisdiction metadata into
+``DocMeta.props['lex']`` and emits deterministic world facts for downstream version indexing.
+"""
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -117,7 +122,25 @@ def ingest_legal_doc_bytes(
     options: LexIngestOptions | None = None,
     segment_name: str | None = None,
 ) -> LexIngestResult:
-    """Ingest legal doc bytes helper."""
+    """Persist raw legal bytes and attach Lex provenance metadata.
+
+    Args:
+        cas: Artifact store for raw payloads, updated ``DocMeta``, and optional derived artifacts.
+        fact_log_root: World fact-log root where document facts and validation events are appended.
+        source: Legal source identity and temporal metadata; exactly one stable locator is required.
+        raw_bytes: Original document payload to ingest.
+        mime: MIME type used by Fabric normalization backends.
+        options: Optional stage toggles and provenance/event settings.
+        segment_name: Optional world segment name prefix.
+
+    Returns:
+        Document source/version ids, raw/normalized/structure/chunk artifact ids, updated
+        ``DocMeta`` artifact id, emitted world events, and wrapped Fabric stage outputs.
+
+    Raises:
+        LexValidationError: If Fabric document contracts or Lex metadata invariants fail.
+        LexIngestError: If persistence or world-event emission fails unexpectedly.
+    """
     opts = options or LexIngestOptions()
 
     try:

@@ -56,7 +56,7 @@ class AdversarialScenarioProposal(BaseModel):
 
 
 class AdversarialScenarioBundle(BaseModel):
-    """Adversarial scenario bundle data model."""
+    """Scenario pack describing the adversarial probes prepared for a policy candidate."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -68,7 +68,7 @@ class AdversarialScenarioBundle(BaseModel):
 
 
 class ScenarioAdversaryConfig(BaseModel):
-    """Scenario adversary config data model."""
+    """Budget, sampling, and fallback controls for the LLM-assisted policy adversary."""
     model_config = ConfigDict(extra="forbid")
 
     model_name: str = "gpt-5.4"
@@ -83,7 +83,7 @@ class ScenarioAdversaryConfig(BaseModel):
 
 
 class AdversaryExecutionResult(BaseModel):
-    """Adversary execution result data model."""
+    """Result bundle returned after scenario proposal, DOE compilation, and stress execution."""
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
 
     scenario_bundle: AdversarialScenarioBundle
@@ -342,7 +342,7 @@ def persist_adversarial_scenario_bundle(
     *,
     inputs: list[InputRef] | None = None,
 ) -> ArtifactRef:
-    """Persist adversarial scenario bundle helper."""
+    """Persist the adversarial scenario bundle so robustness probes can be replayed later."""
     return store.put_json(
         bundle,
         PutOptions(

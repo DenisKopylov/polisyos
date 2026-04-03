@@ -337,7 +337,7 @@ class ConstraintCritic:
 
 
 def critique_to_failure_cards(critique: ConstraintCritique) -> list[TypedFailureCard]:
-    """Critique to failure cards helper."""
+    """Convert failed policy critiques into reusable failure cards for future search loops."""
     cards: list[TypedFailureCard] = []
     for finding in critique.findings:
         severity = {
@@ -366,7 +366,7 @@ def critique_to_lesson_cards(
     candidate_hash: str,
     source_run_id: str,
 ) -> list[LessonCard]:
-    """Critique to lesson cards helper."""
+    """Convert critique findings into lesson cards that later candidates can retrieve."""
     return [
         lesson_from_failure_card(
             card,
@@ -382,7 +382,7 @@ def critique_to_lesson_cards(
 
 
 def trace_to_mutation_hints(trace: ConstraintTrace) -> list[str]:
-    """Trace to mutation hints helper."""
+    """Extract concise mutation hints from a constraint trace for the next search iteration."""
     return list(trace.mutation_hints)
 
 

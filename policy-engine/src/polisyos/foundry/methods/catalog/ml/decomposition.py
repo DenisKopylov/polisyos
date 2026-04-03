@@ -1,4 +1,4 @@
-"""Public ml decomposition module API."""
+"""Project tabular features into low-dimensional linear embeddings."""
 from __future__ import annotations
 
 from typing import Any, ClassVar, Mapping
@@ -43,7 +43,7 @@ def _tabular_payload(state: Any) -> dict[str, Any]:
     tags={"ml", "decomposition", "pca"},
 )
 class PCAEstimator:
-    """PCA estimator implementation."""
+    """Extract orthogonal principal components under linear variance structure; avoid interpreting components causally."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("scikit-learn", "numpy")
 

@@ -1,4 +1,4 @@
-"""Public ir kernel package API."""
+"""Stable registry facade for kernel slots, units, metrics, constraints, and mechanism specs."""
 from .base import ID_PATTERN, SLOT_ID_PATTERN, KernelModel
 from .constraints import DEFAULT_CONSTRAINT_REGISTRY, ConstraintRegistry, ConstraintSpec
 from .mechanisms import (

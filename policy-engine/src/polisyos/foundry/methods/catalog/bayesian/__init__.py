@@ -1,4 +1,4 @@
-"""Public catalog bayesian package API."""
+"""Expose posterior-inference and Bayesian regression/mixture methods."""
 from __future__ import annotations
 
 from polisyos.foundry.methods.exceptions import MethodAlreadyRegisteredError
@@ -18,7 +18,7 @@ from .timeseries import BayesianAutoregressionEstimator
 
 
 def ensure_bayesian_methods_registered(registry: MethodRegistry | None = None) -> None:
-    """Ensure bayesian methods registered helper."""
+    """Register built-in Bayesian methods into `registry` or the global singleton."""
     reg = registry if registry is not None else MethodRegistry.get_instance()
     for method_class in register_bayesian_methods():
         try:

@@ -35,7 +35,7 @@ def _result_slot() -> frozenset[SlotSpec]:
     tags={"policy", "mcda", "topsis", "multi-criteria", "structural"},
 )
 class TOPSISEstimator:
-    """TOPSIS estimator implementation."""
+    """Rank policy options by distance to ideal and anti-ideal outcomes."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -139,7 +139,7 @@ class TOPSISEstimator:
     tags={"policy", "mcda", "ahp", "multi-criteria", "structural"},
 )
 class AHPEstimator:
-    """AHP estimator implementation."""
+    """Rank policy options with analytic hierarchy process judgments."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -236,7 +236,7 @@ class AHPEstimator:
     tags={"policy", "mcda", "electre", "multi-criteria", "structural"},
 )
 class ELECTREEstimator:
-    """ELECTRE estimator implementation."""
+    """Rank policy options with ELECTRE-style outranking comparisons."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 

@@ -56,7 +56,7 @@ class ParameterCandidate:
 
 @dataclass(frozen=True)
 class EdgeSupportRecord:
-    """Edge support record data model."""
+    """Summarize the evidence currently supporting one SKG edge after claim/article synthesis."""
     edge_id: str
     src: str
     dst: str
@@ -81,7 +81,7 @@ class EdgeSupportRecord:
 
 @dataclass(frozen=True)
 class EdgeTransportRecord:
-    """Edge transport record data model."""
+    """Summarize how strongly an SKG edge transports into a target context profile."""
     edge_id: str
     target_context_id: str
     transport_confidence: float

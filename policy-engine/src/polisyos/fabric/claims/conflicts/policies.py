@@ -1,4 +1,4 @@
-"""Public conflicts policies module API."""
+"""Resolution policies that score competing claims after conflict detection."""
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -9,7 +9,7 @@ from polisyos.fabric.claims.errors import ClaimValidationError
 
 @dataclass(frozen=True)
 class ConflictPolicy:
-    """Conflict policy data model."""
+    """Weights and tolerances used to rank competing claims inside one conflict set."""
     policy_id: str
     policy_version: str
     tolerance: Decimal

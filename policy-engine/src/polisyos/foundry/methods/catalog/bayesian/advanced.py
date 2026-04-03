@@ -1,4 +1,4 @@
-"""Public bayesian advanced module API."""
+"""Estimate hierarchical, HMC/NUTS, and mixture-model Bayesian methods."""
 from __future__ import annotations
 
 from typing import Any, ClassVar, Mapping
@@ -657,7 +657,7 @@ def _mixture_posterior_result(
     tags={"bayesian", "hierarchical", "regression"},
 )
 class BayesianHierarchicalRegressionEstimator:
-    """Bayesian hierarchical regression estimator implementation."""
+    """Estimate pooled and group-level coefficients with hierarchical shrinkage; avoid when group structure is absent or priors are arbitrary."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
     optional_deps: ClassVar[tuple[str, ...]] = ("arviz",)
@@ -866,7 +866,7 @@ class BayesianHierarchicalRegressionEstimator:
     tags={"bayesian", "sampling", "hmc"},
 )
 class BayesianHMCRegressionEstimator:
-    """Bayesian HMC regression estimator implementation."""
+    """Sample a Bayesian linear-regression posterior with HMC; avoid strongly multimodal or poorly scaled posteriors without reparameterization."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
     optional_deps: ClassVar[tuple[str, ...]] = ("arviz",)
@@ -1021,7 +1021,7 @@ class BayesianHMCRegressionEstimator:
     tags={"bayesian", "sampling", "nuts"},
 )
 class BayesianNUTSRegressionEstimator:
-    """Bayesian NUTS regression estimator implementation."""
+    """Sample a Bayesian linear-regression posterior with NUTS-style path expansion; avoid expensive runs on very large design matrices."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
     optional_deps: ClassVar[tuple[str, ...]] = ("arviz",)
@@ -1179,7 +1179,7 @@ class BayesianNUTSRegressionEstimator:
     tags={"bayesian", "mixture", "gaussian-mixture", "tabular", "estimation", "uncertainty"},
 )
 class BayesianGaussianMixtureEstimator:
-    """Bayesian gaussian mixture estimator implementation."""
+    """Fit a finite Bayesian Gaussian mixture for soft clustering; avoid highly non-Gaussian clusters or too few observations."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
     method_variant: ClassVar[str] = "gaussian_mixture"
@@ -1262,7 +1262,7 @@ class BayesianGaussianMixtureEstimator:
     tags={"bayesian", "nonparametric", "dirichlet-process", "tabular", "estimation", "uncertainty"},
 )
 class DirichletProcessMixtureEstimator:
-    """Dirichlet process mixture estimator implementation."""
+    """Approximate a DP mixture when cluster count is unknown; avoid very small datasets where nonparametric clustering is unstable."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
     method_variant: ClassVar[str] = "dirichlet_process_mixture"

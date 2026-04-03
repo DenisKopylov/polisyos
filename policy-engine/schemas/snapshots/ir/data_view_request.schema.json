@@ -1,6 +1,7 @@
 {
   "$defs": {
     "AccessTier": {
+      "description": "Access-sensitivity tier required to materialize a data view.",
       "enum": [
         "public",
         "internal",
@@ -11,6 +12,7 @@
     },
     "DataFilter": {
       "additionalProperties": false,
+      "description": "Predicate applied while slicing a materialized data view.",
       "properties": {
         "column": {
           "title": "Column",
@@ -48,6 +50,7 @@
       "type": "object"
     },
     "DataViewType": {
+      "description": "Logical shape of a runtime data view request.",
       "enum": [
         "panel",
         "snapshot",
@@ -58,6 +61,7 @@
     }
   },
   "additionalProperties": false,
+  "description": "Request for a panel, snapshot, or network view over execution data.",
   "properties": {
     "access_tier": {
       "$ref": "#/$defs/AccessTier"

@@ -1,4 +1,4 @@
-"""Governance pass: enforce escalation rules for high-stakes decisions."""
+"""Enforce human-escalation and conflict-acknowledgement rules for high-stakes decisions."""
 
 from __future__ import annotations
 
@@ -9,11 +9,15 @@ from polisyos.core.governance.passes.base import PassContext, ValidatorPass
 
 
 class EscalationPass(ValidatorPass):
-    """Validate escalation requirements for policy decisions.
+    """Block missing human review for high-impact items and critical conflicts.
 
     Checks that high-risk or high-impact decisions have the required
     human review markers, and that escalation conditions trigger
-    appropriate review flags.
+    appropriate review flags. Reads `impact_score`, `human_reviewed`,
+    `escalation_acknowledged`, and `unresolved_conflicts` from state. Scores
+    above `require_human_review_above` emit blockers, scores above
+    `impact_threshold` emit warnings, and critical unresolved conflicts are
+    always blockers.
     """
 
     def __init__(

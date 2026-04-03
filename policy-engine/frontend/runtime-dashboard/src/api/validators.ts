@@ -501,8 +501,16 @@ export const capabilityManifestSchema = z.object({
   meta: apiMetaSchema,
   runtime_api_version: z.string().default("1.0.0"),
   shell_flavor: z.string().default("atlas"),
+  default_execution_profile: z
+    .enum(["dev", "research", "governed", "production"])
+    .default("dev"),
   default_locale: z.enum(["en", "uk"]).default("en"),
+  supported_execution_profiles: z
+    .array(z.enum(["dev", "research", "governed", "production"]))
+    .default(["dev", "research", "governed", "production"]),
   supported_locales: z.array(z.enum(["en", "uk"])).default(["en", "uk"]),
+  state_store_backend: z.string().default("sqlite"),
+  worker_backend: z.string().default("embedded"),
   workspaces: z.array(z.string()).default([]),
   features: z.array(capabilityFeatureSchema).default([]),
   constraints: z.record(z.string(), z.unknown()).default({}),

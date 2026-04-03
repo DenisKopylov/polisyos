@@ -1,4 +1,4 @@
-"""Public foundry data plane package API."""
+"""Expose input-binding helpers that bridge external data into Foundry state snapshots."""
 from __future__ import annotations
 
 from .bindings import (

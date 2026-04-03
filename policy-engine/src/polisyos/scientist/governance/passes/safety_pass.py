@@ -1,4 +1,9 @@
-"""Public passes safety pass module API."""
+"""Deprecated compatibility shim for the core safety governance pass.
+
+`SafetyPass` is implemented in `polisyos.core.governance.passes.safety_pass`.
+The Scientist-local module remains as a warning-emitting alias for existing
+configs and generated reference docs.
+"""
 from __future__ import annotations
 
 import warnings

@@ -1,4 +1,4 @@
-"""Public analytics uncertainty module API."""
+"""Normalize uncertainty intervals and governance eligibility across IR artifacts."""
 from __future__ import annotations
 
 import math
@@ -25,7 +25,7 @@ class UncertaintySource(str, Enum):
 
 
 class DistributionFamily(str, Enum):
-    """Distribution family assumed when interpreting an uncertainty interval."""
+    """Declare the assumed sampling/posterior family behind an interval estimate."""
 
     NORMAL = "normal"
     BOOTSTRAP = "bootstrap"
@@ -36,7 +36,7 @@ class DistributionFamily(str, Enum):
 
 
 class PropagationMethod(str, Enum):
-    """Method used to propagate uncertainty into the reported interval."""
+    """Declare how uncertainty was propagated before the interval reached the IR."""
 
     DELTA_METHOD = "delta_method"
     MONTE_CARLO = "monte_carlo"
@@ -45,7 +45,12 @@ class PropagationMethod(str, Enum):
 
 
 class IntervalSemantics(str, Enum):
-    """Interpretation of the interval stored in an uncertainty envelope."""
+    """Tell governance/reporting whether an interval is statistical or heuristic.
+
+    ``UncertaintyEnvelope`` validators use this enum to enforce when
+    ``confidence_level`` must be present and when the interval must be marked
+    non-gate-eligible.
+    """
 
     CONFIDENCE_INTERVAL = "confidence_interval"
     CREDIBLE_INTERVAL = "credible_interval"
@@ -166,7 +171,7 @@ def persist_uncertainty_envelope(
     schema_name: str = "ir.uncertainty_envelope",
     schema_version: str = "1.0",
 ) -> UncertaintyEnvelopeRef:
-    """Persist uncertainty envelope helper."""
+    """Persist an uncertainty envelope as a typed JSON artifact reference."""
     ref = put_json_artifact(
         store,
         envelope.model_dump(mode="python"),

@@ -1,4 +1,4 @@
-"""Public components compliance module API."""
+"""Validate component metadata and runtime shape against host ABI contracts."""
 from __future__ import annotations
 
 from collections.abc import Iterable
@@ -15,7 +15,11 @@ if TYPE_CHECKING:
 
 
 class HostAbi(BaseModel):
-    """Host abi public type."""
+    """Describe host-supported ABI versions used to accept/reject components.
+
+    Set `strict=False` to downgrade missing/incompatible host ABI findings from
+    errors to warnings during local discovery or exploratory bootstrap.
+    """
     model_config = ConfigDict(extra="forbid")
 
     versions: dict[str, str] = Field(default_factory=dict)
@@ -23,7 +27,7 @@ class HostAbi(BaseModel):
 
 
 class ComplianceIssue(BaseModel):
-    """Compliance issue data model."""
+    """Report one metadata/dependency/runtime-shape compliance finding."""
     model_config = ConfigDict(extra="forbid")
 
     severity: Literal["error", "warning"]
@@ -59,7 +63,12 @@ _REQUIRED_ABI_KEYS: dict[ComponentKind, tuple[tuple[str, ...], ...]] = {
 
 
 def validate_component_id(value: str) -> ComponentId:
-    """Parse and validate a ComponentId string."""
+    """Parse and normalize a `ComponentId` boundary string.
+
+    Raises:
+        TypeError: If `value` is not a string.
+        ValueError: If `value` does not match `seg(.seg)+@semver`.
+    """
     return ComponentId.parse(value)
 
 
@@ -70,7 +79,21 @@ def validate_metadata(
     available_components: object | None = None,
     component: "Component | None" = None,
 ) -> list[ComplianceIssue]:
-    """Validate component metadata against host ABI and discovered dependencies."""
+    """Validate a component before registration or bootstrap.
+
+    Args:
+        metadata: Declared component metadata to inspect.
+        host_abi: Host ABI versions and strictness policy. Defaults to an empty
+            strict host ABI, which turns missing host keys into errors.
+        available_components: Optional registry-like object used to resolve
+            declared dependencies.
+        component: Optional runtime component instance used to validate
+            `create()` output shape for governance-critical component kinds.
+
+    Returns:
+        A list of structured compliance issues; callers can use `has_errors()`
+        to decide whether bootstrap must stop.
+    """
     issues: list[ComplianceIssue] = []
     host = host_abi or HostAbi()
     component_id = str(metadata.component_id)
@@ -166,7 +189,7 @@ def validate_metadata(
 
 
 def has_errors(issues: Iterable[ComplianceIssue]) -> bool:
-    """Return whether has errors."""
+    """Return `True` when at least one compliance finding has `severity="error"`."""
     return any(issue.severity == "error" for issue in issues)
 
 

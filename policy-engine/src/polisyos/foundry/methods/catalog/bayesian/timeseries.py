@@ -1,4 +1,4 @@
-"""Public bayesian timeseries module API."""
+"""Estimate Bayesian autoregressive time-series models with posterior forecasts."""
 from __future__ import annotations
 
 from typing import Any, ClassVar, Mapping
@@ -60,7 +60,7 @@ def _output_slots() -> frozenset[SlotSpec]:
     tags={"bayesian", "sampling", "time-series"},
 )
 class BayesianAutoregressionEstimator:
-    """Bayesian autoregression estimator implementation."""
+    """Estimate an AR process with Bayesian shrinkage and forecast uncertainty; avoid nonstationary series unless preprocessed."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
     optional_deps: ClassVar[tuple[str, ...]] = ("arviz",)

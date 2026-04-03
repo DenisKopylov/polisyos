@@ -25,7 +25,7 @@ logger = get_logger(__name__)
 
 @dataclass(frozen=True)
 class ExecutePlanResult:
-    """Execute plan result data model."""
+    """Preview/execute outcome showing the chosen fetch plan, metric payload, and fallback usage."""
     preview: FetchPreview
     metric: DataContextMetric | None
     used_plan: FetchPlan

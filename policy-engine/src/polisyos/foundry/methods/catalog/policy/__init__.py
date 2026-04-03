@@ -1,4 +1,4 @@
-"""Public catalog policy package API."""
+"""Expose policy-evaluation methods and register them into the Foundry catalog."""
 from __future__ import annotations
 
 from polisyos.foundry.methods.exceptions import MethodAlreadyRegisteredError
@@ -26,7 +26,7 @@ from .welfare import (
 
 
 def ensure_policy_methods_registered(registry: MethodRegistry | None = None) -> None:
-    """Ensure policy methods registered helper."""
+    """Populate `registry` with policy methods for scoring, MCDA, and welfare analysis."""
     reg = registry if registry is not None else MethodRegistry.get_instance()
     for method_class in register_policy_methods():
         try:

@@ -1,6 +1,7 @@
 {
   "$defs": {
     "EntityScope": {
+      "description": "Granularity at which an observation is measured.\n\nThe scope determines which locator fields must be present on an\n:class:`ObservationRecord` and which downstream contracts can consume the\nresulting panel.",
       "enum": [
         "global",
         "agent",
@@ -15,6 +16,7 @@
       "type": "string"
     },
     "IdentificationMode": {
+      "description": "Declare the causal identification contract assumed by records and bundles.\n\nThese modes distinguish point-identified data from partially identified,\nproxy-based, interference-aware, or sequential settings so downstream\ncomponents can enforce the right guardrails. The value is read by\n:class:`polisyos.ir.observation.measurement.IdentificationModeRouter`,\nobservation contract compilers, and causal-readiness checks to select\nfallback paths or block unsafe execution.",
       "enum": [
         "point_identified",
         "partially_identified",
@@ -27,6 +29,7 @@
       "type": "string"
     },
     "ObservationFamily": {
+      "description": "Classify raw evidence into stable observation families for routing.\n\nFamilies partition raw evidence into domains such as budget flows, firm\nfundamentals, or household distribution so measurement rules, governance\ndefaults, and contract compilers can branch on a stable domain label.",
       "enum": [
         "budget_flows",
         "procurement_flows",
@@ -46,6 +49,7 @@
       "type": "string"
     },
     "SourceConfidenceTier": {
+      "description": "Declare the raw provenance tier consumed by measurement trust normalization.\n\n:class:`polisyos.ir.observation.measurement.MeasurementRegistry` maps this\nsource-side tier and coverage metadata into a ``MeasurementTrustTier`` used\nby calibration losses and readiness routing.",
       "enum": [
         "core",
         "validated",
@@ -66,6 +70,7 @@
     }
   },
   "additionalProperties": false,
+  "description": "Store one raw normalized measurement and the metadata needed for routing.\n\nRepresents one metric value for a specific entity scope and time window,\ntogether with the metadata needed for measurement-aware loss weighting,\nschema-regime boundary handling, and causal readiness routing.\n\nAttributes:\n    observation_id: Stable lineage identifier for the measurement.\n    family: Observation domain used by governance and compiler registries.\n    entity_scope: Granularity that determines which locator field is required.\n    coverage_estimate: Estimated share of the target population covered.\n    trust_weight: Raw source confidence weight before registry normalization.\n    identification_mode: Assumptions under which the value may be used causally.",
   "properties": {
     "cell_id": {
       "anyOf": [

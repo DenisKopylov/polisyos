@@ -1,4 +1,4 @@
-"""Public causal mediation module API."""
+"""Estimate mediation and controlled-direct-effect decompositions."""
 from __future__ import annotations
 
 from typing import Any, ClassVar, Mapping
@@ -30,7 +30,7 @@ def _result_slot() -> frozenset[SlotSpec]:
     tags={"causal", "mediation", "causal-mediation"},
 )
 class CausalMediationEstimator:
-    """Causal mediation estimator implementation."""
+    """Estimate ACME/ADE under sequential ignorability; avoid post-treatment confounding or mediator-outcome feedback."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -134,7 +134,7 @@ class CausalMediationEstimator:
     tags={"causal", "mediation", "controlled-direct-effect"},
 )
 class ControlledDirectEffectEstimator:
-    """Controlled direct effect estimator implementation."""
+    """Estimate a controlled direct effect at a fixed mediator level; avoid ill-defined mediator interventions."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 

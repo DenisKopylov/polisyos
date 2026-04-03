@@ -1,4 +1,4 @@
-"""Public foundry plugins package API."""
+"""Expose the Foundry plugin surface used for discovery and auto-registration."""
 from .api import PolisySimulator, SimulationConfig, SimulationResult, TrainingResult
 from .composite import (
     CompositeExecutor,

@@ -65,7 +65,7 @@ def _solver_status(status: str) -> SolverStatus:
     tags={"optimization", "convex", "socp"},
 )
 class SecondOrderConeProgramEstimator:
-    """Second order cone program estimator implementation."""
+    """Solve second-order cone programs for convex policy and resource problems."""
     runtime_stack: ClassVar[tuple[str, ...]] = ("cvxpy", "numpy")
 
     signature: ClassVar[MethodSignature] = MethodSignature(
@@ -182,7 +182,7 @@ class SecondOrderConeProgramEstimator:
     tags={"optimization", "stochastic-program"},
 )
 class TwoStageStochasticProgramEstimator:
-    """Two stage stochastic program estimator implementation."""
+    """Solve two-stage stochastic programs when recourse decisions depend on scenarios."""
     runtime_stack: ClassVar[tuple[str, ...]] = ("cvxpy", "numpy")
 
     signature: ClassVar[MethodSignature] = MethodSignature(
@@ -299,7 +299,7 @@ class TwoStageStochasticProgramEstimator:
     tags={"optimization", "dynamic-programming"},
 )
 class DynamicProgrammingEstimator:
-    """Dynamic programming estimator implementation."""
+    """Solve staged decision problems with Bellman-style dynamic programming."""
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
     signature: ClassVar[MethodSignature] = MethodSignature(

@@ -61,7 +61,7 @@ def _generate_uuid7() -> str:
 
 
 class CellSpec(BaseModel):
-    """Cell spec data model."""
+    """Provisioning contract for one isolation cell that can host PolicyOS tenants."""
     model_config = ConfigDict(frozen=True, extra="forbid", str_strip_whitespace=True)
 
     cell_id: str = Field(default_factory=_generate_uuid7)
@@ -113,7 +113,7 @@ class CellSpec(BaseModel):
 
 
 class TenantSpec(BaseModel):
-    """Tenant spec data model."""
+    """Tenant enrollment record used when assigning workloads into security cells."""
     model_config = ConfigDict(frozen=True, extra="forbid", str_strip_whitespace=True)
 
     tenant_id: str = Field(default_factory=lambda: str(uuid.uuid4()))

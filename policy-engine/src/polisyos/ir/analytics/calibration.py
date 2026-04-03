@@ -123,7 +123,12 @@ class FidelityConfig(BaseModel):
 
 
 class CalibrationTarget(BaseModel):
-    """Связка наблюдаемого ряда Fabric с метрикой симуляции."""
+    """Bind one observed Fabric series to the simulation metric being calibrated.
+
+    Calibration runners align the Fabric series using ``align``, evaluate the
+    target-specific loss configured in ``loss``, and optionally restrict which
+    trainable parameters should respond to this target.
+    """
 
     target_id: str = Field(..., max_length=128, description="Идентификатор таргета (уникален).")
     model_metric_path: str = Field(
@@ -197,7 +202,12 @@ class MultiStartConfig(BaseModel):
 
 
 class CalibrationConfig(BaseModel):
-    """Корневой контракт калибрации."""
+    """Configure a full calibration run over targets, trainables, and penalties.
+
+    This is the root calibration contract passed into optimization runners. It
+    defines the observed targets, trainable parameter set, loss regularizers,
+    fidelity mode, multi-start/Hessian behavior, and deterministic seeding.
+    """
 
     schema_version: str = Field("0.1", pattern=r"^\\d+\\.\\d+$")
     targets: List[CalibrationTarget] = Field(default_factory=list)

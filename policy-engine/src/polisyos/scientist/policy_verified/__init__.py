@@ -1,4 +1,4 @@
-"""Public scientist policy verified package API."""
+"""Stable policy-verification facade for request frames, legal packs, and verified reports."""
 from .models import (
     LegalCandidatePack,
     LegalSourcePack,

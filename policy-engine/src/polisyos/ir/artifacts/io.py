@@ -1,4 +1,4 @@
-"""Public artifacts io module API."""
+"""High-level helpers for persisting and loading canonical JSON artifacts through the IR CAS boundary."""
 from __future__ import annotations
 
 from typing import Any, Sequence
@@ -28,7 +28,7 @@ def put_json_artifact(
     inputs: Sequence[Any] | None = None,
     canon_spec: CanonSpec | None = None,
 ) -> dict[str, str]:
-    """Put json artifact helper."""
+    """Persist JSON plus schema/canonical metadata and return a normalized artifact reference."""
     canon_spec = canon_spec or CanonSpec()
     options = PutOptions(
         kind=kind,
@@ -51,7 +51,7 @@ def get_json_artifact(store: ArtifactStore, artifact_id: ArtifactID) -> Any:
 
 
 def normalize_input_sequence(inputs: Sequence[Any] | None) -> list[InputRef]:
-    """Normalize input sequence helper."""
+    """Reuse ``normalize_input_refs`` for callers that still pass generic input sequences."""
     return normalize_input_refs(inputs)
 
 

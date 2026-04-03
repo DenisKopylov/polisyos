@@ -95,7 +95,12 @@ _SPEC = NodeSpec(
 
 @dataclass(frozen=True)
 class RunDiscoveryBlueprintRuntimeNode:
-    """Run discovery blueprint runtime node implementation."""
+    """Planning DAG node that executes the discovery-first blueprint over tabular evidence inputs.
+
+    Reads discovery data, variable names, context, and evidence-source params, then
+    writes graph-prior and prior-knowledge refs together with the discovery artifact
+    bundle consumed by later causal and governance stages.
+    """
     @property
     def spec(self) -> NodeSpec:
         return _SPEC

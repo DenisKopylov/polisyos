@@ -1,4 +1,9 @@
-"""Public calibration loss module API."""
+"""Compute base calibration losses before measurement-aware reweighting.
+
+These helpers operate on simulated trace arrays and observed target arrays
+only. Observation trust, coverage, lag, censoring, and regime discounts are
+layered on top by `calibration.measurement` and auxiliary loss components.
+"""
 from __future__ import annotations
 
 from typing import Dict, Mapping, Tuple
@@ -21,7 +26,7 @@ def pointwise_base_loss(
     cfg: TargetLossConfig,
     scale: float,
 ) -> jnp.ndarray:
-    """Pointwise base loss helper."""
+    """Compute elementwise squared or Huber residual loss for one target series."""
     denom = scale + cfg.epsilon
     err = (y_pred - y_real) / denom
     if cfg.kind == "huber":
@@ -35,7 +40,11 @@ def reduce_weighted_loss(
     *,
     epsilon: float = 1e-8,
 ) -> jnp.ndarray:
-    """Reduce weighted loss helper."""
+    """Reduce a pointwise loss vector with optional non-negative weights.
+
+    When all weights collapse to zero, the helper returns `0.0` instead of
+    dividing by a near-zero total and injecting NaNs into the optimizer state.
+    """
     if weights is None:
         return jnp.mean(pointwise_loss)
     clipped = jnp.clip(jnp.asarray(weights, dtype=jnp.float32), 0.0)
@@ -53,7 +62,7 @@ def compute_base_loss(
     cfg: TargetLossConfig,
     scale: float,
 ) -> jnp.ndarray:
-    """Compute base loss helper."""
+    """Compute an unweighted per-target loss scalar from predicted vs observed arrays."""
     return reduce_weighted_loss(pointwise_base_loss(y_pred, y_real, cfg, scale), None, epsilon=cfg.epsilon)
 
 
@@ -64,7 +73,11 @@ def loss_components(
     scales: Mapping[str, float],
     weights: Mapping[str, float] | None = None,
 ) -> Tuple[jnp.ndarray, Dict[str, jnp.ndarray], Dict[str, jnp.ndarray]]:
-    """Loss components helper."""
+    """Aggregate weighted calibration losses across all available targets.
+
+    Returns:
+        Tuple of `(total_loss, per_target_weighted_loss, per_target_base_loss)`.
+    """
     total = jnp.array(0.0)
     per_target: Dict[str, jnp.ndarray] = {}
     per_target_base: Dict[str, jnp.ndarray] = {}
@@ -90,6 +103,6 @@ def unified_loss(
     scales: Mapping[str, float],
     weights: Mapping[str, float] | None = None,
 ) -> Tuple[jnp.ndarray, Dict[str, jnp.ndarray]]:
-    """Unified loss helper."""
+    """Return total loss plus per-target weighted losses for legacy callers."""
     total, per_target, _ = loss_components(predicted, targets, configs, scales, weights)
     return total, per_target

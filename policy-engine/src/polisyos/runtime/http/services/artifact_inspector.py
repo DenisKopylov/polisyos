@@ -1,4 +1,9 @@
-"""Public services artifact inspector module API."""
+"""Project CAS artifacts into redacted HTTP inspection views.
+
+`ArtifactInspectorService` is a read-only runtime boundary: it loads artifact
+manifests and payload bytes from CAS, applies preview limits and secret
+redaction, and delegates lineage expansion to `LineageService`.
+"""
 from __future__ import annotations
 
 from collections.abc import Callable
@@ -24,7 +29,12 @@ logger = get_logger(__name__)
 
 
 class ArtifactInspectorService:
-    """Artifact inspector service implementation."""
+    """Serve manifest/content/schema/lineage projections for one CAS artifact.
+
+    The service never mutates CAS state. Missing artifacts and invalid artifact
+    references surface as the underlying `FileSystemCAS` exceptions so HTTP
+    route handlers can translate them into RFC 7807 responses.
+    """
     def __init__(
         self,
         *,
@@ -39,6 +49,19 @@ class ArtifactInspectorService:
         self._redaction_hooks = dict(redaction_hooks or {})
 
     def get_manifest_view(self, artifact_id: ArtifactID) -> ArtifactManifestView:
+        """Return the manifest metadata used by `/artifacts/{id}/manifest`.
+
+        Args:
+            artifact_id: Canonical CAS artifact identifier.
+
+        Returns:
+            A normalized manifest projection with schema, producer, input, and
+            integrity metadata.
+
+        Raises:
+            FileNotFoundError: If the artifact or its manifest sidecar is
+                missing from CAS.
+        """
         manifest = self._store.get_manifest(artifact_id)
         schema = manifest.artifact_schema
         producer = manifest.producer
@@ -62,6 +85,26 @@ class ArtifactInspectorService:
         *,
         max_bytes: int | None = None,
     ) -> ArtifactContentPreview:
+        """Return a bounded, redacted content preview for an artifact payload.
+
+        JSON payloads are decoded only when the preview is not truncated. Text
+        payloads are decoded as UTF-8 when possible, and binary payloads fall
+        back to a hex preview. Artifact kinds containing secret-like markers or
+        custom redaction hooks are redacted before the response is returned.
+
+        Args:
+            artifact_id: Canonical CAS artifact identifier.
+            max_bytes: Optional per-request preview byte limit. Values are
+                clamped to `[1024, 2_000_000]`.
+
+        Returns:
+            A content preview DTO with mode, truncation metadata, and sanitized
+            payload content.
+
+        Raises:
+            FileNotFoundError: If the artifact bytes or manifest sidecar do not
+                exist in CAS.
+        """
         manifest = self._store.get_manifest(artifact_id)
         data = self._store.get_bytes(artifact_id)
         byte_size = len(data)
@@ -124,6 +167,18 @@ class ArtifactInspectorService:
         )
 
     def get_schema_view(self, artifact_id: ArtifactID) -> ArtifactSchemaView:
+        """Return schema metadata plus top-level JSON keys when available.
+
+        Args:
+            artifact_id: Canonical CAS artifact identifier.
+
+        Returns:
+            A schema projection derived from the manifest and a best-effort
+            inspection of JSON payload keys.
+
+        Raises:
+            FileNotFoundError: If the artifact manifest or bytes are missing.
+        """
         manifest = self._store.get_manifest(artifact_id)
         schema = manifest.artifact_schema
 
@@ -157,6 +212,16 @@ class ArtifactInspectorService:
         max_depth: int | None = None,
         max_nodes: int | None = None,
     ) -> ArtifactLineageView:
+        """Build an upstream lineage graph rooted at one artifact.
+
+        Args:
+            artifact_id: Root artifact to inspect.
+            max_depth: Optional traversal depth override.
+            max_nodes: Optional graph size override.
+
+        Returns:
+            A lineage graph with completeness and corruption flags.
+        """
         return self._lineage_service.build_for_artifact_ids(
             [artifact_id],
             max_depth=max_depth,

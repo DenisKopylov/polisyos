@@ -1,4 +1,4 @@
-"""Public autotune models module API."""
+"""Core autotune contracts for benchmark splits, promotion rules, and CAS persistence."""
 from __future__ import annotations
 
 import os
@@ -43,7 +43,7 @@ class MutationArtifact(BaseModel):
 
 
 class BenchmarkSplitManifest(BaseModel):
-    """Benchmark split manifest data model."""
+    """Assignment manifest that partitions benchmark item ids across selection, holdout, and sentinel splits."""
     model_config = ConfigDict(extra="forbid")
 
     suite_id: str = Field(..., min_length=1, max_length=128)
@@ -165,7 +165,7 @@ class BenchmarkEvaluation(BaseModel):
 
 
 class PromotionPolicy(BaseModel):
-    """Promotion policy data model."""
+    """Promotion rule that decides when a candidate may replace the current champion."""
     model_config = ConfigDict(extra="forbid")
 
     loop_id: str = Field(..., min_length=1, max_length=128)
@@ -235,14 +235,14 @@ class MutationCodec(Protocol):
 
 
 class RuntimeLoader(Protocol):
-    """Runtime loader implementation."""
+    """Protocol for loading the latest mutation artifact or baseline runtime state into a search loop."""
     def load(self, context: dict[str, Any] | None = None) -> MutationArtifact | None:
         ...
 
 
 @dataclass(frozen=True)
 class SearchLoopSpec:
-    """Search loop spec data model."""
+    """Wiring contract for one autotune loop: codec, generator, evaluator, policy, and runtime loader."""
     loop_id: str
     mutation_codec: MutationCodec | None
     candidate_generator: Any | None
@@ -252,17 +252,17 @@ class SearchLoopSpec:
 
 
 def default_cas_root() -> Path:
-    """Default cas root helper."""
+    """Return the default CAS root used by autotune persistence helpers."""
     return Path(os.environ.get("POLISYOS_CAS_ROOT", ".polisyos"))
 
 
 def default_search_registry_root() -> Path:
-    """Default search registry root helper."""
+    """Return the default filesystem root for autotune search registries."""
     return Path(os.environ.get("POLISYOS_SEARCH_REGISTRY_ROOT", ".polisyos/search_registry"))
 
 
 def default_store(root: Path | None = None) -> FileSystemCAS:
-    """Default store helper."""
+    """Construct a filesystem CAS rooted at the default autotune storage location."""
     return FileSystemCAS(root or default_cas_root())
 
 
@@ -293,7 +293,7 @@ def persist_mutation_artifact(
     kind: str | None = None,
     inputs: list[InputRef] | None = None,
 ) -> ArtifactRef:
-    """Persist mutation artifact helper."""
+    """Persist a mutation artifact to CAS and return its typed artifact reference."""
     return store.put_json(
         artifact,
         PutOptions(
@@ -315,7 +315,7 @@ def persist_benchmark_suite(
     *,
     inputs: list[InputRef] | None = None,
 ) -> ArtifactRef:
-    """Persist benchmark suite helper."""
+    """Persist a benchmark suite definition to CAS and return its typed artifact reference."""
     return store.put_json(
         suite,
         PutOptions(
@@ -334,7 +334,7 @@ def persist_split_manifest(
     *,
     inputs: list[InputRef] | None = None,
 ) -> ArtifactRef:
-    """Persist split manifest helper."""
+    """Persist a benchmark split manifest so the loop can replay its evaluation partitions."""
     return store.put_json(
         split_manifest,
         PutOptions(
@@ -356,7 +356,7 @@ def persist_benchmark_evaluation(
     *,
     inputs: list[InputRef] | None = None,
 ) -> ArtifactRef:
-    """Persist benchmark evaluation helper."""
+    """Persist a benchmark evaluation record and return its typed artifact reference."""
     merged_inputs = list(inputs or [])
     merged_inputs.append(InputRef(artifact_id=evaluation.candidate_ref.artifact_id, role="candidate"))
     return store.put_json(
@@ -375,7 +375,7 @@ def persist_benchmark_evaluation(
 
 
 def read_split_manifest(path: Path) -> BenchmarkSplitManifest:
-    """Read split manifest helper."""
+    """Load a benchmark split manifest from disk and validate its split assignments."""
     return BenchmarkSplitManifest.model_validate_json(path.read_text(encoding="utf-8"))
 
 

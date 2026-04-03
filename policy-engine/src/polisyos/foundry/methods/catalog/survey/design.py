@@ -30,7 +30,7 @@ def _result_slot() -> frozenset[SlotSpec]:
     tags={"survey", "design", "complex-survey"},
 )
 class ComplexSurveyDesignEstimator:
-    """Complex survey design estimator implementation."""
+    """Construct and analyze complex survey designs with strata, PSU, and weights."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 

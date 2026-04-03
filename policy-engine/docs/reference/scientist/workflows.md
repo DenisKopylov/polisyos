@@ -27,14 +27,26 @@ Key phases:
 
 | Phase | Representative nodes | Outcome |
 |-------|----------------------|---------|
-| Policy sourcing | `plan_policy_request`, `assemble_legal_candidate_pack`, `run_source_verification` | Verified legal and source pack |
-| Search and gating | `run_hierarchical_policy_search`, `run_causal_readiness`, `counterfactual_identification_gate` | Champion policy candidate that clears readiness gates |
-| Simulation and review | `run_simulation`, `legal_check`, `run_governance`, `build_verified_policy_report` | Executable verified policy report |
-| Translation | `run_policy_blueprint_runtime`, `run_policy_translation`, `run_translator_compliance` | Policy output bundle ready for delivery |
+| Policy sourcing | `plan_policy_request`, `assemble_legal_candidate_pack`, `expand_legal_source_pack`, `run_source_verification`, `run_source_gap_review` | Policy request frame plus verified legal/source packs and a source-verification report |
+| Search and gating | `draft_policy_options`, `run_hierarchical_policy_search`, `run_causal_readiness`, `counterfactual_identification_gate` | Champion policy candidate, frontier artifacts, and readiness gates |
+| Runtime preparation | `build_execution_plan`, `build_method_catalog_snapshot`, `run_preflight`, `ready_to_run`, `bind_foundry_inputs`, `compile_foundry` | Executable Foundry plan, method-catalog snapshot, and ready-to-run gate verdict |
+| Simulation and review | `run_simulation`, `legal_check`, `run_governance`, `run_evaluator`, `build_verified_policy_report` | Verified policy report plus evaluator verdict and governance packet |
+| Translation | `run_policy_blueprint_runtime`, `run_policy_translation`, `run_translator_compliance` | Policy output bundle, translator compliance result, and replayable delivery artifacts |
 
 ## API Reference
+
+::: polisyos.scientist.workflows
+
+::: polisyos.scientist.workflows.builder
+
+::: polisyos.scientist.workflows.selection
 
 ::: polisyos.scientist.workflows.causal_full
 
 ::: polisyos.scientist.workflows.policy_design
 
+::: polisyos.scientist.workflows.policy_verified
+
+::: polisyos.scientist.workflows.discovery
+
+::: polisyos.scientist.workflows.default

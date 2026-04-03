@@ -327,6 +327,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/control/decision-packets/{decision_packet_ref}/decision-validity": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read full decision validity lifecycle for a decision packet */
+        get: operations["get_packet_decision_validity"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/control/decision-validity/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Publish a durable decision invalidation event */
+        post: operations["publish_decision_validity_event"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/control/jobs/{job_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get durable control job status */
+        get: operations["get_control_job_status"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/control/lex/graph/stats": {
         parameters: {
             query?: never;
@@ -412,6 +463,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/control/outbox": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List durable control-plane outbox events */
+        get: operations["list_control_outbox"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/control/runs": {
         parameters: {
             query?: never;
@@ -446,6 +514,91 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/control/runs/{run_id}/decision-validity": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read full decision validity lifecycle for a run */
+        get: operations["get_run_decision_validity"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/control/runs/{run_id}/feedback/evaluate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Evaluate post-deployment monitoring for a run */
+        post: operations["evaluate_run_feedback"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/control/runs/{run_id}/reissue": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create a human-gated reissue run */
+        post: operations["reissue_run"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/control/workers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List control-plane worker leases */
+        get: operations["list_control_workers"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/debug/runs/{left_run_id}/compare/{right_run_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Run Compare */
+        get: operations["get_run_compare"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/debug/runs/{run_id}/errors": {
         parameters: {
             query?: never;
@@ -455,6 +608,23 @@ export interface paths {
         };
         /** Get Run Errors */
         get: operations["get_run_errors"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/debug/runs/{run_id}/feedback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Run Feedback */
+        get: operations["get_run_feedback"];
         put?: never;
         post?: never;
         delete?: never;
@@ -688,7 +858,10 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
-        /** AgentPipelineAttempt */
+        /**
+         * AgentPipelineAttempt
+         * @description Agent pipeline attempt public type.
+         */
         AgentPipelineAttempt: {
             /** Attempt */
             attempt: number;
@@ -710,12 +883,18 @@ export interface components {
             /** Verdict */
             verdict?: string | null;
         };
-        /** AgentPipelineResponse */
+        /**
+         * AgentPipelineResponse
+         * @description Response envelope returned by the agent-pipeline endpoint.
+         */
         AgentPipelineResponse: {
             meta: components["schemas"]["ApiMeta"];
             pipeline: components["schemas"]["AgentPipelineView"];
         };
-        /** AgentPipelineStep */
+        /**
+         * AgentPipelineStep
+         * @description Agent pipeline step public type.
+         */
         AgentPipelineStep: {
             /** Action */
             action: string;
@@ -759,7 +938,10 @@ export interface components {
                 [key: string]: number;
             };
         };
-        /** AgentPipelineView */
+        /**
+         * AgentPipelineView
+         * @description Composite runtime view of agent attempts, retrieval, evaluation, and iteration state.
+         */
         AgentPipelineView: {
             /** Attempts */
             attempts?: components["schemas"]["AgentPipelineAttempt"][];
@@ -791,7 +973,10 @@ export interface components {
              */
             total_attempts: number;
         };
-        /** ApiMeta */
+        /**
+         * ApiMeta
+         * @description Api meta public type.
+         */
         ApiMeta: {
             /**
              * Generated At
@@ -803,7 +988,10 @@ export interface components {
             /** Source Kinds */
             source_kinds?: "core_run"[];
         };
-        /** ArtifactContentPreview */
+        /**
+         * ArtifactContentPreview
+         * @description Artifact content preview public type.
+         */
         ArtifactContentPreview: {
             /** Artifact Id */
             artifact_id: string;
@@ -828,17 +1016,26 @@ export interface components {
              */
             truncated: boolean;
         };
-        /** ArtifactContentResponse */
+        /**
+         * ArtifactContentResponse
+         * @description Response envelope returned by the artifact preview/content endpoint.
+         */
         ArtifactContentResponse: {
             artifact: components["schemas"]["ArtifactContentPreview"];
             meta: components["schemas"]["ApiMeta"];
         };
         /**
          * ArtifactID
-         * @description Format: sha256:<64hex>
+         * @description Represent a normalized CAS identifier in `sha256:<64hex>` form.
+         *
+         *     The `sha256:` prefix and lowercase 64-hex digest are part of the stable ABI
+         *     used in manifests, runtime URLs, CLI arguments, and signature statements.
          */
         ArtifactID: string;
-        /** ArtifactLineageEdge */
+        /**
+         * ArtifactLineageEdge
+         * @description Artifact lineage edge public type.
+         */
         ArtifactLineageEdge: {
             /** Child Artifact Id */
             child_artifact_id: string;
@@ -847,7 +1044,10 @@ export interface components {
             /** Role */
             role: string;
         };
-        /** ArtifactLineageNode */
+        /**
+         * ArtifactLineageNode
+         * @description One node in the artifact-lineage graph with status, size, role, and depth.
+         */
         ArtifactLineageNode: {
             /** Artifact Id */
             artifact_id: string;
@@ -868,12 +1068,18 @@ export interface components {
             /** Status */
             status: string;
         };
-        /** ArtifactLineageResponse */
+        /**
+         * ArtifactLineageResponse
+         * @description Response envelope returned by the artifact lineage endpoint.
+         */
         ArtifactLineageResponse: {
             lineage: components["schemas"]["ArtifactLineageView"];
             meta: components["schemas"]["ApiMeta"];
         };
-        /** ArtifactLineageView */
+        /**
+         * ArtifactLineageView
+         * @description Artifact lineage graph plus completeness and corruption indicators.
+         */
         ArtifactLineageView: {
             /** Corrupted Artifact Ids */
             corrupted_artifact_ids?: string[];
@@ -906,12 +1112,18 @@ export interface components {
              */
             total_size_bytes: number;
         };
-        /** ArtifactManifestResponse */
+        /**
+         * ArtifactManifestResponse
+         * @description Response envelope returned by the artifact manifest endpoint.
+         */
         ArtifactManifestResponse: {
             artifact: components["schemas"]["ArtifactManifestView"];
             meta: components["schemas"]["ApiMeta"];
         };
-        /** ArtifactManifestView */
+        /**
+         * ArtifactManifestView
+         * @description Metadata returned when a client inspects a stored artifact manifest.
+         */
         ArtifactManifestView: {
             /** Artifact Id */
             artifact_id: string;
@@ -939,7 +1151,10 @@ export interface components {
             /** Schema Version */
             schema_version?: string | null;
         };
-        /** ArtifactRef */
+        /**
+         * ArtifactRef
+         * @description Reference an artifact across service, registry, and governance boundaries.
+         */
         ArtifactRef: {
             artifact_id: components["schemas"]["ArtifactID"];
             /** Kind */
@@ -947,12 +1162,18 @@ export interface components {
             /** Media Type */
             media_type: string;
         };
-        /** ArtifactSchemaResponse */
+        /**
+         * ArtifactSchemaResponse
+         * @description Response envelope returned by the artifact schema endpoint.
+         */
         ArtifactSchemaResponse: {
             meta: components["schemas"]["ApiMeta"];
             schema: components["schemas"]["ArtifactSchemaView"];
         };
-        /** ArtifactSchemaView */
+        /**
+         * ArtifactSchemaView
+         * @description Schema metadata exposed for an artifact's serialized payload.
+         */
         ArtifactSchemaView: {
             /** Artifact Id */
             artifact_id: string;
@@ -967,7 +1188,10 @@ export interface components {
             /** Top Level Keys */
             top_level_keys?: string[];
         };
-        /** AuthMeResponse */
+        /**
+         * AuthMeResponse
+         * @description Authenticated principal payload returned by the runtime ``/auth/me`` endpoint.
+         */
         AuthMeResponse: {
             /** Cell Id */
             cell_id?: string | null;
@@ -998,7 +1222,10 @@ export interface components {
             /** User Id */
             user_id: string;
         };
-        /** BindingProfileInfo */
+        /**
+         * BindingProfileInfo
+         * @description Describe one schema-binding profile used to normalize ingested datasets.
+         */
         BindingProfileInfo: {
             /**
              * Description
@@ -1026,13 +1253,19 @@ export interface components {
             /** Tags */
             tags?: string[];
         };
-        /** BindingProfilesListResponse */
+        /**
+         * BindingProfilesListResponse
+         * @description Return binding profile metadata with standard API metadata.
+         */
         BindingProfilesListResponse: {
             meta: components["schemas"]["ApiMeta"];
             /** Profiles */
             profiles?: components["schemas"]["BindingProfileInfo"][];
         };
-        /** CacheEntryInfo */
+        /**
+         * CacheEntryInfo
+         * @description Expose one materialized data-cache entry and its validity window.
+         */
         CacheEntryInfo: {
             /** Cache Key */
             cache_key: string;
@@ -1058,7 +1291,10 @@ export interface components {
              */
             size_bytes: number;
         };
-        /** CacheStatusResponse */
+        /**
+         * CacheStatusResponse
+         * @description Return cache inventory and aggregate storage usage.
+         */
         CacheStatusResponse: {
             /** Entries */
             entries?: components["schemas"]["CacheEntryInfo"][];
@@ -1074,7 +1310,10 @@ export interface components {
              */
             total_size_bytes: number;
         };
-        /** CapabilityFeatureInfo */
+        /**
+         * CapabilityFeatureInfo
+         * @description Describe one runtime feature flag and its rollout stage/disable reason.
+         */
         CapabilityFeatureInfo: {
             /** Category */
             category: string;
@@ -1098,18 +1337,31 @@ export interface components {
              */
             stage: "active" | "planned" | "deferred";
         };
-        /** CapabilityManifestResponse */
+        /**
+         * CapabilityManifestResponse
+         * @description Expose stable runtime capabilities, defaults, security posture, and limits.
+         */
         CapabilityManifestResponse: {
             /** Constraints */
             constraints?: {
                 [key: string]: unknown;
             };
             /**
+             * Default Execution Profile
+             * @default dev
+             * @enum {string}
+             */
+            default_execution_profile: "dev" | "research" | "governed" | "production";
+            /**
              * Default Locale
              * @default en
              * @enum {string}
              */
             default_locale: "en" | "uk";
+            /** Fallback Rules */
+            fallback_rules?: {
+                [key: string]: unknown;
+            };
             /** Features */
             features?: components["schemas"]["CapabilityFeatureInfo"][];
             meta: components["schemas"]["ApiMeta"];
@@ -1118,17 +1370,59 @@ export interface components {
              * @default 1.0.0
              */
             runtime_api_version: string;
+            /** Security Posture */
+            security_posture?: {
+                [key: string]: unknown;
+            };
             /**
              * Shell Flavor
              * @default atlas
              */
             shell_flavor: string;
+            /**
+             * State Store Backend
+             * @default sqlite
+             */
+            state_store_backend: string;
+            /** Supported Execution Profiles */
+            supported_execution_profiles?: ("dev" | "research" | "governed" | "production")[];
             /** Supported Locales */
             supported_locales?: ("en" | "uk")[];
+            /**
+             * Worker Backend
+             * @default embedded
+             */
+            worker_backend: string;
             /** Workspaces */
             workspaces?: string[];
         };
-        /** ConnectorInfo */
+        /**
+         * CompareDeltaSection
+         * @description Compare delta section public type.
+         */
+        CompareDeltaSection: {
+            /**
+             * Changed
+             * @default false
+             */
+            changed: boolean;
+            /** Details */
+            details?: {
+                [key: string]: unknown;
+            };
+            /** Refs */
+            refs?: {
+                [key: string]: string | null;
+            };
+            /** Summary */
+            summary?: {
+                [key: string]: unknown;
+            };
+        };
+        /**
+         * ConnectorInfo
+         * @description Describe one discovered connector and the datasets/profiles it exposes.
+         */
         ConnectorInfo: {
             /** Available Profiles */
             available_profiles?: string[];
@@ -1148,13 +1442,166 @@ export interface components {
             /** Version */
             version: string;
         };
-        /** ConnectorsListResponse */
+        /**
+         * ConnectorsListResponse
+         * @description Return all visible connectors with standard API metadata.
+         */
         ConnectorsListResponse: {
             /** Connectors */
             connectors?: components["schemas"]["ConnectorInfo"][];
             meta: components["schemas"]["ApiMeta"];
         };
-        /** CursorPage */
+        /**
+         * ControlJobResponse
+         * @description Represent one durable control-plane job and its progress/error state.
+         */
+        ControlJobResponse: {
+            capability_manifest_ref?: components["schemas"]["ArtifactRef"] | null;
+            /**
+             * Effective Execution Profile
+             * @enum {string}
+             */
+            effective_execution_profile: "dev" | "research" | "governed" | "production";
+            /** Error Message */
+            error_message?: string | null;
+            /** Finished At */
+            finished_at?: string | null;
+            /** Job Id */
+            job_id: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "workflow_run" | "natural_language_run" | "lex_pipeline";
+            meta: components["schemas"]["ApiMeta"];
+            /** Pipeline Id */
+            pipeline_id?: string | null;
+            /** Progress */
+            progress?: {
+                [key: string]: unknown;
+            };
+            /** Requested Execution Profile */
+            requested_execution_profile?: ("dev" | "research" | "governed" | "production") | null;
+            /** Run Id */
+            run_id?: string | null;
+            /** Started At */
+            started_at?: string | null;
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "pending" | "running" | "completed" | "failed";
+            /** Submitted At */
+            submitted_at?: string | null;
+        };
+        /**
+         * ControlOutboxEventInfo
+         * @description Describe one durable outbox event and its publish retry state.
+         */
+        ControlOutboxEventInfo: {
+            /**
+             * Attempt
+             * @default 0
+             */
+            attempt: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Error Message */
+            error_message?: string | null;
+            /** Event Id */
+            event_id: string;
+            /** Event Key */
+            event_key?: string | null;
+            /** Job Id */
+            job_id?: string | null;
+            /** Payload */
+            payload?: {
+                [key: string]: unknown;
+            };
+            /** Published At */
+            published_at?: string | null;
+            /** Run Id */
+            run_id?: string | null;
+            /** State */
+            state: string;
+            /** Topic */
+            topic: string;
+        };
+        /**
+         * ControlOutboxEventsResponse
+         * @description Return outbox events filtered by publish state.
+         */
+        ControlOutboxEventsResponse: {
+            /** Events */
+            events?: components["schemas"]["ControlOutboxEventInfo"][];
+            /**
+             * Limit
+             * @default 100
+             */
+            limit: number;
+            meta: components["schemas"]["ApiMeta"];
+            /** State */
+            state?: string | null;
+        };
+        /**
+         * ControlWorkerLeaseInfo
+         * @description Expose one worker lease heartbeat and currently leased job.
+         */
+        ControlWorkerLeaseInfo: {
+            /** Active Job Id */
+            active_job_id?: string | null;
+            /** Backend */
+            backend?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Heartbeat At
+             * Format: date-time
+             */
+            heartbeat_at: string;
+            /**
+             * Lease Expires At
+             * Format: date-time
+             */
+            lease_expires_at: string;
+            /** Metadata */
+            metadata?: {
+                [key: string]: unknown;
+            };
+            /** State */
+            state: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Worker Id */
+            worker_id: string;
+        };
+        /**
+         * ControlWorkersResponse
+         * @description Return worker leases filtered by active-only mode.
+         */
+        ControlWorkersResponse: {
+            /**
+             * Active Only
+             * @default true
+             */
+            active_only: boolean;
+            meta: components["schemas"]["ApiMeta"];
+            /** Workers */
+            workers?: components["schemas"]["ControlWorkerLeaseInfo"][];
+        };
+        /**
+         * CursorPage
+         * @description Cursor page public type.
+         */
         CursorPage: {
             /**
              * Count
@@ -1173,7 +1620,10 @@ export interface components {
             /** Total */
             total?: number | null;
         };
-        /** DataCatalogSearchResponse */
+        /**
+         * DataCatalogSearchResponse
+         * @description Return catalog search matches and the total result count for a query.
+         */
         DataCatalogSearchResponse: {
             /** Matches */
             matches?: components["schemas"]["MetricCandidate"][];
@@ -1186,7 +1636,10 @@ export interface components {
              */
             total_matches: number;
         };
-        /** DataDiscoverRequest */
+        /**
+         * DataDiscoverRequest
+         * @description Request explore-lane candidate discovery within explicit time/cost budgets.
+         */
         DataDiscoverRequest: {
             /**
              * Cost Budget Usd
@@ -1216,7 +1669,10 @@ export interface components {
              */
             time_budget_ms: number;
         };
-        /** DataDiscoverResponse */
+        /**
+         * DataDiscoverResponse
+         * @description Return discovery candidates plus index telemetry and soft warning messages.
+         */
         DataDiscoverResponse: {
             /** Candidates */
             candidates?: components["schemas"]["DiscoveryCandidate"][];
@@ -1230,7 +1686,10 @@ export interface components {
             /** Warnings */
             warnings?: string[];
         };
-        /** DataNeed */
+        /**
+         * DataNeed
+         * @description Describe one metric/geography/time requirement to resolve into fetch plans.
+         */
         DataNeed: {
             /** Geography */
             geography?: string | null;
@@ -1256,7 +1715,10 @@ export interface components {
             /** Time Start */
             time_start?: string | null;
         };
-        /** DataPreviewRequest */
+        /**
+         * DataPreviewRequest
+         * @description Request a bounded preview for one fetch plan with optional fallback handling.
+         */
         DataPreviewRequest: {
             /**
              * Allow Fallback
@@ -1265,12 +1727,18 @@ export interface components {
             allow_fallback: boolean;
             fetch_plan: components["schemas"]["FetchPlan"];
         };
-        /** DataPreviewResponse */
+        /**
+         * DataPreviewResponse
+         * @description Wrap one `FetchPreview` payload with standard API metadata.
+         */
         DataPreviewResponse: {
             meta: components["schemas"]["ApiMeta"];
             preview: components["schemas"]["FetchPreview"];
         };
-        /** DataResolveRequest */
+        /**
+         * DataResolveRequest
+         * @description Request fastlane/hybrid resolution of data needs into concrete fetch plans.
+         */
         DataResolveRequest: {
             /**
              * Allow Explore Fallback
@@ -1286,7 +1754,10 @@ export interface components {
              */
             mode: "fastlane" | "explorelane" | "hybrid";
         };
-        /** DataResolveResponse */
+        /**
+         * DataResolveResponse
+         * @description Return selected fetch plans, ranked candidates, and resolver warnings.
+         */
         DataResolveResponse: {
             /** Candidates */
             candidates?: components["schemas"]["MetricCandidate"][];
@@ -1313,7 +1784,10 @@ export interface components {
             /** Input Bindings Ref */
             input_bindings_ref?: string | null;
         };
-        /** DatasetFetchSpecRequest */
+        /**
+         * DatasetFetchSpecRequest
+         * @description Describe one direct connector/dataset fetch request for data ingestion.
+         */
         DatasetFetchSpecRequest: {
             /** Connector Id */
             connector_id: string;
@@ -1329,11 +1803,398 @@ export interface components {
             };
         };
         /**
+         * DecisionCompareReport
+         * @description Decision compare report data model.
+         */
+        DecisionCompareReport: {
+            /** Deltas */
+            deltas?: {
+                [key: string]: components["schemas"]["CompareDeltaSection"];
+            };
+            /** Left Decision Packet Ref */
+            left_decision_packet_ref?: string | null;
+            /** Left Run Id */
+            left_run_id: string;
+            /** Notes */
+            notes?: string[];
+            /** Right Decision Packet Ref */
+            right_decision_packet_ref?: string | null;
+            /** Right Run Id */
+            right_run_id: string;
+            /** Root Cause */
+            root_cause?: string[];
+            /**
+             * Schema Version
+             * @default 1.0
+             */
+            schema_version: string;
+        };
+        /**
+         * DecisionDependencyEvent
+         * @description Represent one append-only dependency event emitted into the control-plane log.
+         */
+        DecisionDependencyEvent: {
+            /** Dedupe Key */
+            dedupe_key: string;
+            /** Dependency Keys */
+            dependency_keys?: string[];
+            /** Event Id */
+            event_id: string;
+            /**
+             * Occurred At
+             * Format: date-time
+             */
+            occurred_at?: string;
+            /** Payload */
+            payload?: {
+                [key: string]: unknown;
+            };
+            /** Reason */
+            reason: string;
+            /**
+             * Recorded At
+             * Format: date-time
+             */
+            recorded_at?: string;
+            /**
+             * Schema Version
+             * @default 1.0
+             */
+            schema_version: string;
+            /** Source Ref */
+            source_ref?: string | null;
+            status: components["schemas"]["DecisionValidityStatus"];
+            trigger_type: components["schemas"]["DecisionTriggerType"];
+        };
+        /**
+         * DecisionLifecycleJob
+         * @description Describe a scheduled or completed control-plane follow-up job.
+         */
+        DecisionLifecycleJob: {
+            /** Completed At */
+            completed_at?: string | null;
+            /** Decision Lineage Key */
+            decision_lineage_key: string;
+            /** Job Id */
+            job_id: string;
+            /**
+             * Job Kind
+             * @enum {string}
+             */
+            job_kind: "evaluation" | "scheduled_monitoring";
+            /** Monitoring Contract Ref */
+            monitoring_contract_ref?: string | null;
+            /** Packet Ref */
+            packet_ref: string;
+            /** Payload */
+            payload?: {
+                [key: string]: unknown;
+            };
+            /** Reason */
+            reason: string;
+            /**
+             * Scheduled For
+             * Format: date-time
+             */
+            scheduled_for?: string;
+            /**
+             * Schema Version
+             * @default 1.0
+             */
+            schema_version: string;
+            /**
+             * State
+             * @default pending
+             * @enum {string}
+             */
+            state: "pending" | "completed" | "cancelled";
+            /** Trigger Event Id */
+            trigger_event_id?: string | null;
+        };
+        /**
+         * DecisionMonitoringContract
+         * @description Decision monitoring contract data model.
+         */
+        DecisionMonitoringContract: {
+            /**
+             * Anchor At
+             * Format: date-time
+             */
+            anchor_at: string;
+            /** Backtest Mode Effective */
+            backtest_mode_effective?: string | null;
+            /** Backtest Trust Eligible */
+            backtest_trust_eligible?: boolean | null;
+            /** Decision Lineage Key */
+            decision_lineage_key?: string | null;
+            /** Metrics */
+            metrics?: components["schemas"]["MonitoredMetric"][];
+            /** Notes */
+            notes?: string[];
+            /** Run Id */
+            run_id?: string | null;
+            /**
+             * Schema Version
+             * @default 1.0
+             */
+            schema_version: string;
+        };
+        /**
+         * DecisionMonitoringReport
+         * @description Decision monitoring report data model.
+         */
+        DecisionMonitoringReport: {
+            /** Anchor At */
+            anchor_at?: string | null;
+            /** Decision Packet Ref */
+            decision_packet_ref?: string | null;
+            /** Degraded Reasons */
+            degraded_reasons?: string[];
+            /**
+             * Evaluated At
+             * Format: date-time
+             */
+            evaluated_at?: string;
+            /** Metrics */
+            metrics?: components["schemas"]["MonitoringMetricResult"][];
+            /** Monitoring Contract Ref */
+            monitoring_contract_ref?: string | null;
+            /** Notes */
+            notes?: string[];
+            /** @default pending */
+            overall_verdict: components["schemas"]["MonitoringVerdict"];
+            /** Refuted Metric Ids */
+            refuted_metric_ids?: string[];
+            /** Run Id */
+            run_id: string;
+            /**
+             * Schema Version
+             * @default 1.0
+             */
+            schema_version: string;
+        };
+        /**
+         * DecisionReissuePlan
+         * @description Decision reissue plan data model.
+         */
+        DecisionReissuePlan: {
+            /** Calibration Config Ref */
+            calibration_config_ref?: string | null;
+            /** Compare Report Ref */
+            compare_report_ref?: string | null;
+            /** Monitoring Report Ref */
+            monitoring_report_ref?: string | null;
+            /** Notes */
+            notes?: string[];
+            /** Parameter Override Bundle Ref */
+            parameter_override_bundle_ref?: string | null;
+            /**
+             * Publication Mode
+             * @default human_gated
+             * @constant
+             */
+            publication_mode: "human_gated";
+            /**
+             * Recommended Action
+             * @default reissue_decision_packet
+             */
+            recommended_action: string;
+            /** Refuted Metric Ids */
+            refuted_metric_ids?: string[];
+            /**
+             * Requires Operator Confirmation
+             * @default true
+             */
+            requires_operator_confirmation: boolean;
+            /** Revised Metric Ids */
+            revised_metric_ids?: string[];
+            /**
+             * Schema Version
+             * @default 1.0
+             */
+            schema_version: string;
+            /** Source Decision Packet Ref */
+            source_decision_packet_ref?: string | null;
+            /** Source Run Id */
+            source_run_id: string;
+        };
+        /**
+         * DecisionTriggerRecord
+         * @description Record one evaluated trigger and its resulting packet status.
+         */
+        DecisionTriggerRecord: {
+            /** Dependency Key */
+            dependency_key?: string | null;
+            /** Details */
+            details?: {
+                [key: string]: unknown;
+            };
+            /** Reason */
+            reason: string;
+            /** Source Ref */
+            source_ref?: string | null;
+            status: components["schemas"]["DecisionValidityStatus"];
+            trigger_type: components["schemas"]["DecisionTriggerType"];
+        };
+        /**
+         * DecisionTriggerType
+         * @description Identify the external or internal event that changed packet validity.
+         * @enum {string}
+         */
+        DecisionTriggerType: "law_change" | "dataset_superseded" | "historical_semantic_revision" | "contradicting_evidence" | "context_profile_drift" | "post_deployment_refutation" | "human_gate" | "expert_review" | "legacy_packet" | "superseded" | "revoked";
+        /**
+         * DecisionValidityEventRequest
+         * @description Request an append-only decision-validity event and lifecycle re-evaluation.
+         */
+        DecisionValidityEventRequest: {
+            /** Dedupe Key */
+            dedupe_key?: string | null;
+            /** Dependency Keys */
+            dependency_keys?: string[];
+            /** Occurred At */
+            occurred_at?: string | null;
+            /** Payload */
+            payload?: {
+                [key: string]: unknown;
+            };
+            /** Reason */
+            reason: string;
+            /** Source Ref */
+            source_ref?: string | null;
+            status: components["schemas"]["DecisionValidityStatus"];
+            trigger_type: components["schemas"]["DecisionTriggerType"];
+        };
+        /**
+         * DecisionValidityEventResponse
+         * @description Return the persisted event identity and aggregate impact of the update.
+         */
+        DecisionValidityEventResponse: {
+            /** Affected Packets */
+            affected_packets?: string[];
+            /** Affected Statuses */
+            affected_statuses?: {
+                [key: string]: number;
+            };
+            /** Dedupe Key */
+            dedupe_key: string;
+            /** Event Id */
+            event_id: string;
+            /** Message */
+            message: string;
+            meta: components["schemas"]["ApiMeta"];
+        };
+        /**
+         * DecisionValidityLifecycleSummary
+         * @description Return event history, transitions, scheduled jobs, and reissue candidates.
+         */
+        DecisionValidityLifecycleSummary: {
+            /** Events */
+            events?: components["schemas"]["DecisionDependencyEvent"][];
+            /** Latest Transition At */
+            latest_transition_at?: string | null;
+            /** Pending Reviews */
+            pending_reviews?: components["schemas"]["DecisionValidityPendingReview"][];
+            /** Reissue Candidates */
+            reissue_candidates?: components["schemas"]["ArtifactRef"][];
+            /** Scheduled Jobs */
+            scheduled_jobs?: components["schemas"]["DecisionLifecycleJob"][];
+            /** Transitions */
+            transitions?: components["schemas"]["DecisionValidityTransition"][];
+        };
+        /**
+         * DecisionValidityPendingReview
+         * @description Describe one unresolved human-review gate for a decision packet.
+         */
+        DecisionValidityPendingReview: {
+            /** Event Id */
+            event_id: string;
+            /**
+             * Occurred At
+             * Format: date-time
+             */
+            occurred_at: string;
+            /** Reason */
+            reason: string;
+            trigger_type: components["schemas"]["DecisionTriggerType"];
+        };
+        /**
          * DecisionValidityStatus
+         * @description Enumerate lifecycle states assigned to a decision packet evaluation.
          * @enum {string}
          */
         DecisionValidityStatus: "active" | "warning" | "stale" | "superseded" | "revoked" | "requires_human_review";
-        /** DiscoveryCandidate */
+        /**
+         * DecisionValiditySummaryResponse
+         * @description Expose the current decision-validity verdict and its lifecycle context.
+         */
+        DecisionValiditySummaryResponse: {
+            /**
+             * Checked At
+             * Format: date-time
+             */
+            checked_at: string;
+            /** Decision Lineage Key */
+            decision_lineage_key: string;
+            decision_packet_ref: components["schemas"]["ArtifactRef"];
+            evaluation_ref?: components["schemas"]["ArtifactRef"] | null;
+            lifecycle?: components["schemas"]["DecisionValidityLifecycleSummary"];
+            meta: components["schemas"]["ApiMeta"];
+            /** Reasons */
+            reasons?: string[];
+            /** Recommended Action */
+            recommended_action: string;
+            /**
+             * Review Required
+             * @default false
+             */
+            review_required: boolean;
+            /** Run Id */
+            run_id?: string | null;
+            status: components["schemas"]["DecisionValidityStatus"];
+            superseded_by_ref?: components["schemas"]["ArtifactRef"] | null;
+            supersedes_decision_ref?: components["schemas"]["ArtifactRef"] | null;
+            /** Triggers */
+            triggers?: components["schemas"]["DecisionTriggerRecord"][];
+        };
+        /**
+         * DecisionValidityTransition
+         * @description Capture one status transition for a tracked decision packet.
+         */
+        DecisionValidityTransition: {
+            current_status: components["schemas"]["DecisionValidityStatus"];
+            /** Decision Lineage Key */
+            decision_lineage_key: string;
+            /** Evaluation Ref */
+            evaluation_ref?: string | null;
+            /**
+             * Occurred At
+             * Format: date-time
+             */
+            occurred_at?: string;
+            /** Packet Ref */
+            packet_ref: string;
+            previous_status?: components["schemas"]["DecisionValidityStatus"] | null;
+            /** Reason */
+            reason: string;
+            /**
+             * Review Required
+             * @default false
+             */
+            review_required: boolean;
+            /**
+             * Schema Version
+             * @default 1.0
+             */
+            schema_version: string;
+            /** Transition Id */
+            transition_id: string;
+            /** Triggered By Event Id */
+            triggered_by_event_id?: string | null;
+        };
+        /**
+         * DiscoveryCandidate
+         * @description Represent one explore-lane candidate discovered from source metadata search.
+         */
         DiscoveryCandidate: {
             /** Candidate Id */
             candidate_id: string;
@@ -1376,9 +2237,12 @@ export interface components {
              * @default explorelane
              * @enum {string}
              */
-            source_lane: "fastlane" | "explorelane";
+            source_lane: "fastlane" | "explorelane" | "catalog";
         };
-        /** EvaluatorReportView */
+        /**
+         * EvaluatorReportView
+         * @description API view of evaluator verdicts, scores, reasons, and replanning hints.
+         */
         EvaluatorReportView: {
             /** Diagnostics */
             diagnostics?: components["schemas"]["PreflightDiagnosticView"][];
@@ -1393,7 +2257,10 @@ export interface components {
             /** Verdict */
             verdict?: ("APPROVE" | "REPLAN_DATA" | "REPLAN_METHOD" | "REPLAN_PARAMS" | "STOP_BUDGET") | null;
         };
-        /** EvaluatorScoresView */
+        /**
+         * EvaluatorScoresView
+         * @description Normalized evaluator score breakdown exposed by runtime agent-pipeline views.
+         */
         EvaluatorScoresView: {
             /**
              * Budget Score
@@ -1426,7 +2293,37 @@ export interface components {
              */
             uncertainty_score: number;
         };
-        /** FetchPlan */
+        /**
+         * FeedbackActionResponse
+         * @description Outcome payload returned after evaluating feedback or reissuing a decision.
+         */
+        FeedbackActionResponse: {
+            /**
+             * Action
+             * @enum {string}
+             */
+            action: "evaluate_feedback" | "reissue";
+            compare_report_ref?: components["schemas"]["ArtifactRef"] | null;
+            /** Message */
+            message: string;
+            meta: components["schemas"]["ApiMeta"];
+            monitoring_report_ref?: components["schemas"]["ArtifactRef"] | null;
+            reissue_plan_ref?: components["schemas"]["ArtifactRef"] | null;
+            /** Reissued Run Id */
+            reissued_run_id?: string | null;
+            /** Run Id */
+            run_id: string;
+            /**
+             * Status
+             * @default completed
+             * @enum {string}
+             */
+            status: "completed" | "accepted";
+        };
+        /**
+         * FetchPlan
+         * @description Encode one executable data-fetch plan produced by resolver/discovery flows.
+         */
         FetchPlan: {
             /** Connector Id */
             connector_id: string;
@@ -1474,9 +2371,12 @@ export interface components {
              * @default fastlane
              * @enum {string}
              */
-            source_lane: "fastlane" | "explorelane";
+            source_lane: "fastlane" | "explorelane" | "catalog";
         };
-        /** FetchPlanFallback */
+        /**
+         * FetchPlanFallback
+         * @description Describe one connector/dataset fallback to try when the primary plan fails.
+         */
         FetchPlanFallback: {
             /** Connector Id */
             connector_id: string;
@@ -1489,7 +2389,10 @@ export interface components {
             /** Profile Id */
             profile_id?: string | null;
         };
-        /** FetchPreview */
+        /**
+         * FetchPreview
+         * @description Return a bounded sample, quality flags, and coverage status for one plan.
+         */
         FetchPreview: {
             /**
              * Completeness
@@ -1536,12 +2439,18 @@ export interface components {
              */
             status: "ok" | "insufficient_coverage" | "error";
         };
-        /** GovernanceDebugResponse */
+        /**
+         * GovernanceDebugResponse
+         * @description Response envelope returned by the governance debug endpoint.
+         */
         GovernanceDebugResponse: {
             debug: components["schemas"]["GovernanceDebugView"];
             meta: components["schemas"]["ApiMeta"];
         };
-        /** GovernanceDebugView */
+        /**
+         * GovernanceDebugView
+         * @description Detailed governance payload exposing verdicts, report refs, and contract warnings.
+         */
         GovernanceDebugView: {
             /** Contract Warnings */
             contract_warnings?: string[];
@@ -1568,7 +2477,6 @@ export interface components {
             links?: {
                 [key: string]: components["schemas"]["ArtifactRef"] | null;
             } | null;
-            /** Normative Arbitration Result Ref */
             normative_arbitration_result_ref?: components["schemas"]["ArtifactRef"] | null;
             /** Normative Summary */
             normative_summary?: {
@@ -1604,7 +2512,10 @@ export interface components {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
         };
-        /** IndexStats */
+        /**
+         * IndexStats
+         * @description Report catalog index size, source coverage, and last-update counters.
+         */
         IndexStats: {
             /**
              * Docs Added Last Run
@@ -1633,7 +2544,10 @@ export interface components {
                 [key: string]: number;
             };
         };
-        /** IndexStatsResponse */
+        /**
+         * IndexStatsResponse
+         * @description Wrap catalog index telemetry with standard API metadata.
+         */
         IndexStatsResponse: {
             meta: components["schemas"]["ApiMeta"];
             stats: components["schemas"]["IndexStats"];
@@ -1690,7 +2604,10 @@ export interface components {
              */
             source: string;
         };
-        /** IngestResponse */
+        /**
+         * IngestResponse
+         * @description Return ingestion outputs, warning messages, and replay/cursor references.
+         */
         IngestResponse: {
             /** Cursor Ref */
             cursor_ref?: string | null;
@@ -1720,13 +2637,19 @@ export interface components {
             /** Warnings */
             warnings?: string[];
         };
-        /** InputRef */
+        /**
+         * InputRef
+         * @description Declare one upstream artifact edge in a manifest lineage DAG.
+         */
         InputRef: {
             artifact_id: components["schemas"]["ArtifactID"];
             /** Role */
             role: string;
         };
-        /** IterationLifecycleView */
+        /**
+         * IterationLifecycleView
+         * @description Current iteration state with stop reason and latest evaluator verdict.
+         */
         IterationLifecycleView: {
             /**
              * Iteration
@@ -1747,7 +2670,10 @@ export interface components {
             /** Stop Reason */
             stop_reason?: ("approved" | "budget_exhausted" | "no_delta" | "guardrail_violation") | null;
         };
-        /** LexGraphStatsResponse */
+        /**
+         * LexGraphStatsResponse
+         * @description Return graph-cardinality and top-distribution telemetry for the Lex store.
+         */
         LexGraphStatsResponse: {
             /**
              * Db Exists
@@ -1810,7 +2736,10 @@ export interface components {
              */
             structure: boolean;
         };
-        /** LexPipelineStatusResponse */
+        /**
+         * LexPipelineStatusResponse
+         * @description Expose Lex pipeline state, stage progress counters, and failure text.
+         */
         LexPipelineStatusResponse: {
             /** Error Message */
             error_message?: string | null;
@@ -1842,7 +2771,10 @@ export interface components {
              */
             top_k: number;
         };
-        /** LexSearchResponse */
+        /**
+         * LexSearchResponse
+         * @description Return ranked Lex fact matches for a text query.
+         */
         LexSearchResponse: {
             meta: components["schemas"]["ApiMeta"];
             /** Query */
@@ -1855,7 +2787,10 @@ export interface components {
              */
             total: number;
         };
-        /** LexSearchResultItem */
+        /**
+         * LexSearchResultItem
+         * @description Represent one ranked Lex fact hit with citation and canonicalized metadata.
+         */
         LexSearchResultItem: {
             /**
              * Action Canon
@@ -1920,6 +2855,8 @@ export interface components {
         LexTriggerRequest: {
             /** Cards Path */
             cards_path: string;
+            /** Execution Profile */
+            execution_profile?: ("dev" | "research" | "governed" | "production") | null;
             /**
              * Llm Model
              * @default qwen/qwen3-235b-a22b-instruct-2507-fp8
@@ -1927,6 +2864,7 @@ export interface components {
             llm_model: string;
             /** Output Dir */
             output_dir: string;
+            policy_flags?: components["schemas"]["PolicyFlags"];
             /**
              * Resume
              * @default false
@@ -1938,8 +2876,18 @@ export interface components {
             /** Texts Path */
             texts_path: string;
         };
-        /** LexTriggerResponse */
+        /**
+         * LexTriggerResponse
+         * @description Return accepted/rejected Lex pipeline launch metadata.
+         */
         LexTriggerResponse: {
+            /**
+             * Effective Execution Profile
+             * @enum {string}
+             */
+            effective_execution_profile: "dev" | "research" | "governed" | "production";
+            /** Job Id */
+            job_id: string;
             /** Message */
             message: string;
             meta: components["schemas"]["ApiMeta"];
@@ -1951,7 +2899,10 @@ export interface components {
              */
             status: "accepted" | "rejected";
         };
-        /** MetricCandidate */
+        /**
+         * MetricCandidate
+         * @description Represent one catalog-backed source candidate for a requested metric.
+         */
         MetricCandidate: {
             /** Candidate Id */
             candidate_id: string;
@@ -2000,14 +2951,17 @@ export interface components {
              * @default fastlane
              * @enum {string}
              */
-            source_lane: "fastlane" | "explorelane";
+            source_lane: "fastlane" | "explorelane" | "catalog";
             /**
              * Trust Score
              * @default 0.5
              */
             trust_score: number;
         };
-        /** ModelProfileInfo */
+        /**
+         * ModelProfileInfo
+         * @description Describe one LLM model profile exposed to NL control-plane requests.
+         */
         ModelProfileInfo: {
             /** Base Url */
             base_url: string;
@@ -2038,11 +2992,119 @@ export interface components {
             /** Tags */
             tags?: string[];
         };
-        /** ModelProfilesListResponse */
+        /**
+         * ModelProfilesListResponse
+         * @description Return all enabled model profiles with standard API metadata.
+         */
         ModelProfilesListResponse: {
             meta: components["schemas"]["ApiMeta"];
             /** Profiles */
             profiles?: components["schemas"]["ModelProfileInfo"][];
+        };
+        /**
+         * MonitoredMetric
+         * @description Monitored metric public type.
+         */
+        MonitoredMetric: {
+            /** Baseline Value */
+            baseline_value: number;
+            confirm_range: components["schemas"]["MonitoringRange"];
+            /** Metadata */
+            metadata?: {
+                [key: string]: unknown;
+            };
+            /** Metric Id */
+            metric_id: string;
+            /**
+             * Min Observations
+             * @default 1
+             */
+            min_observations: number;
+            /**
+             * Recalibration Target
+             * @default true
+             */
+            recalibration_target: boolean;
+            refute_range: components["schemas"]["MonitoringRange"];
+            /** Source Metric Id */
+            source_metric_id: string;
+            /**
+             * Weight
+             * @default 1
+             */
+            weight: number;
+            window?: components["schemas"]["MonitoringWindow"];
+        };
+        /**
+         * MonitoringMetricResult
+         * @description Monitoring metric result data model.
+         */
+        MonitoringMetricResult: {
+            /** Actual Value */
+            actual_value?: number | null;
+            /** Baseline Value */
+            baseline_value: number;
+            /** Delta */
+            delta?: number | null;
+            /** Metadata */
+            metadata?: {
+                [key: string]: unknown;
+            };
+            /** Metric Id */
+            metric_id: string;
+            /**
+             * Observed Count
+             * @default 0
+             */
+            observed_count: number;
+            /** Reason */
+            reason?: string | null;
+            /**
+             * Recalibration Target
+             * @default false
+             */
+            recalibration_target: boolean;
+            /** Source Metric Id */
+            source_metric_id: string;
+            /** @default pending */
+            verdict: components["schemas"]["MonitoringVerdict"];
+        };
+        /**
+         * MonitoringRange
+         * @description Monitoring range public type.
+         */
+        MonitoringRange: {
+            /** Lower */
+            lower?: number | null;
+            /** Upper */
+            upper?: number | null;
+        };
+        /**
+         * MonitoringVerdict
+         * @description Monitoring verdict public type.
+         * @enum {string}
+         */
+        MonitoringVerdict: "pending" | "confirmed" | "refuted" | "inconclusive" | "insufficient_data" | "degraded";
+        /**
+         * MonitoringWindow
+         * @description Monitoring window public type.
+         */
+        MonitoringWindow: {
+            /**
+             * End Offset Days
+             * @default 30
+             */
+            end_offset_days: number;
+            /**
+             * Grace Days
+             * @default 7
+             */
+            grace_days: number;
+            /**
+             * Start Offset Days
+             * @default 0
+             */
+            start_offset_days: number;
         };
         /**
          * NaturalLanguageRunRequest
@@ -2068,6 +3130,8 @@ export interface components {
             } | null;
             /** Execution Plan Ref */
             execution_plan_ref?: string | null;
+            /** Execution Profile */
+            execution_profile?: ("dev" | "research" | "governed" | "production") | null;
             /** Expected Outputs */
             expected_outputs?: {
                 [key: string]: unknown;
@@ -2092,6 +3156,7 @@ export interface components {
             max_parallel_models: number;
             /** Per Model Budget Usd */
             per_model_budget_usd?: number | null;
+            policy_flags?: components["schemas"]["PolicyFlags"];
             /** Request */
             request: string;
             /** Run Budget Usd */
@@ -2101,12 +3166,18 @@ export interface components {
                 [key: string]: unknown;
             };
         };
-        /** NodeDebugResponse */
+        /**
+         * NodeDebugResponse
+         * @description Response envelope returned by the node debug endpoint.
+         */
         NodeDebugResponse: {
             debug: components["schemas"]["NodeDebugView"];
             meta: components["schemas"]["ApiMeta"];
         };
-        /** NodeDebugView */
+        /**
+         * NodeDebugView
+         * @description Detailed node-debug payload with timeline slices, cache activity, and notes.
+         */
         NodeDebugView: {
             /** Alias */
             alias: string;
@@ -2138,7 +3209,24 @@ export interface components {
             /** Timeline Events */
             timeline_events?: components["schemas"]["RunTimelineEvent"][];
         };
-        /** PreflightDiagnosticView */
+        /**
+         * PolicyFlags
+         * @description Carry opt-in execution relaxations requested by the client.
+         *
+         *     `allow_mock_fallback=True` is privileged in governed/production profiles and
+         *     may be rejected by the runtime execution-policy resolver.
+         */
+        PolicyFlags: {
+            /**
+             * Allow Mock Fallback
+             * @default false
+             */
+            allow_mock_fallback: boolean;
+        };
+        /**
+         * PreflightDiagnosticView
+         * @description API view of one preflight diagnostic surfaced to runtime clients.
+         */
         PreflightDiagnosticView: {
             /** Code */
             code: string;
@@ -2158,7 +3246,10 @@ export interface components {
              */
             severity: string;
         };
-        /** PreflightReportView */
+        /**
+         * PreflightReportView
+         * @description API view of preflight readiness, diagnostics, and the persisted report reference.
+         */
         PreflightReportView: {
             /** Diagnostics */
             diagnostics?: components["schemas"]["PreflightDiagnosticView"][];
@@ -2171,7 +3262,10 @@ export interface components {
             ready_to_run: boolean;
             report_ref?: components["schemas"]["ArtifactRef"] | null;
         };
-        /** PromotionCandidate */
+        /**
+         * PromotionCandidate
+         * @description Represent one explore-lane source proposed for promotion into fastlane.
+         */
         PromotionCandidate: {
             /**
              * Confidence
@@ -2201,7 +3295,7 @@ export interface components {
              * @default explorelane
              * @enum {string}
              */
-            source_lane: "fastlane" | "explorelane";
+            source_lane: "fastlane" | "explorelane" | "catalog";
             /**
              * Status
              * @default pending
@@ -2209,18 +3303,27 @@ export interface components {
              */
             status: "pending" | "approved" | "rejected";
         };
-        /** PromotionCandidatesResponse */
+        /**
+         * PromotionCandidatesResponse
+         * @description Return pending/approved/rejected source-promotion candidates.
+         */
         PromotionCandidatesResponse: {
             /** Candidates */
             candidates?: components["schemas"]["PromotionCandidate"][];
             meta: components["schemas"]["ApiMeta"];
         };
-        /** PromotionDecisionRequest */
+        /**
+         * PromotionDecisionRequest
+         * @description Capture an optional reviewer reason for approving or rejecting promotion.
+         */
         PromotionDecisionRequest: {
             /** Reason */
             reason?: string | null;
         };
-        /** PromotionDecisionResponse */
+        /**
+         * PromotionDecisionResponse
+         * @description Return the stored promotion status and whether bindings were updated.
+         */
         PromotionDecisionResponse: {
             /**
              * Binding Updated
@@ -2238,7 +3341,10 @@ export interface components {
              */
             status: "approved" | "rejected";
         };
-        /** ReproducibilityView */
+        /**
+         * ReproducibilityView
+         * @description Hashes, seeds, and missing refs used to assess whether a run can be replayed.
+         */
         ReproducibilityView: {
             /** Data Snapshot Hash */
             data_snapshot_hash?: string | null;
@@ -2271,7 +3377,10 @@ export interface components {
             /** Why Partial */
             why_partial?: string[];
         };
-        /** RetrievalPhaseTelemetry */
+        /**
+         * RetrievalPhaseTelemetry
+         * @description Retrieval phase telemetry public type.
+         */
         RetrievalPhaseTelemetry: {
             /**
              * Candidates Selected
@@ -2298,7 +3407,10 @@ export interface components {
             /** Phase */
             phase: string;
         };
-        /** RetrievalTelemetryView */
+        /**
+         * RetrievalTelemetryView
+         * @description Retrieval telemetry summary for agent pipelines, including lane and phase counters.
+         */
         RetrievalTelemetryView: {
             /**
              * Candidates Filtered
@@ -2340,10 +3452,35 @@ export interface components {
             /** Phases */
             phases?: components["schemas"]["RetrievalPhaseTelemetry"][];
         };
-        /** RunDetails */
+        /**
+         * RunCompareResponse
+         * @description Response envelope returned by the run comparison endpoint.
+         */
+        RunCompareResponse: {
+            compare: components["schemas"]["RunCompareView"];
+            meta: components["schemas"]["ApiMeta"];
+        };
+        /**
+         * RunCompareView
+         * @description Side-by-side comparison payload for two runtime runs.
+         */
+        RunCompareView: {
+            /** Left Run Id */
+            left_run_id: string;
+            report: components["schemas"]["DecisionCompareReport"];
+            /** Right Run Id */
+            right_run_id: string;
+        };
+        /**
+         * RunDetails
+         * @description Run details public type.
+         */
         RunDetails: {
+            capability_manifest_ref?: components["schemas"]["ArtifactRef"] | null;
             /** Cell Id */
             cell_id?: string | null;
+            /** Control Job Id */
+            control_job_id?: string | null;
             /**
              * Decision Review Required
              * @default false
@@ -2355,6 +3492,8 @@ export interface components {
             decision_validity_status?: components["schemas"]["DecisionValidityStatus"] | null;
             /** Duration Ms */
             duration_ms?: number | null;
+            /** Execution Profile */
+            execution_profile?: string | null;
             /** Finished At */
             finished_at?: string | null;
             /**
@@ -2388,12 +3527,18 @@ export interface components {
             warnings?: string[];
             workflow_report_ref?: components["schemas"]["ArtifactRef"] | null;
         };
-        /** RunDetailsResponse */
+        /**
+         * RunDetailsResponse
+         * @description Response envelope returned when a client requests one run's detailed record.
+         */
         RunDetailsResponse: {
             meta: components["schemas"]["ApiMeta"];
             run: components["schemas"]["RunDetails"];
         };
-        /** RunErrorView */
+        /**
+         * RunErrorView
+         * @description Normalized error record assembled from manifests, traces, reports, or runtime faults.
+         */
         RunErrorView: {
             /** Code */
             code: string;
@@ -2413,7 +3558,10 @@ export interface components {
             /** Timestamp */
             timestamp?: string | null;
         };
-        /** RunErrorsResponse */
+        /**
+         * RunErrorsResponse
+         * @description Response envelope returned by the run errors endpoint.
+         */
         RunErrorsResponse: {
             /** Errors */
             errors?: components["schemas"]["RunErrorView"][];
@@ -2421,12 +3569,18 @@ export interface components {
             /** Run Id */
             run_id: string;
         };
-        /** RunEvidenceContextResponse */
+        /**
+         * RunEvidenceContextResponse
+         * @description Response envelope returned by the run evidence-context endpoint.
+         */
         RunEvidenceContextResponse: {
             context: components["schemas"]["RunEvidenceContextView"];
             meta: components["schemas"]["ApiMeta"];
         };
-        /** RunEvidenceContextView */
+        /**
+         * RunEvidenceContextView
+         * @description Joined evidence context linking plans, snapshots, promotions, and related artifacts.
+         */
         RunEvidenceContextView: {
             /** Data Needs */
             data_needs?: components["schemas"]["RunEvidenceNeedView"][];
@@ -2450,7 +3604,10 @@ export interface components {
             /** Warnings */
             warnings?: string[];
         };
-        /** RunEvidenceNeedView */
+        /**
+         * RunEvidenceNeedView
+         * @description One evidence need derived from the execution plan for retrieval and promotion flows.
+         */
         RunEvidenceNeedView: {
             /** Geography */
             geography?: string | null;
@@ -2482,7 +3639,10 @@ export interface components {
             /** Time Start */
             time_start?: string | null;
         };
-        /** RunEvidencePlanView */
+        /**
+         * RunEvidencePlanView
+         * @description Fetch plan describing how a connector/profile can satisfy a run evidence need.
+         */
         RunEvidencePlanView: {
             /** Connector Id */
             connector_id: string;
@@ -2524,7 +3684,10 @@ export interface components {
              */
             source_lane: string;
         };
-        /** RunEvidencePromotionView */
+        /**
+         * RunEvidencePromotionView
+         * @description Candidate evidence promotion surfaced while reviewing retrieved data options.
+         */
         RunEvidencePromotionView: {
             /**
              * Confidence
@@ -2562,8 +3725,54 @@ export interface components {
              */
             status: string;
         };
-        /** RunLaunchResponse */
+        /**
+         * RunFeedbackResponse
+         * @description Response envelope returned by the run feedback endpoint.
+         */
+        RunFeedbackResponse: {
+            feedback: components["schemas"]["RunFeedbackView"];
+            meta: components["schemas"]["ApiMeta"];
+        };
+        /**
+         * RunFeedbackView
+         * @description Runtime view of monitoring, compare, and reissue artifacts attached to a run.
+         */
+        RunFeedbackView: {
+            compare_report?: components["schemas"]["DecisionCompareReport"] | null;
+            decision_packet_ref?: components["schemas"]["ArtifactRef"] | null;
+            /** Decision Validity */
+            decision_validity?: {
+                [key: string]: unknown;
+            } | null;
+            /** Feedback Loop */
+            feedback_loop?: {
+                [key: string]: unknown;
+            } | null;
+            monitoring_contract?: components["schemas"]["DecisionMonitoringContract"] | null;
+            monitoring_report?: components["schemas"]["DecisionMonitoringReport"] | null;
+            /** Notes */
+            notes?: string[];
+            reissue_plan?: components["schemas"]["DecisionReissuePlan"] | null;
+            /** Run Id */
+            run_id: string;
+            /**
+             * Source Kind
+             * @constant
+             */
+            source_kind: "core_run";
+        };
+        /**
+         * RunLaunchResponse
+         * @description Return the accepted/rejected control-job id and effective execution profile.
+         */
         RunLaunchResponse: {
+            /**
+             * Effective Execution Profile
+             * @enum {string}
+             */
+            effective_execution_profile: "dev" | "research" | "governed" | "production";
+            /** Job Id */
+            job_id: string;
             /** Message */
             message: string;
             meta: components["schemas"]["ApiMeta"];
@@ -2575,14 +3784,20 @@ export interface components {
              */
             status: "accepted" | "rejected";
         };
-        /** RunLineageResponse */
+        /**
+         * RunLineageResponse
+         * @description Response envelope returned by the run artifact-lineage endpoint.
+         */
         RunLineageResponse: {
             lineage: components["schemas"]["ArtifactLineageView"];
             meta: components["schemas"]["ApiMeta"];
             /** Run Id */
             run_id: string;
         };
-        /** RunNodeRecord */
+        /**
+         * RunNodeRecord
+         * @description Per-node execution summary used by node listings and debug surfaces.
+         */
         RunNodeRecord: {
             /** Alias */
             alias: string;
@@ -2616,7 +3831,10 @@ export interface components {
              */
             status: "ok" | "skip" | "fail" | "unknown";
         };
-        /** RunNodesResponse */
+        /**
+         * RunNodesResponse
+         * @description Response envelope returned by the run nodes endpoint.
+         */
         RunNodesResponse: {
             meta: components["schemas"]["ApiMeta"];
             /** Nodes */
@@ -2629,10 +3847,15 @@ export interface components {
              */
             source_kind: "core_run";
         };
-        /** RunSummary */
+        /**
+         * RunSummary
+         * @description List-view projection of a run with artifact counts, warnings, and decision status.
+         */
         RunSummary: {
             /** Cell Id */
             cell_id?: string | null;
+            /** Control Job Id */
+            control_job_id?: string | null;
             /**
              * Decision Review Required
              * @default false
@@ -2644,6 +3867,8 @@ export interface components {
             decision_validity_status?: components["schemas"]["DecisionValidityStatus"] | null;
             /** Duration Ms */
             duration_ms?: number | null;
+            /** Execution Profile */
+            execution_profile?: string | null;
             /** Finished At */
             finished_at?: string | null;
             /**
@@ -2677,7 +3902,10 @@ export interface components {
             /** Warnings */
             warnings?: string[];
         };
-        /** RunTimelineEvent */
+        /**
+         * RunTimelineEvent
+         * @description One timestamped event emitted into the runtime timeline for a run.
+         */
         RunTimelineEvent: {
             /**
              * Error Count
@@ -2713,12 +3941,18 @@ export interface components {
              */
             warning_count: number;
         };
-        /** RunTimelineResponse */
+        /**
+         * RunTimelineResponse
+         * @description Response envelope returned by the run timeline endpoint.
+         */
         RunTimelineResponse: {
             meta: components["schemas"]["ApiMeta"];
             timeline: components["schemas"]["RunTimelineView"];
         };
-        /** RunTimelineSummary */
+        /**
+         * RunTimelineSummary
+         * @description Aggregate counters and latency totals derived from a run's timeline events.
+         */
         RunTimelineSummary: {
             /**
              * Cache Bypasses
@@ -2753,7 +3987,10 @@ export interface components {
              */
             total_events: number;
         };
-        /** RunTimelineView */
+        /**
+         * RunTimelineView
+         * @description Timeline payload returned by runtime endpoints, including summary and ordered events.
+         */
         RunTimelineView: {
             /** Events */
             events?: components["schemas"]["RunTimelineEvent"][];
@@ -2768,14 +4005,20 @@ export interface components {
             source_kind: "core_run";
             summary: components["schemas"]["RunTimelineSummary"];
         };
-        /** RunWorkflowEdgeView */
+        /**
+         * RunWorkflowEdgeView
+         * @description Run workflow edge view data model.
+         */
         RunWorkflowEdgeView: {
             /** From Alias */
             from_alias: string;
             /** To Alias */
             to_alias: string;
         };
-        /** RunWorkflowNodeView */
+        /**
+         * RunWorkflowNodeView
+         * @description Workflow graph node annotated with runtime status, duration, and artifact IO.
+         */
         RunWorkflowNodeView: {
             /** Alias */
             alias: string;
@@ -2815,12 +4058,18 @@ export interface components {
              */
             status: "ok" | "skip" | "fail" | "unknown";
         };
-        /** RunWorkflowResponse */
+        /**
+         * RunWorkflowResponse
+         * @description Response envelope returned by the workflow graph endpoint.
+         */
         RunWorkflowResponse: {
             meta: components["schemas"]["ApiMeta"];
             workflow: components["schemas"]["RunWorkflowView"];
         };
-        /** RunWorkflowSummary */
+        /**
+         * RunWorkflowSummary
+         * @description Summary statistics for the workflow graph executed by a run.
+         */
         RunWorkflowSummary: {
             /** Critical Path Duration Ms */
             critical_path_duration_ms?: number | null;
@@ -2861,7 +4110,10 @@ export interface components {
             /** Workflow Id */
             workflow_id?: string | null;
         };
-        /** RunWorkflowView */
+        /**
+         * RunWorkflowView
+         * @description Workflow graph payload returned by runtime explorer endpoints.
+         */
         RunWorkflowView: {
             /** Edges */
             edges?: components["schemas"]["RunWorkflowEdgeView"][];
@@ -2880,14 +4132,20 @@ export interface components {
             workflow_report_ref?: components["schemas"]["ArtifactRef"] | null;
             workflow_spec_ref?: components["schemas"]["ArtifactRef"] | null;
         };
-        /** RunsListResponse */
+        /**
+         * RunsListResponse
+         * @description Paginated response envelope returned by the runs listing endpoint.
+         */
         RunsListResponse: {
             meta: components["schemas"]["ApiMeta"];
             page: components["schemas"]["CursorPage"];
             /** Runs */
             runs?: components["schemas"]["RunSummary"][];
         };
-        /** RuntimeApiProblem */
+        /**
+         * RuntimeApiProblem
+         * @description Runtime api problem public type.
+         */
         RuntimeApiProblem: {
             /** Code */
             code: string;
@@ -2926,7 +4184,10 @@ export interface components {
              */
             type: string;
         };
-        /** SourceProfileInfo */
+        /**
+         * SourceProfileInfo
+         * @description Describe one curated data-source profile available to retrieval flows.
+         */
         SourceProfileInfo: {
             /**
              * Auth Policy
@@ -2961,7 +4222,10 @@ export interface components {
             /** Tags */
             tags?: string[];
         };
-        /** SourceProfilesListResponse */
+        /**
+         * SourceProfilesListResponse
+         * @description Return all curated source profiles with standard API metadata.
+         */
         SourceProfilesListResponse: {
             meta: components["schemas"]["ApiMeta"];
             /** Profiles */
@@ -2994,6 +4258,8 @@ export interface components {
              */
             checkpoint_policy: "strict" | "lenient" | "disabled";
             data_source: components["schemas"]["DataSourceBinding"];
+            /** Execution Profile */
+            execution_profile?: ("dev" | "research" | "governed" | "production") | null;
             /** Knowledge Bundle Ref */
             knowledge_bundle_ref?: string | null;
             /**
@@ -3010,6 +4276,7 @@ export interface components {
             params?: {
                 [key: string]: unknown;
             };
+            policy_flags?: components["schemas"]["PolicyFlags"];
             /** Policy Spec Ref */
             policy_spec_ref?: string | null;
             /** Research Intent Ref */
@@ -4488,6 +5755,239 @@ export interface operations {
             };
         };
     };
+    get_packet_decision_validity: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                decision_packet_ref: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DecisionValiditySummaryResponse"];
+                };
+            };
+            /** @description Malformed request payload or parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authentication is required for this route. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authenticated principal cannot access this resource. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested resource does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Unexpected runtime API failure. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+        };
+    };
+    publish_decision_validity_event: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DecisionValidityEventRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DecisionValidityEventResponse"];
+                };
+            };
+            /** @description Malformed request payload or parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authentication is required for this route. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authenticated principal cannot access this resource. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested resource does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Unexpected runtime API failure. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+        };
+    };
+    get_control_job_status: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                job_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ControlJobResponse"];
+                };
+            };
+            /** @description Malformed request payload or parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authentication is required for this route. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authenticated principal cannot access this resource. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested resource does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Unexpected runtime API failure. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+        };
+    };
     get_lex_graph_stats: {
         parameters: {
             query: {
@@ -4874,6 +6374,84 @@ export interface operations {
             };
         };
     };
+    list_control_outbox: {
+        parameters: {
+            query?: {
+                state?: string | null;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ControlOutboxEventsResponse"];
+                };
+            };
+            /** @description Malformed request payload or parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authentication is required for this route. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authenticated principal cannot access this resource. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested resource does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Unexpected runtime API failure. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+        };
+    };
     launch_run: {
         parameters: {
             query?: never;
@@ -5032,6 +6610,392 @@ export interface operations {
             };
         };
     };
+    get_run_decision_validity: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DecisionValiditySummaryResponse"];
+                };
+            };
+            /** @description Malformed request payload or parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authentication is required for this route. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authenticated principal cannot access this resource. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested resource does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Unexpected runtime API failure. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+        };
+    };
+    evaluate_run_feedback: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeedbackActionResponse"];
+                };
+            };
+            /** @description Malformed request payload or parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authentication is required for this route. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authenticated principal cannot access this resource. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested resource does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Unexpected runtime API failure. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+        };
+    };
+    reissue_run: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeedbackActionResponse"];
+                };
+            };
+            /** @description Malformed request payload or parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authentication is required for this route. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authenticated principal cannot access this resource. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested resource does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Unexpected runtime API failure. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+        };
+    };
+    list_control_workers: {
+        parameters: {
+            query?: {
+                active_only?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ControlWorkersResponse"];
+                };
+            };
+            /** @description Malformed request payload or parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authentication is required for this route. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authenticated principal cannot access this resource. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested resource does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Unexpected runtime API failure. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+        };
+    };
+    get_run_compare: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                left_run_id: string;
+                right_run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RunCompareResponse"];
+                };
+            };
+            /** @description Malformed request payload or parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authentication is required for this route. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authenticated principal cannot access this resource. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested resource does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Unexpected runtime API failure. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+        };
+    };
     get_run_errors: {
         parameters: {
             query?: never;
@@ -5050,6 +7014,83 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["RunErrorsResponse"];
+                };
+            };
+            /** @description Malformed request payload or parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authentication is required for this route. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authenticated principal cannot access this resource. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested resource does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Unexpected runtime API failure. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+        };
+    };
+    get_run_feedback: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RunFeedbackResponse"];
                 };
             };
             /** @description Malformed request payload or parameters. */

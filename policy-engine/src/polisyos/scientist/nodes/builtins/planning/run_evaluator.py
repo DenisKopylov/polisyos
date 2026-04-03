@@ -61,7 +61,12 @@ _SPEC = NodeSpec(
 
 @dataclass(frozen=True)
 class RunEvaluatorNode:
-    """Run evaluator node implementation."""
+    """Planning/control node that converts governance and budget signals into an iteration verdict.
+
+    Reads governance reports plus budget/retrieval signals, then writes the
+    evaluator report and iteration-state refs that tell the workflow whether to
+    approve, replan, or stop for budget reasons.
+    """
     @property
     def spec(self) -> NodeSpec:
         return _SPEC

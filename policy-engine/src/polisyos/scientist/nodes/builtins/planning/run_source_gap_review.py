@@ -73,7 +73,12 @@ _SPEC = NodeSpec(
 
 @dataclass(frozen=True)
 class RunSourceGapReviewNode:
-    """Run source gap review node implementation."""
+    """Planning DAG node that retries unresolved source gaps and rewrites the legal evidence pack.
+
+    It requires the request frame, candidate pack, source pack, and a prior
+    verification report, then writes updated candidate/source/report refs plus
+    expert-review and verification-cycle markers into workflow state.
+    """
     @property
     def spec(self) -> NodeSpec:
         return _SPEC

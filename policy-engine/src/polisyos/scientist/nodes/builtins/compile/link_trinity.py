@@ -45,7 +45,11 @@ _SPEC = NodeSpec(
 
 @dataclass(frozen=True)
 class LinkTrinityNode:
-    """Link trinity node implementation."""
+    """Compile-stage DAG node that validates a Trinity policy bundle against the registry bundle.
+
+    Reads Trinity and registry inputs, persists the link report, and optionally
+    fails fast when strict linking detects unresolved schema or registry mismatches.
+    """
     allow_extra_params: bool = False
     strict: bool = True
 

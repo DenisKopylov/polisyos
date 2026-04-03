@@ -46,7 +46,11 @@ _SPEC = NodeSpec(
 
 @dataclass(frozen=True)
 class BuildMethodCatalogSnapshotNode:
-    """Build method catalog snapshot node implementation."""
+    """Planning DAG node that snapshots causal method capabilities before preflight.
+
+    It writes the method-catalog snapshot and causal capability contract refs used
+    to verify that the requested execution plan only targets supported methods.
+    """
     @property
     def spec(self) -> NodeSpec:
         return _SPEC

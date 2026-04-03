@@ -53,7 +53,7 @@ def _values_payload(state: Any, *, key: str = "values") -> np.ndarray:
     tags={"distributional", "inequality", "theil", "cross-section"},
 )
 class TheilIndexEstimator:
-    """Theil index estimator implementation."""
+    """Estimate Theil inequality indices when audits need decomposable dispersion metrics."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -109,7 +109,7 @@ class TheilIndexEstimator:
     tags={"distributional", "inequality", "palma", "cross-section"},
 )
 class PalmaRatioEstimator:
-    """Palma ratio estimator implementation."""
+    """Estimate Palma ratios when policy comparisons focus on top-versus-bottom income shares."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -171,7 +171,7 @@ class PalmaRatioEstimator:
     tags={"distributional", "inequality", "generalized-gini", "cross-section"},
 )
 class GeneralizedGiniEstimator:
-    """Generalized gini estimator implementation."""
+    """Estimate generalized Gini scores for welfare-sensitive distributional comparisons."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 

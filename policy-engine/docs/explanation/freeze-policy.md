@@ -33,23 +33,22 @@ Source of truth здесь не narrative-диаграммы, а `Import Policy 
 
 ## CI Enforcement
 
-`arch-freeze.yml` и `arch.yml` покрывают разные части одной политики.
+На текущем дереве architecture freeze и import-gate проверки живут не в отдельных legacy workflow,
+а в основном CI-контуре плюс ABI gate.
 
-`arch-freeze.yml`:
-
-- запускает `lint_connector_hardening.py`;
-- собирает freeze metrics через `collect_arch_metrics.py`;
-- сравнивает baseline/current через `compare_baseline.py`;
-- валидирует expiry/import exceptions registry и deep-import drift;
-- включает blocking mode на `pull_request`.
-
-`arch.yml`:
+`ci.yml`:
 
 - запускает `lint_imports.py --policy import_policy.toml --exceptions import_exceptions.toml`;
 - проверяет Foundry purity (`lint_foundry.py`);
 - валидирует Scientist `state_reads` и node version bumps;
-- проверяет Scholar storage boundary;
-- валидирует connector contracts, ABI schema snapshots и runtime/frontend contract drift.
+- проверяет Scholar imports и connector contracts;
+- требует актуальные schema snapshots через `gen_schema.py --check`.
+
+`abi.yml`:
+
+- строит semantic diff между baseline/current ABI snapshots;
+- блокирует breaking drift без ожидаемого versioning decision;
+- повторно проверяет, что committed snapshots не отстали от кода.
 
 Типичное падение выглядит как один из кодов `ARCH00x`, например:
 

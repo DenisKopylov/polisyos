@@ -1,4 +1,4 @@
-"""Public kernel mechanisms module API."""
+"""Mechanism registry definitions that describe runtime inputs, outputs, and parameter contracts."""
 from __future__ import annotations
 
 from decimal import Decimal
@@ -26,7 +26,7 @@ class ParamType(str, Enum):
 
 
 class ParamSpec(KernelModel):
-    """Param spec data model."""
+    """Define one mechanism parameter, including type, bounds, units, and trainability metadata."""
     param_id: str = Field(..., max_length=128)
     required: bool = False
     value_type: ParamType = ParamType.DECIMAL
@@ -43,7 +43,7 @@ class ParamSpec(KernelModel):
 
 
 class MechanismTypeSpec(KernelModel):
-    """Mechanism type spec data model."""
+    """Describe one mechanism contract, including params plus slot read/write side effects."""
     mechanism_id: str = Field(..., pattern=ID_PATTERN)
     params: dict[str, ParamSpec] = Field(default_factory=dict)
     reads_slots: list[str] = Field(default_factory=list)
@@ -53,7 +53,7 @@ class MechanismTypeSpec(KernelModel):
 
 
 class MechanismTypeRegistry(KernelModel):
-    """Mechanism type registry implementation."""
+    """Registry of mechanism contracts that ``link_trinity`` resolves before execution."""
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
     mechanisms: dict[str, MechanismTypeSpec] = Field(default_factory=dict)
     notes: list[str] = Field(default_factory=list)

@@ -1,4 +1,4 @@
-"""Public passes privacy pass module API."""
+"""Validate privacy-tier metadata and data-view access requests before execution."""
 from __future__ import annotations
 
 from typing import List
@@ -21,8 +21,11 @@ def _access_tier_from_request(request: object) -> str | None:
 
 
 class PrivacyPass(ValidatorPass):
-    """
-    Validates privacy-related signals (PII tier, access tier requests).
+    """Warn on high PII tiers, sensitive access requests, and unknown access tiers.
+
+    The pass expects `pii_tier` and optional `data_view_requests` state payloads
+    and emits non-blocking `PII_TIER_HIGH`, `SENSITIVE_ACCESS_TIER`, and
+    `ACCESS_TIER_UNKNOWN` findings for downstream governance review.
     """
 
     @property

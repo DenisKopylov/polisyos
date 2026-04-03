@@ -1,4 +1,4 @@
-"""Public agent sim evolution module API."""
+"""Run derivative-free evolution strategies for agent-simulation policy search."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -16,7 +16,7 @@ from polisyos.foundry.contracts.fidelity import FidelityLevel
 
 @dataclass(frozen=True)
 class ESConfig:
-    """ES config data model."""
+    """Configure evolution-strategy search over repeated simulation rollouts."""
     population_size: int = 64
     n_generations: int = 100
     sigma: float = 0.02
@@ -35,7 +35,7 @@ def run_evolution_strategies(
     config: ESConfig,
     rng_key: jax.Array,
 ) -> tuple[ActorCritic, dict]:
-    """Run evolution strategies."""
+    """Optimize an actor-critic policy with evolution strategies over simulated rollouts."""
     params, static = eqx.partition(actor_critic, eqx.is_inexact_array)
     flat_params, unflatten = jax.flatten_util.ravel_pytree(params)
     n_params = flat_params.shape[0]
@@ -91,7 +91,7 @@ def run_evolution_strategies(
 
 @dataclass(frozen=True)
 class CMAESConfig:
-    """CMAES config data model."""
+    """Configure CMA-ES policy search when covariance adaptation matters."""
     population_size: int = 64
     n_generations: int = 100
     sigma_init: float = 0.5
@@ -107,7 +107,7 @@ def run_cma_es(
     config: CMAESConfig,
     rng_key: jax.Array,
 ) -> tuple[ActorCritic, dict]:
-    """Run cma es."""
+    """Optimize an actor-critic policy with CMA-ES over simulated rollouts."""
     params, static = eqx.partition(actor_critic, eqx.is_inexact_array)
     flat_params, unflatten = jax.flatten_util.ravel_pytree(params)
     n_params = flat_params.shape[0]

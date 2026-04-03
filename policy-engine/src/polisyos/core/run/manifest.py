@@ -1,4 +1,4 @@
-"""Public run manifest module API."""
+"""Run manifest schema persisted for completed, replayed, and tenant-scoped executions."""
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -10,12 +10,12 @@ from ..artifacts.manifest import ArtifactRef, EnvInfo, ProducerInfo
 
 
 def utc_now() -> datetime:
-    """Utc now helper."""
+    """Return a second-granularity UTC timestamp for stable run-manifest defaults."""
     return datetime.now(timezone.utc).replace(microsecond=0)
 
 
 class RunManifest(BaseModel):
-    """Run manifest data model."""
+    """Canonical summary of one executable run, its provenance, and its produced artifacts."""
     model_config = ConfigDict(extra="forbid")
 
     run_id: str

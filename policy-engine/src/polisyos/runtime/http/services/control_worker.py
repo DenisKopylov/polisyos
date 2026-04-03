@@ -1,4 +1,4 @@
-"""Public services control worker module API."""
+"""Lease and execute durable control-plane jobs from an embedded worker thread."""
 from __future__ import annotations
 
 import threading
@@ -17,7 +17,7 @@ JobHandler = Callable[[ControlJobRecord], None]
 
 
 class ControlWorker:
-    """Control worker public type."""
+    """Run a single embedded worker loop with lease renewal and wakeup signaling."""
     def __init__(
         self,
         *,
@@ -39,9 +39,11 @@ class ControlWorker:
 
     @property
     def worker_id(self) -> str:
+        """Return the stable worker lease identifier registered in the control store."""
         return self._worker_id
 
     def start(self) -> None:
+        """Start the daemon worker thread if it is not already running."""
         if self._thread is not None and self._thread.is_alive():
             return
         self._stop.clear()
@@ -54,6 +56,7 @@ class ControlWorker:
         self._thread.start()
 
     def stop(self, *, timeout: float = 2.0) -> None:
+        """Stop the worker loop, join the thread, and release the lease row."""
         self._stop.set()
         self._wake.set()
         if self._thread is not None:
@@ -61,9 +64,11 @@ class ControlWorker:
         self._store.release_worker(worker_id=self._worker_id)
 
     def wake(self) -> None:
+        """Wake the polling loop so newly queued jobs are leased immediately."""
         self._wake.set()
 
     def dispatch_once(self) -> bool:
+        """Lease and process one job, returning `True` when work was executed."""
         self._heartbeat(state="idle")
         job = self._store.lease_next_job(worker_id=self._worker_id, lease_seconds=self._lease_seconds)
         if job is None:

@@ -146,13 +146,13 @@ class ChangeProposalRef(ArtifactRef):
 
 
 class NormDiffRef(ArtifactRef):
-    """Norm diff ref data model."""
+    """Artifact reference for a diff between two norm-pack revisions."""
     kind: Literal["lex.norm_diff"] = "lex.norm_diff"
     media_type: Literal["application/json"] = "application/json"
 
 
 class NormImpactReportRef(ArtifactRef):
-    """Norm impact report ref data model."""
+    """Artifact reference for a report estimating policy impact from legal changes."""
     kind: Literal["lex.norm_impact_report"] = "lex.norm_impact_report"
     media_type: Literal["application/json"] = "application/json"
 
@@ -178,7 +178,7 @@ class LegalEvaluationRequest(BaseModel):
 
 
 class LegalReport(BaseModel):
-    """Legal report data model."""
+    """Legality evaluation result with jurisdictional context, issues, and summary counts."""
     model_config = ConfigDict(extra="forbid")
 
     context: LegalContext

@@ -1,6 +1,7 @@
 {
   "$defs": {
     "StrategicResponseChannel": {
+      "description": "Identify the adaptation channel that should trigger strategic-response checks.\n\n``PolicySpec`` and readiness bundles use this enum to route interventions to\nstrategic-response hooks and to document which behavioral channel may break\nnaive policy assumptions.",
       "enum": [
         "budget_channel",
         "procurement_channel",
@@ -14,6 +15,7 @@
     },
     "StrategicResponseSpec": {
       "additionalProperties": false,
+      "description": "Expectation that a policy intervention may trigger strategic adaptation.",
       "properties": {
         "channels": {
           "items": {
@@ -58,6 +60,7 @@
     }
   },
   "additionalProperties": false,
+  "description": "Bundle intervention-level strategic-response expectations for readiness checks.",
   "properties": {
     "artifact_name": {
       "const": "strategic_response_specs_v1.json",

@@ -1,4 +1,10 @@
-"""Public wiring executors module API."""
+"""Apply synthetic population, graph, and distribution updates to `GlobalState`.
+
+These executors own simulation dynamics only: they transform an in-memory
+state snapshot and return runtime metrics. They do not fetch observations or
+compute measurement loss, which keeps the agent-sim dynamics boundary separate
+from calibration/reporting code.
+"""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -358,7 +364,12 @@ def _with_distribution(state: GlobalState, distribution: DistributionState) -> G
 
 @dataclass
 class ContractsPopulationAwareExecutor:
-    """Apply demographic and firm-lifecycle updates to `GlobalState`."""
+    """Advance demographic and firm-lifecycle state while preserving slot projections.
+
+    The executor updates synthetic agent/firm microstate, optionally projects
+    derived cell/household-cell aggregates, and returns operational metrics for
+    applied births, migrations, entries, exits, and slot overflow.
+    """
 
     age_increment: int = 1
     birth_income: float = 0.0
@@ -374,6 +385,20 @@ class ContractsPopulationAwareExecutor:
         project: bool = True,
         fidelity: FidelityLevel = FidelityLevel.SURROGATE_FLUID,
     ) -> tuple[GlobalState, dict[str, Any]]:
+        """Apply one demographic/lifecycle update without incrementing `state.step`.
+
+        Args:
+            state: Synthetic runtime state to transform.
+            births_by_household_cell: Optional birth counts per household cell.
+            migration_targets: Optional new household-cell assignment per agent.
+            firm_events: Optional entry/exit/type-transition batch.
+            project: Whether to refresh derived household/cell aggregates.
+            fidelity: Accepted for executor API compatibility; currently
+                ignored by this deterministic state update.
+
+        Returns:
+            `(next_state, metrics)` with population and firm lifecycle counters.
+        """
         del fidelity
         agents = state.agents
         firms = state.firms
@@ -556,13 +581,19 @@ class ContractsPopulationAwareExecutor:
         return next_state, metrics
 
     def step(self, state: GlobalState, **kwargs) -> tuple[GlobalState, dict[str, Any]]:
+        """Apply one update and increment `state.step` by one."""
         next_state, metrics = self.apply(state, **kwargs)
         return next_state.replace(step=next_state.step + 1), metrics
 
 
 @dataclass
 class ContractsGraphAwareExecutor:
-    """Propagate procurement shocks through the runtime procurement graph."""
+    """Propagate firm-level procurement shocks through the synthetic supply graph.
+
+    Shock propagation mutates firm cash, inventory, and productivity in
+    `GlobalState.agent_sim_runtime.procurement_graph` and can refresh cell
+    distress projections, but it never reads observed data or loss weights.
+    """
 
     inventory_sensitivity: float = 0.5
     productivity_sensitivity: float = 0.05
@@ -575,6 +606,7 @@ class ContractsGraphAwareExecutor:
         project: bool = True,
         fidelity: FidelityLevel = FidelityLevel.SURROGATE_FLUID,
     ) -> tuple[GlobalState, dict[str, Any]]:
+        """Apply one procurement-shock propagation pass without incrementing the step."""
         del fidelity
         state = _ensure_runtime(state, n_quantiles=10)
         runtime = state.agent_sim_runtime
@@ -677,13 +709,20 @@ class ContractsGraphAwareExecutor:
         return next_state, metrics
 
     def step(self, state: GlobalState, **kwargs) -> tuple[GlobalState, dict[str, Any]]:
+        """Apply graph shock propagation and increment `state.step` by one."""
         next_state, metrics = self.apply(state, **kwargs)
         return next_state.replace(step=next_state.step + 1), metrics
 
 
 @dataclass
 class ContractsDistributionAwareExecutor:
-    """Compose population, graph, tax, and transfer updates in one runtime API."""
+    """Compose population, graph, tax, and transfer dynamics in one synthetic step.
+
+    Use this executor when one intervention update must jointly affect firm
+    lifecycle, procurement shocks, distribution-aware taxes/transfers, and
+    derived inequality metrics. The output metrics are runtime diagnostics, not
+    observation-side calibration losses.
+    """
 
     population_executor: ContractsPopulationAwareExecutor | None = None
     graph_executor: ContractsGraphAwareExecutor | None = None
@@ -818,6 +857,22 @@ class ContractsDistributionAwareExecutor:
         intervention_config: InterventionMechanismConfig | None = None,
         fidelity: FidelityLevel = FidelityLevel.SURROGATE_FLUID,
     ) -> tuple[GlobalState, dict[str, Any]]:
+        """Apply one composed intervention update and refresh distribution metrics.
+
+        Args:
+            state: Synthetic runtime state to update.
+            births_by_household_cell: Optional demographic birth counts.
+            migration_targets: Optional migration assignments.
+            firm_events: Optional firm lifecycle event batch.
+            procurement_shocks: Optional shock seeds for graph propagation.
+            intervention_config: Optional normalized tax/transfer targeting
+                config.
+            fidelity: Mechanism fidelity used by tax/transfer mechanisms.
+
+        Returns:
+            `(next_state, metrics)` containing population, graph, policy, and
+            inequality diagnostics.
+        """
         state = _ensure_runtime(state, n_quantiles=self.n_quantiles)
         metrics: dict[str, Any] = {}
 
@@ -863,6 +918,7 @@ class ContractsDistributionAwareExecutor:
         return state, metrics
 
     def step(self, state: GlobalState, **kwargs) -> tuple[GlobalState, dict[str, Any]]:
+        """Apply the composed update and increment `state.step` by one."""
         next_state, metrics = self.apply(state, **kwargs)
         return next_state.replace(step=next_state.step + 1), metrics
 

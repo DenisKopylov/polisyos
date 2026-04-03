@@ -1,4 +1,10 @@
-"""Public core components package API."""
+"""Expose the stable component discovery, metadata, compliance, and registry API.
+
+This facade is the contract boundary between plugin packages and the host
+platform. Component packages should publish `ComponentMetadata` plus a
+`Component` factory, while runtime/bootstrap code consumes this package for
+entry-point discovery, dev scanning, ABI validation, and version resolution.
+"""
 from .bootstrap import (
     BootstrapDomainReport,
     BootstrapReport,

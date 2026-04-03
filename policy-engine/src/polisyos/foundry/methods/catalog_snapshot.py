@@ -1,4 +1,4 @@
-"""Public methods catalog snapshot module API."""
+"""Build and persist a CAS-backed snapshot of the currently registered method catalog."""
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -33,7 +33,7 @@ def build_method_catalog_snapshot(
     registry: MethodRegistry | None = None,
     capability_contract: CausalCapabilityContract | None = None,
 ) -> MethodCatalogSnapshot:
-    """Build method catalog snapshot."""
+    """Build a `MethodCatalogSnapshot` with backend availability and semantic metadata."""
     reg = registry or MethodRegistry.get_instance()
     ensure_all_methods_registered(reg)
     contract = capability_contract or build_causal_capability_contract()
@@ -201,7 +201,7 @@ def persist_method_catalog_snapshot(
     *,
     inputs: list[InputRef] | None = None,
 ) -> MethodCatalogSnapshotRef:
-    """Persist method catalog snapshot helper."""
+    """Persist a method-catalog snapshot artifact and return its typed ref."""
     payload_ref = store.put_json(
         snapshot,
         PutOptions(

@@ -34,7 +34,7 @@ class TrinityBindings(KernelModel):
 
 
 class LinkedTrinityBundle(KernelModel):
-    """Linked trinity bundle data model."""
+    """Bundle a Trinity payload with resolved registry bindings and stable digests after linking."""
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     bundle: TrinityBundle
     registry_digest: str | None = Field(None, pattern=ARTIFACT_ID_PATTERN)

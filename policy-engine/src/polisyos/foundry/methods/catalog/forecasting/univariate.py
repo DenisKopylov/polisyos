@@ -52,7 +52,7 @@ def _holt_linear(series: np.ndarray, *, alpha: float, beta: float) -> tuple[floa
     tags={"forecasting", "time-series", "exponential-smoothing"},
 )
 class ExponentialSmoothingEstimator:
-    """Exponential smoothing estimator implementation."""
+    """Generate univariate baseline forecasts with exponential smoothing."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -109,7 +109,7 @@ class ExponentialSmoothingEstimator:
     tags={"forecasting", "time-series", "theta"},
 )
 class ThetaMethodEstimator:
-    """Theta method estimator implementation."""
+    """Generate univariate forecasts with the Theta method."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -169,7 +169,7 @@ class ThetaMethodEstimator:
     tags={"forecasting", "ensemble", "time-series"},
 )
 class ForecastEnsembleEstimator:
-    """Forecast ensemble estimator implementation."""
+    """Combine several forecast baselines into one ensemble projection."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -222,7 +222,7 @@ class ForecastEnsembleEstimator:
     tags={"forecasting", "hierarchical", "reconciliation", "time-series"},
 )
 class BottomUpReconciliationEstimator:
-    """Bottom up reconciliation estimator implementation."""
+    """Reconcile hierarchical forecasts bottom-up when planners need aggregate-consistent projections."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 

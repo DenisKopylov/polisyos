@@ -1,4 +1,11 @@
-"""Public Scientist governance surface for validation and calibration flows."""
+"""Stable governance facade for runtime validation, calibration review, and replay reports.
+
+This package exposes the orchestration-level contracts consumed by Scientist
+nodes and calibration jobs: pre/postflight helpers, validation profiles,
+backtest/stress runners, leaderboard rollups, and persisted governance reports.
+Concrete validator passes live under `polisyos.scientist.governance.passes` and
+are usually loaded through `pass_registry`.
+"""
 
 from polisyos.core.governance.profiles import ValidationProfile  # noqa: F401
 

@@ -1,4 +1,4 @@
-"""Public analytics hte module API."""
+"""Define heterogeneous treatment effect estimates and targeting recommendations."""
 from __future__ import annotations
 
 import math
@@ -193,7 +193,7 @@ def persist_hte_result(
     schema_name: str = "ir.hte_result",
     schema_version: str = "1.0",
 ) -> HTEResultRef:
-    """Persist hte result helper."""
+    """Persist an HTE result and return its typed artifact reference."""
     ref = put_json_artifact(
         store,
         result.model_dump(mode="json"),
@@ -220,7 +220,7 @@ def persist_policy_recommendation(
     schema_name: str = "ir.policy_recommendation",
     schema_version: str = "1.0",
 ) -> PolicyRecommendationRef:
-    """Persist policy recommendation helper."""
+    """Persist a targeting recommendation derived from an HTE artifact."""
     ref = put_json_artifact(
         store,
         recommendation.model_dump(mode="json"),

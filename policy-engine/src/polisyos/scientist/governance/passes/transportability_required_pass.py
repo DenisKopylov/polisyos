@@ -1,4 +1,4 @@
-"""Public passes transportability required pass module API."""
+"""Require transportability evidence whenever causal effects cross source/target contexts."""
 from __future__ import annotations
 
 from typing import Any
@@ -28,12 +28,14 @@ _EXTERNAL_SOURCE_TYPES: frozenset[str] = frozenset(
 
 
 class TransportabilityRequiredPass(ValidatorPass):
-    """
-    Law T: external-context causal estimates require transportability evidence.
+    """Apply the external-context transportability rule to causal reports.
 
-    FAST   -> skip
-    MVP    -> warning
-    STRICT -> blocker
+    The pass reads direct `causal_effect_reports`/`causal_report` payloads or
+    `artifacts_index.causal_report_ref` and
+    `artifacts_index.transportability_result_ref` through `_store`. FAST profile
+    skips the check. Missing, partial, bounds-only, or unsupported transport
+    evidence is a blocker in STRICT mode and usually a warning otherwise, except
+    when state explicitly marks transport as required.
     """
 
     @property

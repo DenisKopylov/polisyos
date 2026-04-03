@@ -1,4 +1,4 @@
-"""Public claims backends package API."""
+"""Built-in claim extractors used at the document-ingestion boundary."""
 from __future__ import annotations
 
 from polisyos.fabric.claims.extractor_registry import ClaimExtractorFn, get_extractor_registry

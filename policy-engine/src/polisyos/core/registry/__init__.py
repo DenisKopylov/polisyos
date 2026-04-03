@@ -1,4 +1,9 @@
-"""Public core registry package API."""
+"""Expose registry primitives and lazy bundle builders/loaders.
+
+`BaseRegistry`/`GenericRegistry` are pure in-memory primitives imported eagerly,
+while bundle construction/loading helpers are resolved lazily to avoid importing
+CAS and IR schemas unless a caller explicitly needs immutable registry bundles.
+"""
 from __future__ import annotations
 
 from typing import Any
@@ -23,6 +28,7 @@ __all__ = [
 
 
 def __getattr__(name: str) -> Any:
+    """Resolve one lazily exported bundle helper from `builder`, `loader`, or fragment builders."""
     if name in {
         "RegistryBundleContent",
         "load_registry_bundle",

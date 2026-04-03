@@ -2,7 +2,7 @@
   "$defs": {
     "ConstraintSpec": {
       "additionalProperties": false,
-      "description": "Constraint specification on policy outcomes.\n\nDefines hard or soft boundaries that must/should be respected.",
+      "description": "Specify one feasibility boundary or soft penalty attached to a metric slot.\n\nHard constraints are expected to fail governance or search admission when\nviolated, whereas soft constraints may be traded off using\n``penalty_weight``. Use ``slot_id`` and ``operator`` when the constraint is\ntied to a concrete metric channel.",
       "properties": {
         "constraint_id": {
           "pattern": "^[a-z][a-z0-9_]*$",
@@ -122,7 +122,7 @@
       "type": "object"
     },
     "ConstraintType": {
-      "description": "Types of constraints on policy outcomes.",
+      "description": "Declare whether a constraint is a hard feasibility gate or a soft penalty.\n\n``ProblemFrame`` validators keep hard and soft constraints in separate\ncollections, while portfolio/search routines can use ``SOFT`` entries with\n``ConstraintSpec.penalty_weight`` as a scalarized penalty term.",
       "enum": [
         "hard",
         "soft"
@@ -132,6 +132,7 @@
     },
     "CountValue": {
       "additionalProperties": false,
+      "description": "Count value public type.",
       "properties": {
         "label": {
           "anyOf": [
@@ -160,6 +161,7 @@
     },
     "DurationValue": {
       "additionalProperties": false,
+      "description": "Duration value public type.",
       "properties": {
         "unit": {
           "default": "step",
@@ -198,7 +200,7 @@
     },
     "KPISpec": {
       "additionalProperties": false,
-      "description": "Key Performance Indicator specification.\n\nDefines a measurable metric that indicates progress toward objectives.",
+      "description": "Describe one measurable success signal anchored to the metric registry.\n\nA KPI is the user-facing metric vocabulary for the ``what`` artifact: it\nlinks narrative objectives to a concrete ``metric_id``, optional\nbaseline/target values, and an optimization direction that downstream\nscoring and reporting stages can interpret consistently.",
       "properties": {
         "baseline_value": {
           "anyOf": [
@@ -311,6 +313,7 @@
     },
     "MoneyValue": {
       "additionalProperties": false,
+      "description": "Money value public type.",
       "properties": {
         "amount": {
           "anyOf": [
@@ -533,7 +536,7 @@
       "type": "string"
     },
     "ProblemDomain": {
-      "description": "Classification of policy problem domains.",
+      "description": "Classify the domain vocabulary used to route metrics and templates.\n\nThe domain label is consumed by authoring tools and reporting layers to\nchoose problem-specific defaults; ``CUSTOM`` is the escape hatch when no\nbuilt-in domain taxonomy applies.",
       "enum": [
         "fiscal",
         "monetary",
@@ -552,6 +555,7 @@
     },
     "RateValue": {
       "additionalProperties": false,
+      "description": "Rate value public type.",
       "properties": {
         "base": {
           "default": "ratio",
@@ -725,7 +729,7 @@
     },
     "StakeholderSpec": {
       "additionalProperties": false,
-      "description": "Stakeholder affected by the policy problem.\n\nCaptures who is impacted and how.",
+      "description": "Capture the affected actor set used by equity and arbitration passes.\n\nStakeholders define whose outcomes must be tracked in ``ProblemFrame`` and\noptionally prioritized in ``NormativeFrame``. Downstream fairness,\ndistributional, and policy communication layers read this contract to align\nmetric impacts with stakeholder semantics.",
       "properties": {
         "attributes": {
           "additionalProperties": {
@@ -1021,7 +1025,7 @@
     }
   },
   "additionalProperties": false,
-  "description": "ProblemFrame: The \"Why\" artifact.\n\nFormalizes the policy problem being addressed, including goals, KPIs,\nsuccess criteria, constraints, and stakeholders. This artifact remains\nconstant during policy optimization and sensitivity analysis.",
+  "description": "Define the Trinity ``what`` contract for objectives, metrics, and guardrails.\n\n``ProblemFrame`` answers \"what problem are we solving and under which\nboundaries?\" and is expected to remain stable while ``PolicySpec`` explores\ninterventions and ``ModelSpec`` explores simulation assumptions. Use this\nartifact as the canonical anchor for optimizer objectives, governance\nconstraints, stakeholder interpretation, and human-facing summaries.\n\nAttributes:\n    problem_id: Stable identifier for the policy problem within a project.\n    domain: Domain taxonomy used for reporting and authoring defaults.\n    objectives: Formal optimization objectives tied to registry metrics.\n    kpis: Business-facing KPI definitions that quantify progress.\n    success_criteria: Threshold tests that define when a KPI is considered met.\n    hard_constraints: Non-negotiable feasibility boundaries.\n    soft_constraints: Penalty-based preferences that search may trade off.\n    stakeholders: Affected actor groups used by equity and arbitration logic.\n    normative_frame: Optional welfare/rights model for normative arbitration.\n    narrative: Human-readable problem statement preserved alongside the schema.",
   "properties": {
     "domain": {
       "$ref": "#/$defs/ProblemDomain",

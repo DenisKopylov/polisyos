@@ -1,6 +1,7 @@
 {
   "$defs": {
     "AggregationFunction": {
+      "description": "Aggregation function public type.",
       "enum": [
         "mean",
         "median",
@@ -186,6 +187,7 @@
       "type": "object"
     },
     "ToleranceMethod": {
+      "description": "Tolerance method public type.",
       "enum": [
         "adaptive",
         "fixed"

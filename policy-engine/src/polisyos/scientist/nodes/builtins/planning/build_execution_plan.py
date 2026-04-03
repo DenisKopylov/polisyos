@@ -41,7 +41,12 @@ _SPEC = NodeSpec(
 
 @dataclass(frozen=True)
 class BuildExecutionPlanNode:
-    """Build execution plan node implementation."""
+    """Planning DAG node that persists the normalized execution plan for later preflight and execution.
+
+    Reads `params.execution_plan` plus stop criteria and expected outputs, then
+    writes the execution-plan artifact ref into both params and workflow inputs
+    so simulation-stage nodes can reuse the same contract.
+    """
     @property
     def spec(self) -> NodeSpec:
         return _SPEC

@@ -1,6 +1,7 @@
 {
   "$defs": {
     "AnchorKind": {
+      "description": "Anchor kind public type.",
       "enum": [
         "article",
         "section",
@@ -102,6 +103,7 @@
     }
   },
   "additionalProperties": false,
+  "description": "Doc fragment public type.",
   "properties": {
     "doc_version_id": {
       "pattern": "^[a-z][a-z0-9_.-]*$",

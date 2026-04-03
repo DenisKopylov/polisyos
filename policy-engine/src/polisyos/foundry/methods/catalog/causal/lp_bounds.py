@@ -1,4 +1,4 @@
-"""Public causal lp bounds module API."""
+"""Solve linear-program bounds for partially identified causal estimands."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -18,7 +18,7 @@ _MAX_EXACT_RESPONSE_TYPES = 5_000
 
 
 class DiscretizedVariable(BaseModel):
-    """Discretized variable public type."""
+    """Represent one discretized support axis used by the LP bounding problem."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     name: str

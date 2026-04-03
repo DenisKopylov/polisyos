@@ -298,7 +298,7 @@ def _check_finite(tree: Any) -> tuple[bool, list[str]]:
 
 class MethodTestSuite:
     """
-    Comprehensive test suite for any FoundryMethod implementation.
+    Run backend, determinism, and regression checks against a Foundry method class.
     """
 
     DEFAULT_DETERMINISM_RUNS: ClassVar[int] = 3

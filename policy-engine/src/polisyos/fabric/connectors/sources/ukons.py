@@ -1,4 +1,4 @@
-"""Public sources ukons module API."""
+"""UK ONS connector implementation for dataset discovery and statistical observations."""
 from __future__ import annotations
 
 import json

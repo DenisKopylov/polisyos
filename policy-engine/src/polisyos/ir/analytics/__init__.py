@@ -1,4 +1,9 @@
-"""Analytical IR models and reports."""
+"""Aggregate analytics IR modules covering causal, uncertainty, and trust reports.
+
+This subpackage re-exports analytics schemas for convenience, but the stable
+top-level compatibility boundary remains :mod:`polisyos.ir` and the explicit
+references pages under ``docs/reference/ir``.
+"""
 
 from polisyos.ir.analytics.abm_bridge import *  # noqa: F401,F403
 from polisyos.ir.analytics.alignment_certification import *  # noqa: F401,F403

@@ -1,4 +1,4 @@
-"""Public passes pii check pass module API."""
+"""Validate PII scan severity against the tenant deployment tier."""
 from __future__ import annotations
 
 from typing import List
@@ -20,7 +20,13 @@ _SEVERITY_ORDER = ["none", "low", "medium", "high", "critical"]
 
 
 class PIICheckPass(ValidatorPass):
-    """Validate detected PII severity against tenant deployment tier."""
+    """Block PII findings above the tenant ceiling and warn on tolerated detections.
+
+    Reads `pii_scan_results` and `tenant_tier` from `ctx.state`. Missing scans
+    emit `PII_SCAN_MISSING` warnings, violations above the tier ceiling emit
+    `PII_CEILING_EXCEEDED` blockers, and findings still within the ceiling emit
+    `PII_DETECTED_WITHIN_CEILING` warnings.
+    """
 
     @property
     def pass_id(self) -> str:

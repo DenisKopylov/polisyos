@@ -1,7 +1,14 @@
-"""Public scientist autotune package API."""
+"""Stable autotune facade for search-loop contracts, persistence, and optional runtimes.
+
+Eager exports cover the registry-facing models and CAS helpers that planners and
+promotion logic depend on directly. Runtime loaders and candidate generators are
+lazy-loaded so importing this facade does not force heavyweight execution
+dependencies or import-cycle-prone modules.
+"""
 from __future__ import annotations
 
 import importlib
+from typing import Any
 
 from .models import (
     BenchmarkEvaluation,
@@ -114,7 +121,7 @@ _OPTIONAL_LAZY_IMPORTS: dict[str, tuple[str, str]] = {
 }
 
 
-def __getattr__(name: str):
+def __getattr__(name: str) -> Any:
     if name not in _OPTIONAL_LAZY_IMPORTS:
         raise AttributeError(f"module 'polisyos.scientist.autotune' has no attribute '{name}'")
     module_name, attr_name = _OPTIONAL_LAZY_IMPORTS[name]

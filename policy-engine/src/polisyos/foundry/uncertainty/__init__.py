@@ -1,4 +1,4 @@
-"""Public foundry uncertainty package API."""
+"""Expose uncertainty propagation helpers used around Foundry simulation outputs."""
 from .aggregator import AggregationStrategy, aggregate_envelopes
 from .config import AdaptiveStoppingConfig, PropagationConfig
 from .dispatcher import PropagationDispatcher

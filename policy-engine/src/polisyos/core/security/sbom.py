@@ -1,4 +1,4 @@
-"""Public security sbom module API."""
+"""SBOM generation and vulnerability scanning helpers for runtime provenance checks."""
 from __future__ import annotations
 
 import json
@@ -32,7 +32,7 @@ class VulnerabilitySeverity(str, Enum):
 
 
 class VulnerabilityRecord(BaseModel):
-    """Vulnerability record data model."""
+    """One vulnerability finding attached to a package discovered in an SBOM scan."""
     model_config = ConfigDict(extra="forbid")
 
     cve_id: str
@@ -45,7 +45,7 @@ class VulnerabilityRecord(BaseModel):
 
 
 class SBOMMetadata(BaseModel):
-    """SBOM metadata data model."""
+    """Describes how an SBOM was produced and how much software inventory it contains."""
     model_config = ConfigDict(extra="forbid")
 
     format: SBOMFormat = SBOMFormat.CYCLONEDX_JSON
@@ -58,7 +58,7 @@ class SBOMMetadata(BaseModel):
 
 
 class SBOMVerificationResult(BaseModel):
-    """SBOM verification result data model."""
+    """Decision record returned after applying vulnerability thresholds to an SBOM scan."""
     model_config = ConfigDict(extra="forbid")
 
     allowed: bool

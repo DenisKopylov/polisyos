@@ -1,4 +1,4 @@
-"""Public simulation dynamics module API."""
+"""Simulate system-dynamics, queue, compartmental, and agent-population mechanisms."""
 from __future__ import annotations
 
 from typing import Any, ClassVar, Mapping
@@ -136,7 +136,7 @@ def _build_agent_sim_mechanism(name: str, cfg: Mapping[str, Any]) -> Any:
     tags={"simulation", "system-dynamics", "stock-flow", "structural"},
 )
 class StockFlowSystemDynamicsEstimator:
-    """Stock flow system dynamics estimator implementation."""
+    """Simulate deterministic stock-flow trajectories under a linear flow matrix; avoid strongly nonlinear feedbacks not encoded in the matrix."""
     method_kind: ClassVar[MethodKind] = MethodKind.SIMULATION
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
@@ -215,7 +215,7 @@ class StockFlowSystemDynamicsEstimator:
     tags={"simulation", "discrete-event", "queue", "structural"},
 )
 class QueueDiscreteEventEstimator:
-    """Queue discrete event estimator implementation."""
+    """Simulate queue evolution under arrival/service rates and optional capacity; avoid when per-job event logs are required."""
     method_kind: ClassVar[MethodKind] = MethodKind.SIMULATION
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("jax",)
@@ -287,7 +287,7 @@ class QueueDiscreteEventEstimator:
     tags={"simulation", "compartmental", "sir", "structural"},
 )
 class SIRCompartmentalEstimator:
-    """SIR compartmental estimator implementation."""
+    """Simulate SIR epidemic dynamics under homogeneous mixing; avoid latent-incubation processes that need an exposed compartment."""
     method_kind: ClassVar[MethodKind] = MethodKind.SIMULATION
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
@@ -367,7 +367,7 @@ class SIRCompartmentalEstimator:
     tags={"simulation", "compartmental", "seir", "structural"},
 )
 class SEIRCompartmentalEstimator:
-    """SEIR compartmental estimator implementation."""
+    """Simulate SEIR epidemic dynamics with an exposed compartment; avoid highly networked contact structure that violates homogeneous mixing."""
     method_kind: ClassVar[MethodKind] = MethodKind.SIMULATION
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
@@ -452,7 +452,7 @@ class SEIRCompartmentalEstimator:
     tags={"simulation", "agent-based", "agent-sim", "structural"},
 )
 class AgentPopulationSimulationEstimator:
-    """Agent population simulation estimator implementation."""
+    """Replay selected agent-sim mechanisms over synthetic microstate; avoid treating the output as observed data without a separate measurement layer."""
     method_kind: ClassVar[MethodKind] = MethodKind.SIMULATION
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STRICT_CPU
     runtime_stack: ClassVar[tuple[str, ...]] = ("jax",)

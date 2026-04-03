@@ -1,4 +1,4 @@
-"""Public passes normative arbitration pass module API."""
+"""Validate normative arbitration results and dissent/hard-constraint outcomes."""
 from __future__ import annotations
 
 from typing import List
@@ -16,7 +16,14 @@ from polisyos.ir.refs import NormativeArbitrationResultRef
 
 
 class NormativeArbitrationPass(ValidatorPass):
-    """Normative arbitration pass implementation."""
+    """Check that rights, hard constraints, and policy-vs-baseline arbitration cleared.
+
+    The pass reads `normative_arbitration_result` directly or from
+    `artifacts_index.normative_arbitration_result_ref` via `_store`. Missing
+    results produce `NORMATIVE_RESULT_MISSING` warnings, explicit normative
+    models can elevate rights/hard-constraint violations to blockers, and
+    partial models, dissent, or proposal rejection remain warnings.
+    """
     @property
     def pass_id(self) -> str:
         return "normative_arbitration"

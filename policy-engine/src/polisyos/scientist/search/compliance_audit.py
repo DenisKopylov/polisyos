@@ -13,7 +13,7 @@ from polisyos.scientist.search.artifact_minimality import ArtifactMinimalityMixi
 
 
 class ComplianceAuditEntry(BaseModel):
-    """Compliance audit entry data model."""
+    """One blueprint invariant tracked by the explicit Scientist runtime compliance audit."""
     model_config = ConfigDict(extra="forbid")
 
     invariant_id: str = Field(min_length=1)
@@ -24,7 +24,7 @@ class ComplianceAuditEntry(BaseModel):
 
 
 def scientist_blueprint_compliance_audit() -> list[ComplianceAuditEntry]:
-    """Scientist blueprint compliance audit helper."""
+    """Return the invariant matrix that the Scientist blueprint treats as non-negotiable."""
     return [
         ComplianceAuditEntry(
             invariant_id="uncertainty.max_when_unassessed",

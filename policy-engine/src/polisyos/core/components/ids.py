@@ -1,4 +1,4 @@
-"""Public components ids module API."""
+"""Define component ID and semver contracts used by plugin registries."""
 from __future__ import annotations
 
 import re
@@ -24,7 +24,7 @@ _COMPONENT_ID_RE = re.compile(
 @total_ordering
 @dataclass(frozen=True, slots=True)
 class SemVer:
-    """Sem ver public type."""
+    """Represent a SemVer value with precedence rules used by component resolution."""
     major: int
     minor: int
     patch: int
@@ -33,6 +33,7 @@ class SemVer:
 
     @classmethod
     def parse(cls, value: str) -> "SemVer":
+        """Parse a semantic version and validate prerelease/build syntax."""
         match = _SEMVER_RE.fullmatch(value.strip())
         if match is None:
             raise ValueError(f"Invalid semver: {value!r}")
@@ -82,6 +83,7 @@ class SemVer:
         )
 
     def without_build(self) -> "SemVer":
+        """Return the same version without build metadata for precedence/range checks."""
         return SemVer(
             major=self.major,
             minor=self.minor,
@@ -124,12 +126,13 @@ def _compare_prerelease(left: tuple[str, ...], right: tuple[str, ...]) -> int:
 
 @dataclass(frozen=True, slots=True)
 class SemverRange:
-    """Semver range public type."""
+    """Represent a supported component version constraint expression."""
     raw: str
     clauses: tuple[tuple[str, SemVer], ...]
 
     @classmethod
     def parse(cls, value: str) -> "SemverRange":
+        """Parse exact, wildcard, or comparator-based version constraints."""
         raw = value.strip()
         if not raw:
             raise ValueError("SemverRange cannot be empty")
@@ -177,6 +180,7 @@ class SemverRange:
         return cls(raw=raw, clauses=tuple(clauses))
 
     def matches(self, version: str | SemVer) -> bool:
+        """Return whether `version` satisfies all parsed range clauses."""
         semver = version if isinstance(version, SemVer) else SemVer.parse(version)
         semver = semver.without_build()
         for op, target in self.clauses:
@@ -208,6 +212,7 @@ class ComponentId(RootModel[str]):
     @field_validator("root")
     @classmethod
     def validate_root(cls, value: str) -> str:
+        """Validate `seg(.seg)+@semver` format and parse the version component."""
         if not isinstance(value, str):
             raise TypeError("ComponentId must be a string")
         if not cls.pattern.match(value):
@@ -217,10 +222,12 @@ class ComponentId(RootModel[str]):
 
     @classmethod
     def parse(cls, value: str) -> "ComponentId":
+        """Parse a component identifier string into the normalized root model."""
         return cls(value)
 
     @property
     def path(self) -> str:
+        """Return the dotted component path without the version suffix."""
         match = self.pattern.match(self.root)
         if not match:
             raise ValueError("Invalid ComponentId")
@@ -228,18 +235,22 @@ class ComponentId(RootModel[str]):
 
     @property
     def base_id(self) -> str:
+        """Return the versionless component ID used for multi-version lookups."""
         return self.path
 
     @property
     def namespace(self) -> str:
+        """Return the dotted namespace portion of `base_id`."""
         return self.base_id.rsplit(".", 1)[0]
 
     @property
     def name(self) -> str:
+        """Return the terminal component name segment."""
         return self.base_id.rsplit(".", 1)[1]
 
     @property
     def version(self) -> str:
+        """Return the serialized SemVer suffix from the component ID."""
         match = self.pattern.match(self.root)
         if not match:
             raise ValueError("Invalid ComponentId")
@@ -247,10 +258,12 @@ class ComponentId(RootModel[str]):
 
     @property
     def semver(self) -> SemVer:
+        """Return the parsed SemVer object for this component ID."""
         return SemVer.parse(self.version)
 
     @property
     def version_sanitized(self) -> str:
+        """Return a filesystem-friendly version string with `+` and `@` replaced."""
         return self.version.replace("+", "_").replace("@", "_")
 
     def __str__(self) -> str:
@@ -258,7 +271,7 @@ class ComponentId(RootModel[str]):
 
 
 def compare_semver(left: str, right: str) -> int:
-    """Compare semver helper."""
+    """Compare two semantic versions using registry precedence rules."""
     left_semver = SemVer.parse(left)
     right_semver = SemVer.parse(right)
     if left_semver < right_semver:

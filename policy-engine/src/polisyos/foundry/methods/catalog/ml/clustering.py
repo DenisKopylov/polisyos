@@ -1,4 +1,4 @@
-"""Public ml clustering module API."""
+"""Cluster tabular observations and expose assignments through Foundry method contracts."""
 from __future__ import annotations
 
 from typing import Any, ClassVar, Mapping
@@ -43,7 +43,7 @@ def _tabular_payload(state: Any) -> dict[str, Any]:
     tags={"ml", "clustering", "kmeans"},
 )
 class KMeansEstimator:
-    """K means estimator implementation."""
+    """Partition feature vectors into k-means clusters under roughly spherical cluster geometry; avoid non-convex manifolds."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("scikit-learn", "numpy")
 

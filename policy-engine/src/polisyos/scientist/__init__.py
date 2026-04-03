@@ -1,4 +1,12 @@
-"""Public Scientist facade with lazy imports."""
+"""Stable Scientist package facade for workflow execution and run observability.
+
+The root package intentionally exports a small contract surface:
+`run_experiment()` for orchestration, `ExperimentState` as the boundary model
+passed across DAG nodes, and the shared observability factories used by tests
+and embedding runtimes. Imports are resolved lazily so importing
+`polisyos.scientist` does not eagerly initialize optional workflow adapters,
+Foundry/Fabric bridges, or governance registries.
+"""
 
 from __future__ import annotations
 
@@ -16,6 +24,17 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
 
 
 def __getattr__(name: str) -> Any:
+    """Resolve stable facade exports on first access.
+
+    Args:
+        name: Public symbol requested from `polisyos.scientist`.
+
+    Returns:
+        Imported symbol cached in the module global namespace.
+
+    Raises:
+        AttributeError: If `name` is not part of the stable facade contract.
+    """
     if name not in _LAZY_IMPORTS:
         raise AttributeError(f"module 'polisyos.scientist' has no attribute '{name}'")
     module_name, attr_name = _LAZY_IMPORTS[name]
@@ -26,4 +45,5 @@ def __getattr__(name: str) -> Any:
 
 
 def __dir__() -> list[str]:
+    """Return eager globals plus lazy facade exports for interactive discovery."""
     return sorted(list(globals().keys()) + list(_LAZY_IMPORTS.keys()))

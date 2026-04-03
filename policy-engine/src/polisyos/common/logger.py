@@ -1,5 +1,10 @@
-"""Public common logger module API."""
-# Логгер настраивается в config.py для избежания циклических импортов
+"""Provide module-scoped loggers enriched with current trace/span context.
+
+This module is safe to import from library code. Global sink/level wiring lives
+in `polisyos.common.config` to avoid circular imports and to keep process-wide
+logging configuration under entrypoint control.
+"""
+# Logger sinks are configured in config.py to avoid circular imports.
 from __future__ import annotations
 
 import logging
@@ -70,9 +75,10 @@ class _TraceContextFilter(logging.Filter):
 
 def get_logger(module_name: Optional[str] = None):
     """
-    Возвращает логгер с контекстом модуля.
+    Return a logger bound to `module_name` and current trace context.
 
-    Предпочтительно использует loguru (если доступен), иначе падает назад на стандартный logging.
+    Loguru is preferred when available; otherwise the standard-library logger is
+    returned with a trace-context filter attached.
     """
     global _trace_context_configured
 

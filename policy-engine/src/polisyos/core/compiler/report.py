@@ -1,4 +1,4 @@
-"""Public compiler report module API."""
+"""Compiler report contracts plus CAS persistence helpers for link and compile results."""
 from __future__ import annotations
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -9,7 +9,7 @@ from polisyos.ir.linker import LinkReport
 
 
 class CompileReport(BaseModel):
-    """Compile report data model."""
+    """High-level status report emitted by Foundry compilation and lowering workflows."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -29,7 +29,7 @@ class CompileReport(BaseModel):
 def put_link_report(
     store: FileSystemCAS, report: LinkReport, *, inputs: list[InputRef] | None = None
 ) -> ArtifactRef:
-    """Put link report helper."""
+    """Persist an IR linker report into CAS with the compiler link-report schema metadata."""
     return store.put_json(
         report,
         PutOptions(
@@ -44,7 +44,7 @@ def put_link_report(
 def put_compile_report(
     store: FileSystemCAS, report: CompileReport, *, inputs: list[InputRef] | None = None
 ) -> ArtifactRef:
-    """Put compile report helper."""
+    """Persist a compile report into CAS so runtime and audit surfaces can reference it."""
     return store.put_json(
         report,
         PutOptions(

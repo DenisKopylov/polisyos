@@ -1,4 +1,10 @@
-"""Public governance calibration leaderboard module API."""
+"""Score and rank calibration candidates after governance and validation replay.
+
+The leaderboard combines C5a verdicts, C5b backtest/stress summaries,
+specification-curve robustness, transportability, interference fit, and
+strategic-response plausibility into a promotion-oriented score. Missing
+evidence channels become explicit gap flags instead of silently inflating rank.
+"""
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
@@ -35,7 +41,13 @@ _REQUIRED_NUMERIC_SLOTS = {
 
 
 class CalibrationLeaderboardMetrics(BaseModel):
-    """Normalized promotion metrics used to rank calibration candidates."""
+    """Normalized promotion metrics used to rank calibration candidates.
+
+    Required evidence channels are captured as nullable scores so missing inputs
+    can be surfaced through `gap_flags`. `eligible_for_promotion` is true only
+    when governance approves, required adversarial suites pass, and no required
+    score is missing.
+    """
 
     model_config = ConfigDict(extra="forbid")
 
@@ -69,7 +81,12 @@ class CalibrationLeaderboardEntry(BaseModel):
 
 
 class CalibrationLeaderboard:
-    """Builder and ranker for calibration-promotion leaderboard entries."""
+    """Build and rank calibration-promotion leaderboard entries.
+
+    Candidate generation and governance happen upstream; this class only
+    synthesizes evaluator feedback into one comparable entry per run and orders
+    entries by eligibility, composite score, and deterministic tie-breakers.
+    """
 
     def __init__(self) -> None:
         self._specification_curve_estimator = SpecificationCurveEstimator()

@@ -1,4 +1,9 @@
-"""Public services run index module API."""
+"""Cache run manifests and expose filtered/paginated runtime index views.
+
+`RunIndexService` adapts persisted Core run directories into immutable
+`IndexedRunRecord` snapshots and keeps a short-lived in-memory index for
+`/runs` and dependent debug/lineage endpoints.
+"""
 from __future__ import annotations
 
 import time
@@ -18,7 +23,7 @@ from .adapters.core_run import CoreRunAdapterResult, load_core_run
 
 @dataclass(frozen=True)
 class IndexedRunRecord:
-    """Indexed run record data model."""
+    """Join a run manifest, API summary/details DTOs, and local file pointers."""
     run_id: str
     source_kind: SourceKind
     details: RunDetails
@@ -32,7 +37,12 @@ class IndexedRunRecord:
 
 
 class RunIndexService:
-    """Run index service implementation."""
+    """Provide TTL-refreshed run listings and artifact-to-tenant lookups.
+
+    The index is rebuilt from `core_runs_root` on demand and cached for
+    `refresh_ttl_seconds`. Invalid pagination cursors raise `ValueError`, and
+    unknown run ids raise `KeyError`.
+    """
     def __init__(
         self,
         *,
@@ -50,9 +60,11 @@ class RunIndexService:
 
     @property
     def store(self) -> FileSystemCAS:
+        """Return the CAS store used by downstream services."""
         return self._store
 
     def refresh(self, *, force: bool = False) -> None:
+        """Rebuild the cached index when TTL expired or `force=True`."""
         now = time.monotonic()
         if not force and (now - self._cache_built_at) < self._refresh_ttl_seconds:
             return
@@ -69,6 +81,25 @@ class RunIndexService:
         to_ts: datetime | None = None,
         tenant_id: str | None = None,
     ) -> tuple[list[RunSummary], CursorPage]:
+        """Return one cursor page of run summaries after applying filters.
+
+        Args:
+            limit: Requested page size; clamped to the `[1, 200]` API range.
+            cursor: Integer offset encoded as a string, or `None` for the first
+                page.
+            status: Optional case-insensitive run status filter.
+            from_ts: Optional inclusive lower bound on `started_at`.
+            to_ts: Optional inclusive upper bound on `started_at`.
+            tenant_id: Optional tenant filter; runs without a tenant are omitted
+                when this filter is set.
+
+        Returns:
+            A `(summaries, page)` tuple where `page.next_cursor` carries the next
+            integer offset when more runs are available.
+
+        Raises:
+            ValueError: If `cursor` is not a non-negative integer string.
+        """
         self.refresh()
         normalized_from = _as_utc(from_ts)
         normalized_to = _as_utc(to_ts)
@@ -110,6 +141,11 @@ class RunIndexService:
         return [item.summary for item in page_items], page
 
     def get_run(self, run_id: str) -> IndexedRunRecord:
+        """Return one indexed run snapshot.
+
+        Raises:
+            KeyError: If `run_id` is unknown after refreshing the cache.
+        """
         self.refresh()
         record = self._cache.get(run_id)
         if record is None:
@@ -117,6 +153,7 @@ class RunIndexService:
         return record
 
     def get_artifact_tenant(self, artifact_id: str) -> str | None:
+        """Return the tenant owning an artifact id when the run index can infer it."""
         self.refresh()
         return self._artifact_tenants.get(artifact_id)
 
@@ -126,6 +163,14 @@ class RunIndexService:
         *,
         requested_root_ids: list[str] | None = None,
     ) -> list[ArtifactID]:
+        """Resolve lineage roots from explicit request ids or run manifest refs.
+
+        If no request override is supplied, the method prefers
+        `run.details.root_artifacts` and falls back to the decision packet ref.
+
+        Raises:
+            ValueError: If any supplied artifact id is malformed.
+        """
         if requested_root_ids:
             return [ArtifactID.model_validate(value) for value in requested_root_ids]
 

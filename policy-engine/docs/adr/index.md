@@ -1,10 +1,10 @@
 # ADR Index
 
-> Index of 92 ADR files in `docs/adr/`, grouped by domain with status, summary and related decisions.
+> Index of 93 ADR files in `docs/adr/`, grouped by domain with status, summary and related decisions.
 
 ## Status Summary
 
-- Accepted: 23
+- Accepted: 24
 - Proposed: 68
 - Deprecated: 0
 - Superseded: 1
@@ -45,6 +45,7 @@
 | [0077](0077-rustworkx-tight-loop-algorithms.md) | proposed | rustworkx for in-memory tight-loop algorithms (cycle breaking, resolution loop) | The resolution loop (Phase 9) and `_break_cycles` (Phase 0) are the two hottest graph algorithm paths in the pipeline. | 0073 |
 | [0078](0078-phase-8-split-8a-8b.md) | proposed | Phase 8 split into 8A + 8B; TransportabilityRequiredPass moved to end of Phase 12 | Phase 8 currently bundles two conceptually distinct concerns: (8A) constructing the transportability diagram by annotating S-nodes for do... | — |
 | [0080](0080-tech-consolidation-stack.md) | proposed | Tech consolidation stack for causal inference, discovery, and graphs | The causal-methods landscape in PolicyOS has grown organically, accumulating overlapping dependencies: DoWhy and EconML for inference, ti... | 0026 |
+| [0096](0096-canonical-product-root-and-workspace-boundary.md) | accepted | Canonical Product Root and Workspace Boundary | Repository root and `policy-engine/` accumulated overlapping product signals, making the real source of truth hard to identify quickly. | 0053 |
 
 ## Governance
 
@@ -169,4 +170,3 @@
 | ADR | Status | Title | Summary | Related |
 |-----|--------|-------|---------|---------|
 | [0006](0006-slo-definitions.md) | accepted | SLO Definitions for Scientist DAG | До изменения observability покрывала операционные метрики (`workflow_runs_total`, `llm_tokens_total`, `governance_pass_duration_seconds`)... | — |
-

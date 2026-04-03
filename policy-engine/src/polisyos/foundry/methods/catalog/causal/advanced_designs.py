@@ -1,4 +1,4 @@
-"""Public causal advanced designs module API."""
+"""Estimate advanced quasi-experimental and meta-learner causal designs."""
 from __future__ import annotations
 
 from typing import Any, ClassVar, Mapping
@@ -155,7 +155,7 @@ def _truncate_pseudo_outcome(
     tags={"causal", "regression-kink", "rkd"},
 )
 class RegressionKinkDesignEstimator:
-    """Regression kink design estimator implementation."""
+    """Estimate a kink-discontinuity effect under a smooth running-variable design; avoid fuzzy/noisy kinks without a clear slope break."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -252,7 +252,7 @@ class RegressionKinkDesignEstimator:
     tags={"causal", "bunching", "kleven", "cross-section", "estimation"},
 )
 class BunchingEstimator:
-    """Bunching estimator implementation."""
+    """Estimate excess-mass responses around a notch/kink; avoid when the counterfactual density is not locally smooth."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -361,7 +361,7 @@ class BunchingEstimator:
     tags={"causal", "mte", "marginal-treatment-effect"},
 )
 class MarginalTreatmentEffectEstimator:
-    """Marginal treatment effect estimator implementation."""
+    """Estimate an MTE curve under a valid continuous instrument and monotone selection; avoid weak or discrete instruments."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -467,7 +467,7 @@ class MarginalTreatmentEffectEstimator:
     tags={"causal", "shift-share", "bartik-iv"},
 )
 class ShiftShareIVEstimator:
-    """Shift share IV estimator implementation."""
+    """Estimate a shift-share IV effect from exposure shares and shocks; avoid when shares or shocks are not plausibly exogenous."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -591,7 +591,7 @@ class ShiftShareIVEstimator:
     tags={"causal", "hte", "dr-learner"},
 )
 class DRLearnerEstimator:
-    """DR learner estimator implementation."""
+    """Estimate heterogeneous treatment effects with doubly robust nuisance correction; avoid severe overlap violations."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -771,7 +771,7 @@ class DRLearnerEstimator:
     tags={"causal", "hte", "r-learner"},
 )
 class RLearnerEstimator:
-    """R learner estimator implementation."""
+    """Estimate CATE by residualizing outcome/treatment and learning tau(x); avoid unstable nuisance fits or near-zero propensities."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 

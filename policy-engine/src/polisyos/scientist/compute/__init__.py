@@ -1,4 +1,4 @@
-"""Public scientist compute package API."""
+"""Scientist compute surface for advanced-method bundles and job execution contracts."""
 from .advanced_methods import (  # noqa: F401
     C7AdvancedInputs,
     C7AdvancedSuiteResult,

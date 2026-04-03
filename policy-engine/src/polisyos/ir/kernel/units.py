@@ -1,4 +1,4 @@
-"""Public kernel units module API."""
+"""Unit registry definitions shared by metrics, predicates, slots, and constraints."""
 from __future__ import annotations
 
 from enum import Enum
@@ -21,7 +21,7 @@ class UnitKind(str, Enum):
 
 
 class UnitRef(KernelModel):
-    """Unit ref data model."""
+    """Reference a unit-registry entry from another kernel or IR contract."""
     unit_id: str = Field(..., pattern=ID_PATTERN)
 
 
@@ -76,7 +76,7 @@ UnitSpecType = Annotated[
 
 
 class UnitsRegistry(KernelModel):
-    """Units registry implementation."""
+    """Registry of unit definitions that becomes stable once a registry bundle is composed."""
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
     units: dict[str, UnitSpecType] = Field(default_factory=dict)
     notes: list[str] = Field(default_factory=list)

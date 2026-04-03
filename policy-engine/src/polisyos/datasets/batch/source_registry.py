@@ -23,7 +23,12 @@ _VALID_RUN_PROFILES = frozenset(
 
 @dataclass(frozen=True, slots=True)
 class SourceSpec:
-    """Source spec data model."""
+    """One declarative dataset source definition from ``source_registry.yaml``.
+
+    ``execution_tier`` and ``run_lane`` determine whether the source participates only in catalog
+    discovery or also in empirical transport/backfill stages; ``seed_from`` models dependency
+    expansion between catalog and derived sources.
+    """
     name: str
     family: str
     wave: str
@@ -70,7 +75,7 @@ class SourceSpec:
 
 @dataclass(frozen=True, slots=True)
 class SourceRegistry:
-    """Source registry implementation."""
+    """Validated in-memory source registry used by staged dataset harvest waves."""
     version: int
     sources: tuple[SourceSpec, ...] = field(default_factory=tuple)
 
@@ -80,6 +85,7 @@ class SourceRegistry:
         wave: str | None = None,
         run_profile: str = "prod_full",
     ) -> list[SourceSpec]:
+        """Return sources selected by wave/run profile and expanded seed dependencies."""
         if run_profile not in _VALID_RUN_PROFILES:
             raise ValueError(f"Unsupported dataset run profile: {run_profile}")
         out = [s for s in self.sources if s.enabled]

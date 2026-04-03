@@ -1,4 +1,11 @@
-"""Public governance backtest matrix module API."""
+"""Run and summarize required historical backtest slices for promotion review.
+
+The matrix runner groups `BacktestPlanBundle` inputs by `BacktestKind`, executes
+them through the backtesting orchestrator, and persists a single
+`BacktestReportRef` plus per-kind coverage diagnostics. Calibration governance
+uses the resulting gap flags and worst-kind summary to block promotions when a
+required observational regime is missing or weak.
+"""
 from __future__ import annotations
 
 from collections import defaultdict
@@ -66,7 +73,12 @@ class BacktestKindResult(BaseModel):
 
 
 class BacktestMatrixResult(BaseModel):
-    """Aggregate calibration-governance view over all required backtest kinds."""
+    """Aggregate calibration-governance view over all required backtest kinds.
+
+    `gap_flags` enumerates missing evidence channels, `composite_score` provides
+    the promotion score, and `backtest_report_ref` links to the persisted replay
+    artifact for audit and downstream leaderboard scoring.
+    """
 
     model_config = ConfigDict(extra="forbid")
 
@@ -103,7 +115,18 @@ class BacktestMatrixRunner:
         inputs: list[InputRef] | None = None,
         metadata: dict[str, Any] | None = None,
     ) -> BacktestMatrixResult:
-        """Execute all required backtest kinds and persist the aggregate report."""
+        """Execute all required backtest kinds and persist the aggregate report.
+
+        Args:
+            bundles: Backtest plans keyed by the required matrix slice.
+            inputs: Optional provenance refs to attach to the persisted report.
+            metadata: Additional report metadata propagated into the aggregate
+                `BacktestReport`.
+
+        Returns:
+            `BacktestMatrixResult` with one `kind_results` item per required
+            backtest kind, plus a persisted report ref and composite summary.
+        """
 
         scenario_groups: dict[BacktestKind, list[BacktestScenario]] = defaultdict(list)
         kind_results: list[BacktestKindResult] = []

@@ -1,4 +1,4 @@
-"""Public causal protocols module API."""
+"""Define causal catalog data contracts and the common estimator protocol."""
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, ClassVar, Mapping, Protocol, runtime_checkable
@@ -1019,7 +1019,7 @@ class RDDObservationalData(BaseModel):
 
 @runtime_checkable
 class CausalEstimator(Protocol):
-    """Causal estimator implementation."""
+    """Declare the protocol shared by causal estimators that emit report envelopes."""
     signature: ClassVar[MethodSignature]
     metadata: ClassVar[MethodMetadata]
 

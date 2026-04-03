@@ -1,4 +1,4 @@
-"""Public world quality module API."""
+"""Quality-report contracts emitted by document, claim, and conflict-resolution pipelines."""
 from __future__ import annotations
 
 from enum import Enum
@@ -29,7 +29,7 @@ class QualityIssueSeverity(str, Enum):
 
 
 class QualityIssue(KernelModel):
-    """Quality issue data model."""
+    """Represent one deterministic quality finding attached to a world quality report."""
     code: str
     severity: QualityIssueSeverity
     msg: str
@@ -39,7 +39,7 @@ class QualityIssue(KernelModel):
 
 
 class QualityReport(KernelModel):
-    """Quality report data model."""
+    """Persist the sorted quality findings for one pipeline run and give them a stable world id."""
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     quality_report_id: str = Field(..., pattern=ID_PATTERN)
     scope: QualityScope

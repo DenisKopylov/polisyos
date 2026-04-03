@@ -13,7 +13,7 @@
 
 ## Что важно
 
-- Тест не помечен `@pytest.mark.integration`, поэтому входит в обычный прогон `pytest`.
+- Вся папка auto-classified как `integration` через `tests/conftest.py`, поэтому основной быстрый цикл её не включает.
 - Проверяются события trace: `GATE_REQUESTED`, `GATE_DECIDED`.
 
 ## Связи с кодом
@@ -26,5 +26,6 @@
 
 ```bash
 pytest tests/integration -q
+pytest -m integration --ignore=tests/runtime/http
 pytest tests/integration/test_human_gate_audit.py -q
 ```

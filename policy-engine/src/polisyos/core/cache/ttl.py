@@ -1,4 +1,4 @@
-"""Public cache ttl module API."""
+"""Provide a thread-safe TTL cache with optional LRU eviction."""
 from __future__ import annotations
 
 import threading
@@ -13,7 +13,7 @@ from .protocol import K, T, V
 
 @dataclass(frozen=True, slots=True)
 class TTLCacheStats:
-    """TTL cache stats public type."""
+    """Expose TTL cache hit/miss/eviction/expiration counters."""
     hits: int = 0
     misses: int = 0
     evictions: int = 0
@@ -44,20 +44,24 @@ class TTLCache(Generic[K, V]):
 
     @property
     def ttl_seconds(self) -> float:
+        """Return the current expiry window in seconds."""
         return self._ttl_seconds
 
     @ttl_seconds.setter
     def ttl_seconds(self, value: float) -> None:
+        """Update the expiry window and immediately purge stale entries."""
         with self._lock:
             self._ttl_seconds = float(value)
             self._purge_expired(now=self._time_fn())
 
     @property
     def max_size(self) -> int | None:
+        """Return the current size cap, or `None` for time-only expiry."""
         return self._max_size
 
     @max_size.setter
     def max_size(self, value: int | None) -> None:
+        """Update the size cap and evict oldest entries if needed."""
         if value is not None and value < 1:
             raise ValueError("max_size must be >= 1 when provided")
         with self._lock:
@@ -65,6 +69,7 @@ class TTLCache(Generic[K, V]):
             self._evict_to_limit()
 
     def get(self, key: K, default: T | None = None) -> V | T | None:
+        """Return a non-expired value and refresh its LRU position."""
         now = self._time_fn()
         with self._lock:
             item = self._values.get(key)
@@ -82,6 +87,7 @@ class TTLCache(Generic[K, V]):
             return value
 
     def set(self, key: K, value: V) -> None:
+        """Store a value with a new expiry timestamp."""
         now = self._time_fn()
         expires_at = now + self._ttl_seconds
         with self._lock:
@@ -91,6 +97,7 @@ class TTLCache(Generic[K, V]):
             self._evict_to_limit()
 
     def pop(self, key: K, default: T | None = None) -> V | T | None:
+        """Remove and return a non-expired value, or `default` if absent/stale."""
         with self._lock:
             item = self._values.pop(key, None)
             if item is None:
@@ -102,32 +109,38 @@ class TTLCache(Generic[K, V]):
             return value
 
     def delete(self, key: K) -> bool:
+        """Remove a key and report whether an entry existed."""
         with self._lock:
             return self._values.pop(key, None) is not None
 
     def clear(self) -> None:
+        """Drop all cached entries while preserving telemetry counters."""
         with self._lock:
             self._values.clear()
 
     def keys(self) -> list[K]:
+        """Return all non-expired keys in LRU order."""
         now = self._time_fn()
         with self._lock:
             self._purge_expired(now=now)
             return list(self._values.keys())
 
     def values(self) -> list[V]:
+        """Return all non-expired values in LRU order."""
         now = self._time_fn()
         with self._lock:
             self._purge_expired(now=now)
             return [item[0] for item in self._values.values()]
 
     def items(self) -> list[tuple[K, V]]:
+        """Return all non-expired key/value pairs in LRU order."""
         now = self._time_fn()
         with self._lock:
             self._purge_expired(now=now)
             return [(key, value) for key, (value, _) in self._values.items()]
 
     def stats(self) -> TTLCacheStats:
+        """Snapshot cache telemetry counters."""
         with self._lock:
             return TTLCacheStats(
                 hits=self._hits,

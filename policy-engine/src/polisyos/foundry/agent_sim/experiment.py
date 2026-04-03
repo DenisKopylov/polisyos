@@ -1,4 +1,4 @@
-"""Public agent sim experiment module API."""
+"""Track, persist, and compare agent-simulation experiments and their replay artifacts."""
 from __future__ import annotations
 
 import json
@@ -24,7 +24,7 @@ def _json_default(value: Any):
 
 @dataclass
 class ExperimentConfig:
-    """Experiment config data model."""
+    """Describe a reproducible experiment setup before launching or replaying a run."""
     name: str
     description: str = ""
     tags: list[str] = field(default_factory=list)
@@ -49,7 +49,7 @@ class ExperimentConfig:
 
 @dataclass
 class ExperimentResult:
-    """Experiment result data model."""
+    """Capture the persisted metrics, final state, and model artifact emitted by one run."""
     config: ExperimentConfig
     metrics: dict[str, Any]
     final_state: dict | None = None
@@ -73,7 +73,7 @@ class ExperimentResult:
 
 
 class ExperimentTracker:
-    """Experiment tracker implementation."""
+    """Manage run directories, indexes, and result lookup for local experiment tracking."""
     def __init__(self, base_dir: str | Path):
         self.base_dir = Path(base_dir)
         self.base_dir.mkdir(parents=True, exist_ok=True)

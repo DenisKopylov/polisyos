@@ -1,7 +1,9 @@
-"""Canonical Trinity contracts.
+"""Bundle the three Trinity artifacts as one validated policy payload.
 
-ProblemFrame / PolicySpec / ModelSpec are the canonical policy contracts.
-TrinityBundle is the canonical payload container for bundling them together.
+``ProblemFrame`` defines **what** to optimize/protect, ``PolicySpec`` defines
+the proposed intervention/governance surface, and ``ModelSpec`` defines **how**
+the world is simulated. ``TrinityBundle`` keeps these contracts together for
+loading, validation, and migration-safe persistence.
 """
 from __future__ import annotations
 
@@ -17,7 +19,7 @@ SCHEMA_VERSION_PATTERN = r"^\d+\.\d+$"
 
 
 class TrinityBundle(KernelModel):
-    """Bundle containing the three canonical Trinity artifacts."""
+    """Validate and transport the ``ProblemFrame`` / ``PolicySpec`` / ``ModelSpec`` triple."""
 
     schema_version: str = Field(TRINITY_BUNDLE_SCHEMA_VERSION, pattern=SCHEMA_VERSION_PATTERN)
     problem_frame: ProblemFrame

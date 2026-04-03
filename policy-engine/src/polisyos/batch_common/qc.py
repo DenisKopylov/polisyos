@@ -10,7 +10,7 @@ from typing import Any
 
 @dataclass(frozen=True)
 class QCCheck:
-    """Single QC check result."""
+    """Capture one quality-gate result and its threshold/message metadata."""
 
     name: str
     passed: bool
@@ -24,7 +24,7 @@ class QCCheck:
 
 @dataclass
 class QCReport:
-    """QC report for one stage/pipeline."""
+    """Aggregate quality-gate checks and auxiliary metrics for one pipeline scope."""
 
     scope: str
     checks: list[QCCheck] = field(default_factory=list)
@@ -32,9 +32,11 @@ class QCReport:
 
     @property
     def passed(self) -> bool:
+        """Return `True` when all critical checks passed."""
         return all(c.passed or c.severity != "critical" for c in self.checks)
 
     def to_dict(self) -> dict[str, Any]:
+        """Serialize the report into a JSON-compatible payload."""
         return {
             "scope": self.scope,
             "passed": self.passed,
@@ -57,7 +59,7 @@ class QCReport:
 
 
 def write_qc_report(path: Path, report: QCReport) -> Path:
-    """Write QC report helper."""
+    """Serialize a `QCReport` to JSON and return the written path."""
     path.parent.mkdir(parents=True, exist_ok=True)
     with open(path, "w", encoding="utf-8") as fh:
         json.dump(report.to_dict(), fh, ensure_ascii=False, indent=2)

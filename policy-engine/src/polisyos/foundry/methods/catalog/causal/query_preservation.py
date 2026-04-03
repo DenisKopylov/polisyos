@@ -1,4 +1,4 @@
-"""Public causal query preservation module API."""
+"""Audit whether graph abstractions preserve the target causal query."""
 from __future__ import annotations
 
 import hashlib
@@ -39,7 +39,7 @@ class _GraphicalObligation:
 
 @dataclass(frozen=True)
 class GraphicalObligationTrace:
-    """Graphical obligation trace public type."""
+    """Record which graphical obligations were checked while preserving a causal query."""
     kind: str
     treatment: str
     outcome: str
@@ -50,7 +50,7 @@ class GraphicalObligationTrace:
 
 @dataclass(frozen=True)
 class QueryPreservationTrace:
-    """Query preservation trace public type."""
+    """Capture pass/fail status and obligation traces for an abstraction-preservation check."""
     fingerprint: str
     status: QueryPreservationStatus
     reason_code: str
@@ -71,7 +71,7 @@ def check_query_preservation(
     interface_mapping: InterfaceMapping,
     composition_certificate: CompositionCertificate,
 ) -> QueryPreservationStatus:
-    """Check query preservation helper."""
+    """Return whether a composed graph still preserves the semantics of one causal query."""
     evaluation = _evaluate_query_preservation(
         query,
         composed_graph=composed_graph,
@@ -92,7 +92,7 @@ def check_query_preservation_batch(
     interface_mapping: InterfaceMapping,
     composition_certificate: CompositionCertificate,
 ) -> dict[str, QueryPreservationStatus]:
-    """Check query preservation batch helper."""
+    """Evaluate preservation status for a batch of causal queries keyed by fingerprint."""
     evaluations = evaluate_query_preservation_batch(
         queries,
         composed_graph=composed_graph,
@@ -116,7 +116,7 @@ def evaluate_query_preservation(
     interface_mapping: InterfaceMapping,
     composition_certificate: CompositionCertificate,
 ) -> QueryPreservationTrace:
-    """Evaluate query preservation helper."""
+    """Produce a full preservation trace explaining why a causal query passed or failed."""
     return _evaluate_query_preservation(
         query,
         composed_graph=composed_graph,
@@ -136,7 +136,7 @@ def evaluate_query_preservation_batch(
     interface_mapping: InterfaceMapping,
     composition_certificate: CompositionCertificate,
 ) -> dict[str, QueryPreservationTrace]:
-    """Evaluate query preservation batch helper."""
+    """Produce preservation traces for many queries in one composed-graph audit."""
     evaluations = [
         _evaluate_query_preservation(
             query,
@@ -163,7 +163,7 @@ def update_query_preservation_cache(
     fragment_graphs: Mapping[str, CausalGraphModel] | None,
     interface_mapping: InterfaceMapping,
 ) -> tuple[CompositionCertificate, dict[str, QueryPreservationStatus]]:
-    """Update query preservation cache helper."""
+    """Persist fresh preservation statuses back onto a composition certificate cache."""
     checked = dict(composition_certificate.checked_queries)
     evaluations = list(
         evaluate_query_preservation_batch(

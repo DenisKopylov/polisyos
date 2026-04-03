@@ -1,4 +1,4 @@
-"""Public causal dagma discovery module API."""
+"""Estimate smooth DAGMA graph structures with optional backend fallbacks."""
 from __future__ import annotations
 
 import importlib
@@ -510,7 +510,7 @@ def run_dagma_discovery(
     tags={"causal", "discovery", "dagma", "scale"},
 )
 class DAGMADiscovery:
-    """DAGMA discovery public type."""
+    """Learn a weighted acyclic graph with DAGMA optimization; avoid when cycles are substantively required."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
 
     signature: ClassVar[MethodSignature] = MethodSignature(

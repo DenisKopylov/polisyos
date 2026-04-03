@@ -1,4 +1,4 @@
-"""Public agent sim modes module API."""
+"""Configure multi-stage agent learning, policy optimization, and bilevel search loops."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -20,7 +20,7 @@ from polisyos.foundry.contracts.fidelity import FidelityLevel
 
 @dataclass(frozen=True)
 class CalibrationTarget:
-    """Calibration target public type."""
+    """Declare an empirical metric target used by calibration-mode losses."""
     metric_path: str
     empirical_value: float
     weight: float = 1.0
@@ -36,7 +36,7 @@ class LearningMode(str, Enum):
 
 @dataclass(frozen=True)
 class ModeAConfig:
-    """Mode A config data model."""
+    """Tune agent-adaptation episodes and credit assignment for mode-A training runs."""
     n_episodes: int = 100
     steps_per_episode: int = 64
     learning_rate: float = 3e-4
@@ -47,7 +47,7 @@ class ModeAConfig:
 
 @dataclass(frozen=True)
 class ModeBConfig:
-    """Mode B config data model."""
+    """Tune policy-search iterations and welfare objectives for mode-B optimization runs."""
     n_iterations: int = 50
     n_steps: int = 256
     learning_rate: float = 1e-3
@@ -59,7 +59,7 @@ class ModeBConfig:
 
 @dataclass(frozen=True)
 class BilevelConfig:
-    """Bilevel config data model."""
+    """Coordinate alternating agent and policy updates for bilevel optimization runs."""
     outer_iterations: int = 20
     inner_episodes: int = 50
     mode_a_config: ModeAConfig | None = None
@@ -68,7 +68,7 @@ class BilevelConfig:
 
 
 def social_welfare_objective(state: GlobalState, weights: dict | None = None) -> jnp.ndarray:
-    """Social welfare objective helper."""
+    """Combine wealth, inequality, and consumption metrics into the default policy objective."""
     if weights is None:
         weights = {"gdp": 1.0, "neg_gini": 0.5}
 
@@ -97,7 +97,7 @@ def run_mode_a_jit(
     credit_config: CreditConfig | None = None,
     rng_key: jax.Array | None = None,
 ) -> tuple[ActorCritic, dict]:
-    """Run mode a jit."""
+    """Train agent policies with the JIT actor-critic pipeline for mode A."""
     from polisyos.foundry.agent_sim.jit_training import (
         JITTrainingConfig,
         create_jit_trainer,
@@ -127,7 +127,7 @@ def run_mode_b_jit(
     config: ModeBConfig,
     objective_fn: Callable[[GlobalState], jnp.ndarray] | None = None,
 ) -> tuple[PolicyState, dict]:
-    """Run mode b jit."""
+    """Optimize policy parameters against a simulated welfare objective for mode B."""
     if objective_fn is None:
         objective_fn = lambda s: social_welfare_objective(s, config.welfare_weights)
 
@@ -170,7 +170,7 @@ def run_bilevel(
     config: BilevelConfig,
     rng_key: jax.Array | None = None,
 ) -> tuple[ActorCritic, PolicyState, dict]:
-    """Run bilevel."""
+    """Alternate agent learning and policy search across outer bilevel iterations."""
     mode_a_config = config.mode_a_config or ModeAConfig(n_episodes=config.inner_episodes)
     mode_b_config = config.mode_b_config or ModeBConfig(n_iterations=10)
 

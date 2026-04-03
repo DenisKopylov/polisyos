@@ -1,4 +1,9 @@
-"""Public simulator mutator module API."""
+"""Deterministic NormPack mutation helpers for what-if legal scenario analysis.
+
+``NormPackMutator`` applies add/replace/modify/remove operations, derives a stable mutated
+``pack_id`` from the operation log and ``MutationIntent``, and records mutation provenance in the
+resulting ``NormPack.metadata`` block.
+"""
 from __future__ import annotations
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -32,6 +37,12 @@ class NormPackMutator:
         self._operations: list[dict[str, object]] = []
 
     def replace_norm(self, norm_id: str, new_rule: NormRule) -> "NormPackMutator":
+        """Replace one existing norm while preserving the target ``norm_id``.
+
+        Raises:
+            KeyError: If ``norm_id`` is absent from the base pack.
+            ValueError: If ``new_rule.norm_id`` does not match ``norm_id``.
+        """
         if norm_id not in self._norms:
             raise KeyError(f"Norm '{norm_id}' not found in base pack '{self._base.pack_id}'")
         if new_rule.norm_id != norm_id:
@@ -44,6 +55,7 @@ class NormPackMutator:
         return self
 
     def modify_norm(self, norm_id: str, **field_overrides: object) -> "NormPackMutator":
+        """Patch one existing norm by validating a merged ``NormRule`` payload."""
         if norm_id not in self._norms:
             raise KeyError(f"Norm '{norm_id}' not found in base pack '{self._base.pack_id}'")
         current = self._norms[norm_id]
@@ -60,6 +72,7 @@ class NormPackMutator:
         return self
 
     def remove_norm(self, norm_id: str) -> "NormPackMutator":
+        """Remove one norm from the mutable working copy."""
         if norm_id not in self._norms:
             raise KeyError(f"Norm '{norm_id}' not found in base pack '{self._base.pack_id}'")
         del self._norms[norm_id]
@@ -67,6 +80,7 @@ class NormPackMutator:
         return self
 
     def add_norm(self, rule: NormRule) -> "NormPackMutator":
+        """Add a new norm and reject duplicates already present in the working copy."""
         if rule.norm_id in self._norms:
             raise ValueError(f"Norm '{rule.norm_id}' already exists; use replace_norm()")
         self._norms[rule.norm_id] = rule.model_copy(deep=True)
@@ -74,17 +88,20 @@ class NormPackMutator:
         return self
 
     def set_effective_date(self, effective_date: str | None) -> "NormPackMutator":
+        """Override the effective date on the mutated pack under construction."""
         self._effective_date = effective_date
         self._operations.append({"op": "set_effective_date", "effective_date": effective_date})
         return self
 
     def with_metadata(self, **overrides: object) -> "NormPackMutator":
+        """Merge additional metadata into the mutated pack before ``build()``."""
         self._metadata_overrides.update(overrides)
         if overrides:
             self._operations.append({"op": "set_metadata", "keys": sorted(overrides.keys())})
         return self
 
     def build(self, intent: MutationIntent) -> NormPack:
+        """Materialize the mutated NormPack with deterministic ids and mutation provenance."""
         norms = sorted(self._norms.values(), key=lambda item: item.norm_id)
         pack_id = stable_world_id_from_canon(
             prefix="normpack.mutated",
@@ -122,4 +139,3 @@ def _rule_signature(rule: NormRule) -> dict[str, object]:
         "norm_id": rule.norm_id,
         "digest_payload": payload,
     }
-

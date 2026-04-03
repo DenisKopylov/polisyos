@@ -1,4 +1,10 @@
-"""Discovery and filtering helpers for Scientist governance passes."""
+"""Discover builtin/plugin governance passes and derive runtime-safe profiles.
+
+The registry bridges package-level validator classes with the execution
+pipeline: it loads plugin entry points, appends builtin fallbacks, rejects
+duplicate `pass_id`s, and can trim offline-only validators out of a
+`ValidationProfile` before a runtime DAG step.
+"""
 
 from __future__ import annotations
 
@@ -65,7 +71,7 @@ def load_governance_passes() -> list[ValidatorPass]:
 
 
 def build_governance_pipeline() -> ValidationPipeline:
-    """Construct a validation pipeline from the discovered governance passes."""
+    """Instantiate a `ValidationPipeline` from all discovered governance passes."""
 
     return ValidationPipeline(load_governance_passes())
 

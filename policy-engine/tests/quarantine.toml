@@ -1,0 +1,12 @@
+schema_version = 1
+
+# One `[[case]]` entry per temporarily de-gated test.
+# Required fields:
+# - runner: pytest | vitest | playwright
+# - selector:
+#   - pytest: exact node id
+#   - playwright: exact tagged test title (unique across the suite and re-runnable via --grep)
+# - owner: individual or team that owns the fix
+# - expires_on: ISO date when quarantine must be revisited
+# - reason: why the test is quarantined
+# - reentry_criteria: what must be true before the test can gate CI again

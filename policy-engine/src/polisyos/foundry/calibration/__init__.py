@@ -1,4 +1,11 @@
-"""Public foundry calibration package API."""
+"""Expose calibration contracts, loss adapters, and the differentiable calibrator.
+
+This package facade groups the APIs used to compare synthetic Foundry traces
+against observed targets: measurement-aware target contracts, auxiliary loss
+components, uncertainty adapters, and the optional JAX-backed `Calibrator`.
+Imports that depend on JAX stay guarded so non-calibration environments can
+still import the package and inspect the stable model contracts.
+"""
 from .identifiability import (
     IdentifiabilityReport,
     IdentifiabilityStatus,

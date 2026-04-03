@@ -1,4 +1,4 @@
-"""Public catalog forecasting package API."""
+"""Expose forecasting methods and register them into the Foundry catalog."""
 from __future__ import annotations
 
 from polisyos.foundry.methods.exceptions import MethodAlreadyRegisteredError
@@ -19,7 +19,7 @@ from .univariate import (
 
 
 def ensure_forecasting_methods_registered(registry: MethodRegistry | None = None) -> None:
-    """Ensure forecasting methods registered helper."""
+    """Populate `registry` with baseline and advanced forecasting methods."""
     reg = registry if registry is not None else MethodRegistry.get_instance()
     for method_class in register_forecasting_methods():
         try:

@@ -1,4 +1,4 @@
-"""Public engine protocol module API."""
+"""Runtime protocol types for Scientist nodes, outcomes, and state contracts."""
 from __future__ import annotations
 
 from typing import Any, Literal, Protocol, runtime_checkable
@@ -26,7 +26,7 @@ class NodeError(BaseModel):
 
 
 class NodeEvent(BaseModel):
-    """Node event data model."""
+    """Structured node event emitted for tracing, diagnostics, and operator-facing logs."""
     model_config = ConfigDict(extra="forbid")
 
     level: Literal["debug", "info", "warn", "error"] = "info"
@@ -55,7 +55,7 @@ class NodeOutcome(BaseModel):
 
 
 class NodeSpec(BaseModel):
-    """Node spec data model."""
+    """Declarative node contract that tells the DAG runtime what state a node touches."""
     model_config = ConfigDict(extra="forbid")
 
     metadata: ComponentMetadata
@@ -66,7 +66,7 @@ class NodeSpec(BaseModel):
 
 @runtime_checkable
 class Node(Protocol):
-    """Node implementation."""
+    """Protocol for executable DAG nodes that declare contracts and return `NodeOutcome`."""
     @property
     def spec(self) -> NodeSpec:  # pragma: no cover - protocol signature
         ...

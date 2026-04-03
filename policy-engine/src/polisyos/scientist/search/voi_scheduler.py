@@ -1,4 +1,4 @@
-"""Value-of-Information schedulers for funnel routing."""
+"""Value-of-Information schedulers that decide whether a candidate advances, defers, or retries."""
 
 from __future__ import annotations
 
@@ -18,7 +18,7 @@ from polisyos.scientist.engine.budget import BudgetState
 
 
 class ParetoSnapshot(BaseModel):
-    """Minimal Pareto snapshot used by the VOI scheduler."""
+    """Expose frontier/near-frontier/dominated membership used by VOI ranking."""
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
@@ -37,7 +37,7 @@ class ParetoSnapshot(BaseModel):
 
 
 class ComputeEconomicsDecision(BaseModel):
-    """VOI economics summary for a single candidate."""
+    """Explain the predicted ROI, governance value, and cost/risk terms for one candidate."""
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
@@ -61,7 +61,7 @@ class ComputeEconomicsDecision(BaseModel):
 
 
 class SchedulingDecision(BaseModel):
-    """Actionable VOI decision for one ticket."""
+    """Return the recommended routing action and priority for one funnel ticket."""
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
@@ -74,7 +74,7 @@ class SchedulingDecision(BaseModel):
 
 
 class VOITrainingConfig(BaseModel):
-    """Configuration controlling predictive VOI behavior."""
+    """Configure sample minima, ridge regularization, exploration, and calibration reserves."""
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
@@ -93,7 +93,7 @@ class VOITrainingConfig(BaseModel):
 
 
 class VOIModelStatus(BaseModel):
-    """Health/status report for one predictive sub-model."""
+    """Report whether a predictive VOI sub-model is trained, degraded, or insufficiently sampled."""
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
@@ -104,7 +104,7 @@ class VOIModelStatus(BaseModel):
 
 
 class VOIObservation(BaseModel):
-    """One expensive-stage observation used to train predictive VOI."""
+    """Store one expensive-stage training sample for predictive VOI models."""
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
@@ -125,7 +125,7 @@ class VOIObservation(BaseModel):
 
 
 class PromotionObservation(BaseModel):
-    """Final promotion label for a previously observed candidate."""
+    """Attach the eventual promotion label to a previously observed candidate."""
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
@@ -140,7 +140,7 @@ class PromotionObservation(BaseModel):
 
 
 class VOIModelSnapshot(BaseModel):
-    """Serializable predictive-VOI state."""
+    """Persist predictive VOI training data, stage costs, and calibration metadata."""
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
@@ -153,7 +153,13 @@ class VOIModelSnapshot(BaseModel):
 
 
 class SimpleVOIScheduler:
-    """Deterministic scheduler using expected-improvement-per-cost."""
+    """Rank funnel tickets with a deterministic expected-improvement-per-cost heuristic.
+
+    This scheduler does not train predictive models; it reads the latest
+    cheap-stage signals, current Pareto position, and `BudgetState`, then emits
+    `SchedulingDecision` records that distinguish candidate advancement, budget
+    deferral, ROI rejection, and cheaper retry under timeout risk.
+    """
 
     def __init__(
         self,

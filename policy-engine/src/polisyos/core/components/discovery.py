@@ -1,4 +1,10 @@
-"""Public components discovery module API."""
+"""Discover plugin components from Python entry points and local dev scan roots.
+
+Entry-point groups are the stable package-install boundary, while
+`POLISYOS_PACKS_PATHS`/`dev_scan_paths` provide a local development override
+for unpacked component repositories. Duplicate handling is deterministic and
+reported through `DiscoveryReport`.
+"""
 from __future__ import annotations
 
 import os
@@ -49,7 +55,7 @@ DISCOVERY_MODULE_PREFIX = "_polisyos_components_scan_"
 
 @dataclass(slots=True, frozen=True)
 class DiscoverySourceInfo:
-    """Discovery source info data model."""
+    """Describe where a component declaration was loaded from."""
     source_type: str
     location: str
     group: str | None = None
@@ -58,7 +64,7 @@ class DiscoverySourceInfo:
 
 @dataclass(slots=True)
 class DiscoveredComponent:
-    """Discovered component public type."""
+    """Pair a materialized component with metadata and source provenance."""
     metadata: Any
     component: Component
     source: DiscoverySourceInfo
@@ -66,7 +72,7 @@ class DiscoveredComponent:
 
 @dataclass(slots=True)
 class DiscoveryDuplicate:
-    """Discovery duplicate public type."""
+    """Explain which duplicate component declaration was kept or dropped."""
     component_id: str
     kept_source: DiscoverySourceInfo
     dropped_source: DiscoverySourceInfo
@@ -75,7 +81,7 @@ class DiscoveryDuplicate:
 
 @dataclass(slots=True)
 class DiscoveryError:
-    """Discovery error exception."""
+    """Capture a non-fatal discovery failure tied to one source/item."""
     source: str
     item: str | None
     error_type: str
@@ -85,13 +91,13 @@ class DiscoveryError:
 
 @dataclass(slots=True)
 class DiscoveryPrecedencePolicy:
-    """Discovery precedence policy data model."""
+    """Select whether local dev scan declarations override installed entry points."""
     dev_scan_wins_over_entry_points: bool = True
 
 
 @dataclass(slots=True)
 class DiscoveryReport:
-    """Discovery report data model."""
+    """Collect discovered components plus duplicate/error diagnostics."""
     components: list[DiscoveredComponent] = field(default_factory=list)
     duplicates: list[DiscoveryDuplicate] = field(default_factory=list)
     errors: list[DiscoveryError] = field(default_factory=list)
@@ -147,7 +153,24 @@ def discover_components(
     precedence: DiscoveryPrecedencePolicy | None = None,
     duplicate_policy: DuplicatePolicy = DuplicatePolicy.WARN,
 ) -> DiscoveryReport:
-    """Discover components helper."""
+    """Discover components and return a deterministic report.
+
+    Args:
+        groups: Entry-point groups to scan. Defaults to all stable component
+            groups defined by `DEFAULT_ENTRY_POINT_GROUPS`.
+        include_legacy_group: Include the backward-compatible
+            `polisyos.components` group.
+        include_dev_scan: Scan local development roots after entry points.
+        dev_scan_paths: Optional explicit roots/files to scan instead of
+            `POLISYOS_PACKS_PATHS`.
+        precedence: Duplicate precedence policy. By default dev scans override
+            entry-point declarations for the same `component_id`.
+        duplicate_policy: Collector-level handling for duplicate discoveries.
+
+    Returns:
+        `DiscoveryReport` with sorted components, duplicate decisions, and
+        source-specific errors.
+    """
     report = DiscoveryReport()
     precedence_policy = precedence or DiscoveryPrecedencePolicy()
     selected_groups = list(DEFAULT_ENTRY_POINT_GROUPS if groups is None else groups)
@@ -198,7 +221,7 @@ def discover_components(
 
 
 def discover_entry_points(*, group: str = ENTRY_POINT_GROUP) -> list[Component]:
-    """Legacy helper: discover components from one entry point group."""
+    """Discover components from one entry-point group for legacy callers."""
     report = discover_components(
         groups=[group],
         include_legacy_group=False,
@@ -208,7 +231,7 @@ def discover_entry_points(*, group: str = ENTRY_POINT_GROUP) -> list[Component]:
 
 
 def discover_dev_components(root: Path) -> list[Any]:
-    """Legacy helper: scan one root path and return component metadata entries."""
+    """Scan one local root and return discovered metadata objects for legacy callers."""
     report = discover_components(
         groups=[],
         include_dev_scan=True,

@@ -1,4 +1,4 @@
-"""Governance pass: enforce per-run rate limits on external calls."""
+"""Enforce per-run usage ceilings for external API/tool calls."""
 
 from __future__ import annotations
 
@@ -9,10 +9,12 @@ from polisyos.core.governance.passes.base import PassContext, ValidatorPass
 
 
 class RateLimiterPass(ValidatorPass):
-    """Validate that external API call counts stay within per-run limits.
+    """Block exceeded call quotas and warn as usage approaches configured limits.
 
     Checks usage counters for LLM calls, dataset queries, and legal
-    lookups against configured thresholds. Prevents runaway workflows.
+    lookups against configured thresholds. Reads `ctx.state["usage"]`;
+    `RATE_LIMIT_EXCEEDED` blocks the DAG, while
+    `RATE_LIMIT_APPROACHING` warns once a counter exceeds 80% of its limit.
     """
 
     def __init__(

@@ -2,6 +2,7 @@
   "$defs": {
     "GovernancePassAlias": {
       "additionalProperties": false,
+      "description": "Map a stable IR pass id to the runtime-specific governance pass id.\n\nAlias entries decouple stable IR pass identifiers from the concrete pass\nnames available in the current Scientist runtime.",
       "properties": {
         "canonical_pass_id": {
           "maxLength": 120,
@@ -42,6 +43,7 @@
       "type": "object"
     },
     "GovernancePassAliasStatus": {
+      "description": "Declare whether a canonical pass can execute in the current Scientist runtime.\n\n``RUNTIME`` means the alias resolves to a concrete pass id and may be\nscheduled immediately; ``DEFERRED`` means policy metadata can reference the\npass, but readiness/execution layers must treat it as unavailable for now.",
       "enum": [
         "runtime",
         "deferred"
@@ -51,6 +53,7 @@
     }
   },
   "additionalProperties": false,
+  "description": "Store the pass-alias catalog used when emitting bundle-friendly mappings.\n\nThe registry is used when observation-family policies and bundle manifests\nneed to refer to governance checks without hard-coding runtime-specific\npass identifiers.",
   "properties": {
     "aliases": {
       "additionalProperties": {

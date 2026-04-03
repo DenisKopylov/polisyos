@@ -171,6 +171,17 @@ except ModuleNotFoundError:  # pragma: no cover - optional runtime dependency
         def record_sbom_deployment_gate(self, *, decision: str) -> None:
             return None
 
+        def record_control_plane_job_admission(
+            self,
+            *,
+            job_kind: str,
+            effective_profile: str,
+            status: str,
+            duration_seconds: float,
+        ) -> None:
+            del job_kind, effective_profile, status, duration_seconds
+            return None
+
         def record_drafter_multipass_run(
             self,
             *,

@@ -2,6 +2,7 @@
   "$defs": {
     "ContractCompatibilityTarget": {
       "additionalProperties": false,
+      "description": "Identifier of a downstream contract that an observation bundle targets.",
       "properties": {
         "contract_fqn": {
           "maxLength": 255,
@@ -24,6 +25,7 @@
       "type": "object"
     },
     "ObservationFamily": {
+      "description": "Classify raw evidence into stable observation families for routing.\n\nFamilies partition raw evidence into domains such as budget flows, firm\nfundamentals, or household distribution so measurement rules, governance\ndefaults, and contract compilers can branch on a stable domain label.",
       "enum": [
         "budget_flows",
         "procurement_flows",
@@ -44,6 +46,7 @@
     },
     "ProxyChannelSpec": {
       "additionalProperties": false,
+      "description": "Proxy-identification contract for one latent measurement pathway.",
       "properties": {
         "family": {
           "$ref": "#/$defs/ObservationFamily"
@@ -61,6 +64,20 @@
           "title": "Notes",
           "type": "array"
         },
+        "outcome_variable": {
+          "anyOf": [
+            {
+              "maxLength": 120,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Outcome Variable"
+        },
         "proxy_variable": {
           "maxLength": 120,
           "minLength": 1,
@@ -69,6 +86,20 @@
         },
         "target_contract": {
           "$ref": "#/$defs/ContractCompatibilityTarget"
+        },
+        "treatment_variable": {
+          "anyOf": [
+            {
+              "maxLength": 120,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Treatment Variable"
         },
         "verification_method": {
           "default": "identify_with_proxy",
@@ -89,12 +120,18 @@
     }
   },
   "additionalProperties": false,
+  "description": "Package proxy-identification channels and the compiler payload they target.\n\nThis bundle bridges latent-variable observation families to\n``ProxyMeasurementData``-style contracts and is consumed by proxy readiness\nchecks before proxy-based estimators run.",
   "properties": {
     "artifact_name": {
       "const": "proxy_identification_bundle_v1.json",
       "default": "proxy_identification_bundle_v1.json",
       "title": "Artifact Name",
       "type": "string"
+    },
+    "contract_payload": {
+      "additionalProperties": true,
+      "title": "Contract Payload",
+      "type": "object"
     },
     "contract_target": {
       "$ref": "#/$defs/ContractCompatibilityTarget"
@@ -106,6 +143,13 @@
       "minItems": 1,
       "title": "Proxy Channels",
       "type": "array"
+    },
+    "proxy_map": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Proxy Map",
+      "type": "object"
     },
     "schema_version": {
       "default": "1.0",

@@ -13,7 +13,7 @@ def analyze_sensitivity(
     samples: np.ndarray,
     outputs: np.ndarray,
 ) -> SensitivityResult:
-    """Analyze sensitivity helper."""
+    """Summarize sampled runs into Morris, Sobol, or FAST sensitivity statistics."""
     if outputs.ndim != 1:
         raise ValueError("outputs must be a 1D array")
     if samples.ndim != 2:
@@ -180,4 +180,3 @@ def _plan_to_salib_problem(plan: SensitivityPlan) -> dict:
                 dists.append("unif")
         problem["dists"] = dists
     return problem
-

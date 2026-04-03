@@ -1,4 +1,4 @@
-"""Public contracts fabric module API."""
+"""Stable DTOs for Fabric query planning, evidence bundles, and materialized data views."""
 from __future__ import annotations
 
 from decimal import Decimal
@@ -11,43 +11,43 @@ from .uncertainty import UncertaintyEnvelopeRef
 
 
 class DataViewRequestRef(ArtifactRef):
-    """Data view request ref data model."""
+    """Artifact reference for the original Fabric data-view request payload."""
     kind: Literal["ir.data_view_request"] = "ir.data_view_request"
     media_type: Literal["application/json"] = "application/json"
 
 
 class QueryPlanRef(ArtifactRef):
-    """Query plan ref data model."""
+    """Artifact reference for the query plan emitted before Fabric data retrieval runs."""
     kind: Literal["fabric.query_plan"] = "fabric.query_plan"
     media_type: Literal["application/json"] = "application/json"
 
 
 class FabricResultRef(ArtifactRef):
-    """Fabric result ref data model."""
+    """Artifact reference for the top-level Fabric result bundle returned to callers."""
     kind: Literal["fabric.result_bundle"] = "fabric.result_bundle"
     media_type: Literal["application/json"] = "application/json"
 
 
 class EvidenceBundleRef(ArtifactRef):
-    """Evidence bundle ref data model."""
+    """Artifact reference for the evidence bundle backing a Fabric result."""
     kind: Literal["fabric.evidence_bundle"] = "fabric.evidence_bundle"
     media_type: Literal["application/json"] = "application/json"
 
 
 class UncertaintyBoundsRef(ArtifactRef):
-    """Uncertainty bounds ref data model."""
+    """Artifact reference for numeric uncertainty bounds attached to a Fabric result."""
     kind: Literal["fabric.uncertainty_bounds"] = "fabric.uncertainty_bounds"
     media_type: Literal["application/json"] = "application/json"
 
 
 class WarningsRef(ArtifactRef):
-    """Warnings ref data model."""
+    """Artifact reference for machine-readable warnings emitted during Fabric retrieval."""
     kind: Literal["fabric.warnings"] = "fabric.warnings"
     media_type: Literal["application/json"] = "application/json"
 
 
 class DataSnapshotRef(ArtifactRef):
-    """Data snapshot ref data model."""
+    """Artifact reference for a materialized snapshot of retrieved data and its metadata."""
     kind: Literal["fabric.data_snapshot"] = "fabric.data_snapshot"
     media_type: Literal["application/json"] = "application/json"
 
@@ -69,7 +69,7 @@ class QueryPlanStep(BaseModel):
 
 
 class QueryPlan(BaseModel):
-    """Query plan data model."""
+    """Ordered retrieval plan describing which engine steps should satisfy a data request."""
     model_config = ConfigDict(extra="forbid")
 
     request_ref: DataViewRequestRef
@@ -98,7 +98,7 @@ class ProvenanceCoreRefModel(BaseModel):
 
 
 class EvidenceBundle(BaseModel):
-    """Evidence bundle data model."""
+    """Provenance bundle describing inputs, transforms, and trust metadata for retrieved data."""
     model_config = ConfigDict(extra="forbid")
 
     sources: list[ArtifactRef] = Field(default_factory=list)
@@ -121,14 +121,14 @@ class UncertaintyBounds(BaseModel):
 
 
 class WarningsBundle(BaseModel):
-    """Warnings bundle data model."""
+    """Collection of warning records emitted while planning or serving a Fabric request."""
     model_config = ConfigDict(extra="forbid")
 
     warnings: list[WarningRecord] = Field(default_factory=list)
 
 
 class FabricResult(BaseModel):
-    """Fabric result data model."""
+    """Top-level Fabric output linking retrieved data to plans, evidence, and uncertainty."""
     model_config = ConfigDict(extra="forbid")
 
     request_ref: DataViewRequestRef
@@ -145,7 +145,7 @@ class FabricResult(BaseModel):
 
 
 class DataSnapshot(BaseModel):
-    """Data snapshot data model."""
+    """Snapshot of retrieved data plus the artifact references needed to audit its quality."""
     model_config = ConfigDict(extra="forbid")
 
     data_ref: ArtifactRef

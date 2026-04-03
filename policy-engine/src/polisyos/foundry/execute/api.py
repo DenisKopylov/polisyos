@@ -1,4 +1,11 @@
-"""Public execute api module API."""
+"""Execute compiled Foundry plans from bound runtime state snapshots.
+
+`execute()` is the public runtime entrypoint paired with
+`polisyos.foundry.compile.api.compile`. It resolves
+`FoundryInputBindingsRef -> StateSnapshotRef`, replays the persisted
+`ExecPlan` deterministically with the requested seed, and writes
+`foundry.simulation_result` plus runtime-derived artifacts back to CAS.
+"""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -30,13 +37,62 @@ from polisyos.foundry.registry import MissingRuntimeMechanismSupportError
 
 @dataclass(frozen=True)
 class _ResolvedStateSource:
+    """Internal bundle describing where the execution base state came from."""
+
     state_snapshot_ref: StateSnapshotRef
     notes: tuple[str, ...]
     input_refs: tuple[InputRef, ...]
 
 
 def execute(store: FileSystemCAS, request: ExecuteRequest) -> ExecuteResult:
-    """Execute a compiled Foundry plan from a resolved state snapshot."""
+    """Execute a compiled Foundry plan from a bound state snapshot.
+
+    `request.input_bindings_ref` is treated as the canonical boundary object
+    between Fabric data ingestion and Foundry runtime state. Execution reads
+    the bound `StateSnapshotRef`, applies the `ExecPlan`, persists metrics,
+    state-delta, optional constraint/environment artifacts, and finally writes
+    a `SimulationResult` whose `state_snapshot_ref` points to the updated
+    post-step snapshot.
+
+    Deterministic replay is expected when the same `exec_plan_ref`,
+    `input_bindings_ref`, `registry_bundle_ref`, parameter overrides, and
+    `exec_config.seed` are reused against identical CAS content. Runtime
+    unsupported-mechanism errors are returned as `ExecuteResult(ok=False, ...)`
+    envelopes; malformed requests and missing registry references raise.
+
+    Args:
+        store: CAS containing the `ExecPlan`, registry bundle, input bindings,
+            and parameter override artifacts, and receiving runtime outputs.
+        request: Execution contract referencing the compiled plan, bound
+            input snapshot, registry bundle, and runtime configuration.
+
+    Returns:
+        `ExecuteResult` with `simulation_result_ref` and derived artifact refs
+        on success, or `ok=False` plus notes such as
+        `missing_runtime_mechanism_support:*` or
+        `hard_constraint_violation` when execution is rejected.
+
+    Raises:
+        ValueError: If `registry_bundle_ref` is missing or the request points
+            to unreadable or invalid artifacts.
+
+    Example:
+        ```python
+        from polisyos.core.contracts.foundry import ExecuteRequest
+        from polisyos.foundry import execute
+
+        result = execute(
+            store,
+            ExecuteRequest(
+                exec_plan_ref=compile_result.exec_plan_ref,
+                input_bindings_ref=input_bindings_ref,
+                registry_bundle_ref=registry_bundle_ref,
+            ),
+        )
+        if result.ok:
+            simulation_ref = result.simulation_result_ref
+        ```
+    """
 
     resolved_state = _resolve_state_snapshot(store, request)
     state_snapshot_ref = resolved_state.state_snapshot_ref
@@ -161,6 +217,7 @@ def execute(store: FileSystemCAS, request: ExecuteRequest) -> ExecuteResult:
 
 
 def _resolve_state_snapshot(store: FileSystemCAS, request: ExecuteRequest) -> _ResolvedStateSource:
+    """Load and validate the bound snapshot referenced by `request`."""
     bindings_ref = FoundryInputBindingsRef.model_validate(
         request.input_bindings_ref.model_dump()
     )
@@ -188,9 +245,11 @@ def _resolve_state_snapshot(store: FileSystemCAS, request: ExecuteRequest) -> _R
 
 
 def _ensure_readable(store: FileSystemCAS, ref: ArtifactRef) -> None:
+    """Raise if `ref` does not resolve to a readable CAS manifest."""
     store.get_manifest(ref.artifact_id)
 
 
 def _load_model(store: FileSystemCAS, ref: ArtifactRef, model_cls):
+    """Deserialize a CAS JSON artifact into the requested Pydantic model."""
     payload = from_canonical_bytes(store.get_bytes(ref.artifact_id))
     return model_cls.model_validate(payload)

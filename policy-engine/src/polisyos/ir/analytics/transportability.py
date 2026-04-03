@@ -62,14 +62,14 @@ THRESHOLD_FOR_S_NODE = 0.2
 
 
 class SNodeOrigin(str, Enum):
-    """S node origin public type."""
+    """Classify why a selection node appears in a transportability diagram."""
     CONTEXT_DELTA = "context_delta"
     LEGAL = "legal"
     DATA_MISMATCH = "data_mismatch"
 
 
 class SNodeRole(str, Enum):
-    """S node role public type."""
+    """Declare the causal role used when deciding whether an S-node is adjustable."""
     PRE_TREATMENT_COVARIATE = "pre_treatment_covariate"
     MEDIATOR = "mediator"
     COLLIDER = "collider"
@@ -366,7 +366,12 @@ class TransportFormula(BaseModel):
 
 
 class TransportabilityStatus(str, Enum):
-    """Transportability status public type."""
+    """Report whether transportability is identified, bounded, or blocked.
+
+    Readiness gates and reporting code inspect this status to decide whether a
+    transported estimate can proceed directly, requires partial-identification
+    fallback, or must be treated as unsupported.
+    """
     IDENTIFIED = "identified"
     PARTIALLY_IDENTIFIED = "partially_identified"
     BOUNDED_NON_IDENTIFIED = "bounded_non_identified"
@@ -374,7 +379,7 @@ class TransportabilityStatus(str, Enum):
 
 
 class TransportMode(str, Enum):
-    """Transport mode public type."""
+    """Describe the execution path implied by a ``TransportabilityResult``."""
     DIRECT = "direct"
     TRANSPORT_FORMULA = "transport_formula"
     BOUNDS_ONLY = "bounds_only"
@@ -394,7 +399,14 @@ class DataGap(BaseModel):
 
 
 class TransportabilityResult(BaseModel):
-    """Phase 13 transportability contract with legacy-read compatibility."""
+    """Persist the transportability decision, formula, and fallback diagnostics.
+
+    Readiness gates and reporting layers inspect ``status`` and
+    ``transport_mode`` to decide whether a query can be transported directly,
+    requires a transport formula, falls back to bounds, or is unsupported. The
+    model also upgrades legacy payload aliases so older persisted artifacts can
+    still be read during migration.
+    """
 
     model_config = ConfigDict(extra="forbid")
 

@@ -1,4 +1,4 @@
-"""Public catalog econometrics package API."""
+"""Expose panel, IV, discrete-choice, and semiparametric econometric methods."""
 from __future__ import annotations
 
 from polisyos.foundry.methods.exceptions import MethodAlreadyRegisteredError
@@ -63,7 +63,7 @@ from .timeseries import ARIMAEstimator, VAREstimator
 
 
 def ensure_econometric_methods_registered(registry: MethodRegistry | None = None) -> None:
-    """Ensure econometric methods registered helper."""
+    """Register built-in econometric methods into `registry` or the global singleton."""
     reg = registry if registry is not None else MethodRegistry.get_instance()
     for method_class in register_econometric_methods():
         try:

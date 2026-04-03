@@ -1,4 +1,11 @@
-"""Public methods backends package API."""
+"""Expose backend runners and dispatch helpers for Foundry method execution.
+
+The backend layer adapts a protocol-compliant method class to a concrete
+runtime stack (`jax`, `numpy`, solver, Bayesian sampler), returning a
+`MethodResult` with timing and reproducibility metadata. It is separate from
+`MethodSignature`, which declares the ABI, and from specialization/cache,
+which governs compilation reuse.
+"""
 from __future__ import annotations
 
 from polisyos.foundry.methods.backends.async_chain_executor import (
@@ -48,4 +55,3 @@ __all__ = [
     "SolverStatus",
     "execute_heterogeneous_chain",
 ]
-

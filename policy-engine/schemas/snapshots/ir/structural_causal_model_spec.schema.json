@@ -2,6 +2,7 @@
   "$defs": {
     "CausalEdge": {
       "additionalProperties": false,
+      "description": "Causal edge public type.",
       "properties": {
         "combined_confidence": {
           "anyOf": [
@@ -224,6 +225,7 @@
       "type": "object"
     },
     "EdgeMark": {
+      "description": "Edge mark public type.",
       "enum": [
         "tail",
         "arrow",
@@ -233,6 +235,7 @@
       "type": "string"
     },
     "EdgeSource": {
+      "description": "Edge source public type.",
       "enum": [
         "data",
         "literature",
@@ -244,6 +247,7 @@
       "type": "string"
     },
     "GraphType": {
+      "description": "Graph type public type.",
       "enum": [
         "dag",
         "cpdag",
@@ -255,6 +259,7 @@
       "type": "string"
     },
     "MechanismFamily": {
+      "description": "Allowed mechanism families for SCM node equations.",
       "enum": [
         "linear",
         "additive_noise",
@@ -267,6 +272,7 @@
       "type": "string"
     },
     "MechanismSource": {
+      "description": "Where a node mechanism was sourced from.",
       "enum": [
         "data_fitted",
         "literature_prior",
@@ -278,6 +284,7 @@
     },
     "NodeMechanism": {
       "additionalProperties": false,
+      "description": "Structural equation metadata for one variable in an SCM.",
       "properties": {
         "family": {
           "$ref": "#/$defs/MechanismFamily"
@@ -343,6 +350,7 @@
       "type": "object"
     },
     "PAGIdentificationPolicy": {
+      "description": "PAG identification policy data model.",
       "enum": [
         "conservative",
         "optimistic",
@@ -353,6 +361,7 @@
     }
   },
   "additionalProperties": false,
+  "description": "Serializable structural causal model with graph and node mechanisms.",
   "properties": {
     "fit_method": {
       "anyOf": [

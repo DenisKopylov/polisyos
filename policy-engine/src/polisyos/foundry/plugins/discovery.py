@@ -1,4 +1,4 @@
-"""Public plugins discovery module API."""
+"""Discover Foundry plugins from built-ins, entry points, and local search paths."""
 from __future__ import annotations
 
 import importlib
@@ -126,7 +126,7 @@ def auto_register_plugins(
     registry: PluginRegistry | None = None,
     search_paths: Sequence[str | Path] | None = None,
 ) -> list[str]:
-    """Auto register plugins helper."""
+    """Discover plugins and register them into the active plugin registry."""
     if registry is None:
         registry = get_registry()
 

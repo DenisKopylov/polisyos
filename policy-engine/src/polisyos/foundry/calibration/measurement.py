@@ -1,4 +1,10 @@
-"""Public calibration measurement module API."""
+"""Attach observation-quality metadata to calibration targets and loss weights.
+
+The classes in this module describe observed targets and measurement metadata
+at the boundary between real-world observations and synthetic Foundry traces.
+They never advance simulation dynamics; they only adapt loss weights applied
+to already-simulated series inside `Calibrator.run()`.
+"""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -24,16 +30,33 @@ MEASUREMENT_AWARE_TARGET_CONTRACT = ContractCompatibilityTarget(
 
 
 class MeasurementAwareTarget(KernelModel):
-    """Calibration target annotated with observation trust and coverage fields.
+    """Describe one observed calibration anchor plus measurement-quality fields.
 
     These targets let calibration weight losses by measurement quality instead
-    of assuming that all observed anchors are equally reliable.
+    of assuming that all observed anchors are equally reliable. Each target
+    must reference an observed metric and the companion field names that carry
+    trust, coverage, lag, censoring, and regime-change metadata in the bundle
+    payload.
     """
 
-    schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
-    target_id: str = Field(..., min_length=1, max_length=120)
+    schema_version: str = Field(
+        "1.0",
+        pattern=SCHEMA_VERSION_PATTERN,
+        description="Measurement target schema version persisted in observation bundles.",
+    )
+    target_id: str = Field(
+        ...,
+        min_length=1,
+        max_length=120,
+        description="Stable calibration target identifier matching `CalibrationConfig.targets`.",
+    )
     observation_family: ObservationFamily
-    metric_id: str = Field(..., min_length=1, max_length=120)
+    metric_id: str = Field(
+        ...,
+        min_length=1,
+        max_length=120,
+        description="Observed metric ID whose values are compared against synthetic traces.",
+    )
     identification_mode: IdentificationMode
     observed_value_field: str = Field(default="observed_value", min_length=1, max_length=120)
     base_weight: float = Field(default=1.0, ge=0.0)
@@ -47,7 +70,12 @@ class MeasurementAwareTarget(KernelModel):
 
 
 class MeasurementAwareLossConfig(KernelModel):
-    """Hyperparameters controlling measurement-aware loss discounting."""
+    """Configure how weak, stale, or regime-shifted observations downweight loss.
+
+    The discounts are multiplicative and applied after clipping trust and
+    coverage to `[0, 1]`; anchors with zero coverage receive zero effective
+    weight regardless of other fields.
+    """
 
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     censoring_discount: float = Field(default=0.5, ge=0.0)
@@ -60,7 +88,30 @@ class MeasurementAwareLossConfig(KernelModel):
 
 @dataclass(frozen=True)
 class CalibrationTargetBundle:
-    """Materialized measurement bundle passed into the calibrator loop."""
+    """Hold observed series and observation metadata consumed by `Calibrator`.
+
+    `observed_value` and its metadata maps define the measurement side of the
+    calibration objective. The synthetic side is produced separately by
+    `run_pure_scan()` over the current parameterized `StaticBundle`.
+
+    Attributes:
+        manifest: Observation-bundle manifest that describes provenance and
+            compatibility with `MEASUREMENT_AWARE_TARGET_CONTRACT`.
+        targets: Measurement-aware target specs keyed by `target_id`.
+        observed_value: Observed target series compared to synthetic traces.
+        trust_weight: Per-target reliability weights in `[0, 1]`.
+        coverage_estimate: Per-target coverage fractions in `[0, 1]`.
+        censoring_mask: Optional boolean censoring indicators.
+        lag_days_estimate: Optional measurement lag per observation.
+        shock_mask: Optional masks for known shock periods.
+        schema_regime_id: Optional regime labels used to discount schema
+            boundary neighborhoods.
+        observation_id: Optional source observation identifiers.
+        time_axis: Optional time labels attached to each observed series.
+        split_label: Optional split labels for train/validation style bundles.
+        identification_mode: Identification semantics for each target.
+        time_grain: Optional declared time grain per target.
+    """
 
     manifest: CalibrationTargetBundleManifest
     targets: tuple[MeasurementAwareTarget, ...]
@@ -78,12 +129,18 @@ class CalibrationTargetBundle:
     time_grain: Mapping[str, Any]
 
     def target_ids(self) -> tuple[str, ...]:
+        """Return target IDs in bundle order for validation and diagnostics."""
         return tuple(target.target_id for target in self.targets)
 
 
 @runtime_checkable
 class MeasurementAwareLossAdapter(Protocol):
-    """Extension seam over `loss.py` for trust/coverage/censoring-aware calibration."""
+    """Adapt base target weights using observation-quality metadata.
+
+    Implementations sit between simulation traces and the final weighted
+    calibration loss. They should be pure with respect to inputs and return a
+    mapping that at least contains `effective_weight`.
+    """
 
     def adapt(
         self,
@@ -151,6 +208,26 @@ def compute_effective_weight(
     The returned `effective_weight` is the product of the base weight and each
     measurement-quality adjustment, with zeroing for anchors that have no
     usable coverage.
+    Args:
+        base_weights: Scalar or vector base target weights from
+            `CalibrationConfig`.
+        trust_weight: Trust score per observation, clipped to `[0, 1]`.
+        coverage_estimate: Coverage fraction per observation, broadcastable to
+            `trust_weight`.
+        censoring_mask: Optional boolean mask for censored observations.
+        lag_days_estimate: Optional lag in days used by half-life decay.
+        schema_regime_id: Optional regime labels used to detect boundary
+            observations.
+        shock_mask: Optional boolean mask for shock-period observations.
+        config: Discount hyperparameters.
+
+    Returns:
+        Mapping with `effective_weight` and intermediate discount arrays used
+        by diagnostics/reporting.
+
+    Raises:
+        ValueError: If any broadcasted metadata vector has a length that is
+            neither `1` nor the trust-vector length.
     """
 
     trust = _as_1d_array(trust_weight, dtype=jnp.float32)
@@ -209,7 +286,7 @@ def compute_effective_weight(
 
 
 class DefaultMeasurementAwareLossAdapter:
-    """Default trust/coverage/censoring-aware weighting for calibration loss."""
+    """Compute the default multiplicative observation-quality weights."""
 
     def adapt(
         self,

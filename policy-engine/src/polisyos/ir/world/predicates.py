@@ -1,4 +1,4 @@
-"""Public world predicates module API."""
+"""World-graph predicate ids shared by claim, provenance, and relation exports."""
 from __future__ import annotations
 
 from polisyos.ir.world.abi import EdgeKind
@@ -11,7 +11,7 @@ WORLD_REL_PREFIX = "world.rel."
 
 
 def rel(edge_kind: EdgeKind | str) -> str:
-    """Rel helper."""
+    """Return the canonical world predicate id for a given edge kind."""
     value = edge_kind.value if isinstance(edge_kind, EdgeKind) else str(edge_kind)
     return f"{WORLD_REL_PREFIX}{value}"
 

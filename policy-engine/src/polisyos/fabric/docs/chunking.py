@@ -1,4 +1,8 @@
-"""Public docs chunking module API."""
+"""Document chunking stage for claim extraction and retrieval workloads.
+
+The stage slices normalized text into deterministic ranges, persists chunk fragments, stores a
+chunk manifest artifact, updates ``DocMeta.chunks_ref``, and emits a ``CHUNK_DOC`` world event.
+"""
 from __future__ import annotations
 
 import re
@@ -101,7 +105,13 @@ def chunk_doc(
     options: DocChunkOptions | None = None,
     segment_name: str | None = None,
 ) -> DocChunkResult:
-    """Chunk doc helper."""
+    """Generate deterministic text chunks for a normalized document.
+
+    Raises:
+        DocNotReadyError: If ``DocMeta.normalized_ref`` is missing.
+        DocValidationError: If chunk overlap/boundary settings are invalid or the normalized
+            artifact payload is malformed.
+    """
     opts = options or DocChunkOptions()
 
     meta = _load_doc_meta(cas, doc_meta_artifact_id)

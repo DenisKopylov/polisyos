@@ -16,7 +16,7 @@ TaskState = Literal["pending", "running", "completed", "failed"]
 
 @dataclass
 class TaskRecord:
-    """Task record data model."""
+    """Track in-process task state for local/dev background execution."""
     task_id: str
     run_id: str
     state: TaskState = "pending"
@@ -46,6 +46,7 @@ class TaskRunner:
         *args: Any,
         **kwargs: Any,
     ) -> TaskRecord:
+        """Submit a function to the local thread pool and return its mutable task record."""
         record = TaskRecord(task_id=task_id, run_id=run_id, state="pending")
         with self._lock:
             self._tasks[task_id] = record
@@ -53,6 +54,7 @@ class TaskRunner:
         return record
 
     def get(self, task_id: str) -> TaskRecord | None:
+        """Return the latest known task record or `None` when `task_id` is unknown."""
         with self._lock:
             return self._tasks.get(task_id)
 

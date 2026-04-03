@@ -43,10 +43,10 @@ Runtime API app -> schemas/runtime_api_v1.openapi.json -> generated runtimeApiCl
 Из корня `policy-engine/`:
 
 ```bash
-PYTHONPATH=src uv run python tools/runtime/export_runtime_openapi.py \
+PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/export_runtime_openapi.py \
   --output schemas/runtime_api_v1.openapi.json
 
-PYTHONPATH=src uv run python tools/runtime/generate_runtime_client.py \
+PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/generate_runtime_client.py \
   --openapi schemas/runtime_api_v1.openapi.json \
   --out-ts frontend/runtime-api-client/runtimeApiClient.ts \
   --out-js frontend/runtime-api-client/runtimeApiClient.js
@@ -55,5 +55,5 @@ PYTHONPATH=src uv run python tools/runtime/generate_runtime_client.py \
 Проверка drift и контрактных инвариантов:
 
 ```bash
-PYTHONPATH=src uv run python tools/runtime/check_runtime_api_contract.py
+PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/check_runtime_api_contract.py
 ```

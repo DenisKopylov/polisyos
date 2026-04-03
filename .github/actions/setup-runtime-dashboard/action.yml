@@ -1,0 +1,42 @@
+name: Setup Runtime Dashboard
+description: Setup Node and install runtime dashboard dependencies.
+
+inputs:
+  install-deps:
+    description: Whether to run npm ci.
+    required: false
+    default: "true"
+  install-playwright:
+    description: Whether to install Playwright Chromium and OS dependencies.
+    required: false
+    default: "false"
+  node-version:
+    description: Node version to provision.
+    required: false
+    default: "22"
+  working-directory:
+    description: Runtime dashboard working directory.
+    required: false
+    default: "policy-engine/frontend/runtime-dashboard"
+
+runs:
+  using: composite
+  steps:
+    - name: Setup Node
+      uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+      with:
+        node-version: ${{ inputs.node-version }}
+        cache: "npm"
+        cache-dependency-path: policy-engine/frontend/runtime-dashboard/package-lock.json
+
+    - name: Install dashboard dependencies
+      if: inputs.install-deps == 'true'
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: npm ci --ignore-scripts
+
+    - name: Install Playwright browsers
+      if: inputs.install-playwright == 'true'
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: npx playwright install --with-deps chromium

@@ -1,4 +1,4 @@
-"""Public causal econml adapter module API."""
+"""Materialize CATE/HTE payloads and optional EconML diagnostics for causal methods."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -27,7 +27,7 @@ SHAP_MIN_ROWS_FOR_SUBSAMPLE = 500
 
 @dataclass(frozen=True)
 class HTEData:
-    """HTE data public type."""
+    """Carry treatment, outcome, covariate, and confounder arrays for HTE estimators."""
     y: np.ndarray
     t: np.ndarray
     x: np.ndarray

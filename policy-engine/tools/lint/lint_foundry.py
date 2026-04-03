@@ -63,6 +63,7 @@ ZONE_MAP: dict[str, str] = {
     "methods/testing/":                  "infra",
     "methods/cli/":                      "infra",
     "agents.py":                         "infra",
+    "quickstart.py":                     "infra",   # README/demo helper needs env + path handling
     "methods/base.py":                   "infra",
     "methods/discovery.py":              "infra",
     "methods/_artifacts_fingerprint.py": "infra",

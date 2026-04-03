@@ -1,4 +1,11 @@
-"""Public observation contracts module API."""
+"""Define raw observation records and homogeneous panels.
+
+This module is the lowest observation layer: it describes raw normalized
+measurements and panel containers before family-level governance policy,
+measurement trust normalization, or causal-readiness manifests are applied.
+Use :class:`ObservationRecord` for atomic evidence rows and
+:class:`ObservationPanel` for compiler-ready homogeneous collections.
+"""
 from __future__ import annotations
 
 import math
@@ -15,7 +22,7 @@ SCHEMA_VERSION_PATTERN = r"^\d+\.\d+$"
 
 
 class ObservationFamily(str, Enum):
-    """Semantic family of observational evidence.
+    """Classify raw evidence into stable observation families for routing.
 
     Families partition raw evidence into domains such as budget flows, firm
     fundamentals, or household distribution so measurement rules, governance
@@ -56,11 +63,14 @@ class EntityScope(str, Enum):
 
 
 class IdentificationMode(str, Enum):
-    """Identification semantics attached to an observation or bundle.
+    """Declare the causal identification contract assumed by records and bundles.
 
     These modes distinguish point-identified data from partially identified,
     proxy-based, interference-aware, or sequential settings so downstream
-    methods can enforce the right guardrails.
+    components can enforce the right guardrails. The value is read by
+    :class:`polisyos.ir.observation.measurement.IdentificationModeRouter`,
+    observation contract compilers, and causal-readiness checks to select
+    fallback paths or block unsafe execution.
     """
 
     POINT_IDENTIFIED = "point_identified"
@@ -72,7 +82,12 @@ class IdentificationMode(str, Enum):
 
 
 class SourceConfidenceTier(str, Enum):
-    """High-level provenance quality bucket for an observation source."""
+    """Declare the raw provenance tier consumed by measurement trust normalization.
+
+    :class:`polisyos.ir.observation.measurement.MeasurementRegistry` maps this
+    source-side tier and coverage metadata into a ``MeasurementTrustTier`` used
+    by calibration losses and readiness routing.
+    """
 
     CORE = "core"
     VALIDATED = "validated"
@@ -80,7 +95,7 @@ class SourceConfidenceTier(str, Enum):
 
 
 class MultiplexGraphLayerId(str, Enum):
-    """Named layer in the multiplex network representation used by Foundry."""
+    """Select the graph layer consumed by network compilers and interference checks."""
 
     BUDGET = "budget"
     PROCUREMENT = "procurement"
@@ -90,7 +105,12 @@ class MultiplexGraphLayerId(str, Enum):
 
 
 class StrategicResponseChannel(str, Enum):
-    """Behavioral or institutional channel through which actors adapt."""
+    """Identify the adaptation channel that should trigger strategic-response checks.
+
+    ``PolicySpec`` and readiness bundles use this enum to route interventions to
+    strategic-response hooks and to document which behavioral channel may break
+    naive policy assumptions.
+    """
 
     BUDGET_CHANNEL = "budget_channel"
     PROCUREMENT_CHANNEL = "procurement_channel"
@@ -101,7 +121,7 @@ class StrategicResponseChannel(str, Enum):
 
 
 class ObservationRecord(KernelModel):
-    """Atomic measurement record in the observation layer.
+    """Store one raw normalized measurement and the metadata needed for routing.
 
     Represents one metric value for a specific entity scope and time window,
     together with the metadata needed for measurement-aware loss weighting,
@@ -176,7 +196,7 @@ class ObservationRecord(KernelModel):
 
 
 class ObservationPanel(KernelModel):
-    """Validated collection of homogeneous observation records.
+    """Group homogeneous raw observations before compiler and readiness stages.
 
     Panels guarantee a shared observation family and time grain so compiler
     stages can align records onto a single timeline and materialize bundle

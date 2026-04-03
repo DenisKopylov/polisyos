@@ -1,4 +1,4 @@
-"""Public sources unesco uis module API."""
+"""UNESCO UIS connector implementation for education and research indicator datasets."""
 from __future__ import annotations
 
 import asyncio

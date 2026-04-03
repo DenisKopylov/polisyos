@@ -1,4 +1,4 @@
-"""Public governance validation module API."""
+"""Validation-report contracts used when IR payload repair or schema checks fail."""
 from __future__ import annotations
 
 import difflib
@@ -10,7 +10,7 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 
 class ValidationIssue(BaseModel):
-    """Validation issue data model."""
+    """Represent one normalized validation failure that governance/reporting can persist."""
     loc: List[Union[str, int]]
     message: str
     error_type: str
@@ -19,7 +19,7 @@ class ValidationIssue(BaseModel):
 
 
 class ValidationReport(BaseModel):
-    """Validation report data model."""
+    """Bundle issue summaries, optional repair notes, and diffs for a failed validation pass."""
     error_summary: str
     issues: List[ValidationIssue]
     repair_attempt: Optional[str] = None
@@ -34,7 +34,7 @@ def _json_dump(payload: Any) -> List[str]:
 
 
 def diff_payloads(before: Any, after: Any) -> str:
-    """Diff payloads helper."""
+    """Render a unified diff so repair loops can compare pre- and post-validation payloads."""
     before_lines = _json_dump(before)
     after_lines = _json_dump(after)
     diff = difflib.unified_diff(
@@ -48,7 +48,7 @@ def diff_payloads(before: Any, after: Any) -> str:
 
 
 def issues_from_validation_error(error: ValidationError) -> List[ValidationIssue]:
-    """Issues from validation error helper."""
+    """Convert a Pydantic ``ValidationError`` into stable ``ValidationIssue`` records."""
     issues: List[ValidationIssue] = []
     for entry in error.errors():
         loc = list(entry.get("loc", ()))
@@ -64,7 +64,7 @@ def issues_from_validation_error(error: ValidationError) -> List[ValidationIssue
 
 
 def summarize_issues(issues: Iterable[ValidationIssue]) -> str:
-    """Summarize issues helper."""
+    """Collapse the first few validation issues into a short operator-facing summary."""
     issues_list = list(issues)
     if not issues_list:
         return "No validation issues."

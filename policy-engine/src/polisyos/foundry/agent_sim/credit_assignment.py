@@ -22,7 +22,7 @@ class CreditMode(str, Enum):
 
 @dataclass(frozen=True)
 class CreditConfig:
-    """Credit config data model."""
+    """Choose how global returns are reallocated back to individual agents."""
     mode: CreditMode = CreditMode.INDIVIDUAL
     counterfactual_baseline: str = "mean"
     mean_field_temperature: float = 1.0
@@ -37,7 +37,7 @@ def compute_credit_assignment(
     *,
     rng_key: jax.Array | None = None,
 ) -> jnp.ndarray:
-    """Compute credit assignment helper."""
+    """Redistribute rewards with the selected individual, shared, or counterfactual scheme."""
     active = next_state.agents.active
     active_f = active.astype(jnp.float32)
     n_active = jnp.sum(active_f)

@@ -1,0 +1,12 @@
+title = "Short release note title"
+type = "changed"
+component = "platform"
+summary = "Describe the user-visible change in one sentence."
+
+# Release snapshots must cover these curated sections across the selected
+# fragment set before a tag can be cut.
+compatibility = ""
+surface_classification = ""
+migration = ""
+api = ""
+limitations = ""

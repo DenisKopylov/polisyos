@@ -1,4 +1,11 @@
-"""Canonical Layer A search/funnel contracts and legacy adapters."""
+"""Canonical ask/tell and funnel contracts plus adapters for legacy search runtimes.
+
+Use these contracts when Layer A code wants to separate candidate proposal,
+evaluation feedback, and multi-fidelity routing from concrete controller or
+funnel implementations. `LegacySearchServiceAdapter` preserves the old
+`SearchController` loop while exposing the same ask/tell surface as newer
+services.
+"""
 
 from __future__ import annotations
 
@@ -16,7 +23,7 @@ from polisyos.scientist.search.funnel.orchestrator import (
 
 
 class CandidateProposal(BaseModel):
-    """Opaque candidate payload handed across Layer boundaries."""
+    """Carry one candidate proposal and metadata across service boundaries."""
 
     model_config = ConfigDict(extra="forbid")
 
@@ -26,7 +33,7 @@ class CandidateProposal(BaseModel):
 
 
 class EvaluationBundle(BaseModel):
-    """Typed evaluation payload accepted by the canonical `tell()` contract."""
+    """Capture evaluator feedback returned by Stage A/B and promotion scoring."""
 
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
 
@@ -41,7 +48,7 @@ class EvaluationBundle(BaseModel):
 
 
 class TellResult(BaseModel):
-    """Minimal registry/frontier feedback returned by `tell()`."""
+    """Return registry/frontier deltas and current-best feedback after `tell()`."""
 
     model_config = ConfigDict(extra="forbid")
 
@@ -54,7 +61,7 @@ class TellResult(BaseModel):
 
 
 class SearchService(Protocol):
-    """Canonical ask/tell substrate for Layer A consumers."""
+    """Expose candidate generation (`ask`) and evaluator feedback ingestion (`tell`)."""
 
     def ask(
         self,
@@ -71,7 +78,7 @@ class SearchService(Protocol):
 
 
 class FunnelService(Protocol):
-    """Canonical multi-fidelity routing interface for Layer A consumers."""
+    """Submit candidates to a multi-fidelity funnel and fetch routed outcomes."""
 
     def submit(
         self,
@@ -175,7 +182,7 @@ class LegacySearchServiceAdapter:
 
 @dataclass(slots=True)
 class OrchestratorFunnelService:
-    """Canonical `FunnelService` adapter over `FunnelOrchestrator`."""
+    """Wrap `FunnelOrchestrator` behind the canonical `FunnelService` contract."""
 
     orchestrator: FunnelOrchestrator
 

@@ -1,4 +1,4 @@
-"""Public backtesting evaluator module API."""
+"""Compare replay predictions against held-out outcomes and produce backtest scenarios."""
 from __future__ import annotations
 
 from typing import Any
@@ -9,7 +9,7 @@ from polisyos.ir.analytics.backtest import BacktestScenario, OutcomeComparison
 
 
 class PredictionEvaluator:
-    """Compare predicted trajectories against observed outcomes."""
+    """Compute per-metric replay errors and interval coverage for one scenario."""
 
     def evaluate(
         self,
@@ -25,6 +25,25 @@ class PredictionEvaluator:
         data_source: str = "",
         metadata: dict[str, Any] | None = None,
     ) -> BacktestScenario:
+        """Build a `BacktestScenario` from predicted and ground-truth trajectories.
+
+        Args:
+            scenario_id: Stable scenario identifier used in the final report.
+            scenario_label: Human-readable scenario name.
+            y_pred: Predicted metric trajectories keyed by metric name.
+            y_true: Ground-truth trajectories keyed by metric name.
+            intervals: Optional per-step confidence intervals aligned with `y_pred`.
+            confidence_level: Retained for API compatibility; coverage is derived
+                from the provided intervals.
+            jurisdiction: Scenario jurisdiction metadata.
+            intervention_date: Historical intervention cutoff used by masking.
+            data_source: Source path/ref metadata.
+            metadata: Optional extra scenario metadata.
+
+        Returns:
+            `BacktestScenario` with per-point comparisons and aggregate RMSE/MAE/
+            MAPE/coverage metrics.
+        """
         del confidence_level  # confidence_level is represented by provided intervals
         comparisons: list[OutcomeComparison] = []
         squared_errors: list[float] = []

@@ -2,6 +2,7 @@
   "$defs": {
     "BundleLineageRef": {
       "additionalProperties": false,
+      "description": "Lineage edge from a bundle back to an upstream observation artifact.",
       "properties": {
         "notes": {
           "items": {
@@ -40,6 +41,7 @@
     },
     "ContractCompatibilityTarget": {
       "additionalProperties": false,
+      "description": "Identifier of a downstream contract that an observation bundle targets.",
       "properties": {
         "contract_fqn": {
           "maxLength": 255,
@@ -62,6 +64,7 @@
       "type": "object"
     },
     "ObservationFamily": {
+      "description": "Classify raw evidence into stable observation families for routing.\n\nFamilies partition raw evidence into domains such as budget flows, firm\nfundamentals, or household distribution so measurement rules, governance\ndefaults, and contract compilers can branch on a stable domain label.",
       "enum": [
         "budget_flows",
         "procurement_flows",
@@ -82,6 +85,7 @@
     },
     "RequiredColumnSpec": {
       "additionalProperties": false,
+      "description": "Manifest entry describing a required tabular column.",
       "properties": {
         "description": {
           "anyOf": [
@@ -128,6 +132,7 @@
       "type": "object"
     },
     "SourceConfidenceTier": {
+      "description": "Declare the raw provenance tier consumed by measurement trust normalization.\n\n:class:`polisyos.ir.observation.measurement.MeasurementRegistry` maps this\nsource-side tier and coverage metadata into a ``MeasurementTrustTier`` used\nby calibration losses and readiness routing.",
       "enum": [
         "core",
         "validated",
@@ -138,12 +143,18 @@
     }
   },
   "additionalProperties": false,
+  "description": "Describe a compiled panel table that satisfies a causal estimator contract.\n\nUse ``required_columns`` and ``contract_target`` as the schema handshake,\n``lineage`` to preserve observation provenance, and ``contract_payload`` for\nestimator-specific materialized data.",
   "properties": {
     "artifact_name": {
       "const": "causal_panel_bundle_monthly.parquet",
       "default": "causal_panel_bundle_monthly.parquet",
       "title": "Artifact Name",
       "type": "string"
+    },
+    "contract_payload": {
+      "additionalProperties": true,
+      "title": "Contract Payload",
+      "type": "object"
     },
     "contract_target": {
       "$ref": "#/$defs/ContractCompatibilityTarget"
@@ -168,6 +179,14 @@
       "pattern": "^\\d+\\.\\d+$",
       "title": "Schema Version",
       "type": "string"
+    },
+    "table_rows": {
+      "items": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Table Rows",
+      "type": "array"
     }
   },
   "required": [

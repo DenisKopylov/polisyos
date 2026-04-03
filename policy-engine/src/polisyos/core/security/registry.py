@@ -13,7 +13,7 @@ from polisyos.core.security.exceptions import CellCapacityError, TenantNotFoundE
 
 
 class CellResolution(BaseModel):
-    """Cell resolution public type."""
+    """Return the tenant-to-cell placement and routing namespace for one tenant."""
     model_config = ConfigDict(frozen=True, extra="forbid")
 
     tenant_id: str
@@ -39,11 +39,13 @@ class CellRegistry:
         self._cell_tenant_counts: dict[str, int] = {}
 
     def register_cell(self, spec: CellSpec) -> None:
+        """Register or replace a cell definition and initialize its capacity counter."""
         with self._lock:
             self._cells.register(spec, override=True)
             self._cell_tenant_counts.setdefault(spec.cell_id, 0)
 
     def register_tenant(self, spec: TenantSpec, cell_id: str) -> CellAssignment:
+        """Assign a tenant to a cell after validating region/tier/capacity invariants."""
         with self._lock:
             cell = self._cells.get(cell_id)
             if cell is None:
@@ -78,6 +80,11 @@ class CellRegistry:
             return assignment
 
     def resolve(self, tenant_id: str) -> CellResolution:
+        """Resolve a tenant into its assigned cell and routing namespace.
+
+        Raises:
+            TenantNotFoundError: If the tenant, assignment, or target cell is missing.
+        """
         with self._lock:
             tenant = self._tenants.get(tenant_id)
             if tenant is None:
@@ -103,6 +110,11 @@ class CellRegistry:
             )
 
     def resolve_cell(self, tenant_id: str) -> CellSpec:
+        """Return the `CellSpec` assigned to a tenant.
+
+        Raises:
+            TenantNotFoundError: If resolution fails or the cell snapshot is stale.
+        """
         resolution = self.resolve(tenant_id)
         with self._lock:
             cell = self._cells.get(resolution.cell_id)
@@ -111,14 +123,17 @@ class CellRegistry:
             return cell
 
     def get_cell(self, cell_id: str) -> CellSpec | None:
+        """Return a cell definition by id, or `None` when unknown."""
         with self._lock:
             return self._cells.get(cell_id)
 
     def list_tenants_in_cell(self, cell_id: str) -> list[str]:
+        """List tenant ids currently assigned to one cell."""
         with self._lock:
             return sorted(assignment.tenant_id for assignment in self._assignments.find("cell_id", cell_id))
 
     def replace_snapshot(self, *, cells: list[CellSpec], tenants: list[tuple[TenantSpec, str]]) -> None:
+        """Atomically replace the in-memory registry from a validated snapshot."""
         with self._lock:
             self._cells.clear()
             self._tenants.clear()
@@ -131,15 +146,23 @@ class CellRegistry:
 
     @property
     def cell_count(self) -> int:
+        """Return the number of registered cells."""
         with self._lock:
             return self._cells.count
 
     @property
     def tenant_count(self) -> int:
+        """Return the number of registered tenants."""
         with self._lock:
             return self._tenants.count
 
     def load_from_json(self, path: Path) -> None:
+        """Load a registry snapshot from JSON and replace current state.
+
+        Raises:
+            ValueError: If a tenant references a missing cell or violates
+                placement invariants during snapshot registration.
+        """
         payload = json.loads(path.read_text(encoding="utf-8"))
         cells = [CellSpec.model_validate(item) for item in payload.get("cells", [])]
         tenants: list[tuple[TenantSpec, str]] = []
@@ -152,6 +175,7 @@ class CellRegistry:
         self.replace_snapshot(cells=cells, tenants=tenants)
 
     def to_json(self) -> dict[str, list[dict[str, object]]]:
+        """Export the current registry snapshot as a JSON-serializable mapping."""
         with self._lock:
             return {
                 "cells": [cell.model_dump(mode="json") for cell in self._cells.values()],

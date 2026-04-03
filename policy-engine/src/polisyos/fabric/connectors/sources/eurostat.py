@@ -1,4 +1,4 @@
-"""Public sources eurostat module API."""
+"""Eurostat connector implementation for REST JSON, SDMX, and async bulk workflows."""
 from __future__ import annotations
 
 import json

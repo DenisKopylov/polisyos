@@ -18,7 +18,12 @@ from polisyos.ir.refs import EvidenceBundleRef
 
 
 class ConnectorCapability(Flag):
-    """Declarative capabilities that connectors can advertise."""
+    """Advertise which fetch, filtering, metadata, and resilience behaviors exist.
+
+    Connector orchestration uses this bitmask to decide whether requests can be
+    pushed down to the source, resumed incrementally, or require client-side
+    fallback logic. Store the combined mask in ``ConnectorMetadataSpec.capabilities``.
+    """
 
     # Data access patterns
     CATALOG_BROWSE = auto()      # Can list available datasets
@@ -55,7 +60,11 @@ class VersionStrategy(str, Enum):
 
 
 class TrustLevel(IntEnum):
-    """Trust levels for data sources."""
+    """Rank source provenance for connector admission and downstream governance.
+
+    Higher tiers represent institutionally backed or authoritative sources and
+    can be used by query filters, evidence scoring, and manual review tooling.
+    """
 
     UNVERIFIED = 0   # Unknown source, requires manual validation
     LOW = 1          # User-provided, no institutional backing
@@ -430,7 +439,13 @@ class FetchResult(BaseModel, Generic[DataT]):
         )
 
 class ConnectorMetadataSpec(BaseModel):
-    """Immutable connector metadata specification (IR-level contract)."""
+    """Define the immutable IR contract that registers one external data connector.
+
+    The fabric layer reads this metadata before issuing fetch requests, while
+    governance/reporting layers consume ``trust_level``, ``quality_tier``, and
+    ``capabilities`` to decide whether a connector is eligible for a requested
+    data view or evidence ingestion workflow.
+    """
 
     model_config = ConfigDict(frozen=True, extra="forbid")
 

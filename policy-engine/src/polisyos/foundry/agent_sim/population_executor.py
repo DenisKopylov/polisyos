@@ -41,7 +41,7 @@ def lifecycle_step(
     gift_mech: GiftTransferMechanism | None,
     fidelity: FidelityLevel,
 ) -> tuple[GlobalState, dict[str, jnp.ndarray], jnp.ndarray]:
-    """Lifecycle step helper."""
+    """Run aging, death, birth, migration, and transfer mechanics for one lifecycle tick."""
     keys = jax.random.split(rng_key, 5)
     all_metrics: dict[str, jnp.ndarray] = {}
 
@@ -84,7 +84,7 @@ def lifecycle_step(
 
 
 class PopulationAwareExecutor(GraphAwareExecutor):
-    """Population aware executor implementation."""
+    """Wrap the base executor with lifecycle, graph, and distribution updates."""
     def __init__(
         self,
         mechanisms: Iterable[Mechanism],

@@ -1,1 +1,1 @@
-"""Public cross graph gatherers package API."""
+"""Gatherers that materialize academic, dataset, legal, and transport evidence on demand."""

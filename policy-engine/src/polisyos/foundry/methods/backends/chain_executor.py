@@ -1,4 +1,4 @@
-"""Public backends chain executor module API."""
+"""Execute a composed method DAG and convert slot bindings across backend outputs."""
 from __future__ import annotations
 
 import asyncio
@@ -169,7 +169,7 @@ class LevelAwareExecutor:
 
 @dataclass(frozen=True, slots=True)
 class ChainExecutionResult:
-    """Chain execution result data model."""
+    """Collect the final composed state plus per-node backend results."""
     final_state: Any
     node_results: tuple[tuple[UUID, MethodResult], ...]
 

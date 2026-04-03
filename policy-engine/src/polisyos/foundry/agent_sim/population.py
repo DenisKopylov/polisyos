@@ -1,4 +1,4 @@
-"""Public agent sim population module API."""
+"""Manage agent slots, births, deaths, and graph synchronization inside agent simulation."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 @chex.dataclass(frozen=True)
 class PopulationManager:
-    """Population manager public type."""
+    """Track free slots and birth/death counters for the fixed-capacity agent buffer."""
     free_stack: Int[Array, "max_agents"]
     free_top: Int[Array, ""]
     max_agents: int
@@ -29,7 +29,7 @@ class PopulationManager:
 
 @chex.dataclass(frozen=True)
 class PopulationState:
-    """Population state data model."""
+    """Bundle agent arrays with slot-allocation state for replayable population updates."""
     agents: AgentState
     manager: PopulationManager
     next_agent_id: Int[Array, ""]
@@ -37,7 +37,7 @@ class PopulationState:
 
 @dataclass(frozen=True)
 class PopulationConfig:
-    """Population config data model."""
+    """Set demographic, wealth, and employment priors for population initialization."""
     max_initial_age: int = 80
     mean_life_expectancy: int = 75
     std_life_expectancy: int = 10
@@ -54,7 +54,7 @@ class PopulationConfig:
 
 @dataclass(frozen=True)
 class LifecycleConfig:
-    """Lifecycle config data model."""
+    """Configure per-step birth, death, and inheritance dynamics for lifecycle updates."""
     population_config: PopulationConfig = PopulationConfig()
     steps_per_year: int = 12
     enable_gift_transfers: bool = False
@@ -67,7 +67,7 @@ class LifecycleConfig:
 
 @dataclass(frozen=True)
 class InheritanceConfig:
-    """Inheritance config data model."""
+    """Control how estates are split and taxed when agents leave the population."""
     inheritance_to_children: float = 0.7
     inheritance_to_spouse: float = 0.2
     inheritance_tax_rate: float = 0.1
@@ -77,7 +77,7 @@ class InheritanceConfig:
 
 @dataclass(frozen=True)
 class GraphSyncConfig:
-    """Graph sync config data model."""
+    """Describe how newborn or surviving agents should alter the runtime graph."""
     connect_newborns_to_parents: bool = True
     connect_newborns_to_random: bool = True
     initial_connections: int = 5
@@ -103,7 +103,7 @@ def initialize_population(
     config: PopulationConfig,
     steps_per_year: int = 12,
 ) -> tuple[AgentState, PopulationManager, jnp.ndarray]:
-    """Initialize population helper."""
+    """Sample the initial agent buffer, demographic traits, and slot manager state."""
     if initial_n_agents > max_agents:
         raise ValueError("initial_n_agents must be <= max_agents")
 
@@ -209,7 +209,7 @@ def initialize_population(
 def allocate_slot(
     manager: PopulationManager,
 ) -> tuple[PopulationManager, jnp.ndarray, jnp.ndarray]:
-    """Allocate slot helper."""
+    """Reserve one free slot for a new agent and update population counters."""
     has_free = manager.free_top < manager.max_agents
     slot_index = jnp.where(
         has_free,
@@ -240,7 +240,7 @@ def allocate_multiple_slots(
     *,
     n_requested: jnp.ndarray | None = None,
 ) -> tuple[PopulationManager, jnp.ndarray, jnp.ndarray]:
-    """Allocate multiple slots helper."""
+    """Reserve a batch of free agent slots for births or immigration."""
     if n_requested is None:
         n_requested = jnp.array(n_slots, dtype=jnp.int32)
     available = jnp.array(manager.max_agents, dtype=jnp.int32) - manager.free_top
@@ -265,7 +265,7 @@ def allocate_multiple_slots(
 
 
 def free_slot(manager: PopulationManager, slot_index: jnp.ndarray) -> PopulationManager:
-    """Free slot helper."""
+    """Return one agent slot to the free stack after a removal event."""
     is_valid = (slot_index >= 0) & (slot_index < manager.max_agents)
     can_free = is_valid & (manager.free_top > 0)
     new_free_top = jnp.where(can_free, manager.free_top - 1, manager.free_top)
@@ -288,7 +288,7 @@ def free_multiple_slots(
     slot_indices: jnp.ndarray,
     valid_mask: jnp.ndarray,
 ) -> PopulationManager:
-    """Free multiple slots helper."""
+    """Return many removed-agent slots to the free stack in one scan."""
     def free_one(carry, inp):
         mgr = carry
         idx, valid = inp
@@ -314,7 +314,7 @@ def batch_create_agents(
     age_override: jnp.ndarray | None = None,
     steps_per_year: int = 12,
 ) -> "GlobalState":
-    """Batch create agents helper."""
+    """Materialize newborn or immigrant agents into freshly allocated population slots."""
     manager, slot_indices, n_allocated = allocate_multiple_slots(
         state.population_manager,
         n_new,
@@ -426,7 +426,7 @@ def batch_create_agents(
 
 
 def batch_remove_agents(state: "GlobalState", removal_mask: jnp.ndarray) -> "GlobalState":
-    """Batch remove agents helper."""
+    """Deactivate removed agents and recycle their buffer slots."""
     removal_mask = removal_mask & state.agents.active
     max_agents = state.agents.active.shape[0]
     slot_indices = jnp.arange(max_agents, dtype=jnp.int32)
@@ -468,7 +468,7 @@ def compute_death_mask(
     wealth_mortality_factor: float = -0.0001,
     steps_per_year: int = 12,
 ) -> jnp.ndarray:
-    """Compute death mask helper."""
+    """Sample which active agents die this step from age- and wealth-based hazards."""
     agents = state.agents
     age_years = agents.age // steps_per_year
     base_hazard = base_mortality_rate
@@ -500,7 +500,7 @@ def sync_graph_with_population(
     config: GraphSyncConfig,
     parent_slots: jnp.ndarray | None = None,
 ) -> "GraphState":
-    """Sync graph with population helper."""
+    """Prune dead-agent edges and optionally attach newborns into the runtime graph."""
     edges = graph.edges
     if not hasattr(edges, "active"):
         return graph

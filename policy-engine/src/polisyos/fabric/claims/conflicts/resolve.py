@@ -1,4 +1,10 @@
-"""Public conflicts resolve module API."""
+"""Resolve claim conflicts into canonical winners, trust assessments, and uncertainty envelopes.
+
+Resolution can start from explicit ``conflict_set_ids`` or from claim ids / claim-set artifacts
+that are first grouped via ``detect_conflicts``. The selected policy ranks member claims, persists
+``ConflictResolution`` artifacts, emits trust and contradiction edges, and stores a quality report
+when low-confidence outcomes remain.
+"""
 from __future__ import annotations
 
 from decimal import ROUND_HALF_UP, Decimal
@@ -287,7 +293,7 @@ def rank_conflict_candidates(
     claim_breakdown_by_id: dict[str, dict[str, Decimal]],
     claim_assessment_by_id: dict[str, TrustAssessment],
 ) -> list[RankedClaim]:
-    """Rank conflict candidates helper."""
+    """Sort conflict members by descending trust score with deterministic claim-id tie-breaking."""
     ranked: list[RankedClaim] = []
     for claim_id in member_claim_ids:
         assessment = claim_assessment_by_id[claim_id]
@@ -371,7 +377,27 @@ def resolve_conflicts(
     options: ConflictResolveOptions | None = None,
     segment_name: str | None = None,
 ) -> ConflictResolveResult:
-    """Resolve conflicts."""
+    """Resolve claim conflicts and persist winner, trust, and uncertainty artifacts.
+
+    Args:
+        cas: Artifact store containing claim/conflict inputs and receiving resolution outputs.
+        fact_log_root: Fact-log root where emitted world facts and segment manifests are written.
+        storage: Optional storage adapter used to derive ``SimulationDB`` when ``db`` is absent.
+        db: Optional materialized-world database for conflict/doc metadata lookups.
+        conflict_set_ids: Optional precomputed conflict-set ids to resolve directly.
+        claim_ids: Optional claim ids to group first when ``conflict_set_ids`` is absent.
+        claim_set_artifact_ids: Optional claim-set artifacts used as fallback source metadata.
+        policy_id: Registered conflict policy id.
+        options: Optional algorithm versions and emitted-edge controls.
+        segment_name: Optional world segment name.
+
+    Returns:
+        Winner map, conflict-resolution artifact ids, uncertainty envelopes, trust assessments,
+        optional quality-report references, and provenance event/segment identifiers.
+
+    Raises:
+        ClaimValidationError: If the requested resolution inputs are incomplete or malformed.
+    """
     resolved_db = _resolve_simulation_db(storage=storage, db=db)
     opts = options or ConflictResolveOptions()
     policy = get_conflict_policy(policy_id)

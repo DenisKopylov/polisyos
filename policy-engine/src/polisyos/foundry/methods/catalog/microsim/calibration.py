@@ -37,7 +37,7 @@ def _survey_payload(state: Any) -> dict[str, Any]:
     tags={"microsim", "calibration", "survey"},
 )
 class ReweightingCalibrationEstimator:
-    """Reweighting calibration estimator implementation."""
+    """Calibrate survey weights so a microsimulation matches external control totals."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 

@@ -1,4 +1,10 @@
-"""Public engine workflow spec module API."""
+"""Declarative DAG contracts consumed by Scientist workflow executors.
+
+Workflow modules assemble `WorkflowSpec` instances from `NodeInvocation`
+records. These specs describe orchestration topology, required input binds,
+retry/condition metadata, and execution policy while keeping business logic in
+node implementations.
+"""
 from __future__ import annotations
 
 from decimal import Decimal
@@ -16,7 +22,22 @@ JsonValue = JsonPrimitive | list[Any] | dict[str, Any]
 
 
 class NodeInvocation(BaseModel):
-    """Node invocation public type."""
+    """Describe one node instance inside a workflow DAG.
+
+    `alias` is the local dependency name used by downstream `depends_on`
+    references, while `node_id` points at the registered component implementation.
+    Optional `params`, `retry`, `timeout_s`, and `condition` override per-node
+    behavior without changing the node class.
+
+    Attributes:
+        alias: Unique node alias within the workflow specification.
+        node_id: Component identifier resolved by `NodeRegistry`.
+        params: JSON-compatible overrides supplied to the node invocation.
+        depends_on: Upstream node aliases that must finish before execution.
+        retry: Optional retry policy for transient node failures.
+        timeout_s: Optional per-node execution timeout in seconds.
+        condition: Optional gate expression evaluated against current state.
+    """
     model_config = ConfigDict(extra="forbid")
 
     alias: str = Field(..., pattern=r"^[a-z][a-z0-9_]*$")
@@ -39,7 +60,20 @@ class NodeInvocation(BaseModel):
 
 
 class WorkflowSpec(BaseModel):
-    """Workflow spec data model."""
+    """Capture a full Scientist DAG and the binds required before execution.
+
+    A workflow spec is immutable orchestration metadata: the executor validates
+    dependency aliases, checks `required_binds` against `ExperimentState`, and
+    applies `error_policy` when a node fails or skips.
+
+    Attributes:
+        schema_version: Version of the workflow-spec contract.
+        workflow_id: Stable identifier used by `run_experiment()` and routing helpers.
+        nodes: Ordered node declarations that form the DAG.
+        required_binds: `ExperimentState` paths that must exist before execution.
+        error_policy: Global failure handling policy for the executor.
+        notes: Human-readable orchestration rationale rendered in docs and diagnostics.
+    """
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")

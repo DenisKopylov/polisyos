@@ -30,7 +30,7 @@ def _result_slot() -> frozenset[SlotSpec]:
     tags={"optimization", "combinatorial", "knapsack"},
 )
 class KnapsackEstimator:
-    """Knapsack estimator implementation."""
+    """Solve knapsack-style resource allocation problems under budget constraints."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STRICT_CPU
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -146,7 +146,7 @@ class KnapsackEstimator:
     tags={"optimization", "combinatorial", "vehicle-routing"},
 )
 class VehicleRoutingEstimator:
-    """Vehicle routing estimator implementation."""
+    """Solve vehicle-routing style service-allocation problems over networked demand."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 

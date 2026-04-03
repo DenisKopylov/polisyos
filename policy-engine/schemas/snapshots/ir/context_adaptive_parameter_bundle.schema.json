@@ -152,6 +152,7 @@
       "type": "object"
     },
     "ContextProfileInferenceLevel": {
+      "description": "Context profile inference level public type.",
       "enum": [
         "inferred_basic",
         "enriched",
@@ -162,6 +163,7 @@
     },
     "EvidenceParameter": {
       "additionalProperties": false,
+      "description": "Evidence parameter public type.",
       "properties": {
         "aggregation_level": {
           "default": "",
@@ -326,6 +328,7 @@
       "type": "object"
     },
     "EvidenceStrength": {
+      "description": "Evidence strength public type.",
       "enum": [
         "rct",
         "quasi_natural",
@@ -342,6 +345,7 @@
       "type": "string"
     },
     "IncomeLevel": {
+      "description": "Income level public type.",
       "enum": [
         "low",
         "lower_middle",
@@ -431,6 +435,7 @@
       "type": "object"
     },
     "ParameterType": {
+      "description": "Parameter type public type.",
       "enum": [
         "quantitative",
         "qualitative",
@@ -441,6 +446,7 @@
       "type": "string"
     },
     "TransportMode": {
+      "description": "Describe the execution path implied by a ``TransportabilityResult``.",
       "enum": [
         "direct",
         "transport_formula",
@@ -451,6 +457,7 @@
       "type": "string"
     },
     "TransportabilityStatus": {
+      "description": "Report whether transportability is identified, bounded, or blocked.\n\nReadiness gates and reporting code inspect this status to decide whether a\ntransported estimate can proceed directly, requires partial-identification\nfallback, or must be treated as unsupported.",
       "enum": [
         "identified",
         "partially_identified",

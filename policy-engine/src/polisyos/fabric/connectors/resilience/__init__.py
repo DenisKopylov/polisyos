@@ -48,7 +48,13 @@ T = TypeVar("T")
 
 @dataclass(frozen=True, slots=True)
 class ResilienceConfig:
-    """Runtime resilience configuration for connector fetch calls."""
+    """Runtime resilience policy for a connector fetch coroutine.
+
+    ``fallback_chain`` is only used when retries/circuit execution still fail, and
+    ``inherit_connection_config`` controls whether per-connection retry/rate-limit values may fill
+    missing policy fields. This module wraps calls best-effort; it does not provide persistence or
+    cache invalidation guarantees beyond whichever ``CacheFallback`` store is supplied.
+    """
 
     retry_policy: RetryPolicy | None = None
     circuit_breaker: CircuitBreakerConfig | CircuitBreaker | None = None
@@ -102,7 +108,16 @@ def resolve_resilience_config(
     *,
     cache_store: Any | None = None,
 ) -> ResilienceConfig | None:
-    """Resolve resilience config."""
+    """Normalize mapping-style resilience settings into a ``ResilienceConfig`` instance.
+
+    Args:
+        raw: Existing ``ResilienceConfig`` or a mapping using keys like ``retry_policy``,
+            ``circuit_breaker``, ``rate_limit_rps``, and ``fallback``.
+        cache_store: Optional cache object passed to ``CacheFallback`` strategies.
+
+    Returns:
+        Resolved config, or ``None`` when ``raw`` is absent or unsupported.
+    """
     if raw is None:
         return None
     if isinstance(raw, ResilienceConfig):

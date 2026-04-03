@@ -1,4 +1,10 @@
-"""Public agent sim wiring package API."""
+"""Expose intervention-to-runtime wiring contracts and executors for agent simulation.
+
+The facade exports only the vectorized batch contracts and executor classes
+that bridge compiled intervention parameters into synthetic `GlobalState`
+updates. Low-level helper functions inside submodules remain internal unless
+explicitly re-exported here.
+"""
 from .contracts import (
     FirmLifecycleEventBatch,
     FirmLifecycleEventType,

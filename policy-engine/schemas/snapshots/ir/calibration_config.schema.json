@@ -2,7 +2,7 @@
   "$defs": {
     "CalibrationTarget": {
       "additionalProperties": false,
-      "description": "\u0421\u0432\u044f\u0437\u043a\u0430 \u043d\u0430\u0431\u043b\u044e\u0434\u0430\u0435\u043c\u043e\u0433\u043e \u0440\u044f\u0434\u0430 Fabric \u0441 \u043c\u0435\u0442\u0440\u0438\u043a\u043e\u0439 \u0441\u0438\u043c\u0443\u043b\u044f\u0446\u0438\u0438.",
+      "description": "Bind one observed Fabric series to the simulation metric being calibrated.\n\nCalibration runners align the Fabric series using ``align``, evaluate the\ntarget-specific loss configured in ``loss``, and optionally restrict which\ntrainable parameters should respond to this target.",
       "properties": {
         "aggregation": {
           "default": "none",
@@ -502,7 +502,7 @@
     }
   },
   "additionalProperties": false,
-  "description": "\u041a\u043e\u0440\u043d\u0435\u0432\u043e\u0439 \u043a\u043e\u043d\u0442\u0440\u0430\u043a\u0442 \u043a\u0430\u043b\u0438\u0431\u0440\u0430\u0446\u0438\u0438.",
+  "description": "Configure a full calibration run over targets, trainables, and penalties.\n\nThis is the root calibration contract passed into optimization runners. It\ndefines the observed targets, trainable parameter set, loss regularizers,\nfidelity mode, multi-start/Hessian behavior, and deterministic seeding.",
   "properties": {
     "clip_grad_norm": {
       "anyOf": [

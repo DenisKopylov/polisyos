@@ -109,7 +109,12 @@ def run_qc(
     fail_fast: bool | None = None,
     strict_phase0: bool | None = None,
 ) -> QCReport:
-    """Run qc."""
+    """Validate academic batch outputs and compute publish-readiness checks.
+
+    The report covers raw manifest parity, extraction JSON validity, canonical variable coverage,
+    full-text/supporting-span health, topic-selection artifacts, and optional phase-0 strictness
+    gates for resolve/extract rollout.
+    """
     started_at = datetime.now(UTC).isoformat()
     checks: list[QCCheck] = []
     metrics: dict[str, object] = {}

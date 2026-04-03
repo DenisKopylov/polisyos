@@ -10,7 +10,7 @@ import jax.numpy as jnp
 
 @dataclass
 class DashboardConfig:
-    """Dashboard config data model."""
+    """Configure output path and refresh settings for the HTML training dashboard."""
     title: str = "PolisyOS Training Dashboard"
     output_path: Path = Path("./dashboard.html")
     refresh_interval: int = 5
@@ -18,7 +18,7 @@ class DashboardConfig:
 
 
 class DashboardGenerator:
-    """Dashboard generator implementation."""
+    """Render an HTML dashboard from collected training and policy metrics."""
     def __init__(self, config: DashboardConfig | None = None):
         self.config = config or DashboardConfig()
 

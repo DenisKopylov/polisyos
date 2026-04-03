@@ -2,6 +2,7 @@
   "$defs": {
     "BoundaryCondition": {
       "additionalProperties": false,
+      "description": "Boundary condition public type.",
       "properties": {
         "condition_type": {
           "default": "",
@@ -66,6 +67,7 @@
     },
     "CausalClaim": {
       "additionalProperties": false,
+      "description": "Causal claim public type.",
       "properties": {
         "cause_variable": {
           "title": "Cause Variable",
@@ -261,6 +263,7 @@
       "type": "object"
     },
     "CausalDirection": {
+      "description": "Causal direction public type.",
       "enum": [
         "positive",
         "negative",
@@ -273,6 +276,7 @@
       "type": "string"
     },
     "ClaimExplicitness": {
+      "description": "Claim explicitness public type.",
       "enum": [
         "explicit",
         "implicit",
@@ -282,6 +286,7 @@
       "type": "string"
     },
     "ClaimType": {
+      "description": "Claim type public type.",
       "enum": [
         "causal_claim",
         "causal_assertion",
@@ -536,6 +541,7 @@
       "type": "object"
     },
     "ContextProfileInferenceLevel": {
+      "description": "Context profile inference level public type.",
       "enum": [
         "inferred_basic",
         "enriched",
@@ -545,6 +551,7 @@
       "type": "string"
     },
     "DesignFamily": {
+      "description": "Design family public type.",
       "enum": [
         "rct",
         "iv",
@@ -572,6 +579,7 @@
     },
     "EvidenceParameter": {
       "additionalProperties": false,
+      "description": "Evidence parameter public type.",
       "properties": {
         "aggregation_level": {
           "default": "",
@@ -737,6 +745,7 @@
     },
     "EvidenceSpan": {
       "additionalProperties": false,
+      "description": "Evidence span public type.",
       "properties": {
         "score": {
           "default": 0.0,
@@ -779,6 +788,7 @@
       "type": "object"
     },
     "EvidenceStrength": {
+      "description": "Evidence strength public type.",
       "enum": [
         "rct",
         "quasi_natural",
@@ -911,6 +921,7 @@
       "type": "object"
     },
     "IncomeLevel": {
+      "description": "Income level public type.",
       "enum": [
         "low",
         "lower_middle",
@@ -924,6 +935,7 @@
     },
     "Mechanism": {
       "additionalProperties": false,
+      "description": "Mechanism public type.",
       "properties": {
         "description": {
           "title": "Description",
@@ -1061,6 +1073,7 @@
       "type": "object"
     },
     "PaperKind": {
+      "description": "Paper kind public type.",
       "enum": [
         "empirical_causal",
         "context_characterization",
@@ -1074,6 +1087,7 @@
       "type": "string"
     },
     "ParameterType": {
+      "description": "Parameter type public type.",
       "enum": [
         "quantitative",
         "qualitative",
@@ -1084,6 +1098,7 @@
       "type": "string"
     },
     "SourceBasis": {
+      "description": "Source basis public type.",
       "enum": [
         "fulltext",
         "abstract_only"
@@ -1092,6 +1107,7 @@
       "type": "string"
     },
     "TextQuality": {
+      "description": "Text quality public type.",
       "enum": [
         "structured_fulltext",
         "extracted_fulltext",

@@ -1,11 +1,19 @@
-"""Public workflows discovery module API."""
+"""Discovery-only workflow spec for blueprint-native graph/utility prior extraction."""
 from __future__ import annotations
 
 from polisyos.scientist.engine.workflow_spec import NodeInvocation, WorkflowSpec
 
 
 def discovery_workflow_spec() -> WorkflowSpec:
-    """Discovery workflow spec helper."""
+    """Build the `scientist_discovery` workflow spec.
+
+    This DAG reads discovery payloads from `ExperimentState.params`, persists
+    prior-knowledge and discovery artifact bundles, and intentionally omits
+    Foundry execution and governance stages.
+
+    Returns:
+        `WorkflowSpec` with a single discovery-runtime node and registry bind.
+    """
     return WorkflowSpec(
         workflow_id="scientist_discovery",
         error_policy="continue",

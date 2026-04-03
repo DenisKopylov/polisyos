@@ -264,7 +264,7 @@ def persist_downstream_utility_report(
     *,
     inputs: list[InputRef] | None = None,
 ) -> DownstreamUtilityReportRef:
-    """Persist downstream utility report helper."""
+    """Persist the downstream-utility report that ranks hypotheses by decision usefulness."""
     ref = store.put_json(
         report,
         PutOptions(

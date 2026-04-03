@@ -1,4 +1,4 @@
-"""Public backtesting composition bridge module API."""
+"""Replay fragment composition cases through `ReconcileCausalGraphNode` for audit."""
 from __future__ import annotations
 
 import logging
@@ -45,7 +45,7 @@ from polisyos.scientist.nodes.builtins.state_keys import (
 
 @dataclass(frozen=True)
 class CompositionReplayResult:
-    """Composition replay result data model."""
+    """Capture composition replay status, query-preservation diagnostics, and artifact signatures."""
     node_status: str
     composition_status: str
     composition_structure_status: str
@@ -73,7 +73,25 @@ def replay_fragment_composition_case(
     direct_stitch_pairs: list[tuple[str, str]] | None = None,
     cas_root: str,
 ) -> CompositionReplayResult:
-    """Replay fragment composition case helper."""
+    """Replay one fragment-composition benchmark and normalize the persisted diagnostics.
+
+    Args:
+        fragments: Fragment contracts to persist and reconcile.
+        fragment_graphs: Graph payloads keyed by `fragment_id`.
+        queries: Optional causal queries that must be preserved by composition.
+        alignment_verification_config: Optional alignment verifier config.
+        precompute_alignment: Persist alignment/interface artifacts before the
+            reconcile node runs.
+        direct_stitch_pairs: Optional fragment-pair hints for explicit stitching.
+        cas_root: CAS root used for replay artifacts.
+
+    Returns:
+        `CompositionReplayResult` with node status, composition certificate
+        fields, normalized artifact signatures, and failure cards.
+
+    Raises:
+        RuntimeError: If `ReconcileCausalGraphNode` fails for the replay case.
+    """
     store = FileSystemCAS(Path(cas_root))
     registry_bundle = build_default_registry_bundle(store).bundle_ref
     run = RunContext.start(
@@ -209,7 +227,7 @@ def replay_fragment_composition_case(
 
 
 def normalize_alignment_report(report: Any) -> dict[str, Any]:
-    """Normalize alignment report helper."""
+    """Convert an alignment report into deterministic JSON for replay assertions."""
     return {
         "fragment_ids": list(report.fragment_ids),
         "overall_status": report.overall_status.value,
@@ -248,7 +266,7 @@ def normalize_alignment_report(report: Any) -> dict[str, Any]:
 
 
 def normalize_interface_mapping(mapping: Any) -> dict[str, Any]:
-    """Normalize interface mapping helper."""
+    """Convert an interface mapping into deterministic JSON for replay assertions."""
     return {
         "fragment_ids": list(mapping.fragment_ids),
         "entries": [
@@ -279,7 +297,7 @@ def normalize_interface_mapping(mapping: Any) -> dict[str, Any]:
 
 
 def normalize_composition_certificate(certificate: Any) -> dict[str, Any]:
-    """Normalize composition certificate helper."""
+    """Convert a composition certificate into deterministic JSON for replay assertions."""
     return {
         "status": certificate.status,
         "structure_status": certificate.structure_status,

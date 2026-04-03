@@ -30,7 +30,7 @@ class GatewayToolCall:
 
 @dataclass(slots=True)
 class GatewayLLMResponse:
-    """Gateway LLM response data model."""
+    """Normalized chat-completion payload returned by the gateway client, including usage and tools."""
     content: str
     usage: GatewayUsage = field(default_factory=GatewayUsage)
     model: str = "unknown"

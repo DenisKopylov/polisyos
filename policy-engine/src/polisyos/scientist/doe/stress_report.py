@@ -34,7 +34,7 @@ class Vulnerability(BaseModel):
 
 
 class StressTestReport(BaseModel):
-    """Stress test report data model."""
+    """Summary of vulnerabilities, worst cases, and scenario evidence from adversarial stress testing."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = "1.0"
@@ -60,4 +60,3 @@ class StressTestReport(BaseModel):
     @property
     def is_robust(self) -> bool:
         return self.critical_count == 0 and self.high_count == 0
-

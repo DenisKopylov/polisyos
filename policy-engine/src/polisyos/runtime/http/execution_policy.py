@@ -1,4 +1,4 @@
-"""Public http execution policy module API."""
+"""Resolve execution profiles and control-plane posture from env vars and caller identity."""
 from __future__ import annotations
 
 import hashlib
@@ -27,27 +27,27 @@ def _env_flag(name: str) -> bool:
 
 
 class ExecutionProfileError(ValueError):
-    """Execution profile error exception."""
+    """Signal that a requested profile is invalid or weaker than deployment policy."""
     def __init__(self, code: str, message: str) -> None:
         super().__init__(message)
         self.code = code
 
 
 class PolicyFlagForbiddenError(PermissionError):
-    """Policy flag forbidden error exception."""
+    """Signal that a non-privileged caller requested a restricted policy flag."""
     def __init__(self, code: str, message: str) -> None:
         super().__init__(message)
         self.code = code
 
 
 class RuntimeBootstrapError(RuntimeError):
-    """Runtime bootstrap error exception."""
+    """Signal that deployment configuration cannot satisfy the selected execution profile."""
     pass
 
 
 @dataclass(frozen=True)
 class RuntimePrincipal:
-    """Runtime principal public type."""
+    """Normalize caller identity for execution-policy checks."""
     subject: str = "anonymous"
     tenant_id: str | None = None
     roles: frozenset[str] = frozenset()
@@ -55,10 +55,12 @@ class RuntimePrincipal:
 
     @property
     def is_privileged(self) -> bool:
+        """Return whether the caller has an admin/service/system role."""
         return bool(self.roles & {role.value for role in _PRIVILEGED_ROLES})
 
     @classmethod
     def from_user_claims(cls, claims: UserIdentityClaims | None) -> "RuntimePrincipal":
+        """Convert normalized JWT claims into the internal principal policy model."""
         if claims is None:
             return cls()
         return cls(
@@ -71,7 +73,7 @@ class RuntimePrincipal:
 
 @dataclass(frozen=True)
 class ResolvedExecutionPolicy:
-    """Resolved execution policy data model."""
+    """Describe effective runtime posture after profile, flags, and principal checks."""
     default_profile: ExecutionProfile
     requested_profile: ExecutionProfile | None
     effective_profile: ExecutionProfile
@@ -93,7 +95,7 @@ class ResolvedExecutionPolicy:
 
 
 class RuntimeExecutionPolicyResolver:
-    """Runtime execution policy resolver implementation."""
+    """Validate requested execution profiles against deployment and caller constraints."""
     def __init__(
         self,
         *,
@@ -111,6 +113,7 @@ class RuntimeExecutionPolicyResolver:
 
     @classmethod
     def from_env(cls) -> "RuntimeExecutionPolicyResolver":
+        """Resolve deployment defaults from `POLISYOS_EXECUTION_PROFILE` and control-plane env vars."""
         default_profile = cls._coerce_profile(
             os.getenv("POLISYOS_EXECUTION_PROFILE", "dev").strip().lower() or "dev"
         )
@@ -133,26 +136,32 @@ class RuntimeExecutionPolicyResolver:
 
     @property
     def default_profile(self) -> ExecutionProfile:
+        """Return the deployment baseline execution profile."""
         return self._default_profile
 
     @property
     def worker_backend(self) -> str:
+        """Return the configured control-worker backend (`embedded` or `external`)."""
         return self._worker_backend
 
     @property
     def state_store_backend(self) -> str:
+        """Return the configured state-store backend (`sqlite` or `postgres`)."""
         return self._state_store_backend
 
     @property
     def sqlite_path(self) -> str:
+        """Return the SQLite state-store path used when `state_store_backend=sqlite`."""
         return self._sqlite_path
 
     @property
     def postgres_dsn(self) -> str | None:
+        """Return the PostgreSQL DSN used when durable control-plane state is required."""
         return self._postgres_dsn
 
     @staticmethod
     def supported_profiles() -> tuple[ExecutionProfile, ...]:
+        """Return the ordered set of accepted execution profiles."""
         return _SUPPORTED_PROFILES
 
     @classmethod
@@ -177,6 +186,14 @@ class RuntimeExecutionPolicyResolver:
         policy_flags: PolicyFlags | None = None,
         principal: RuntimePrincipal | None = None,
     ) -> ResolvedExecutionPolicy:
+        """Resolve requested/default profile, enforce no-downgrade policy, and derive runtime posture.
+
+        Raises:
+            ExecutionProfileError: If the requested profile is invalid or weaker
+                than the deployment default.
+            PolicyFlagForbiddenError: If a non-privileged caller requests
+                `allow_mock_fallback`.
+        """
         flags = policy_flags or PolicyFlags()
         actor = principal or RuntimePrincipal()
         requested = self._coerce_profile(requested_profile) if requested_profile else None
@@ -270,6 +287,12 @@ class RuntimeExecutionPolicyResolver:
         authz_shadow_mode: bool,
         security_chain_available: bool,
     ) -> ResolvedExecutionPolicy:
+        """Validate deployment bootstrap state against the resolved execution profile.
+
+        Raises:
+            RuntimeBootstrapError: If required authz/security middleware, external
+                worker backend, or PostgreSQL state-store configuration is missing.
+        """
         policy = self.resolve(requested_profile=None, policy_flags=PolicyFlags(), principal=None)
         if policy.postgres_required and self._state_store_backend != "postgres":
             raise RuntimeBootstrapError(
@@ -303,7 +326,7 @@ def build_capability_manifest_payload(
     payload_ref: str | None,
     observed_fallbacks: list[str] | None = None,
 ) -> dict[str, Any]:
-    """Build capability manifest payload."""
+    """Build the durable capability-manifest payload persisted alongside control jobs."""
     return {
         "schema_version": "1.0",
         "created_at": datetime.now(timezone.utc).replace(microsecond=0).isoformat(),

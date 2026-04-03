@@ -2,6 +2,7 @@
   "$defs": {
     "GateContext": {
       "additionalProperties": false,
+      "description": "Execution and risk context presented to a governance approver.",
       "properties": {
         "artifact_refs": {
           "anyOf": [
@@ -136,6 +137,7 @@
       "type": "object"
     },
     "GatePriority": {
+      "description": "Scheduling priority assigned to a gate request.",
       "enum": [
         "low",
         "normal",
@@ -147,6 +149,7 @@
     }
   },
   "additionalProperties": false,
+  "description": "Approval request payload emitted when execution needs governance review.",
   "properties": {
     "context": {
       "$ref": "#/$defs/GateContext"

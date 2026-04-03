@@ -1,4 +1,14 @@
-"""Public ir package API."""
+"""Expose the stable IR contract surface through a lazy package facade.
+
+The root package is the compatibility boundary for schema-first contracts,
+status enums, artifact refs, and bundle manifests shared between policy
+authoring, Scientist runners, and Foundry methods. Names listed in ``__all__``
+are resolved lazily so importing :mod:`polisyos.ir` does not eagerly pull
+runtime-heavy submodules or trigger execution-side dependencies.
+
+Treat ``__all__`` as the stable public API; helpers that are not re-exported
+here remain internal to their submodules.
+"""
 from __future__ import annotations
 
 import importlib
@@ -479,6 +489,17 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
 
 
 def __getattr__(name: str) -> Any:
+    """Resolve a public IR export on first access.
+
+    Args:
+        name: Facade attribute requested by user code.
+
+    Returns:
+        The lazily imported class, enum, or function bound to ``name``.
+
+    Raises:
+        AttributeError: If ``name`` is not part of the stable facade surface.
+    """
     if name in _LAZY_IMPORTS:
         module_name, attr = _LAZY_IMPORTS[name]
         module = importlib.import_module(module_name)
@@ -489,4 +510,5 @@ def __getattr__(name: str) -> Any:
 
 
 def __dir__() -> list[str]:
+    """Return eager globals plus lazily exported contract names."""
     return sorted(list(globals().keys()) + list(_LAZY_IMPORTS.keys()))

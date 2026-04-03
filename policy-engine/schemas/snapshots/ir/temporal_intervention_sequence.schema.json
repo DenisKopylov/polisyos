@@ -1,6 +1,7 @@
 {
   "$defs": {
     "IdentificationMode": {
+      "description": "Declare the causal identification contract assumed by records and bundles.\n\nThese modes distinguish point-identified data from partially identified,\nproxy-based, interference-aware, or sequential settings so downstream\ncomponents can enforce the right guardrails. The value is read by\n:class:`polisyos.ir.observation.measurement.IdentificationModeRouter`,\nobservation contract compilers, and causal-readiness checks to select\nfallback paths or block unsafe execution.",
       "enum": [
         "point_identified",
         "partially_identified",
@@ -13,6 +14,7 @@
       "type": "string"
     },
     "StrategicResponseChannel": {
+      "description": "Identify the adaptation channel that should trigger strategic-response checks.\n\n``PolicySpec`` and readiness bundles use this enum to route interventions to\nstrategic-response hooks and to document which behavioral channel may break\nnaive policy assumptions.",
       "enum": [
         "budget_channel",
         "procurement_channel",
@@ -26,6 +28,7 @@
     },
     "TemporalInterventionStep": {
       "additionalProperties": false,
+      "description": "Declare one activation point in a sequential intervention program.\n\nSteps are sorted by ``effective_date`` inside\n``TemporalInterventionSequence`` and may override mechanism parameters for a\ndynamic treatment regime run.",
       "properties": {
         "effective_date": {
           "description": "ISO-like YYYY-MM or YYYY-MM-DD activation marker for the step.",
@@ -67,6 +70,7 @@
     }
   },
   "additionalProperties": false,
+  "description": "Group ordered intervention steps for sequential or DTR-style execution.\n\nThe sequence is consumed by observation compilers and causal runners that\nrequire ``IdentificationMode.SEQUENTIAL`` semantics. Validators enforce\nunique ``step_id`` values and monotone ``effective_date`` ordering so the\nruntime can replay the intervention path deterministically.",
   "properties": {
     "dynamic_intervention_id": {
       "pattern": "^[a-z][a-z0-9_]*$",

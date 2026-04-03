@@ -1,4 +1,10 @@
-"""Public observation causal execution module API."""
+"""Define executable causal tasks and persisted execution-result bundles.
+
+Execution bundles are the post-readiness boundary object: Scientist runners
+consume task specs such as ``BoundsEstimationTask`` and ``TemporalDTRTask``,
+emit result rows, and persist a ``CausalExecutionBundle`` for downstream
+governance, reporting, and artifact loading.
+"""
 from __future__ import annotations
 
 from typing import Any, Literal
@@ -27,7 +33,12 @@ _CAUSAL_EXECUTION_SCHEMA_VERSION = "1.0"
 
 
 class BoundsEstimationTask(KernelModel):
-    """Executable bounds-estimation task assembled from observation contracts."""
+    """Package one bounds-estimation run assembled from observation contracts.
+
+    This task couples compiler output (``bounds_input``) with the strategy
+    catalog in ``bundle`` and optional estimator parameters. Bounds runners can
+    execute this object directly after readiness checks pass.
+    """
 
     task_id: str = Field(..., pattern=ID_PATTERN)
     bounds_input: BoundsEstimationInput
@@ -86,7 +97,12 @@ class TemporalDTRTask(KernelModel):
 
 
 class BoundsEstimationEntry(KernelModel):
-    """Result row for one bounds-estimation task in a causal execution bundle."""
+    """Store the outcome of one bounds-estimation task.
+
+    ``status`` is read by downstream reporting and governance: ``ok`` means the
+    interval can be surfaced, while ``blocked`` means callers should inspect
+    ``warnings`` and avoid treating ``interval`` as decision-grade output.
+    """
 
     task_id: str = Field(..., pattern=ID_PATTERN)
     family: ObservationFamily
@@ -106,7 +122,12 @@ class BoundsEstimationEntry(KernelModel):
 
 
 class TemporalDTRExecutionEntry(KernelModel):
-    """Execution summary for one temporal dynamic-treatment task."""
+    """Store one dynamic-treatment execution result and its artifact refs.
+
+    Temporal DTR runners write ``value_estimate`` plus optional trajectory and
+    policy refs; downstream governance reads ``status`` to decide whether the
+    sequence result is usable or blocked.
+    """
 
     task_id: str = Field(..., pattern=ID_PATTERN)
     sequence_id: str | None = Field(default=None, pattern=ID_PATTERN)
@@ -121,7 +142,7 @@ class TemporalDTRExecutionEntry(KernelModel):
 
 
 class CausalExecutionBundle(KernelModel):
-    """Persistable bundle of causal execution outcomes.
+    """Persist bounds and sequential-treatment outputs with status and lineage metadata.
 
     Groups bounds and temporal treatment results emitted by Scientist runners
     so downstream governance, reporting, and artifact loading can treat the
@@ -181,7 +202,15 @@ def load_causal_execution_bundle(
     store: ArtifactStore,
     ref: CausalExecutionBundleRef,
 ) -> CausalExecutionBundle:
-    """Load a persisted causal execution bundle from the artifact store."""
+    """Load and validate a persisted execution bundle from artifact storage.
+
+    Args:
+        store: Artifact store containing the JSON payload.
+        ref: Typed execution-bundle reference returned by the persistence helper.
+
+    Returns:
+        The validated causal execution bundle.
+    """
 
     payload = get_json_artifact(store, ref.artifact_id)
     return CausalExecutionBundle.model_validate(payload)

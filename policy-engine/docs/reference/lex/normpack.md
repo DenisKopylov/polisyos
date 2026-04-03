@@ -1,9 +1,10 @@
 # Lex NormPack
 Related explanation: [Lex Pipeline](../../explanation/lex-pipeline.md).
 
-This page covers the public Lex API for ingesting legal documents, resolving
-active versions, assembling `NormPack` snapshots, and evaluating or simulating
-legal changes against those snapshots.
+This page covers the public Lex API for the stage flow `ingest -> structure -> version index ->
+normpack -> legal evaluation`: ingest legal documents, structure provision anchors, resolve active
+versions, assemble `NormPack` snapshots, and evaluate or simulate legal changes against those
+snapshots.
 
 ## Pipeline Surface
 

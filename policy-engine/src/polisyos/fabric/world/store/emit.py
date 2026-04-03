@@ -1,4 +1,4 @@
-"""Public store emit module API."""
+"""Translate world-domain records into fact-log rows that satisfy the world ABI."""
 from __future__ import annotations
 
 from enum import Enum
@@ -43,7 +43,7 @@ def emit_attr_fact(
     legal: FactLegal | None = None,
     valid_time: str | int | None = None,
 ) -> Fact:
-    """Emit attr fact helper."""
+    """Build one attribute fact for a world node before the segment is written."""
     if object_value is None:
         raise WorldFactError("attribute facts require object_value")
     return build_fact(
@@ -68,7 +68,7 @@ def emit_edge_fact(
     legal: FactLegal | None = None,
     valid_time: str | int | None = None,
 ) -> Fact:
-    """Emit edge fact helper."""
+    """Build one relationship fact linking two world objects in the fact log."""
     if not dst_id:
         raise WorldFactError("edge facts require dst_id")
     predicate_id = rel(edge_kind)
@@ -95,7 +95,7 @@ def emit_world_node_facts(
     trust_policy_id: str | None = None,
     legal: FactLegal | None = None,
 ) -> list[Fact]:
-    """Emit world node facts helper."""
+    """Emit the canonical attribute facts that define a world node envelope."""
     facts: list[Fact] = [
         emit_attr_fact(
             subject_id=node_id,
@@ -150,7 +150,7 @@ def emit_doc_meta_facts(
     trust_policy_id: str | None = None,
     legal: FactLegal | None = None,
 ) -> list[Fact]:
-    """Emit doc meta facts helper."""
+    """Map document-source and document-version metadata into world facts."""
     label = meta.canonical_url if meta.canonical_url is not None else meta.official_id
     facts: list[Fact] = []
     facts.extend(
@@ -198,7 +198,7 @@ def emit_doc_fragment_facts(
     trust_policy_id: str | None = None,
     legal: FactLegal | None = None,
 ) -> list[Fact]:
-    """Emit doc fragment facts helper."""
+    """Map one structured document fragment into world facts and version links."""
     facts: list[Fact] = []
     facts.extend(
         emit_world_node_facts(
@@ -250,7 +250,7 @@ def emit_claim_facts(
     trust_policy_id: str | None = None,
     legal: FactLegal | None = None,
 ) -> list[Fact]:
-    """Emit claim facts helper."""
+    """Map a normalized claim plus its citations into world nodes and provenance edges."""
     facts: list[Fact] = []
     facts.extend(
         emit_world_node_facts(
@@ -393,7 +393,7 @@ def emit_world_event_facts(
     trust_policy_id: str | None = None,
     legal: FactLegal | None = None,
 ) -> list[Fact]:
-    """Emit world event facts helper."""
+    """Emit provenance facts for a workflow event that consumed or produced world objects."""
     facts: list[Fact] = []
     facts.extend(
         emit_world_node_facts(

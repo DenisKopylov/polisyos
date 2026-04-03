@@ -30,7 +30,7 @@ def _result_slot() -> frozenset[SlotSpec]:
     tags={"optimization", "game-theory", "nash-equilibrium"},
 )
 class NashEquilibriumEstimator:
-    """Nash equilibrium estimator implementation."""
+    """Compute Nash equilibria for strategic policy or mechanism-design games."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 

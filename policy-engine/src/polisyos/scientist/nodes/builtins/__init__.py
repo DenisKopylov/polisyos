@@ -1,4 +1,10 @@
-"""Public nodes builtins package API."""
+"""Lazy catalog of production Scientist nodes and their concrete DAG components.
+
+The package-level contract is the `builtin_nodes()` registry snapshot plus direct
+access to node classes for testing and documentation. Imports are deferred until
+first use so inspecting the facade does not eagerly import Foundry, Fabric, Lex,
+or causal-method dependencies.
+"""
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
@@ -56,7 +62,12 @@ __all__ = [
 
 
 def builtin_nodes() -> list["Node"]:
-    """Builtin nodes helper."""
+    """Instantiate every builtin node in dependency order for registry bootstrap.
+
+    Returns:
+        Concrete node objects whose `spec.node_id` values are referenced by the
+        builtin workflow DAGs.
+    """
     from polisyos.scientist.nodes.builtins.causal.build_literature_prior import (
         BuildLiteraturePriorNode,
     )
@@ -215,6 +226,7 @@ def builtin_nodes() -> list["Node"]:
 
 
 def __getattr__(name: str) -> Any:
+    """Resolve individual node classes lazily from their owning modules."""
     if name == "BindFoundryInputsNode":
         from polisyos.scientist.nodes.builtins.data.bind_foundry_inputs import (
             BindFoundryInputsNode,

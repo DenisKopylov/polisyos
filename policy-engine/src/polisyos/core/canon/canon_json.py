@@ -1,4 +1,4 @@
-"""Public canon canon json module API."""
+"""Canonical JSON normalization for hashing, persistence, and cross-runtime comparisons."""
 from __future__ import annotations
 
 import base64
@@ -20,7 +20,7 @@ class CanonViolation(ValueError):
 
 @dataclass(frozen=True)
 class CanonSpec:
-    """Canon spec data model."""
+    """Controls how arbitrary Python objects are normalized into canonical JSON bytes."""
     name: str = "polisyos.canon.json"
     version: str = "0.1.0"
 

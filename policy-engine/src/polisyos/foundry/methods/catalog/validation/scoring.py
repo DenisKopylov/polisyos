@@ -30,7 +30,7 @@ def _result_slot() -> frozenset[SlotSpec]:
     tags={"validation", "probabilistic", "scoring", "tabular"},
 )
 class ProbabilisticScoringEstimator:
-    """Probabilistic scoring estimator implementation."""
+    """Score predictive distributions with probabilistic forecast metrics."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 

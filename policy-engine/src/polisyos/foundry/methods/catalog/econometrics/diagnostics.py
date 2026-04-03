@@ -1,4 +1,4 @@
-"""Public econometrics diagnostics module API."""
+"""Run model-specification and instrument-strength diagnostics for econometric workflows."""
 from __future__ import annotations
 
 import uuid
@@ -80,7 +80,7 @@ def _build_diag_result(
     tags={"econometrics", "diagnostics", "hausman"},
 )
 class HausmanTestEstimator:
-    """Hausman test estimator implementation."""
+    """Compare fixed/random-effects consistency with a Hausman test; avoid when covariance differences are singular or poorly estimated."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("linearmodels", "pandas", "scipy", "numpy")
 
@@ -164,7 +164,7 @@ class HausmanTestEstimator:
     tags={"econometrics", "diagnostics", "weak-iv"},
 )
 class WeakIVTestEstimator:
-    """Weak IV test estimator implementation."""
+    """Diagnose weak instruments with first-stage strength statistics; avoid interpreting 2SLS estimates before this check passes."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("statsmodels", "numpy")
 
@@ -242,7 +242,7 @@ class WeakIVTestEstimator:
     tags={"econometrics", "diagnostics", "sargan-hansen"},
 )
 class SarganHansenEstimator:
-    """Sargan hansen estimator implementation."""
+    """Test overidentifying restrictions under valid extra instruments; avoid when instruments are just-identified."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("linearmodels", "numpy")
 
@@ -319,7 +319,7 @@ class SarganHansenEstimator:
     tags={"econometrics", "diagnostics", "cointegration"},
 )
 class CointegrationTestEstimator:
-    """Cointegration test estimator implementation."""
+    """Test for long-run cointegration among non-stationary series; avoid applying to stationary or very short time series."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("statsmodels", "numpy")
 
@@ -396,7 +396,7 @@ class CointegrationTestEstimator:
     tags={"econometrics", "diagnostics", "forecast-backtest"},
 )
 class ForecastBacktestEstimator:
-    """Forecast backtest estimator implementation."""
+    """Backtest forecast errors over a holdout horizon; avoid using it as an in-sample fit metric."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("statsmodels", "numpy")
 

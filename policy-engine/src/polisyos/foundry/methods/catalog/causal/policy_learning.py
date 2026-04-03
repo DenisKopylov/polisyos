@@ -1,4 +1,4 @@
-"""Public causal policy learning module API."""
+"""Learn budget-constrained treatment assignment rules from estimated CATEs."""
 from __future__ import annotations
 
 from typing import Any, ClassVar, Mapping
@@ -127,7 +127,13 @@ def _extract_policy_tree_rules(
     tags={"causal", "policy-learning", "targeting"},
 )
 class OptimalPolicyLearner:
-    """Optimal targeting strategy with PolicyTree and budget constraint."""
+    """Learn a targeting rule under overlap and budget constraints from CATE estimates.
+
+    Use this method when observational CATEs are credible and policy actions
+    can be encoded as a binary allocation rule. Avoid it when overlap is weak,
+    algorithmic targeting is prohibited, or treated sample size is too small
+    for a stable first-stage CATE fit.
+    """
 
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
 

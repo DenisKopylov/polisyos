@@ -422,11 +422,13 @@ class MetricsRegistry(_MetricsRegistryBase):
         duration_seconds: float,
     ) -> None:
         self._ensure_initialized()
-        attrs = {
-            "route": route,
-            "method": method.upper(),
-            "status": status,
-        }
+        attrs = self._with_env(
+            {
+                "route": route,
+                "method": method.upper(),
+                "status": status,
+            }
+        )
         if self.runtime_api_requests_total is not None:
             self.runtime_api_requests_total.add(1, attrs)
         if self.runtime_api_duration_seconds is not None:
@@ -437,6 +439,30 @@ class MetricsRegistry(_MetricsRegistryBase):
             status_code = 0
         if status_code >= 400 and self.runtime_api_errors_total is not None:
             self.runtime_api_errors_total.add(1, attrs)
+
+    def record_control_plane_job_admission(
+        self,
+        *,
+        job_kind: str,
+        effective_profile: str,
+        status: str,
+        duration_seconds: float,
+    ) -> None:
+        self._ensure_initialized()
+        attrs = self._with_env(
+            {
+                "job_kind": job_kind,
+                "effective_profile": effective_profile,
+                "status": status,
+            }
+        )
+        if self.control_plane_job_admissions_total is not None:
+            self.control_plane_job_admissions_total.add(1, attrs)
+        if self.control_plane_job_admission_duration_seconds is not None:
+            self.control_plane_job_admission_duration_seconds.record(
+                max(duration_seconds, 0.0),
+                attrs,
+            )
 
     def record_audit_entry(self, *, chain_id: str, event_type: str) -> None:
         self._ensure_initialized()

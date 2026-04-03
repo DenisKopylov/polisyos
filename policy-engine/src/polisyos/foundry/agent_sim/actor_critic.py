@@ -1,4 +1,4 @@
-"""Public agent sim actor critic module API."""
+"""Build actor-critic networks and the action-distribution math used during training."""
 from __future__ import annotations
 
 from typing import Callable
@@ -225,7 +225,7 @@ def sample_actions(
     *,
     action_type: str = "continuous",
 ) -> jnp.ndarray:
-    """Sample actions helper."""
+    """Sample continuous or categorical actions from the actor's output distribution."""
     if action_type == "continuous":
         noise = jax.random.normal(rng_key, shape=distribution["mean"].shape)
         return distribution["mean"] + distribution["std"] * noise
@@ -238,7 +238,7 @@ def compute_log_prob(
     *,
     action_type: str = "continuous",
 ) -> jnp.ndarray:
-    """Compute log prob helper."""
+    """Evaluate action log-probabilities under the actor's current policy distribution."""
     if action_type == "continuous":
         mean = distribution["mean"]
         std = distribution["std"]
@@ -260,7 +260,7 @@ def compute_entropy(
     *,
     action_type: str = "continuous",
 ) -> jnp.ndarray:
-    """Compute entropy helper."""
+    """Compute action-distribution entropy for continuous or categorical policies."""
     if action_type == "continuous":
         log_std = distribution["log_std"]
         return 0.5 * jnp.sum(1.0 + jnp.log(2.0 * jnp.pi) + 2.0 * log_std, axis=-1)

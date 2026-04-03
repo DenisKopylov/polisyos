@@ -51,7 +51,11 @@ _SPEC = NodeSpec(
 
 @dataclass(frozen=True)
 class DraftPolicyOptionsNode:
-    """Draft policy options node implementation."""
+    """Planning DAG node that turns verified legal claims into verified and hypothesis-backed options.
+
+    Reads the request frame and source-verification report, then writes the
+    `policy_option_set_ref` artifact used by formalization, simulation, and final reporting.
+    """
     @property
     def spec(self) -> NodeSpec:
         return _SPEC

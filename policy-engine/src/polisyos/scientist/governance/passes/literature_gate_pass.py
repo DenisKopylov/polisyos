@@ -1,4 +1,4 @@
-"""Public passes literature gate pass module API."""
+"""Gate unsupported causal edges when literature-prior coverage is insufficient."""
 from __future__ import annotations
 
 from polisyos.common.logger import get_logger

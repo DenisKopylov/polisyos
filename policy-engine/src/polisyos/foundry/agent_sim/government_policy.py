@@ -1,4 +1,4 @@
-"""Public agent sim government policy module API."""
+"""Train macro-policy controllers that react to global simulation observations."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -16,7 +16,7 @@ from polisyos.foundry.agent_sim.state import GlobalState, PolicyState
 
 
 class GovernmentPolicy(eqx.Module):
-    """Government policy data model."""
+    """Map global simulation observations into bounded fiscal-policy controls."""
     network: NormalizedMLP
     output_bounds: dict[str, tuple[float, float]]
 
@@ -69,7 +69,7 @@ class GovernmentPolicy(eqx.Module):
 
 @dataclass(frozen=True)
 class GovernmentTrainingConfig:
-    """Government training config data model."""
+    """Set episode length, optimizer settings, and welfare weights for government training."""
     n_episodes: int = 100
     steps_per_episode: int = 256
     learning_rate: float = 1e-3
@@ -86,7 +86,7 @@ def train_government_policy(
     config: GovernmentTrainingConfig,
     rng_key: jax.Array,
 ) -> tuple[GovernmentPolicy, dict]:
-    """Train government policy helper."""
+    """Optimize a government controller against simulated welfare trajectories."""
     params, static = eqx.partition(gov_policy, eqx.is_inexact_array)
     optimizer = optax.adam(config.learning_rate)
     opt_state = optimizer.init(params)

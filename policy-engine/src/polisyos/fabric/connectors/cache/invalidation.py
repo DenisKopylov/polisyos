@@ -19,7 +19,7 @@ logger = get_logger(__name__)
 
 
 class InvalidationStrategy(str, Enum):
-    """Invalidation strategy data model."""
+    """How connector cache entries are retired or refreshed after a source changes."""
     HARD_DELETE = "hard_delete"
     SOFT_MARK = "soft_mark"
     REFRESH_ASYNC = "refresh_async"
@@ -27,7 +27,7 @@ class InvalidationStrategy(str, Enum):
 
 @dataclass(frozen=True, slots=True)
 class InvalidationEvent:
-    """Invalidation event data model."""
+    """One detected source-side change that should invalidate cached connector payloads."""
     trigger_type: str
     dataset_id: str
     timestamp: datetime

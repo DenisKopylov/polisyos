@@ -227,7 +227,7 @@ def persist_edge_confidence_matrix(
     *,
     inputs: list[InputRef] | None = None,
 ) -> EdgeConfidenceMatrixRef:
-    """Persist edge confidence matrix helper."""
+    """Persist the edge-confidence matrix used to summarize support across discovery hypotheses."""
     ref = store.put_json(
         matrix,
         PutOptions(

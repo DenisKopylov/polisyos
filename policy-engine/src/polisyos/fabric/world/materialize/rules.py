@@ -1,4 +1,4 @@
-"""Public materialize rules module API."""
+"""Conflict-resolution rules used while projecting world facts into query tables."""
 from __future__ import annotations
 
 from enum import Enum
@@ -12,7 +12,7 @@ from polisyos.ir.world.predicates import (
 
 
 class MergeStrategy(str, Enum):
-    """Merge strategy data model."""
+    """How the materializer resolves competing facts for the same world attribute."""
     ERROR_ON_CONFLICT = "error_on_conflict"
     PREFER_NON_NULL_LAST_TX = "prefer_non_null_last_tx"
     LAST_TX = "last_tx"

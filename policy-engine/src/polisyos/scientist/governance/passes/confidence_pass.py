@@ -1,4 +1,4 @@
-"""Public passes confidence pass module API."""
+"""Enforce uncertainty-envelope thresholds on simulation and causal outputs."""
 from __future__ import annotations
 
 from typing import Any, List
@@ -13,7 +13,14 @@ from polisyos.ir.analytics.uncertainty import load_uncertainty_envelope
 
 
 class ConfidencePass(ValidatorPass):
-    """Validate propagated uncertainty against governance thresholds."""
+    """Reject over-wide confidence intervals and low gate-eligibility ratios.
+
+    Expected state/artifacts: a `_store` handle plus either
+    `artifacts_index.simulation_result_ref` with embedded uncertainty envelopes
+    or a causal-envelope ref. Thresholds are read from
+    `uncertainty_max_ci_width_ratio`, `uncertainty_max_ci_width_abs`, and
+    `uncertainty_min_gate_eligible_ratio`.
+    """
 
     @property
     def pass_id(self) -> str:

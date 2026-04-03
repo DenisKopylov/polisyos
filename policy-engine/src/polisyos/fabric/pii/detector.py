@@ -1,4 +1,4 @@
-"""Public pii detector module API."""
+"""Detect likely PII in tabular payloads using Presidio with regex fallback."""
 from __future__ import annotations
 
 import re
@@ -52,7 +52,7 @@ _REGEX_RULES: tuple[tuple[PIIEntityType, re.Pattern[str], float], ...] = (
 
 
 class PresidioConfig(BaseModel):
-    """Presidio config data model."""
+    """Sampling, threshold, and backend settings for the fabric PII scan stage."""
     model_config = ConfigDict(extra="forbid")
 
     languages: list[str] = Field(default_factory=lambda: ["en"])

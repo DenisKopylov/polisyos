@@ -1,11 +1,21 @@
-"""Public workflows policy verified module API."""
+"""Workflow spec for verified-answer generation without hierarchical policy search."""
 from __future__ import annotations
 
 from polisyos.scientist.engine.workflow_spec import NodeInvocation, WorkflowSpec
 
 
 def policy_verified_workflow_spec() -> WorkflowSpec:
-    """Policy verified workflow spec helper."""
+    """Build the `scientist_policy_verified` workflow spec.
+
+    The DAG assumes registry input and either research intent or a policy
+    question in `params`, verifies legal/source support before drafting,
+    formalizes the selected option into Trinity, then runs simulation,
+    arbitration, governance, and verified-report packaging.
+
+    Returns:
+        `WorkflowSpec` for the legacy verified-policy path that does not run
+        hierarchical champion search.
+    """
     return WorkflowSpec(
         workflow_id="scientist_policy_verified",
         error_policy="continue",

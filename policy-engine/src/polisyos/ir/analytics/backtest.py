@@ -1,4 +1,4 @@
-"""Public analytics backtest module API."""
+"""Define historical validation reports and trust diagnostics for backtesting."""
 from __future__ import annotations
 
 import math
@@ -107,7 +107,12 @@ class BacktestScenario(BaseModel):
 
 
 class BacktestReport(BaseModel):
-    """Aggregate report summarizing historical validation performance."""
+    """Summarize historical validation quality and trust diagnostics for one model/policy pair.
+
+    Downstream trust governance reads ``trust_eligible``, ``trust_score``, and
+    ``detected_biases`` to decide whether a model-policy combination can be
+    promoted or should be degraded before decision support.
+    """
 
     model_config = ConfigDict(extra="forbid")
 
@@ -170,7 +175,7 @@ def persist_backtest_report(
     schema_name: str = "ir.backtest_report",
     schema_version: str = "1.0",
 ) -> BacktestReportRef:
-    """Persist backtest report helper."""
+    """Persist a backtest report and return its typed artifact reference."""
     ref = put_json_artifact(
         store,
         report.model_dump(mode="json"),

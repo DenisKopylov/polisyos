@@ -1,4 +1,10 @@
-"""Public workflows builder module API."""
+"""Execution helpers that bind workflow specs, node registries, and runtime ports.
+
+These functions are the stable launchpad beneath `run_experiment()`: they pin
+cross-layer CAS refs, create `ExecutionContext`, register builtin/discovered
+nodes, enforce run locks/checkpoint policy, and delegate to the selected
+`WorkflowSpec`.
+"""
 from __future__ import annotations
 
 import logging
@@ -145,7 +151,14 @@ def _pin_cross_layer_input_ref(
 
 
 def build_default_registry(store: ArtifactStore) -> ArtifactRef:
-    """Build default registry."""
+    """Persist the default component registry bundle used by Scientist workflows.
+
+    Args:
+        store: Artifact store where the registry bundle should be persisted.
+
+    Returns:
+        CAS reference to the generated registry bundle.
+    """
     bundle = build_default_registry_bundle(store)
     return bundle.bundle_ref
 
@@ -176,7 +189,26 @@ def build_execution_context(
     memory: object | None = None,
     depth: int = 0,
 ) -> ExecutionContext:
-    """Build execution context."""
+    """Create the engine execution context shared by all nodes in one run.
+
+    Args:
+        store: Artifact store used for node inputs, outputs, and checkpoints.
+        registry_bundle_ref: Registry bundle ref pinned into the run manifest.
+        run_id: Run identifier used by provenance, metrics, and artifact lineage.
+        logger: Optional logger injected into node execution.
+        tracer: Optional tracer propagated to the executor.
+        foundry: Optional Foundry port override, otherwise nodes may use defaults.
+        fabric: Optional Fabric port override.
+        scholar: Optional scholar connector implementation.
+        lex: Optional Lex connector implementation.
+        metrics: Optional engine metrics collector.
+        audit: Optional audit sink.
+        memory: Optional memory backend.
+        depth: Sub-workflow nesting depth for trace/debug metadata.
+
+    Returns:
+        Fully initialized `ExecutionContext` with a started `RunContext`.
+    """
     run = RunContext.start(
         store,
         registry_bundle_ref,
@@ -214,7 +246,15 @@ def build_registry_with_builtin_nodes(
     *,
     include_discovered_nodes: bool = True,
 ) -> NodeRegistry:
-    """Build registry with builtin nodes."""
+    """Register engine builtins, Scientist builtins, and optional plugin nodes.
+
+    Args:
+        include_discovered_nodes: When `True`, merge entry-point discovered
+            `polisyos.scientist_nodes` implementations into the registry.
+
+    Returns:
+        `NodeRegistry` ready to resolve `WorkflowSpec.node_id` references.
+    """
     registry = NodeRegistry()
     for node in engine_builtin_nodes():
         registry.register(node)
@@ -244,7 +284,14 @@ def _ensure_snapshot_bind(state: ExperimentState) -> None:
 
 
 def resolve_workflow_id(initial_state: ExperimentState) -> str:
-    """Resolve workflow id."""
+    """Select the workflow id implied by state params, execution profile, and inputs.
+
+    Args:
+        initial_state: Caller-provided state envelope before orchestration begins.
+
+    Returns:
+        One of the builtin workflow ids accepted by `run_selected_workflow()`.
+    """
     return _resolve_workflow_id(initial_state)
 
 
@@ -262,7 +309,25 @@ def run_selected_workflow(
     logger: logging.Logger | None = None,
     tracer: object | None = None,
 ) -> WorkflowExecutionResult:
-    """Run selected workflow."""
+    """Dispatch to the builtin workflow runner chosen by `resolve_workflow_id()`.
+
+    Args:
+        initial_state: Initial `ExperimentState` payload.
+        store: Optional artifact store override.
+        registry_bundle_ref: Optional registry bundle override; otherwise a default
+            bundle is generated or reused from state inputs.
+        checkpoint_policy: Checkpoint/replay policy enforced by the executor.
+        force_lock: Break an existing run lock when recovering an interrupted run.
+        foundry: Optional Foundry port override.
+        fabric: Optional Fabric port override.
+        scholar: Optional scholar adapter.
+        lex: Optional Lex adapter.
+        logger: Optional workflow logger.
+        tracer: Optional tracer object.
+
+    Returns:
+        `WorkflowExecutionResult` from the concrete DAG runner.
+    """
     workflow_id = resolve_workflow_id(initial_state)
     if workflow_id == "scientist_policy_design":
         return run_policy_design_workflow(
@@ -350,7 +415,7 @@ def run_policy_design_workflow(
     logger: logging.Logger | None = None,
     tracer: object | None = None,
 ) -> WorkflowExecutionResult:
-    """Run policy design workflow."""
+    """Execute the `scientist_policy_design` DAG with search and translation stages."""
     store = store or FileSystemCAS(DEFAULT_CAS_ROOT)
     store = _maybe_namespace_store(store)
     policy = normalize_checkpoint_policy(checkpoint_policy)
@@ -432,7 +497,7 @@ def run_discovery_workflow(
     logger: logging.Logger | None = None,
     tracer: object | None = None,
 ) -> WorkflowExecutionResult:
-    """Run discovery workflow."""
+    """Execute the discovery-only DAG and persist prior-knowledge artifacts."""
     store = store or FileSystemCAS(DEFAULT_CAS_ROOT)
     store = _maybe_namespace_store(store)
     policy = normalize_checkpoint_policy(checkpoint_policy)
@@ -496,7 +561,7 @@ def run_default_workflow(
     logger: logging.Logger | None = None,
     tracer: object | None = None,
 ) -> WorkflowExecutionResult:
-    """Run default workflow."""
+    """Execute the baseline simulation/governance DAG."""
     store = store or FileSystemCAS(DEFAULT_CAS_ROOT)
     store = _maybe_namespace_store(store)
     policy = normalize_checkpoint_policy(checkpoint_policy)
@@ -582,7 +647,7 @@ def run_policy_verified_workflow(
     logger: logging.Logger | None = None,
     tracer: object | None = None,
 ) -> WorkflowExecutionResult:
-    """Run policy verified workflow."""
+    """Execute the verified-policy DAG that omits hierarchical champion search."""
     store = store or FileSystemCAS(DEFAULT_CAS_ROOT)
     store = _maybe_namespace_store(store)
     policy = normalize_checkpoint_policy(checkpoint_policy)
@@ -664,7 +729,7 @@ def run_causal_full_workflow(
     logger: logging.Logger | None = None,
     tracer: object | None = None,
 ) -> WorkflowExecutionResult:
-    """Run causal full workflow."""
+    """Execute the full causal DAG with graph reconciliation and transport checks."""
     store = store or FileSystemCAS(DEFAULT_CAS_ROOT)
     store = _maybe_namespace_store(store)
     policy = normalize_checkpoint_policy(checkpoint_policy)

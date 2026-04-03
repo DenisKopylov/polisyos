@@ -65,7 +65,12 @@ _SPEC = NodeSpec(
 
 @dataclass(frozen=True)
 class CompileFoundryNode:
-    """Compile foundry node implementation."""
+    """Compile-stage DAG node that turns a linked Trinity bundle into Foundry runtime artifacts.
+
+    Reads `inputs.trinity_bundle_ref` and the registry bundle, requires a configured
+    Foundry port, and writes compile/link reports plus execution-plan, lowered-IR,
+    program-graph, slot-layout, and treasury-plan refs back into workflow state.
+    """
     compile_config: FoundryCompileConfig = field(default_factory=FoundryCompileConfig)
     validation_flags: FoundryValidationFlags = field(default_factory=FoundryValidationFlags)
 

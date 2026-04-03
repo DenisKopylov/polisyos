@@ -9,7 +9,7 @@ from pathlib import Path
 
 @dataclass(frozen=True)
 class TopicEntry:
-    """Topic entry data model."""
+    """Capture one OpenAlex topic row that domain/block selection workflows can rank or filter."""
     topic_id: str
     display_name: str
     description: str

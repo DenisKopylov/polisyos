@@ -1,4 +1,4 @@
-"""Public legal evaluation evaluate module API."""
+"""Run norm-pack evaluation against policy inputs and emit legal compliance artifacts."""
 from __future__ import annotations
 
 import re
@@ -267,7 +267,7 @@ def evaluate_legality_impl(
     request: LegalEvaluationRequest,
     segment_name: str | None = None,
 ) -> tuple[LegalReportRef, list[ChangeProposalRef]]:
-    """Evaluate legality impl helper."""
+    """Build evaluation context, score each norm, and emit the legal-report pipeline output."""
     (
         normalized_request,
         jurisdiction_norm,

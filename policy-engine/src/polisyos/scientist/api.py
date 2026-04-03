@@ -1,4 +1,10 @@
-"""Public entrypoints for Scientist workflows."""
+"""Public orchestration entrypoints for running Scientist workflow DAGs.
+
+This module owns the stable top-level `run_experiment()` API exposed by the
+package facade. It normalizes caller-provided state payloads, routes to the
+workflow builder selected by `ExperimentState`/`params`, and wraps the run with
+OpenTelemetry metrics/tracing so downstream adapters can stay pure.
+"""
 
 from __future__ import annotations
 
@@ -133,18 +139,39 @@ def _resolve_observability() -> tuple[Any, Any]:
 def run_experiment(
     state: Mapping[str, Any] | "ExperimentState" | None = None,
 ) -> dict[str, Any]:
-    """
-    Official entrypoint to execute the Scientist workflow.
+    """Execute the Scientist workflow selected by the initial state contract.
 
-    Parameters
-    ----------
-    state:
-        Initial experiment state (keys match ExperimentState). If None, starts from
-        an empty state.
-    Returns
-    -------
-    dict[str, Any]
-        Final ExperimentState produced by the workflow.
+    `state.params["workflow_id"]`, `state.execution_profile`, and input bundle
+    presence determine whether the run uses `scientist_default`,
+    `scientist_causal_full`, `scientist_policy_verified`, `scientist_policy_design`,
+    or `scientist_discovery`. Unknown top-level keys are rejected before any node
+    executes so the facade stays schema-stable.
+
+    Args:
+        state: Mapping or `ExperimentState` payload to seed the run. When `None`,
+            a fresh run id and empty state container are generated.
+
+    Returns:
+        Final `ExperimentState` serialized as a JSON-compatible dictionary with
+        updated `params`, `inputs`, `artifacts_index`, and `reports_index`.
+
+    Raises:
+        ValueError: If the mapping contains keys outside `ExperimentState`.
+        Exception: Propagates workflow construction or node execution failures
+            after recording an error span and metrics.
+
+    Example:
+        ```python
+        from polisyos.scientist import run_experiment
+
+        final_state = run_experiment(
+            {
+                "run_id": "R_demo",
+                "params": {"workflow_id": "scientist_discovery"},
+                "inputs": {"registry_bundle_ref": {"artifact_id": "artifact:..."}},
+            }
+        )
+        ```
     """
     tracer, metrics = _resolve_observability()
     ExperimentState = _experiment_state_cls()

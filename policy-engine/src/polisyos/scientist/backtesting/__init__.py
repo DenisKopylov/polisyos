@@ -1,7 +1,14 @@
-"""Public scientist backtesting package API."""
+"""Stable backtesting facade for replay, masking, challenge suites, and trust scoring.
+
+Core evaluator/orchestrator exports are imported eagerly because they are pure
+Python and define the standard replay contract. Composition replay helpers are
+lazy-loaded to avoid importing cross-graph reconciliation dependencies unless a
+benchmark explicitly audits fragment composition.
+"""
 from __future__ import annotations
 
 import importlib
+from typing import Any
 
 from .adversarial import (
     ABSTRACTION_LEAKAGE_SUITE_ID,
@@ -58,7 +65,8 @@ __all__ = [
 ]
 
 
-def __getattr__(name: str):
+def __getattr__(name: str) -> Any:
+    """Resolve composition-replay helpers on first access."""
     if name in {"CompositionReplayResult", "replay_fragment_composition_case"}:
         module = importlib.import_module("polisyos.scientist.backtesting.composition_bridge")
         value = getattr(module, name)

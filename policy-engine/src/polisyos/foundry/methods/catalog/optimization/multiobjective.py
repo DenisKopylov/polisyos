@@ -41,7 +41,7 @@ def _serialize_result(result: OptimizationResult) -> dict[str, Any]:
     tags={"optimization", "multiobjective", "nsga2"},
 )
 class MultiObjectiveNSGA2Estimator:
-    """Multi objective NSGA 2 estimator implementation."""
+    """Search Pareto-efficient policy designs with NSGA-II when objectives conflict."""
     runtime_stack: ClassVar[tuple[str, ...]] = ("pymoo", "numpy")
 
     signature: ClassVar[MethodSignature] = MethodSignature(

@@ -33,7 +33,7 @@ from polisyos.scientist.search.readiness import DecisionReadinessContract
 
 
 class PolicyTranslatorConfig(BaseModel):
-    """Policy translator config data model."""
+    """LLM budget and fallback settings for translating policy dossiers into delivery-ready text."""
     model_config = ConfigDict(extra="forbid")
 
     model_name: str = "gpt-5.4"
@@ -47,7 +47,7 @@ class PolicyTranslatorConfig(BaseModel):
 
 
 class TranslatorInputBundle(BaseModel):
-    """Translator input bundle data model."""
+    """Joined evidence pack handed to the translator and its compliance checks."""
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
 
     dossier: ChampionPolicyDossier
@@ -72,7 +72,7 @@ class TranslatorComplianceFinding(BaseModel):
 
 
 class TranslatorComplianceResult(BaseModel):
-    """Translator compliance result data model."""
+    """Outcome of translator compliance checks over the generated policy brief or bundle."""
     model_config = ConfigDict(extra="forbid")
 
     passed: bool

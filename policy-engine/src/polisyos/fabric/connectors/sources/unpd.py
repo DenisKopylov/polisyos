@@ -1,4 +1,4 @@
-"""Public sources unpd module API."""
+"""UN Population Division connector implementation for demographic indicator datasets."""
 from __future__ import annotations
 
 import asyncio

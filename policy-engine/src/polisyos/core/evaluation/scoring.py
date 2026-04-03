@@ -1,4 +1,4 @@
-"""Public evaluation scoring module API."""
+"""Weighted scoring helpers shared by evaluators, governance, and runtime summaries."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -8,13 +8,13 @@ T = TypeVar("T")
 
 
 def clamp01(value: float) -> float:
-    """Clamp 01 helper."""
+    """Clamp an arbitrary numeric score into the normalized ``[0, 1]`` interval."""
     return max(0.0, min(1.0, float(value)))
 
 
 @dataclass(frozen=True)
 class WeightedScoreResult:
-    """Weighted score result data model."""
+    """Normalized scoring breakdown with the final score, inputs, and effective weights."""
     score: float
     components: dict[str, float]
     contributions: dict[str, float]
@@ -101,4 +101,3 @@ def _normalize_weights(weights: Mapping[str, float]) -> dict[str, float]:
     if total <= 0.0:
         return {}
     return {name: value / total for name, value in filtered.items()}
-

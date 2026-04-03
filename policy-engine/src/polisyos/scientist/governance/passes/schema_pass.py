@@ -1,4 +1,4 @@
-"""Public passes schema pass module API."""
+"""Validate that the active IR payload is present and schema-compatible."""
 from __future__ import annotations
 
 from typing import List
@@ -16,10 +16,12 @@ from polisyos.ir.trinity import TrinityBundle
 
 
 class SchemaPass(ValidatorPass):
-    """
-    Validates IR against Pydantic schema.
+    """Block missing IR, Pydantic validation failures, and empty intervention sets.
 
-    Extracted from flow_nodes.py validate_ir_node.
+    The pass validates `ctx.ir` against `TrinityBundle`, maps Pydantic
+    `ValidationError` entries into `SCHEMA_VALIDATION_ERROR` blockers, emits
+    `IR_MISSING` when no IR exists, and requires at least one intervention via
+    `NO_INTERVENTIONS`.
     """
 
     @property

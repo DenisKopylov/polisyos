@@ -1,6 +1,7 @@
 import type { PropsWithChildren } from "react";
 import { Suspense } from "react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import type { QueryClient } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { renderHook } from "@testing-library/react";
 
 import { queryKeys } from "@/api/queryKeys";
@@ -78,7 +79,9 @@ describe("useAuthMe", () => {
     );
 
     const options = authMeQueryOptions();
-    const payload = await options.queryFn({} as never);
+    const queryFn = options.queryFn;
+    expect(queryFn).toBeDefined();
+    const payload = await queryFn!({} as never);
     expect(payload.display_name).toBe("Trace Analyst");
     expect(authAwareRuntimeFetchMock).toHaveBeenCalledWith(expect.any(Request));
 
@@ -91,15 +94,15 @@ describe("useAuthMe", () => {
     expect(view.result.current.data?.display_name).toBe("Trace Analyst");
   });
 
-  it("supports the suspense hook with prefetched auth data", async () => {
+  it("supports the suspense hook with prefetched auth data", () => {
     const client = createTestQueryClient();
     client.setQueryData(queryKeys.authMe(), FALLBACK_AUTH_ME);
 
-    const suspenseView = renderHook(() => useSuspenseAuthMe(), {
+    const view = renderHook(() => useSuspenseAuthMe(), {
       wrapper: createWrapper({ client, suspense: true }),
     });
 
-    expect(suspenseView.result.current.data.user_id).toBe(FALLBACK_AUTH_ME.user_id);
+    expect(view.result.current.data.user_id).toBe(FALLBACK_AUTH_ME.user_id);
   });
 
   it("surfaces api errors from the auth query function", async () => {
@@ -107,7 +110,9 @@ describe("useAuthMe", () => {
       new Response("denied", { status: 403 }),
     );
 
-    await expect(authMeQueryOptions().queryFn({} as never)).rejects.toThrow(
+    const queryFn = authMeQueryOptions().queryFn;
+    expect(queryFn).toBeDefined();
+    await expect(queryFn!({} as never)).rejects.toThrow(
       "Failed to load auth principal",
     );
   });

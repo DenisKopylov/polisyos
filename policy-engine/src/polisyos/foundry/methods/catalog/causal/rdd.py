@@ -1,4 +1,4 @@
-"""Public causal rdd module API."""
+"""Estimate cutoff-local causal effects with regression-discontinuity designs."""
 from __future__ import annotations
 
 import math
@@ -128,7 +128,7 @@ def _manipulation_test(x_centered: np.ndarray, bandwidth: float) -> DiagnosticTe
     tags={"causal", "quasi-experimental", "regression-discontinuity"},
 )
 class RegressionDiscontinuity:
-    """Regression discontinuity public type."""
+    """Estimate a local treatment jump under continuity and no precise manipulation; avoid sparse support near the threshold."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
 
     signature: ClassVar[MethodSignature] = MethodSignature(

@@ -464,7 +464,7 @@ def compute_reconciliation_diagnostics(
     max_triangles: int = MAX_TRIANGLES,
     triangle_budget_ms: int = TRIANGLE_BUDGET_MS,
 ) -> ReconciliationDiagnostics:
-    """Compute reconciliation diagnostics helper."""
+    """Summarize where merged causal graphs disagree before downstream reconciliation audits."""
     if not edges:
         return ReconciliationDiagnostics()
 

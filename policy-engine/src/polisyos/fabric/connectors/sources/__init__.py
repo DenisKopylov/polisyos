@@ -1,4 +1,10 @@
-"""Production connector implementations."""
+"""Built-in production connector families exposed by the Fabric package.
+
+The exports in this module are concrete connector implementations plus the shared HTTP runtime.
+Each connector advertises hard capabilities through ``ConnectorCapability`` and typically relies
+on ``SourceProfile`` / ``SourceExecutionPolicy`` for endpoint-specific transport, auth, and
+throttling semantics.
+"""
 from __future__ import annotations
 
 from polisyos.fabric.connectors.sources.ckan_catalog import CKANCatalogConnector

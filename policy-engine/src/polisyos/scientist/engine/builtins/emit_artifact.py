@@ -28,7 +28,7 @@ _EMIT_SPEC = NodeSpec(
 
 @dataclass(frozen=True)
 class EmitArtifactNode:
-    """Emit artifact node implementation."""
+    """Bootstrap node that writes a JSON payload to CAS and records its ref in `artifacts_index`."""
     params: dict[str, object] | None = None
 
     @property

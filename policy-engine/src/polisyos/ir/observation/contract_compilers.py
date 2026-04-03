@@ -1,4 +1,9 @@
-"""Public observation contract compilers module API."""
+"""Compile normalized observation artifacts into Foundry/Scientist protocol bundles.
+
+Each compiler consumes a typed observation contract, validates shape and
+lineage, and emits a ``CompiledObservationArtifact`` plus a bundle manifest
+that advertises which downstream runtime protocol can consume the payload.
+"""
 from __future__ import annotations
 
 import json
@@ -139,7 +144,7 @@ class SpecificationCurveInput(_MutableModel):
 
 
 class LeontiefIOInput(_MutableModel):
-    """Dense input-output tables for Leontief analysis."""
+    """Carry dense IO tables and axis labels into Leontief bundle compilation."""
 
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     technical_coefficients: list[list[float]] = Field(..., min_length=1)
@@ -166,14 +171,14 @@ class LeontiefIOInput(_MutableModel):
 
 
 class GraphEdge(KernelModel):
-    """Graph edge public type."""
+    """Represent one directed weighted edge in a network contract payload."""
     src_id: str = Field(..., min_length=1, max_length=128)
     dst_id: str = Field(..., min_length=1, max_length=128)
     weight: float = 1.0
 
 
 class GraphBipartiteEdge(KernelModel):
-    """Graph bipartite edge public type."""
+    """Represent one treatment-to-outcome edge for bipartite exposure graphs."""
     treatment_node_id: str = Field(..., min_length=1, max_length=128)
     outcome_node_id: str = Field(..., min_length=1, max_length=128)
 
@@ -226,7 +231,7 @@ class GraphArtifacts(KernelModel):
 
 
 class FirmEventRecord(KernelModel):
-    """Firm event record data model."""
+    """Store one firm entry/exit or censoring event used by survival compilers."""
     firm_id: str = Field(..., min_length=1, max_length=128)
     entry_date: date
     exit_date: date | None = None
@@ -253,7 +258,7 @@ class FirmEvents(KernelModel):
 
 
 class FirmPanelRow(KernelModel):
-    """Firm panel row public type."""
+    """Store one firm-period metric row for panel and econometric compilers."""
     firm_id: str = Field(..., min_length=1, max_length=128)
     period_start: date
     period_end: date
@@ -276,7 +281,7 @@ class FirmPanels(KernelModel):
 
 
 class RegionSectorFlowRow(KernelModel):
-    """Region sector flow row public type."""
+    """Store one inter-region/inter-sector flow used to assemble Leontief matrices."""
     from_region_code: str = Field(..., min_length=1, max_length=32)
     from_sector_id: str = Field(..., min_length=1, max_length=64)
     to_region_code: str = Field(..., min_length=1, max_length=32)
@@ -308,7 +313,7 @@ class ProxyMap(KernelModel):
 
 
 class SurveyMicroDataCompileSpec(KernelModel):
-    """Survey micro data compile spec data model."""
+    """Declare which household metrics become survey-microdata fields."""
     spec_id: str = Field(..., pattern=ID_PATTERN)
     income_metric_id: str = Field(..., min_length=1, max_length=120)
     weight_metric_id: str = Field(..., min_length=1, max_length=120)
@@ -318,7 +323,7 @@ class SurveyMicroDataCompileSpec(KernelModel):
 
 
 class NetworkContractCompileSpec(KernelModel):
-    """Network contract compile spec data model."""
+    """Configure graph-layer ordering and dense/sparse materialization for network bundles."""
     spec_id: str = Field(..., pattern=ID_PATTERN)
     primary_layer: MultiplexGraphLayerId | None = None
     layer_order: list[MultiplexGraphLayerId] = Field(default_factory=list)
@@ -329,7 +334,7 @@ class NetworkContractCompileSpec(KernelModel):
 
 
 class NetworkCausalCompileSpec(KernelModel):
-    """Network causal compile spec data model."""
+    """Select outcome/treatment/covariate metrics for interference-aware network causal data."""
     spec_id: str = Field(..., pattern=ID_PATTERN)
     outcome_metric_id: str = Field(..., min_length=1, max_length=120)
     treatment_metric_id: str = Field(..., min_length=1, max_length=120)
@@ -340,7 +345,7 @@ class NetworkCausalCompileSpec(KernelModel):
 
 
 class PanelObservationalCompileSpec(KernelModel):
-    """Panel observational compile spec data model."""
+    """Select panel outcome/treatment/covariate metrics for causal panel compilation."""
     spec_id: str = Field(..., pattern=ID_PATTERN)
     outcome_metric_id: str = Field(..., min_length=1, max_length=120)
     treatment_metric_id: str = Field(..., min_length=1, max_length=120)
@@ -350,7 +355,7 @@ class PanelObservationalCompileSpec(KernelModel):
 
 
 class DynamicTreatmentCompileSpec(KernelModel):
-    """Dynamic treatment compile spec data model."""
+    """Select metrics required to compile sequential treatment trajectories."""
     spec_id: str = Field(..., pattern=ID_PATTERN)
     outcome_metric_id: str = Field(..., min_length=1, max_length=120)
     treatment_metric_id: str = Field(..., min_length=1, max_length=120)
@@ -360,13 +365,13 @@ class DynamicTreatmentCompileSpec(KernelModel):
 
 
 class SurvivalCompileSpec(KernelModel):
-    """Survival compile spec data model."""
+    """Select feature metrics used to compile survival-analysis tables."""
     spec_id: str = Field(..., pattern=ID_PATTERN)
     feature_metric_ids: list[str] = Field(..., min_length=1)
 
 
 class PanelEconometricCompileSpec(KernelModel):
-    """Panel econometric compile spec data model."""
+    """Select dependent, exogenous, and instrument columns for econometric panels."""
     spec_id: str = Field(..., pattern=ID_PATTERN)
     dependent_metric_id: str = Field(..., min_length=1, max_length=120)
     exog_metric_ids: list[str] = Field(..., min_length=1)
@@ -374,7 +379,7 @@ class PanelEconometricCompileSpec(KernelModel):
 
 
 class BoundsEstimationCompileSpec(KernelModel):
-    """Bounds estimation compile spec data model."""
+    """Select outcome/treatment and optional IV/selection/proxy channels for bounds input."""
     spec_id: str = Field(..., pattern=ID_PATTERN)
     outcome_metric_id: str = Field(..., min_length=1, max_length=120)
     treatment_metric_id: str = Field(..., min_length=1, max_length=120)
@@ -384,7 +389,7 @@ class BoundsEstimationCompileSpec(KernelModel):
 
 
 class ProxyMeasurementCompileSpec(KernelModel):
-    """Proxy measurement compile spec data model."""
+    """Declare proxy and validation metrics for latent-treatment measurement bundles."""
     spec_id: str = Field(..., pattern=ID_PATTERN)
     outcome_metric_id: str = Field(..., min_length=1, max_length=120)
     treatment_proxy_metric_id: str = Field(..., min_length=1, max_length=120)
@@ -396,7 +401,7 @@ class ProxyMeasurementCompileSpec(KernelModel):
 
 
 class HistoricalValidationCompileSpec(KernelModel):
-    """Historical validation compile spec data model."""
+    """Specify holdout horizons and metric ids for backtest-plan compilation."""
     spec_id: str = Field(..., pattern=ID_PATTERN)
     metric_ids: list[str] = Field(..., min_length=1)
     intervention_date: str = Field(..., min_length=1, max_length=64)
@@ -409,7 +414,7 @@ class HistoricalValidationCompileSpec(KernelModel):
 
 
 class SpecificationCurveSourceSpec(KernelModel):
-    """Specification curve source spec data model."""
+    """Describe one source/family combination to include in a specification curve."""
     source_combination_id: str = Field(..., min_length=1, max_length=120)
     included_metric_ids: list[str] = Field(..., min_length=1)
     included_families: list[ObservationFamily] = Field(default_factory=list)
@@ -418,20 +423,20 @@ class SpecificationCurveSourceSpec(KernelModel):
 
 
 class SpecificationCurveCompileSpec(KernelModel):
-    """Specification curve compile spec data model."""
+    """Wrap the source combinations used to compile specification-curve inputs."""
     spec_id: str = Field(..., pattern=ID_PATTERN)
     source_specifications: list[SpecificationCurveSourceSpec] = Field(..., min_length=1)
 
 
 class LeontiefIOCompileSpec(KernelModel):
-    """Leontief IO compile spec data model."""
+    """Tag a region-sector panel compilation request for Leontief IO output."""
     spec_id: str = Field(..., pattern=ID_PATTERN)
     reference_period: date | None = None
 
 
 @dataclass(frozen=True)
 class CompiledObservationArtifact:
-    """Compiled observation artifact public type."""
+    """Bundle one compiler output contract together with its persisted manifest."""
     compiler_id: str
     artifact_key: str
     contract: Any
@@ -440,7 +445,7 @@ class CompiledObservationArtifact:
 
 @dataclass(frozen=True)
 class HistoricalValidationCompilation:
-    """Historical validation compilation public type."""
+    """Pair a generated backtest plan with the payload snapshot used to run it."""
     plans: list[HistoricalValidationPlan]
     historical_payloads: dict[str, dict[str, Any]]
     bundle: BacktestPlanBundle
@@ -448,7 +453,7 @@ class HistoricalValidationCompilation:
 
 @dataclass(frozen=True)
 class ObservationContractSuiteResult:
-    """Observation contract suite result data model."""
+    """Collect all compiled artifacts plus the observation-to-contract manifest."""
     artifacts: dict[str, CompiledObservationArtifact]
     backtest: HistoricalValidationCompilation | None
     manifest: ObservationToContractManifest
@@ -731,7 +736,13 @@ class ObservationCompilerContext:
 
 
 class SurveyMicroDataCompiler:
-    """Survey micro data compiler implementation."""
+    """Compile household survey panels into ``SurveyMicroData`` and a microsim-ready bundle.
+
+    Downstream Foundry microsimulation runners consume the compiled contract
+    after the bundle is persisted. Callers must provide one unit-aligned panel
+    period with income, weights, and every requested feature metric present for
+    each retained survey unit.
+    """
     compiler_id = "observation.survey_microdata"
 
     def __init__(self, context: ObservationCompilerContext | None = None) -> None:
@@ -807,7 +818,13 @@ class SurveyMicroDataCompiler:
 
 
 class NetworkContractCompiler:
-    """Network contract compiler implementation."""
+    """Compile ``GraphArtifacts`` into network-analysis bundles for Foundry methods.
+
+    Downstream network runners consume the emitted ``NetworkData`` and
+    ``MultiplexNetworkData`` payloads. Callers must supply a graph whose nodes,
+    layers, optional features, and requested materialization settings can all
+    be resolved consistently under the configured size limits.
+    """
     compiler_id = "observation.network_contract"
 
     def __init__(self, context: ObservationCompilerContext | None = None) -> None:
@@ -935,7 +952,13 @@ class NetworkContractCompiler:
 
 
 class NetworkCausalDataCompiler:
-    """Network causal data compiler implementation."""
+    """Compile a panel plus graph into ``NetworkCausalData`` for interference-aware estimators.
+
+    Downstream network-causal runners consume the adjacency, treatments, and
+    covariates captured in the emitted bundle. Callers must align panel unit ids
+    with graph nodes and provide outcome/treatment values for every retained
+    node at the chosen reference period.
+    """
     compiler_id = "observation.network_causal"
 
     def __init__(self, context: ObservationCompilerContext | None = None) -> None:
@@ -1027,7 +1050,13 @@ class NetworkCausalDataCompiler:
 
 
 class PanelObservationalCompiler:
-    """Panel observational compiler implementation."""
+    """Compile longitudinal panels into ``PanelObservationalData`` for causal panel methods.
+
+    Downstream panel-effect runners consume the contract payload plus the
+    tabular manifest rows. Callers must provide at least two units and two
+    periods, with outcome, treatment, and requested covariates available on a
+    common panel grid.
+    """
     compiler_id = "observation.panel_observational"
 
     def __init__(self, context: ObservationCompilerContext | None = None) -> None:
@@ -1174,7 +1203,13 @@ class PanelObservationalCompiler:
 
 
 class DynamicTreatmentCompiler:
-    """Dynamic treatment compiler implementation."""
+    """Compile sequential treatment trajectories for dynamic-regime execution.
+
+    Downstream dynamic-treatment runners consume the emitted
+    ``DynamicTreatmentData`` bundle after readiness gates approve it. Callers
+    must provide a common unit-by-period panel with every covariate layer
+    present and a treatment series that can be thresholded into a sequence.
+    """
     compiler_id = "observation.dynamic_treatment"
 
     def __init__(self, context: ObservationCompilerContext | None = None) -> None:
@@ -1267,7 +1302,13 @@ class DynamicTreatmentCompiler:
 
 
 class SurvivalDataCompiler:
-    """Survival data compiler implementation."""
+    """Compile firm event logs and baseline panels into survival-analysis bundles.
+
+    Downstream time-to-event runners consume the feature matrix, durations, and
+    event flags carried by ``SurvivalData``. Callers must supply one baseline
+    feature row for every firm in the event set plus valid entry/exit or censor
+    dates.
+    """
     compiler_id = "observation.survival"
 
     def compile(
@@ -1346,7 +1387,13 @@ class SurvivalDataCompiler:
 
 
 class PanelEconometricCompiler:
-    """Panel econometric compiler implementation."""
+    """Compile firm-period panels into econometric tables for regression or IV methods.
+
+    Downstream econometric runners consume the emitted ``PanelData`` contract
+    and table manifest. Callers must provide a fully populated firm-period
+    panel for the dependent, exogenous, and optional instrument metrics because
+    missing metric lookups fail compilation.
+    """
     compiler_id = "observation.panel_econometric"
 
     def compile(
@@ -1414,7 +1461,13 @@ class PanelEconometricCompiler:
 
 
 class BoundsInputCompiler:
-    """Bounds input compiler implementation."""
+    """Compile a panel slice into dense arrays for partial-identification estimators.
+
+    Downstream bounds runners consume the ``BoundsEstimationInput`` payload and
+    its channel manifest. Callers must provide one reference-period value per
+    retained unit for the requested outcome, treatment, and any optional
+    IV/selection/MIV metrics.
+    """
     compiler_id = "observation.bounds_input"
 
     def compile(
@@ -1501,7 +1554,14 @@ class BoundsInputCompiler:
 
 
 class ProxyMeasurementCompiler:
-    """Proxy measurement compiler implementation."""
+    """Compile proxy-treatment evidence into proxy-identification bundles.
+
+    Downstream proxy-aware causal runners consume the outcome, proxy,
+    covariates, and optional validation channels packed into
+    ``ProxyMeasurementData``. Callers must supply a proxy map whose
+    latent-to-proxy entries match panel metrics available on the same reference
+    period.
+    """
     compiler_id = "observation.proxy_measurement"
 
     def compile(
@@ -1604,7 +1664,13 @@ class ProxyMeasurementCompiler:
 
 
 class HistoricalValidationPlanCompiler:
-    """Historical validation plan compiler implementation."""
+    """Compile panel history into backtest plans for Scientist validation runners.
+
+    Downstream historical-validation and governance flows consume the emitted
+    ``HistoricalValidationPlan`` records plus frozen ground-truth series.
+    Callers must provide enough ordered periods to cover the requested
+    pre/post-intervention window for every requested metric.
+    """
     compiler_id = "observation.historical_validation"
 
     def compile(
@@ -1674,7 +1740,13 @@ class HistoricalValidationPlanCompiler:
 
 
 class SpecificationCurveCompiler:
-    """Specification curve compiler implementation."""
+    """Compile robustness specifications into a specification-curve input bundle.
+
+    Downstream specification-curve analyzers consume the ordered estimates and
+    standard errors from the emitted bundle. Callers must provide at least two
+    periods for every included metric in each source specification so effect
+    deltas can be computed.
+    """
     compiler_id = "observation.specification_curve"
 
     def compile(
@@ -1756,7 +1828,13 @@ class SpecificationCurveCompiler:
 
 
 class LeontiefIOCompiler:
-    """Leontief IO compiler implementation."""
+    """Compile region-sector flow panels into Leontief IO bundles for downstream solvers.
+
+    Downstream IO or general-equilibrium runners consume the technical
+    coefficients, final demand, and value-added vectors. Callers must provide a
+    consistent region/sector flow table whose rows aggregate into a square
+    coefficient matrix.
+    """
     compiler_id = "observation.leontief_io"
 
     def compile(
@@ -1818,7 +1896,7 @@ class LeontiefIOCompiler:
 
 
 def write_json_bundle(bundle: KernelModel, path: str | Path) -> Path:
-    """Write json bundle helper."""
+    """Write a canonical JSON bundle payload to disk and return the destination path."""
     destination = Path(path)
     payload = bundle.model_dump(mode="json")
     destination.write_text(
@@ -1835,7 +1913,7 @@ def load_json_bundle(path: str | Path, model_cls: type[KernelModel]) -> KernelMo
 
 
 def write_npz_payload(payload: Mapping[str, Any], path: str | Path) -> Path:
-    """Write npz payload helper."""
+    """Write array and JSON-compatible payload values into an ``.npz`` container."""
     destination = Path(path)
     arrays: dict[str, np.ndarray] = {}
     for key, value in payload.items():
@@ -1868,7 +1946,7 @@ def load_npz_payload(path: str | Path) -> dict[str, Any]:
 
 
 def write_parquet_rows(rows: Sequence[Mapping[str, Any]], path: str | Path) -> Path:
-    """Write parquet rows helper."""
+    """Write tabular contract rows to Parquet with deterministic row ordering."""
     destination = Path(path)
     frame = pd.DataFrame(list(rows))
     sort_columns = [column for column in ("unit_id", "firm_id", "period_id") if column in frame.columns]

@@ -2,6 +2,7 @@
   "$defs": {
     "CausalQuery": {
       "additionalProperties": false,
+      "description": "Fully specified causal query contract for execution or persistence.",
       "properties": {
         "condition": {
           "additionalProperties": {
@@ -61,6 +62,7 @@
     },
     "InterventionSpec": {
       "additionalProperties": false,
+      "description": "Treatment perturbation attached to a causal query.",
       "properties": {
         "bounds": {
           "anyOf": [
@@ -141,6 +143,7 @@
       "type": "object"
     },
     "InterventionType": {
+      "description": "Mechanics of the treatment perturbation encoded in a query.",
       "enum": [
         "atomic",
         "truncated",
@@ -151,6 +154,7 @@
       "type": "string"
     },
     "QueryType": {
+      "description": "High-level family of causal query requested from the engine.",
       "enum": [
         "interventional",
         "counterfactual",
@@ -162,6 +166,7 @@
     }
   },
   "additionalProperties": false,
+  "description": "Result payload returned for a persisted or in-memory causal query.",
   "properties": {
     "computation_time_seconds": {
       "default": 0.0,

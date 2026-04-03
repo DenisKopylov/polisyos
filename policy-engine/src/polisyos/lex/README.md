@@ -35,6 +35,13 @@ provision-level правила в tunable policy/runtime artifacts.
 
 Full reference: [docs/reference/lex/](../../../docs/reference/lex/index.md)
 
+## Where to Start
+
+- Public facade / supported imports: `src/polisyos/lex/__init__.py` and `docs/reference/public-surface.md`
+- Corpus / versioning path: `src/polisyos/lex/corpus/`
+- NormPack / legality path: `src/polisyos/lex/normpack/` and `src/polisyos/lex/legal_evaluation/`
+- Intervention mapping: `src/polisyos/lex/interventions.py` and `src/polisyos/lex/intervention_artifacts.py`
+
 ## Current State
 
 - Last updated: 2026-04-03

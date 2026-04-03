@@ -1,0 +1,155 @@
+[generated_artifacts]
+version = 1
+
+[[family]]
+id = "abi-schema-snapshots"
+label = "ABI schema snapshots"
+owner = "team-polisyos"
+approval_owner = "team-polisyos"
+source_of_truth = "schemas/abi_models.py + src/polisyos/** Pydantic/Enum contracts"
+outputs = [
+  "schemas/snapshots/ir/",
+  "schemas/snapshots/fabric/",
+]
+regenerate_commands = [
+  "PYTHONPATH=src:. uv run --extra ml python tools/diagnostics/gen_schema.py",
+]
+commit_policy = "committed"
+freshness_rule = "Regenerate and commit whenever ABI-visible IR or Fabric contracts change."
+drift_gate = "automated"
+workflow = ".github/workflows/abi.yml"
+check_cwd = "."
+check_command = ["uv", "run", "--extra", "ml", "python", "tools/diagnostics/gen_schema.py", "--check"]
+
+[[family]]
+id = "runtime-openapi-snapshot"
+label = "Runtime OpenAPI snapshot"
+owner = "team-polisyos"
+approval_owner = "team-polisyos"
+source_of_truth = "src/polisyos/runtime/http/** FastAPI app factory and DTO contracts"
+outputs = [
+  "schemas/runtime_api_v1.openapi.json",
+]
+regenerate_commands = [
+  "PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/export_runtime_openapi.py --output schemas/runtime_api_v1.openapi.json",
+]
+commit_policy = "committed"
+freshness_rule = "Regenerate and commit whenever runtime routes, request/response DTOs, or OpenAPI examples change."
+drift_gate = "automated"
+workflow = ".github/workflows/ci.yml"
+check_cwd = "."
+check_command = ["uv", "run", "--extra", "runtime", "--extra", "ml", "python", "tools/runtime/check_runtime_api_contract.py", "--skip-client-drift"]
+
+[[family]]
+id = "runtime-api-client"
+label = "Generated runtime API client"
+owner = "team-polisyos"
+approval_owner = "team-polisyos"
+source_of_truth = "schemas/runtime_api_v1.openapi.json"
+outputs = [
+  "frontend/runtime-api-client/runtimeApiClient.ts",
+  "frontend/runtime-api-client/runtimeApiClient.js",
+]
+regenerate_commands = [
+  "PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/generate_runtime_client.py --openapi schemas/runtime_api_v1.openapi.json --out-ts frontend/runtime-api-client/runtimeApiClient.ts --out-js frontend/runtime-api-client/runtimeApiClient.js",
+]
+commit_policy = "committed"
+freshness_rule = "Regenerate and commit whenever the runtime OpenAPI snapshot changes."
+drift_gate = "automated"
+workflow = ".github/workflows/ci.yml"
+check_cwd = "."
+check_command = ["uv", "run", "--extra", "runtime", "--extra", "ml", "python", "tools/runtime/check_runtime_api_contract.py"]
+
+[[family]]
+id = "runtime-dashboard-api-types"
+label = "Runtime dashboard generated API types"
+owner = "team-polisyos"
+approval_owner = "team-polisyos"
+source_of_truth = "schemas/runtime_api_v1.openapi.json"
+outputs = [
+  "frontend/runtime-dashboard/src/api/types.ts",
+]
+regenerate_commands = [
+  "cd frontend/runtime-dashboard && npm run generate:api",
+]
+commit_policy = "committed"
+freshness_rule = "Regenerate and commit whenever runtime OpenAPI changes affect dashboard-facing types."
+drift_gate = "automated"
+workflow = ".github/workflows/ci.yml"
+check_cwd = "frontend/runtime-dashboard"
+check_command = ["npm", "run", "generate:api"]
+check_git_diff_paths = ["src/api/types.ts"]
+
+[[family]]
+id = "connector-recorded-fixtures"
+label = "Recorded connector fixtures"
+owner = "team-polisyos"
+approval_owner = "team-polisyos"
+source_of_truth = "Live upstream connector responses captured through scripts/record_fixtures.py"
+outputs = [
+  "tests/fabric/connectors/sources/fixtures/",
+]
+regenerate_commands = [
+  "PYTHONPATH=src:. uv run python scripts/record_fixtures.py --wave 1",
+  "PYTHONPATH=src:. uv run python scripts/record_fixtures.py --wave 2",
+  "PYTHONPATH=src:. uv run python scripts/record_fixtures.py --wave 3",
+]
+commit_policy = "committed"
+freshness_rule = "Refresh intentionally when connector contracts, source profiles, or upstream response shapes change."
+drift_gate = "manual_review"
+workflow = "scripts/record_fixtures.py"
+
+[[family]]
+id = "runtime-dashboard-contract-fixtures"
+label = "Runtime dashboard contract fixtures"
+owner = "team-polisyos"
+approval_owner = "team-polisyos"
+source_of_truth = "Live Runtime API responses captured via frontend/runtime-dashboard/scripts/record-runtime-contracts.mjs"
+outputs = [
+  "frontend/runtime-dashboard/src/test/contracts/fixtures/",
+]
+regenerate_commands = [
+  "cd frontend/runtime-dashboard && npm run contracts:record",
+]
+commit_policy = "committed"
+freshness_rule = "Refresh when dashboard contract fixtures are intentionally updated to match runtime API behavior."
+drift_gate = "manual_review"
+workflow = "frontend/runtime-dashboard/scripts/record-runtime-contracts.mjs"
+
+[[family]]
+id = "benchmark-reports-and-bundle-stats"
+label = "Benchmark reports and bundle stats"
+owner = "team-polisyos"
+approval_owner = "team-polisyos"
+source_of_truth = "benchmarks/** runners, frontend/runtime-dashboard/scripts/emit-bundle-stats.mjs, and benchmark publication helpers"
+outputs = [
+  "benchmarks/_reports/",
+  "frontend/runtime-dashboard/dist/bundle-stats.json",
+]
+regenerate_commands = [
+  "bash benchmarks/run_all_benchmarks.sh",
+  "cd frontend/runtime-dashboard && npm run bundle:stats",
+]
+commit_policy = "mixed"
+freshness_rule = "Commit benchmark reports only when they serve as intentional baselines, evidence packs, or review artifacts. `frontend/runtime-dashboard/dist/bundle-stats.json` is local by default and is committed only when reviewers explicitly want a checked-in bundle baseline."
+drift_gate = "manual_review"
+workflow = ".github/workflows/frontend-nightly.yml"
+
+[[family]]
+id = "audit-and-evidence-artifacts"
+label = "Audit and evidence artifacts"
+owner = "team-polisyos"
+approval_owner = "team-polisyos"
+source_of_truth = "Dedicated audit/report generators such as frontend/runtime-dashboard/scripts/run-audit.mjs and curated evidence/report pipelines"
+outputs = [
+  "docs/archive/reports/",
+  "frontend/runtime-dashboard/npm-audit-report.json",
+  "frontend/runtime-dashboard/npm-audit-summary.md",
+]
+regenerate_commands = [
+  "cd frontend/runtime-dashboard && npm run audit:ci",
+]
+commit_policy = "mixed"
+freshness_rule = "Only intentionally reviewed evidence packs and audit outputs stay committed; transient local diagnostics such as raw audit captures remain ignored."
+drift_gate = "manual_review"
+workflow = "frontend/runtime-dashboard/scripts/run-audit.mjs"

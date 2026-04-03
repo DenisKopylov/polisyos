@@ -1,108 +1,261 @@
-name: ABI Schema Gate
+name: PR Fast
 
 on:
   pull_request:
-    branches: [main]
-    paths:
-      - "policy-engine/src/polisyos/ir/**"
-      - "policy-engine/src/polisyos/fabric/world/**"
-      - "policy-engine/src/polisyos/core/canon/**"
-      - "policy-engine/src/polisyos/core/artifacts/**"
-      - "policy-engine/schemas/**"
-      - "policy-engine/tools/diagnostics/gen_schema.py"
-      - "policy-engine/tools/diagnostics/abi_diff.py"
-      - ".github/workflows/abi.yml"
+  push:
+    branches:
+      - main
 
 permissions:
   contents: read
-  pull-requests: write
 
 concurrency:
-  group: abi-${{ github.event.pull_request.number || github.ref }}
+  group: pr-fast-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
-  abi-check:
-    name: ABI Schema Compatibility Check
+  workflow-governance:
+    name: Fast PR / Workflow governance
     runs-on: ubuntu-latest
-    timeout-minutes: 15
-    defaults:
-      run:
-        working-directory: policy-engine
-
+    timeout-minutes: 10
     steps:
-      - name: Checkout PR branch
-        uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - name: Install actionlint
+        id: actionlint
+        run: |
+          echo "bin=$(policy-engine/tools/ci/install_actionlint.sh)" >> "$GITHUB_OUTPUT"
+
+      - name: Run actionlint
+        run: |
+          "${{ steps.actionlint.outputs.bin }}" -color
+
+      - name: Review workflow policy
+        run: python3 policy-engine/tools/ci/check_workflow_policy.py --repo-root . --summary .github/workflow-policy-summary.md
+
+      - name: Validate Phase 7 ratchet policy
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_BODY: ${{ github.event.pull_request.body || '' }}
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import os
+
+          Path("/tmp/pr-body.md").write_text(os.environ.get("PR_BODY", ""), encoding="utf-8")
+          PY
+          python3 policy-engine/tools/ci/check_phase7_ratchet.py \
+            --repo-root . \
+            --pr-body-file /tmp/pr-body.md \
+            --base-ref "${BASE_SHA}" \
+            --head-ref "${GITHUB_SHA}"
+
+      - name: Upload workflow policy summary
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          python-version: "3.11"
+          name: workflow-policy-summary
+          path: .github/workflow-policy-summary.md
+          if-no-files-found: error
+          retention-days: 14
 
-      - name: Install uv
-        uses: astral-sh/setup-uv@v3
+  dependency-review:
+    name: Fast PR / Dependency review
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Review changed dependencies
+        uses: actions/dependency-review-action@2031cfc080254a8a887f58cffee85186f0e49e48 # v4.9.0
         with:
-          version: "latest"
+          fail-on-severity: high
+          fail-on-scopes: runtime
+          show-openssf-scorecard: true
+          show-patched-versions: true
 
-      - name: Sync environment
-        run: uv sync --frozen --extra dev --extra test
+  quality-and-unit:
+    name: Fast PR / Python quality and unit
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: policy-engine
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-      - name: Generate current snapshots
-        run: uv run python tools/diagnostics/gen_schema.py --output-dir /tmp/current_schemas
+      - name: Setup Policy Engine Python
+        uses: ./.github/actions/setup-policy-engine-python
+        with:
+          profile: minimal
 
-      - name: Extract baseline snapshots from base branch
+      - name: Enforce import policy
+        run: uv run python tools/lint/lint_imports.py --policy import_policy.toml --exceptions import_exceptions.toml
+
+      - name: Enforce Foundry purity
+        run: uv run python tools/lint/lint_foundry.py --repo-root .
+
+      - name: Check Scientist state reads
+        run: uv run python tools/diagnostics/check_state_reads.py
+
+      - name: Check Scientist node version bumps
+        run: uv run python tools/diagnostics/check_scientist_node_version_bump.py
+
+      - name: Check scholar imports
+        run: uv run python tools/lint/check_scholar_imports.py
+
+      - name: Check connector contracts
+        run: uv run python tools/connectors/check_contracts.py --check
+
+      - name: Check schema snapshots
+        run: uv run --extra ml python tools/diagnostics/gen_schema.py --check
+
+      - name: Run fast unit suite
+        run: uv run pytest -m "not integration and not benchmark" --ignore=tests/runtime/http
+
+  docs-quality:
+    name: Fast PR / Docs quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: policy-engine
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Setup Policy Engine Python
+        uses: ./.github/actions/setup-policy-engine-python
+        with:
+          profile: docs
+
+      - name: Check docs accuracy against repo reality
+        run: uv run python tools/validation/check_docs_accuracy.py --repo-root .
+
+      - name: Build docs in strict mode
+        run: uv run python -m mkdocs build --strict
+
+      - name: Check public-surface docstring quality
+        run: uv run python tools/validation/check_docstring_quality.py --repo-root . --allowlist tools/validation/docstring_quality_allowlist.txt --coverage-scope public-surface --minimum-coverage 85
+
+  abi-check:
+    name: Fast PR / ABI drift
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: policy-engine
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+
+      - name: Detect ABI-relevant changes
+        id: abi_scope
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: |
-          mkdir -p /tmp/baseline_schemas
-          git archive --format=tar "$BASE_SHA" policy-engine/schemas/snapshots 2>/dev/null | tar -xf - -C /tmp/baseline_schemas || true
-          if [ -d /tmp/baseline_schemas/policy-engine/schemas/snapshots ]; then
-            mv /tmp/baseline_schemas/policy-engine/schemas/snapshots/* /tmp/baseline_schemas/
-            rm -rf /tmp/baseline_schemas/policy-engine
+          set -euo pipefail
+          git diff --name-only "${BASE_SHA}" "${GITHUB_SHA}" > /tmp/changed-files.txt
+          if rg -q \
+            '^(policy-engine/src/polisyos/ir/|policy-engine/src/polisyos/fabric/world/|policy-engine/src/polisyos/core/canon/|policy-engine/src/polisyos/core/artifacts/|policy-engine/schemas/|policy-engine/tools/diagnostics/gen_schema.py|policy-engine/tools/diagnostics/abi_diff.py|\\.github/workflows/abi.yml)' \
+            /tmp/changed-files.txt; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
           fi
-          mkdir -p /tmp/baseline_schemas/ir /tmp/baseline_schemas/fabric
+
+      - name: Setup Policy Engine Python
+        if: steps.abi_scope.outputs.changed == 'true'
+        uses: ./.github/actions/setup-policy-engine-python
+        with:
+          profile: minimal
+
+      - name: Generate current ABI snapshots
+        if: steps.abi_scope.outputs.changed == 'true'
+        run: uv run --extra ml python tools/diagnostics/gen_schema.py --output-dir /tmp/current-schemas
+
+      - name: Extract baseline snapshots from base branch
+        if: steps.abi_scope.outputs.changed == 'true'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/baseline-schemas
+          git archive --format=tar "${BASE_SHA}" policy-engine/schemas/snapshots 2>/dev/null | tar -xf - -C /tmp/baseline-schemas || true
+          if [[ -d /tmp/baseline-schemas/policy-engine/schemas/snapshots ]]; then
+            mv /tmp/baseline-schemas/policy-engine/schemas/snapshots/* /tmp/baseline-schemas/
+            rm -rf /tmp/baseline-schemas/policy-engine
+          fi
+          mkdir -p /tmp/baseline-schemas/ir /tmp/baseline-schemas/fabric
 
       - name: Run ABI semantic diff
+        if: steps.abi_scope.outputs.changed == 'true'
         id: abi_diff
         run: |
           set +e
           uv run python tools/diagnostics/abi_diff.py \
-            --baseline /tmp/baseline_schemas \
-            --current /tmp/current_schemas \
-            --output /tmp/abi_report.json \
+            --baseline /tmp/baseline-schemas \
+            --current /tmp/current-schemas \
+            --output /tmp/abi-report.json \
             --format github \
-            --github-comment /tmp/abi_comment.md
+            --github-comment /tmp/abi-comment.md
           diff_status=$?
-          echo "diff_status=$diff_status" >> "$GITHUB_OUTPUT"
-          verdict=$(python3 -c "import json; print(json.load(open('/tmp/abi_report.json'))['verdict'])")
-          echo "verdict=$verdict" >> "$GITHUB_OUTPUT"
+          echo "diff_status=${diff_status}" >> "$GITHUB_OUTPUT"
+          verdict=$(python3 -c "import json; print(json.load(open('/tmp/abi-report.json'))['verdict'])")
+          echo "verdict=${verdict}" >> "$GITHUB_OUTPUT"
           exit 0
 
-      - name: Upload ABI artifacts
+      - name: Skip ABI diff when surface is untouched
+        if: steps.abi_scope.outputs.changed != 'true'
+        run: |
+          cat <<'EOF' > /tmp/abi-comment.md
+          No ABI-relevant paths changed in this pull request.
+          EOF
+
+      - name: Upload ABI report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: abi-schema-report
           path: |
-            /tmp/abi_report.json
-            /tmp/abi_comment.md
+            /tmp/abi-report.json
+            /tmp/abi-comment.md
+          if-no-files-found: warn
           retention-days: 14
 
-      - name: Post sticky PR comment
-        if: always() && github.event.pull_request.head.repo.fork == false
-        uses: marocchino/sticky-pull-request-comment@v2
-        with:
-          header: abi-schema-diff
-          path: /tmp/abi_comment.md
-
-      - name: Verify committed snapshots are up-to-date
-        run: uv run python tools/diagnostics/gen_schema.py --check
-
       - name: Fail on blocking ABI verdict
-        if: steps.abi_diff.outputs.verdict == 'FAIL'
+        if: steps.abi_scope.outputs.changed == 'true' && steps.abi_diff.outputs.verdict == 'FAIL'
         run: |
-          echo "::error::ABI gate failed. Breaking changes detected without required schema_version major bump."
-          echo "Inspect /tmp/abi_report.json and PR comment for details."
+          echo "::error::ABI gate failed. Breaking changes detected without a required schema_version major bump."
           exit 1
+
+  fast-pr-gate:
+    name: Fast PR / Gate
+    if: always()
+    runs-on: ubuntu-latest
+    needs:
+      - workflow-governance
+      - dependency-review
+      - quality-and-unit
+      - docs-quality
+      - abi-check
+    steps:
+      - name: Enforce fast tier
+        env:
+          RESULTS: ${{ join(needs.*.result, ',') }}
+        run: |
+          echo "Fast tier results: ${RESULTS}"
+          if [[ "${RESULTS}" == *"failure"* || "${RESULTS}" == *"cancelled"* ]]; then
+            echo "::error::Fast PR gate failed."
+            exit 1
+          fi

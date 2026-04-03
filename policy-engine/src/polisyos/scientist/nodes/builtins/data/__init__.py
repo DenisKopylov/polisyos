@@ -1,4 +1,4 @@
-"""Public builtins data package API."""
+"""Data-stage builtin nodes for snapshotting inputs, enriching evidence, and binding runtime state."""
 from __future__ import annotations
 
 from .bind_foundry_inputs import BindFoundryInputsNode

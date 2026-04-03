@@ -1,6 +1,7 @@
 {
   "$defs": {
     "BoundMethod": {
+      "description": "Bound method public type.",
       "enum": [
         "manski_bounds",
         "transport_bounds",

@@ -1,4 +1,4 @@
-"""Public foundry runtime package API."""
+"""Expose runtime helpers that keep Foundry execution deterministic and diagnosable."""
 from __future__ import annotations
 
 import threading

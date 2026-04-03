@@ -10,8 +10,5 @@ Tutorials проведут вас через полный цикл работы 
 |----------|----------|
 | [Getting Started](getting-started.md) | Установка, первый запуск, базовые команды |
 | [First Policy Analysis](first-policy-analysis.md) | End-to-end анализ: framing → Fabric data → causal workflow → execution smoke |
-| Writing a Connector | Создание нового data connector для Fabric |
-| Creating a Governance Pass | Реализация governance pass для Scientist |
-
-!!! note
-    Tutorials помеченные без ссылки — в разработке.
+| [Writing a Connector](writing-a-connector.md) | Пошаговый onboarding нового Fabric connector с profile, тестами и CI |
+| [Creating a Governance Pass](creating-governance-pass.md) | Реализация и регистрация Scientist governance pass с blocker/warning semantics |

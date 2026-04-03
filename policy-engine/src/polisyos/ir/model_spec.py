@@ -1,8 +1,10 @@
-"""
-ModelSpec: The "How" artifact - data, agents, assumptions, environment.
+"""Define the Trinity ``how`` artifact for world-model configuration.
 
-This artifact captures the world model configuration against which policies
-are simulated. Multiple ModelSpecs can be used for sensitivity analysis.
+``ModelSpec`` is the simulation-side boundary object in the Trinity contract:
+it declares data snapshots, agent/environment structure, fidelity level, and
+explicit modeling assumptions used to evaluate a fixed ``PolicySpec`` against a
+fixed ``ProblemFrame``. Multiple ``ModelSpec`` variants are expected when
+running robustness or sensitivity sweeps over world-model assumptions.
 """
 from __future__ import annotations
 
@@ -29,7 +31,12 @@ UnitIntervalValue = Annotated[Decimal, BeforeValidator(reject_float), Field(ge=0
 
 
 class FidelityLevel(str, Enum):
-    """Simulation fidelity levels."""
+    """Select the execution fidelity expected by simulation and calibration runners.
+
+    Search and orchestration layers use this enum to trade speed against model
+    detail; lower-fidelity surrogates are useful for fast scans, while
+    ``FULL_DISCRETE`` is reserved for high-detail confirmation runs.
+    """
 
     SURROGATE_FLUID = "surrogate_fluid"  # Fastest, least accurate
     SURROGATE_DISCRETE = "surrogate_discrete"
@@ -38,7 +45,7 @@ class FidelityLevel(str, Enum):
 
 
 class AssumptionType(str, Enum):
-    """Types of modeling assumptions."""
+    """Classify which downstream mechanism or uncertainty layer an assumption affects."""
 
     BEHAVIORAL = "behavioral"  # Agent behavior assumptions
     STRUCTURAL = "structural"  # Economic structure assumptions
@@ -49,11 +56,12 @@ class AssumptionType(str, Enum):
 
 
 class AssumptionSpec(KernelModel):
-    """
-    Explicit modeling assumption.
+    """Record one explicit world-model assumption for governance and sensitivity.
 
-    Documents assumptions made in the world model for transparency
-    and sensitivity analysis.
+    Assumptions are first-class model metadata: reporting, calibration, and
+    robustness tooling can surface them, prioritize ``sensitivity_flag=True``
+    entries, and compare alternative ``ModelSpec`` variants that differ only in
+    assumption values or confidence.
     """
 
     assumption_id: str = Field(..., pattern=ID_PATTERN)
@@ -73,10 +81,12 @@ class AssumptionSpec(KernelModel):
 
 
 class AgentTypeConfig(KernelModel):
-    """
-    Configuration for a type of agent in the simulation.
+    """Describe one simulated agent population and its behavioral heterogeneity.
 
-    Defines agent heterogeneity and behavioral parameters.
+    Use ``population_count`` or ``population_share`` to size the cohort,
+    ``utility_function`` and behavioral scalars for decision logic, and
+    ``attribute_distributions`` to parameterize heterogeneity consumed by the
+    runtime agent factory.
     """
 
     agent_type_id: str = Field(..., pattern=ID_PATTERN)
@@ -108,7 +118,11 @@ class AgentTypeConfig(KernelModel):
 
 
 class AgentConfig(KernelModel):
-    """Complete agent configuration for the model."""
+    """Bundle all agent populations and interaction topology for a world model.
+
+    ``ModelSpec`` validators check agent-type uniqueness and population-share
+    feasibility through this object before simulation starts.
+    """
 
     agent_types: list[AgentTypeConfig] = Field(
         default_factory=list,
@@ -126,7 +140,11 @@ class AgentConfig(KernelModel):
 
 
 class EnvironmentParam(KernelModel):
-    """Environment/exogenous parameter specification."""
+    """Declare one exogenous world parameter or time-varying external driver.
+
+    Use ``time_series_ref`` when the value should be sourced from a persisted
+    artifact instead of the inline ``value`` scalar.
+    """
 
     param_id: str = Field(..., pattern=ID_PATTERN)
     value: DecimalValue | str | bool
@@ -139,7 +157,7 @@ class EnvironmentParam(KernelModel):
 
 
 class EnvironmentConfig(KernelModel):
-    """Environment configuration for the simulation."""
+    """Collect exogenous parameters and stochastic execution controls."""
 
     params: list[EnvironmentParam] = Field(
         default_factory=list,
@@ -152,12 +170,27 @@ class EnvironmentConfig(KernelModel):
 
 
 class ModelSpec(KernelModel):
-    """
-    ModelSpec: The "How" artifact (WorldModel).
+    """Define the Trinity ``how`` contract for simulation assumptions and state.
 
-    Specifies the world model configuration including data snapshots,
-    agent configuration, assumptions, and environment parameters.
-    Multiple ModelSpecs can test the same PolicySpec for sensitivity analysis.
+    ``ModelSpec`` answers "how is the world represented when evaluating this
+    policy?" It should hold content-addressed references to initial data and
+    registries, declare agent/environment structure, and make modeling
+    assumptions explicit enough for robustness sweeps and governance review.
+    ``ProblemFrame`` owns objectives, ``PolicySpec`` owns interventions, and
+    ``ModelSpec`` owns simulation mechanics and fidelity.
+
+    Attributes:
+        model_id: Stable identifier for the world-model variant.
+        data_snapshot_ref: Content-addressed initial state artifact consumed by
+            simulation runtime.
+        registry_bundle_ref: Optional link to the mechanism/unit registry bundle.
+        time_semantics: Simulation clock, discounting, and horizon semantics.
+        agent_config: Agent populations and interaction topology.
+        assumptions: Explicit model assumptions surfaced for review and sweeps.
+        environment_config: Exogenous parameters and stochastic runtime knobs.
+        fidelity_level: Simulation detail level requested from the runtime.
+        calibrated: Whether this model variant is known to have been calibrated.
+        calibration_ref: Optional reference to persisted calibration outputs.
     """
 
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)

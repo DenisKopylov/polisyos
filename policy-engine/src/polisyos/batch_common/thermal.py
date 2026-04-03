@@ -8,7 +8,7 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class ThermalProfile:
-    """Simple thermal tuning profile."""
+    """Define pause/cooldown delays for laptop-safe batch execution."""
 
     name: str
     pause_seconds: float = 0.0
@@ -22,7 +22,7 @@ THERMAL_PROFILES: dict[str, ThermalProfile] = {
 
 
 def resolve_profile(name: str | None) -> ThermalProfile:
-    """Resolve profile."""
+    """Return a named thermal profile or the `default` profile when unknown."""
     if not name:
         return THERMAL_PROFILES["default"]
     return THERMAL_PROFILES.get(name, THERMAL_PROFILES["default"])

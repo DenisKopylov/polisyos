@@ -1,4 +1,4 @@
-"""Public causal strategic module API."""
+"""Solve strategic-response causal contracts and report equilibrium-level diagnostics."""
 from __future__ import annotations
 
 import itertools

@@ -1,4 +1,4 @@
-"""Public causal treatment effects module API."""
+"""Estimate binary-treatment effects with weighting, matching, and doubly robust estimators."""
 from __future__ import annotations
 
 from typing import Any, ClassVar, Mapping
@@ -68,7 +68,7 @@ def _logistic_propensity(X: np.ndarray, t: np.ndarray, max_iter: int = 50) -> np
     tags={"causal", "treatment-effects", "aipw", "doubly-robust"},
 )
 class AIPWEstimator:
-    """AIPW estimator implementation."""
+    """Estimate ATE with augmented IPW under consistent nuisance fits; avoid extreme weights from poor overlap."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -139,7 +139,7 @@ class AIPWEstimator:
     tags={"causal", "treatment-effects", "tmle"},
 )
 class TMLEEstimator:
-    """TMLE estimator implementation."""
+    """Estimate ATE with a targeted update that reduces plug-in bias; avoid positivity violations or unstable nuisances."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -204,7 +204,7 @@ class TMLEEstimator:
     tags={"causal", "treatment-effects", "ipw"},
 )
 class IPWEstimator:
-    """IPW estimator implementation."""
+    """Estimate ATE by inverse propensity weighting under unconfoundedness and overlap; avoid near-zero propensities."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -282,7 +282,7 @@ class IPWEstimator:
     tags={"causal", "treatment-effects", "propensity-matching"},
 )
 class PropensityScoreMatchingEstimator:
-    """Propensity score matching estimator implementation."""
+    """Estimate treatment effects by propensity-score matching; avoid high-dimensional covariates with weak common support."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -375,7 +375,7 @@ class PropensityScoreMatchingEstimator:
     tags={"causal", "treatment-effects", "entropy-balancing"},
 )
 class EntropyBalancingEstimator:
-    """Entropy balancing estimator implementation."""
+    """Estimate effects by reweighting moments to match covariates; avoid infeasible balance constraints."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -485,7 +485,7 @@ class EntropyBalancingEstimator:
     tags={"causal", "treatment-effects", "cbps"},
 )
 class CBPSEstimator:
-    """CBPS estimator implementation."""
+    """Estimate covariate-balancing propensities for ATE/ATT; avoid severe overlap failures or misspecified moments."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 

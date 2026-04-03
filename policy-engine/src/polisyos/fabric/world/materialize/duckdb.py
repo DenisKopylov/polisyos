@@ -1,4 +1,4 @@
-"""Public materialize duckdb module API."""
+"""Apply world fact segments into DuckDB tables and derived query projections."""
 from __future__ import annotations
 
 import uuid
@@ -64,7 +64,7 @@ class WorldMaterializeStats:
 
 
 def ensure_world_schema(db: SimulationDB, *, ddl_path: Path | None = None) -> None:
-    """Ensure world schema helper."""
+    """Create or migrate the DuckDB world schema before applying fact segments."""
     if ddl_path is None:
         ddl_path = Path(__file__).resolve().parents[1] / "ddl" / "duckdb_world.sql"
     ddl_path = Path(ddl_path)
@@ -141,7 +141,7 @@ def ensure_world_materialized(
     cas: FileSystemCAS,
     fact_manifests: Iterable[FactSegmentManifest],
 ) -> WorldMaterializeStats:
-    """Ensure world materialized helper."""
+    """Apply unapplied world segments into DuckDB and aggregate per-run materialization stats."""
     manifests = list(fact_manifests)
     ensure_world_schema(db)
     stats = WorldMaterializeStats(
@@ -179,7 +179,7 @@ def materialize_world_duckdb_from_fact_log(
     db: SimulationDB,
     cas: FileSystemCAS,
 ) -> WorldMaterializeStats:
-    """Materialize world duckdb from fact log helper."""
+    """Load indexed world segments from the fact log and materialize them into DuckDB."""
     manifests = load_world_fact_manifests(fact_log_root)
     return ensure_world_materialized(db, cas, manifests)
 
@@ -189,7 +189,7 @@ def apply_world_segment(
     cas: FileSystemCAS,
     manifest: FactSegmentManifest,
 ) -> WorldMaterializeSegmentStats:
-    """Apply world segment helper."""
+    """Stage and merge one world fact segment into DuckDB inside a single transaction."""
     segment_path = Path(manifest.path)
     if not segment_path.exists():
         raise WorldMaterializationError(f"missing world segment: {segment_path}")

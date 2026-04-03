@@ -1,6 +1,7 @@
 {
   "$defs": {
     "GateVerdict": {
+      "description": "Final outcome produced by a governance gate.",
       "enum": [
         "approve",
         "reject",
@@ -12,6 +13,7 @@
     }
   },
   "additionalProperties": false,
+  "description": "Recorded gate verdict with approver identity and supporting evidence.",
   "properties": {
     "approver_id": {
       "title": "Approver Id",

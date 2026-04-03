@@ -1,4 +1,4 @@
-"""Public workflows engine base module API."""
+"""Engine protocols for legacy workflow adapters and lightweight loop runners."""
 from __future__ import annotations
 
 from typing import Any, Dict, Protocol, runtime_checkable
@@ -6,14 +6,11 @@ from typing import Any, Dict, Protocol, runtime_checkable
 
 @runtime_checkable
 class WorkflowEngine(Protocol):
-    """
-    Abstract workflow engine protocol.
+    """Define the minimal execution API shared by legacy workflow engines.
 
-    LangGraph is now just one implementation, not a hard dependency.
-    This enables:
-    - Unit testing with mock engines
-    - Future migration to Temporal.io / Prefect
-    - Simple loop-based implementations for search
+    LangGraph is only one implementation behind this protocol; callers can use
+    mock engines in tests or loop-based engines for search prototypes as long as
+    `run()`, `step()`, `current_phase`, and `current_node` are honored.
     """
 
     def run(self, initial_state: Dict[str, Any]) -> Dict[str, Any]:
@@ -52,8 +49,7 @@ class WorkflowEngine(Protocol):
 
 
 class WorkflowEngineFactory(Protocol):
-    """Factory for creating workflow engines."""
+    """Construct protocol-compatible workflow engines from runtime config."""
 
     def create(self, config: Dict[str, Any] | None = None) -> WorkflowEngine:
         """Create a new workflow engine instance."""
-

@@ -1,4 +1,10 @@
-"""Public causal run causal contract execution module API."""
+"""Node adapter for executing observation-plane bounds and temporal-DTR contracts.
+
+The node bridges `ExperimentState.params` task payloads into the pure
+`BoundsEstimationRunner` and Lex temporal sequence compiler, then persists a
+`CausalExecutionBundle` plus the first concrete bounds/DTR artifacts for
+downstream decision packaging and audit.
+"""
 from __future__ import annotations
 
 from collections.abc import Sequence
@@ -67,13 +73,27 @@ def _artifact_input_ref(ref: ArtifactRefModel | None, *, role: str) -> InputRef 
 
 
 class RunCausalContractExecutionNode:
-    """Execute compiled observation-plane bounds and temporal-DTR contracts."""
+    """Run C4b execution tasks and publish aggregate plus primary causal artifacts.
+
+    Upstream assumptions: planners or loaders have placed
+    `params.bounds_estimation_tasks` and/or `params.temporal_dtr_tasks` into the
+    state as sequences of typed task dicts. When neither list is present the node
+    skips; when a payload is non-sequence or invalid it fails with
+    `ERROR_INVALID_STATE`.
+
+    Writes to state:
+        `artifacts_index.causal_execution_bundle_ref`,
+        `artifacts_index.bounds_bundle_ref`,
+        `artifacts_index.dynamic_treatment_regime_ref`,
+        `artifacts_index.effect_trajectory_bundle_ref`.
+    """
 
     @property
     def spec(self) -> NodeSpec:
         return _SPEC
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
+        """Execute the task lists and persist the aggregate execution bundle."""
         bounds_payload = state.params.get("bounds_estimation_tasks")
         temporal_payload = state.params.get("temporal_dtr_tasks")
         if not bounds_payload and not temporal_payload:

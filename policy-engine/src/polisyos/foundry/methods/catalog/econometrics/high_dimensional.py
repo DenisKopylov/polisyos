@@ -1,4 +1,4 @@
-"""Public econometrics high dimensional module API."""
+"""Estimate high-dimensional sparse models with post-selection correction."""
 from __future__ import annotations
 
 from typing import Any, ClassVar, Mapping
@@ -53,7 +53,7 @@ def _lasso_cd(X: np.ndarray, y: np.ndarray, lam: float, max_iter: int = 100) -> 
     tags={"econometrics", "high-dimensional", "post-lasso", "cross-section"},
 )
 class PostLASSOEstimator:
-    """Post LASSO estimator implementation."""
+    """Estimate coefficients after LASSO variable screening; avoid dense true signals where sparse selection is unstable."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -156,7 +156,7 @@ class PostLASSOEstimator:
     tags={"econometrics", "high-dimensional", "post-double-selection", "cross-section"},
 )
 class PostDoubleSelectionEstimator:
-    """Post double selection estimator implementation."""
+    """Estimate a target effect after double-selection controls; avoid weak nuisance selection or severe multicollinearity."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 

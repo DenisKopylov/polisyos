@@ -1,4 +1,10 @@
-"""Public calibration preflight module API."""
+"""Fetch and align observed calibration targets before the optimizer loop.
+
+Preflight helpers belong to the observation side of calibration: they query
+Fabric/UDF sources, resample raw target series onto a shared time axis, and
+derive per-target normalization scales. They do not mutate synthetic runtime
+state and they do not execute mechanisms.
+"""
 from __future__ import annotations
 
 from typing import Any, Dict, Mapping, Tuple
@@ -82,7 +88,12 @@ def _resample_series(
 
 
 def resolve_steps(config: CalibrationConfig, raw_targets: Mapping[str, object]) -> int:
-    """Resolve steps."""
+    """Resolve the shared simulation horizon used to align all target series.
+
+    Raises:
+        ValueError: If explicit `config.steps` conflicts with
+            `config.time_axis`, or if target-level step declarations disagree.
+    """
     if config.time_axis is not None:
         if config.steps is not None and len(config.time_axis) != config.steps:
             raise ValueError("config.steps must match length of config.time_axis")
@@ -112,7 +123,21 @@ def fetch_targets(
     udf_engine: Any | None = None,
     fetcher: Any | None = None,
 ) -> Dict[str, object]:
-    """Fetch targets helper."""
+    """Fetch raw observed target series through a custom fetcher or UDF engine.
+
+    Args:
+        config: Calibration config whose targets may contain `fabric_query`
+            payloads.
+        udf_engine: Query engine exposing `query(request)`.
+        fetcher: Optional custom callable invoked as `fetcher(target, request)`.
+
+    Returns:
+        Mapping from `target_id` to raw series payloads accepted by
+        `prepare_targets()`.
+
+    Raises:
+        ValueError: If neither `udf_engine` nor `fetcher` is provided.
+    """
     if udf_engine is None and fetcher is None:
         raise ValueError("fetch_targets requires udf_engine or fetcher")
     raw_targets: Dict[str, object] = {}
@@ -129,7 +154,12 @@ def fetch_targets(
 
 
 def extract_fabric_series(result: Any, target: CalibrationTarget, request: DataViewRequest) -> object:
-    """Extract fabric series helper."""
+    """Extract a calibration series from dict/tuple/table-shaped query results.
+
+    Raises:
+        ValueError: If a tabular result has multiple candidate metric columns
+            and no metric can be inferred from `target` or `request`.
+    """
     if isinstance(result, dict) and ("values" in result or "series" in result):
         return result
     if isinstance(result, tuple) and len(result) == 2:
@@ -165,9 +195,24 @@ def prepare_targets(
     time_axis: list[float] | None = None,
     default_eps: float = 1e-8,
 ) -> Tuple[Dict[str, jnp.ndarray], Dict[str, float], Dict[str, list[float]]]:
-    """
-    Преобразовать сырые ряды (после fetch из Fabric) в jax-массивы нужной длины
-    и вычислить масштабы для авто-нормализации, возвращая также ось времени.
+    """Resample raw observed targets into JAX arrays and compute normalization scales.
+
+    Args:
+        config: Calibration config containing target alignment and loss
+            settings.
+        raw_targets: Mapping returned by `fetch_targets()` or supplied by the
+            caller directly.
+        steps: Shared horizon used when `config.time_axis` is not provided.
+        time_axis: Optional canonical time axis that every target must align to.
+        default_eps: Lower bound for relative-loss scale estimates.
+
+    Returns:
+        Tuple of aligned target arrays, per-target scale factors, and
+        report-ready time axes.
+
+    Raises:
+        ValueError: If a target-specific `align.steps` conflicts with the
+            explicit `time_axis` length.
     """
     aligned: Dict[str, jnp.ndarray] = {}
     scales: Dict[str, float] = {}

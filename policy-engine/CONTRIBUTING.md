@@ -2,44 +2,54 @@
 
 ## Development Environment
 
-The current local baseline is Python 3.14+; on macOS that usually means Homebrew Python. The
-package metadata still declares `>=3.11`, but the active development workflow in this repository is
-already exercised on Python 3.14.
+The supported contributor baseline is Python 3.14.x, Node 22.x, with `uv 0.9.21` as the canonical
+Python environment manager. `.python-version`, `pyproject.toml`, CI, and contributor docs are
+expected to stay aligned to that single baseline.
 
 ```bash
-pip install -e ".[dev,test,all]"
-pytest tests/ -x --tb=short
+./scripts/bootstrap
+./scripts/doctor
+./scripts/verify
+./scripts/ci-parity --skip-browser
 ```
 
-Using a virtual environment is optional, but strongly recommended on Homebrew-managed Python
-installations:
+If you need the manual path instead of the repo-local scripts:
 
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
+uv sync --frozen --extra lint --extra test --extra runtime
+uv run pre-commit install
+cd frontend/runtime-dashboard && npm ci --ignore-scripts && npm run playwright:install
 ```
 
 Optional dependency groups in `pyproject.toml`:
 
-- `dev`: pytest, pytest-asyncio, pytest-benchmark, hypothesis, mypy, pre-commit, ruff,
-  `types-requests`, MkDocs tooling (`mkdocs`, `mkdocs-material`, `mkdocstrings[python]`),
-  JupyterLab, matplotlib, seaborn, structlog, mutmut.
-- `test`: the shared pytest stack plus `policy-engine[runtime-http]`.
-- `all`: umbrella extra that pulls in every current feature extra, including `dev` and `test`
-  together with runtime, causal, security, search, analytics, ML, optimization, observability,
-  RAG, table-extraction, and related optional stacks.
+- `lint`: mypy, pre-commit, ruff, and typeshed glue for contributor checks.
+- `docs`: MkDocs Material and `mkdocstrings[python]`.
+- `test`: pytest, pytest-asyncio, pytest-benchmark, hypothesis, and runtime HTTP test deps.
+- `runtime`: the backend contributor umbrella (`runtime-http`, observability, structured logging).
+- `research`: the full causal/research umbrella used for heavyweight Foundry/Scientist work.
+- `all`: curated capability umbrella for broad product features; it is not the contributor meta-install.
+
+Tiered bootstrap profiles map to the same surfaces:
+
+- `minimal`: `lint + test`
+- `docs`: `lint + docs`
+- `runtime`: `lint + test + runtime`
+- `research`: `lint + test + runtime + research`
 
 System notes:
 
 - JAX CPU works out of the box in the default dev setup.
-- Apple Silicon environments may prefer `jax-metal`; if the Metal backend becomes unstable, set
-  `JAX_PLATFORMS=cpu`.
+- Apple Silicon environments may opt into `policy-engine[apple-metal]`; if the Metal backend
+  becomes unstable, set `JAX_PLATFORMS=cpu`.
 - GPU and accelerator dependencies stay opt-in; if you change them, document the expected local and
   CI environment in the PR.
+- `./scripts/doctor --list-surfaces` prints optional env surfaces that the workstation doctor knows
+  how to validate.
 
 ## Code Style
 
-- Ruff is configured in `pyproject.toml` with `line-length = 100`, `target-version = "py311"`, and
+- Ruff is configured in `pyproject.toml` with `line-length = 100`, `target-version = "py314"`, and
   the active rule sets `E`, `F`, `I`, `B`, `T20`, `N`.
 - Public APIs must be fully type-annotated.
 - Public Pydantic DTOs and contracts should use `ConfigDict(extra="forbid")`; in IR this is often
@@ -76,9 +86,22 @@ Markers and decorators in active use:
 
 - Freeze policy: `docs/explanation/freeze-policy.md`
 - Import gate source of truth: `import_policy.toml`
-- CI enforcement: `.github/workflows/arch-freeze.yml`
+- Public surface source of truth: `architecture/public_surface.toml`
+- Public surface inventory: `architecture/public_surface_inventory.json` and `docs/reference/public-surface.md`
+- Generated artifact lifecycle source of truth: `architecture/generated_artifacts.toml`
+- Generated artifact reference map: `docs/reference/generated-artifacts.md`
+- Workflow/toolchain baseline guardrail: `.github/workflows/abi.yml`
+- CI/CD operating model: `docs/how-to/operate-ci-cd-platform.md`
+- Fast PR enforcement: `.github/workflows/abi.yml`
+- Standard PR enforcement: `.github/workflows/ci.yml`
+- Nightly platform assurance: `.github/workflows/frontend-nightly.yml`
+- Release policy workflow: `.github/workflows/release.yml`
 - Temporary exceptions registry: `import_exceptions.toml` with human-readable sync in
   `import_exceptions_registry.md`
+- Deep-import creep baseline: `architecture/deep_import_baseline.json`
+- Architecture guardrail temporary exceptions: `architecture/guardrail_exceptions.toml` with human-readable sync in
+  `architecture/guardrail_exceptions_registry.md`
+- Golden-path scaffolds: `tools/architecture/scaffold.py`
 
 Core import expectations:
 
@@ -95,30 +118,69 @@ Core import expectations:
 
 CI responsibilities:
 
-- `arch-freeze.yml` tracks boundary drift, exception expiry, deep-import drift, and freeze metrics.
-- `arch.yml` runs import-gate linting, Foundry purity checks, Scientist state-read validation, ABI
-  checks, runtime/frontend drift checks, and connector architecture lint.
+- `abi.yml` is the Fast PR lane: workflow governance, dependency review, import/docs/schema drift,
+  fast unit checks, and ABI drift.
+- `ci.yml` is the Standard PR lane: runtime HTTP, frontend quality/a11y, contract drift,
+  smoke tests, and integration.
+- `frontend-nightly.yml` is the Nightly lane: benchmark contours, bundle/lighthouse visibility,
+  scheduled dependency audits, and OpenSSF Scorecard.
+- `release.yml` is the Release lane: reproducible artifacts, release notes, SBOM/vulnerability
+  policy, canary, attestations, and publish.
 
 ## PR Process
 
 - Use branch names that match the change type: `feature/...`, `fix/...`, `docs/...`.
 - Commit messages may be Russian or English, but they should describe the change clearly.
-- Required checks depend on scope, but the default bar is green `arch-freeze.yml`, `arch.yml`,
-  `abi.yml`, `perf.yml`, and the relevant test workflows such as `causal-phases.yml` or
-  `replay.yml`.
+- Use the repository PR template in `.github/PULL_REQUEST_TEMPLATE.md`.
+- Apply the label taxonomy from `.github/labels.yml`: at least one `kind:*`, exactly one
+  `compat:*`, and exactly one `release:*`.
+- If a documented package entrypoint changes, record whether the touched surface is
+  `public_stable`, `public_experimental`, or `internal`.
+- Required checks and merge expectations live in `docs/reference/quality-gates.md` and
+  `docs/reference/merge-governance.md`.
+- New subsystems and major surfaces must satisfy `docs/reference/ratchet-policy.md` and the
+  Phase 7 ratchet section in the PR template.
+- The default branch-protection bar is green `Fast PR / Gate` and `Standard PR / Gate`.
 - Ask subsystem owners for review when a PR crosses package boundaries or changes contracts.
 - Merge only after CI is green and all blocking review comments are resolved.
+- Cross-boundary rollout PRs must include a `Migration owner`, rollout checklist, and release
+  fragment.
+
+## Release and Compatibility
+
+- Version namespaces and deprecation rules live in `docs/how-to/release-policy.md`.
+- If a release fragment is required for a public-surface change, include
+  `surface_classification` alongside compatibility/migration notes.
+- Treat architecture milestones (`Phase`, `WS`, ADR sequence) as planning vocabulary, not as
+  package, schema, or runtime API versions.
+- Supported release branches and security-reporting expectations live at repository root in
+  `SECURITY.md` and `SUPPORT.md`.
 
 ## Documentation Requirements
 
 - Every public class, function, and module needs a Google-style docstring.
 - A new module under `src/polisyos/**` should update the nearest parent `README.md`.
+- Major subsystem READMEs must keep `Where to Start` current when the recommended entrypoints move.
+- Public facade changes should regenerate `docs/reference/public-surface.md`.
+- Generated artifact lifecycle changes should update `architecture/generated_artifacts.toml` and regenerate
+  `docs/reference/generated-artifacts.md`.
 - A new IR type should be exported via `src/polisyos/ir/__init__.py` and verified against the ABI
   snapshot flow.
 - A new connector should follow `docs/connectors/CONTRIBUTING.md`.
+- Operator-visible, compatibility-sensitive, or rollout-sensitive changes should add or update a
+  fragment under `release-fragments/unreleased/`.
+- Release prep must freeze those entries into `release-fragments/releases/<version>/` before the
+  tag is cut.
 
 ## Links
 
 - `docs/connectors/CONTRIBUTING.md`
 - `docs/style-guide.md`
 - `docs/explanation/freeze-policy.md`
+- `docs/reference/quality-gates.md`
+- `docs/reference/merge-governance.md`
+- `docs/reference/ratchet-policy.md`
+- `docs/how-to/operate-ci-cd-platform.md`
+- `docs/reference/operations/platform-acceptance-audit.md`
+- `docs/how-to/review-rollouts.md`
+- `docs/how-to/release-policy.md`

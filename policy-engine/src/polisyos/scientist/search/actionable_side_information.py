@@ -53,7 +53,7 @@ def persist_actionable_side_information(
     *,
     inputs: list[InputRef] | None = None,
 ) -> ArtifactRef:
-    """Persist actionable side information helper."""
+    """Persist actionable side information that should travel with a promoted or replayable decision."""
     return store.put_json(
         artifact,
         PutOptions(

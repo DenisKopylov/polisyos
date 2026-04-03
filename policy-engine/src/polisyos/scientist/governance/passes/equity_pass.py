@@ -1,4 +1,4 @@
-"""Public passes equity pass module API."""
+"""Validate distributional fairness and vulnerable-group losses after simulation."""
 from __future__ import annotations
 
 from typing import Any, List
@@ -14,7 +14,15 @@ from polisyos.ir.analytics.distributional import (
 
 
 class EquityPass(ValidatorPass):
-    """Equity pass implementation."""
+    """Evaluate the distributional report against profile-specific equity thresholds.
+
+    Reads `distributional_report` directly from state or via
+    `artifacts_index.distributional_report_ref` and `_store`. Threshold keys
+    `equity_gini_increase_max`, `equity_vulnerable_loss_max_pct`, and
+    `equity_max_losers_share` determine warning/blocker decisions; STRICT
+    profiles emit blockers while other profiles downgrade most findings to
+    warnings.
+    """
     @property
     def pass_id(self) -> str:
         return "equity"

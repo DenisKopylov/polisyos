@@ -1,4 +1,10 @@
-"""Public runtime replay module API."""
+"""Plan, measure, and verify deterministic replay from CAS decision packets.
+
+The replay ABI is anchored on artifact ids and decision-packet payload shape.
+Callers should expect best-effort environment comparison, explicit completeness
+reports for missing/corrupted dependencies, and verification results that
+distinguish bit-exact checks from tolerance-bounded metric comparisons.
+"""
 from __future__ import annotations
 
 import random
@@ -39,21 +45,21 @@ logger = get_logger(__name__)
 
 
 class ReplayStrategy(str, Enum):
-    """Replay strategy data model."""
+    """Select the replay engine inferred from the packet dependency layout."""
     FOUNDRY = "foundry"
     SCIENTIST = "scientist"
     NONE = "none"
 
 
 class CompletenessLevel(str, Enum):
-    """Completeness level public type."""
+    """Classify whether the artifact graph is replayable without intervention."""
     COMPLETE = "complete"
     RECOVERABLE = "recoverable"
     INCOMPLETE = "incomplete"
 
 
 class VerificationMode(str, Enum):
-    """Verification mode public type."""
+    """Choose how a replay output should be compared with the original result."""
     BIT_EXACT = "bit_exact"
     CI_BOUNDED = "ci_bounded"
     SKIP = "skip"
@@ -61,14 +67,14 @@ class VerificationMode(str, Enum):
 
 @dataclass(frozen=True)
 class SeedResolution:
-    """Seed resolution public type."""
+    """Report the effective random seed and the source field it came from."""
     value: int
     source: str
 
 
 @dataclass(frozen=True)
 class MissingArtifact:
-    """Missing artifact public type."""
+    """Describe a missing or corrupted dependency discovered during graph traversal."""
     artifact_id: str
     role: str
     kind: str | None
@@ -78,7 +84,7 @@ class MissingArtifact:
 
 @dataclass
 class CompletenessReport:
-    """Completeness report data model."""
+    """Summarize dependency-graph completeness and replay-blocking reason codes."""
     level: CompletenessLevel
     strategy: ReplayStrategy
     total_artifacts: int
@@ -91,9 +97,11 @@ class CompletenessReport:
 
     @property
     def ok(self) -> bool:
+        """Return `True` only when every critical dependency is present and valid."""
         return self.level == CompletenessLevel.COMPLETE
 
     def summary(self) -> str:
+        """Render a compact human-readable status summary for CLI/debug output."""
         lines = [
             f"Completeness: {self.level.value}",
             f"Strategy: {self.strategy.value}",
@@ -110,7 +118,7 @@ class CompletenessReport:
 
 @dataclass(frozen=True)
 class VerificationConfig:
-    """Verification config data model."""
+    """Configure replay verification mode and numeric tolerance parameters."""
     mode: VerificationMode = VerificationMode.BIT_EXACT
     relative_tolerance: float = 1e-6
     confidence_level: float = 0.95
@@ -118,7 +126,7 @@ class VerificationConfig:
 
 @dataclass
 class VerificationResult:
-    """Verification result data model."""
+    """Return replay verification status and comparison diagnostics."""
     passed: bool
     mode: VerificationMode
     details: dict[str, Any] = field(default_factory=dict)
@@ -128,7 +136,7 @@ class VerificationResult:
 
 @dataclass
 class ReplayPlan:
-    """Replay plan data model."""
+    """Bundle packet payload, inferred replay strategy, seed, and completeness state."""
     packet_ref: ArtifactID
     strategy: ReplayStrategy
     seed: SeedResolution
@@ -138,7 +146,7 @@ class ReplayPlan:
 
 @dataclass(frozen=True)
 class ReplayBundleMeasurement:
-    """Replay bundle measurement public type."""
+    """Describe replay readiness and similarity for a persisted replayable bundle."""
     replay_bundle_ref: ArtifactRef
     completeness: CompletenessReport
     verification_mode: str
@@ -149,7 +157,7 @@ class ReplayBundleMeasurement:
 
 
 def set_global_seeds(seed: int) -> None:
-    """Set global seeds helper."""
+    """Initialize Python and NumPy RNGs before replay execution."""
     random.seed(seed)
     try:
         import numpy as np
@@ -160,7 +168,11 @@ def set_global_seeds(seed: int) -> None:
 
 
 def normalize_artifact_id(value: str) -> ArtifactID:
-    """Normalize artifact ID helper."""
+    """Parse a `sha256:<hex>` or raw 64-hex digest into `ArtifactID`.
+
+    Raises:
+        ValueError: If `value` is not a supported CAS artifact identifier.
+    """
     if _SHA256_PREF_RE.fullmatch(value):
         return ArtifactID.model_validate(value)
     if _SHA256_HEX_RE.fullmatch(value):
@@ -169,7 +181,7 @@ def normalize_artifact_id(value: str) -> ArtifactID:
 
 
 def try_parse_artifact_id(value: Any) -> ArtifactID | None:
-    """Try parse artifact ID helper."""
+    """Return a normalized artifact id or `None` for non-string/malformed values."""
     if not isinstance(value, str):
         return None
     try:
@@ -179,7 +191,7 @@ def try_parse_artifact_id(value: Any) -> ArtifactID | None:
 
 
 def determine_replay_strategy(payload: dict[str, Any]) -> ReplayStrategy:
-    """Determine replay strategy helper."""
+    """Infer the replay strategy from packet `inputs` and `artifacts` references."""
     inputs = payload.get("inputs") if isinstance(payload.get("inputs"), dict) else {}
     artifacts = payload.get("artifacts") if isinstance(payload.get("artifacts"), dict) else {}
     has_exec_plan = isinstance(artifacts.get("exec_plan_ref"), str)
@@ -203,7 +215,7 @@ def resolve_effective_seed(
     store: FileSystemCAS | None = None,
     default: int = 0,
 ) -> SeedResolution:
-    """Resolve effective seed."""
+    """Resolve the replay seed from packet metadata, run records, or ExecPlan."""
     replay_block = payload.get("replay")
     if isinstance(replay_block, dict):
         replay_seed = replay_block.get("effective_seed")
@@ -239,7 +251,11 @@ def compare_current_environment(
     store: FileSystemCAS,
     payload: dict[str, Any],
 ) -> list[EnvironmentDiff]:
-    """Compare current environment helper."""
+    """Compare the captured environment manifest with the current process environment.
+
+    Missing manifests or decode failures are treated as soft failures and return
+    an empty diff list after debug logging.
+    """
     inputs = payload.get("inputs") if isinstance(payload.get("inputs"), dict) else {}
     env_ref = try_parse_artifact_id(inputs.get("environment_manifest_ref"))
     if env_ref is None:
@@ -255,7 +271,7 @@ def compare_current_environment(
 
 
 def build_replay_plan(store: FileSystemCAS, packet_ref: ArtifactID) -> ReplayPlan:
-    """Build replay plan."""
+    """Load a decision packet, infer strategy/seed, and compute completeness."""
     payload = _load_packet_payload(store, packet_ref)
     completeness = completeness_check(store, packet_ref, payload=payload)
     strategy = determine_replay_strategy(payload)
@@ -273,7 +289,7 @@ def measure_replayable_audit_bundle(
     store: FileSystemCAS,
     replay_bundle_ref: ArtifactRef,
 ) -> ReplayBundleMeasurement:
-    """Measure replayable audit bundle helper."""
+    """Check replay-bundle dependencies and run semantic replay when snapshots exist."""
     from polisyos.scientist.policy_design.output import load_replayable_audit_bundle
 
     bundle = load_replayable_audit_bundle(store, replay_bundle_ref)
@@ -498,7 +514,12 @@ def completeness_check(
     max_nodes: int = 10_000,
     verify_integrity: bool = True,
 ) -> CompletenessReport:
-    """Completeness check helper."""
+    """Traverse packet dependencies and classify missing/corrupted replay inputs.
+
+    The root packet itself is always treated as critical. Missing non-critical
+    side artifacts downgrade the report to `RECOVERABLE`; unresolved strategy,
+    missing required roles, or corruption yield `INCOMPLETE`.
+    """
     reasons: list[str] = []
     try:
         packet_payload = payload or _load_packet_payload(store, packet_ref)
@@ -609,7 +630,7 @@ def verify_replay(
     replay_simulation_ref: ArtifactID | None,
     config: VerificationConfig,
 ) -> VerificationResult:
-    """Verify replay helper."""
+    """Compare original and replayed simulation outputs using the selected mode."""
     if config.mode == VerificationMode.SKIP:
         return VerificationResult(
             passed=True,

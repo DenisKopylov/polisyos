@@ -1,8 +1,11 @@
-"""
-ProblemFrame: The "Why" artifact - goals, KPIs, success criteria, constraints.
+"""Define the Trinity ``what`` artifact and its objective/constraint vocabulary.
 
-This artifact captures the formal problem statement that remains constant
-across policy iterations and sensitivity analyses.
+``ProblemFrame`` is the stable problem statement in the Trinity contract: it
+captures the decision objective, KPI semantics, feasibility boundaries, and
+stakeholder scope that policy proposals must respect. ``PolicySpec`` and
+``ModelSpec`` may iterate around this artifact, but downstream governance and
+optimization should treat ``ProblemFrame`` as the fixed reference for "what
+success means" and "what cannot be violated".
 """
 from __future__ import annotations
 
@@ -36,7 +39,12 @@ UnitIntervalValue = Annotated[Decimal, BeforeValidator(reject_float), Field(ge=0
 
 
 class ProblemDomain(str, Enum):
-    """Classification of policy problem domains."""
+    """Classify the domain vocabulary used to route metrics and templates.
+
+    The domain label is consumed by authoring tools and reporting layers to
+    choose problem-specific defaults; ``CUSTOM`` is the escape hatch when no
+    built-in domain taxonomy applies.
+    """
 
     FISCAL = "fiscal"
     MONETARY = "monetary"
@@ -52,7 +60,12 @@ class ProblemDomain(str, Enum):
 
 
 class ConstraintType(str, Enum):
-    """Types of constraints on policy outcomes."""
+    """Declare whether a constraint is a hard feasibility gate or a soft penalty.
+
+    ``ProblemFrame`` validators keep hard and soft constraints in separate
+    collections, while portfolio/search routines can use ``SOFT`` entries with
+    ``ConstraintSpec.penalty_weight`` as a scalarized penalty term.
+    """
 
     HARD = "hard"  # Must be satisfied
     SOFT = "soft"  # Preferred but not required
@@ -101,10 +114,12 @@ class UtilityDirection(str, Enum):
 
 
 class KPISpec(KernelModel):
-    """
-    Key Performance Indicator specification.
+    """Describe one measurable success signal anchored to the metric registry.
 
-    Defines a measurable metric that indicates progress toward objectives.
+    A KPI is the user-facing metric vocabulary for the ``what`` artifact: it
+    links narrative objectives to a concrete ``metric_id``, optional
+    baseline/target values, and an optimization direction that downstream
+    scoring and reporting stages can interpret consistently.
     """
 
     kpi_id: str = Field(..., pattern=ID_PATTERN, description="Unique KPI identifier")
@@ -162,10 +177,12 @@ class SuccessCriterion(KernelModel):
 
 
 class ConstraintSpec(KernelModel):
-    """
-    Constraint specification on policy outcomes.
+    """Specify one feasibility boundary or soft penalty attached to a metric slot.
 
-    Defines hard or soft boundaries that must/should be respected.
+    Hard constraints are expected to fail governance or search admission when
+    violated, whereas soft constraints may be traded off using
+    ``penalty_weight``. Use ``slot_id`` and ``operator`` when the constraint is
+    tied to a concrete metric channel.
     """
 
     constraint_id: str = Field(..., pattern=ID_PATTERN)
@@ -186,10 +203,12 @@ class ConstraintSpec(KernelModel):
 
 
 class StakeholderSpec(KernelModel):
-    """
-    Stakeholder affected by the policy problem.
+    """Capture the affected actor set used by equity and arbitration passes.
 
-    Captures who is impacted and how.
+    Stakeholders define whose outcomes must be tracked in ``ProblemFrame`` and
+    optionally prioritized in ``NormativeFrame``. Downstream fairness,
+    distributional, and policy communication layers read this contract to align
+    metric impacts with stakeholder semantics.
     """
 
     stakeholder_id: str = Field(..., pattern=ID_PATTERN)
@@ -267,12 +286,25 @@ class NormativeFrame(KernelModel):
 
 
 class ProblemFrame(KernelModel):
-    """
-    ProblemFrame: The "Why" artifact.
+    """Define the Trinity ``what`` contract for objectives, metrics, and guardrails.
 
-    Formalizes the policy problem being addressed, including goals, KPIs,
-    success criteria, constraints, and stakeholders. This artifact remains
-    constant during policy optimization and sensitivity analysis.
+    ``ProblemFrame`` answers "what problem are we solving and under which
+    boundaries?" and is expected to remain stable while ``PolicySpec`` explores
+    interventions and ``ModelSpec`` explores simulation assumptions. Use this
+    artifact as the canonical anchor for optimizer objectives, governance
+    constraints, stakeholder interpretation, and human-facing summaries.
+
+    Attributes:
+        problem_id: Stable identifier for the policy problem within a project.
+        domain: Domain taxonomy used for reporting and authoring defaults.
+        objectives: Formal optimization objectives tied to registry metrics.
+        kpis: Business-facing KPI definitions that quantify progress.
+        success_criteria: Threshold tests that define when a KPI is considered met.
+        hard_constraints: Non-negotiable feasibility boundaries.
+        soft_constraints: Penalty-based preferences that search may trade off.
+        stakeholders: Affected actor groups used by equity and arbitration logic.
+        normative_frame: Optional welfare/rights model for normative arbitration.
+        narrative: Human-readable problem statement preserved alongside the schema.
     """
 
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)

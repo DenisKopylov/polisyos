@@ -1,4 +1,4 @@
-"""Public foundry analysis package API."""
+"""Re-export Foundry analysis helpers used to interpret simulation outputs."""
 from __future__ import annotations
 
 from .distributional import (

@@ -1,4 +1,4 @@
-"""Public analytics causal module API."""
+"""Define causal effect reports, proof bundles, and readiness diagnostics."""
 from __future__ import annotations
 
 import math
@@ -26,7 +26,11 @@ from polisyos.ir.refs import (
 
 
 class CausalMethod(str, Enum):
-    """Canonical estimator family used to produce a causal effect report."""
+    """Declare which estimator family produced a ``CausalEffectReport``.
+
+    Reporting, diagnostics, and uncertainty conversion use this enum to explain
+    estimator provenance and to select method-specific governance checks.
+    """
 
     SYNTHETIC_CONTROL = "synthetic_control"
     DIFFERENCE_IN_DIFFERENCES = "difference_in_differences"
@@ -56,7 +60,12 @@ class CausalMethod(str, Enum):
 
 
 class EstimationStatus(str, Enum):
-    """Execution status for a causal estimation run."""
+    """Report whether a causal run produced decision-grade output or failed a gate.
+
+    ``CausalEffectReport`` and its uncertainty conversion read this enum to
+    decide whether an estimate is gate-eligible or should emit a non-actionable
+    failure envelope.
+    """
 
     SUCCESS = "success"
     INPUT_INVALID = "input_invalid"
@@ -65,7 +74,7 @@ class EstimationStatus(str, Enum):
 
 
 class RefutationTestType(str, Enum):
-    """Supported robustness checks for a causal estimate."""
+    """Identify which robustness/refutation check generated a diagnostic result."""
 
     PLACEBO_TREATMENT = "placebo_treatment"
     RANDOM_COMMON_CAUSE = "random_common_cause"
@@ -283,7 +292,7 @@ def persist_causal_effect_report(
     schema_name: str = "ir.causal_effect_report",
     schema_version: str = "1.0",
 ) -> CausalEffectReportRef:
-    """Persist causal effect report helper."""
+    """Persist a causal effect report as a typed JSON artifact reference."""
     ref = put_json_artifact(
         store,
         report.model_dump(mode="json"),
@@ -313,7 +322,7 @@ def persist_proof_bundle(
     schema_name: str = "ir.proof_bundle",
     schema_version: str = "1.0",
 ) -> ProofBundleRef:
-    """Persist proof bundle helper."""
+    """Persist a proof bundle and return its typed artifact reference."""
     ref = put_json_artifact(
         store,
         bundle.model_dump(mode="json"),
@@ -394,7 +403,7 @@ def persist_data_readiness_report(
     schema_name: str = "ir.data_readiness_report",
     schema_version: str = "1.0",
 ) -> DataReadinessReportRef:
-    """Persist data readiness report helper."""
+    """Persist a data-readiness report used by pre-estimation governance gates."""
     ref = put_json_artifact(
         store,
         report.model_dump(mode="json"),

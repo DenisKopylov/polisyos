@@ -1,4 +1,4 @@
-"""Public components bootstrap module API."""
+"""Builds component indexes and fans them out into runtime-specific registries."""
 from __future__ import annotations
 
 import importlib
@@ -12,7 +12,7 @@ from .registry import ComponentEntry, ComponentRegistry, DuplicateComponentIdPol
 
 @dataclass(slots=True)
 class BootstrapDomainReport:
-    """Bootstrap domain report data model."""
+    """Per-domain bootstrap outcome with registrations, duplicates, and discovery failures."""
     registered: list[str] = field(default_factory=list)
     duplicates: list[str] = field(default_factory=list)
     errors: list[str] = field(default_factory=list)
@@ -25,7 +25,7 @@ class BootstrapDomainReport:
 
 @dataclass(slots=True)
 class BootstrapReport:
-    """Bootstrap report data model."""
+    """Aggregate bootstrap result spanning every registry hydrated from discovered components."""
     components_total: int = 0
     sources_processed: int = 0
     discovery_errors: list[str] = field(default_factory=list)

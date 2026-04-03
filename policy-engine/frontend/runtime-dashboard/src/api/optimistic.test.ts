@@ -47,6 +47,9 @@ describe("optimistic run cache", () => {
           root_artifact_count: 1,
           has_workflow_report: true,
           warnings: [],
+          control_job_id: null,
+          decision_review_required: false,
+          execution_profile: null,
           cell_id: null,
         },
       ],
@@ -85,6 +88,8 @@ describe("optimistic run cache", () => {
       optimisticRun.run_id,
       buildLaunchedRunSummary(
         {
+          effective_execution_profile: "dev",
+          job_id: "job-accepted",
           message: "accepted",
           meta: {
             request_id: "req-launch",

@@ -1,4 +1,9 @@
-"""Public corpus versioning module API."""
+"""Lex temporal-version indexing and active-version resolution.
+
+``build_version_index`` derives a source-level revision index from world facts and ``DocMeta``
+temporal metadata, while ``resolve_active_version`` applies inclusive date semantics and
+deterministic tie-breaking to select the revision used by NormPack assembly.
+"""
 from __future__ import annotations
 
 from datetime import date, datetime, timezone
@@ -119,7 +124,24 @@ def build_version_index(
     options: LexVersionIndexOptions | None = None,
     segment_name: str | None = None,
 ) -> LexVersionIndexResult:
-    """Build version index."""
+    """Persist a version-selection index for every known revision of one legal source.
+
+    Args:
+        cas: Artifact store containing per-revision ``DocMeta`` payloads.
+        fact_log_root: Fact-log root where ``DOC_HAS_VERSION`` and latest ``WORLD_ARTIFACT_ID``
+            facts are read and where pointer/event facts are appended.
+        doc_source_id: Shared source id whose revisions should be indexed.
+        options: Optional selection policy and provenance settings.
+        segment_name: Optional world segment name prefix.
+
+    Returns:
+        Version-index artifact id, source-properties pointer artifact id, emitted provenance
+        references, revision count, and quality warnings such as unresolved temporal metadata.
+
+    Raises:
+        LexVersioningError: If no revisions exist for ``doc_source_id`` or persistence fails.
+        LexValidationError: If temporal metadata violates the expected contract.
+    """
     opts = options or LexVersionIndexOptions()
 
     try:
@@ -375,7 +397,23 @@ def resolve_active_version(
     as_of_iso: str,
     strategy: ActiveVersionStrategy | None = None,
 ) -> ActiveVersionResult:
-    """Resolve active version."""
+    """Select the legal revision active on ``as_of_iso`` using a persisted version index.
+
+    Args:
+        cas: Artifact store containing the selected ``VersionIndexV1`` payload.
+        doc_source_id: Legal source id expected by the version index.
+        as_of_iso: Inclusive ISO date used for effectivity checks.
+        strategy: Optional resolver configuration and candidate-return controls.
+
+    Returns:
+        Deterministic active-version decision and explanation trace. If no candidate is effective,
+        the selected document/version fields are ``None``.
+
+    Raises:
+        LexNotReadyError: If no source-properties pointer exists and no explicit index is supplied.
+        LexValidationError: If strategy settings or ``as_of_iso`` are unsupported.
+        LexVersioningError: If loading/parsing the version index fails.
+    """
     strat = strategy or ActiveVersionStrategy()
 
     try:

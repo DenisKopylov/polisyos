@@ -1,4 +1,10 @@
-"""Public normpack assemble pack module API."""
+"""Assemble NormPack snapshots from active legal provisions, claims, and conflict resolution.
+
+This module is the semantic boundary between corpus/versioning outputs and runtime legal
+evaluation. It selects applicable provisions, extracts/normalizes norm claims, resolves
+claim conflicts, converts canonical claims into ``NormRule`` objects, and persists a
+``NormPack`` plus world provenance.
+"""
 from __future__ import annotations
 
 import re
@@ -533,7 +539,23 @@ def claims_to_norm_rules(
     trust_by_target: dict[str, TrustAssessment],
     extractor_id_by_claim: dict[str, str],
 ) -> list[NormRule]:
-    """Claims to norm rules helper."""
+    """Convert canonical claim winners into deterministic ``NormRule`` records.
+
+    Args:
+        claims_by_id: Loaded claim payloads keyed by claim id.
+        canonical_claim_ids: Winning claim ids after conflict resolution plus non-conflicting claims.
+        jurisdiction_norm: Normalized jurisdiction used when deriving applicability metadata.
+        conflict_set_by_winner: Mapping from winning claim id to originating conflict-set id.
+        trust_by_target: Trust assessments keyed by target world id.
+        extractor_id_by_claim: Extractor provenance keyed by claim id.
+
+    Returns:
+        Sorted ``NormRule`` records with citations, applicability, and backend metadata linking
+        each rule back to source claims, conflict sets, trust scores, and extractors.
+
+    Raises:
+        KeyError: If ``canonical_claim_ids`` references a claim missing from ``claims_by_id``.
+    """
     sortable: list[tuple[str, str, str, NormRule]] = []
 
     for claim_id in sorted(set(canonical_claim_ids)):
@@ -623,7 +645,19 @@ def persist_norm_pack(
     conflict_resolution_artifact_ids: list[str],
     trust_assessment_artifact_ids: list[str],
 ) -> str:
-    """Persist norm pack helper."""
+    """Persist a ``NormPack`` artifact with complete artifact-level lineage.
+
+    Args:
+        cas: Artifact store that receives the serialized NormPack.
+        norm_pack: Materialized snapshot to persist.
+        provision_index_artifact_ids: Provision-index inputs used for rule extraction.
+        claim_set_artifact_ids: Claim-set inputs that contributed canonical claims.
+        conflict_resolution_artifact_ids: Conflict-resolution artifacts attached as provenance.
+        trust_assessment_artifact_ids: Trust-assessment artifacts attached as provenance.
+
+    Returns:
+        Artifact id of the persisted ``polisyos.ir.NormPack`` payload.
+    """
     inputs: list[InputRef] = []
     seen: set[tuple[str, str]] = set()
 
@@ -664,7 +698,7 @@ def emit_norm_pack_world_facts(
     *,
     norm_pack_artifact_id: str,
 ) -> tuple[str, list[Any]]:
-    """Emit norm pack world facts helper."""
+    """Create world-node facts that expose a persisted NormPack artifact in materialized stores."""
     norm_pack_world_id = artifact_id_to_world_id(
         prefix="artifact",
         artifact_id=norm_pack_artifact_id,
@@ -701,7 +735,11 @@ def emit_norm_pack_assemble_event(
     segment_name: str | None,
     counts: dict[str, int],
 ) -> tuple[str, str, Any]:
-    """Emit norm pack assemble event helper."""
+    """Persist an ``ASSEMBLE_NORM_PACK`` world event and the corresponding fact segment.
+
+    Returns:
+        Tuple of ``(world_event_id, world_event_artifact_id, world_segment_manifest)``.
+    """
     inputs: list[WorldObjectRef] = []
     for doc in sorted(selected_doc_versions, key=lambda row: row.doc_version_id):
         inputs.append(WorldObjectRef(world_id=doc.doc_version_id))
@@ -765,7 +803,12 @@ def assemble_norm_pack(
     db: SimulationDB | None = None,
     segment_name: str | None = None,
 ) -> NormPackBuildResult:
-    """Assemble norm pack helper."""
+    """Build and persist a NormPack snapshot for one jurisdiction/date/domain slice.
+
+    The assembler prefers explicit ``claim_set_artifact_ids`` when provided, otherwise it resolves
+    active document versions from the corpus and extracts claims from selected provisions. Static
+    provider outputs are used only when no local documents or claim sets are available.
+    """
     normalized_request, jurisdiction_norm, as_of_norm, domain_norm = _normalize_request(request)
     run_suffix = datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S%f")
 

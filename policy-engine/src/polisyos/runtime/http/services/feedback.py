@@ -1,4 +1,4 @@
-"""Public services feedback module API."""
+"""Expose monitoring, compare, and reissue workflows for decision feedback."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -24,7 +24,7 @@ from .run_index import IndexedRunRecord, RunIndexService
 
 @dataclass(frozen=True)
 class PreparedReissue:
-    """Prepared reissue public type."""
+    """Carry a new run id, reissued experiment-state payload, and feedback refs."""
     reissued_run_id: str
     state_payload: dict[str, Any]
     monitoring_report_ref: str | None
@@ -33,13 +33,18 @@ class PreparedReissue:
 
 
 class FeedbackService:
-    """Feedback service implementation."""
+    """Bridge runtime run records with Scientist decision-feedback artifacts."""
     def __init__(self, *, store: FileSystemCAS, run_index: RunIndexService) -> None:
         self._store = store
         self._run_index = run_index
         self._feedback = DecisionFeedbackService(store)
 
     def get_run_feedback(self, run: IndexedRunRecord) -> RunFeedbackView:
+        """Return monitoring/compare/reissue state linked to one run.
+
+        Runs without a decision packet return a soft diagnostic note instead of
+        raising so the `/feedback` API can still render partial state.
+        """
         if run.decision_packet_ref is None:
             return RunFeedbackView(
                 run_id=run.run_id,
@@ -99,6 +104,11 @@ class FeedbackService:
         self,
         run: IndexedRunRecord,
     ) -> tuple[RunFeedbackView, str | None, str | None, str | None]:
+        """Execute feedback evaluation and return the refreshed view plus artifact refs.
+
+        Raises:
+            ValueError: If the run has no decision packet.
+        """
         if run.decision_packet_ref is None:
             raise ValueError("decision_packet_missing")
         packet_ref = str(run.decision_packet_ref.artifact_id)
@@ -121,6 +131,11 @@ class FeedbackService:
         left_run: IndexedRunRecord,
         right_run: IndexedRunRecord,
     ) -> RunCompareView:
+        """Compare two decision packets and return the persisted diff report.
+
+        Raises:
+            ValueError: If either run is missing a decision packet.
+        """
         if left_run.decision_packet_ref is None or right_run.decision_packet_ref is None:
             raise ValueError("decision_packet_missing")
         left_packet_ref = str(left_run.decision_packet_ref.artifact_id)
@@ -140,6 +155,12 @@ class FeedbackService:
         )
 
     def prepare_reissue(self, run: IndexedRunRecord) -> PreparedReissue:
+        """Prepare a new experiment-state payload based on the feedback reissue plan.
+
+        Raises:
+            ValueError: If the source run has no experiment state, no reissue
+                plan, or the plan payload cannot be loaded.
+        """
         feedback_view, monitoring_report_ref, compare_report_ref, reissue_plan_ref = (
             self.evaluate_run_feedback(run)
         )

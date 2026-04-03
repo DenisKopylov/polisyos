@@ -1,4 +1,11 @@
-"""Public runtime package API."""
+"""Expose replay/runtime contracts without importing heavy implementations eagerly.
+
+`polisyos.runtime` is the package-level facade for replay planning and
+verification APIs. Exports are resolved lazily from `polisyos.runtime.replay`
+to keep import-time side effects predictable for CLI tools and libraries.
+
+The symbols listed in `__all__` are the stable replay surface for callers.
+"""
 from __future__ import annotations
 
 import importlib
@@ -32,6 +39,11 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
 
 
 def __getattr__(name: str) -> Any:
+    """Resolve one lazily exported replay symbol.
+
+    Raises:
+        AttributeError: If `name` is not part of the runtime facade contract.
+    """
     if name not in _LAZY_IMPORTS:
         raise AttributeError(f"module 'polisyos.runtime' has no attribute '{name}'")
     module_name, attr_name = _LAZY_IMPORTS[name]
@@ -42,4 +54,5 @@ def __getattr__(name: str) -> Any:
 
 
 def __dir__() -> list[str]:
+    """Return loaded globals plus deferred replay exports."""
     return sorted(list(globals().keys()) + list(_LAZY_IMPORTS.keys()))

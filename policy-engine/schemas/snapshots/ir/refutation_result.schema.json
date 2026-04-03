@@ -1,6 +1,7 @@
 {
   "$defs": {
     "RefutationTestType": {
+      "description": "Identify which robustness/refutation check generated a diagnostic result.",
       "enum": [
         "placebo_treatment",
         "random_common_cause",
@@ -13,6 +14,7 @@
     }
   },
   "additionalProperties": false,
+  "description": "Outcome of a single causal refutation or robustness check.",
   "properties": {
     "details": {
       "additionalProperties": true,

@@ -1,0 +1,412 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag in vX.Y.Z form"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref_name || inputs.tag }}
+  cancel-in-progress: false
+
+jobs:
+  prepare-release:
+    name: Release / Prepare
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.resolve.outputs.tag }}
+      version: ${{ steps.validate.outputs.version }}
+      fragments_dir: ${{ steps.validate.outputs.fragments_dir }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Resolve release tag
+        id: resolve
+        env:
+          INPUT_TAG: ${{ inputs.tag }}
+        run: |
+          set -euo pipefail
+          if [[ "${GITHUB_EVENT_NAME}" == "workflow_dispatch" ]]; then
+            tag="${INPUT_TAG}"
+          else
+            tag="${GITHUB_REF_NAME}"
+          fi
+          if [[ -z "${tag}" ]]; then
+            echo "::error::Release tag is required."
+            exit 1
+          fi
+          echo "tag=${tag}" >> "$GITHUB_OUTPUT"
+
+      - name: Enforce release immutability
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if gh release view "${{ steps.resolve.outputs.tag }}" --repo "${GITHUB_REPOSITORY}" >/dev/null 2>&1; then
+            echo "::error::Published releases are immutable. Cut a new version instead of mutating ${{ steps.resolve.outputs.tag }}."
+            exit 1
+          fi
+
+      - name: Validate packaged versions and fragments
+        id: validate
+        run: python3 policy-engine/tools/release/check_release_version.py --tag "${{ steps.resolve.outputs.tag }}" --github-output "$GITHUB_OUTPUT"
+
+  build-artifacts:
+    name: Release / Build artifacts
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    needs: prepare-release
+    defaults:
+      run:
+        working-directory: policy-engine
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Setup Policy Engine Python
+        uses: ./.github/actions/setup-policy-engine-python
+        with:
+          profile: runtime
+
+      - name: Setup runtime dashboard
+        uses: ./.github/actions/setup-runtime-dashboard
+
+      - name: Build Python distributions
+        run: uv build
+
+      - name: Build runtime dashboard
+        working-directory: policy-engine/frontend/runtime-dashboard
+        env:
+          VITE_SENTRY_RELEASE: ${{ needs.prepare-release.outputs.version }}
+        run: npm run build
+
+      - name: Assemble release assets
+        env:
+          VERSION: ${{ needs.prepare-release.outputs.version }}
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/release-assets
+          cp dist/* /tmp/release-assets/
+          tar -C frontend/runtime-dashboard/dist -czf "/tmp/release-assets/runtime-dashboard-dist-${VERSION}.tar.gz" .
+          (cd /tmp/release-assets && sha256sum * > SHA256SUMS)
+
+      - name: Check release artifact size policy
+        run: |
+          python3 tools/release/check_release_artifact_sizes.py \
+            --assets-dir /tmp/release-assets \
+            --policy release/artifact-size-policy.toml \
+            --summary /tmp/release-asset-policy.md \
+            --json-output /tmp/release-asset-policy.json
+
+      - name: Upload unsigned release artifacts
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: release-artifacts-unsigned
+          path: /tmp/release-assets
+          if-no-files-found: error
+          retention-days: 180
+
+      - name: Upload release asset policy evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: release-asset-policy
+          path: |
+            /tmp/release-asset-policy.md
+            /tmp/release-asset-policy.json
+          if-no-files-found: error
+          retention-days: 180
+
+  release-notes:
+    name: Release / Notes
+    runs-on: ubuntu-latest
+    needs: prepare-release
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Build release notes
+        run: |
+          python3 policy-engine/tools/release/build_release_notes.py \
+            --version "${{ needs.prepare-release.outputs.version }}" \
+            --fragments-dir "${{ needs.prepare-release.outputs.fragments_dir }}" \
+            --require-curated-sections compatibility migration api limitations \
+            --output /tmp/release-notes.md \
+            --metadata-output /tmp/release-notes.json
+
+      - name: Upload release notes
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: release-notes
+          path: |
+            /tmp/release-notes.md
+            /tmp/release-notes.json
+          if-no-files-found: error
+          retention-days: 180
+
+  supply-chain-gate:
+    name: Release / SBOM and vulnerability gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs:
+      - prepare-release
+      - build-artifacts
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Download unsigned release artifacts
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: release-artifacts-unsigned
+          path: /tmp/release-assets
+
+      - name: Install supply-chain tooling
+        id: tools
+        run: |
+          echo "bin=$(policy-engine/tools/ci/install_supply_chain_tools.sh)" >> "$GITHUB_OUTPUT"
+
+      - name: Generate release SBOM
+        run: |
+          "${{ steps.tools.outputs.bin }}/syft" dir:/tmp/release-assets -o cyclonedx-json=/tmp/release-sbom.cdx.json
+
+      - name: Generate vulnerability report
+        run: |
+          "${{ steps.tools.outputs.bin }}/grype" sbom:/tmp/release-sbom.cdx.json -o json > /tmp/release-grype.json
+
+      - name: Enforce vulnerability policy
+        run: |
+          python3 policy-engine/tools/release/evaluate_vuln_report.py \
+            --report /tmp/release-grype.json \
+            --exceptions policy-engine/release/cve-exceptions.toml \
+            --summary /tmp/release-vulnerability-policy.md
+
+      - name: Upload release supply-chain evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: release-supply-chain
+          path: |
+            /tmp/release-sbom.cdx.json
+            /tmp/release-grype.json
+            /tmp/release-vulnerability-policy.md
+          if-no-files-found: error
+          retention-days: 180
+
+  release-canary:
+    name: Release / Canary
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    needs:
+      - prepare-release
+      - build-artifacts
+      - supply-chain-gate
+    environment: release-canary
+    defaults:
+      run:
+        working-directory: policy-engine
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Download unsigned release artifacts
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: release-artifacts-unsigned
+          path: /tmp/release-assets
+
+      - name: Setup Policy Engine Python
+        uses: ./.github/actions/setup-policy-engine-python
+        with:
+          profile: runtime
+
+      - name: Setup runtime dashboard
+        uses: ./.github/actions/setup-runtime-dashboard
+        with:
+          install-playwright: "true"
+
+      - name: Validate built wheel install
+        run: |
+          set -euo pipefail
+          python3 -m venv /tmp/release-wheel-venv
+          source /tmp/release-wheel-venv/bin/activate
+          wheel_path="$(echo /tmp/release-assets/*.whl)"
+          pip install "policy-engine[runtime-http] @ file://${wheel_path}"
+          polisyos --help >/dev/null
+
+      - name: Run live runtime canary from installed release artifact
+        run: |
+          set -euo pipefail
+          source /tmp/release-wheel-venv/bin/activate
+          python tools/release/run_release_canary.py \
+            --summary /tmp/release-canary-summary.md \
+            --json-output /tmp/release-canary-summary.json
+
+      - name: Verify release dashboard bundle
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/release-dashboard
+          tar -C /tmp/release-dashboard -xzf /tmp/release-assets/runtime-dashboard-dist-*.tar.gz
+          test -f /tmp/release-dashboard/index.html
+
+      - name: Run runtime canary smoke
+        run: uv run pytest tests/runtime/http
+
+      - name: Run benchmark canary smoke
+        env:
+          BENCH_MODE: smoke
+          BENCH_JSON_DIR: /tmp/release-canary-bench
+        run: bash benchmarks/run_all_benchmarks.sh --circuit symbolic --quiet
+
+      - name: Upload canary evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: release-canary-evidence
+          path: |
+            /tmp/release-canary-bench
+            /tmp/release-canary-summary.md
+            /tmp/release-canary-summary.json
+          if-no-files-found: warn
+          retention-days: 180
+
+  sign-artifacts:
+    name: Release / Sign artifacts
+    runs-on: ubuntu-latest
+    needs:
+      - build-artifacts
+      - supply-chain-gate
+      - release-canary
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Download unsigned release artifacts
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: release-artifacts-unsigned
+          path: release-assets
+
+      - name: Install supply-chain tooling
+        id: tools
+        run: |
+          echo "bin=$(policy-engine/tools/ci/install_supply_chain_tools.sh)" >> "$GITHUB_OUTPUT"
+
+      - name: Sign release artifacts with Sigstore
+        env:
+          COSIGN_EXPERIMENTAL: "0"
+        run: |
+          set -euo pipefail
+          for asset in release-assets/*; do
+            [[ -f "${asset}" ]] || continue
+            "${{ steps.tools.outputs.bin }}/cosign" sign-blob \
+              --yes \
+              --output-signature "${asset}.sig" \
+              --output-certificate "${asset}.pem" \
+              "${asset}"
+          done
+
+      - name: Upload release signatures
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: release-signatures
+          path: |
+            release-assets/*.sig
+            release-assets/*.pem
+          if-no-files-found: error
+          retention-days: 180
+
+  attest-artifacts:
+    name: Release / Attest provenance
+    runs-on: ubuntu-latest
+    needs:
+      - build-artifacts
+      - supply-chain-gate
+    permissions:
+      contents: read
+      attestations: write
+      id-token: write
+    steps:
+      - name: Download unsigned release artifacts
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: release-artifacts-unsigned
+          path: release-assets
+
+      - name: Download release supply-chain evidence
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: release-supply-chain
+          path: release-supply-chain
+
+      - name: Attest release artifacts
+        uses: actions/attest-build-provenance@a2bbfa25375fe432b6a289bc6b6cd05ecd0c4c32 # v4.1.0
+        with:
+          subject-path: |
+            release-assets/*
+
+      - name: Attest supply-chain evidence
+        uses: actions/attest-build-provenance@a2bbfa25375fe432b6a289bc6b6cd05ecd0c4c32 # v4.1.0
+        with:
+          subject-path: |
+            release-supply-chain/*
+
+  publish-release:
+    name: Release / Publish
+    runs-on: ubuntu-latest
+    needs:
+      - prepare-release
+      - release-notes
+      - release-canary
+      - sign-artifacts
+      - attest-artifacts
+      - supply-chain-gate
+    permissions:
+      contents: write
+    environment: release-production
+    steps:
+      - name: Download unsigned release artifacts
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: release-artifacts-unsigned
+          path: release-assets
+
+      - name: Download release supply-chain evidence
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: release-supply-chain
+          path: release-supply-chain
+
+      - name: Download release notes
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: release-notes
+          path: release-notes
+
+      - name: Download release signatures
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: release-signatures
+          path: release-signatures
+
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ needs.prepare-release.outputs.tag }}
+          RELEASE_VERSION: ${{ needs.prepare-release.outputs.version }}
+        run: |
+          set -euo pipefail
+          mapfile -t assets < <(find release-assets release-signatures release-supply-chain -type f | sort)
+          gh release create "${RELEASE_TAG}" "${assets[@]}" \
+            --repo "${GITHUB_REPOSITORY}" \
+            --title "PolicyOS ${RELEASE_VERSION}" \
+            --notes-file release-notes/release-notes.md

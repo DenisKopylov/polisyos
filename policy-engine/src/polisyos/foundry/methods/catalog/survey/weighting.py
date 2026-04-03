@@ -39,7 +39,7 @@ def _vector(state: Mapping[str, Any], key: str) -> np.ndarray:
     tags={"survey", "weighting", "horvitz-thompson"},
 )
 class HorvitzThompsonEstimator:
-    """Horvitz thompson estimator implementation."""
+    """Estimate weighted totals or means with Horvitz-Thompson weights."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -105,7 +105,7 @@ class HorvitzThompsonEstimator:
     tags={"survey", "weighting", "raking"},
 )
 class RakingEstimator:
-    """Raking estimator implementation."""
+    """Calibrate survey weights to external margins via iterative proportional fitting."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -191,7 +191,7 @@ class RakingEstimator:
     tags={"survey", "weighting", "propensity"},
 )
 class PropensityWeightingEstimator:
-    """Propensity weighting estimator implementation."""
+    """Reweight survey units from estimated response propensities."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 

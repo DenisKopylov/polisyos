@@ -32,17 +32,21 @@ class ArtifactStore(Protocol):
     # -- read ----------------------------------------------------------
 
     def has(self, artifact_id: ArtifactID) -> bool:  # pragma: no cover - protocol
+        """Return whether both blob and manifest data are available for `artifact_id`."""
         ...
 
     def get_bytes(self, artifact_id: ArtifactID) -> bytes:  # pragma: no cover - protocol
+        """Return raw blob bytes for one artifact ID."""
         ...
 
     def get_manifest(self, artifact_id: ArtifactID) -> ArtifactManifest:  # pragma: no cover - protocol
+        """Return the validated manifest sidecar for one artifact ID."""
         ...
 
     # -- write ---------------------------------------------------------
 
     def put_bytes(self, data: bytes, opts: PutOptions) -> ArtifactRef:  # pragma: no cover - protocol
+        """Persist raw bytes and return the resulting content-addressed artifact reference."""
         ...
 
     def put_json(
@@ -51,14 +55,17 @@ class ArtifactStore(Protocol):
         opts: PutOptions,
         canon_spec: CanonSpec | None = None,
     ) -> ArtifactRef:  # pragma: no cover - protocol
+        """Canonicalize and persist a JSON payload as one artifact reference."""
         ...
 
     # -- integrity -----------------------------------------------------
 
     def verify(self, artifact_id: ArtifactID) -> VerificationReport:  # pragma: no cover - protocol
+        """Return byte/manifest integrity status for one artifact."""
         ...
 
     # -- enumeration ---------------------------------------------------
 
     def iter_artifact_ids(self) -> list[ArtifactID]:  # pragma: no cover - protocol
+        """List artifact IDs known to the backend."""
         ...

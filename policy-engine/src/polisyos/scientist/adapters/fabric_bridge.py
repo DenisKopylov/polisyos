@@ -1,4 +1,4 @@
-"""Public adapters fabric bridge module API."""
+"""Default Fabric port implementation that resolves data-view requests into CAS snapshots."""
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -26,7 +26,7 @@ logger = get_logger(__name__)
 
 
 class ExecutionTierViolation(RuntimeError):
-    """Raised when a catalog-only dataset is requested for execution."""
+    """Signal that the requested dataset is catalog-only and cannot be auto-executed."""
 
 
 # Minimum tier required for runtime execution.  Datasets below this
@@ -41,9 +41,22 @@ _TIER_RANK: dict[str, int] = {
 
 
 class DefaultFabricPort(FabricPort):
-    """Concrete FabricPort adapter for DataViewRequest -> DataSnapshot flows."""
+    """Fetch a Fabric dataset and persist a normalized `DataSnapshot` artifact tree.
+
+    The adapter accepts either query-layer or analytics-layer `DataViewRequest`
+    payloads, enforces minimum runtime execution tier, calls `fabric_get_data()`,
+    persists data/schema/quality/warnings/evidence artifacts, and returns a
+    `DataSnapshotRef` suitable for `BuildDataSnapshotNode`.
+    """
 
     def snapshot(self, store: FileSystemCAS, request_ref: DataViewRequestRef) -> DataSnapshotRef:
+        """Resolve a request artifact into a persisted `DataSnapshotRef`.
+
+        Raises:
+            ExecutionTierViolation: If the dataset is catalog-only and below the
+                minimum runtime execution tier.
+            ValueError: If the request does not identify a dataset.
+        """
         payload = from_canonical_bytes(store.get_bytes(request_ref.artifact_id))
         query_request = _parse_query_request(payload)
 

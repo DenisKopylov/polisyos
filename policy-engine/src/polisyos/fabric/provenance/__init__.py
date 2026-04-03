@@ -1,4 +1,4 @@
-"""Public fabric provenance package API."""
+"""Core provenance graph types and exporters for fabric evidence and world events."""
 from polisyos.fabric.provenance.core import (
     ActivityType,
     AgentType,

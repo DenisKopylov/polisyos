@@ -1,4 +1,4 @@
-"""Public simulation inference module API."""
+"""Estimate simulation-output uncertainty with Monte Carlo, bootstrap, and permutation procedures."""
 from __future__ import annotations
 
 from typing import Any, ClassVar, Mapping
@@ -30,7 +30,7 @@ def _result_slot() -> frozenset[SlotSpec]:
     tags={"simulation", "inference", "monte-carlo", "structural"},
 )
 class MonteCarloEstimator:
-    """Monte carlo estimator implementation."""
+    """Estimate output means/intervals by repeated stochastic simulation; avoid tiny replicate counts when tail risk matters."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -108,7 +108,7 @@ class MonteCarloEstimator:
     tags={"simulation", "inference", "bootstrap", "structural"},
 )
 class BootstrapInferenceEstimator:
-    """Bootstrap inference estimator implementation."""
+    """Estimate sampling uncertainty with bootstrap resampling; avoid strongly dependent samples unless resampling respects dependence."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -187,7 +187,7 @@ class BootstrapInferenceEstimator:
     tags={"simulation", "inference", "permutation", "randomization", "structural"},
 )
 class PermutationTestEstimator:
-    """Permutation test estimator implementation."""
+    """Estimate a null p-value by label permutation under exchangeability; avoid blocked/time-dependent data without constrained permutations."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 

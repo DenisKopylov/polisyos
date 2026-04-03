@@ -18,20 +18,26 @@ tools/* -> src/polisyos/*, schemas/*, frontend/*, docs/reports/*, runs/*, data/*
 
 | Папка | Роль в системе | Auto/Manual |
 |---|---|---|
+| `tools/architecture` | Public-surface inventory, deep-import baseline, generated-artifact lifecycle, unified scaffolds | CI + local |
 | `tools/lint` | Архитектурные import-gates, freeze-метрики, debt/baseline контроль | CI + local |
 | `tools/diagnostics` | ABI/контрактные проверки, SCM v3 verification, env/provenance диагностика | CI + local |
+| `tools/workspace` | Repo-local bootstrap/doctor/verify path для contributor setup | local |
 | `tools/runtime` | Runtime API OpenAPI/client контур и cutover-утилиты для `runs/` | CI + release + ops |
 | `tools/connectors` | Контрактные проверки коннекторов и scaffold новых источников | CI + local |
 | `tools/migrations` | Миграции артефактов и перенос данных DuckDB -> PostgreSQL | ops/manual |
+| `tools/testing` | Local smoke stack, quarantine/economics reporting и sharding guidance | CI + local |
 | `tools/demos` | Демонстрационные и исследовательские сценарии | local only |
 | `tools/benchmarks` | Ручные JAX smoke/benchmark сценарии | local only |
 
 Подробности по каждой папке:
 - [`tools/lint/README.md`](./lint/README.md)
+- [`tools/architecture/README.md`](./architecture/README.md)
 - [`tools/diagnostics/README.md`](./diagnostics/README.md)
+- [`tools/workspace/README.md`](./workspace/README.md)
 - [`tools/runtime/README.md`](./runtime/README.md)
 - [`tools/connectors/README.md`](./connectors/README.md)
 - [`tools/migrations/README.md`](./migrations/README.md)
+- [`tools/testing/README.md`](./testing/README.md)
 - [`tools/demos/README.md`](./demos/README.md)
 - [`tools/benchmarks/README.md`](./benchmarks/README.md)
 
@@ -39,7 +45,7 @@ tools/* -> src/polisyos/*, schemas/*, frontend/*, docs/reports/*, runs/*, data/*
 
 | Контур | Основные скрипты |
 |---|---|
-| `pre-commit` | `tools/lint/lint_imports.py`, `tools/diagnostics/gen_schema.py --check` |
+| `pre-commit` | `tools/lint/lint_imports.py`, `uv run --extra ml python tools/diagnostics/gen_schema.py --check` |
 | `arch.yml` | import/foundry/scholar/state-reads/runtime/connectors gates |
 | `abi.yml` | `gen_schema.py`, `abi_diff.py` |
 | `arch-freeze.yml` | `lint_connector_hardening.py`, `collect_arch_metrics.py`, `compare_baseline.py` |

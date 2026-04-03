@@ -1,4 +1,4 @@
-"""Public world ids module API."""
+"""Deterministic ID builders for world documents, claims, events, trust, and quality objects."""
 from __future__ import annotations
 
 import re
@@ -20,28 +20,28 @@ def _validate_prefix(prefix: str) -> None:
 
 
 def sha256_hex_from_artifact_id(artifact_id: str) -> str:
-    """Sha 256 hex from artifact ID helper."""
+    """Extract the raw SHA-256 hex digest from a validated CAS artifact id."""
     if _ARTIFACT_RE.fullmatch(artifact_id) is None:
         raise ValueError(f"artifact_id '{artifact_id}' does not match {ARTIFACT_ID_PATTERN}")
     return artifact_id.split("sha256:", 1)[1]
 
 
 def artifact_id_to_world_id(*, prefix: str, artifact_id: str) -> str:
-    """Artifact ID to world ID helper."""
+    """Project a CAS artifact id into a deterministic world-id namespace prefix."""
     _validate_prefix(prefix)
     hex_digest = sha256_hex_from_artifact_id(artifact_id)
     return f"{prefix}.sha256_{hex_digest}"
 
 
 def conflict_set_id_from_key(*, conflict_key: str) -> str:
-    """Conflict set ID from key helper."""
+    """Wrap a precomputed conflict digest in the stable ``cset.*`` world-id namespace."""
     if _SHA256_HEX_RE.fullmatch(conflict_key) is None:
         raise ValueError("conflict_key must be a 64-char lowercase hex sha256 digest")
     return f"cset.sha256_{conflict_key}"
 
 
 def stable_world_id_from_canon(*, prefix: str, payload: dict[str, Any]) -> str:
-    """Stable world ID from canon helper."""
+    """Hash canonical payload bytes into a stable world id once the payload is finalized."""
     _validate_prefix(prefix)
     canonical = to_canonical_bytes(payload)
     digest = content_hash(canonical)
@@ -78,7 +78,7 @@ def doc_source_id(
     official_id: str | None,
     source_kind: str | None = None,
 ) -> str:
-    """Doc source ID helper."""
+    """Derive the stable world id for a document source from its canonical URL or official id."""
     if (canonical_url is None) == (official_id is None):
         raise ValueError("exactly one of canonical_url or official_id is required")
     payload: dict[str, Any] = {}
@@ -92,7 +92,7 @@ def doc_source_id(
 
 
 def doc_version_id_from_raw_artifact(*, raw_artifact_id: str) -> str:
-    """Doc version ID from raw artifact helper."""
+    """Derive the stable world id for a raw document artifact version."""
     return artifact_id_to_world_id(prefix="docv", artifact_id=raw_artifact_id)
 
 
@@ -102,7 +102,7 @@ def doc_fragment_id(
     locator: FragmentLocator,
     text_artifact_id: str,
 ) -> str:
-    """Doc fragment ID helper."""
+    """Hash a locator plus text artifact into the stable id for a document fragment."""
     payload = {
         "doc_version_id": doc_version_id,
         "locator": locator,
@@ -112,7 +112,7 @@ def doc_fragment_id(
 
 
 def claim_id_from_payload(*, claim_payload: dict[str, Any]) -> str:
-    """Claim ID from payload helper."""
+    """Derive a deterministic claim id from the canonicalized claim boundary payload."""
     source_kind = _enum_value(claim_payload.get("source_kind"))
     payload: dict[str, Any] = {}
     for key in (
@@ -144,7 +144,7 @@ def claim_id_from_payload(*, claim_payload: dict[str, Any]) -> str:
 
 
 def world_event_id_from_payload(*, event_payload: dict[str, Any]) -> str:
-    """World event ID from payload helper."""
+    """Derive the stable id for a world provenance event from its persisted payload."""
     payload: dict[str, Any] = {}
     for key in (
         "event_kind",
@@ -166,7 +166,7 @@ def world_event_id_from_payload(*, event_payload: dict[str, Any]) -> str:
 
 
 def trust_assessment_id_from_payload(*, payload: dict[str, Any]) -> str:
-    """Trust assessment ID from payload helper."""
+    """Derive the stable id for a trust assessment once its scoring inputs are fixed."""
     clean_payload: dict[str, Any] = {}
     for key in (
         "policy_id",
@@ -188,7 +188,7 @@ def trust_assessment_id_from_payload(*, payload: dict[str, Any]) -> str:
 
 
 def quality_report_id_from_payload(*, payload: dict[str, Any]) -> str:
-    """Quality report ID from payload helper."""
+    """Derive the stable id for a quality report once metrics, issues, and props are fixed."""
     clean_payload: dict[str, Any] = {}
     for key in (
         "scope",

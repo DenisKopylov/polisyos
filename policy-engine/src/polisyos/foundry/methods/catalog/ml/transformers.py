@@ -1,4 +1,4 @@
-"""Public ml transformers module API."""
+"""Encode tabular records with transformer-style feature representations."""
 from __future__ import annotations
 
 import math
@@ -79,7 +79,7 @@ def _attention_importance(attention: np.ndarray, feature_names: list[str]) -> di
     tags={"ml", "deep-learning", "tabular-transformer"},
 )
 class TabularTransformerEstimator:
-    """Tabular transformer estimator implementation."""
+    """Learn contextual tabular embeddings for prediction tasks; avoid very small datasets where attention models overfit."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy", "scikit-learn")
 

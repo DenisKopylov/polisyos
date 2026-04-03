@@ -1,4 +1,4 @@
-"""Public discovery base module API."""
+"""Core discovery primitives for loading plugins from entry points and source files."""
 from __future__ import annotations
 
 import importlib.util
@@ -19,7 +19,7 @@ E = TypeVar("E")
 
 
 class DuplicatePolicy(str, Enum):
-    """Duplicate policy data model."""
+    """How registry builders should react when two discovered items share the same identity."""
     WARN = "warn"
     ERROR = "error"
     IGNORE = "ignore"
@@ -130,7 +130,7 @@ def discovery_module_name(
     algorithm: str = "sha1",
     digest_length: int = 12,
 ) -> str:
-    """Discovery module name helper."""
+    """Derive a deterministic temporary module name for loading a source file exactly once."""
     digest = truncated_hash(str(path.resolve()), algorithm=algorithm, length=digest_length)
     stem = _safe_identifier(path.stem)
     if stem:
@@ -155,7 +155,7 @@ def load_module_from_file(path: Path, *, module_name: str) -> ModuleType:
 
 
 def format_traceback() -> str:
-    """Format traceback helper."""
+    """Capture the active exception traceback as a printable string for discovery errors."""
     return traceback_lib.format_exc()
 
 
@@ -186,4 +186,3 @@ def _safe_identifier(value: str) -> str:
     if cleaned[0].isdigit():
         return f"m_{cleaned}"
     return cleaned
-

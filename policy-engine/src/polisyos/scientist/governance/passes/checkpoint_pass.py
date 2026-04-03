@@ -1,4 +1,4 @@
-"""Governance pass: validate calibration checkpoint evidence."""
+"""Validate calibration/replay checkpoint evidence before promotion and audit export."""
 
 from __future__ import annotations
 
@@ -9,13 +9,15 @@ from polisyos.core.governance.passes.base import PassContext, ValidatorPass
 
 
 class CheckpointPass(ValidatorPass):
-    """Validate that checkpoint evidence exists for audit/replay.
+    """Require checkpoint artifacts when replay/audit state marks them as mandatory.
 
     Calibration governance uses this pass as a lightweight audit hook:
     it only verifies that a checkpoint reference or explicit checkpoint
     payload exists when the run declares checkpoint evidence mandatory.
     Legacy ``checkpoints`` payloads are still accepted for compatibility
-    with reproducibility judge inputs.
+    with reproducibility judge inputs. Missing required evidence is a
+    `CHECKPOINT_MISSING` blocker, while out-of-order timestamps are reported as
+    informational `CHECKPOINT_ORDER` findings.
     """
 
     @property

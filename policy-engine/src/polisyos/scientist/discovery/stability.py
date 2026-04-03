@@ -241,7 +241,7 @@ def persist_bootstrap_stability_report(
     *,
     inputs: list[InputRef] | None = None,
 ) -> BootstrapStabilityReportRef:
-    """Persist bootstrap stability report helper."""
+    """Persist the bootstrap stability report used to judge discovery robustness."""
     ref = store.put_json(
         report,
         PutOptions(

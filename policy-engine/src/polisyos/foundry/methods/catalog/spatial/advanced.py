@@ -119,7 +119,7 @@ def _rbf_kernel(
     tags={"spatial", "kriging", "gaussian-process"},
 )
 class GaussianProcessKrigingEstimator:
-    """Gaussian process kriging estimator implementation."""
+    """Interpolate spatial fields with Gaussian-process kriging."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
     method_variant: ClassVar[str] = "gaussian_process_kriging"
@@ -246,7 +246,7 @@ class GaussianProcessKrigingEstimator:
     tags={"spatial", "interpolation", "idw"},
 )
 class InverseDistanceWeightingEstimator:
-    """Inverse distance weighting estimator implementation."""
+    """Interpolate spatial surfaces with inverse-distance weighting."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
     method_variant: ClassVar[str] = "idw"
@@ -342,7 +342,7 @@ class InverseDistanceWeightingEstimator:
     tags={"spatial", "panel", "slx"},
 )
 class SpatialSLXPanelEstimator:
-    """Spatial SLX panel estimator implementation."""
+    """Fit SLX panel models with lagged covariates across spatial units."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
     method_variant: ClassVar[str] = "slx"
@@ -517,7 +517,7 @@ def _panel_spatial_lag(
     tags={"spatial", "panel", "sarar"},
 )
 class SpatialSARARPanelEstimator:
-    """Spatial SARAR panel estimator implementation."""
+    """Fit SARAR panel models with both spatial lag and spatial error structure."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
     method_variant: ClassVar[str] = "sarar"
@@ -662,7 +662,7 @@ class SpatialSARARPanelEstimator:
     tags={"spatial", "accessibility", "two-step-fca"},
 )
 class TwoStepFCAAccessibilityEstimator:
-    """Two step FCA accessibility estimator implementation."""
+    """Estimate two-step floating-catchment accessibility scores."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
     method_variant: ClassVar[str] = "two_step_fca"
@@ -788,7 +788,7 @@ class TwoStepFCAAccessibilityEstimator:
     tags={"spatial", "microsim", "smsm"},
 )
 class SpatialMicrosimulationEstimator:
-    """Spatial microsimulation estimator implementation."""
+    """Fuse microdata and area constraints in a spatial microsimulation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
     method_variant: ClassVar[str] = "smsm"
@@ -917,7 +917,7 @@ class SpatialMicrosimulationEstimator:
     tags={"spatial", "zone-design", "balanced-clustering"},
 )
 class ZoneBalanceDesignEstimator:
-    """Zone balance design estimator implementation."""
+    """Design balanced service zones or territories under spatial constraints."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
     method_variant: ClassVar[str] = "zone_balance"
@@ -1057,7 +1057,7 @@ def _kmeans_like_assignments(
     tags={"spatial", "design", "maup"},
 )
 class MAUPSensitivityProfileEstimator:
-    """MAUP sensitivity profile estimator implementation."""
+    """Profile sensitivity to zoning choices under the modifiable areal unit problem."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
     method_variant: ClassVar[str] = "maup_profile"

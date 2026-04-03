@@ -12,9 +12,11 @@ AuthPolicy = Literal["none", "api_key", "bearer"]
 class SourceProfile(BaseModel):
     """Reusable configuration for a concrete source endpoint or portal.
 
-    A ``SourceProfile`` combines connector-family routing with transport,
-    throttling, async-fetch, and cache semantics so ingestion planners can
-    treat public APIs consistently.
+    A ``SourceProfile`` combines connector-family routing with transport, throttling, async-fetch,
+    and cache semantics so ingestion planners can treat public APIs consistently. The profile is a
+    declarative source description, not a hard execution guarantee: connector implementations may
+    expose fewer capabilities than a profile hints, and ``resolve_execution_policy`` normalizes the
+    runtime subset actually consumed by schedulers.
 
     Key fields:
         connector_family: Connector namespace used to resolve implementation
@@ -71,8 +73,10 @@ class SourceProfile(BaseModel):
 class SourceExecutionPolicy(BaseModel):
     """Normalized runtime execution policy derived from a source profile.
 
-    This frozen model strips presentation-only profile fields and keeps the
-    execution knobs needed by planners, schedulers, and capability caches.
+    This frozen model strips presentation-only profile fields and keeps the execution knobs needed
+    by planners, schedulers, and capability caches. TTL fields bound only Fabric's capability-cache
+    decisions; they do not imply HTTP response caching unless a separate connector cache layer is
+    configured.
     """
 
     model_config = ConfigDict(frozen=True, extra="forbid")

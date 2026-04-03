@@ -1,4 +1,10 @@
-"""Public observation governance module API."""
+"""Define family-level governance policy and pass-alias registries.
+
+This module sits one layer above raw observations: it tells Scientist which
+governance passes are mandatory for each observation family and how stable IR
+pass identifiers map onto concrete runtime pass names. The resolved mapping is
+embedded into bundle manifests before causal-readiness or execution stages run.
+"""
 from __future__ import annotations
 
 from enum import Enum
@@ -12,14 +18,19 @@ SCHEMA_VERSION_PATTERN = r"^\d+\.\d+$"
 
 
 class GovernancePassAliasStatus(str, Enum):
-    """Availability state for a governance pass alias."""
+    """Declare whether a canonical pass can execute in the current Scientist runtime.
+
+    ``RUNTIME`` means the alias resolves to a concrete pass id and may be
+    scheduled immediately; ``DEFERRED`` means policy metadata can reference the
+    pass, but readiness/execution layers must treat it as unavailable for now.
+    """
 
     RUNTIME = "runtime"
     DEFERRED = "deferred"
 
 
 class GovernancePassAlias(KernelModel):
-    """Canonical-to-runtime mapping for a governance pass.
+    """Map a stable IR pass id to the runtime-specific governance pass id.
 
     Alias entries decouple stable IR pass identifiers from the concrete pass
     names available in the current Scientist runtime.
@@ -38,7 +49,7 @@ class GovernancePassAlias(KernelModel):
 
 
 class GovernancePassAliasRegistry(KernelModel):
-    """Registry of governance pass aliases exposed to observation policies.
+    """Store the pass-alias catalog used when emitting bundle-friendly mappings.
 
     The registry is used when observation-family policies and bundle manifests
     need to refer to governance checks without hard-coding runtime-specific
@@ -58,10 +69,12 @@ class GovernancePassAliasRegistry(KernelModel):
         return self
 
     def resolve(self, canonical_pass_id: str) -> GovernancePassAlias | None:
+        """Return the alias entry for a canonical pass id, if registered."""
         return self.aliases.get(canonical_pass_id)
 
     @classmethod
     def default(cls) -> "GovernancePassAliasRegistry":
+        """Build the built-in alias table for currently known governance passes."""
         return cls(
             aliases={
                 "budget": GovernancePassAlias(
@@ -124,7 +137,7 @@ class GovernancePassAliasRegistry(KernelModel):
 
 
 class ObservationFamilyPolicy(KernelModel):
-    """Identification and governance defaults for one observation family.
+    """Declare default identification semantics and mandatory passes for one family.
 
     Encodes the preferred identification mode, fallback conditions, and the
     mandatory governance passes that must clear before the family can be used
@@ -150,7 +163,11 @@ class ObservationFamilyPolicy(KernelModel):
 
 
 class ObservationFamilyPolicyRegistry(KernelModel):
-    """Complete policy catalog covering every observation family."""
+    """Provide total family coverage for observation governance defaults.
+
+    Validators require one policy entry per :class:`ObservationFamily`, so
+    routing code can rely on deterministic lookup without ad-hoc fallback logic.
+    """
 
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     policies: dict[str, ObservationFamilyPolicy] = Field(default_factory=dict)
@@ -166,9 +183,19 @@ class ObservationFamilyPolicyRegistry(KernelModel):
         return self
 
     def for_family(self, family: ObservationFamily) -> ObservationFamilyPolicy:
+        """Return the governance policy for ``family``.
+
+        Args:
+            family: Observation family whose default identification and mandatory
+                passes should be retrieved.
+
+        Returns:
+            The configured family policy.
+        """
         return self.policies[family.value]
 
     def mandatory_pass_mapping(self) -> dict[str, list[str]]:
+        """Export only family -> mandatory pass ids for bundle manifests."""
         return {
             family: list(policy.mandatory_governance_passes)
             for family, policy in self.policies.items()
@@ -299,7 +326,7 @@ class ObservationFamilyPolicyRegistry(KernelModel):
 
 
 class GovernancePassMappingRegistry(KernelModel):
-    """Resolved mapping from observation families to governance pass ids.
+    """Materialize family-to-pass routing for readiness and execution manifests.
 
     This is the bundle-friendly form of the family policy registry: it keeps
     only the pass requirements that must be enforced globally or per family.
@@ -325,6 +352,7 @@ class GovernancePassMappingRegistry(KernelModel):
         return self
 
     def for_family(self, family: ObservationFamily, *, include_global: bool = False) -> list[str]:
+        """Return pass ids required for one family, optionally including global passes."""
         passes = list(self.family_passes[family.value])
         if not include_global:
             return passes
@@ -337,6 +365,7 @@ class GovernancePassMappingRegistry(KernelModel):
         *,
         global_mandatory_passes: list[str] | None = None,
     ) -> "GovernancePassMappingRegistry":
+        """Build a bundle-friendly pass mapping from a family policy registry."""
         return cls(
             global_mandatory_passes=list(
                 global_mandatory_passes or ["budget", "confidence", "freshness", "checkpoint"]

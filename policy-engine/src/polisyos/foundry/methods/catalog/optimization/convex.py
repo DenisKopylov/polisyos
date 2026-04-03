@@ -90,7 +90,7 @@ def _pick_solver(cp: Any, requested: str, *fallbacks: str) -> Any:
     tags={"optimization", "convex", "quadratic-program"},
 )
 class QuadraticProgramEstimator:
-    """Quadratic program estimator implementation."""
+    """Solve quadratic programs for allocation or control problems with smooth objectives."""
     runtime_stack: ClassVar[tuple[str, ...]] = ("cvxpy", "numpy")
 
     signature: ClassVar[MethodSignature] = MethodSignature(
@@ -226,7 +226,7 @@ class QuadraticProgramEstimator:
     tags={"optimization", "convex", "robust-optimization"},
 )
 class RobustOptimizationEstimator:
-    """Robust optimization estimator implementation."""
+    """Solve robust optimization problems when policy parameters face uncertainty sets."""
     runtime_stack: ClassVar[tuple[str, ...]] = ("cvxpy", "numpy")
 
     signature: ClassVar[MethodSignature] = MethodSignature(

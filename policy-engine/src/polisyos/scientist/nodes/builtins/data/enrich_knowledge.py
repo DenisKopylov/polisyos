@@ -55,7 +55,11 @@ _SPEC = NodeSpec(
 
 @dataclass(frozen=True)
 class EnrichKnowledgeNode:
-    """Enrich knowledge node implementation."""
+    """Data-stage DAG node that refreshes or reuses the knowledge bundle for a research intent.
+
+    Requires `inputs.research_intent_ref` and a configured Scholar port, then
+    writes `inputs.knowledge_bundle_ref` after freshness checks or a live refresh.
+    """
     auto_refresh_on_stale: bool = True
     block_on_expired: bool = False
     refresh_cooldown_seconds: int = 3600

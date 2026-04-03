@@ -54,6 +54,9 @@ core -> ir -> fabric -> foundry -> scientist -> runtime
 - `policy-engine/tests/ir/README.md`
 - `policy-engine/tests/lex/README.md`
 - `policy-engine/tests/integration/README.md`
+- `policy-engine/tests/TESTING_POLICY.md`
+- `policy-engine/tests/FIXTURE_CATALOG.md`
+- `policy-engine/tests/quarantine.toml`
 
 ## Инфраструктура тестов
 
@@ -67,6 +70,12 @@ core -> ir -> fabric -> foundry -> scientist -> runtime
 - уменьшает шум логов до `ERROR`.
 
 В `pyproject.toml` объявлен маркер `integration`.
+Phase 4 добавляет полную taxonomy/marker policy:
+
+- primary classes: `unit`, `contract`, `property`, `integration`, `performance`;
+- execution semantics: `smoke`, `slow`, `flaky`, `quarantine`;
+- quarantined pytest-tests читаются из `tests/quarantine.toml` и по умолчанию не гейтят прогон;
+- path-based auto-classification применяется в `tests/conftest.py`.
 
 ## Запуск
 
@@ -76,18 +85,17 @@ core -> ir -> fabric -> foundry -> scientist -> runtime
 # полный прогон
 pytest
 
-# быстрый цикл без integration
-pytest -m "not integration"
+# быстрый цикл без integration/performance/quarantine
+pytest -m "not integration and not performance and not quarantine" --ignore=tests/runtime/http
 
-# по основным зонам
-pytest tests/core -q
-pytest tests/fabric -q
-pytest tests/foundry -q
-pytest tests/scientist -q
-pytest tests/runtime -q
-pytest tests/contract -q
+# taxonomy slices
+pytest -m contract
+pytest -m property
+pytest -m integration --ignore=tests/runtime/http
+pytest -m performance
+pytest tests/runtime/http -m "not quarantine"
 
-# точечные контуры
-pytest tests/performance/test_overhead.py -q
-pytest tests/lint/test_legacy_cutover_lint.py -q
+# локальный smoke stack для backend + dashboard
+uv run python tools/testing/local_integration_stack.py up
+uv run python tools/testing/local_integration_stack.py smoke
 ```

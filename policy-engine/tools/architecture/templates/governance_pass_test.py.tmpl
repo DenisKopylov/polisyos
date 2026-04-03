@@ -1,0 +1,20 @@
+from __future__ import annotations
+
+from polisyos.core.governance.passes.base import PassContext
+from polisyos.core.governance.profiles import ValidationProfile
+from polisyos.scientist.governance.passes.{{module_name}} import {{class_name}}
+
+
+def test_{{pass_id}}_warns_when_artifact_missing() -> None:
+    ctx = PassContext(
+        ir=None,
+        state={"{{pass_id}}_artifact_ref": None},
+        registry_bundle=None,
+        profile=ValidationProfile.mvp(),
+        run_id="run_test",
+    )
+
+    issues = {{class_name}}().validate(ctx)
+
+    assert len(issues) == 1
+    assert issues[0].code == "{{issue_code_prefix}}_ARTIFACT_MISSING"

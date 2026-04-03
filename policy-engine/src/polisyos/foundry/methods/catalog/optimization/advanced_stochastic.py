@@ -30,7 +30,7 @@ def _result_slot() -> frozenset[SlotSpec]:
     tags={"optimization", "bilevel"},
 )
 class BilevelOptimizationEstimator:
-    """Bilevel optimization estimator implementation."""
+    """Solve bilevel policy design problems with nested leader-follower objectives."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -129,7 +129,7 @@ class BilevelOptimizationEstimator:
     tags={"optimization", "stochastic", "chance-constrained"},
 )
 class ChanceConstrainedEstimator:
-    """Chance constrained estimator implementation."""
+    """Solve optimization problems that enforce probabilistic feasibility constraints."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 

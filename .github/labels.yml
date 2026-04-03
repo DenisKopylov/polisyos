@@ -1,0 +1,51 @@
+- name: kind:architecture
+  color: "5319e7"
+  description: Architecture, ownership, import-policy, or ADR-impacting change.
+- name: kind:contract-schema
+  color: "1d76db"
+  description: Schema, ABI, OpenAPI, or generated-contract surface change.
+- name: kind:runtime-behavior
+  color: "0e8a16"
+  description: Runtime behavior, operator workflow, or control-plane behavior change.
+- name: kind:frontend
+  color: "0052cc"
+  description: Runtime dashboard, runtime-api-client, or operator UI change.
+- name: kind:docs
+  color: "fbca04"
+  description: Documentation-only or documentation-primary change.
+- name: kind:ops-security
+  color: "b60205"
+  description: Deployment, secrets, workflows, incident, or security-surface change.
+- name: kind:dependency-upgrade
+  color: "d93f0b"
+  description: Manifest, lockfile, toolchain, or dependency refresh.
+- name: compat:breaking
+  color: "b60205"
+  description: Requires consumer or operator action and must be called out as breaking.
+- name: compat:additive
+  color: "0e8a16"
+  description: Backward-compatible addition or extension of a supported surface.
+- name: compat:internal
+  color: "6a737d"
+  description: No supported-surface change; internal-only implementation or maintenance work.
+- name: release:breaking
+  color: "b60205"
+  description: Include in release notes as a breaking change.
+- name: release:feature
+  color: "1d76db"
+  description: Include in release notes as a new feature or supported addition.
+- name: release:fix
+  color: "0e8a16"
+  description: Include in release notes as a bug fix or quality improvement.
+- name: release:docs
+  color: "fbca04"
+  description: Include in release notes only if documentation materially changes usage.
+- name: release:ops
+  color: "5319e7"
+  description: Include in release notes as an operational or platform change.
+- name: release:security
+  color: "b60205"
+  description: Include in release notes as a security-relevant change.
+- name: release:none
+  color: "6a737d"
+  description: Internal change that should not appear in external release notes.

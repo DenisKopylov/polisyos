@@ -200,7 +200,7 @@ class ImputationTransform(DataTransform):
 
 
 def detect_missing_pattern(series: pd.Series) -> dict[str, Any]:
-    """Detect missing pattern helper."""
+    """Summarize whether missing values are sparse or clustered before imputation runs."""
     is_missing = series.isna()
 
     total_missing = int(is_missing.sum())
@@ -232,7 +232,7 @@ def detect_missing_pattern(series: pd.Series) -> dict[str, Any]:
 
 
 def recommend_imputation_strategy(series: pd.Series) -> str:
-    """Recommend imputation strategy helper."""
+    """Choose a default imputation strategy from the series' missingness pattern."""
     pattern = detect_missing_pattern(series)
 
     if pattern["missing_pct"] < 0.05:

@@ -3,8 +3,8 @@
 > Установите PolicyOS из исходников и запустите первый end-to-end пример Foundry примерно за 15 минут.
 
 !!! info "Проверено на текущем дереве"
-    Эта страница была проверена 2026-04-03 на macOS с Python 3.14.
-    Команды `pip install -e ".[all]"`, `polisyos --version`,
+    Эта страница была проверена 2026-04-03 на macOS с Python 3.14 и Node 22.
+    Команды `./scripts/bootstrap`, `./scripts/doctor`, `uv run polisyos --version`,
     `from polisyos.ir import ProblemFrame` и
     `from polisyos.foundry import compile_program`
     были реально запущены в свежем окружении.
@@ -14,7 +14,9 @@
 - Python 3.14+
   - macOS: `brew install python@3.14`
   - Ubuntu/Debian: установите Python 3.14 из совместимого источника, например deadsnakes
+- Node 22.x
 - Git
+- `uv`
 - Около 2 ГБ свободного места под JAX и связанные зависимости
 
 ## Установка
@@ -22,12 +24,13 @@
 Клонируйте репозиторий и установите рекомендуемое полное окружение для документации:
 
 ```bash
-git clone <repo-url> policy-engine
-cd policy-engine
-pip install -e ".[all]"
+git clone https://github.com/DenisKopylov/polisyos.git
+cd polisyos/policy-engine
+./scripts/bootstrap
+./scripts/doctor
 ```
 
-Если нужен только базовый пакет и основные контракты, используйте минимальную установку:
+Если вам нужен только ручной editable install без contributor bootstrap path, используйте:
 
 ```bash
 pip install -e ".[core]"
@@ -35,7 +38,7 @@ pip install -e ".[core]"
 
 `.[core]` намеренно минимален. `.[all]` — рекомендуемая стартовая точка для tutorial-страниц, потому что именно этот набор extras был проверен вместе со smoke-прогонами из документации.
 
-Если хотите, можно использовать виртуальное окружение:
+Если нужен ручной venv path вместо `uv`:
 
 ```bash
 python3.14 -m venv .venv

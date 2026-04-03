@@ -1,4 +1,4 @@
-"""Public causal structural time series module API."""
+"""Estimate intervention effects with structural time-series counterfactuals."""
 from __future__ import annotations
 
 import math
@@ -620,7 +620,7 @@ def estimate_structural_time_series_trajectory(
     tags={"causal", "structural-time-series", "bsts-approximation", "causal-impact"},
 )
 class StructuralTimeSeries:
-    """Structural time series public type."""
+    """Fit a latent structural baseline and infer post-intervention effects; avoid unstable pre-period trends."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
 
     signature: ClassVar[MethodSignature] = MethodSignature(

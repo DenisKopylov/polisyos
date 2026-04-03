@@ -17,7 +17,7 @@ from polisyos.foundry.contracts.fidelity import FidelityLevel
 
 
 class GraphAwareExecutor(PureExecutor):
-    """Graph aware executor implementation."""
+    """Augment execution with scheduled graph rewiring and graph-level diagnostics."""
     def __init__(
         self,
         mechanisms: Iterable[Mechanism],

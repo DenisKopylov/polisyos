@@ -48,7 +48,7 @@ def _values_payload(state: Any, *, key: str = "values") -> np.ndarray:
     tags={"policy", "welfare", "cost-benefit", "structural"},
 )
 class CostBenefitAnalysisEstimator:
-    """Cost benefit analysis estimator implementation."""
+    """Compare policy costs and monetized benefits in one welfare ledger."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -173,7 +173,7 @@ def _compute_irr(cash_flows: np.ndarray, tol: float = 1e-8, max_iter: int = 200)
     tags={"policy", "welfare", "cost-effectiveness", "structural"},
 )
 class CostEffectivenessEstimator:
-    """Cost effectiveness estimator implementation."""
+    """Compare policy costs against non-monetary outcome gains."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -268,7 +268,7 @@ class CostEffectivenessEstimator:
     tags={"policy", "welfare", "swf", "utilitarian", "structural"},
 )
 class UtilitarianSWFEstimator:
-    """Utilitarian SWF estimator implementation."""
+    """Evaluate policies by aggregate utility or welfare gains."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -329,7 +329,7 @@ class UtilitarianSWFEstimator:
     tags={"policy", "welfare", "swf", "rawlsian", "structural"},
 )
 class RawlsianSWFEstimator:
-    """Rawlsian SWF estimator implementation."""
+    """Evaluate policies by outcomes for the worst-off group under a Rawlsian rule."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -385,7 +385,7 @@ class RawlsianSWFEstimator:
     tags={"policy", "welfare", "swf", "atkinson", "structural"},
 )
 class AtkinsonSWFEstimator:
-    """Atkinson SWF estimator implementation."""
+    """Evaluate policies with an Atkinson welfare function sensitive to inequality aversion."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -455,7 +455,7 @@ class AtkinsonSWFEstimator:
     tags={"policy", "welfare", "swf", "sen", "structural"},
 )
 class SenCapabilityEstimator:
-    """Sen capability estimator implementation."""
+    """Evaluate policies against capability-oriented welfare dimensions."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 

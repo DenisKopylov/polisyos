@@ -1,4 +1,10 @@
-"""Public calibration calibrator module API."""
+"""Optimize Foundry mechanism parameters against observed targets and diagnostics.
+
+`Calibrator` owns the synthetic-vs-observed boundary for calibration: it
+generates synthetic traces with `run_pure_scan()`, compares them to either raw
+target series or a `CalibrationTargetBundle`, applies measurement-aware and
+auxiliary penalties, and returns a persisted-report-ready `CalibrationReport`.
+"""
 from __future__ import annotations
 
 import json
@@ -70,7 +76,34 @@ from polisyos.scientist.autotune.calibration import apply_calibration_meta_overr
 
 @dataclass
 class CalibratorInputs:
-    """All dependencies required to run the Foundry calibration loop."""
+    """Bundle the runtime contracts and callbacks required by `Calibrator.run()`.
+
+    Attributes:
+        config: Optimization, target, and loss configuration.
+        program_graph: Compiled graph whose nodes will be replayed in-memory.
+        exec_plan: Execution order and runtime flags for the graph.
+        base_state: Synthetic initial `GlobalState` snapshot used by simulation.
+        mechanism_registry: Mechanism registry for node instantiation.
+        slot_registry: Slot schema used to evaluate metrics and merge patches.
+        merge_registry: Merge rules used by the pure executor.
+        selector_field_registry: Optional selector-field mapping for mask
+            evaluation.
+        parameter_loader: Callback that resolves node parameters/schedules
+            deterministically from `params_ref` or node payloads.
+        constraint_registry: Optional governance constraints to penalize.
+        constraint_values: Optional right-hand-side values for constraint IDs.
+        raw_targets: Optional observed series supplied directly by the caller.
+        controls_seq: Optional control sequence used to set the scan horizon.
+        udf_engine: Optional Fabric query engine for target fetching.
+        target_fetcher: Optional custom fetch callback overriding `udf_engine`.
+        measurement_bundle: Optional measurement-aware observed target bundle.
+        measurement_loss_config: Optional discount config for observation
+            metadata.
+        measurement_loss_adapter: Optional custom loss adapter; defaults to
+            `DefaultMeasurementAwareLossAdapter`.
+        aux_loss_components: Optional extra penalties computed from synthetic
+            traces, such as interference losses.
+    """
 
     config: CalibrationConfig
     program_graph: ProgramGraph
@@ -95,7 +128,7 @@ class CalibratorInputs:
 
 @dataclass
 class TrainableGroup:
-    """Resolved bundle of trainable handles that share one optimization group."""
+    """Represent one tied optimizer variable shared by multiple mechanism fields."""
 
     group_id: str
     handle_indices: list[int]
@@ -107,7 +140,7 @@ class TrainableGroup:
 
 @dataclass
 class ConstraintHandle:
-    """Normalized runtime view of one calibration constraint."""
+    """Normalize one constraint into a metric path, operator, and threshold."""
 
     constraint_id: str
     operator: str
@@ -117,14 +150,7 @@ class ConstraintHandle:
 
 @dataclass
 class CalibrationMetricsCollector:
-    """
-    Batched metrics collector for calibration loops.
-
-    Design:
-    - Collects metrics in memory during optimization
-    - Emits to OTel every N steps (configurable)
-    - Final flush on convergence
-    """
+    """Batch optimizer telemetry and emit it periodically to observability sinks."""
 
     optimizer_name: str
     emit_interval: int = 10
@@ -144,6 +170,7 @@ class CalibrationMetricsCollector:
         grad_norm: float,
         is_warmup: bool,
     ) -> None:
+        """Record one optimizer step and flush when the emit interval is reached."""
         if not self.enabled:
             return
         self._step_durations.append((duration_seconds, is_warmup))
@@ -184,6 +211,7 @@ class CalibrationMetricsCollector:
         self._grad_norms.clear()
 
     def finalize(self, convergence_reason: str, total_steps: int) -> None:
+        """Flush remaining metrics and emit final convergence-step telemetry."""
         if not self.enabled:
             return
         self._flush()
@@ -328,14 +356,17 @@ def _inspect_bundle_fidelity(bundle: StaticBundle) -> dict[str, Any]:
 
 
 class Calibrator:
-    """
-    Минимальный дифференцируемый калибратор (MVP):
-    - optax.Adam
-    - относительная нормализация ошибок
-    - без Hessian/GradNorm (заложены точки расширения)
+    """Fit trainable mechanism parameters by minimizing synthetic-vs-observed loss.
+
+    The optimizer updates only mechanism fields marked trainable in the
+    registry bundle; schedules, selectors, and merge contracts remain fixed in
+    the compiled `StaticBundle`. Use this class when you already have a
+    compiled `ProgramGraph`/`ExecPlan` and need a deterministic calibration run
+    against aligned observed targets or a measurement-aware target bundle.
     """
 
     def __init__(self, inputs: CalibratorInputs):
+        """Initialize the calibrator with compile/runtime contracts and callbacks."""
         self.inputs = inputs
         self._bundle: StaticBundle | None = None
 
@@ -491,6 +522,36 @@ class Calibrator:
         return groups, diagnostics
 
     def run(self) -> CalibrationReport:
+        """Run the optimizer loop and return a report-ready calibration artifact.
+
+        Returns:
+            `CalibrationReport` with fitted parameter values, per-target loss,
+            synthetic-vs-observed comparisons, fit metrics, uncertainty
+            diagnostics, and execution context.
+
+        Raises:
+            ValueError: If no usable target series are available, if target
+                lengths are inconsistent, if constraints reference unknown
+                metrics, or if no trainable parameters can be resolved.
+
+        Example:
+            ```python
+            report = Calibrator(
+                CalibratorInputs(
+                    config=config,
+                    program_graph=program_graph,
+                    exec_plan=exec_plan,
+                    base_state=state_snapshot,
+                    mechanism_registry=mechanism_registry,
+                    slot_registry=slot_registry,
+                    merge_registry=merge_registry,
+                    selector_field_registry=selector_field_registry,
+                    parameter_loader=load_params,
+                    raw_targets={"tax_revenue": observed_tax_revenue},
+                )
+            ).run()
+            ```
+        """
         cfg = apply_calibration_meta_overrides(
             self.inputs.config,
             context={"calibrator_inputs": self.inputs},

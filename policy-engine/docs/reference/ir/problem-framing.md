@@ -7,6 +7,11 @@ Related explanation: [Trinity](../../explanation/trinity.md).
 specific intervention is proposed. It stays stable while `PolicySpec` and
 runtime strategies iterate around it.
 
+In Trinity terms, `ProblemFrame = what`, `PolicySpec = intervention/governance`,
+and `ModelSpec = how`. This page documents the stable "what" contract and the
+objective, KPI, constraint, and stakeholder vocabulary that downstream search
+and governance should treat as fixed context.
+
 ## Source Modules
 
 | Module | Focus | Key exports |

@@ -2,6 +2,7 @@
   "$defs": {
     "EnsembleMember": {
       "additionalProperties": false,
+      "description": "One graph candidate inside a structural-uncertainty ensemble.",
       "properties": {
         "bootstrap_stability": {
           "maximum": 1.0,

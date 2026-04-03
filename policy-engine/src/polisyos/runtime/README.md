@@ -28,6 +28,13 @@ legacy filesystem helpers, and the HTTP API package under `runtime.http`.
 - `completeness_check`
 - `verify_replay`
 
+## Where to Start
+
+- Public facade / compatibility: `src/polisyos/runtime/__init__.py` and `docs/reference/public-surface.md`
+- HTTP app + routes: `src/polisyos/runtime/http/README.md`
+- Generated contracts: `schemas/runtime_api_v1.openapi.json`, `frontend/runtime-api-client/`, `frontend/runtime-dashboard/src/api/types.ts`
+- Regeneration / drift checks: `docs/reference/generated-artifacts.md` and `tools/runtime/check_runtime_api_contract.py`
+
 ## Current State
 
 - Last updated: 2026-04-03

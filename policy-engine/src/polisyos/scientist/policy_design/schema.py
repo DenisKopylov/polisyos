@@ -360,7 +360,7 @@ def persist_policy_candidate_schema(
     *,
     inputs: list[InputRef] | None = None,
 ) -> ArtifactRef:
-    """Persist policy candidate schema helper."""
+    """Persist the canonical policy candidate schema used by search, runtime, and replay flows."""
     return store.put_json(
         candidate,
         PutOptions(

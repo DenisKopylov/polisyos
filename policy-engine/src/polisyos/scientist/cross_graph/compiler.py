@@ -1,4 +1,4 @@
-"""Public cross graph compiler module API."""
+"""Compiler and config for turning policy bundles into cross-graph evidence profiles."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -51,7 +51,7 @@ from polisyos.scientist.evidence_sources import build_path_source_status, update
 
 
 class CrossGraphEvidenceConfig(BaseModel):
-    """Cross graph evidence config data model."""
+    """Runtime configuration describing which evidence backends, ontology, and context the compiler should use."""
     model_config = ConfigDict(extra="forbid")
 
     enabled: bool = True
@@ -116,7 +116,7 @@ class _TransportResult:
 
 
 class CrossGraphEvidenceCompiler:
-    """Cross graph evidence compiler implementation."""
+    """Compile a Trinity bundle into evidence-need assessments across legal, dataset, and academic channels."""
     def __init__(self, config: CrossGraphEvidenceConfig) -> None:
         self.config = config
 
@@ -336,7 +336,7 @@ def extract_evidence_needs(
     country_code: str | None = None,
     target_year: int | None = None,
 ) -> list[EvidenceNeed]:
-    """Extract evidence needs helper."""
+    """Derive the evidence needs implied by a policy bundle, causal graph, and target context."""
     problem_frame = bundle.problem_frame
     policy_spec = bundle.policy_spec
     resolved_policy_domain = policy_domain or problem_frame.domain.value

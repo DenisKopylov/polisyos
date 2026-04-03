@@ -1,4 +1,4 @@
-"""Public causal bounds module API."""
+"""Compute partial-identification bounds when point identification is not credible."""
 from __future__ import annotations
 
 import logging
@@ -35,7 +35,7 @@ def _result_slot() -> frozenset[SlotSpec]:
     tags={"causal", "bounds", "manski"},
 )
 class ManskiBoundsEstimator:
-    """Manski bounds estimator implementation."""
+    """Compute no-assumption Manski treatment-effect bounds; expect wide intervals under weak support information."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -118,7 +118,7 @@ class ManskiBoundsEstimator:
     tags={"causal", "bounds", "lee"},
 )
 class LeeBoundsEstimator:
-    """Lee bounds estimator implementation."""
+    """Compute Lee attrition bounds under monotone selection; avoid when treatment can move selection in both directions."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 

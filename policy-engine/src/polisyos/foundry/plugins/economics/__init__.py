@@ -1,4 +1,4 @@
-"""Public plugins economics package API."""
+"""Expose the built-in economics plugin and its registration entrypoint."""
 from .mechanisms import (
     ConsumptionMechanism,
     LaborMarketMechanism,

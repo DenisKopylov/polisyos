@@ -1,4 +1,4 @@
-"""Public analytics strategic module API."""
+"""Represent strategic-response games, fallback modes, and persisted closure artifacts."""
 from __future__ import annotations
 
 import itertools
@@ -124,14 +124,14 @@ def decode_action_profile(
 
 
 class StrategicEquilibriumConcept(str, Enum):
-    """Strategic equilibrium concept public type."""
+    """Select the equilibrium notion used by strategic-response solvers."""
     NASH = "nash"
     STACKELBERG = "stackelberg"
     BEST_RESPONSE_FIXED_POINT = "best_response_fixed_point"
 
 
 class StrategicFallbackMode(str, Enum):
-    """Strategic fallback mode public type."""
+    """Report whether strategic evaluation used exact, bounded, abstracted, or blocked fallback."""
     EXACT_EQUILIBRIUM = "exact_equilibrium"
     STRATEGIC_BOUNDS = "strategic_bounds"
     MACRO_ABSTRACTED = "macro_abstracted"
@@ -480,7 +480,7 @@ def persist_strategic_solve_artifacts(
     inputs: list[InputRef] | None = None,
     metadata: dict[str, Any] | None = None,
 ) -> tuple[StrategicResponseBundle, StrategicResponseBundleRef]:
-    """Persist strategic solve artifacts helper."""
+    """Persist the strategic closure, equilibrium set, and policy-value summaries."""
     from polisyos.foundry.methods.catalog.causal.strategic import build_strategic_response_bundle
 
     bundle_metadata = {
@@ -567,7 +567,7 @@ def persist_strategic_payoff_table(
     schema_name: str = _STRATEGIC_PAYOFF_TABLE_SCHEMA_NAME,
     schema_version: str = _STRATEGIC_PAYOFF_TABLE_SCHEMA_VERSION,
 ) -> StrategicPayoffTableRef:
-    """Persist strategic payoff table helper."""
+    """Persist one finite payoff table and return its typed artifact reference."""
     ref = put_json_artifact(
         store,
         table.model_dump(mode="json"),
@@ -597,7 +597,7 @@ def persist_strategic_scm(
     schema_name: str = _STRATEGIC_SCM_SCHEMA_NAME,
     schema_version: str = _STRATEGIC_SCM_SCHEMA_VERSION,
 ) -> StrategicSCMRef:
-    """Persist strategic scm helper."""
+    """Persist a strategic SCM contract and return its typed artifact reference."""
     ref = put_json_artifact(
         store,
         contract.model_dump(mode="json"),
@@ -627,7 +627,7 @@ def persist_strategic_response_bundle(
     schema_name: str = _STRATEGIC_RESPONSE_BUNDLE_SCHEMA_NAME,
     schema_version: str = _STRATEGIC_RESPONSE_BUNDLE_SCHEMA_VERSION,
 ) -> StrategicResponseBundleRef:
-    """Persist strategic response bundle helper."""
+    """Persist the top-level strategic-response bundle for downstream reporting."""
     ref = put_json_artifact(
         store,
         bundle.model_dump(mode="json"),
@@ -655,7 +655,7 @@ def persist_strategic_closure_summary(
     *,
     inputs: list[InputRef] | None = None,
 ) -> ArtifactRefModel:
-    """Persist strategic closure summary helper."""
+    """Persist a strategic closure summary leaf artifact."""
     return _persist_strategic_leaf(
         store,
         summary,
@@ -682,7 +682,7 @@ def persist_equilibrium_set_summary(
     *,
     inputs: list[InputRef] | None = None,
 ) -> ArtifactRefModel:
-    """Persist equilibrium set summary helper."""
+    """Persist an equilibrium-set disclosure leaf artifact."""
     return _persist_strategic_leaf(
         store,
         summary,
@@ -709,7 +709,7 @@ def persist_equilibrium_selection_summary(
     *,
     inputs: list[InputRef] | None = None,
 ) -> ArtifactRefModel:
-    """Persist equilibrium selection summary helper."""
+    """Persist the selected-equilibrium disclosure leaf artifact."""
     return _persist_strategic_leaf(
         store,
         summary,
@@ -736,7 +736,7 @@ def persist_performative_shift_summary(
     *,
     inputs: list[InputRef] | None = None,
 ) -> ArtifactRefModel:
-    """Persist performative shift summary helper."""
+    """Persist a performative-shift disclosure leaf artifact."""
     return _persist_strategic_leaf(
         store,
         summary,
@@ -763,7 +763,7 @@ def persist_post_adaptation_policy_value_summary(
     *,
     inputs: list[InputRef] | None = None,
 ) -> ArtifactRefModel:
-    """Persist post adaptation policy value summary helper."""
+    """Persist the post-adaptation policy-value disclosure leaf artifact."""
     return _persist_strategic_leaf(
         store,
         summary,

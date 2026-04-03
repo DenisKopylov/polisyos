@@ -118,7 +118,9 @@ def _attach_tenant_attributes(span: Any) -> None:
 
 
 @overload
-def traced(func: Callable[P, T]) -> Callable[P, T]: ...
+def traced(func: Callable[P, T]) -> Callable[P, T]:
+    """Decorate `func` with automatic span creation using default options."""
+    ...
 
 
 @overload
@@ -131,7 +133,9 @@ def traced(
     agent: Optional[str] = None,
     node: Optional[str] = None,
     kind: SpanKind = SpanKind.INTERNAL,
-) -> Callable[[Callable[P, T]], Callable[P, T]]: ...
+) -> Callable[[Callable[P, T]], Callable[P, T]]:
+    """Return a configured tracing decorator for sync or async callables."""
+    ...
 
 
 def traced(

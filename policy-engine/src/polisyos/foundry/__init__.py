@@ -1,4 +1,14 @@
-"""Public foundry package API."""
+"""Expose the stable Foundry compile/execute entrypoints behind lazy imports.
+
+`polisyos.foundry` is the user-facing facade for turning Trinity bundles into
+`ExecPlan` artifacts and replaying those plans against bound `GlobalState`
+snapshots. Exports stay lazy so CLI/docs imports do not eagerly load JAX,
+solver, or optional catalog backends unless `compile()` or `execute()` is
+actually called.
+
+The stable public surface of this package is intentionally narrow:
+`compile`, `compile_program` (compatibility alias), and `execute`.
+"""
 from __future__ import annotations
 
 import importlib
@@ -14,6 +24,17 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
 
 
 def __getattr__(name: str) -> Any:
+    """Resolve a lazy public export on first access.
+
+    Args:
+        name: Export name requested from the package facade.
+
+    Returns:
+        The resolved function object, memoized in module globals.
+
+    Raises:
+        AttributeError: If `name` is not part of the stable Foundry facade.
+    """
     if name not in _LAZY_IMPORTS:
         raise AttributeError(f"module 'polisyos.foundry' has no attribute '{name}'")
     module_name, attr_name = _LAZY_IMPORTS[name]
@@ -24,4 +45,5 @@ def __getattr__(name: str) -> Any:
 
 
 def __dir__() -> list[str]:
+    """Return eager globals plus lazy facade exports for interactive discovery."""
     return sorted(list(globals().keys()) + list(_LAZY_IMPORTS.keys()))

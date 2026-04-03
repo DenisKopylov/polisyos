@@ -2578,7 +2578,9 @@ Phase 1      Phase 2      Phase 3      Phase 4      Phase 5
 ```
 
 **Maximum parallelism after Phase 0: 49 independent work streams.**
-(Phase 5B contributes 11 parallel README sub-tasks, Phase 7 adds 6 semantic docstring tracks.)
+(Phase 5B contributes 11 parallel README sub-tasks; Phase 7 now has 6 initial semantic tracks
+plus 5 targeted second-pass burn-down tracks, but the second pass starts only after WS-7F
+produces a checker baseline.)
 
 ---
 
@@ -2588,11 +2590,13 @@ Phase 1      Phase 2      Phase 3      Phase 4      Phase 5
 2. **Navigation review:** test `mkdocs serve`, verify nav hierarchy makes sense
 3. **Completeness check:** every public type in `__init__.py` has a docstring; every docstring renders in MkDocs
 4. **Deploy:** GitHub Pages via `mkdocs gh-deploy` or CI
+   - Implemented path: root `.github/workflows/docs-pages.yml` publishes the MkDocs site after a
+     successful `CI` run on `main`.
 5. **Root README final pass:** ensure all links point to live docs site
 
 ---
 
-## Phase 7 — Semantic Docstring Upgrade (parallel: 6 work streams, then one merge QA)
+## Phase 7 — Semantic Docstring Upgrade (parallel: 6 work streams + 5 second-pass burn-down streams, then one merge QA)
 
 **Dependency:** Phase 6 complete. **WS-7A..WS-7F run in parallel with non-overlapping ownership.**
 
@@ -2836,7 +2840,8 @@ component discovery, authn/authz, audit, tracing, runtime control-plane и CLI.
    примеры плохого/хорошего docstring для class/function/module.
 4. В CI добавить лёгкий docs-quality job:
    - `python3 -m mkdocs build --strict`
-   - custom placeholder-docstring checker
+   - `python3 tools/validation/check_docs_accuracy.py --repo-root .`
+   - custom placeholder-docstring checker with explicit public-surface coverage gate
    - optional `interrogate` threshold, но без ложного confidence если
      нас интересует именно содержательность, а не только наличие.
 5. Подготовить итоговый report:
@@ -2851,21 +2856,309 @@ component discovery, authn/authz, audit, tracing, runtime control-plane и CLI.
 
 ---
 
-### Phase 7 Merge Protocol (sequential, after WS-7A..WS-7F)
+### Phase 7 Status After WS-7F Baseline
+
+После внедрения `tools/validation/check_docstring_quality.py` второй проход больше не должен
+быть "широким переписыванием всего подряд". Теперь есть измеримый baseline:
+
+- inspected public symbols: **5824**
+- semantic docstring coverage: **3466 / 5824 = 59.5%**
+- placeholder violations blocking the gate: **703**
+- largest package buckets still needing a second pass:
+  - `polisyos.foundry`: **874**
+  - `polisyos.scientist`: **458**
+  - `polisyos.fabric`: **382**
+  - `polisyos.core`: **306**
+  - `polisyos.ir`: **203**
+  - `polisyos.lex`: **71**
+  - tail: `academic` 39, `runtime` 9, `scholar` 9, `batch_common` 3, `common` 2, `datasets` 2
+
+**Вывод:** first pass создал quality gate и общий semantic standard, но backlog теперь
+достаточно концентрирован, чтобы закрывать его **прицельными, непересекающимися second-pass
+ownership windows**, а не повторным broad sweep по всем подсистемам.
+
+### Общий протокол для Second Pass
+
+Перед началом каждого WS-7G..WS-7K:
+
+1. Прогнать `python3 tools/validation/check_docstring_quality.py --repo-root . --allowlist tools/validation/docstring_quality_allowlist.txt`
+   и выписать свои package-local violations.
+2. В первую очередь править **gate-blocking placeholders**, а не просто "улучшать стиль" там,
+   где checker уже молчит.
+3. Allowlist пополнять только для реально тривиальных compatibility wrappers; public facades,
+   boundary models, workflow entrypoints и governance-critical APIs должны лечиться содержательным
+   docstring, а не исключением.
+4. В каждом WS report фиксировать:
+   - before/after placeholder count по своей package bucket;
+   - 10-20 самых важных символов, которые были upgraded semantically;
+   - остаток, если он не нулевой.
+
+---
+
+### Phase 7 Second Pass — Placeholder Burn-down (parallel: 5 work streams)
+
+**Dependency:** WS-7F merged, a fresh checker snapshot captured, first-pass WS-7A..WS-7E reports collected.
+**WS-7G..WS-7K run in parallel with non-overlapping ownership.**
+
+#### WS-7G: Foundry Placeholder Burn-down
+
+**Write scope:**
+- `src/polisyos/foundry/**`
+- `docs/reference/foundry/**`
+
+**Главная задача:**
+Закрыть самый крупный checker bucket: methods catalog, compile/execute surface, state/layout,
+agent-sim facades и families, где ещё остались `Public ... module API.`, `... helper.`,
+`... data model.`, `... implementation.`.
+
+**Что конкретно сделать:**
+1. Пройти package/module facades и reference-rendered modules:
+   - `foundry/layout.py`
+   - `foundry/contracts/state.py`
+   - `foundry/methods/**`
+   - `foundry/agent_sim/**`
+   - `foundry/calibration/**`
+2. Для `methods/selection.py`, `linker.py`, `components_bridge.py` и catalog family `__init__.py`
+   заменить helper-style summaries на usage-oriented docstrings: когда вызывать API, какой
+   downstream runner/catalog consumer его читает, какие assumptions у входов.
+3. Для result/config/ref bundles убрать `... data model.` и описать lifecycle:
+   build, persist, cache, replay, evidence emission.
+4. Приоритет страниц для spot-check:
+   - `docs/reference/foundry/compile-execute.md`
+   - `docs/reference/foundry/methods-catalog.md`
+   - `docs/reference/foundry/state.md`
+   - `docs/reference/foundry/agent-sim.md`
+
+**DoD:**
+- checker больше не показывает placeholder violations для `polisyos.foundry*`;
+- Foundry reference pages читаются как usage guide, а не как список neutral labels.
+
+---
+
+#### WS-7H: Scientist Placeholder Burn-down
+
+**Write scope:**
+- `src/polisyos/scientist/**`
+- `docs/reference/scientist/**`
+
+**Главная задача:**
+Добить остаточные placeholders в nodes, policy-design, search, engine builtins, causal adapters
+и policy-verified models, чтобы `polisyos.scientist` reference не разваливался на `... node implementation.`
+и `... data model.`.
+
+**Что конкретно сделать:**
+1. Приоритизировать пакеты, уже засвеченные checker-ом:
+   - `scientist/nodes/builtins/**`
+   - `scientist/policy_design/**`
+   - `scientist/policy_verified/**`
+   - `scientist/search/**`
+   - `scientist/engine/**`
+2. Для node classes описывать:
+   - роль в DAG;
+   - state reads/writes;
+   - produced artifacts / contracts;
+   - preconditions before execution.
+3. Для policy-design/search bundles заменить generic `... data model.` на domain-language:
+   candidate frontier, constraint satisfaction, adversarial scenario, transportability report,
+   replayable audit bundle.
+4. Для builtins `__init__.py` и верхних facades объяснить stable public surface и lazy-loading
+   boundaries, а не только факт наличия exports.
+
+**DoD:**
+- checker больше не показывает placeholder violations для `polisyos.scientist*`;
+- key Scientist pages (`index`, `workflows`, `governance-passes`, `nodes`, `causal`) не содержат
+  semantically empty headings.
+
+---
+
+#### WS-7I: Fabric + Lex Ingestion / Corpus Burn-down
+
+**Write scope:**
+- `src/polisyos/fabric/**`
+- `src/polisyos/lex/**`
+- `docs/reference/fabric/**`
+- `docs/reference/lex/**`
+
+**Главная задача:**
+Закрыть remaining placeholders на boundary between external data/legal sources and internal contracts:
+connectors, world/materialization, claims pipeline, normpack/legal-evaluation/batch stages.
+
+**Что конкретно сделать:**
+1. Для Fabric устранить placeholders в:
+   - connector family modules / package facades;
+   - `claims/**`, `world/**`, `materialize/**`, `storage/**`, `manifest/trust/provenance/**`;
+   - public persistence/query helpers, которые рендерятся в reference docs.
+2. Для Lex устранить placeholders в:
+   - `normpack/**`, `legal_evaluation/**`, `batch/**`, `corpus/**`, `simulator/**`;
+   - provider/evaluator registries и public pipeline types.
+3. Для каждого symbol объяснять pipeline stage и соседние boundaries:
+   `ingest -> structure -> version index -> normpack -> legal evaluation -> intervention mapping`.
+4. Не тратить second-pass время на truly private batch internals, которые не попадают в gate.
+
+**DoD:**
+- checker больше не показывает placeholder violations для `polisyos.fabric*` и `polisyos.lex*`;
+- Fabric/Lex reference pages дают понятный onboarding path без формальных заглушек.
+
+---
+
+#### WS-7J: Core + Runtime Platform Contract Burn-down
+
+**Write scope:**
+- `src/polisyos/core/**`
+- `src/polisyos/runtime/**`
+- `src/polisyos/common/**`
+- `src/polisyos/batch_common/**`
+- `src/polisyos/scholar/**`
+- `docs/reference/api/**`
+- `docs/reference/cli.md`
+- `docs/reference/configuration.md`
+
+**Главная задача:**
+Закрыть оставшиеся placeholders в platform/core boundary contracts, runtime service surface,
+security/registry layers и common helpers, которые пользователь читает как "операционную документацию".
+
+**Что конкретно сделать:**
+1. Для `core` приоритетно пройти:
+   - `contracts/**`
+   - `components/**`
+   - `security/**`
+   - `registry/**`
+   - `cache/**`
+   - `run/**`
+2. Для `runtime` заменить `Public ... module API.` и `... helper.` в routes/services/adapters
+   на request/response semantics, side effects, pagination/debug/error model.
+3. Для `common` / `batch_common` / `scholar` убрать оставшиеся generic facades и helpers,
+   особенно вокруг migrations, orchestration bundles и discovery/freshness runtime helpers.
+4. Spot-check:
+   - `docs/reference/api/index.md`
+   - `docs/reference/api/runs.md`
+   - `docs/reference/api/control.md`
+   - `docs/reference/cli.md`
+   - `docs/reference/configuration.md`
+
+**DoD:**
+- checker больше не показывает placeholder violations для `polisyos.core*`, `polisyos.runtime*`,
+  `polisyos.common*`, `polisyos.batch_common*`, `polisyos.scholar*`;
+- API/CLI/config reference остаются согласованными с code-level docstrings.
+
+---
+
+#### WS-7K: IR + Academic / Datasets Boundary Clean-up
+
+**Write scope:**
+- `src/polisyos/ir/**`
+- `src/polisyos/academic/**`
+- `src/polisyos/datasets/**`
+- `docs/reference/ir/**`
+
+**Главная задача:**
+Добить long-tail placeholders, которые остались после WS-7A: observation contract compilers,
+IR boundary refs и academic/datasets batch/canonicalization models.
+
+**Что конкретно сделать:**
+1. Для `ir/observation/contract_compilers.py` пройти все `... compiler implementation.` docstrings
+   и описать:
+   - какой bundle/task строит compiler;
+   - какой downstream runner consumes output;
+   - какие invariants должен выполнить caller.
+2. Для remaining IR refs/status/bundle models заменить `... data model.` на boundary semantics:
+   who produces it, who consumes it, when it becomes stable.
+3. Для `academic/**` и `datasets/**` закрыть long-tail result/config/model placeholders, если они
+   попадают в public facades или reference docs.
+4. После правок spot-check `docs/reference/ir/*.md` на читаемость observation/problem-framing pages.
+
+**DoD:**
+- checker больше не показывает placeholder violations для `polisyos.ir*`, `polisyos.academic*`,
+  `polisyos.datasets*`;
+- IR reference остаётся contract-spec first, но без generic placeholders.
+
+---
+
+### Phase 7 Merge Protocol (sequential, after WS-7A..WS-7K)
 
 1. **Freeze ownership windows:** каждый WS мержится отдельным PR/branch или строго
    последовательным batch-commit по своему write scope.
-2. **Conflict policy:** если один WS должен тронуть чужой scope, он сначала добавляет TODO
+2. **Mid-phase split:** после WS-7F фиксируется checker baseline и только потом открываются
+   WS-7G..WS-7K с package-local ownership. Не пересекать write scopes между first pass и second pass.
+3. **Conflict policy:** если один WS должен тронуть чужой scope, он сначала добавляет TODO
    в свой report, а не правит чужие файлы напрямую.
-3. **Final QA checklist:**
+4. **Final QA checklist:**
    - `python3 -m mkdocs build --strict`
-   - public facade docstring checker
-   - placeholder-docstring checker
+   - `python3 tools/validation/check_docs_accuracy.py --repo-root .`
+   - `python3 tools/validation/check_docstring_quality.py --repo-root . --allowlist tools/validation/docstring_quality_allowlist.txt --coverage-scope public-surface --minimum-coverage 85`
    - точечный просмотр 2-3 страниц из каждого `docs/reference/<subsystem>/`
    - smoke-test `mkdocs serve` на главной, tutorials, reference, explanation
-4. **Acceptance rule:** Phase 7 считается завершённой только если
-   weak/generated docstrings остались исключительно в allowlisted trivial internals,
-   а все package-level публичные exports читаются как предметная документация.
+5. **Acceptance rule:** Phase 7 считается завершённой только если:
+   - `check_docs_accuracy.py` возвращает exit code 0;
+   - `check_docstring_quality.py` возвращает exit code 0 на `--coverage-scope public-surface --minimum-coverage 85`;
+   - `mkdocs build --strict` возвращает exit code 0;
+   - weak/generated docstrings остались исключительно в allowlisted trivial internals;
+   - placeholder violations равны `0`;
+   - top-level public-surface semantic coverage не ниже **85%**;
+   - method-level остаточный backlog, если он ещё существует, перечислен в merge report как
+     explicit second-pass follow-up, а не скрыт как regression.
+
+### Current Status After SOTA Closeout
+
+После внедрения content + infra + validation deliverables documentation stack находится в таком
+состоянии:
+
+- недостающие Diataxis pages добавлены:
+  - `tutorials/writing-a-connector.md`
+  - `tutorials/creating-governance-pass.md`
+  - `how-to/configure-lex-pipeline.md`
+  - `how-to/use-control-plane.md`
+  - `how-to/debug-failed-run.md`
+  - `how-to/manage-schemas.md`
+  - `explanation/ir-design.md`
+- `mkdocs.yml` navigation обновлена под полный current target state.
+- repo-truth drift закрыт для published docs:
+  - убран `<repo-url>` из tutorial docs;
+  - README badge переведён на реальный `ci.yml`;
+  - stale workflow references удалены из published guides.
+- docs-quality gate теперь включает:
+  - `mkdocs build --strict`
+  - `check_docs_accuracy.py`
+  - `check_docstring_quality.py` c `--coverage-scope public-surface --minimum-coverage 85`
+- publish path operationalized:
+  - root `.github/workflows/docs-pages.yml` публикует сайт в GitHub Pages после успешного `CI` на `main`.
+
+Current measured snapshot:
+
+- docs accuracy violations: **0**
+- `mkdocs build --strict`: **pass**
+- placeholder violations: **0**
+- semantic docstring coverage (all inspected subjects): **4169 / 5824 = 71.6%**
+- semantic docstring coverage (public surface): **3267 / 3267 = 100.0%**
+
+Residual advisory backlog after closeout:
+
+- remaining semantic gaps concentrated in public methods rather than top-level public exports;
+- largest method-level second-pass buckets:
+  - `polisyos.foundry`: **631**
+  - `polisyos.fabric`: **324**
+  - `polisyos.scientist`: **317**
+  - `polisyos.core`: **159**
+  - `polisyos.ir`: **124**
+  - `polisyos.lex`: **60**
+
+### Ongoing Maintenance Policy
+
+После SOTA closeout следующие проверки считаются обязательной нормой, а не одноразовой cleanup
+акцией:
+
+1. Любой новый public API должен приходить с:
+   - semantic docstring;
+   - корректной visibility через facade/reference page;
+   - отсутствием placeholder wording.
+2. Любая новая docs claim про workflows, CI, site URLs или publish path должна проходить
+   `tools/validation/check_docs_accuracy.py`.
+3. Любой PR, меняющий published docs, должен сохранять зелёными:
+   - `python3 -m mkdocs build --strict`
+   - `python3 tools/validation/check_docs_accuracy.py --repo-root .`
+   - `python3 tools/validation/check_docstring_quality.py --repo-root . --allowlist tools/validation/docstring_quality_allowlist.txt --coverage-scope public-surface --minimum-coverage 85`
+4. GitHub Pages publish workflow остаётся обязательным production path для docs site; ручной
+   `mkdocs gh-deploy` не считается canonical release process.
 
 ---
 
@@ -2881,16 +3174,19 @@ component discovery, authn/authz, audit, tracing, runtime control-plane и CLI.
 | 5 (excl 5B) | 4 | 1-3h | 7h | 3h |
 | 5B (READMEs, A+B) | 11 | 0.3-3.5h | 15-18h | 3.5h |
 | 6 | 1 | 3h | 3h | 3h |
-| 7 | 6 + 1 merge QA | 3-8h | 30-40h | 8-10h |
-| **Total** | **54** | | **~140-155h** | **~36-38h** |
+| 7 | 11 + 1 merge QA | 2-8h | 42-56h | 10-12h |
+| **Total** | **59** | | **~152-171h** | **~38-40h** |
 
 With maximum parallelism (e.g., Claude agents running WS in parallel),
-the critical path is **~36-38 hours** instead of ~140-155 hours sequential.
+the critical path is **~38-40 hours** instead of ~152-171 hours sequential.
 
 **Почему оценки выросли vs первоначальные:**
 - Phase 2 (Reference): observation/ = 133+ classes без docstrings, strategic.py = 708 lines
 - Phase 4 (Explanation): observation contracts explanation значительно объёмнее
 - Phase 5B (READMEs): двухэтапный протокол (investigate + rewrite) вместо простого "verify"
+- Phase 7: после запуска semantic quality gate появился измеримый second-pass backlog
+  (703 placeholder violations across 5824 inspected public symbols), который лучше закрывать
+  отдельными burn-down streams, а не размазывать по первому проходу
 - Scientist module changes = 36+ new public APIs за последние 5-6 коммитов
 
 ### Phase 5B Parallelism Detail
@@ -2931,6 +3227,7 @@ If time is limited, execute in this order (highest impact first):
 | P2 | WS-7F (Docstring quality gates) | Prevent placeholder regressions |
 | P3 | WS-2D (Scientist docs) | 18 governance passes need docs |
 | P3 | WS-7A..WS-7E (Semantic docstrings) | Convert formal coverage into useful API docs |
+| P3 | WS-7G..WS-7K (Phase 7 second pass) | Burn down the measured placeholder backlog package-by-package |
 | P3 | WS-1D (Architecture) | Current 140KB is unwieldy |
 | P3 | WS-4A (Causal engine) | Core domain, complex |
 | P4 | Everything else | Important but not urgent |

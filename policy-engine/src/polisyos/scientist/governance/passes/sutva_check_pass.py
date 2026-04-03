@@ -1,4 +1,4 @@
-"""Public passes sutva check pass module API."""
+"""Warn when the causal report suggests treatment interference or spillover risk."""
 from __future__ import annotations
 
 from typing import Literal
@@ -12,7 +12,13 @@ _SutvaRisk = Literal["high", "medium", "low"]
 
 
 class SutvaCheckPass(ValidatorPass):
-    """Warn when treatment likely violates SUTVA assumptions."""
+    """Inspect causal diagnostics for spillover/interference risks on the active treatment.
+
+    Reads `query_treatment`, a direct `causal_report`, or
+    `artifacts_index.causal_report_ref` via `_store`. FAST profile skips the
+    check; other profiles emit `SUTVA_VIOLATION_RISK` warnings so reviewers can
+    decide whether the effect remains interpretable.
+    """
 
     MARKET_WIDE_KEYWORDS: frozenset[str] = frozenset(
         {

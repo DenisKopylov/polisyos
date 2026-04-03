@@ -1,4 +1,11 @@
-"""Public calibration pure executor module API."""
+"""Run side-effect-free Foundry simulation scans for differentiable calibration.
+
+This module separates synthetic dynamics from measurement loss. It compiles a
+`ProgramGraph` and `ExecPlan` into a static in-memory bundle, applies trainable
+parameter updates without mutating CAS artifacts, and replays mechanism
+patches through `jax.lax.scan()` to produce trace tensors consumed by
+`Calibrator.run()`.
+"""
 from __future__ import annotations
 
 from dataclasses import dataclass, replace
@@ -35,7 +42,19 @@ from polisyos.ir.types import SelectorOperator
 
 @dataclass
 class PreparedNode:
-    """Предкомпилированный узел графа для чистого исполнения."""
+    """Represent one precompiled mechanism/op node for pure in-memory replay.
+
+    Attributes:
+        node_id: Program-graph node ID used for diagnostics and rank ordering.
+        mechanism_type: Runtime mechanism implementation to instantiate.
+        rank: Deterministic tie-break rank used by priority merges.
+        start: First active step for the node schedule.
+        end: Last active step for the node schedule.
+        mechanism: Instantiated mechanism object with current parameter values.
+        outputs: Slot IDs that the node may patch.
+        selector: Optional selector mask applied before patch emission.
+        priority: Optional schedule priority propagated into merge records.
+    """
 
     node_id: str
     mechanism_type: str
@@ -50,7 +69,7 @@ class PreparedNode:
 
 @dataclass
 class TrainableHandle:
-    """Ссылка на поле механизма, которое можно обновлять во время калибровки."""
+    """Point to a mechanism field that can be updated during calibration."""
 
     node_index: int
     node_id: str
@@ -65,7 +84,7 @@ class TrainableHandle:
 
 @dataclass
 class StaticBundle:
-    """Все статические данные для чистого прогоняющего шага."""
+    """Bundle immutable compile-time registries and prepared nodes for replay."""
 
     nodes: list[PreparedNode]
     slot_registry: SlotRegistry
@@ -89,10 +108,38 @@ def compile_program(
     default_temperature: float | None = 1.0,
     force_override: bool = True,
 ) -> StaticBundle:
-    """
-    Предварительная компиляция ProgramGraph -> StaticBundle без обращений к CAS внутри JAX-цикла.
+    """Compile `ProgramGraph` + `ExecPlan` into a pure replay bundle.
 
-    parameter_loader: функция, которая по params_ref (или node) возвращает payload с ключами schedule/params.
+    The resulting `StaticBundle` is safe to reuse across optimizer steps: only
+    trainable mechanism fields are replaced, while schedules, merge rules,
+    selectors, and registry contracts remain static. `parameter_loader` is the
+    only boundary callback and should be deterministic for a given `params_ref`
+    or node payload.
+
+    Args:
+        program_graph: Compiled Foundry program graph.
+        exec_plan: Execution plan that defines node order and runtime flags.
+        mechanism_registry: Registry used to instantiate node mechanisms.
+        slot_registry: Slot schema used by merge application.
+        merge_registry: Merge-rule registry used to combine node patches.
+        selector_field_registry: Optional selector-field mapping for mask
+            evaluation.
+        base_state: Optional state snapshot used to infer entity sizes during
+            mechanism construction.
+        parameter_loader: Optional callback returning `{"schedule": ..., "params": ...}`
+            payloads for each node or `params_ref`.
+        force_fidelity: Optional forced mechanism fidelity mode.
+        default_temperature: Default relaxed-mode temperature when the
+            mechanism spec supports it.
+        force_override: Whether forced fidelity/temperature should override
+            explicit node parameters.
+
+    Returns:
+        `StaticBundle` with prepared nodes and trainable handles.
+
+    Raises:
+        ValueError: If selector payloads or schedules cannot be validated, or
+            mechanism instantiation fails for invalid registry/parameter input.
     """
     order = exec_plan.order or [node.node_id for node in program_graph.nodes]
     node_map = {node.node_id: node for node in program_graph.nodes}
@@ -368,7 +415,7 @@ def _evaluate_selector(
 
 
 def apply_trainable_values(bundle: StaticBundle, values: Sequence[Any]) -> StaticBundle:
-    """Вернуть копию bundle с обновлёнными trainable полями механизмов."""
+    """Return a copy of `bundle` with trainable mechanism fields replaced."""
     if not bundle.trainables:
         return bundle
     updated_nodes = list(bundle.nodes)
@@ -380,7 +427,7 @@ def apply_trainable_values(bundle: StaticBundle, values: Sequence[Any]) -> Stati
 
 
 def extract_trainable_values(bundle: StaticBundle) -> list[Any]:
-    """Extract trainable values helper."""
+    """Extract current trainable parameter values in `bundle.trainables` order."""
     values: list[Any] = []
     for handle in bundle.trainables:
         mech = bundle.nodes[handle.node_index].mechanism
@@ -395,7 +442,7 @@ def apply_nodes(
     bundle: StaticBundle,
     t: jax.Array,
 ) -> tuple[GlobalState, jax.Array]:
-    """Применение механизмов за один шаг с selector masks и merge rules."""
+    """Apply all active nodes for one step and merge emitted patches into state."""
     base_state = state
     cur_key = key
     patch_records: dict[str, list[dict[str, Any]]] = {}
@@ -519,10 +566,38 @@ def run_pure_scan(
     bundle: StaticBundle,
     metric_paths: Sequence[str] | None = None,
     controls_seq: jnp.ndarray | None = None,
-):
-    """
-    Чистый прогон симуляции через lax.scan без IO.
-    Возвращает PyTree трасс, где ключи = metric_paths (если заданы).
+) -> tuple[GlobalState, dict[str, Any]]:
+    """Run a pure multi-step simulation scan and collect requested trace tensors.
+
+    Args:
+        initial_state: Synthetic runtime state used as the scan carry.
+        steps: Number of simulation steps to replay.
+        root_key: Root PRNG key; node keys are derived deterministically per
+            step.
+        bundle: Prepared static execution bundle returned by `compile_program()`.
+        metric_paths: Optional state paths to record after each step.
+        controls_seq: Optional control sequence that only sets the scan length;
+            current node dynamics still read schedules/selectors from `bundle`.
+
+    Returns:
+        `(final_state, traces)` where `traces[path]` is a time-indexed PyTree
+        leaf for each requested metric path.
+
+    Raises:
+        ValueError: Propagates selector, merge-rule, and patch-shape failures
+            raised by `apply_nodes()`.
+
+    Example:
+        ```python
+        bundle = compile_program(program_graph, exec_plan, ...)
+        final_state, traces = run_pure_scan(
+            initial_state,
+            steps=12,
+            root_key=jax.random.PRNGKey(0),
+            bundle=bundle,
+            metric_paths=["agents.income", "government_balance"],
+        )
+        ```
     """
     metric_paths = tuple(metric_paths or ())
     seq = controls_seq if controls_seq is not None else jnp.arange(steps)

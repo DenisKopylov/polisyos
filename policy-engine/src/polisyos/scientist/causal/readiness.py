@@ -1,4 +1,10 @@
-"""Public causal readiness module API."""
+"""Evaluate proxy, transport, strategic-response, and counterfactual readiness IR bundles.
+
+These runners consume typed C4a observation bundles and a reconciled
+`CausalGraphModel`, call Foundry identification/transport/strategic methods, and
+emit normalized readiness entries that `RunCausalReadinessNode` stores in
+`CausalReadinessBundle`.
+"""
 from __future__ import annotations
 
 from dataclasses import asdict
@@ -211,7 +217,13 @@ def _cross_regime_boundary_s_nodes(
 
 
 class ProxyIdentificationRunner:
-    """Runner that validates proxy-identification channels against a causal graph."""
+    """Score each proxy channel against the reconciled graph via Foundry proxy-ID logic.
+
+    Use this runner when a `ProxyIdentificationBundle` has already been built by
+    observation-layer code and you need normalized `ProxyIdentificationEntry`
+    rows for governance. Family-specific measurement-model names may be injected
+    from workflow state to keep the output traceable.
+    """
 
     def __init__(
         self,
@@ -228,7 +240,18 @@ class ProxyIdentificationRunner:
         *,
         measurement_models: Mapping[str, str] | None = None,
     ) -> list[ProxyIdentificationEntry]:
-        """Evaluate each proxy-identification channel in a bundle."""
+        """Evaluate each proxy-identification channel in the supplied bundle.
+
+        Args:
+            bundle: Proxy-readiness input bundle; `None` yields no entries.
+            measurement_models: Optional family-to-model mapping used by
+                `identify_with_proxy()`.
+
+        Returns:
+            One `ProxyIdentificationEntry` per channel with status, estimand,
+            proof trace, and normalized blocker reason when oracle support is
+            still required.
+        """
 
         if bundle is None:
             return []
@@ -278,11 +301,13 @@ class ProxyIdentificationRunner:
 
 
 class TransportabilityChecker:
-    """Runner that evaluates whether causal effects transport across regimes.
+    """Check whether requested effects transport from source to target contexts.
 
-    It combines explicit `SNode` annotations with boundary-derived mismatch
-    nodes from regime, schema, and shock calendars, then persists a typed
-    `TransportabilityResult` for each requested check.
+    Explicit `SNode` annotations from the IR bundle are merged with synthesized
+    mismatch nodes from regime/schema/shock calendars before calling Foundry's
+    `tr_algorithm()`. A persisted `TransportabilityResult` ref is attached to
+    each returned entry so governance passes can audit why transport succeeded or
+    failed.
     """
 
     def __init__(
@@ -304,7 +329,7 @@ class TransportabilityChecker:
         schema_regime_registry: SchemaRegimeRegistry | None = None,
         shock_calendar: ShockCalendar | None = None,
     ) -> list[TransportabilityCheckEntry]:
-        """Run all requested transportability checks in a bundle."""
+        """Run all transportability checks and persist one result artifact per check."""
 
         if bundle is None:
             return []
@@ -418,11 +443,12 @@ class TransportabilityChecker:
 
 
 class StrategicResponseRunner:
-    """Runner that evaluates strategic adaptation for expected response channels.
+    """Solve strategic-response contracts and produce readiness entries per channel.
 
-    The runner validates strategic contracts, persists payoff tables and the
-    normalized `StrategicSCM`, executes the strategic solver, and materializes
-    readiness entries that governance can inspect.
+    The runner validates channel payloads from workflow state, persists payoff
+    tables and the normalized `StrategicSCM`, executes Foundry's strategic solver,
+    and materializes readiness entries plus `StrategicResponseBundle` refs that
+    `StrategicResponsePass` later validates.
     """
 
     def __init__(
@@ -473,7 +499,18 @@ class StrategicResponseRunner:
         *,
         channel_payloads: Mapping[str, Any] | None = None,
     ) -> list[StrategicResponseEntry]:
-        """Evaluate strategic-response readiness for the expected channels."""
+        """Evaluate strategic-response readiness for all expected channels.
+
+        Args:
+            specs_bundle: Expected-channel contract from observation-layer IR.
+            channel_payloads: Runtime payloads keyed by channel name; each payload
+                must include `strategic_scm` and `strategic_payoff_tables`.
+
+        Returns:
+            One `StrategicResponseEntry` per expected or supplied channel,
+            including persisted SCM/bundle refs when solved and normalized
+            blocker metadata when inputs are missing or invalid.
+        """
 
         payloads = dict(channel_payloads or {})
         expected_channels: dict[str, str | None] = {}
@@ -592,13 +629,22 @@ class StrategicResponseRunner:
 
 
 class CounterfactualQueryRunner:
-    """Runner that checks counterfactual identifiability on the reconciled graph."""
+    """Run ID*/IDC* counterfactual identification checks on the reconciled graph."""
 
     def __init__(self, *, graph: CausalGraphModel) -> None:
         self.graph = graph
 
     def run(self, bundle: CounterfactualCheckBundle | None) -> list[CounterfactualCheckEntry]:
-        """Evaluate all counterfactual queries contained in a check bundle."""
+        """Evaluate all counterfactual queries contained in a check bundle.
+
+        Args:
+            bundle: Counterfactual-readiness bundle; `None` yields no entries.
+
+        Returns:
+            One `CounterfactualCheckEntry` per query with normalized
+            identification status, optional estimand/proof metadata, and blocker
+            reasons suitable for `CounterfactualIdentificationGateNode`.
+        """
 
         if bundle is None:
             return []
@@ -673,7 +719,7 @@ class CounterfactualQueryRunner:
 def build_interference_readiness_entries(
     bundle: InterferenceLossSpecBundle | None,
 ) -> list[InterferenceReadinessEntry]:
-    """Convert interference-loss specs into readiness entries for governance."""
+    """Normalize interference-loss specs into governance-readable readiness entries."""
 
     if bundle is None:
         return []

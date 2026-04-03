@@ -1,6 +1,7 @@
 {
   "$defs": {
     "EventKind": {
+      "description": "Event kind public type.",
       "enum": [
         "fetch_doc",
         "normalize_doc",
@@ -23,6 +24,7 @@
     },
     "ProvActivity": {
       "additionalProperties": false,
+      "description": "Prov activity public type.",
       "properties": {
         "activity_id": {
           "pattern": "^[a-z][a-z0-9_.-]*$",
@@ -70,6 +72,7 @@
       "type": "object"
     },
     "ProvActivityType": {
+      "description": "Prov activity type public type.",
       "enum": [
         "fetch_doc",
         "normalize_doc",
@@ -92,6 +95,7 @@
     },
     "ProvAgent": {
       "additionalProperties": false,
+      "description": "Prov agent public type.",
       "properties": {
         "agent_id": {
           "pattern": "^[a-z][a-z0-9_.-]*$",
@@ -146,6 +150,7 @@
       "type": "object"
     },
     "ProvAgentType": {
+      "description": "Prov agent type public type.",
       "enum": [
         "system",
         "user",
@@ -160,6 +165,7 @@
     },
     "WorldObjectRef": {
       "additionalProperties": false,
+      "description": "Point a provenance edge at either a world object id or the artifact that produced it.",
       "properties": {
         "artifact_id": {
           "anyOf": [
@@ -193,6 +199,7 @@
     }
   },
   "additionalProperties": false,
+  "description": "Capture one immutable pipeline event after its ids, inputs, and outputs are stable enough to persist.",
   "properties": {
     "activity": {
       "$ref": "#/$defs/ProvActivity"

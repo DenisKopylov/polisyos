@@ -1,4 +1,10 @@
-"""Public causal execution module API."""
+"""Execute observation-plane causal contracts through Foundry partial-ID methods.
+
+`BoundsEstimationRunner` is intentionally store-backed but state-free: nodes pass
+`BoundsEstimationTask` IR payloads in, the runner invokes the Foundry bounds
+engine, persists `BoundsBundle` artifacts, and returns normalized
+`BoundsEstimationEntry` rows for inclusion in `CausalExecutionBundle`.
+"""
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
@@ -11,11 +17,11 @@ from polisyos.ir.observation.causal_execution import BoundsEstimationEntry, Boun
 
 
 class BoundsEstimationRunner:
-    """Runner that executes bounds-estimation tasks against Foundry methods.
+    """Run `BoundsEstimationTask` contracts against `BoundsEngineMethod`.
 
-    Consumes observation-layer `BoundsEstimationTask` contracts, invokes the
-    partial-identification engine, persists any resulting `BoundsBundle`, and
-    returns normalized execution entries for Scientist state.
+    The runner is the boundary between C4b observation contracts and Foundry's
+    partial-identification implementation. Successful tasks persist a
+    `BoundsBundle`; blocked tasks return an entry with warnings and no bundle ref.
     """
 
     def __init__(self, *, store: ArtifactStore) -> None:
@@ -34,7 +40,9 @@ class BoundsEstimationRunner:
             inputs: Optional upstream artifact refs to attach as lineage inputs.
 
         Returns:
-            Normalized bounds execution entries, one per task.
+            Normalized bounds execution entries, one per task, each carrying
+            status, optional interval/width, warnings, and a persisted
+            `bounds_bundle_ref` when available.
         """
 
         base_inputs = list(inputs or [])
@@ -94,7 +102,7 @@ class BoundsEstimationRunner:
         return entries
 
     def _effective_params(self, task: BoundsEstimationTask) -> dict[str, Any]:
-        """Infer execution flags from the task payload and merge explicit params."""
+        """Infer method flags from the task contract and merge explicit overrides."""
 
         inferred = {
             "has_iv": task.bounds_input.instrument is not None,

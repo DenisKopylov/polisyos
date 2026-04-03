@@ -1,4 +1,4 @@
-"""Public http errors module API."""
+"""Serialize runtime exceptions into RFC 7807-style `application/problem+json` payloads."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -46,7 +46,7 @@ def build_problem(
     type_uri: str | None = None,
     error: str | None = None,
 ) -> RuntimeApiProblem:
-    """Build problem."""
+    """Build the canonical runtime error model used by FastAPI exception handlers."""
     resolved_title = title or _title_for_code(code, fallback="Runtime API error")
     resolved_type = type_uri or _DEFAULT_TYPE_BY_STATUS.get(status_code, "about:blank")
     resolved_error = error or code
@@ -75,7 +75,11 @@ def problem_response(
     error: str | None = None,
     extensions: dict[str, Any] | None = None,
 ) -> Any:
-    """Problem response helper."""
+    """Render a `RuntimeApiProblem` as `application/problem+json`.
+
+    Raises:
+        RuntimeError: If FastAPI/Starlette dependencies are unavailable.
+    """
     if JSONResponse is None:
         raise RuntimeError("problem_response requires fastapi/starlette dependencies")
     payload = build_problem(
@@ -100,7 +104,7 @@ def problem_response(
 
 @dataclass(frozen=True)
 class RuntimeHTTPError(Exception):
-    """Runtime HTTP error exception."""
+    """Carry a typed HTTP error that is converted to `RuntimeApiProblem`."""
     status_code: int
     error: str
     detail: str
@@ -123,12 +127,12 @@ class RuntimeHTTPError(Exception):
 
 
 def bad_request(detail: str, *, code: str = "bad_request") -> RuntimeHTTPError:
-    """Bad request helper."""
+    """Create a 400 error for malformed or semantically invalid requests."""
     return RuntimeHTTPError(status_code=400, error="bad_request", detail=detail, code=code)
 
 
 def forbidden(detail: str, *, code: str = "forbidden") -> RuntimeHTTPError:
-    """Forbidden helper."""
+    """Create a 403 error for tenant, capability, or authz policy violations."""
     return RuntimeHTTPError(status_code=403, error="forbidden", detail=detail, code=code)
 
 
@@ -147,17 +151,17 @@ def unprocessable_entity(
 
 
 def not_found(detail: str, *, code: str = "not_found") -> RuntimeHTTPError:
-    """Not found helper."""
+    """Create a 404 error for missing runs, artifacts, jobs, or pipelines."""
     return RuntimeHTTPError(status_code=404, error="not_found", detail=detail, code=code)
 
 
 def internal_error(detail: str, *, code: str = "internal_error") -> RuntimeHTTPError:
-    """Internal error helper."""
+    """Create a 500 error for unexpected runtime failures."""
     return RuntimeHTTPError(status_code=500, error="internal_error", detail=detail, code=code)
 
 
 def install_exception_handlers(app: FastAPI) -> None:
-    """Install exception handlers helper."""
+    """Install FastAPI exception handlers that preserve `request_id` and problem semantics."""
     if JSONResponse is None:
         return
 

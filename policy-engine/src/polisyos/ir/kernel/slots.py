@@ -1,4 +1,4 @@
-"""Public kernel slots module API."""
+"""Slot registry definitions for stateful runtime variables and their merge semantics."""
 from __future__ import annotations
 
 from enum import Enum
@@ -75,7 +75,7 @@ class SlotSpec(KernelModel):
 
 
 class SlotRegistry(KernelModel):
-    """Slot registry implementation."""
+    """Registry of runtime slots that policy bundles reference when binding reads, writes, and units."""
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
     slots: dict[str, SlotSpec] = Field(default_factory=dict)
     notes: list[str] = Field(default_factory=list)

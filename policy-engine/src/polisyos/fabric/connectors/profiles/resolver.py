@@ -1,4 +1,9 @@
-"""Resolve SourceProfile -> ConnectionConfig for connector use."""
+"""Normalize ``SourceProfile`` definitions into connector runtime and planner contracts.
+
+Use ``resolve_connection_config`` when opening a connector session and
+``resolve_execution_policy`` when planning concurrency, async transport, and capability-cache
+behavior for that source profile.
+"""
 
 from __future__ import annotations
 
@@ -10,8 +15,9 @@ from .models import SourceExecutionPolicy, SourceProfile
 def resolve_connection_config(profile: SourceProfile) -> ConnectionConfig:
     """Convert a ``SourceProfile`` into connector connection settings.
 
-    Keeps only base URL, headers, auth mode, timeout, retry, and rate-limit
-    values that concrete connectors need at connection time.
+    Keeps only base URL, headers, auth mode, timeout, retry, and rate-limit values that concrete
+    connectors need at connection time. Capability hints and async/backfill preferences remain in
+    ``SourceExecutionPolicy``.
     """
     return ConnectionConfig(
         url=profile.base_url,
@@ -26,8 +32,9 @@ def resolve_connection_config(profile: SourceProfile) -> ConnectionConfig:
 def resolve_execution_policy(profile: SourceProfile) -> SourceExecutionPolicy:
     """Normalize planner-facing execution controls from a ``SourceProfile``.
 
-    Fills transport defaults, clamps concurrency and cache TTLs, and carries
-    through async / capability constraints into a frozen execution policy.
+    Fills transport defaults, clamps concurrency and cache TTLs to safe positive values, and
+    carries through async / capability constraints into a frozen execution policy. These limits are
+    planner inputs; final retry/circuit behavior is still enforced by connector runtime resilience.
     """
     preferred_transport = str(profile.preferred_transport or "default")
     preferred_core_transport = str(

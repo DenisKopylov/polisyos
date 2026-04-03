@@ -1,4 +1,4 @@
-"""Public ir artifacts package API."""
+"""Public IR CAS boundary for artifact metadata, ref normalization, and JSON persistence helpers."""
 from .contracts import (
     ArtifactID,
     ArtifactStore,

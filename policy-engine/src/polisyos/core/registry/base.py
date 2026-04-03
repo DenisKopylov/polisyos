@@ -1,4 +1,4 @@
-"""Public registry base module API."""
+"""Provide an extensible thread-safe registry facade over `GenericRegistry`."""
 from __future__ import annotations
 
 import threading

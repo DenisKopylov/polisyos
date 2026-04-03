@@ -1,4 +1,4 @@
-"""Public analytics causal ensemble module API."""
+"""Represent structural-uncertainty ensembles over causal graph candidates."""
 from __future__ import annotations
 
 import math
@@ -122,7 +122,7 @@ def persist_causal_model_ensemble(
     schema_name: str = "ir.causal_model_ensemble",
     schema_version: str = "1.0",
 ) -> CausalModelEnsembleRef:
-    """Persist causal model ensemble helper."""
+    """Persist a causal-model ensemble artifact for structural-uncertainty reporting."""
     ref = put_json_artifact(
         store,
         ensemble.model_dump(mode="json"),

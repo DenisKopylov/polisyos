@@ -38,7 +38,7 @@ def _result_slot() -> frozenset[SlotSpec]:
     tags={"distributional", "poverty", "multidimensional", "alkire-foster", "cross-section"},
 )
 class MultidimensionalPovertyEstimator:
-    """Multidimensional poverty estimator implementation."""
+    """Estimate multidimensional poverty when policy runs combine several deprivation indicators."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 

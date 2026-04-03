@@ -1,4 +1,4 @@
-"""Public core security package API."""
+"""Lazy facade for tenant routing, audit, identity, authz, TEE, and SBOM security APIs."""
 from __future__ import annotations
 
 from importlib import import_module

@@ -1,4 +1,4 @@
-"""Public artifacts graph module API."""
+"""Resolve direct/transitive manifest inputs into an artifact dependency graph."""
 from __future__ import annotations
 
 from collections import deque
@@ -11,7 +11,7 @@ from .store import FileSystemCAS
 
 
 class NodeStatus(str, Enum):
-    """Node status public type."""
+    """Represent artifact availability/integrity status during lineage traversal."""
     PRESENT = "present"
     MISSING = "missing"
     MISSING_BLOB = "missing_blob"
@@ -22,7 +22,7 @@ class NodeStatus(str, Enum):
 
 @dataclass(frozen=True)
 class DependencyEdge:
-    """Dependency edge public type."""
+    """Represent one directed parent→child manifest edge with an input role label."""
     parent_id: ArtifactID
     child_id: ArtifactID
     role: str
@@ -30,7 +30,7 @@ class DependencyEdge:
 
 @dataclass
 class DependencyNode:
-    """Dependency node implementation."""
+    """Store manifest metadata and traversal state for one artifact node."""
     artifact_id: ArtifactID
     role: str | None = None
     kind: str | None = None
@@ -41,33 +41,39 @@ class DependencyNode:
 
     @property
     def is_present(self) -> bool:
+        """Return whether this node resolved to an intact CAS artifact."""
         return self.status == NodeStatus.PRESENT
 
 
 @dataclass
 class DependencyGraph:
-    """Dependency graph public type."""
+    """Hold the transitive CAS lineage DAG rooted at one artifact ID."""
     root_id: ArtifactID
     nodes: dict[str, DependencyNode] = field(default_factory=dict)
     edges: list[DependencyEdge] = field(default_factory=list)
 
     @property
     def total_size_bytes(self) -> int:
+        """Return the sum of known blob sizes across all visited nodes."""
         return sum(node.byte_size for node in self.nodes.values())
 
     @property
     def total_artifacts(self) -> int:
+        """Return the number of unique artifact nodes in the graph."""
         return len(self.nodes)
 
     @property
     def missing_nodes(self) -> list[DependencyNode]:
+        """Return all nodes that are missing, corrupted, or depth-skipped."""
         return [node for node in self.nodes.values() if not node.is_present]
 
     @property
     def is_complete(self) -> bool:
+        """Return `True` when every visited node is present and verified."""
         return len(self.missing_nodes) == 0
 
     def all_artifact_ids(self) -> list[ArtifactID]:
+        """Return all graph node IDs in deterministic hex order."""
         return [ArtifactID.from_sha256_hex(hex_id) for hex_id in sorted(self.nodes)]
 
 

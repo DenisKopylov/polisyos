@@ -69,7 +69,7 @@ _LEVEL_ORDER: tuple[PIIAccessLevel, ...] = (
 
 @dataclass(frozen=True, slots=True)
 class ServiceIdentityInfo:
-    """Verified SPIFFE identity for a service."""
+    """Store a verified SPIFFE workload identity and certificate validity window."""
 
     spiffe_id: str
     trust_domain: str
@@ -81,9 +81,11 @@ class ServiceIdentityInfo:
 
     @property
     def is_expired(self) -> bool:
+        """Return whether the SPIFFE certificate validity window has passed."""
         return bool(self.expires_at) and time.time() > self.expires_at
 
     def to_otel_attributes(self) -> dict[str, str]:
+        """Render SPIFFE identity attributes for tracing/audit correlation."""
         return {
             "identity.spiffe_id": self.spiffe_id,
             "identity.trust_domain": self.trust_domain,
@@ -113,10 +115,12 @@ class UserIdentityClaims(BaseModel):
 
     @property
     def is_expired(self) -> bool:
+        """Return whether the JWT expiration timestamp is in the past."""
         return time.time() > float(self.exp)
 
     @property
     def highest_role(self) -> PolicyOSRole:
+        """Return the highest-privilege PolicyOS role present in the claim set."""
         for role in _ROLE_ORDER:
             if role in self.roles:
                 return role
@@ -124,12 +128,14 @@ class UserIdentityClaims(BaseModel):
 
     @property
     def max_pii_access(self) -> PIIAccessLevel:
+        """Return the strongest PII tier allowed by any mapped role."""
         levels = [PIIAccessLevel.NONE]
         for role in self.roles:
             levels.append(ROLE_PII_CEILING.get(role, PIIAccessLevel.NONE))
         return max(levels, key=_LEVEL_ORDER.index)
 
     def to_otel_attributes(self) -> dict[str, str]:
+        """Render user identity attributes for trace spans and audit records."""
         return {
             "identity.user_sub": self.sub,
             "identity.tenant_id": self.tenant_id,
@@ -193,12 +199,14 @@ def infer_mfa_verified(payload: dict[str, Any]) -> bool:
 
 @runtime_checkable
 class ServiceIdentity(Protocol):
-    """Protocol for service/user identity providers."""
+    """Resolve local service identity, verify peer SPIFFE IDs, and decode user JWT claims."""
 
     def get_own_identity(self) -> ServiceIdentityInfo:
+        """Return local service identity according to provider-specific rules."""
         ...
 
     def verify_peer(self, peer_spiffe_id: str) -> ServiceIdentityInfo:
+        """Validate a peer service identity and return its normalized SPIFFE metadata."""
         ...
 
     def extract_user_claims(
@@ -207,11 +215,17 @@ class ServiceIdentity(Protocol):
         *,
         expected_cell_id: str | None = None,
     ) -> UserIdentityClaims:
+        """Decode and verify a bearer token, then return normalized user claims."""
         ...
 
 
 class SPIFFEIdentityProvider:
-    """Identity provider using SPIFFE for services and OIDC for users."""
+    """Combine SPIFFE service identity and Keycloak/OIDC JWT validation.
+
+    `get_own_identity()` resolves the workload SPIFFE ID from SPIRE or the
+    `POLISYOS_SERVICE_SPIFFE_ID` override, while `extract_user_claims()` validates
+    bearer JWTs and enforces MFA requirements for privileged roles.
+    """
 
     def __init__(
         self,
@@ -259,6 +273,13 @@ class SPIFFEIdentityProvider:
             ) from exc
 
     def get_own_identity(self) -> ServiceIdentityInfo:
+        """Return this service's SPIFFE identity from env override or SPIRE.
+
+        Raises:
+            IdentityNotAvailableError: If no SPIFFE source is configured or the
+                workload API cannot be queried.
+            IdentityVerificationError: If the SPIFFE ID format is malformed.
+        """
         env_spiffe = os.getenv("POLISYOS_SERVICE_SPIFFE_ID", "").strip()
         if env_spiffe:
             parts = self._parse_spiffe_id(env_spiffe)
@@ -298,6 +319,14 @@ class SPIFFEIdentityProvider:
             raise IdentityNotAvailableError(str(exc)) from exc
 
     def verify_peer(self, peer_spiffe_id: str) -> ServiceIdentityInfo:
+        """Validate a peer SPIFFE ID against trust-domain and same-cell/federation policy.
+
+        Raises:
+            IdentityVerificationError: If the SPIFFE trust domain or ID shape is invalid.
+            CrossTenantAccessError: If the peer cell differs from the local cell and
+                no federation allowlist admits it.
+            IdentityNotAvailableError: If local SPIFFE identity cannot be resolved.
+        """
         parts = self._parse_spiffe_id(peer_spiffe_id)
 
         if parts["trust_domain"] != self._trust_domain:
@@ -341,6 +370,21 @@ class SPIFFEIdentityProvider:
         *,
         expected_cell_id: str | None = None,
     ) -> UserIdentityClaims:
+        """Validate a bearer JWT and normalize it to `UserIdentityClaims`.
+
+        Args:
+            jwt_token: Encoded OIDC access token presented by an HTTP client.
+            expected_cell_id: Optional cell binding expected from the route/middleware.
+
+        Returns:
+            Frozen user claims with normalized PolicyOS roles and MFA status.
+
+        Raises:
+            TokenValidationError: If PyJWT is unavailable, signature/issuer/audience
+                checks fail, required claims are missing, or cell binding mismatches.
+            MFARequiredError: If a privileged role is present without a verified
+                MFA claim.
+        """
         try:
             import jwt as pyjwt
         except ModuleNotFoundError as exc:

@@ -1,4 +1,4 @@
-"""Public contracts state module API."""
+"""Define the JAX-compatible Foundry state bundles threaded through runtime execution."""
 import chex
 import jax
 import jax.numpy as jnp

@@ -1,11 +1,20 @@
-"""Public workflows default module API."""
+"""Baseline simulation/governance workflow spec used when no specialized DAG is requested."""
 from __future__ import annotations
 
 from polisyos.scientist.engine.workflow_spec import NodeInvocation, WorkflowSpec
 
 
 def default_workflow_spec() -> WorkflowSpec:
-    """Default workflow spec helper."""
+    """Build the baseline `scientist_default` workflow spec.
+
+    The DAG assumes Trinity, registry, and a data snapshot or data-view request
+    are already bound; it then executes Foundry compilation, simulation,
+    uncertainty propagation, legal/governance checks, and decision-packet
+    assembly without policy-search or discovery stages.
+
+    Returns:
+        `WorkflowSpec` describing the baseline governed simulation pipeline.
+    """
     return WorkflowSpec(
         workflow_id="scientist_default",
         error_policy="continue",

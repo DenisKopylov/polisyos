@@ -1,4 +1,9 @@
-"""Public docs normalize module API."""
+"""Document normalization stage for Fabric claim and legal pipelines.
+
+Normalization decodes raw bytes, chooses a MIME-specific text extractor, applies deterministic
+newline/whitespace cleanup, persists a normalized text artifact, updates ``DocMeta.normalized_ref``,
+and records a ``NORMALIZE_DOC`` world event.
+"""
 from __future__ import annotations
 
 from dataclasses import asdict
@@ -120,7 +125,22 @@ def normalize_doc(
     options: DocNormalizeOptions | None = None,
     segment_name: str | None = None,
 ) -> DocNormalizeResult:
-    """Normalize doc helper."""
+    """Convert a raw document artifact into normalized text and updated ``DocMeta`` metadata.
+
+    Args:
+        cas: Artifact store containing the input ``DocMeta`` and raw artifact.
+        fact_log_root: Fact-log root for emitted ``DocMeta`` and world-event facts.
+        doc_meta_artifact_id: Artifact id of the document metadata row produced by ingest.
+        options: Optional decoding order, whitespace policy, and output kind settings.
+        segment_name: Optional world segment name.
+
+    Returns:
+        Updated document metadata references and the normalized text artifact id.
+
+    Raises:
+        DocUnsupportedMimeError: If no text extractor exists for ``DocMeta.mime``.
+        DocValidationError: If the raw artifact cannot be decoded or persisted payloads are invalid.
+    """
     opts = options or DocNormalizeOptions()
 
     meta = _load_doc_meta(cas, doc_meta_artifact_id)

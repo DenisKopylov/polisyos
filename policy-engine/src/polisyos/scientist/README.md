@@ -34,6 +34,13 @@ policy-эксперименты, управляет governance/human-gate кон
 
 Подробности: [Reference →](../../../docs/reference/scientist/index.md)
 
+## Where to Start
+
+- Public facade / compatibility: `src/polisyos/scientist/__init__.py` and `docs/reference/public-surface.md`
+- Workflow assembly: `src/polisyos/scientist/workflows/` and `src/polisyos/scientist/engine/`
+- Governance changes: `src/polisyos/scientist/governance/README.md` and `docs/how-to/write-governance-pass.md`
+- New governance pass scaffold: `python3 tools/architecture/scaffold.py governance-pass --name my_pass --output ... --test-output ... --dry-run`
+
 ## Текущее состояние
 
 - Последнее обновление: 2026-04-03

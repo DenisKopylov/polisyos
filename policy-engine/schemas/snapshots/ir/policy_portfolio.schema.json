@@ -1,6 +1,7 @@
 {
   "$defs": {
     "IdentificationMode": {
+      "description": "Declare the causal identification contract assumed by records and bundles.\n\nThese modes distinguish point-identified data from partially identified,\nproxy-based, interference-aware, or sequential settings so downstream\ncomponents can enforce the right guardrails. The value is read by\n:class:`polisyos.ir.observation.measurement.IdentificationModeRouter`,\nobservation contract compilers, and causal-readiness checks to select\nfallback paths or block unsafe execution.",
       "enum": [
         "point_identified",
         "partially_identified",
@@ -58,6 +59,7 @@
       "type": "object"
     },
     "InteractionType": {
+      "description": "Qualitative label for how two policies interact in a portfolio.",
       "enum": [
         "synergy",
         "neutral",
@@ -70,7 +72,7 @@
     },
     "InterventionSpec": {
       "additionalProperties": false,
-      "description": "Policy intervention specification.\n\nDefines a single policy action with targeting, timing, and parameters.\nCompatible with existing InterventionSpec in surface.py.",
+      "description": "Declare one policy action, its target selector, timing, and mechanism inputs.\n\nIn Trinity terms this is an intervention/governance object, not a causal\nquery intervention. It is used by policy compilation and schedule execution,\nwhile observation routing reads ``identification_mode`` and\n``transmission_channels`` to decide which readiness checks and governance\npasses must run before evaluation.",
       "properties": {
         "enabled": {
           "default": true,
@@ -230,7 +232,7 @@
     },
     "MechanismBinding": {
       "additionalProperties": false,
-      "description": "Binding between an intervention and a mechanism from the registry.\n\nLinks policy interventions to executable mechanisms.",
+      "description": "Bind one or more interventions to an executable mechanism registry entry.\n\nThis is the handshake between authored interventions and runtime mechanism\nimplementations: search, compilation, and execution layers can override\nmechanism configuration without mutating the intervention payload itself.",
       "properties": {
         "binding_id": {
           "pattern": "^[a-z][a-z0-9_]*$",
@@ -269,7 +271,7 @@
     },
     "ParameterSpec": {
       "additionalProperties": false,
-      "description": "Tunable parameter specification with bounds and metadata.\n\nSupports calibration and sensitivity analysis.",
+      "description": "Expose one tunable intervention parameter to calibration and search.\n\n``param_path`` points into ``InterventionSpec.params`` and optional bounds\nconstrain feasible updates. Scientist calibration and sensitivity tooling\nshould only mutate parameters marked ``tunable=True``.",
       "properties": {
         "default_value": {
           "description": "Default/initial value",
@@ -396,7 +398,7 @@
     },
     "PolicySpec": {
       "additionalProperties": false,
-      "description": "PolicySpec: The \"What\" artifact.\n\nSpecifies the policy interventions, mechanism bindings, and parameters.\nThis artifact is iterated during policy optimization while the ProblemFrame\nremains constant.",
+      "description": "Define the Trinity intervention/governance contract for policy proposals.\n\n``PolicySpec`` answers \"which intervention is being proposed and under what\nexecution semantics?\" It should reference a stable ``ProblemFrame`` and can\nbe iterated by search, optimization, or human authoring while ``ModelSpec``\nsupplies alternative world-model assumptions. Use ``interventions`` for the\nauthored action set, ``mechanism_bindings`` for runtime mechanism mapping,\nand ``parameters`` for calibration/search knobs.\n\nAttributes:\n    policy_id: Stable identifier for the proposal candidate.\n    problem_frame_ref: Optional content-addressed link to the ``ProblemFrame``\n        this proposal is meant to satisfy.\n    interventions: Concrete actions with selector, schedule, and mechanism\n        parameters.\n    mechanism_bindings: Explicit runtime mechanism bindings for one or more\n        interventions.\n    parameters: Tunable knobs exposed to calibration and sensitivity passes.\n    global_schedule: Optional schedule override shared by all interventions.",
       "properties": {
         "description": {
           "anyOf": [
@@ -526,6 +528,7 @@
     },
     "ScheduleSpec": {
       "additionalProperties": false,
+      "description": "Describe when an intervention or task is active in step-indexed Trinity schedules.",
       "properties": {
         "duration_steps": {
           "anyOf": [
@@ -567,6 +570,7 @@
     },
     "SelectorAll": {
       "additionalProperties": false,
+      "description": "Selector all public type.",
       "properties": {
         "clauses": {
           "items": {
@@ -612,6 +616,7 @@
     },
     "SelectorAny": {
       "additionalProperties": false,
+      "description": "Selector any public type.",
       "properties": {
         "clauses": {
           "items": {
@@ -657,6 +662,7 @@
     },
     "SelectorNot": {
       "additionalProperties": false,
+      "description": "Selector not public type.",
       "properties": {
         "clause": {
           "discriminator": {
@@ -716,6 +722,7 @@
     },
     "SelectorPredicate": {
       "additionalProperties": false,
+      "description": "Selector predicate public type.",
       "properties": {
         "field": {
           "maxLength": 64,
@@ -785,6 +792,7 @@
       "type": "object"
     },
     "StrategicResponseChannel": {
+      "description": "Identify the adaptation channel that should trigger strategic-response checks.\n\n``PolicySpec`` and readiness bundles use this enum to route interventions to\nstrategic-response hooks and to document which behavioral channel may break\nnaive policy assumptions.",
       "enum": [
         "budget_channel",
         "procurement_channel",
@@ -836,7 +844,7 @@
     }
   },
   "additionalProperties": false,
-  "description": "Portfolio-level IR artifact for multi-policy optimization.",
+  "description": "Bundle a feasible policy set plus pairwise interaction rules for portfolio search.\n\nUse ``policies`` for inline candidate specs, ``policy_refs`` when candidates\nare stored externally, and ``interaction_matrix`` plus cardinality/exclusion\nconstraints to evaluate portfolio feasibility and total benefit.",
   "properties": {
     "description": {
       "anyOf": [

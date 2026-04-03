@@ -453,7 +453,7 @@ class GoldenRecord:
 
 @dataclass(frozen=True, slots=True)
 class GoldenRecordRef:
-    """Golden record ref data model."""
+    """Point to a persisted golden record used for deterministic replay and regression checks."""
     method_fqn: str
     input_hash: str
     backend_platform: str

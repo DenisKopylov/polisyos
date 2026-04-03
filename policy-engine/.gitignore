@@ -52,6 +52,10 @@ tmp/
 # Frontend build artifacts
 frontend/runtime-dashboard/node_modules/
 frontend/runtime-dashboard/dist/
+frontend/runtime-dashboard/.env
+frontend/runtime-dashboard/.env.local
+frontend/runtime-dashboard/.env.*.local
+!frontend/runtime-dashboard/.env.example
 
 # Local metrics (do not commit)
 test_collect.txt
@@ -86,6 +90,8 @@ docs/archive/reports/**
 !docs/how-to/**
 !docs/reference/
 !docs/reference/**
+!docs/runbooks/
+!docs/runbooks/**
 !docs/tutorials/
 !docs/tutorials/**
 site/

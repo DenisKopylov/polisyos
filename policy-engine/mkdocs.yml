@@ -81,11 +81,14 @@ exclude_docs: |
 nav:
   - Home: index.md
   - Style Guide: style-guide.md
+  - Infrastructure SOTA Plan: INFRASTRUCTURE_SOTA_PLAN.md
 
   - Tutorials:
       - tutorials/index.md
       - Getting Started: tutorials/getting-started.md
       - First Policy Analysis: tutorials/first-policy-analysis.md
+      - Writing a Connector: tutorials/writing-a-connector.md
+      - Creating a Governance Pass: tutorials/creating-governance-pass.md
 
   - How-to Guides:
       - how-to/index.md
@@ -96,6 +99,22 @@ nav:
       - Run Benchmarks: how-to/run-benchmarks.md
       - Run Causal Analysis: how-to/run-causal-analysis.md
       - Write Governance Pass: how-to/write-governance-pass.md
+      - Configure Lex Pipeline: how-to/configure-lex-pipeline.md
+      - Use Control Plane: how-to/use-control-plane.md
+      - Debug Failed Run: how-to/debug-failed-run.md
+      - Manage Schemas: how-to/manage-schemas.md
+      - Operate the CI/CD Platform: how-to/operate-ci-cd-platform.md
+      - Review Migrations and Rollouts: how-to/review-rollouts.md
+      - Manage Generated Artifacts: how-to/manage-generated-artifacts.md
+      - Release Policy: how-to/release-policy.md
+      - Apply GitHub Governance: how-to/apply-github-governance.md
+      - Onboarding Tracks:
+          - how-to/onboarding/index.md
+          - Domain / Policy Reader: how-to/onboarding/domain-policy-reader.md
+          - Backend Engineer: how-to/onboarding/backend-engineer.md
+          - Frontend Engineer: how-to/onboarding/frontend-engineer.md
+          - Platform / Ops Engineer: how-to/onboarding/platform-ops-engineer.md
+          - Security / Compliance Reviewer: how-to/onboarding/security-compliance-reviewer.md
 
   - Reference:
       - reference/index.md
@@ -137,7 +156,24 @@ nav:
           - reference/api/artifacts.md
       - CLI: reference/cli.md
       - Schemas: reference/schemas.md
+      - Public Surface: reference/public-surface.md
+      - Generated Artifacts: reference/generated-artifacts.md
+      - Contributor Start Here: reference/contributor-start-here.md
+      - Dependency Platform: reference/dependency-platform.md
+      - Environment Matrix: reference/environment-matrix.md
       - Configuration: reference/configuration.md
+      - Configuration Profiles: reference/configuration-profiles.md
+      - Ownership: reference/ownership.md
+      - Quality Gates: reference/quality-gates.md
+      - Merge Governance: reference/merge-governance.md
+      - Ratchet Policy: reference/ratchet-policy.md
+      - Operations:
+          - reference/operations/index.md
+          - SLO and Error Budget: reference/operations/slo-error-budget.md
+          - Observability Topology: reference/operations/observability-topology.md
+          - Retention and Recovery: reference/operations/retention-and-recovery.md
+          - Handoff and Platform Review: reference/operations/handoff-and-platform-review.md
+          - Platform Acceptance Audit: reference/operations/platform-acceptance-audit.md
 
   - Explanation:
       - explanation/index.md
@@ -147,6 +183,7 @@ nav:
       - Governance Model: explanation/governance-model.md
       - Data Fabric: explanation/data-fabric.md
       - Lex Pipeline: explanation/lex-pipeline.md
+      - IR Design: explanation/ir-design.md
       - Observation Contracts: explanation/observation-contracts.md
       - Security Model: explanation/security-model.md
       - Key Rotation: key-rotation.md
@@ -168,6 +205,18 @@ nav:
       - Lex Corpus MVP V1: contracts/E2_8_LEX_CORPUS_MVP_V1_0.md
       - Lex NormPack Assembly V1: contracts/E2_9_LEX_NORMPACK_ASSEMBLY_V1_0.md
       - Lex Legal Evaluation V1: contracts/E2_10_LEX_LEGAL_EVALUATION_V1_0.md
+
+  - Runbooks:
+      - runbooks/index.md
+      - Dependency Upgrade Regression: runbooks/dependency-upgrade-regression.md
+      - Runtime API Outage: runbooks/runtime-api-outage.md
+      - Broken Contract Generation: runbooks/broken-contract-generation.md
+      - Artifact Signing or SBOM Failure: runbooks/artifact-signing-sbom-failure.md
+      - Canary Rollback or Failed Promotion: runbooks/canary-rollback-or-promotion-failure.md
+      - Replay or Restore Workflow: runbooks/replay-or-restore.md
+      - Retained Artifact Recovery: runbooks/retained-artifact-recovery.md
+      - Docs Publication Failure: runbooks/docs-publication-failure.md
+      - Benchmark Regression Triage: runbooks/benchmark-regression-triage.md
 
   - ADRs:
       - adr/index.md
@@ -262,4 +311,5 @@ nav:
       - adr/0093-dynamic-transportability-time-stationarity.md
       - adr/0094-confidence-ordinal-quality-score.md
       - adr/0095-canonical-scm-test-fixtures.md
+      - adr/0096-canonical-product-root-and-workspace-boundary.md
       - adr/ADR-004-policy-surface-removal.md

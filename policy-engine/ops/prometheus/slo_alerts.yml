@@ -73,3 +73,80 @@ groups:
           description: |
             Connector {{ $labels.connector_id }} in env={{ $labels.env }}
             has error rate {{ $value | printf "%.4f" }}.
+
+      - alert: SLO_RuntimeApiAvailabilityBreach
+        expr: |
+          polisyos:runtime_api_success_rate:rate30m{method="GET",route!="unmatched"} < 0.995
+          and on (route, method, env) polisyos:runtime_api_requests:rate30m{method="GET",route!="unmatched"} > 0
+        for: 10m
+        labels:
+          severity: warning
+          team: runtime
+          slo: runtime_api_availability
+        annotations:
+          summary: "SLO Breach: Runtime API availability < 99.5%"
+          description: |
+            Runtime route {{ $labels.method }} {{ $labels.route }} in env={{ $labels.env }}
+            has success rate {{ $value | printf "%.4f" }} over the last 30m.
+
+      - alert: SLO_RuntimeApiLatencyP95High
+        expr: |
+          polisyos:runtime_api_p95_latency_seconds:5m{method="GET",route!="unmatched"} > 0.75
+          and on (route, method, env) polisyos:runtime_api_requests:rate30m{method="GET",route!="unmatched"} > 0
+        for: 15m
+        labels:
+          severity: warning
+          team: runtime
+          slo: runtime_api_latency_p95
+        annotations:
+          summary: "SLO Breach: Runtime API p95 latency > 750ms"
+          description: |
+            Runtime route {{ $labels.method }} {{ $labels.route }} in env={{ $labels.env }}
+            has p95 latency {{ $value | printf "%.3f" }}s.
+
+      - alert: SLO_RuntimeApiLatencyP99High
+        expr: |
+          polisyos:runtime_api_p99_latency_seconds:5m{method="GET",route!="unmatched"} > 1.5
+          and on (route, method, env) polisyos:runtime_api_requests:rate30m{method="GET",route!="unmatched"} > 0
+        for: 10m
+        labels:
+          severity: critical
+          team: runtime
+          slo: runtime_api_latency_p99
+        annotations:
+          summary: "CRITICAL SLO Breach: Runtime API p99 latency > 1.5s"
+          description: |
+            Runtime route {{ $labels.method }} {{ $labels.route }} in env={{ $labels.env }}
+            has p99 latency {{ $value | printf "%.3f" }}s.
+
+      - alert: SLO_ControlPlaneAdmissionBreach
+        expr: |
+          polisyos:control_plane_job_admission_success_rate:rate30m < 0.99
+          and on (job_kind, effective_profile, env) polisyos:control_plane_job_admissions:rate30m > 0
+        for: 10m
+        labels:
+          severity: warning
+          team: runtime
+          slo: control_plane_job_admission
+        annotations:
+          summary: "SLO Breach: Control-plane job admission < 99%"
+          description: |
+            Control-plane admission success rate is {{ $value | printf "%.4f" }}
+            for job_kind={{ $labels.job_kind }}, profile={{ $labels.effective_profile }},
+            env={{ $labels.env }}.
+
+      - alert: SLO_ControlPlaneAdmissionLatencyP95High
+        expr: |
+          polisyos:control_plane_job_admission_p95_latency_seconds:5m > 2
+          and on (job_kind, effective_profile, env) polisyos:control_plane_job_admissions:rate30m > 0
+        for: 15m
+        labels:
+          severity: warning
+          team: runtime
+          slo: control_plane_job_admission_latency
+        annotations:
+          summary: "SLO Signal: Control-plane admission p95 latency > 2s"
+          description: |
+            Control-plane admission p95 latency is {{ $value | printf "%.3f" }}s
+            for job_kind={{ $labels.job_kind }}, profile={{ $labels.effective_profile }},
+            env={{ $labels.env }}.

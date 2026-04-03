@@ -1,4 +1,4 @@
-"""Public ml uncertainty module API."""
+"""Calibrate predictive uncertainty envelopes for ML regression outputs."""
 from __future__ import annotations
 
 from typing import Any, ClassVar, Mapping
@@ -46,7 +46,7 @@ def _prediction_payload(state: Any) -> PredictionResult:
     tags={"ml", "uncertainty", "conformal-prediction"},
 )
 class ConformalPredictionEstimator:
-    """Conformal prediction estimator implementation."""
+    """Build split-conformal prediction intervals under exchangeability; avoid nonstationary test distributions without recalibration."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 

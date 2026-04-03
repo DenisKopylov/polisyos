@@ -1,4 +1,4 @@
-"""Public causal pcmci discovery module API."""
+"""Discover lagged causal parents in multivariate time series with PCMCI-style tests."""
 from __future__ import annotations
 
 import multiprocessing as mp
@@ -445,7 +445,7 @@ def _fallback_report(
     tags={"causal", "discovery", "time-series", "pcmci"},
 )
 class PCMCIDiscovery:
-    """PCMCI discovery public type."""
+    """Estimate lagged links under a fixed lag window and causal sufficiency; avoid very short time series."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
 
     signature: ClassVar[MethodSignature] = MethodSignature(

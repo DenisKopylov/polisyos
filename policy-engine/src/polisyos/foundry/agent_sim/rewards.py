@@ -1,4 +1,4 @@
-"""Public agent sim rewards module API."""
+"""Convert simulation state transitions into per-agent rewards and discounted returns."""
 from __future__ import annotations
 
 import jax
@@ -51,7 +51,7 @@ def compute_agent_reward(
     utility_type: str = "crra",
     ies: float | jnp.ndarray | None = None,
 ) -> jnp.ndarray:
-    """Compute agent reward helper."""
+    """Compute per-agent utility-adjusted rewards from the transition between two states."""
     agents = next_state.agents
 
     if utility_type == "crra":
@@ -86,7 +86,7 @@ def apply_discounting(
     discount_factors: jnp.ndarray,
     active_mask: jnp.ndarray,
 ) -> jnp.ndarray:
-    """Apply discounting helper."""
+    """Roll rewards backward with per-agent discount factors and active masks."""
     def discount_step(carry, t):
         cumulative = carry
         reward_t = rewards[t]
@@ -111,7 +111,7 @@ def compute_agent_reward_with_credit(
     ies: float | jnp.ndarray | None = None,
     rng_key: jax.Array | None = None,
 ) -> jnp.ndarray:
-    """Compute agent reward with credit helper."""
+    """Compute base rewards and then reallocate them with the chosen credit scheme."""
     individual_rewards = compute_agent_reward(
         state,
         next_state,

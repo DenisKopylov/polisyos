@@ -1,4 +1,4 @@
-"""Public security audit verifier module API."""
+"""Verifies chained audit logs for gaps, tampering, and broken hash continuity."""
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -11,7 +11,7 @@ from .audit_models import ChainedLogEntry
 
 @dataclass
 class ChainVerificationResult:
-    """Chain verification result data model."""
+    """Outcome of verifying one chained audit segment for continuity and integrity."""
     total_entries: int = 0
     valid_entries: int = 0
     tampered_entries: list[int] = field(default_factory=list)

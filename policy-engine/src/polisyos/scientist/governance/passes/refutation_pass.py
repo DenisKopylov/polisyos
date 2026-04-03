@@ -1,4 +1,4 @@
-"""Public passes refutation pass module API."""
+"""Validate refutation coverage and failed falsification tests on causal reports."""
 from __future__ import annotations
 
 from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
@@ -31,7 +31,13 @@ _DOWHY_METHODS: frozenset[CausalMethod] = frozenset(
 
 
 class RefutationPass(ValidatorPass):
-    """Refutation pass implementation."""
+    """Require DoWhy refutation-test evidence before promoting successful estimates.
+
+    Reads `causal_report` directly or through
+    `artifacts_index.causal_report_ref` and `_store`. Missing, incomplete, or
+    failed required refutation tests emit `REFUTATION_*` findings; STRICT
+    profiles emit blockers while other profiles warn.
+    """
     @property
     def pass_id(self) -> str:
         return "refutation"

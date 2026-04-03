@@ -193,7 +193,7 @@ def _build_parser() -> argparse.ArgumentParser:
 # ---------------------------------------------------------------------------
 
 def main(argv: Sequence[str] | None = None) -> int:
-    """Main helper."""
+    """Run the Foundry methods CLI and dispatch to the selected subcommand."""
     parser = _build_parser()
     args = parser.parse_args(argv)
 

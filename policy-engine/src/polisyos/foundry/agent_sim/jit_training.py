@@ -30,7 +30,7 @@ from polisyos.foundry.contracts.fidelity import FidelityLevel
 
 @dataclass(frozen=True)
 class JITTrainingConfig(TrainingConfigBase):
-    """JIT training config data model."""
+    """Configure the fully JIT-compiled actor-critic training loop."""
     credit_config: CreditConfig | None = None
     collect_metrics: bool = True
     metrics_frequency: int = 1

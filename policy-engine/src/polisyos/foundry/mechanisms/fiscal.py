@@ -20,7 +20,7 @@ def _combine_masks(
 
 
 def compute_tax(state: GlobalState, rate: jnp.ndarray) -> jnp.ndarray:
-    """Compute tax helper."""
+    """Compute per-agent tax liabilities from reported income and an applied rate."""
     tax = state.agents.reported_income * rate
     active_mask = getattr(state.agents, "active", None)
     if active_mask is None:
@@ -29,7 +29,7 @@ def compute_tax(state: GlobalState, rate: jnp.ndarray) -> jnp.ndarray:
 
 
 def compute_income_tax(state: GlobalState, rate: jnp.ndarray) -> jnp.ndarray:
-    """Compute income tax helper."""
+    """Alias `compute_tax()` for fiscal APIs that explicitly expect income-tax semantics."""
     return compute_tax(state, rate)
 
 

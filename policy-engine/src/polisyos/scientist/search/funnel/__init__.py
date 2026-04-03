@@ -7,6 +7,8 @@ reserving expensive evaluation for promising ones only.
 
 from __future__ import annotations
 
+from typing import Any
+
 from polisyos.scientist.search.funnel.types import (
     CheapSignalVector,
     FunnelStage,
@@ -36,7 +38,7 @@ __all__ = [
 # Lazy imports for stage implementations to avoid heavy dependencies at import time.
 
 
-def __getattr__(name: str):  # noqa: N807
+def __getattr__(name: str) -> Any:  # noqa: N807
     if name == "Level0StaticValidator":
         from polisyos.scientist.search.funnel.level0_static import Level0StaticValidator
 

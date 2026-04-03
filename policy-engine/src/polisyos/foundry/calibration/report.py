@@ -1,4 +1,10 @@
-"""Public calibration report module API."""
+"""Persist calibration reports and expose the optimizer result schema.
+
+These models describe the fitted parameter values and diagnostics produced by
+`Calibrator.run()`. They intentionally separate synthetic-series comparisons,
+fit quality, and uncertainty/identifiability metadata so governance passes can
+inspect calibration quality without rerunning simulation.
+"""
 from __future__ import annotations
 
 from typing import Any, Dict, List, Mapping
@@ -16,7 +22,7 @@ from polisyos.foundry.calibration.identifiability import IdentifiabilityReport
 
 
 class CalibrationSeriesComparison(BaseModel):
-    """Calibration series comparison public type."""
+    """Store one observed-vs-simulated time series pair for report rendering."""
     model_config = ConfigDict(extra="forbid")
 
     time: List[float] | None = None
@@ -25,7 +31,7 @@ class CalibrationSeriesComparison(BaseModel):
 
 
 class CalibrationFitMetrics(BaseModel):
-    """Calibration fit metrics data model."""
+    """Summarize residual fit quality for one target or an aggregate bundle."""
     model_config = ConfigDict(extra="forbid")
 
     mse: float
@@ -36,7 +42,7 @@ class CalibrationFitMetrics(BaseModel):
 
 
 class CalibrationFitQuality(BaseModel):
-    """Calibration fit quality public type."""
+    """Group per-target and aggregate fit metrics in one report section."""
     model_config = ConfigDict(extra="forbid")
 
     per_target: Mapping[str, CalibrationFitMetrics] = Field(default_factory=dict)
@@ -44,7 +50,7 @@ class CalibrationFitQuality(BaseModel):
 
 
 class CalibrationUncertainty(BaseModel):
-    """Calibration uncertainty public type."""
+    """Capture Hessian/Laplace uncertainty diagnostics for fitted parameters."""
     model_config = ConfigDict(extra="forbid")
 
     method: str = "laplace"
@@ -59,13 +65,14 @@ class CalibrationUncertainty(BaseModel):
 
 
 class CalibrationReport(BaseModel):
-    """Артефакт результатов калибровки."""
+    """Persist calibrated parameters, trace comparisons, and diagnostics."""
 
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\\d+\\.\\d+$")
     calibrated_params: Mapping[str, float] = Field(
-        default_factory=dict, description="Плоский словарь (node_id.param -> value)."
+        default_factory=dict,
+        description="Flat parameter map keyed as `node_id.param`.",
     )
     total_loss: float
     per_target_loss: Mapping[str, float] = Field(default_factory=dict)
@@ -90,7 +97,7 @@ class CalibrationReport(BaseModel):
     diagnostics: List[str] = Field(default_factory=list)
     execution_context: Dict[str, Any] = Field(
         default_factory=dict,
-        description="Параметры среды исполнения (fidelity, temperature и т.п.).",
+        description="Runtime settings used during calibration, such as fidelity and temperature.",
     )
 
 
@@ -100,7 +107,7 @@ def put_calibration_config(
     *,
     inputs: List[InputRef] | None = None,
 ) -> ArtifactRef:
-    """Put calibration config helper."""
+    """Persist a `CalibrationConfig` artifact with caller-supplied provenance edges."""
     return store.put_json(
         config,
         PutOptions(
@@ -119,7 +126,7 @@ def put_calibration_report(
     *,
     inputs: List[InputRef] | None = None,
 ) -> ArtifactRef:
-    """Put calibration report helper."""
+    """Persist a `CalibrationReport` artifact for downstream governance/replay."""
     return store.put_json(
         report,
         PutOptions(

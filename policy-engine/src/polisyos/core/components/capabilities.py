@@ -1,4 +1,4 @@
-"""Public components capabilities module API."""
+"""Capability flags used to advertise what a discovered component can do."""
 from __future__ import annotations
 
 from enum import IntFlag, auto
@@ -32,7 +32,7 @@ Capabilities = Capability
 
 
 def capabilities_from_flags(*flags: Capability) -> Capability:
-    """Capabilities from flags helper."""
+    """Fold one or more capability flags into the composite bitmask stored on a component."""
     caps = Capability(0)
     for flag in flags:
         caps |= flag
@@ -40,5 +40,5 @@ def capabilities_from_flags(*flags: Capability) -> Capability:
 
 
 def flags_from_capabilities(caps: Capability) -> list[Capability]:
-    """Flags from capabilities helper."""
+    """Expand a capability bitmask back into the individual advertised flags it contains."""
     return [flag for flag in Capability if flag in caps]

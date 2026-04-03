@@ -54,3 +54,10 @@ flowchart LR
 |-----|------------------|
 | `run_c7_advanced_suite()` | Factor embeddings, cell prototypes, bilevel bundle, Heckman correction, survival hazards, Sobol diagnostics, specification-curve diagnostics |
 
+## API Reference
+
+::: polisyos.scientist
+
+::: polisyos.scientist.api
+
+::: polisyos.scientist.engine.state

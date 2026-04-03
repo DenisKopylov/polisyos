@@ -1,4 +1,9 @@
-"""Public artifacts manifest module API."""
+"""Define CAS manifest/reference models that encode artifact lineage and ABI hints.
+
+`ArtifactManifest` is the durable sidecar contract stored next to each blob in
+`FileSystemCAS`. `ArtifactRef`/`InputRef` form the lineage boundary consumed by
+runtime APIs, registry bundles, and governance reports.
+"""
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -11,19 +16,19 @@ from .ids import ArtifactID
 
 
 def utc_now() -> datetime:
-    """Utc now helper."""
+    """Return a UTC timestamp rounded to whole seconds for manifest defaults."""
     return datetime.now(timezone.utc).replace(microsecond=0)
 
 
 class SchemaInfo(BaseModel):
-    """Schema info data model."""
+    """Identify the schema contract that describes an artifact payload."""
     model_config = ConfigDict(extra="forbid")
     name: str
     version: str
 
 
 class CanonInfo(BaseModel):
-    """Canon info data model."""
+    """Record the canonicalization rules used before hashing/storing JSON payloads."""
     model_config = ConfigDict(extra="forbid")
     name: str = "polisyos.canon.json"
     version: str = "0.1.0"
@@ -35,6 +40,7 @@ class CanonInfo(BaseModel):
 
     @classmethod
     def from_spec(cls, spec: Any) -> "CanonInfo":
+        """Build manifest canon metadata from a duck-typed canonicalization spec."""
         return cls(
             name=getattr(spec, "name", cls.model_fields["name"].default),
             version=getattr(spec, "version", cls.model_fields["version"].default),
@@ -55,14 +61,14 @@ class CanonInfo(BaseModel):
 
 
 class GitInfo(BaseModel):
-    """Git info data model."""
+    """Capture producer git provenance attached to a manifest."""
     model_config = ConfigDict(extra="forbid")
     commit: str
     dirty: bool = False
 
 
 class ProducerInfo(BaseModel):
-    """Producer info data model."""
+    """Identify the component/version that produced an artifact."""
     model_config = ConfigDict(extra="forbid")
     component: ComponentId | str
     version: str
@@ -71,6 +77,7 @@ class ProducerInfo(BaseModel):
     @field_validator("component")
     @classmethod
     def _coerce_component_id(cls, value: ComponentId | str) -> ComponentId | str:
+        """Preserve invalid legacy strings but coerce valid component IDs."""
         if isinstance(value, ComponentId):
             return value
         if isinstance(value, str):
@@ -82,7 +89,7 @@ class ProducerInfo(BaseModel):
 
 
 class EnvInfo(BaseModel):
-    """Env info data model."""
+    """Summarize the runtime environment fingerprint persisted with a manifest."""
     model_config = ConfigDict(extra="forbid")
     python: str
     platform: str
@@ -90,7 +97,7 @@ class EnvInfo(BaseModel):
 
 
 class WarningRecord(BaseModel):
-    """Warning record data model."""
+    """Attach non-fatal producer/runtime warnings to an artifact manifest."""
     model_config = ConfigDict(extra="forbid")
     code: str
     msg: str
@@ -98,21 +105,21 @@ class WarningRecord(BaseModel):
 
 
 class IntegrityInfo(BaseModel):
-    """Integrity info data model."""
+    """Persist the expected payload digest and optional extra integrity metadata."""
     model_config = ConfigDict(extra="forbid")
     sha256: str
     optional: dict[str, str] | None = None
 
 
 class InputRef(BaseModel):
-    """Input ref data model."""
+    """Declare one upstream artifact edge in a manifest lineage DAG."""
     model_config = ConfigDict(extra="forbid")
     artifact_id: ArtifactID
     role: str
 
 
 class ArtifactRef(BaseModel):
-    """Artifact ref data model."""
+    """Reference an artifact across service, registry, and governance boundaries."""
     model_config = ConfigDict(extra="forbid")
     artifact_id: ArtifactID
     kind: str
@@ -120,7 +127,12 @@ class ArtifactRef(BaseModel):
 
 
 class ArtifactManifest(BaseModel):
-    """Artifact manifest data model."""
+    """Describe one CAS object, its ABI hints, and its direct lineage inputs.
+
+    The manifest is immutable once written next to the content-addressed blob.
+    `artifact_id` must match the blob bytes, and `inputs` encodes direct
+    upstream dependencies used by lineage reconstruction.
+    """
     model_config = ConfigDict(extra="forbid", populate_by_name=True)
 
     artifact_id: ArtifactID

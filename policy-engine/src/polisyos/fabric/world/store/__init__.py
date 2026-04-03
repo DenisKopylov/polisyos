@@ -1,4 +1,4 @@
-"""Public world store package API."""
+"""World-store surface for fact emission, validation, artifact persistence, and segment I/O."""
 from __future__ import annotations
 
 from polisyos.fabric.world.store.emit import (

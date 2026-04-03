@@ -1,4 +1,4 @@
-"""Public fabric docs package API."""
+"""Facade for raw-document ingest, normalization, structure, and chunking artifacts."""
 from __future__ import annotations
 
 from .chunking import chunk_doc

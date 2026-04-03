@@ -1,5 +1,6 @@
 {
   "additionalProperties": false,
+  "description": "Conflict set resolution public type.",
   "properties": {
     "confidence": {
       "anyOf": [

@@ -43,6 +43,13 @@ Reference docs:
 - [registry/README.md](registry/README.md)
 - [security/README.md](security/README.md)
 
+## Where to Start
+
+- Public facade / compatibility: `src/polisyos/core/__init__.py` and `docs/reference/public-surface.md`
+- Contracts / typed ABI: `src/polisyos/core/contracts/`
+- Registry/bootstrap wiring: `src/polisyos/core/registry/` and `src/polisyos/core/components/`
+- Generated / contract-adjacent artifacts: `docs/reference/generated-artifacts.md`
+
 ## Current State
 
 - Last updated: 2026-04-03

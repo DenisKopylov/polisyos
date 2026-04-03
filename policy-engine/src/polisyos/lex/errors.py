@@ -1,4 +1,9 @@
-"""Public lex errors module API."""
+"""Error hierarchy for Lex ingestion, structuring, versioning, and evaluation stages.
+
+All Lex exceptions inherit from ``LexError`` and preserve ``doc_source_id`` / ``doc_version_id``
+when available so orchestration, diagnostics, and governance tooling can attribute failures to a
+specific corpus object and pipeline stage.
+"""
 from __future__ import annotations
 
 from typing import Any

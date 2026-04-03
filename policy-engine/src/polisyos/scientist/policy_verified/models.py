@@ -100,7 +100,7 @@ class SourceCoverageGap(BaseModel):
 
 
 class SourceVerificationReport(BaseModel):
-    """Source verification report data model."""
+    """Audit report capturing verified claims, unresolved evidence gaps, and escalation status."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -155,7 +155,7 @@ class PolicyOptionSet(BaseModel):
 
 
 class VerifiedPolicyReport(BaseModel):
-    """Verified policy report data model."""
+    """Delivery-ready policy report combining verified legal basis, options, implications, and gaps."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -204,7 +204,7 @@ def persist_policy_request_frame(
     *,
     inputs: list[InputRef] | None = None,
 ) -> PolicyRequestFrameRef:
-    """Persist policy request frame helper."""
+    """Persist the normalized policy request frame and return its typed artifact reference."""
     return PolicyRequestFrameRef.model_validate(
         _persist_model(
             store,
@@ -227,7 +227,7 @@ def persist_legal_candidate_pack(
     *,
     inputs: list[InputRef] | None = None,
 ) -> LegalCandidatePackRef:
-    """Persist legal candidate pack helper."""
+    """Persist the candidate source-query pack produced during legal retrieval planning."""
     return LegalCandidatePackRef.model_validate(
         _persist_model(
             store,
@@ -250,7 +250,7 @@ def persist_legal_source_pack(
     *,
     inputs: list[InputRef] | None = None,
 ) -> LegalSourcePackRef:
-    """Persist legal source pack helper."""
+    """Persist the expanded legal source bundle gathered for verification and drafting."""
     return LegalSourcePackRef.model_validate(
         _persist_model(
             store,
@@ -273,7 +273,7 @@ def persist_source_verification_report(
     *,
     inputs: list[InputRef] | None = None,
 ) -> SourceVerificationReportRef:
-    """Persist source verification report helper."""
+    """Persist the source-verification audit report and return its typed artifact reference."""
     return SourceVerificationReportRef.model_validate(
         _persist_model(
             store,
@@ -299,7 +299,7 @@ def persist_policy_option_set(
     *,
     inputs: list[InputRef] | None = None,
 ) -> PolicyOptionSetRef:
-    """Persist policy option set helper."""
+    """Persist the verified and hypothesis-backed policy option set for downstream stages."""
     return PolicyOptionSetRef.model_validate(
         _persist_model(
             store,
@@ -322,7 +322,7 @@ def persist_verified_policy_report(
     *,
     inputs: list[InputRef] | None = None,
 ) -> VerifiedPolicyReportRef:
-    """Persist verified policy report helper."""
+    """Persist the final verified policy report assembled for delivery or governance review."""
     return VerifiedPolicyReportRef.model_validate(
         _persist_model(
             store,

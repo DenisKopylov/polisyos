@@ -1,4 +1,4 @@
-"""Public services timeline module API."""
+"""Transform persisted trace JSONL into stable timeline API responses."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -20,13 +20,19 @@ logger = get_logger(__name__)
 
 @dataclass(frozen=True)
 class TimelineBuildResult:
-    """Timeline build result data model."""
+    """Wrap the run timeline projection returned by `TimelineService`."""
     timeline: RunTimelineView
 
 
 class TimelineService:
-    """Timeline service implementation."""
+    """Read trace JSONL files and summarize node/event timing for one run."""
     def build_for_run(self, run: IndexedRunRecord) -> TimelineBuildResult:
+        """Build a chronological timeline view for one indexed run.
+
+        Missing trace files are not treated as hard failures; the method returns
+        an empty timeline with a diagnostic note so callers can render partial
+        run state.
+        """
         if run.trace_path is None or not run.trace_path.exists():
             timeline = RunTimelineView(
                 run_id=run.run_id,

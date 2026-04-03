@@ -1,0 +1,7 @@
+[manual]
+clean_machine_bootstrap = false
+backend_walkthrough = false
+frontend_walkthrough = false
+platform_walkthrough = false
+release_dry_run = false
+incident_tabletop = false

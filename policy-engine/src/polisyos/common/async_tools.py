@@ -1,4 +1,4 @@
-"""Public common async tools module API."""
+"""Bridge async coroutines into synchronous entrypoints safely."""
 from __future__ import annotations
 
 import asyncio

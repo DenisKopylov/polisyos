@@ -291,7 +291,13 @@ def _benchmark_metric_group(metric_name: str) -> str:
 
 
 def run_qc(config: DatasetBatchConfig, *, fail_fast: bool | None = None) -> QCReport:
-    """Run qc."""
+    """Evaluate dataset batch artifacts and emit a QC report with publish-blocking gates.
+
+    Checks cover manifest parity, description quality, machine-readability, parser support,
+    benchmark readiness thresholds, cross-source value consistency, and observation coverage.
+    Smoke-like runs downgrade some gates to informational checks so preflight lanes can still
+    report quality without blocking publish.
+    """
     started_at = datetime.now(UTC).isoformat()
     checks: list[QCCheck] = []
     metrics: dict[str, float | int] = {}

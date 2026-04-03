@@ -1,4 +1,4 @@
-"""Public workflows engine simple module API."""
+"""Minimal sequential engine used by tests and cheap search-loop prototypes."""
 from __future__ import annotations
 
 from typing import Any, Callable, Dict, List
@@ -7,14 +7,12 @@ from polisyos.scientist.kernel.fsm import Phase
 
 
 class SimpleLoopEngine:
-    """
-    Minimal workflow engine for search iterations.
+    """Execute an ordered list of pure node callables until terminal/pruned state.
 
-    Executes a sequence of node functions without LangGraph overhead.
-    Useful for:
-    - Unit testing search loop mechanics
-    - Rapid iteration during development
-    - Surrogate evaluations in CheapStage
+    Use this engine when you need deterministic unit-test behavior or cheap
+    candidate-evaluation loops without LangGraph overhead. The engine expects
+    each callable to return a state mapping and stops on either `pruned=True` or
+    the configured terminal node name.
     """
 
     def __init__(
@@ -29,7 +27,7 @@ class SimpleLoopEngine:
         self._current_phase = Phase.INTAKE.value
 
     def run(self, initial_state: Dict[str, Any]) -> Dict[str, Any]:
-        """Run all nodes sequentially."""
+        """Run all configured nodes in order until terminal state is reached."""
         state = initial_state
         for name, fn in self._nodes:
             state = fn(state)
@@ -38,7 +36,7 @@ class SimpleLoopEngine:
         return state
 
     def step(self, state: Dict[str, Any]) -> tuple[Dict[str, Any], bool]:
-        """Execute single node."""
+        """Execute the next node and report whether the workflow is terminal."""
         if self._current_idx >= len(self._nodes):
             return state, True
 

@@ -651,7 +651,7 @@ def persist_platform_meta_evaluation_report(
     *,
     inputs: list[InputRef] | None = None,
 ) -> PlatformMetaEvaluationReportRef:
-    """Persist platform meta evaluation report helper."""
+    """Persist the platform meta-evaluation report produced by adversarial runtime review."""
     ref = store.put_json(
         report.model_dump(mode="json"),
         PutOptions(

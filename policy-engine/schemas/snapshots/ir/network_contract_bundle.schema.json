@@ -2,6 +2,7 @@
   "$defs": {
     "ContractCompatibilityTarget": {
       "additionalProperties": false,
+      "description": "Identifier of a downstream contract that an observation bundle targets.",
       "properties": {
         "contract_fqn": {
           "maxLength": 255,
@@ -24,6 +25,7 @@
       "type": "object"
     },
     "MultiplexGraphLayerId": {
+      "description": "Select the graph layer consumed by network compilers and interference checks.",
       "enum": [
         "budget",
         "procurement",
@@ -36,6 +38,7 @@
     }
   },
   "additionalProperties": false,
+  "description": "Bundle carrying graph structures for network-oriented runtime contracts.",
   "properties": {
     "alignment_keys": {
       "items": {
@@ -49,6 +52,14 @@
       "default": "network_contract_bundle_v1.json",
       "title": "Artifact Name",
       "type": "string"
+    },
+    "contract_payloads": {
+      "additionalProperties": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Contract Payloads",
+      "type": "object"
     },
     "contract_targets": {
       "items": {
@@ -66,11 +77,46 @@
       "title": "Graph Layers",
       "type": "array"
     },
+    "low_rank_factors": {
+      "additionalProperties": {
+        "additionalProperties": {
+          "items": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array"
+          },
+          "type": "array"
+        },
+        "type": "object"
+      },
+      "title": "Low Rank Factors",
+      "type": "object"
+    },
+    "node_index_map": {
+      "additionalProperties": {
+        "type": "integer"
+      },
+      "title": "Node Index Map",
+      "type": "object"
+    },
+    "node_order": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Node Order",
+      "type": "array"
+    },
     "schema_version": {
       "default": "1.0",
       "pattern": "^\\d+\\.\\d+$",
       "title": "Schema Version",
       "type": "string"
+    },
+    "slice_settings": {
+      "additionalProperties": true,
+      "title": "Slice Settings",
+      "type": "object"
     },
     "source_artifacts": {
       "items": {
@@ -79,6 +125,17 @@
       "minItems": 1,
       "title": "Source Artifacts",
       "type": "array"
+    },
+    "sparse_edges": {
+      "additionalProperties": {
+        "items": {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        "type": "array"
+      },
+      "title": "Sparse Edges",
+      "type": "object"
     }
   },
   "required": [

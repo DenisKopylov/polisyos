@@ -1,4 +1,4 @@
-"""Public core contracts package API."""
+"""Lazy facade for the stable DTOs shared across PolicyOS subsystem boundaries."""
 from __future__ import annotations
 
 import importlib

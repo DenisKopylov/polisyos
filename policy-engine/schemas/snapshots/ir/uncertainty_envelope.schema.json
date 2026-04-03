@@ -1,6 +1,7 @@
 {
   "$defs": {
     "DistributionFamily": {
+      "description": "Declare the assumed sampling/posterior family behind an interval estimate.",
       "enum": [
         "normal",
         "bootstrap",
@@ -13,6 +14,7 @@
       "type": "string"
     },
     "IntervalSemantics": {
+      "description": "Tell governance/reporting whether an interval is statistical or heuristic.\n\n``UncertaintyEnvelope`` validators use this enum to enforce when\n``confidence_level`` must be present and when the interval must be marked\nnon-gate-eligible.",
       "enum": [
         "confidence_interval",
         "credible_interval",
@@ -23,6 +25,7 @@
       "type": "string"
     },
     "PropagationMethod": {
+      "description": "Declare how uncertainty was propagated before the interval reached the IR.",
       "enum": [
         "delta_method",
         "monte_carlo",
@@ -33,6 +36,7 @@
       "type": "string"
     },
     "UncertaintySource": {
+      "description": "Origin of the uncertainty interval carried in the IR.",
       "enum": [
         "calibration",
         "trust",

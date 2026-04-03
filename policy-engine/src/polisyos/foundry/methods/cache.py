@@ -99,6 +99,11 @@ class RegistryPersistenceLayer:
     """
     SQLite-backed persistence for the Foundry method registry.
 
+    This cache accelerates registry discovery/bootstrap only. It stores method
+    signatures, metadata, and lazy import locations, not compiled backend
+    functions; compiled-function reuse is handled separately by
+    `methods.specialization` and `methods.compiler.CompilationCache`.
+
     Parameters
     ----------
     db_path:
@@ -118,7 +123,7 @@ class RegistryPersistenceLayer:
 
     def snapshot_from(self, registry: Any) -> int:
         """
-        Persist all entries from *registry* to the database.
+        Persist all registry entries and a catalog hash to the SQLite cache.
 
         Returns the number of rows written.
         """
@@ -177,7 +182,7 @@ class RegistryPersistenceLayer:
 
     def restore_into(self, registry: Any) -> int:
         """
-        Restore registry entries from the cache into *registry*.
+        Restore method entries from SQLite as lazy factories in *registry*.
 
         Each entry is registered as a *lazy* factory that imports the
         original class on first access.
@@ -262,7 +267,7 @@ class RegistryPersistenceLayer:
             return False
 
     def all_records(self) -> list[CachedMethodRecord]:
-        """Return a list of all cached records (for inspection / tooling)."""
+        """Return cached registry rows for diagnostics and catalog tooling."""
         rows = self._fetch_all_entries()
         return [
             CachedMethodRecord(
@@ -276,7 +281,7 @@ class RegistryPersistenceLayer:
         ]
 
     def invalidate(self) -> None:
-        """Delete all cached entries (forces full re-registration next time)."""
+        """Delete cached registry rows and metadata to force a full rebuild."""
         with self._lock:
             conn = self._get_conn()
             conn.execute("DELETE FROM method_entries")

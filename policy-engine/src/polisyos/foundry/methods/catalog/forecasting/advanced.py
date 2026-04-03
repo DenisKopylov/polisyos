@@ -30,7 +30,7 @@ def _result_slot() -> frozenset[SlotSpec]:
     tags={"forecasting", "decomposition", "stl", "time-series"},
 )
 class STLDecompositionEstimator:
-    """STL decomposition estimator implementation."""
+    """Decompose a series into seasonal, trend, and remainder parts before downstream forecasting."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -111,7 +111,7 @@ class STLDecompositionEstimator:
     tags={"forecasting", "multivariate", "vec", "time-series"},
 )
 class VECForecastEstimator:
-    """VEC forecast estimator implementation."""
+    """Forecast cointegrated multivariate series with a vector error-correction model."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -205,7 +205,7 @@ class VECForecastEstimator:
     tags={"forecasting", "advanced", "prophet", "time-series"},
 )
 class ProphetEstimator:
-    """Prophet estimator implementation."""
+    """Generate calendar-aware forecasts with Prophet-style trend and seasonality components."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 

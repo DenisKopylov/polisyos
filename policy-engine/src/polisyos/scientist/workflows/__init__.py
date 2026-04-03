@@ -1,7 +1,13 @@
-"""Public scientist workflows package API."""
+"""Stable workflow-factory facade for built-in Scientist DAG variants.
+
+Exports include the supported workflow specs, runner helpers, and engine
+protocols used by `run_experiment()` and external orchestration wrappers.
+Symbols are lazily imported to avoid pulling LangGraph and node registries into
+processes that only need to inspect the package surface.
+"""
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from polisyos.scientist.workflows.builder import (
@@ -48,7 +54,18 @@ __all__ = [
 ]
 
 
-def __getattr__(name: str):
+def __getattr__(name: str) -> Any:
+    """Resolve workflow helpers and engine types on demand.
+
+    Args:
+        name: Exported symbol requested from `polisyos.scientist.workflows`.
+
+    Returns:
+        The resolved workflow factory, runner helper, or engine class.
+
+    Raises:
+        AttributeError: If the requested name is not part of the stable facade.
+    """
     if name in {
         "build_default_registry",
         "build_execution_context",

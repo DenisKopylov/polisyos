@@ -30,7 +30,7 @@ def _result_slot() -> frozenset[SlotSpec]:
     tags={"validation", "model", "cross-validation", "tabular"},
 )
 class CrossValidationEstimator:
-    """Cross validation estimator implementation."""
+    """Run cross-validation over a method and return fold-level diagnostics."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -93,7 +93,7 @@ class CrossValidationEstimator:
     tags={"validation", "model", "walk-forward", "time-series", "tabular"},
 )
 class WalkForwardEstimator:
-    """Walk forward estimator implementation."""
+    """Backtest time-ordered models with walk-forward validation windows."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -173,7 +173,7 @@ class WalkForwardEstimator:
     tags={"validation", "calibration", "diagnostic", "tabular"},
 )
 class CalibrationDiagnosticEstimator:
-    """Calibration diagnostic estimator implementation."""
+    """Assess calibration quality between predicted and observed outcomes."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 

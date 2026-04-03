@@ -1,7 +1,10 @@
 # Fabric Data Plane
 Related explanation: [Data Fabric](../../explanation/data-fabric.md).
 
-The Fabric data plane coordinates ingestion modes, cursor advancement, and watermark selection. Its main job is to fetch once, persist evidence to CAS, and build downstream snapshot artifacts without redundant network fetches.
+The Fabric data plane coordinates ingestion modes, cursor advancement, watermark selection,
+document/claim normalization, and read-only world queries. Its main job is to fetch once, persist
+evidence and provenance to CAS, materialize world tables, and expose downstream snapshot/query
+artifacts without redundant network fetches.
 
 ## Core Modules
 
@@ -10,6 +13,9 @@ The Fabric data plane coordinates ingestion modes, cursor advancement, and water
 | `orchestrator` | Single-call ingestion plus optional `DataSnapshot` assembly from CAS evidence |
 | `modes` | Batch incremental, record, replay, and streaming-windowed execution modes |
 | `watermark` | Connector-family watermark extraction strategy for cursor advancement |
+| `docs.*` | Raw document ingest, text normalization, anchor extraction, and chunking with `DocMeta` lineage |
+| `claims.*` | Claim extraction, canonicalization, conflict resolution, trust scoring, and evidence bundles |
+| `world_query` | Read-only query helpers over materialized world tables with column masking |
 
 ## Execution Modes
 
@@ -44,3 +50,25 @@ The Fabric data plane coordinates ingestion modes, cursor advancement, and water
 ::: polisyos.fabric.data_plane.modes
 
 ::: polisyos.fabric.data_plane.watermark
+
+::: polisyos.fabric.docs.ingestion
+
+::: polisyos.fabric.docs.normalize
+
+::: polisyos.fabric.docs.structure
+
+::: polisyos.fabric.docs.chunking
+
+::: polisyos.fabric.docs.types
+
+::: polisyos.fabric.claims.extraction
+
+::: polisyos.fabric.claims.normalize
+
+::: polisyos.fabric.claims.types
+
+::: polisyos.fabric.claims.conflicts.resolve
+
+::: polisyos.fabric.claims.conflicts.types
+
+::: polisyos.fabric.world_query

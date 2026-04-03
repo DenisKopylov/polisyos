@@ -53,7 +53,7 @@ def _values_payload(state: Any, *, key: str = "values") -> np.ndarray:
     tags={"distributional", "polarization", "esteban-ray", "cross-section"},
 )
 class EstebanRayEstimator:
-    """Esteban ray estimator implementation."""
+    """Estimate Esteban-Ray polarization for grouped income or welfare distributions."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -139,7 +139,7 @@ class EstebanRayEstimator:
     tags={"distributional", "polarization", "duclos-esteban-ray", "cross-section"},
 )
 class DuclosEstebanRayEstimator:
-    """Duclos esteban ray estimator implementation."""
+    """Estimate Duclos-Esteban-Ray polarization with smoother distributional sensitivity."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 

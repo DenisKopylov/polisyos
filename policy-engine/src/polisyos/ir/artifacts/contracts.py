@@ -1,4 +1,4 @@
-"""Public artifacts contracts module API."""
+"""Typed contracts that describe how IR payloads cross the artifact-store boundary."""
 from __future__ import annotations
 
 import re
@@ -50,14 +50,14 @@ class ArtifactID(RootModel[str]):
 
 
 class SchemaInfo(BaseModel):
-    """Schema info data model."""
+    """Describe the schema name and version stamped onto a persisted artifact payload."""
     model_config = ConfigDict(extra="forbid")
     name: str
     version: str
 
 
 class CanonInfo(BaseModel):
-    """Canon info data model."""
+    """Record the canonicalization rules that were in force when an artifact was serialized."""
     model_config = ConfigDict(extra="forbid")
 
     name: str = "polisyos.canon.json"
@@ -82,7 +82,7 @@ class CanonInfo(BaseModel):
 
 
 class InputRef(BaseModel):
-    """Input ref data model."""
+    """Identify an upstream artifact that should be recorded in persistence lineage metadata."""
     model_config = ConfigDict(extra="forbid")
     artifact_id: ArtifactID
     role: str
@@ -90,7 +90,7 @@ class InputRef(BaseModel):
 
 @dataclass(frozen=True)
 class PutOptions:
-    """Put options data model."""
+    """Collect the metadata that IR helpers attach when persisting a JSON artifact."""
     kind: str
     media_type: str
     schema: SchemaInfo | None = None
@@ -115,7 +115,7 @@ class StorePutOptions:
 
 @runtime_checkable
 class ArtifactStore(Protocol):
-    """Artifact store implementation."""
+    """Minimal CAS protocol required by IR helpers for writing JSON and reading raw bytes."""
     def put_json(
         self,
         obj: Any,
@@ -139,7 +139,7 @@ def _as_payload(value: Any) -> dict[str, Any]:
 
 
 def normalize_input_refs(inputs: Sequence[Any] | None) -> list[InputRef]:
-    """Normalize input refs helper."""
+    """Coerce loose lineage inputs into validated ``InputRef`` records before persistence."""
     if not inputs:
         return []
     normalized: list[InputRef] = []
@@ -168,7 +168,7 @@ def to_store_put_options(opts: PutOptions) -> StorePutOptions:
 
 
 def normalize_artifact_ref(ref: Any) -> dict[str, str]:
-    """Normalize artifact ref helper."""
+    """Normalize a store-specific artifact handle into the stable IR ref mapping boundary."""
     payload = _as_payload(ref)
     artifact_id = payload.get("artifact_id")
     kind = payload.get("kind")

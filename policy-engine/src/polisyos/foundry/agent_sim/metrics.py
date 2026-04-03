@@ -1,4 +1,4 @@
-"""Public agent sim metrics module API."""
+"""Define reusable training and rollout metrics for agent-simulation experiments."""
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -171,7 +171,7 @@ class MetricsCollector:
 
 
 def standard_training_metrics() -> list[MetricDefinition]:
-    """Standard training metrics helper."""
+    """Declare the default state metrics tracked during agent training."""
     def _active_mean(values: jnp.ndarray, active: jnp.ndarray) -> jnp.ndarray:
         active_f = active.astype(jnp.float32)
         denom = jnp.maximum(jnp.sum(active_f), 1.0)
@@ -224,7 +224,7 @@ def standard_training_metrics() -> list[MetricDefinition]:
 
 
 def training_loss_metrics() -> list[MetricDefinition]:
-    """Training loss metrics helper."""
+    """Declare PPO loss diagnostics tracked alongside training runs."""
     return [
         MetricDefinition(
             name="policy_loss",

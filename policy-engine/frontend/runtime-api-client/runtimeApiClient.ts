@@ -289,6 +289,49 @@ export type ControlJobResponse = {
   submitted_at?: string | null;
 };
 
+export type ControlOutboxEventInfo = {
+  attempt?: number;
+  created_at: string;
+  error_message?: string | null;
+  event_id: string;
+  event_key?: string | null;
+  job_id?: string | null;
+  payload?: {
+  [key: string]: unknown;
+};
+  published_at?: string | null;
+  run_id?: string | null;
+  state: string;
+  topic: string;
+};
+
+export type ControlOutboxEventsResponse = {
+  events?: Array<ControlOutboxEventInfo>;
+  limit?: number;
+  meta: ApiMeta;
+  state?: string | null;
+};
+
+export type ControlWorkerLeaseInfo = {
+  active_job_id?: string | null;
+  backend?: string | null;
+  created_at: string;
+  heartbeat_at: string;
+  lease_expires_at: string;
+  metadata?: {
+  [key: string]: unknown;
+};
+  state: string;
+  updated_at: string;
+  worker_id: string;
+};
+
+export type ControlWorkersResponse = {
+  active_only?: boolean;
+  meta: ApiMeta;
+  workers?: Array<ControlWorkerLeaseInfo>;
+};
+
 export type CursorPage = {
   count?: number;
   cursor?: string | null;
@@ -384,6 +427,39 @@ export type DecisionCompareReport = {
   schema_version?: string;
 };
 
+export type DecisionDependencyEvent = {
+  dedupe_key: string;
+  dependency_keys?: Array<string>;
+  event_id: string;
+  occurred_at?: string;
+  payload?: {
+  [key: string]: unknown;
+};
+  reason: string;
+  recorded_at?: string;
+  schema_version?: string;
+  source_ref?: string | null;
+  status: DecisionValidityStatus;
+  trigger_type: DecisionTriggerType;
+};
+
+export type DecisionLifecycleJob = {
+  completed_at?: string | null;
+  decision_lineage_key: string;
+  job_id: string;
+  job_kind: "evaluation" | "scheduled_monitoring";
+  monitoring_contract_ref?: string | null;
+  packet_ref: string;
+  payload?: {
+  [key: string]: unknown;
+};
+  reason: string;
+  scheduled_for?: string;
+  schema_version?: string;
+  state?: "pending" | "completed" | "cancelled";
+  trigger_event_id?: string | null;
+};
+
 export type DecisionMonitoringContract = {
   anchor_at: string;
   backtest_mode_effective?: string | null;
@@ -425,7 +501,91 @@ export type DecisionReissuePlan = {
   source_run_id: string;
 };
 
+export type DecisionTriggerRecord = {
+  dependency_key?: string | null;
+  details?: {
+  [key: string]: unknown;
+};
+  reason: string;
+  source_ref?: string | null;
+  status: DecisionValidityStatus;
+  trigger_type: DecisionTriggerType;
+};
+
+export type DecisionTriggerType = "law_change" | "dataset_superseded" | "historical_semantic_revision" | "contradicting_evidence" | "context_profile_drift" | "post_deployment_refutation" | "human_gate" | "expert_review" | "legacy_packet" | "superseded" | "revoked";
+
+export type DecisionValidityEventRequest = {
+  dedupe_key?: string | null;
+  dependency_keys?: Array<string>;
+  occurred_at?: string | null;
+  payload?: {
+  [key: string]: unknown;
+};
+  reason: string;
+  source_ref?: string | null;
+  status: DecisionValidityStatus;
+  trigger_type: DecisionTriggerType;
+};
+
+export type DecisionValidityEventResponse = {
+  affected_packets?: Array<string>;
+  affected_statuses?: {
+  [key: string]: number;
+};
+  dedupe_key: string;
+  event_id: string;
+  message: string;
+  meta: ApiMeta;
+};
+
+export type DecisionValidityLifecycleSummary = {
+  events?: Array<DecisionDependencyEvent>;
+  latest_transition_at?: string | null;
+  pending_reviews?: Array<DecisionValidityPendingReview>;
+  reissue_candidates?: Array<ArtifactRef>;
+  scheduled_jobs?: Array<DecisionLifecycleJob>;
+  transitions?: Array<DecisionValidityTransition>;
+};
+
+export type DecisionValidityPendingReview = {
+  event_id: string;
+  occurred_at: string;
+  reason: string;
+  trigger_type: DecisionTriggerType;
+};
+
 export type DecisionValidityStatus = "active" | "warning" | "stale" | "superseded" | "revoked" | "requires_human_review";
+
+export type DecisionValiditySummaryResponse = {
+  checked_at: string;
+  decision_lineage_key: string;
+  decision_packet_ref: ArtifactRef;
+  evaluation_ref?: ArtifactRef | null;
+  lifecycle?: DecisionValidityLifecycleSummary;
+  meta: ApiMeta;
+  reasons?: Array<string>;
+  recommended_action: string;
+  review_required?: boolean;
+  run_id?: string | null;
+  status: DecisionValidityStatus;
+  superseded_by_ref?: ArtifactRef | null;
+  supersedes_decision_ref?: ArtifactRef | null;
+  triggers?: Array<DecisionTriggerRecord>;
+};
+
+export type DecisionValidityTransition = {
+  current_status: DecisionValidityStatus;
+  decision_lineage_key: string;
+  evaluation_ref?: string | null;
+  occurred_at?: string;
+  packet_ref: string;
+  previous_status?: DecisionValidityStatus | null;
+  reason: string;
+  review_required?: boolean;
+  schema_version?: string;
+  transition_id: string;
+  triggered_by_event_id?: string | null;
+};
 
 export type DiscoveryCandidate = {
   candidate_id: string;
@@ -445,7 +605,7 @@ export type DiscoveryCandidate = {
   schema_excerpt?: {
   [key: string]: unknown;
 };
-  source_lane?: "fastlane" | "explorelane";
+  source_lane?: "fastlane" | "explorelane" | "catalog";
 };
 
 export type EvaluatorReportView = {
@@ -498,7 +658,7 @@ export type FetchPlan = {
   plan_id: string;
   profile_id?: string | null;
   quality_min?: number;
-  source_lane?: "fastlane" | "explorelane";
+  source_lane?: "fastlane" | "explorelane" | "catalog";
 };
 
 export type FetchPlanFallback = {
@@ -736,7 +896,7 @@ export type MetricCandidate = {
   metric_id: string;
   profile_id?: string | null;
   rank?: number;
-  source_lane?: "fastlane" | "explorelane";
+  source_lane?: "fastlane" | "explorelane" | "catalog";
   trust_score?: number;
 };
 
@@ -884,7 +1044,7 @@ export type PromotionCandidate = {
   profile_id?: string | null;
   promotion_id: string;
   signals?: Array<string>;
-  source_lane?: "fastlane" | "explorelane";
+  source_lane?: "fastlane" | "explorelane" | "catalog";
   status?: "pending" | "approved" | "rejected";
 };
 
@@ -1455,6 +1615,13 @@ export class RuntimeApiClient {
     return this.request<PromotionCandidatesResponse>("GET", path);
   }
 
+  async getPacketDecisionValidity(params: {
+    decision_packet_ref: string;
+  }): Promise<DecisionValiditySummaryResponse> {
+    const path = `/api/v1/control/decision-packets/${encodeURIComponent(String(params.decision_packet_ref))}/decision-validity`;
+    return this.request<DecisionValiditySummaryResponse>("GET", path);
+  }
+
   async getControlJobStatus(params: {
     job_id: string;
   }): Promise<ControlJobResponse> {
@@ -1482,6 +1649,35 @@ export class RuntimeApiClient {
   async listLlmProfiles(): Promise<ModelProfilesListResponse> {
     const path = `/api/v1/control/llm/profiles`;
     return this.request<ModelProfilesListResponse>("GET", path);
+  }
+
+  async listControlOutbox(params: {
+    state?: string | null;
+    limit?: number;
+  }): Promise<ControlOutboxEventsResponse> {
+    const path = `/api/v1/control/outbox`;
+    const query = this.buildQuery({
+      state: params.state,
+      limit: params.limit,
+    });
+    return this.request<ControlOutboxEventsResponse>("GET", path, query);
+  }
+
+  async getRunDecisionValidity(params: {
+    run_id: string;
+  }): Promise<DecisionValiditySummaryResponse> {
+    const path = `/api/v1/control/runs/${encodeURIComponent(String(params.run_id))}/decision-validity`;
+    return this.request<DecisionValiditySummaryResponse>("GET", path);
+  }
+
+  async listControlWorkers(params: {
+    active_only?: boolean;
+  }): Promise<ControlWorkersResponse> {
+    const path = `/api/v1/control/workers`;
+    const query = this.buildQuery({
+      active_only: params.active_only,
+    });
+    return this.request<ControlWorkersResponse>("GET", path, query);
   }
 
   async getRunCompare(params: {

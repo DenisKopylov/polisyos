@@ -56,7 +56,7 @@ def _freshness_score(last_updated: datetime | None) -> float:
 
 @dataclass(frozen=True)
 class FastLaneResolveResult:
-    """Fast lane resolve result data model."""
+    """Ranked FastLane candidates plus concrete fetch plans for a retrieval request."""
     fetch_plans: list[FetchPlan]
     candidates: list[MetricCandidate]
     warnings: list[str]
@@ -314,4 +314,3 @@ class FastLaneResolver:
         if geography and "geo" not in filters and "country" not in filters:
             filters["geo"] = [geography]
         return filters
-

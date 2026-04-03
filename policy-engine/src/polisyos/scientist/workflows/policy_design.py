@@ -1,4 +1,9 @@
-"""Workflow spec for verified policy-design orchestration."""
+"""Verified policy-design workflow DAG with legal sourcing and hierarchical search.
+
+The spec expands a policy request into verified legal/source packs, generates
+candidate policies, runs hierarchical search, blocks non-identified
+counterfactuals before simulation, and packages the translated champion policy.
+"""
 
 from __future__ import annotations
 
@@ -11,6 +16,10 @@ def policy_design_workflow_spec() -> WorkflowSpec:
     Adds legal-source verification, hierarchical policy search, causal
     readiness, and counterfactual gating before simulation so that the chosen
     policy candidate is both executable and governance-ready.
+
+    Returns:
+        `WorkflowSpec` for `scientist_policy_design`, including the champion
+        search path and final policy-output bundle assembly.
     """
 
     return WorkflowSpec(

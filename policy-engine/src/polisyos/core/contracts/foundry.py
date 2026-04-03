@@ -1,4 +1,4 @@
-"""Public contracts foundry module API."""
+"""Stable Foundry contracts for compile-time graphs, execution plans, and simulation outputs."""
 from __future__ import annotations
 
 from decimal import Decimal
@@ -13,49 +13,49 @@ from .uncertainty import UncertaintyEnvelopeRef
 
 
 class ProgramGraphRef(ArtifactRef):
-    """Program graph ref data model."""
+    """Artifact reference for the compiled program graph a Foundry run will execute."""
     kind: Literal["foundry.program_graph"] = "foundry.program_graph"
     media_type: Literal["application/json"] = "application/json"
 
 
 class LoweredIRRef(ArtifactRef):
-    """Lowered IR ref data model."""
+    """Artifact reference for the lowered IR produced before execution planning."""
     kind: Literal["foundry.lowered_ir"] = "foundry.lowered_ir"
     media_type: Literal["application/json"] = "application/json"
 
 
 class ExecPlanRef(ArtifactRef):
-    """Exec plan ref data model."""
+    """Artifact reference for the resolved Foundry execution plan and runtime posture."""
     kind: Literal["foundry.exec_plan"] = "foundry.exec_plan"
     media_type: Literal["application/json"] = "application/json"
 
 
 class StateSnapshotRef(ArtifactRef):
-    """State snapshot ref data model."""
+    """Artifact reference for a persisted state snapshot emitted by a simulation."""
     kind: Literal["foundry.state_snapshot"] = "foundry.state_snapshot"
     media_type: Literal["application/json"] = "application/json"
 
 
 class FoundryInputBindingsRef(ArtifactRef):
-    """Foundry input bindings ref data model."""
+    """Artifact reference for the slot-binding bundle used to seed a Foundry execution."""
     kind: Literal["foundry.input_bindings"] = "foundry.input_bindings"
     media_type: Literal["application/json"] = "application/json"
 
 
 class FoundryInputBindingReportRef(ArtifactRef):
-    """Foundry input binding report ref data model."""
+    """Artifact reference for the report describing how external data was bound to slots."""
     kind: Literal["foundry.input_binding_report"] = "foundry.input_binding_report"
     media_type: Literal["application/json"] = "application/json"
 
 
 class TreasurySeedRef(ArtifactRef):
-    """Treasury seed ref data model."""
+    """Artifact reference for deterministic random-stream seeds used during execution."""
     kind: Literal["foundry.treasury_seed"] = "foundry.treasury_seed"
     media_type: Literal["application/json"] = "application/json"
 
 
 class ExecConfigRef(ArtifactRef):
-    """Exec config ref data model."""
+    """Artifact reference for the executor configuration applied to a simulation run."""
     kind: Literal["foundry.exec_config"] = "foundry.exec_config"
     media_type: Literal["application/json"] = "application/json"
 
@@ -98,13 +98,13 @@ class AgentPolicyRef(ArtifactRef):
 
 
 class StateDeltaRef(ArtifactRef):
-    """State delta ref data model."""
+    """Artifact reference for the patch set that transforms one state snapshot into the next."""
     kind: Literal["foundry.state_delta"] = "foundry.state_delta"
     media_type: Literal["application/json"] = "application/json"
 
 
 class MetricsRef(ArtifactRef):
-    """Metrics ref data model."""
+    """Artifact reference for the scalar metrics emitted by a Foundry execution."""
     kind: Literal["foundry.metrics"] = "foundry.metrics"
     media_type: Literal["application/json"] = "application/json"
 
@@ -116,31 +116,31 @@ class ConstraintReportRef(ArtifactRef):
 
 
 class CalibrationReportRef(ArtifactRef):
-    """Calibration report ref data model."""
+    """Artifact reference for calibration diagnostics emitted alongside simulation outputs."""
     kind: Literal["foundry.calibration_report"] = "foundry.calibration_report"
     media_type: Literal["application/json"] = "application/json"
 
 
 class ParameterOverrideBundleRef(ArtifactRef):
-    """Parameter override bundle ref data model."""
+    """Artifact reference for parameter overrides layered onto a baseline execution config."""
     kind: Literal["foundry.parameter_override_bundle"] = "foundry.parameter_override_bundle"
     media_type: Literal["application/json"] = "application/json"
 
 
 class TraceSliceRef(ArtifactRef):
-    """Trace slice ref data model."""
+    """Artifact reference for the structured execution trace slice captured during a run."""
     kind: Literal["foundry.trace_slice"] = "foundry.trace_slice"
     media_type: Literal["application/jsonl"] = "application/jsonl"
 
 
 class SimulationResultRef(ArtifactRef):
-    """Simulation result ref data model."""
+    """Artifact reference for the top-level simulation result bundle returned by Foundry."""
     kind: Literal["foundry.simulation_result"] = "foundry.simulation_result"
     media_type: Literal["application/json"] = "application/json"
 
 
 class ProgramNode(BaseModel):
-    """Program node implementation."""
+    """One executable node in a program graph, representing a mechanism, op, or method call."""
     model_config = ConfigDict(extra="forbid")
 
     node_id: str
@@ -274,7 +274,7 @@ class LoweredIR(BaseModel):
 
 
 class ExecPlan(BaseModel):
-    """Exec plan data model."""
+    """Execution-order artifact that pairs a program graph with resolved runtime posture."""
     model_config = ConfigDict(extra="forbid")
 
     program_ref: ProgramGraphRef
@@ -325,7 +325,7 @@ class FoundryValidationFlags(BaseModel):
 
 
 class FoundryCompileConfig(BaseModel):
-    """Foundry compile config data model."""
+    """Compiler options controlling lowering mode, cost budgets, and determinism hints."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -348,7 +348,7 @@ class FoundryCompileConfig(BaseModel):
 
 
 class CompileRequest(BaseModel):
-    """Compile request data model."""
+    """Input contract for compiling a policy artifact into Foundry execution artifacts."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -372,7 +372,7 @@ class DerivedArtifact(BaseModel):
 
 
 class CompileResult(BaseModel):
-    """Compile result data model."""
+    """Compilation outcome pointing to the compile report and any derived Foundry artifacts."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -386,7 +386,7 @@ class CompileResult(BaseModel):
 
 
 class FoundryExecConfig(BaseModel):
-    """Foundry exec config data model."""
+    """Runtime overrides controlling execution mode, seed handling, and env capture."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -417,7 +417,7 @@ class FoundryInputBindingTransform(BaseModel):
 
 
 class FoundryInputBindingRule(BaseModel):
-    """Foundry input binding rule data model."""
+    """Rule mapping one external source path into a Foundry slot through optional transforms."""
     model_config = ConfigDict(extra="forbid")
 
     binding_id: str
@@ -443,7 +443,7 @@ class FoundryInputBindings(BaseModel):
 
 
 class ParameterOverrideBundle(BaseModel):
-    """Parameter override bundle data model."""
+    """Collection of parameter overrides plus provenance for who supplied each change."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -453,7 +453,7 @@ class ParameterOverrideBundle(BaseModel):
 
 
 class ExecuteRequest(BaseModel):
-    """Execute request data model."""
+    """Input contract for running a compiled Foundry plan against bound evidence."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -468,7 +468,7 @@ class ExecuteRequest(BaseModel):
 
 
 class ExecuteResult(BaseModel):
-    """Execute result data model."""
+    """Execution outcome pointing to the simulation result and any additional derived artifacts."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -480,7 +480,7 @@ class ExecuteResult(BaseModel):
 
 
 class StateSnapshot(BaseModel):
-    """State snapshot data model."""
+    """Reference bundle for a materialized execution state at a particular simulation step."""
     model_config = ConfigDict(extra="forbid")
 
     state_ref: ArtifactRef
@@ -499,7 +499,7 @@ class TreasurySeed(BaseModel):
 
 
 class ExecConfig(BaseModel):
-    """Exec config data model."""
+    """Minimal execution overrides accepted by legacy callers at run launch time."""
     model_config = ConfigDict(extra="forbid")
 
     mode: Literal["dev", "perf", "audit"] = "dev"
@@ -576,7 +576,7 @@ class StateDelta(BaseModel):
 
 
 class Metrics(BaseModel):
-    """Metrics data model."""
+    """Scalar metrics emitted by a Foundry execution, keyed by metric identifier."""
     model_config = ConfigDict(extra="forbid")
 
     values: dict[str, int | str] = Field(default_factory=dict)
@@ -599,7 +599,7 @@ class ConstraintViolation(BaseModel):
 
 
 class ConstraintReport(BaseModel):
-    """Constraint report data model."""
+    """Constraint-evaluation outcome summarizing hard and soft violations for a run."""
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -613,7 +613,7 @@ class ConstraintReport(BaseModel):
 
 
 class SimulationResult(BaseModel):
-    """Simulation result data model."""
+    """Top-level execution artifact tying plans, metrics, traces, and optional reports together."""
     model_config = ConfigDict(extra="forbid")
 
     exec_plan_ref: ExecPlanRef

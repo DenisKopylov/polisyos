@@ -66,6 +66,7 @@ def foundry_root(tmp_path: Path) -> Path:
         "runtime/__init__.py",
         "agent_sim/core.py",
         "agents.py",
+        "quickstart.py",
         "uncertainty/dispatcher.py",
     ]
     for f in files:
@@ -100,6 +101,7 @@ def test_infra_zone_no_restrictions(foundry_root: Path) -> None:
     assert _policy_for_file(foundry_root / "methods" / "cli" / "runner.py", foundry_root) == "infra"
     # Individual files
     assert _policy_for_file(foundry_root / "agents.py", foundry_root) == "infra"
+    assert _policy_for_file(foundry_root / "quickstart.py", foundry_root) == "infra"
     assert _policy_for_file(foundry_root / "methods" / "base.py", foundry_root) == "infra"
     assert _policy_for_file(foundry_root / "methods" / "hot_reload.py", foundry_root) == "infra"
     assert _policy_for_file(foundry_root / "methods" / "cache.py", foundry_root) == "infra"

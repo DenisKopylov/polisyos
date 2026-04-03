@@ -1,4 +1,4 @@
-"""Public security audit models module API."""
+"""Define tamper-evident audit log entry contracts and hash-chain semantics."""
 from __future__ import annotations
 
 import uuid
@@ -13,7 +13,7 @@ from polisyos.core.canon.canon_json import to_canonical_bytes
 
 
 class AuditEventType(str, Enum):
-    """Audit event type public type."""
+    """Classify security, governance, trace, and budget events in the audit chain."""
     TRACE_RECORD = "TRACE_RECORD"
     AUDIT_ACTION = "AUDIT_ACTION"
     GOVERNANCE_DECISION = "GOVERNANCE_DECISION"
@@ -30,7 +30,7 @@ class AuditEventType(str, Enum):
 
 
 class AuditActor(BaseModel):
-    """Audit actor public type."""
+    """Identify the principal/service responsible for one audit event."""
     model_config = ConfigDict(extra="forbid")
 
     identity: str = ""
@@ -40,7 +40,7 @@ class AuditActor(BaseModel):
 
 
 class AuditResource(BaseModel):
-    """Audit resource public type."""
+    """Identify the domain object or CAS artifact touched by an audit event."""
     model_config = ConfigDict(extra="forbid")
 
     type: str = ""
@@ -49,7 +49,7 @@ class AuditResource(BaseModel):
 
 
 class AuditCorrelation(BaseModel):
-    """Audit correlation public type."""
+    """Carry run/span/trace identifiers so audit events join with observability data."""
     model_config = ConfigDict(extra="forbid")
 
     run_id: str = ""
@@ -78,15 +78,18 @@ class ChainedLogEntry(BaseModel):
     correlation: AuditCorrelation = Field(default_factory=AuditCorrelation)
 
     def compute_hash(self) -> str:
+        """Compute the entry hash over canonical JSON excluding `entry_hash` itself."""
         body = self.model_dump(mode="json", exclude={"entry_hash"}, exclude_none=True)
         return content_hash(to_canonical_bytes(body))
 
     @staticmethod
     def genesis_prev_hash() -> str:
+        """Return the synthetic previous hash used by the first entry in a chain."""
         return "0" * 64
 
     @staticmethod
     def make_entry_id(chain_id: str, sequence_number: int) -> str:
+        """Derive a deterministic UUID for one chain position."""
         return str(uuid.uuid5(_CHAIN_NAMESPACE, f"{chain_id}:{sequence_number}"))
 
     @classmethod
@@ -103,6 +106,7 @@ class ChainedLogEntry(BaseModel):
         correlation: AuditCorrelation | None = None,
         timestamp: datetime | None = None,
     ) -> "ChainedLogEntry":
+        """Build a valid chained log entry and compute its immutable hash."""
         ts = timestamp or datetime.now(timezone.utc)
         entry = cls(
             entry_id=cls.make_entry_id(chain_id, sequence_number),

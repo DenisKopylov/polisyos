@@ -130,7 +130,7 @@ class HedgeCertificate:
 
 
 class IdentificationStatus(str, Enum):
-    """Identification status public type."""
+    """Classify whether a causal query is identified, blocked, ambiguous, or oracle-gated."""
     IDENTIFIED = "identified"
     HEDGE_FOUND = "hedge_found"       # non-identifiable, certificate returned
     PAG_AMBIGUOUS = "pag_ambiguous"   # PAG input, result depends on orientation

@@ -7,7 +7,7 @@ from typing import Any
 
 @dataclass(frozen=True, slots=True)
 class SolverSuiteResult:
-    """Solver suite result data model."""
+    """Report whether a solver-backend raw result matches the expected conventions."""
     passed: bool
     message: str = ""
 
@@ -22,4 +22,3 @@ class SolverMethodTestSuite:
             if not isinstance(value[1], dict):
                 return SolverSuiteResult(False, "solver_info must be a dictionary")
         return SolverSuiteResult(True)
-

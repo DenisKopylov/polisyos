@@ -1,4 +1,4 @@
-"""Public analytics data views module API."""
+"""Define execution-data view requests for panel, snapshot, and network slices."""
 from __future__ import annotations
 
 from enum import Enum

@@ -1,7 +1,8 @@
 # CLI Reference
 Related explanation: [Architecture](../explanation/architecture.md).
 
-This page documents the four console scripts declared in `pyproject.toml` under `[project.scripts]`.
+This page documents the console scripts declared in `pyproject.toml` and the repo-local workspace
+commands used for contributor setup.
 
 ## Installed Scripts
 
@@ -12,9 +13,21 @@ This page documents the four console scripts declared in `pyproject.toml` under 
 | `polisyos-foundry` | `polisyos.foundry.methods.cli:main` | Foundry methods developer CLI | Scaffold, validate, catalog, compatibility checks |
 | `polisyos-causal-capabilities` | `polisyos.foundry.methods.catalog.causal.capabilities:main` | Emit causal capability contract JSON | No subcommands or `--help` mode |
 
+## Repo-Local Workspace Commands
+
+These commands are not installed console scripts; they are repo-local entrypoints that must be run
+from `policy-engine/`:
+
+| Command | Purpose |
+|--------|---------|
+| `./scripts/bootstrap` | Install or verify contributor prerequisites |
+| `./scripts/doctor` | Validate Python, Node, `uv`, Playwright, lockfiles, generated contracts, and optional env surfaces |
+| `./scripts/verify` | Run the standard fast local gate |
+| `./scripts/ci-parity` | Run a heavier local validation pass that approximates the main CI jobs |
+
 ## Invocation Notes
 
-- These commands are console scripts. The simplest way to make them available is `pip install -e .` from `policy-engine/`.
+- For installed console scripts, the canonical contributor setup is `uv sync --frozen --extra lint --extra test --extra runtime` from `policy-engine/`.
 - `python -m polisyos` is currently unsupported because `polisyos.__main__` does not exist.
 - `python -m polisyos.foundry` is currently unsupported because `polisyos.foundry.__main__` does not exist.
 - `polisyos-causal-capabilities` is a direct JSON emitter. It does not implement `argparse`, subcommands, or a `--help` flag.
@@ -127,6 +140,13 @@ Output:
 ```bash
 polisyos [--version] COMMAND ...
 ```
+
+### Runtime Notes
+
+- `polisyos.core.components.cli_parts` imports subcommand handlers lazily after argument parsing, so importing the module is safe for docs/tests that only need parser metadata.
+- Local component discovery honors `POLISYOS_PACKS_PATHS` in addition to repeatable `--dev-scan-path`.
+- Artifact signing/verification commands honor `POLISYOS_SIGNING_KEY`, `POLISYOS_SIGNING_KEY_FILE`, `POLISYOS_SIGN_TRUST_DIR`, `POLISYOS_SIGN_REVOKED_DIR`, `POLISYOS_SIGN_IDENTITIES`, and strict-identity/sign-on-put flags documented in [Configuration](configuration.md).
+- `audit export` SLSA defaults come from `POLISYOS_SLSA_*` unless `--slsa-mode` or `--slsa-policy` is passed explicitly.
 
 ### Top-Level Commands
 

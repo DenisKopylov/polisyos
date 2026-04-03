@@ -116,7 +116,12 @@ _SPEC = NodeSpec(
 
 @dataclass(frozen=True)
 class RunSimulationNode:
-    """Run simulation node implementation."""
+    """Simulation-stage DAG node that executes the Foundry plan with materialized runtime bindings.
+
+    Requires an execution plan, input bindings, and a configured Foundry port, then
+    writes simulation results, metrics, state deltas, snapshots, constraint reports,
+    and environment manifests back into workflow state.
+    """
     exec_config: FoundryExecConfig = field(default_factory=FoundryExecConfig)
 
     @property

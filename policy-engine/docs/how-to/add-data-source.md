@@ -314,12 +314,12 @@ def test_my_source_live_fetch():
 Перед PR убедитесь, что коннектор проходит те же проверки, что и остальной репозиторий:
 
 - connector tests под `tests/fabric/connectors/...`
-- architecture checks в `.github/workflows/arch.yml`
-- freeze metrics и connector hardening в `.github/workflows/arch-freeze.yml`
+- architecture и connector checks в `.github/workflows/ci.yml`
+- schema / ABI-related checks в `.github/workflows/abi.yml`, если вы меняете публичные contracts
 
 Связанные lint/CI-части:
 
-- `.github/workflows/arch-freeze.yml`
+- `.github/workflows/ci.yml`
 - `tools/lint/lint_connector_hardening.py`
 - `tools/lint/lint_connectors.py`
 

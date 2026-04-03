@@ -1,4 +1,4 @@
-"""Public passes human review pass module API."""
+"""Request explicit human review when a STRICT run still carries review-sensitive graph state."""
 from __future__ import annotations
 
 from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
@@ -12,7 +12,13 @@ from polisyos.ir.analytics.causal_graph import (
 
 
 class HumanReviewRequiredPass(ValidatorPass):
-    """Emit informational governance issue when STRICT review is needed."""
+    """Emit `HUMAN_REVIEW_REQUESTED` and populate `human_review_request` state.
+
+    The pass runs only under `ProfileLevel.STRICT` and resolves a direct
+    `causal_graph`, `causal_graph_ref`, or graph artifact ref via `_store`.
+    Findings are informational, but downstream human-gate orchestration consumes
+    the written state payload.
+    """
 
     @property
     def pass_id(self) -> str:

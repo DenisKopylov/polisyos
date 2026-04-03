@@ -336,7 +336,7 @@ def enrich_topic(
     db: Any | None = None,
     policy: ScholarPolicy | None = None,
 ) -> EnrichResultV1:
-    """Enrich topic helper."""
+    """Run the Scholar enrichment pipeline from normalized sources through bundle persistence."""
     if db is not None and storage is None:
         warnings.warn(
             "scholar.enrich_topic(db=...) is deprecated; use storage=DuckDBStorageAdapter(db)",

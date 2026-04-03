@@ -1,4 +1,4 @@
-"""Public cache lru module API."""
+"""Provide a thread-safe in-memory LRU cache with hit/miss telemetry."""
 from __future__ import annotations
 
 import threading
@@ -11,7 +11,7 @@ from .protocol import K, T, V
 
 @dataclass(frozen=True, slots=True)
 class LRUCacheStats:
-    """LRU cache stats public type."""
+    """Expose LRU cache hit/miss/eviction counters."""
     hits: int = 0
     misses: int = 0
     evictions: int = 0
@@ -32,10 +32,12 @@ class LRUCache(Generic[K, V]):
 
     @property
     def max_size(self) -> int | None:
+        """Return the current size cap, or `None` for an unbounded cache."""
         return self._max_size
 
     @max_size.setter
     def max_size(self, value: int | None) -> None:
+        """Update the size cap and prune least-recently-used entries if needed."""
         if value is not None and value < 1:
             raise ValueError("max_size must be >= 1 when provided")
         with self._lock:
@@ -44,6 +46,7 @@ class LRUCache(Generic[K, V]):
                 self.prune(value)
 
     def get(self, key: K, default: T | None = None) -> V | T | None:
+        """Return a cached value and promote it to most-recently-used position."""
         with self._lock:
             if key not in self._values:
                 self._misses += 1
@@ -54,24 +57,29 @@ class LRUCache(Generic[K, V]):
             return value
 
     def set(self, key: K, value: V) -> None:
+        """Store a value and evict oldest entries when the size cap is exceeded."""
         with self._lock:
             self._values[key] = value
             self._values.move_to_end(key, last=True)
             self._evict_to_limit()
 
     def pop(self, key: K, default: T | None = None) -> V | T | None:
+        """Remove and return a value, or `default` when the key is absent."""
         with self._lock:
             return self._values.pop(key, default)
 
     def delete(self, key: K) -> bool:
+        """Remove a key and report whether an entry existed."""
         with self._lock:
             return self._values.pop(key, None) is not None
 
     def clear(self) -> None:
+        """Drop all cached entries while preserving telemetry counters."""
         with self._lock:
             self._values.clear()
 
     def prune(self, max_size: int) -> int:
+        """Shrink the cache to at most `max_size` entries and return removals."""
         if max_size < 0:
             raise ValueError("max_size must be >= 0")
         removed = 0
@@ -83,18 +91,22 @@ class LRUCache(Generic[K, V]):
         return removed
 
     def keys(self) -> list[K]:
+        """Return keys ordered from least to most recently used."""
         with self._lock:
             return list(self._values.keys())
 
     def values(self) -> list[V]:
+        """Return values ordered from least to most recently used."""
         with self._lock:
             return list(self._values.values())
 
     def items(self) -> list[tuple[K, V]]:
+        """Return key/value pairs ordered from least to most recently used."""
         with self._lock:
             return list(self._values.items())
 
     def stats(self) -> LRUCacheStats:
+        """Snapshot cache telemetry counters."""
         with self._lock:
             return LRUCacheStats(
                 hits=self._hits,

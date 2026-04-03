@@ -1,4 +1,4 @@
-"""Public scholar orchestrator package API."""
+"""Exports Scholar orchestration helpers for enrichment and knowledge-bundle persistence."""
 from __future__ import annotations
 
 from .bundle import (

@@ -1,4 +1,4 @@
-"""Public ml advanced module API."""
+"""Estimate nonparametric regression, quantile intervals, and learned dynamics models."""
 from __future__ import annotations
 
 from typing import Any, ClassVar, Mapping
@@ -45,7 +45,7 @@ def _time_series_payload(state: Any) -> dict[str, Any]:
     tags={"ml", "regression", "gaussian-process"},
 )
 class GaussianProcessEstimator:
-    """Gaussian process estimator implementation."""
+    """Fit smooth tabular regression with posterior uncertainty; avoid large `n_obs` or very high-dimensional inputs."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("scikit-learn", "numpy")
 
@@ -126,7 +126,7 @@ class GaussianProcessEstimator:
     tags={"ml", "regression", "quantile-forest"},
 )
 class QuantileForestEstimator:
-    """Quantile forest estimator implementation."""
+    """Estimate conditional prediction intervals from forest quantiles; avoid expecting exact coverage guarantees without conformal calibration."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("scikit-learn", "numpy")
 
@@ -243,7 +243,7 @@ class QuantileForestEstimator:
     tags={"ml", "dynamics", "neural-ode"},
 )
 class NeuralODEEstimator:
-    """Neural ODE estimator implementation."""
+    """Learn continuous-time trajectories from observed series; avoid purely discrete dynamics or very short time histories."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("scikit-learn", "scipy", "numpy")
 

@@ -30,7 +30,7 @@ def _result_slot() -> frozenset[SlotSpec]:
     tags={"survey", "imputation", "mice"},
 )
 class MICEEstimator:
-    """MICE estimator implementation."""
+    """Impute missing survey fields with chained-equation multiple imputation."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -150,7 +150,7 @@ class MICEEstimator:
     tags={"survey", "nonresponse", "adjustment"},
 )
 class NonresponseAdjustmentEstimator:
-    """Nonresponse adjustment estimator implementation."""
+    """Adjust survey weights or outcomes for unit nonresponse."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 

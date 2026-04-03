@@ -1,4 +1,4 @@
-"""Public econometrics expansion module API."""
+"""Estimate vector autoregression, synthetic DiD, and spatial autoregressive extensions."""
 from __future__ import annotations
 
 import math
@@ -45,7 +45,7 @@ def _normal_pvalue(z_score: float) -> float:
     tags={"econometrics", "vecm"},
 )
 class VECMEstimator:
-    """VECM estimator implementation."""
+    """Estimate a cointegrated VECM with error correction; avoid series that are not integrated/cointegrated."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("statsmodels", "numpy")
 
@@ -146,7 +146,7 @@ class VECMEstimator:
     tags={"econometrics", "bayesian-var"},
 )
 class BayesianVAREstimator:
-    """Bayesian VAR estimator implementation."""
+    """Estimate a shrinkage-stabilized Bayesian VAR for multivariate forecasting; avoid if priors are not defensible or sample size is tiny."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy", "scipy")
 
@@ -288,7 +288,7 @@ def _project_simplex(weights: np.ndarray) -> np.ndarray:
     tags={"econometrics", "synthetic-did"},
 )
 class SyntheticDiDEstimator:
-    """Synthetic di D estimator implementation."""
+    """Estimate synthetic DiD effects by combining donor weighting and DiD; avoid weak donor pre-fit or too few controls."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -401,7 +401,7 @@ def _row_normalize(weights_matrix: np.ndarray) -> np.ndarray:
     tags={"econometrics", "spatial-autoregressive"},
 )
 class SpatialAutoregressiveEstimator:
-    """Spatial autoregressive estimator implementation."""
+    """Estimate spatial lag dependence under a valid spatial-weights matrix; avoid misspecified or non-row-normalized spatial links."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("statsmodels", "numpy")
 

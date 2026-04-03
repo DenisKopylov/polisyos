@@ -1,4 +1,4 @@
-"""Public ir linker package API."""
+"""Public linker facade for Trinity binding results, reports, and norm-applicability validation."""
 from __future__ import annotations
 
 from .link_trinity import (

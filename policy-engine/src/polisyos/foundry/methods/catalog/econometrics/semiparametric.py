@@ -1,4 +1,4 @@
-"""Public econometrics semiparametric module API."""
+"""Estimate partially linear and kernel semiparametric regressions."""
 from __future__ import annotations
 
 from typing import Any, ClassVar, Mapping
@@ -30,7 +30,7 @@ def _result_slot() -> frozenset[SlotSpec]:
     tags={"econometrics", "semiparametric", "robinson", "cross-section"},
 )
 class RobinsonEstimator:
-    """Robinson estimator implementation."""
+    """Estimate a partially linear effect after nonparametric residualization; avoid small samples with high-dimensional smoothers."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -122,7 +122,7 @@ class RobinsonEstimator:
     tags={"econometrics", "semiparametric", "kernel-regression", "cross-section"},
 )
 class KernelRegressionEstimator:
-    """Kernel regression estimator implementation."""
+    """Estimate a nonparametric regression surface with kernel smoothing; avoid high-dimensional covariates or weak bandwidth support."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 

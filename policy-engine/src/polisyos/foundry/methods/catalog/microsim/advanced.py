@@ -47,7 +47,7 @@ def _weighted_mean(values: np.ndarray, weights: np.ndarray) -> float:
     tags={"microsim", "tax-benefit", "survey"},
 )
 class TaxBenefitCalculatorEstimator:
-    """Tax benefit calculator estimator implementation."""
+    """Simulate tax-benefit schedules when planners need post-policy household incomes."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -170,7 +170,7 @@ class TaxBenefitCalculatorEstimator:
     tags={"microsim", "behavioral-response", "survey"},
 )
 class BehavioralResponseEstimator:
-    """Behavioral response estimator implementation."""
+    """Model labor-supply or income responses after a tax-benefit reform."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -258,7 +258,7 @@ class BehavioralResponseEstimator:
     tags={"microsim", "imputation", "survey"},
 )
 class ImputationModelEstimator:
-    """Imputation model estimator implementation."""
+    """Impute missing microsimulation inputs before a downstream household policy run."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("scikit-learn", "numpy")
 
@@ -362,7 +362,7 @@ class ImputationModelEstimator:
     tags={"microsim", "dynamic", "survey"},
 )
 class DynamicMicrosimEstimator:
-    """Dynamic microsim estimator implementation."""
+    """Replay households forward through time in a dynamic microsimulation scenario."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 

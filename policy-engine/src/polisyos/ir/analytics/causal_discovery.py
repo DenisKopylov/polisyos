@@ -1,4 +1,4 @@
-"""Public analytics causal discovery module API."""
+"""Describe discovery outputs, latent-assumption disclosures, and algebraic diagnostics."""
 from __future__ import annotations
 
 from enum import Enum
@@ -18,14 +18,14 @@ _ALGEBRAIC_VIOLATED_CONSTRAINTS_SCHEMA_NAME = "ir.algebraic_violated_constraints
 
 
 class AlgebraicConstraintFamily(str, Enum):
-    """Algebraic constraint family public type."""
+    """Select the family of algebraic test implied by a graph or latent-factor block."""
     CI = "ci"
     TETRAD = "tetrad"
     OVERCOMPLETE = "overcomplete"
 
 
 class AlgebraicBlockSpec(BaseModel):
-    """Algebraic block spec data model."""
+    """Declare one variable block whose implied algebraic constraints should be tested."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     block_id: str = Field(min_length=1)
@@ -71,7 +71,7 @@ class AlgebraicBlockSpec(BaseModel):
 
 
 class ImpliedConstraintSpec(BaseModel):
-    """Implied constraint spec data model."""
+    """Represent one graph-implied constraint and its optional conditioning set."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     constraint_id: str = Field(min_length=1)
@@ -84,7 +84,7 @@ class ImpliedConstraintSpec(BaseModel):
 
 
 class ConstraintEvaluationResult(BaseModel):
-    """Constraint evaluation result data model."""
+    """Store the test outcome for one implied or user-declared algebraic constraint."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     constraint_id: str = Field(min_length=1)
@@ -99,7 +99,7 @@ class ConstraintEvaluationResult(BaseModel):
 
 
 class AlgebraicConstraintReport(BaseModel):
-    """Algebraic constraint report data model."""
+    """Summarize implied/violated algebraic constraints and suggested graph repairs."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     implied_constraints_ref: ArtifactRefModel | None = None
@@ -117,14 +117,14 @@ class AlgebraicConstraintReport(BaseModel):
 
 
 class LatentTrustLevel(str, Enum):
-    """Latent trust level public type."""
+    """Declare whether a proposed latent structure is research-only, conditional, or validated."""
     RESEARCH = "research"
     CONDITIONAL = "conditional"
     VALIDATED = "validated"
 
 
 class LatentAssumptionCard(BaseModel):
-    """Latent assumption card public type."""
+    """Document one latent-variable assumption and its falsification hook."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     assumption_id: str = Field(min_length=1)
@@ -136,7 +136,7 @@ class LatentAssumptionCard(BaseModel):
 
 
 class LatentDiscoveryBundle(BaseModel):
-    """Latent discovery bundle data model."""
+    """Disclose proposed latent nodes, test hooks, and promotion limits."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     proposed_latent_nodes: list[str] = Field(default_factory=list)
@@ -173,20 +173,20 @@ class CausalDiscoveryReport(BaseModel):
 
 
 class DataType(str, Enum):
-    """Data type public type."""
+    """Classify whether discovery inputs are cross-sectional or time-series."""
     CROSS_SECTIONAL = "cross_sectional"
     TIME_SERIES = "time_series"
 
 
 class DimensionRegime(str, Enum):
-    """Dimension regime public type."""
+    """Bucket discovery inputs by variable-count regime for algorithm selection."""
     LOW_DIM = "low_dim"   # n_vars <= 20
     MED_DIM = "med_dim"   # 21 <= n_vars <= 50
     HIGH_DIM = "high_dim"  # n_vars > 50
 
 
 class DataCharacteristics(BaseModel):
-    """Data characteristics public type."""
+    """Summarize discovery dataset shape, stationarity, and latent-confounding risk."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     data_type: DataType
@@ -201,7 +201,7 @@ class DataCharacteristics(BaseModel):
 
 
 class EdgeAgreement(BaseModel):
-    """Edge agreement public type."""
+    """Summarize bootstrap or multi-algorithm agreement for one candidate edge."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     edge_key: str
@@ -213,7 +213,7 @@ class EdgeAgreement(BaseModel):
 
 
 class DiscoveryPipelineReport(BaseModel):
-    """Discovery pipeline report data model."""
+    """Aggregate discovery results, consensus PAG output, and algorithm agreement metrics."""
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     unified_pag: CausalGraphModel
@@ -238,7 +238,7 @@ def persist_causal_discovery_report(
     schema_name: str = "ir.causal_discovery_report",
     schema_version: str = "1.0",
 ) -> CausalDiscoveryReportRef:
-    """Persist causal discovery report helper."""
+    """Persist a discovery report and materialize large constraint payloads when needed."""
     persisted_report = _materialize_algebraic_constraint_payloads(
         store,
         report,

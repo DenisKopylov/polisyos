@@ -1,4 +1,9 @@
-"""Lazy public facade for builtin Scientist governance passes."""
+"""Lazy facade for builtin Scientist governance passes and deprecated base contracts.
+
+The facade keeps the stable class names used in docs and workflow configs while
+loading each concrete pass only when requested. This avoids importing
+artifact-heavy validators in processes that only need package discovery.
+"""
 
 from __future__ import annotations
 
@@ -39,6 +44,7 @@ __all__ = [
 
 
 def __getattr__(name: str) -> Any:
+    """Resolve pass classes lazily and preserve the package-level contract."""
     if name == "BudgetPass":
         from .budget_pass import BudgetPass
 

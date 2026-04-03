@@ -2,6 +2,7 @@
   "$defs": {
     "QualityIssue": {
       "additionalProperties": false,
+      "description": "Represent one deterministic quality finding attached to a world quality report.",
       "properties": {
         "code": {
           "title": "Code",
@@ -37,6 +38,7 @@
       "type": "object"
     },
     "QualityIssueSeverity": {
+      "description": "Quality issue severity public type.",
       "enum": [
         "info",
         "warn",
@@ -46,6 +48,7 @@
       "type": "string"
     },
     "QualityScope": {
+      "description": "Quality scope public type.",
       "enum": [
         "docs_pipeline",
         "claims_pipeline",
@@ -56,6 +59,7 @@
     }
   },
   "additionalProperties": false,
+  "description": "Persist the sorted quality findings for one pipeline run and give them a stable world id.",
   "properties": {
     "algorithm_version": {
       "title": "Algorithm Version",

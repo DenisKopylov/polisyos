@@ -30,7 +30,7 @@ class ExploreLaneLimits:
 
 @dataclass(frozen=True)
 class ExploreLaneDiscoverResult:
-    """Explore lane discover result data model."""
+    """Budget-bounded discovery output with candidate datasets, fetch count, and warnings."""
     candidates: list[DiscoveryCandidate]
     docs_fetched_total: int
     warnings: list[str]
@@ -199,4 +199,3 @@ class ExploreLaneDiscovery:
         if metric_query in searchable:
             base = max(base, 0.9)
         return min(1.0, max(0.05, base))
-

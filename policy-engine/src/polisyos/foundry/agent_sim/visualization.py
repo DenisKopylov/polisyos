@@ -1,4 +1,4 @@
-"""Public agent sim visualization module API."""
+"""Render static and interactive visualizations for agent-training traces and outputs."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -34,7 +34,7 @@ def _import_plotly():
 
 @dataclass
 class VisualizationConfig:
-    """Visualization config data model."""
+    """Configure file format, style, and output folder for training visualizations."""
     output_dir: Path = Path("./viz_output")
     format: str = "png"
     dpi: int = 150

@@ -1,4 +1,4 @@
-"""Public common timestamps module API."""
+"""Normalize UTC timestamps for manifests, events, and JSON APIs."""
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -6,7 +6,7 @@ from typing import Any
 
 
 def utc_now(*, drop_microseconds: bool = False) -> datetime:
-    """Utc now helper."""
+    """Return the current UTC datetime, optionally dropping microseconds."""
     current = datetime.now(timezone.utc)
     if drop_microseconds:
         return current.replace(microsecond=0)
@@ -14,7 +14,7 @@ def utc_now(*, drop_microseconds: bool = False) -> datetime:
 
 
 def ensure_utc(value: datetime) -> datetime:
-    """Ensure utc helper."""
+    """Convert naive/aware datetimes to UTC while preserving the instant."""
     if value.tzinfo is None:
         return value.replace(tzinfo=timezone.utc)
     return value.astimezone(timezone.utc)
@@ -29,7 +29,7 @@ def to_iso_utc(value: datetime, *, z_suffix: bool = True) -> str:
 
 
 def parse_iso_datetime(value: Any) -> datetime | None:
-    """Parse iso datetime helper."""
+    """Parse ISO-8601 strings or datetimes into UTC, returning `None` on failure."""
     if isinstance(value, datetime):
         return ensure_utc(value)
     if not isinstance(value, str):

@@ -1,4 +1,4 @@
-"""Public backtesting orchestrator module API."""
+"""Replay historical validation plans and aggregate trust calibration/audit outputs."""
 from __future__ import annotations
 
 import json
@@ -30,7 +30,14 @@ from polisyos.scientist.backtesting.trust_scorer import TrustScorer
 
 
 class BacktestOrchestrator:
-    """Execute historical backtesting and aggregate trust calibration."""
+    """Run scenario replay, score prediction quality, and persist a `BacktestReport`.
+
+    The orchestrator separates masking/evaluation from the prediction source:
+    plans may provide forecasts directly, ask Scientist to replay a workflow, or
+    fall back to a naive baseline. Degraded Scientist predictions are surfaced in
+    report metadata so trust scoring and calibration governance can audit replay
+    quality.
+    """
 
     def __init__(self, *, cas: FileSystemCAS | None = None, cas_root: str = ".polisyos") -> None:
         self._cas = cas or FileSystemCAS(Path(cas_root))
@@ -44,6 +51,7 @@ class BacktestOrchestrator:
         *,
         metadata: dict[str, Any] | None = None,
     ) -> BacktestReport:
+        """Execute every historical plan and persist the aggregated report in CAS."""
         report_id = f"BT_{uuid.uuid4().hex[:12]}"
         scenarios: list[BacktestScenario] = []
         warnings: list[str] = []

@@ -1,4 +1,4 @@
-"""Public bayesian regression module API."""
+"""Estimate conjugate Bayesian regression models with posterior summaries."""
 from __future__ import annotations
 
 from typing import Any, ClassVar, Mapping
@@ -54,7 +54,7 @@ def _prediction_output_slots() -> frozenset[SlotSpec]:
     tags={"bayesian", "sampling", "regression"},
 )
 class BayesianLinearRegressionEstimator:
-    """Bayesian linear regression estimator implementation."""
+    """Estimate linear-regression posteriors under Gaussian likelihood/priors; avoid strongly nonlinear responses without basis expansion."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
     optional_deps: ClassVar[tuple[str, ...]] = ("arviz",)

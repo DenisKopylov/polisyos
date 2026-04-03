@@ -1,4 +1,10 @@
-"""Public passes base module API."""
+"""Deprecated compatibility re-exports for governance base contracts.
+
+Use `polisyos.core.governance.passes.base` for new code. This shim remains in
+place so older Scientist integrations and docs can import `ComplianceIssue`,
+`IssueSeverity`, `PassContext`, and `ValidatorPass` from the legacy path while
+receiving a deprecation warning.
+"""
 from __future__ import annotations
 
 import warnings

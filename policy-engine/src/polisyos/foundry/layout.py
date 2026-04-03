@@ -1,4 +1,4 @@
-"""Public foundry layout module API."""
+"""Derive slot-to-state layouts and family manifests for execution and docs."""
 from __future__ import annotations
 
 from pydantic import BaseModel, ConfigDict, Field

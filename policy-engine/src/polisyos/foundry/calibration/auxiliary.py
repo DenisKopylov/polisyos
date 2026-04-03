@@ -1,4 +1,10 @@
-"""Public calibration auxiliary module API."""
+"""Define auxiliary calibration penalties that operate on simulated traces.
+
+Auxiliary components extend the objective with penalties that are not direct
+target-vs-trace residuals, such as graph spillover mismatch. They receive
+synthetic traces only; observation-side metadata and discounting remain in the
+measurement bundle/config they own.
+"""
 from __future__ import annotations
 
 from typing import Any, Mapping, Protocol, runtime_checkable
@@ -18,11 +24,17 @@ from polisyos.ir.observation.bundles import (
 
 @runtime_checkable
 class AuxLossComponent(Protocol):
-    """Protocol for auxiliary calibration-loss terms evaluated on execution traces."""
+    """Compute an additional calibration penalty from synthetic execution traces.
+
+    Implementations are part of the public extension surface for domain-
+    specific penalties. They should be deterministic for identical `traces`
+    and component configuration.
+    """
 
     component_name: str
 
     def compute(self, *, traces: Mapping[str, jnp.ndarray]) -> tuple[jnp.ndarray, Mapping[str, Any]]:
+        """Return `(penalty, diagnostics)` for the provided synthetic traces."""
         ...
 
 
@@ -56,7 +68,13 @@ def _pointwise_loss(residual: jnp.ndarray, *, loss_kind: str, huber_delta: float
 
 
 class InterferenceLossComponent:
-    """Auxiliary loss that penalizes mismatch in observed spillover effects."""
+    """Penalize mismatch between simulated exposure spillovers and observed spillovers.
+
+    Use this component when calibration must match network/interference
+    summaries in addition to direct target series. It expects trace paths to
+    expose the predicted metric named by each `InterferenceLossTargetSpec` and
+    skips specs whose metric path is absent or shape-incompatible.
+    """
 
     component_name = "interference"
 
@@ -86,6 +104,7 @@ class InterferenceLossComponent:
         return jnp.asarray(adapted["effective_weight"], dtype=jnp.float32)
 
     def compute(self, *, traces: Mapping[str, jnp.ndarray]) -> tuple[jnp.ndarray, Mapping[str, Any]]:
+        """Accumulate spillover penalties and return applied-spec diagnostics."""
         total = jnp.array(0.0, dtype=jnp.float32)
         diagnostics: dict[str, Any] = {"applied_specs": []}
         for spec in self.bundle.specs:

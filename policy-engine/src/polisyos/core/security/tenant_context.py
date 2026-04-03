@@ -29,7 +29,7 @@ _current_access_scope: contextvars.ContextVar["AccessScope | None"] = contextvar
 
 @dataclass(frozen=True)
 class TenantContext:
-    """Tenant context public type."""
+    """Capture the active tenant and optional cell binding for one scoped block."""
     tenant_id: str
     cell_id: str | None = None
 
@@ -57,14 +57,14 @@ def get_current_cell_id() -> str | None:
 def set_current_access_scope(
     scope: "AccessScope | None",
 ) -> contextvars.Token["AccessScope | None"]:
-    """Set current access scope helper."""
+    """Install the current request access scope and return a reset token."""
     return _current_access_scope.set(scope)
 
 
 def reset_current_access_scope(
     token: contextvars.Token["AccessScope | None"],
 ) -> None:
-    """Reset current access scope helper."""
+    """Restore the previous access scope from a `ContextVar` token."""
     _current_access_scope.reset(token)
 
 
@@ -80,7 +80,7 @@ def tenant_scope(
     tenant_id: str,
     cell_id: str | None = None,
 ) -> Iterator[TenantContext]:
-    """Tenant scope helper."""
+    """Enter a tenant-scoped contextvars and optional backend transaction scope."""
     token_tenant = _current_tenant.set(tenant_id)
     token_cell = _current_cell.set(cell_id)
     try:
@@ -95,7 +95,7 @@ def tenant_scope(
 
 
 def require_tenant_context(func: Callable[P, R]) -> Callable[P, R]:
-    """Require tenant context helper."""
+    """Decorate a function so it fails fast when no tenant context is active."""
     @functools.wraps(func)
     def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
         _ = get_current_tenant_id()

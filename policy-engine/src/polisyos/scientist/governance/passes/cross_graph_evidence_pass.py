@@ -1,4 +1,4 @@
-"""Public passes cross graph evidence pass module API."""
+"""Validate cross-graph evidence coverage, legality, and transport review requirements."""
 from __future__ import annotations
 
 from typing import Any
@@ -20,7 +20,15 @@ from polisyos.ir.refs import CrossGraphEvidenceProfileRef
 
 
 class CrossGraphEvidencePass(ValidatorPass):
-    """Cross graph evidence pass implementation."""
+    """Audit the compiled cross-graph evidence profile before promotion.
+
+    Reads `cross_graph_evidence_profile` directly from state or
+    `artifacts_index.cross_graph_evidence_profile_ref` through `_store`, then
+    checks unknown concepts, unavailable sources, legal prohibitions/constraints,
+    proxy-only or missing data support, unsupported evidence, and transport
+    review gaps. FAST profile skips the pass; STRICT upgrades default findings
+    to blockers.
+    """
     @property
     def pass_id(self) -> str:
         return "cross_graph_evidence"

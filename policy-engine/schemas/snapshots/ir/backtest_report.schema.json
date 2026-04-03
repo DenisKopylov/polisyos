@@ -2,6 +2,7 @@
   "$defs": {
     "BacktestScenario": {
       "additionalProperties": false,
+      "description": "Historical validation scenario with per-metric forecast comparisons.",
       "properties": {
         "coverage_probability": {
           "anyOf": [
@@ -102,6 +103,7 @@
       "type": "object"
     },
     "BiasDirection": {
+      "description": "Direction of systematic bias detected in historical validation.",
       "enum": [
         "optimistic",
         "pessimistic",
@@ -113,6 +115,7 @@
     },
     "OutcomeComparison": {
       "additionalProperties": false,
+      "description": "Comparison between predicted and observed outcomes for one metric.",
       "properties": {
         "absolute_error": {
           "minimum": 0.0,
@@ -186,6 +189,7 @@
     },
     "SystematicBias": {
       "additionalProperties": false,
+      "description": "Structured bias pattern detected across backtest scenarios.",
       "properties": {
         "affected_metrics": {
           "items": {
@@ -247,6 +251,7 @@
     }
   },
   "additionalProperties": false,
+  "description": "Summarize historical validation quality and trust diagnostics for one model/policy pair.\n\nDownstream trust governance reads ``trust_eligible``, ``trust_score``, and\n``detected_biases`` to decide whether a model-policy combination can be\npromoted or should be degraded before decision support.",
   "properties": {
     "backtest_config_ref": {
       "anyOf": [

@@ -1,4 +1,4 @@
-"""Governance pass: validate legal citations in policy claims."""
+"""Validate citation references, confidence payloads, and quote hygiene in policy claims."""
 
 from __future__ import annotations
 
@@ -9,10 +9,13 @@ from polisyos.core.governance.passes.base import PassContext, ValidatorPass
 
 
 class CitationValidatorPass(ValidatorPass):
-    """Validate that legal/academic citations are well-formed and traceable.
+    """Warn when citations are missing refs, malformed confidence, or long quotes.
 
     Checks that cited sources have valid IDs, that claim-to-source links
-    resolve, and that confidence scores are present.
+    resolve, and that confidence scores are present. The pass expects
+    `ctx.state["verified_claims"]` and emits non-blocking `CITATION_*`
+    findings so report generation can continue while preserving traceability
+    diagnostics.
     """
 
     @property

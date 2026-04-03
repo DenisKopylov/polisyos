@@ -53,7 +53,12 @@ _SPEC = NodeSpec(
 
 @dataclass(frozen=True)
 class RunPreflightNode:
-    """Run preflight node implementation."""
+    """Planning gate that checks the execution plan against the available method catalog.
+
+    Requires an execution-plan ref and method-catalog snapshot, persists a preflight
+    report, and writes readiness diagnostics that determine whether expensive runtime
+    stages are allowed to proceed.
+    """
     @property
     def spec(self) -> NodeSpec:
         return _SPEC

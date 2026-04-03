@@ -31,8 +31,15 @@ method execution, calibration, uncertainty propagation и agent-based simulation
 
 → Full reference: [docs/reference/foundry/index.md](../../../docs/reference/foundry/index.md)
 
+## Where to Start
+
+- Public facade / compatibility: `src/polisyos/foundry/__init__.py` and `docs/reference/public-surface.md`
+- Compile path: `src/polisyos/foundry/compile/`
+- Execute path: `src/polisyos/foundry/execute/`
+- ABI / schema-sensitive changes: `schemas/abi_models.py`, `tools/diagnostics/gen_schema.py`, `docs/reference/generated-artifacts.md`
+
 ## Current State
 
 - Last updated: 2026-04-03
 - Files: 395 Python files
-- Exports: 2
+- Exports: 3

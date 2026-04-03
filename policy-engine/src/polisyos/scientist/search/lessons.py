@@ -201,7 +201,7 @@ def persist_lesson_card(
     *,
     inputs: list[InputRef] | None = None,
 ) -> ArtifactRef:
-    """Persist lesson card helper."""
+    """Persist a reusable lesson card captured from failures, governance issues, or successful runs."""
     return store.put_json(
         card,
         PutOptions(

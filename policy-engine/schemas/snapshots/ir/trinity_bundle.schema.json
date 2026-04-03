@@ -2,7 +2,7 @@
   "$defs": {
     "AgentConfig": {
       "additionalProperties": false,
-      "description": "Complete agent configuration for the model.",
+      "description": "Bundle all agent populations and interaction topology for a world model.\n\n``ModelSpec`` validators check agent-type uniqueness and population-share\nfeasibility through this object before simulation starts.",
       "properties": {
         "agent_types": {
           "description": "Agent type configurations",
@@ -80,7 +80,7 @@
     },
     "AgentTypeConfig": {
       "additionalProperties": false,
-      "description": "Configuration for a type of agent in the simulation.\n\nDefines agent heterogeneity and behavioral parameters.",
+      "description": "Describe one simulated agent population and its behavioral heterogeneity.\n\nUse ``population_count`` or ``population_share`` to size the cohort,\n``utility_function`` and behavioral scalars for decision logic, and\n``attribute_distributions`` to parameterize heterogeneity consumed by the\nruntime agent factory.",
       "properties": {
         "adaptive": {
           "default": false,
@@ -238,7 +238,7 @@
     },
     "AssumptionSpec": {
       "additionalProperties": false,
-      "description": "Explicit modeling assumption.\n\nDocuments assumptions made in the world model for transparency\nand sensitivity analysis.",
+      "description": "Record one explicit world-model assumption for governance and sensitivity.\n\nAssumptions are first-class model metadata: reporting, calibration, and\nrobustness tooling can surface them, prioritize ``sensitivity_flag=True``\nentries, and compare alternative ``ModelSpec`` variants that differ only in\nassumption values or confidence.",
       "properties": {
         "assumption_id": {
           "pattern": "^[a-z][a-z0-9_]*$",
@@ -337,7 +337,7 @@
       "type": "object"
     },
     "AssumptionType": {
-      "description": "Types of modeling assumptions.",
+      "description": "Classify which downstream mechanism or uncertainty layer an assumption affects.",
       "enum": [
         "behavioral",
         "structural",
@@ -351,7 +351,7 @@
     },
     "ConstraintSpec": {
       "additionalProperties": false,
-      "description": "Constraint specification on policy outcomes.\n\nDefines hard or soft boundaries that must/should be respected.",
+      "description": "Specify one feasibility boundary or soft penalty attached to a metric slot.\n\nHard constraints are expected to fail governance or search admission when\nviolated, whereas soft constraints may be traded off using\n``penalty_weight``. Use ``slot_id`` and ``operator`` when the constraint is\ntied to a concrete metric channel.",
       "properties": {
         "constraint_id": {
           "pattern": "^[a-z][a-z0-9_]*$",
@@ -471,7 +471,7 @@
       "type": "object"
     },
     "ConstraintType": {
-      "description": "Types of constraints on policy outcomes.",
+      "description": "Declare whether a constraint is a hard feasibility gate or a soft penalty.\n\n``ProblemFrame`` validators keep hard and soft constraints in separate\ncollections, while portfolio/search routines can use ``SOFT`` entries with\n``ConstraintSpec.penalty_weight`` as a scalarized penalty term.",
       "enum": [
         "hard",
         "soft"
@@ -481,6 +481,7 @@
     },
     "CountValue": {
       "additionalProperties": false,
+      "description": "Count value public type.",
       "properties": {
         "label": {
           "anyOf": [
@@ -509,6 +510,7 @@
     },
     "DurationValue": {
       "additionalProperties": false,
+      "description": "Duration value public type.",
       "properties": {
         "unit": {
           "default": "step",
@@ -547,7 +549,7 @@
     },
     "EnvironmentConfig": {
       "additionalProperties": false,
-      "description": "Environment configuration for the simulation.",
+      "description": "Collect exogenous parameters and stochastic execution controls.",
       "properties": {
         "parallel_worlds": {
           "default": 1,
@@ -590,7 +592,7 @@
     },
     "EnvironmentParam": {
       "additionalProperties": false,
-      "description": "Environment/exogenous parameter specification.",
+      "description": "Declare one exogenous world parameter or time-varying external driver.\n\nUse ``time_series_ref`` when the value should be sourced from a persisted\nartifact instead of the inline ``value`` scalar.",
       "properties": {
         "description": {
           "anyOf": [
@@ -670,7 +672,7 @@
       "type": "object"
     },
     "FidelityLevel": {
-      "description": "Simulation fidelity levels.",
+      "description": "Select the execution fidelity expected by simulation and calibration runners.\n\nSearch and orchestration layers use this enum to trade speed against model\ndetail; lower-fidelity surrogates are useful for fast scans, while\n``FULL_DISCRETE`` is reserved for high-detail confirmation runs.",
       "enum": [
         "surrogate_fluid",
         "surrogate_discrete",
@@ -681,6 +683,7 @@
       "type": "string"
     },
     "IdentificationMode": {
+      "description": "Declare the causal identification contract assumed by records and bundles.\n\nThese modes distinguish point-identified data from partially identified,\nproxy-based, interference-aware, or sequential settings so downstream\ncomponents can enforce the right guardrails. The value is read by\n:class:`polisyos.ir.observation.measurement.IdentificationModeRouter`,\nobservation contract compilers, and causal-readiness checks to select\nfallback paths or block unsafe execution.",
       "enum": [
         "point_identified",
         "partially_identified",
@@ -694,7 +697,7 @@
     },
     "InterventionSpec": {
       "additionalProperties": false,
-      "description": "Policy intervention specification.\n\nDefines a single policy action with targeting, timing, and parameters.\nCompatible with existing InterventionSpec in surface.py.",
+      "description": "Declare one policy action, its target selector, timing, and mechanism inputs.\n\nIn Trinity terms this is an intervention/governance object, not a causal\nquery intervention. It is used by policy compilation and schedule execution,\nwhile observation routing reads ``identification_mode`` and\n``transmission_channels`` to decide which readiness checks and governance\npasses must run before evaluation.",
       "properties": {
         "enabled": {
           "default": true,
@@ -854,7 +857,7 @@
     },
     "KPISpec": {
       "additionalProperties": false,
-      "description": "Key Performance Indicator specification.\n\nDefines a measurable metric that indicates progress toward objectives.",
+      "description": "Describe one measurable success signal anchored to the metric registry.\n\nA KPI is the user-facing metric vocabulary for the ``what`` artifact: it\nlinks narrative objectives to a concrete ``metric_id``, optional\nbaseline/target values, and an optimization direction that downstream\nscoring and reporting stages can interpret consistently.",
       "properties": {
         "baseline_value": {
           "anyOf": [
@@ -967,7 +970,7 @@
     },
     "MechanismBinding": {
       "additionalProperties": false,
-      "description": "Binding between an intervention and a mechanism from the registry.\n\nLinks policy interventions to executable mechanisms.",
+      "description": "Bind one or more interventions to an executable mechanism registry entry.\n\nThis is the handshake between authored interventions and runtime mechanism\nimplementations: search, compilation, and execution layers can override\nmechanism configuration without mutating the intervention payload itself.",
       "properties": {
         "binding_id": {
           "pattern": "^[a-z][a-z0-9_]*$",
@@ -1006,7 +1009,7 @@
     },
     "ModelSpec": {
       "additionalProperties": false,
-      "description": "ModelSpec: The \"How\" artifact (WorldModel).\n\nSpecifies the world model configuration including data snapshots,\nagent configuration, assumptions, and environment parameters.\nMultiple ModelSpecs can test the same PolicySpec for sensitivity analysis.",
+      "description": "Define the Trinity ``how`` contract for simulation assumptions and state.\n\n``ModelSpec`` answers \"how is the world represented when evaluating this\npolicy?\" It should hold content-addressed references to initial data and\nregistries, declare agent/environment structure, and make modeling\nassumptions explicit enough for robustness sweeps and governance review.\n``ProblemFrame`` owns objectives, ``PolicySpec`` owns interventions, and\n``ModelSpec`` owns simulation mechanics and fidelity.\n\nAttributes:\n    model_id: Stable identifier for the world-model variant.\n    data_snapshot_ref: Content-addressed initial state artifact consumed by\n        simulation runtime.\n    registry_bundle_ref: Optional link to the mechanism/unit registry bundle.\n    time_semantics: Simulation clock, discounting, and horizon semantics.\n    agent_config: Agent populations and interaction topology.\n    assumptions: Explicit model assumptions surfaced for review and sweeps.\n    environment_config: Exogenous parameters and stochastic runtime knobs.\n    fidelity_level: Simulation detail level requested from the runtime.\n    calibrated: Whether this model variant is known to have been calibrated.\n    calibration_ref: Optional reference to persisted calibration outputs.",
       "properties": {
         "agent_config": {
           "$ref": "#/$defs/AgentConfig",
@@ -1159,6 +1162,7 @@
     },
     "MoneyValue": {
       "additionalProperties": false,
+      "description": "Money value public type.",
       "properties": {
         "amount": {
           "anyOf": [
@@ -1382,7 +1386,7 @@
     },
     "ParameterSpec": {
       "additionalProperties": false,
-      "description": "Tunable parameter specification with bounds and metadata.\n\nSupports calibration and sensitivity analysis.",
+      "description": "Expose one tunable intervention parameter to calibration and search.\n\n``param_path`` points into ``InterventionSpec.params`` and optional bounds\nconstrain feasible updates. Scientist calibration and sensitivity tooling\nshould only mutate parameters marked ``tunable=True``.",
       "properties": {
         "default_value": {
           "description": "Default/initial value",
@@ -1451,7 +1455,7 @@
     },
     "PolicySpec": {
       "additionalProperties": false,
-      "description": "PolicySpec: The \"What\" artifact.\n\nSpecifies the policy interventions, mechanism bindings, and parameters.\nThis artifact is iterated during policy optimization while the ProblemFrame\nremains constant.",
+      "description": "Define the Trinity intervention/governance contract for policy proposals.\n\n``PolicySpec`` answers \"which intervention is being proposed and under what\nexecution semantics?\" It should reference a stable ``ProblemFrame`` and can\nbe iterated by search, optimization, or human authoring while ``ModelSpec``\nsupplies alternative world-model assumptions. Use ``interventions`` for the\nauthored action set, ``mechanism_bindings`` for runtime mechanism mapping,\nand ``parameters`` for calibration/search knobs.\n\nAttributes:\n    policy_id: Stable identifier for the proposal candidate.\n    problem_frame_ref: Optional content-addressed link to the ``ProblemFrame``\n        this proposal is meant to satisfy.\n    interventions: Concrete actions with selector, schedule, and mechanism\n        parameters.\n    mechanism_bindings: Explicit runtime mechanism bindings for one or more\n        interventions.\n    parameters: Tunable knobs exposed to calibration and sensitivity passes.\n    global_schedule: Optional schedule override shared by all interventions.",
       "properties": {
         "description": {
           "anyOf": [
@@ -1580,7 +1584,7 @@
       "type": "object"
     },
     "ProblemDomain": {
-      "description": "Classification of policy problem domains.",
+      "description": "Classify the domain vocabulary used to route metrics and templates.\n\nThe domain label is consumed by authoring tools and reporting layers to\nchoose problem-specific defaults; ``CUSTOM`` is the escape hatch when no\nbuilt-in domain taxonomy applies.",
       "enum": [
         "fiscal",
         "monetary",
@@ -1599,7 +1603,7 @@
     },
     "ProblemFrame": {
       "additionalProperties": false,
-      "description": "ProblemFrame: The \"Why\" artifact.\n\nFormalizes the policy problem being addressed, including goals, KPIs,\nsuccess criteria, constraints, and stakeholders. This artifact remains\nconstant during policy optimization and sensitivity analysis.",
+      "description": "Define the Trinity ``what`` contract for objectives, metrics, and guardrails.\n\n``ProblemFrame`` answers \"what problem are we solving and under which\nboundaries?\" and is expected to remain stable while ``PolicySpec`` explores\ninterventions and ``ModelSpec`` explores simulation assumptions. Use this\nartifact as the canonical anchor for optimizer objectives, governance\nconstraints, stakeholder interpretation, and human-facing summaries.\n\nAttributes:\n    problem_id: Stable identifier for the policy problem within a project.\n    domain: Domain taxonomy used for reporting and authoring defaults.\n    objectives: Formal optimization objectives tied to registry metrics.\n    kpis: Business-facing KPI definitions that quantify progress.\n    success_criteria: Threshold tests that define when a KPI is considered met.\n    hard_constraints: Non-negotiable feasibility boundaries.\n    soft_constraints: Penalty-based preferences that search may trade off.\n    stakeholders: Affected actor groups used by equity and arbitration logic.\n    normative_frame: Optional welfare/rights model for normative arbitration.\n    narrative: Human-readable problem statement preserved alongside the schema.",
       "properties": {
         "domain": {
           "$ref": "#/$defs/ProblemDomain",
@@ -1723,6 +1727,7 @@
     },
     "RateValue": {
       "additionalProperties": false,
+      "description": "Rate value public type.",
       "properties": {
         "base": {
           "default": "ratio",
@@ -1754,6 +1759,7 @@
     },
     "ScheduleSpec": {
       "additionalProperties": false,
+      "description": "Describe when an intervention or task is active in step-indexed Trinity schedules.",
       "properties": {
         "duration_steps": {
           "anyOf": [
@@ -1795,6 +1801,7 @@
     },
     "SelectorAll": {
       "additionalProperties": false,
+      "description": "Selector all public type.",
       "properties": {
         "clauses": {
           "items": {
@@ -1840,6 +1847,7 @@
     },
     "SelectorAny": {
       "additionalProperties": false,
+      "description": "Selector any public type.",
       "properties": {
         "clauses": {
           "items": {
@@ -1885,6 +1893,7 @@
     },
     "SelectorNot": {
       "additionalProperties": false,
+      "description": "Selector not public type.",
       "properties": {
         "clause": {
           "discriminator": {
@@ -1944,6 +1953,7 @@
     },
     "SelectorPredicate": {
       "additionalProperties": false,
+      "description": "Selector predicate public type.",
       "properties": {
         "field": {
           "maxLength": 64,
@@ -2156,7 +2166,7 @@
     },
     "StakeholderSpec": {
       "additionalProperties": false,
-      "description": "Stakeholder affected by the policy problem.\n\nCaptures who is impacted and how.",
+      "description": "Capture the affected actor set used by equity and arbitration passes.\n\nStakeholders define whose outcomes must be tracked in ``ProblemFrame`` and\noptionally prioritized in ``NormativeFrame``. Downstream fairness,\ndistributional, and policy communication layers read this contract to align\nmetric impacts with stakeholder semantics.",
       "properties": {
         "attributes": {
           "additionalProperties": {
@@ -2313,6 +2323,7 @@
       "type": "object"
     },
     "StrategicResponseChannel": {
+      "description": "Identify the adaptation channel that should trigger strategic-response checks.\n\n``PolicySpec`` and readiness bundles use this enum to route interventions to\nstrategic-response hooks and to document which behavioral channel may break\nnaive policy assumptions.",
       "enum": [
         "budget_channel",
         "procurement_channel",
@@ -2427,6 +2438,7 @@
     },
     "TimeSemantics": {
       "additionalProperties": false,
+      "description": "Time semantics public type.",
       "properties": {
         "end_date": {
           "anyOf": [
@@ -2524,7 +2536,7 @@
     }
   },
   "additionalProperties": false,
-  "description": "Bundle containing the three canonical Trinity artifacts.",
+  "description": "Validate and transport the ``ProblemFrame`` / ``PolicySpec`` / ``ModelSpec`` triple.",
   "properties": {
     "model_spec": {
       "$ref": "#/$defs/ModelSpec"

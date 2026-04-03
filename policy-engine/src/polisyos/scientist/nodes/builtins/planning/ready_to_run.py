@@ -29,7 +29,11 @@ _SPEC = NodeSpec(
 
 @dataclass(frozen=True)
 class ReadyToRunNode:
-    """Ready to run node implementation."""
+    """Planning gate that blocks execution when preflight diagnostics say the plan is unsafe.
+
+    Reads `params.preflight_ready` and `params.preflight_diagnostics`, emits a gate
+    event, and fails the DAG unless earlier preflight checks marked the plan executable.
+    """
     @property
     def spec(self) -> NodeSpec:
         return _SPEC

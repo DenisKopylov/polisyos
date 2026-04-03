@@ -7,6 +7,7 @@ This package intentionally uses lazy re-exports to avoid import cycles between
 from __future__ import annotations
 
 from importlib import import_module
+from typing import Any
 
 _SYMBOL_TO_MODULE = {
     "AdversarialScenarioBundle": "polisyos.scientist.policy_design.adversary",
@@ -86,7 +87,7 @@ _SYMBOL_TO_MODULE = {
 __all__ = sorted(_SYMBOL_TO_MODULE)
 
 
-def __getattr__(name: str):
+def __getattr__(name: str) -> Any:
     """Resolve public exports lazily to keep package import cycle-free."""
     module_name = _SYMBOL_TO_MODULE.get(name)
     if module_name is None:

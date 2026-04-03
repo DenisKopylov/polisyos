@@ -1,4 +1,11 @@
-"""Public governance calibration module API."""
+"""Coordinate C5a calibration governance across passes, adversarial suites, and lessons.
+
+This module evaluates candidate policies before promotion by running global and
+family-scoped governance passes, executing required adversarial challenge
+suites, optionally planning active disambiguation actions, and publishing
+lesson cards into local search memory. It is the policy-facing governance
+boundary consumed by C5b validation and leaderboard assembly.
+"""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -81,7 +88,13 @@ class CalibrationAdversarialResult(BaseModel):
 
 
 class CalibrationGovernanceInput(BaseModel):
-    """Inputs required to run calibration governance over a candidate policy."""
+    """Inputs required to run calibration governance over a candidate policy.
+
+    `pass_state` must already contain the state keys expected by the selected
+    governance passes (for example metrics, fairness summaries, or citation
+    reports), and `candidate_ref`/`artifacts_index` provide the persisted
+    artifacts that adversarial suites and lesson publishing can dereference.
+    """
 
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
 
@@ -98,7 +111,12 @@ class CalibrationGovernanceInput(BaseModel):
 
 
 class CalibrationGovernanceReport(BaseModel):
-    """Top-level report returned by the calibration governance runner."""
+    """Top-level report returned by the calibration governance runner.
+
+    The report preserves global/family pass diagnostics, adversarial challenge
+    outcomes, optional active-disambiguation actions, and the resolved verdict
+    that C5b promotion scoring consumes.
+    """
 
     model_config = ConfigDict(extra="forbid")
 
@@ -135,20 +153,31 @@ class CalibrationGovernanceReport(BaseModel):
 
 
 class CalibrationAdversarialSuiteRegistry(BaseModel):
-    """Registry mapping governance aliases to challenge-suite ids."""
+    """Registry mapping governance-pass aliases to challenge-suite ids.
+
+    Family policies express adversarial requirements through aliases such as
+    `strategic_gaming_adversarial`; this registry resolves each alias to the
+    concrete Phase D4 challenge suite that must be executed.
+    """
 
     model_config = ConfigDict(extra="forbid")
 
     suite_aliases: dict[str, str] = Field(default_factory=dict)
 
     def suite_id_for(self, alias: str) -> str | None:
+        """Return the registered challenge-suite id for a governance alias."""
+
         return self.suite_aliases.get(alias)
 
     def is_alias(self, alias: str) -> bool:
+        """Return whether a configured pass id is an adversarial-suite alias."""
+
         return alias in self.suite_aliases
 
     @classmethod
     def default(cls) -> "CalibrationAdversarialSuiteRegistry":
+        """Build the default alias map used by policy calibration governance."""
+
         return cls(
             suite_aliases={
                 "strategic_gaming_adversarial": STRATEGIC_GAMING_SUITE_ID,
@@ -159,13 +188,20 @@ class CalibrationAdversarialSuiteRegistry(BaseModel):
 
 
 class LessonCardPublisher:
-    """Publisher that records calibration-governance lessons into local search memory."""
+    """Publish calibration-governance outcomes into the local lesson registry.
+
+    Successful verdicts become reusable positive lessons; blockers and warnings
+    become failure lessons with remediation hints so future candidate search can
+    avoid repeating rejected patterns.
+    """
 
     def publish(
         self,
         bundle: CalibrationGovernanceInput,
         report: CalibrationGovernanceReport,
     ) -> ArtifactRef | None:
+        """Write a local lesson card when the bundle exposes a lesson registry."""
+
         from polisyos.scientist.search.lessons import LessonCard, LessonKind, LessonTrustLevel
         from polisyos.scientist.search.transfer_context import resolve_transfer_context
 
@@ -229,7 +265,12 @@ class LessonCardPublisher:
 
 
 class ActiveDisambiguationIntegration:
-    """Thin wrapper around the active-disambiguation planner."""
+    """Bridge calibration governance to the active-disambiguation planner.
+
+    The wrapper keeps planner wiring optional while exposing a stable `plan()`
+    entrypoint that can emit follow-up evidence collection actions after pass
+    diagnostics reveal ambiguous observational gaps.
+    """
 
     def __init__(self, planner: ActiveDisambiguationPlanner | None = None) -> None:
         self._planner = planner or ActiveDisambiguationPlanner()
@@ -238,6 +279,8 @@ class ActiveDisambiguationIntegration:
         self,
         planner_input: ActiveDisambiguationPlannerInput | None,
     ) -> ActiveDisambiguationPlan | None:
+        """Return a disambiguation plan when planner input is available."""
+
         if planner_input is None:
             return None
         return self._planner.plan(planner_input)
@@ -286,7 +329,17 @@ class CalibrationGovernanceRunner:
         )
 
     def run(self, bundle: CalibrationGovernanceInput) -> CalibrationGovernanceReport:
-        """Run calibration governance for the supplied candidate bundle."""
+        """Run calibration governance for the supplied candidate bundle.
+
+        Args:
+            bundle: Candidate artifact refs, pass state, profile thresholds,
+                observation families, and optional lesson/disambiguation hooks.
+
+        Returns:
+            `CalibrationGovernanceReport` with the resolved verdict, pass traces,
+            adversarial outcomes, optional lesson refs, and planned follow-up
+            actions.
+        """
 
         families = _ordered_families(bundle.observation_families)
         execution_sequence: list[str] = []

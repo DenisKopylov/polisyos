@@ -1,4 +1,4 @@
-"""Public artifacts signing module API."""
+"""Sign and verify CAS blobs/manifests with detached Ed25519 sidecars."""
 from __future__ import annotations
 
 import json
@@ -53,7 +53,7 @@ class KeyLoadingError(SigningError):
 
 
 class SignatureVerificationStatus(str, Enum):
-    """Signature verification status public type."""
+    """Enumerate verifier outcomes for one artifact signature check."""
     VALID = "valid"
     UNSIGNED = "unsigned"
     INVALID = "invalid"
@@ -115,6 +115,7 @@ class SignatureVerificationResult(BaseModel):
     @computed_field
     @property
     def ok(self) -> bool:
+        """Return `True` only for `SignatureVerificationStatus.VALID`."""
         return self.status == SignatureVerificationStatus.VALID
 
 
@@ -136,6 +137,7 @@ class BulkVerificationReport(BaseModel):
     @computed_field
     @property
     def ok(self) -> bool:
+        """Return `True` when bulk verification has no invalid, revoked, or error results."""
         return self.invalid == 0 and self.revoked == 0 and self.errors == 0
 
 
@@ -187,6 +189,7 @@ class SigningConfig(BaseModel):
 
     @classmethod
     def from_env(cls) -> "SigningConfig":
+        """Resolve signing/verification settings from `POLISYOS_SIGN*` env vars."""
         def _env_bool(name: str, default: bool) -> bool:
             raw = os.environ.get(name)
             if raw is None:
@@ -243,11 +246,18 @@ class KeyPair:
 
     @staticmethod
     def generate() -> "KeyPair":
+        """Generate a new Ed25519 private/public key pair."""
         private = Ed25519PrivateKey.generate()
         return KeyPair(private_key=private, public_key=private.public_key())
 
     @staticmethod
     def from_private_pem(data: bytes, password: bytes | None = None) -> "KeyPair":
+        """Load an Ed25519 key pair from a private PEM payload.
+
+        Raises:
+            TypeError: If the PEM does not contain an Ed25519 private key.
+            ValueError: If the PEM payload or password is invalid.
+        """
         key = load_pem_private_key(data, password=password)
         if not isinstance(key, Ed25519PrivateKey):
             raise TypeError("Expected Ed25519 private key")
@@ -255,9 +265,11 @@ class KeyPair:
 
     @property
     def key_id(self) -> str:
+        """Return the stable `sha256:<hex>` identifier derived from the public key."""
         return compute_key_id(self.public_key)
 
     def private_pem(self, password: bytes | None = None) -> bytes:
+        """Serialize the private key as PKCS#8 PEM, optionally encrypted."""
         encryption = NoEncryption() if password is None else BestAvailableEncryption(password)
         return self.private_key.private_bytes(
             encoding=Encoding.PEM,
@@ -266,6 +278,7 @@ class KeyPair:
         )
 
     def public_pem(self) -> bytes:
+        """Serialize the public key as PEM for trust/revocation stores."""
         return self.public_key.public_bytes(
             encoding=Encoding.PEM,
             format=PublicFormat.SubjectPublicKeyInfo,
@@ -280,17 +293,17 @@ def compute_key_id(public_key: Ed25519PublicKey) -> str:
 
 
 def hash_bytes(data: bytes) -> str:
-    """Hash bytes helper."""
+    """Return the lowercase SHA-256 digest hex for raw bytes."""
     return content_hash(data)
 
 
 def canonical_statement_bytes(statement: SignatureStatement) -> bytes:
-    """Canonical statement bytes helper."""
+    """Serialize a signature statement with canonical JSON before signing/verifying."""
     return to_canonical_bytes(statement.model_dump(mode="python", by_alias=True, exclude_none=True))
 
 
 def safe_short_key_id(key_id: str | None) -> str:
-    """Safe short key ID helper."""
+    """Return a compact key identifier for human-readable CLI/report output."""
     if key_id is None:
         return "<none>"
     if len(key_id) <= 18:
@@ -309,6 +322,7 @@ class ArtifactSigner(Protocol):
         *,
         signer_identity: str | None = None,
     ) -> DetachedSignature:
+        """Sign one artifact statement and return the detached signature payload."""
         ...
 
 
@@ -324,6 +338,7 @@ class ArtifactVerifier(Protocol):
         *,
         strict_identity: bool | None = None,
     ) -> SignatureVerificationResult:
+        """Verify one detached signature against an artifact blob and manifest."""
         ...
 
 
@@ -337,10 +352,12 @@ class Ed25519Signer:
 
     @property
     def key_id(self) -> str:
+        """Return this signer's stable public-key identifier."""
         return self._key_id
 
     @classmethod
     def from_pem(cls, pem_data: bytes, password: bytes | None = None) -> "Ed25519Signer":
+        """Create a signer from a private PEM payload."""
         key = load_pem_private_key(pem_data, password=password)
         if not isinstance(key, Ed25519PrivateKey):
             raise TypeError("Expected Ed25519 private key in PEM")
@@ -348,6 +365,7 @@ class Ed25519Signer:
 
     @classmethod
     def from_path(cls, path: Path, password: bytes | None = None) -> "Ed25519Signer":
+        """Load a signer from a PEM file path."""
         return cls.from_pem(path.read_bytes(), password=password)
 
     @classmethod
@@ -359,6 +377,12 @@ class Ed25519Signer:
         default_private_key_file: Path = DEFAULT_PRIVATE_KEY_PATH,
         password: bytes | None = None,
     ) -> "Ed25519Signer":
+        """Resolve the signing key from env vars or a default PEM file.
+
+        Raises:
+            KeyLoadingError: If no key material is available from any configured
+                source.
+        """
         env_data = os.environ.get(private_key_env)
         if env_data:
             pem_data = _normalize_multiline_pem(env_data).encode("utf-8")
@@ -383,6 +407,7 @@ class Ed25519Signer:
         blob_data: bytes,
         manifest_data: bytes,
     ) -> SignatureStatement:
+        """Build the canonical statement and fail if blob bytes do not match `artifact_id`."""
         blob_sha = hash_bytes(blob_data)
         if blob_sha != artifact_id.hex:
             expected = artifact_id.hex
@@ -406,6 +431,7 @@ class Ed25519Signer:
         *,
         signer_identity: str | None = None,
     ) -> DetachedSignature:
+        """Sign the canonical statement with Ed25519 and attach signer identity metadata."""
         statement = self.build_statement(artifact_id, blob_data, manifest_data)
         payload = canonical_statement_bytes(statement)
         signature_bytes = self._private_key.sign(payload)
@@ -435,6 +461,7 @@ class Ed25519Verifier:
         key_id: str | None = None,
         identity: str | None = None,
     ) -> str:
+        """Trust one public key and optionally bind it to an expected signer identity."""
         kid = key_id or compute_key_id(public_key)
         self._trusted_keys[kid] = public_key
         if identity:
@@ -442,15 +469,18 @@ class Ed25519Verifier:
         return kid
 
     def load_trusted_key_pem(self, pem_data: bytes, *, identity: str | None = None) -> str:
+        """Trust one PEM-encoded Ed25519 public key."""
         key = load_pem_public_key(pem_data)
         if not isinstance(key, Ed25519PublicKey):
             raise TypeError("Expected Ed25519 public key in PEM")
         return self.add_trusted_key(key, identity=identity)
 
     def load_trusted_key_file(self, path: Path, *, identity: str | None = None) -> str:
+        """Trust one Ed25519 public key loaded from disk."""
         return self.load_trusted_key_pem(path.read_bytes(), identity=identity)
 
     def load_trust_dir(self, trust_dir: Path) -> list[str]:
+        """Load all `*.pub` keys from a trust directory and ignore unreadable files."""
         loaded: list[str] = []
         if not trust_dir.exists() or not trust_dir.is_dir():
             return loaded
@@ -462,9 +492,11 @@ class Ed25519Verifier:
         return loaded
 
     def add_revoked_key_id(self, key_id: str) -> None:
+        """Mark one key ID as revoked for subsequent verification checks."""
         self._revoked_key_ids.add(key_id)
 
     def load_revoked_dir(self, revoked_dir: Path) -> list[str]:
+        """Load revoked key IDs from `*.pub` files and ignore malformed entries."""
         loaded: list[str] = []
         if not revoked_dir.exists() or not revoked_dir.is_dir():
             return loaded
@@ -481,6 +513,7 @@ class Ed25519Verifier:
         return loaded
 
     def load_identity_bindings(self, identities_path: Path) -> dict[str, str]:
+        """Load a JSON `key_id -> signer_identity` map used by strict identity checks."""
         if not identities_path.exists() or not identities_path.is_file():
             return {}
 
@@ -496,14 +529,17 @@ class Ed25519Verifier:
         return out
 
     def expected_identity(self, key_id: str) -> str | None:
+        """Return the configured expected identity for one trusted key ID."""
         return self._identity_bindings.get(key_id)
 
     @property
     def trusted_key_ids(self) -> list[str]:
+        """Return all currently trusted key IDs in sorted order."""
         return sorted(self._trusted_keys.keys())
 
     @property
     def revoked_key_ids(self) -> list[str]:
+        """Return all revoked key IDs in sorted order."""
         return sorted(self._revoked_key_ids)
 
     def verify(
@@ -515,6 +551,7 @@ class Ed25519Verifier:
         *,
         strict_identity: bool | None = None,
     ) -> SignatureVerificationResult:
+        """Verify statement schema, content hashes, key trust, revocation, and Ed25519 signature."""
         strict = self._strict_identity if strict_identity is None else strict_identity
 
         if signature.version != SIGNATURE_FORMAT_VERSION:
@@ -664,7 +701,7 @@ def load_signer_from_config(
     *,
     password: bytes | None = None,
 ) -> Ed25519Signer:
-    """Load signer from config."""
+    """Load an Ed25519 signer according to a resolved `SigningConfig`."""
     return Ed25519Signer.from_env_or_file(
         private_key_env=config.private_key_env,
         private_key_file_env=config.private_key_file_env,
@@ -674,7 +711,7 @@ def load_signer_from_config(
 
 
 def build_verifier_from_config(config: SigningConfig) -> Ed25519Verifier:
-    """Build verifier from config."""
+    """Build a verifier and hydrate trust, revocation, and identity bindings from disk."""
     verifier = Ed25519Verifier(strict_identity=config.strict_identity)
     verifier.load_trust_dir(config.trust_dir)
     verifier.load_revoked_dir(config.revoked_dir)

@@ -1,4 +1,9 @@
-"""Public lex interventions module API."""
+"""Compile legal provisions into policy interventions and temporal DTR execution plans.
+
+Use this module after NormPack/provision mapping steps when legal clauses must be turned into
+``InterventionSpec`` objects, tunable ``ParameterSpec`` knobs, temporal treatment sequences, or
+hierarchical Scientist policy-search requests.
+"""
 from __future__ import annotations
 
 from collections.abc import Iterable, Mapping, Sequence
@@ -56,7 +61,11 @@ from polisyos.scientist.search.controller import SearchIteration, SearchResult, 
 
 
 class InterventionKnobSpec(KernelModel):
-    """Tunable intervention parameter derived from a legal provision."""
+    """Tunable parameter exposed by a legal provision mapping.
+
+    Bounds are validated by ``LexInterventionCompiler`` against ``default_value`` and duplicate
+    ``param_id`` / ``param_path`` values are rejected per directive.
+    """
 
     param_id: str = Field(..., pattern=ID_PATTERN)
     param_path: str = Field(..., min_length=1, max_length=120)
@@ -69,7 +78,13 @@ class InterventionKnobSpec(KernelModel):
 
 
 class LexProvisionDirective(KernelModel):
-    """Minimal Lex-to-intervention mapping request."""
+    """Provision-level request that compiles one legal clause into an ``InterventionSpec``.
+
+    The directive is usually produced by ``LexProvisionMappingRegistry.resolve`` and then passed
+    to ``LexInterventionCompiler.compile``. Strategic-response settings must be internally
+    consistent: when ``strategic_response_expected`` is true, at least one transmission channel
+    must be declared.
+    """
 
     provision_ref: str = Field(..., min_length=1, max_length=200)
     intervention_id: str = Field(..., pattern=ID_PATTERN)
@@ -106,7 +121,7 @@ class CompiledLexIntervention(KernelModel):
 
 
 class TemporalInterventionStepInput(KernelModel):
-    """Friendly input surface for temporal legal intervention sequences."""
+    """Friendly input shape for one time-ordered intervention activation step."""
 
     step_id: str | None = Field(None, pattern=ID_PATTERN)
     effective_date: str = Field(
@@ -127,7 +142,7 @@ class StrategicResponseRegistryEntry(KernelModel):
 
 
 class HierarchicalPolicySearchPlan(KernelModel):
-    """Thin config layer for policy_design hierarchical search."""
+    """Serializable handoff contract for Scientist hierarchical policy search."""
 
     coordinator_fqn: str = Field(
         default="polisyos.scientist.policy_design.search.HierarchicalSearchCoordinator",
@@ -155,6 +170,19 @@ class LexInterventionCompiler:
         self,
         directive: LexProvisionDirective | Mapping[str, Any],
     ) -> CompiledLexIntervention:
+        """Compile one directive into an intervention contract plus tunable parameter specs.
+
+        Args:
+            directive: Typed ``LexProvisionDirective`` or a mapping accepted by its Pydantic model.
+
+        Returns:
+            ``CompiledLexIntervention`` containing the IR intervention contract, generated
+            ``ParameterSpec`` rows, and mapping metadata.
+
+        Raises:
+            ValueError: If knob identifiers/paths are duplicated, point to unknown params, or
+                define inverted/out-of-range bounds.
+        """
         resolved = (
             directive
             if isinstance(directive, LexProvisionDirective)
@@ -219,6 +247,33 @@ class LexInterventionCompiler:
         notes: Sequence[str] = (),
         metadata: Mapping[str, Any] | None = None,
     ) -> CompiledLexIntervention:
+        """Resolve a provision mapping from a registry and compile it into IR contracts.
+
+        Args:
+            registry: Provision mapping and knob registry.
+            provision_ref: Legal provision key expected by the registry.
+            intervention_id: Target intervention id to place on the compiled IR contract.
+            target: Selector expression for intervention targeting.
+            schedule: Schedule contract for the intervention lifecycle.
+            params: Optional base parameter payload before knob overrides are applied.
+            knob_value_overrides: Optional values keyed by knob id.
+            target_population_type: Optional override for registry population metadata.
+            target_sector_ids: Optional explicit sector override.
+            target_region_ids: Optional explicit region override.
+            measurement_expectations: Optional expectation metadata merged with the registry entry.
+            identification_mode: Optional override for the registry identification mode.
+            strategic_response_expected: Optional consistency-checked override.
+            transmission_channels: Optional consistency-checked channel override.
+            notes: Additional notes appended to the compiled directive.
+            metadata: Additional metadata merged into the compiled payload.
+
+        Returns:
+            Compiled intervention and parameter specs.
+
+        Raises:
+            KeyError: If the provision mapping or one of its knob ids is unknown.
+            ValueError: If explicit strategic-response overrides conflict with the registry.
+        """
         mapping_entry = registry.require_mapping(provision_ref)
         if (
             strategic_response_expected is not None
@@ -309,6 +364,12 @@ class TemporalInterventionSequencer:
         transmission_channels: Sequence[StrategicResponseChannel] = (),
         notes: Sequence[str] = (),
     ) -> TemporalInterventionSequence:
+        """Build an ordered ``TemporalInterventionSequence`` from step inputs.
+
+        Raises:
+            ValueError: If a step references an unknown intervention id or unknown parameter
+                override when ``compiled_interventions`` are provided.
+        """
         compiled_catalog = _normalize_compiled_intervention_catalog(compiled_interventions)
         normalized_steps = [
             self._normalize_step(step, index)
@@ -347,6 +408,11 @@ class TemporalInterventionSequencer:
         covariate_names: Sequence[str] | None = None,
         outcome: Sequence[float] | np.ndarray | None = None,
     ) -> DynamicTreatmentData:
+        """Render a temporal intervention sequence into a synthetic DTR design matrix.
+
+        This helper is a bridge into the DTR estimators in Foundry and should be treated as a
+        scaffolded default when no empirical ``DynamicTreatmentData`` payload is available.
+        """
         resolved = (
             sequence
             if isinstance(sequence, TemporalInterventionSequence)
@@ -458,6 +524,15 @@ class TemporalInterventionSequenceCompiler:
         *,
         inputs: Sequence[InputRef] | None = None,
     ) -> TemporalInterventionSequenceCompileResult:
+        """Execute one temporal DTR task and persist optional regime/effect artifacts.
+
+        Returns:
+            Execution entry, the dynamic treatment data used for estimation, and the optional
+            ``DTRResult`` returned by the selected estimator.
+
+        Raises:
+            ValueError: If ``task.dtr_method`` is unsupported or sequence synthesis fails.
+        """
         resolved_task = (
             task if isinstance(task, TemporalDTRTask) else TemporalDTRTask.model_validate(task)
         )
@@ -547,6 +622,7 @@ class TemporalInterventionSequenceCompiler:
         *,
         inputs: Sequence[InputRef] | None = None,
     ) -> list[TemporalInterventionSequenceCompileResult]:
+        """Compile multiple temporal DTR tasks using the same artifact-store context."""
         return [self.compile(task, inputs=inputs) for task in tasks]
 
     def _resolve_dynamic_treatment_data(
@@ -636,6 +712,7 @@ class StrategicResponseSpecRegistry:
         self,
         entry: StrategicResponseRegistryEntry | Mapping[str, Any],
     ) -> StrategicResponseRegistryEntry:
+        """Register one strategic-response spec and reject duplicate intervention kinds."""
         resolved = (
             entry
             if isinstance(entry, StrategicResponseRegistryEntry)
@@ -707,6 +784,7 @@ class HierarchicalPolicySearchAdapter:
         policy_family: str | None = None,
         metadata: Mapping[str, Any] | None = None,
     ) -> HierarchicalPolicySearchPlan:
+        """Create a Scientist search-plan payload from a Trinity or Lex policy bundle."""
         resolved_candidate = self._resolve_candidate_payload(
             candidate,
             policy_family=policy_family,
@@ -740,6 +818,7 @@ class HierarchicalPolicySearchAdapter:
         policy_family: str | None = None,
         metadata: Mapping[str, Any] | None = None,
     ) -> PolicyCandidateSchema:
+        """Convert a Lex policy bundle into a ``PolicyCandidateSchema`` with runtime metadata."""
         resolved_input = _coerce_lex_policy_bundle_input(bundle_input)
         domain = _bundle_domain(resolved_input.trinity_bundle)
         resolved_policy_family = str(
@@ -796,6 +875,7 @@ class HierarchicalPolicySearchAdapter:
         search_config: HierarchicalSearchConfig | Mapping[str, Any] | None = None,
         metadata: Mapping[str, Any] | None = None,
     ) -> HierarchicalPolicySearchPlan:
+        """Build a hierarchical policy-search plan directly from a ``TrinityBundle`` payload."""
         candidate = self.build_candidate(
             bundle,
             candidate_id=candidate_id,
@@ -845,6 +925,7 @@ class HierarchicalPolicySearchAdapter:
         policy_family: str | None = None,
         metadata: Mapping[str, Any] | None = None,
     ) -> HierarchicalSearchCoordinator:
+        """Sanity-check that the generated candidate is accepted by Scientist policy-design APIs."""
         resolved_candidate = self._resolve_candidate_payload(
             candidate,
             policy_family=policy_family,
@@ -874,6 +955,7 @@ class HierarchicalPolicySearchAdapter:
         policy_family: str | None = None,
         metadata: Mapping[str, Any] | None = None,
     ) -> dict[str, Any]:
+        """Return the runtime context block expected by orchestration and policy-search loops."""
         resolved_candidate = self._resolve_candidate_payload(
             candidate,
             policy_family=policy_family,

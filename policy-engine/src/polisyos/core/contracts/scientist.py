@@ -54,19 +54,19 @@ class ScientistArtifactRef(ArtifactRef):
 
 
 class ExperimentStateRef(ScientistArtifactRef):
-    """Experiment state ref data model."""
+    """Artifact reference for persisted Scientist workflow state across steps and retries."""
     kind: Literal["scientist.experiment_state"] = "scientist.experiment_state"
     media_type: Literal["application/json"] = "application/json"
 
 
 class DecisionPacketRef(ScientistArtifactRef):
-    """Decision packet ref data model."""
+    """Artifact reference for the decision packet emitted when a Scientist run concludes."""
     kind: Literal["scientist.decision_packet"] = "scientist.decision_packet"
     media_type: Literal["application/json"] = "application/json"
 
 
 class GovernanceReportRef(ScientistArtifactRef):
-    """Governance report ref data model."""
+    """Artifact reference for aggregated governance-pass findings attached to a run."""
     kind: Literal["scientist.governance_report"] = "scientist.governance_report"
     media_type: Literal["application/json"] = "application/json"
 
@@ -192,13 +192,13 @@ class PlatformMetaEvaluationReportRef(ScientistArtifactRef):
 
 
 class GraphHypothesisRef(ScientistArtifactRef):
-    """Graph hypothesis ref data model."""
+    """Artifact reference for one discovered causal-graph hypothesis."""
     kind: Literal["scientist.graph_hypothesis"] = "scientist.graph_hypothesis"
     media_type: Literal["application/json"] = "application/json"
 
 
 class BootstrapStabilityReportRef(ScientistArtifactRef):
-    """Bootstrap stability report ref data model."""
+    """Artifact reference for bootstrap stability diagnostics on graph structure."""
     kind: Literal["scientist.bootstrap_stability_report"] = (
         "scientist.bootstrap_stability_report"
     )
@@ -206,7 +206,7 @@ class BootstrapStabilityReportRef(ScientistArtifactRef):
 
 
 class DownstreamUtilityReportRef(ScientistArtifactRef):
-    """Downstream utility report ref data model."""
+    """Artifact reference for a report estimating downstream usefulness of a candidate output."""
     kind: Literal["scientist.downstream_utility_report"] = (
         "scientist.downstream_utility_report"
     )
@@ -214,37 +214,37 @@ class DownstreamUtilityReportRef(ScientistArtifactRef):
 
 
 class EdgeConfidenceMatrixRef(ScientistArtifactRef):
-    """Edge confidence matrix ref data model."""
+    """Artifact reference for edge-level confidence scores produced during discovery."""
     kind: Literal["scientist.edge_confidence_matrix"] = "scientist.edge_confidence_matrix"
     media_type: Literal["application/json"] = "application/json"
 
 
 class GraphPriorBundleRef(ScientistArtifactRef):
-    """Graph prior bundle ref data model."""
+    """Artifact reference for priors injected into graph discovery or scoring."""
     kind: Literal["scientist.graph_prior_bundle"] = "scientist.graph_prior_bundle"
     media_type: Literal["application/json"] = "application/json"
 
 
 class PriorKnowledgeBundleRef(ScientistArtifactRef):
-    """Prior knowledge bundle ref data model."""
+    """Artifact reference for curated prior knowledge supplied to Scientist workflows."""
     kind: Literal["scientist.prior_knowledge_bundle"] = "scientist.prior_knowledge_bundle"
     media_type: Literal["application/json"] = "application/json"
 
 
 class DiscoveryTaskProfileRef(ScientistArtifactRef):
-    """Discovery task profile ref data model."""
+    """Artifact reference for the profile that parameterizes a discovery workflow."""
     kind: Literal["scientist.discovery_task_profile"] = "scientist.discovery_task_profile"
     media_type: Literal["application/json"] = "application/json"
 
 
 class GraphHypothesisSetRef(ScientistArtifactRef):
-    """Graph hypothesis set ref data model."""
+    """Artifact reference for the set of competing graph hypotheses under review."""
     kind: Literal["scientist.graph_hypothesis_set"] = "scientist.graph_hypothesis_set"
     media_type: Literal["application/json"] = "application/json"
 
 
 class RefutationReportRef(ScientistArtifactRef):
-    """Refutation report ref data model."""
+    """Artifact reference for a report documenting refuted discovery hypotheses."""
     kind: Literal["scientist.discovery_refutation_report"] = (
         "scientist.discovery_refutation_report"
     )
@@ -252,7 +252,7 @@ class RefutationReportRef(ScientistArtifactRef):
 
 
 class ReproducibilityReportRef(ScientistArtifactRef):
-    """Reproducibility report ref data model."""
+    """Artifact reference for a discovery reproducibility assessment across reruns."""
     kind: Literal["scientist.discovery_reproducibility_report"] = (
         "scientist.discovery_reproducibility_report"
     )
@@ -260,7 +260,7 @@ class ReproducibilityReportRef(ScientistArtifactRef):
 
 
 class ActiveDisambiguationPlanRef(ScientistArtifactRef):
-    """Active disambiguation plan ref data model."""
+    """Artifact reference for a follow-up plan that resolves discovery ambiguities."""
     kind: Literal["scientist.active_disambiguation_plan"] = (
         "scientist.active_disambiguation_plan"
     )
@@ -268,13 +268,13 @@ class ActiveDisambiguationPlanRef(ScientistArtifactRef):
 
 
 class DiscoveryAuditBundleRef(ScientistArtifactRef):
-    """Discovery audit bundle ref data model."""
+    """Artifact reference for the audit bundle emitted by discovery workflows."""
     kind: Literal["scientist.discovery_audit_bundle"] = "scientist.discovery_audit_bundle"
     media_type: Literal["application/json"] = "application/json"
 
 
 class DiscoveryArtifactBundleRef(ScientistArtifactRef):
-    """Discovery artifact bundle ref data model."""
+    """Artifact reference for the bundle of artifacts produced during discovery."""
     kind: Literal["scientist.discovery_artifact_bundle"] = (
         "scientist.discovery_artifact_bundle"
     )
@@ -282,7 +282,7 @@ class DiscoveryArtifactBundleRef(ScientistArtifactRef):
 
 
 class DecisionReadinessContractRef(ScientistArtifactRef):
-    """Decision readiness contract ref data model."""
+    """Artifact reference for criteria that must hold before a policy decision is issued."""
     kind: Literal["scientist.decision_readiness_contract"] = (
         "scientist.decision_readiness_contract"
     )
@@ -290,13 +290,13 @@ class DecisionReadinessContractRef(ScientistArtifactRef):
 
 
 class PolicyFrontierReportRef(ScientistArtifactRef):
-    """Policy frontier report ref data model."""
+    """Artifact reference for the frontier report comparing policy trade-offs."""
     kind: Literal["scientist.policy_frontier_report"] = "scientist.policy_frontier_report"
     media_type: Literal["application/json"] = "application/json"
 
 
 class ChampionPolicyDossierRef(ScientistArtifactRef):
-    """Champion policy dossier ref data model."""
+    """Artifact reference for the dossier describing the current champion policy option."""
     kind: Literal["scientist.champion_policy_dossier"] = (
         "scientist.champion_policy_dossier"
     )
@@ -304,13 +304,13 @@ class ChampionPolicyDossierRef(ScientistArtifactRef):
 
 
 class PolicyBriefRef(ScientistArtifactRef):
-    """Policy brief ref data model."""
+    """Artifact reference for the narrative brief summarizing the recommended policy."""
     kind: Literal["scientist.policy_brief"] = "scientist.policy_brief"
     media_type: Literal["application/json"] = "application/json"
 
 
 class ConstraintSatisfactionReportRef(ScientistArtifactRef):
-    """Constraint satisfaction report ref data model."""
+    """Artifact reference for the report scoring how well an option satisfies constraints."""
     kind: Literal["scientist.constraint_satisfaction_report"] = (
         "scientist.constraint_satisfaction_report"
     )
@@ -318,37 +318,37 @@ class ConstraintSatisfactionReportRef(ScientistArtifactRef):
 
 
 class SubgroupImpactReportRef(ScientistArtifactRef):
-    """Subgroup impact report ref data model."""
+    """Artifact reference for subgroup-level impact analysis of a policy candidate."""
     kind: Literal["scientist.subgroup_impact_report"] = "scientist.subgroup_impact_report"
     media_type: Literal["application/json"] = "application/json"
 
 
 class UncertaintyReportRef(ScientistArtifactRef):
-    """Uncertainty report ref data model."""
+    """Artifact reference for uncertainty bounds or decompositions on a candidate policy."""
     kind: Literal["scientist.uncertainty_report"] = "scientist.uncertainty_report"
     media_type: Literal["application/json"] = "application/json"
 
 
 class TransportabilityReportRef(ScientistArtifactRef):
-    """Transportability report ref data model."""
+    """Artifact reference for a transportability assessment across populations or settings."""
     kind: Literal["scientist.transportability_report"] = "scientist.transportability_report"
     media_type: Literal["application/json"] = "application/json"
 
 
 class GovernanceGatePacketRef(ScientistArtifactRef):
-    """Governance gate packet ref data model."""
+    """Artifact reference for the packet submitted to governance gates before approval."""
     kind: Literal["scientist.governance_gate_packet"] = "scientist.governance_gate_packet"
     media_type: Literal["application/json"] = "application/json"
 
 
 class ImplementationPlanRef(ScientistArtifactRef):
-    """Implementation plan ref data model."""
+    """Artifact reference for the operational rollout plan of the selected policy."""
     kind: Literal["scientist.implementation_plan"] = "scientist.implementation_plan"
     media_type: Literal["application/json"] = "application/json"
 
 
 class RejectedAlternativesSummaryRef(ScientistArtifactRef):
-    """Rejected alternatives summary ref data model."""
+    """Artifact reference for the summary explaining why alternative options were rejected."""
     kind: Literal["scientist.rejected_alternatives_summary"] = (
         "scientist.rejected_alternatives_summary"
     )
@@ -356,19 +356,19 @@ class RejectedAlternativesSummaryRef(ScientistArtifactRef):
 
 
 class ReplayableAuditBundleRef(ScientistArtifactRef):
-    """Replayable audit bundle ref data model."""
+    """Artifact reference for the replay-friendly audit bundle of a decision workflow."""
     kind: Literal["scientist.replayable_audit_bundle"] = "scientist.replayable_audit_bundle"
     media_type: Literal["application/json"] = "application/json"
 
 
 class PolicyArtifactBundleRef(ScientistArtifactRef):
-    """Policy artifact bundle ref data model."""
+    """Artifact reference for the bundle of final artifacts backing a policy recommendation."""
     kind: Literal["scientist.policy_artifact_bundle"] = "scientist.policy_artifact_bundle"
     media_type: Literal["application/json"] = "application/json"
 
 
 class DecisionMonitoringContractRef(ScientistArtifactRef):
-    """Decision monitoring contract ref data model."""
+    """Artifact reference for post-deployment metrics, triggers, and review obligations."""
     kind: Literal["scientist.decision_monitoring_contract"] = (
         "scientist.decision_monitoring_contract"
     )
@@ -376,7 +376,7 @@ class DecisionMonitoringContractRef(ScientistArtifactRef):
 
 
 class DecisionMonitoringReportRef(ScientistArtifactRef):
-    """Decision monitoring report ref data model."""
+    """Artifact reference for observed-vs-expected monitoring results after rollout."""
     kind: Literal["scientist.decision_monitoring_report"] = (
         "scientist.decision_monitoring_report"
     )
@@ -384,37 +384,37 @@ class DecisionMonitoringReportRef(ScientistArtifactRef):
 
 
 class DecisionCompareReportRef(ScientistArtifactRef):
-    """Decision compare report ref data model."""
+    """Artifact reference for a comparison between two decisions or policy versions."""
     kind: Literal["scientist.decision_compare_report"] = "scientist.decision_compare_report"
     media_type: Literal["application/json"] = "application/json"
 
 
 class DecisionReissuePlanRef(ScientistArtifactRef):
-    """Decision reissue plan ref data model."""
+    """Artifact reference for the plan to reissue or revise a prior decision."""
     kind: Literal["scientist.decision_reissue_plan"] = "scientist.decision_reissue_plan"
     media_type: Literal["application/json"] = "application/json"
 
 
 class PolicyRequestFrameRef(ScientistArtifactRef):
-    """Policy request frame ref data model."""
+    """Artifact reference for the structured intake frame of a new policy request."""
     kind: Literal["scientist.policy_request_frame"] = "scientist.policy_request_frame"
     media_type: Literal["application/json"] = "application/json"
 
 
 class LegalCandidatePackRef(ScientistArtifactRef):
-    """Legal candidate pack ref data model."""
+    """Artifact reference for assembled candidate legal sources during verification."""
     kind: Literal["scientist.legal_candidate_pack"] = "scientist.legal_candidate_pack"
     media_type: Literal["application/json"] = "application/json"
 
 
 class LegalSourcePackRef(ScientistArtifactRef):
-    """Legal source pack ref data model."""
+    """Artifact reference for the curated legal-source pack used for verification."""
     kind: Literal["scientist.legal_source_pack"] = "scientist.legal_source_pack"
     media_type: Literal["application/json"] = "application/json"
 
 
 class SourceVerificationReportRef(ScientistArtifactRef):
-    """Source verification report ref data model."""
+    """Artifact reference for source-quality and legal verification diagnostics."""
     kind: Literal["scientist.source_verification_report"] = (
         "scientist.source_verification_report"
     )
@@ -422,13 +422,13 @@ class SourceVerificationReportRef(ScientistArtifactRef):
 
 
 class PolicyOptionSetRef(ScientistArtifactRef):
-    """Policy option set ref data model."""
+    """Artifact reference for the set of policy options under governance comparison."""
     kind: Literal["scientist.policy_option_set"] = "scientist.policy_option_set"
     media_type: Literal["application/json"] = "application/json"
 
 
 class VerifiedPolicyReportRef(ScientistArtifactRef):
-    """Verified policy report ref data model."""
+    """Artifact reference for the final report of a policy option that passed verification."""
     kind: Literal["scientist.verified_policy_report"] = "scientist.verified_policy_report"
     media_type: Literal["application/json"] = "application/json"
 

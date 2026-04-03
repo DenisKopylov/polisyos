@@ -2,6 +2,16 @@
 
 > Реализуйте, зарегистрируйте, протестируйте и подключите новый Scientist governance pass, используя текущий pass API.
 
+Быстрый старт для skeleton:
+
+```bash
+python3 tools/architecture/scaffold.py governance-pass \
+  --name my_pass \
+  --output src/polisyos/scientist/governance/passes/my_pass.py \
+  --test-output tests/scientist/governance/test_my_pass.py \
+  --dry-run
+```
+
 ## 1. Реализуйте интерфейс pass
 
 Базовые типы сейчас такие:

@@ -1,2 +1,1 @@
-"""Public fabric io package API."""
-# Data persistence layer
+"""I/O adapters shared by fabric persistence and world materialization layers."""

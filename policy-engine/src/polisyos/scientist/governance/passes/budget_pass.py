@@ -1,4 +1,4 @@
-"""Public passes budget pass module API."""
+"""Validate run budgets and graph complexity before expensive execution stages."""
 from __future__ import annotations
 
 from typing import List
@@ -13,14 +13,13 @@ from polisyos.scientist.kernel.budgets import ComplexityBudget, ComputeBudget, E
 
 
 class BudgetPass(ValidatorPass):
-    """
-    Validates budget constraints before expensive operations.
+    """Block exhausted simulation/LLM budgets and over-large intervention graphs.
 
-    Checks:
-    - Remaining simulation runs
-    - Remaining LLM calls
-    - Intervention count limits
-    - Estimated graph complexity
+    The pass reads budget/usage counters from `PassContext`, inspects `ctx.ir`
+    for intervention count and time-step complexity, and applies profile
+    thresholds `max_interventions` and `max_graph_cost`. Simulation and LLM
+    exhaustion plus intervention overflow are blockers; high estimated graph cost
+    is emitted as `GRAPH_COST_HIGH` warning.
     """
 
     @property

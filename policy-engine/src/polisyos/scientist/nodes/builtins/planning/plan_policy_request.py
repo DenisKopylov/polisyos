@@ -46,7 +46,12 @@ _SPEC = NodeSpec(
 
 @dataclass(frozen=True)
 class PlanPolicyRequestNode:
-    """Plan policy request node implementation."""
+    """Planning entrypoint that normalizes request params into a persisted policy request frame.
+
+    Reads policy-question inputs and jurisdiction hints, writes `policy_request_ref`,
+    the request-frame artifact ref, `params.policy_answer_mode`, and the verified
+    execution profile consumed by downstream sourcing nodes.
+    """
     @property
     def spec(self) -> NodeSpec:
         return _SPEC

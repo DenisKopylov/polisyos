@@ -1,4 +1,10 @@
-"""Public compile trinity compiler module API."""
+"""Lower Trinity bundles into executable Foundry artifacts and compile reports.
+
+This module is the concrete backend behind `polisyos.foundry.compile.api`.
+It links the Trinity bundle against a registry bundle, lowers mechanisms,
+materializes a `ProgramGraph`, derives an `ExecPlan`, and writes all derived
+artifacts into CAS with explicit provenance edges.
+"""
 from __future__ import annotations
 
 from polisyos.core.artifacts.ids import ArtifactID
@@ -29,7 +35,19 @@ from ._lowering import lower_trinity
 
 
 def compile_trinity(store: FileSystemCAS, request: CompileRequest) -> CompileResult:
-    """Compile trinity."""
+    """Compile a Trinity bundle and persist the execution graph artifacts.
+
+    Args:
+        store: CAS used to read the Trinity bundle and registry artifacts and
+            to persist all derived compile artifacts.
+        request: Trinity compile request with validation flags and optional
+            explicit `registry_bundle_ref` override.
+
+    Returns:
+        `CompileResult` whose `derived_refs` contain `lowered_ir`,
+        `program_graph`, `exec_plan`, `link_report`, `slot_layout`, and
+        `treasury_plan` refs when compilation succeeds.
+    """
     policy_ref = request.policy_ref
     payload = from_canonical_bytes(store.get_bytes(policy_ref.artifact_id))
     bundle = TrinityBundle.model_validate(payload)

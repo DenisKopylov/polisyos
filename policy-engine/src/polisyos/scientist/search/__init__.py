@@ -1,8 +1,15 @@
-"""Search loop framework for iterative policy optimization."""
+"""Stable search facade for candidate generation, funnel evaluation, and VOI routing.
+
+Eager exports cover objective/stage/stopping contracts and registries that are
+pure Python and safe to import in planners. Heavy or cyclic surfaces are
+lazy-loaded through `__getattr__`: ask/tell adapters, portfolio search helpers,
+promotion/readiness artifacts, and VOI schedulers.
+"""
 
 from __future__ import annotations
 
 import importlib
+from typing import Any
 
 from polisyos.scientist.search.adversarial import (
     NegatedCompositeObjective,
@@ -304,7 +311,8 @@ except Exception:  # pragma: no cover - optional dependency path
     pass
 
 
-def __getattr__(name: str):
+def __getattr__(name: str) -> Any:
+    """Resolve heavy or cyclic search exports lazily from their owning modules."""
     if name in {
         "CandidateProposal",
         "EvaluationBundle",

@@ -1,4 +1,4 @@
-"""Public linker reports module API."""
+"""Diagnostic report types emitted while linking Trinity bundles against registries."""
 from __future__ import annotations
 
 from enum import Enum
@@ -61,7 +61,7 @@ class LinkIssueCode(str, Enum):
 
 
 class LinkIssue(KernelModel):
-    """Link issue data model."""
+    """Describe one linker finding about a missing registry item, mismatch, or deprecated binding."""
     severity: LinkSeverity = LinkSeverity.ERROR
     code: LinkIssueCode
     message: str
@@ -71,7 +71,7 @@ class LinkIssue(KernelModel):
 
 
 class LinkReport(KernelModel):
-    """Link report data model."""
+    """Collect deterministic linker findings that gate whether a Trinity bundle is executable."""
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     ok: bool
     issues: list[LinkIssue] = Field(default_factory=list)

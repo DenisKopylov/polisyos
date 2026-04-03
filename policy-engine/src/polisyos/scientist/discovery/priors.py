@@ -227,7 +227,7 @@ def persist_graph_prior_bundle(
     *,
     inputs: list[InputRef] | None = None,
 ) -> GraphPriorBundleRef:
-    """Persist graph prior bundle helper."""
+    """Persist the graph-prior bundle assembled before discovery execution begins."""
     ref = store.put_json(
         bundle,
         PutOptions(
@@ -259,7 +259,7 @@ def persist_prior_knowledge_bundle(
     *,
     inputs: list[InputRef] | None = None,
 ) -> PriorKnowledgeBundleRef:
-    """Persist prior knowledge bundle helper."""
+    """Persist the prior-knowledge bundle used to seed discovery reasoning and retrieval."""
     ref = store.put_json(
         bundle,
         PutOptions(

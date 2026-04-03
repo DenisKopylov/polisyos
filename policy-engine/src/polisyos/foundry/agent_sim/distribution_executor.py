@@ -14,7 +14,7 @@ from polisyos.foundry.contracts.fidelity import FidelityLevel
 
 
 class DistributionAwareExecutor(PureExecutor):
-    """Distribution aware executor implementation."""
+    """Update inequality summaries before each step and expose them in executor metrics."""
     def __init__(
         self,
         mechanisms: Iterable[Mechanism],

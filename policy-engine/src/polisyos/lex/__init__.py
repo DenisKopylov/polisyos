@@ -1,4 +1,10 @@
-"""Public lex package API."""
+"""Stable Lex facade for legal corpus ingestion, NormPack assembly, and intervention APIs.
+
+The root package keeps imports lazy so lightweight consumers can inspect Lex contracts without
+eagerly importing DuckDB, Foundry, or Scientist dependencies. Treat symbols exported through
+``__all__`` as the stable public surface for the ``ingest -> structure -> version index ->
+normpack -> legal evaluation`` pipeline and for legal-to-policy intervention compilation.
+"""
 from __future__ import annotations
 
 import importlib
@@ -174,6 +180,17 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
 
 
 def __getattr__(name: str) -> Any:
+    """Load a public Lex symbol on first access.
+
+    Args:
+        name: Export name listed in ``__all__``.
+
+    Returns:
+        Imported symbol cached in this module's globals.
+
+    Raises:
+        AttributeError: If ``name`` is not part of the supported Lex facade.
+    """
     if name not in _LAZY_IMPORTS:
         raise AttributeError(f"module 'polisyos.lex' has no attribute '{name}'")
     module_name, attr_name = _LAZY_IMPORTS[name]
@@ -184,4 +201,5 @@ def __getattr__(name: str) -> Any:
 
 
 def __dir__() -> list[str]:
+    """Return eager globals plus lazy Lex exports for introspection tooling."""
     return sorted(list(globals().keys()) + list(_LAZY_IMPORTS.keys()))

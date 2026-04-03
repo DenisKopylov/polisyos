@@ -1,4 +1,11 @@
-"""Public causal run causal readiness module API."""
+"""Node adapter that converts observation-plane readiness bundles into governance artifacts.
+
+`RunCausalReadinessNode` sits after graph reconciliation and cross-graph
+evidence compilation. It reads C4a bundles from `state.params`, executes the
+pure runners in `polisyos.scientist.causal.readiness`, and persists a unified
+`CausalReadinessBundle` plus primary transport/strategic artifacts for later
+governance passes.
+"""
 from __future__ import annotations
 
 from collections.abc import Mapping
@@ -95,12 +102,31 @@ def _coerce_bundle(model: type[Any], payload: Any) -> Any | None:
 
 
 class RunCausalReadinessNode:
-    """Run proxy, transport, strategic, and counterfactual readiness checks.
+    """Execute causal-readiness checks and materialize the downstream gate inputs.
 
-    Reads observation-plane bundles from ``state.params`` together with the
-    reconciled graph, persists a combined ``CausalReadinessBundle``, and
-    forwards primary transportability or strategic-response artifacts into the
-    workflow artifact index.
+    Upstream assumptions: `artifacts_index.reconciled_causal_graph_ref` must be
+    available when any readiness bundle or strategic payload is present, and
+    `state.params` may contain proxy, transportability, strategic, counterfactual,
+    interference, and calendar payloads in either typed or JSON form.
+
+    Reads from state:
+        `params.proxy_identification_bundle`,
+        `params.transportability_check_bundle`,
+        `params.strategic_response_specs_bundle`,
+        `params.counterfactual_check_bundle`,
+        `params.interference_loss_spec_bundle`,
+        `params.measurement_model_by_family`,
+        `params.strategic_channel_inputs`,
+        `params.regime_calendar`,
+        `params.schema_regime_registry`,
+        `params.shock_calendar`,
+        `artifacts_index.reconciled_causal_graph_ref`,
+        `artifacts_index.causal_report_ref`.
+
+    Writes to state:
+        `artifacts_index.causal_readiness_bundle_ref`,
+        `artifacts_index.transportability_result_ref`,
+        `artifacts_index.strategic_response_bundle_ref`.
     """
 
     @property
@@ -108,6 +134,18 @@ class RunCausalReadinessNode:
         return _SPEC
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
+        """Run all available readiness bundles and persist normalized outputs.
+
+        Args:
+            ctx: Execution context providing the artifact store and run metadata.
+            state: Current DAG state with graph/readiness payloads.
+
+        Returns:
+            `NodeOutcome(status="skip")` when no readiness inputs exist,
+            `NodeOutcome(status="fail")` for missing/invalid graph or payload
+            contracts, otherwise `NodeOutcome(status="ok")` with persisted
+            readiness artifacts.
+        """
         bundle_payloads = {
             "proxy": state.params.get("proxy_identification_bundle"),
             "transport": state.params.get("transportability_check_bundle"),

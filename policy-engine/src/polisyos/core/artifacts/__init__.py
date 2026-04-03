@@ -1,4 +1,10 @@
-"""Public core artifacts package API."""
+"""Publish the stable CAS artifact ABI used by manifests, lineage, and signing.
+
+This package boundary owns the `ArtifactID` wire format, manifest/reference
+models, filesystem CAS implementation, dependency-graph reconstruction, and
+detached-signature contracts. Runtime and governance layers should depend on
+this facade instead of importing private artifact internals.
+"""
 from .graph import (
     DependencyEdge,
     DependencyGraph,

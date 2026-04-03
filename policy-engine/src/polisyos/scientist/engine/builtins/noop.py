@@ -23,7 +23,7 @@ _NOOP_SPEC = NodeSpec(metadata=_NOOP_METADATA)
 
 @dataclass(frozen=True)
 class NoopNode:
-    """Noop node implementation."""
+    """Identity node used when a DAG edge needs an executable placeholder with no side effects."""
     @property
     def spec(self) -> NodeSpec:
         return _NOOP_SPEC

@@ -1,0 +1,42 @@
+version: 1
+ruleset:
+  name: main-merge-governance
+  target: branch
+  applies_to:
+    include:
+      - refs/heads/main
+  enforcement: active-when-applied
+  pull_request:
+    require_pull_request: true
+    required_approvals: 1
+    require_code_owner_review: true
+    dismiss_stale_approvals_on_push: true
+    require_approval_of_most_recent_push: true
+    require_conversation_resolution: true
+  required_status_checks:
+    strict: true
+    always:
+      - Fast PR / Gate
+      - Standard PR / Gate
+  protected_control_plane_paths:
+    - .github/**
+    - .github/CODEOWNERS
+    - SECURITY.md
+    - SUPPORT.md
+    - CODE_OF_CONDUCT.md
+  merge_queue:
+    enabled: false
+    rationale: >-
+      Not enabled yet. The repository is currently a personal repository,
+      merge queue is targeted at eligible organization-owned repositories, and
+      the active GitHub Actions workflows do not declare merge_group triggers,
+      so enabling a queue now would create a partial contract instead of a
+      reliable one.
+  signatures:
+    signed_release_tags_required: true
+    enforce_verified_commit_signatures_on_main: false
+    rationale: >-
+      Signed release tags are required for release-critical provenance.
+      Verified commit signatures on main remain recommended but not enforced
+      until contributor key management and automation signing posture are
+      standardized.

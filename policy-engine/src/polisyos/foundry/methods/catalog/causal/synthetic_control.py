@@ -1,4 +1,4 @@
-"""Public causal synthetic control module API."""
+"""Estimate treated-unit counterfactuals with donor-weight synthetic control."""
 from __future__ import annotations
 
 from typing import Any, ClassVar, Mapping
@@ -228,7 +228,7 @@ def _synthetic_control_output(
     tags={"causal", "quasi-experimental", "synthetic-control"},
 )
 class SyntheticControlMethod:
-    """Synthetic control method public type."""
+    """Construct a donor-weight counterfactual under good pre-treatment fit; avoid weak donor support or many treated units."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
 
     signature: ClassVar[MethodSignature] = MethodSignature(

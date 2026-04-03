@@ -29,7 +29,7 @@ def _result_slot() -> frozenset[SlotSpec]:
     tags={"sensitivity", "global", "sobol", "tabular"},
 )
 class SobolFirstOrderEstimator:
-    """Sobol first order estimator implementation."""
+    """Estimate first-order Sobol indices for variance-based sensitivity analysis."""
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 

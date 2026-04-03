@@ -1,4 +1,4 @@
-"""Public registry builder module API."""
+"""Materialize immutable registry bundle artifacts in CAS."""
 from __future__ import annotations
 
 from typing import Any
@@ -65,7 +65,26 @@ def build_registry_bundle(
     predicate_registry: BaseModel | dict[str, Any] | None = None,
     privacy_registry: BaseModel | dict[str, Any] | None = None,
 ) -> RegistryBundle:
-    """Build registry bundle."""
+    """Persist one composed registry snapshot and return its bundle references.
+
+    Args:
+        store: CAS store that receives registry payload artifacts and the final
+            `core.registry_bundle` manifest.
+        slot_registry: Slot registry to include as a required bundle input.
+        merge_registry: Merge-rule registry to include as a required bundle input.
+        mechanism_registry: Mechanism registry to include as a required bundle input.
+        constraint_registry: Constraint registry payload or model.
+        selector_field_registry: Optional selector-field registry artifact input.
+        metric_registry: Optional metric registry artifact input.
+        units_registry: Optional units registry artifact input.
+        trust_registry: Optional trust registry artifact input.
+        predicate_registry: Optional predicate registry artifact input.
+        privacy_registry: Optional privacy policy registry artifact input.
+
+    Returns:
+        `RegistryBundle` containing the bundle artifact ref plus all member
+        artifact refs used to reconstruct lineage.
+    """
     slot_ref = _put_registry(
         store,
         obj=slot_registry,
@@ -193,7 +212,7 @@ def build_registry_bundle(
 
 
 def build_default_registry_bundle(store: FileSystemCAS) -> RegistryBundle:
-    """Build default registry bundle."""
+    """Persist the built-in IR kernel registries as one default bundle snapshot."""
     return build_registry_bundle(
         store,
         slot_registry=DEFAULT_SLOT_REGISTRY,

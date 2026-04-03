@@ -1,4 +1,4 @@
-"""Public engine builtins package API."""
+"""Always-available engine builtins for no-op, state mutation, and artifact emission."""
 from __future__ import annotations
 
 from polisyos.scientist.engine.builtins.emit_artifact import EmitArtifactNode
@@ -15,5 +15,5 @@ __all__ = [
 
 
 def builtin_nodes() -> list[Node]:
-    """Builtin nodes helper."""
+    """Return the engine-level builtin nodes used to bootstrap a minimal registry."""
     return [NoopNode(), SetStateNode(), EmitArtifactNode()]

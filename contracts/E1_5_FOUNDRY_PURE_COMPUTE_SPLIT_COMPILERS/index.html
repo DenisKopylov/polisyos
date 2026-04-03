@@ -1,0 +1,8292 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="AI-driven Policy Simulation System using JAX and Unified Data Fabric">
+      
+      
+      
+        <link rel="canonical" href="https://deniskopylov.github.io/polisyos/contracts/E1_5_FOUNDRY_PURE_COMPUTE_SPLIT_COMPILERS/">
+      
+      
+        <link rel="prev" href="../E1_4_CORE_CAS_CANON_CONTRACTS_COMPONENTS/">
+      
+      
+        <link rel="next" href="../E1_6_SCIENTIST_ENGINE_SKELETON_NODE_PROTOCOL/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Foundry Pure Compute Split Compilers - PolicyOS Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#e15-phase-5-foundry-purge-split-surface_compiler-vs-trinity_compiler" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="PolicyOS Documentation" class="md-header__button md-logo" aria-label="PolicyOS Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            PolicyOS Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Foundry Pure Compute Split Compilers
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/DenisKopylov/polisyos" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="PolicyOS Documentation" class="md-nav__button md-logo" aria-label="PolicyOS Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    PolicyOS Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/DenisKopylov/polisyos" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../style-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Style Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../tutorials/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tutorials
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Tutorials
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/first-policy-analysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    First Policy Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../how-to/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    How-to Guides
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    How-to Guides
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/install/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/add-data-source/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Add Data Source
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../connectors/CONTRIBUTING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Connector Contributing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/deploy-runtime/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deploy Runtime
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/run-benchmarks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Run Benchmarks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/run-causal-analysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Run Causal Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/write-governance-pass/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Write Governance Pass
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../reference/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../reference/ir/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    IR
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5_2" id="__nav_5_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    IR
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/ir/governance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Governance IR
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/ir/analytics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Analytics IR
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/ir/observation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Observation IR
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/ir/problem-framing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Problem Framing IR
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../reference/foundry/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Foundry
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5_3" id="__nav_5_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Foundry
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/foundry/compile-execute/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Foundry Compile Execute
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/foundry/calibration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Foundry Calibration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/foundry/methods-catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Foundry Methods Catalog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/foundry/agent-sim/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Foundry Agent Sim
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/foundry/state/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Foundry State
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5_4" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../reference/scientist/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scientist
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5_4" id="__nav_5_4_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Scientist
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/scientist/workflows/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scientist Workflows
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/scientist/governance-passes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scientist Governance Passes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/scientist/nodes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scientist Builtin Nodes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/scientist/causal/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scientist Causal Runners
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/scientist/calibration-governance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Calibration Governance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5_5" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../reference/lex/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lex
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5_5" id="__nav_5_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Lex
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/lex/batch-pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lex Batch Pipeline
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/lex/knowledge/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lex Knowledge
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/lex/normpack/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lex NormPack
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/lex/interventions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lex Interventions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5_6" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../reference/fabric/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fabric
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5_6" id="__nav_5_6_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Fabric
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/fabric/connectors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fabric Connectors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/fabric/profiles/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fabric Profiles
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/fabric/data-plane/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fabric Data Plane
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5_7" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../reference/api/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    REST API
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5_7" id="__nav_5_7_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    REST API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/api/runs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Runs API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/api/control/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Control Plane API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/api/artifacts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Artifact Inspection API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/schemas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Schemas
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../explanation/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Explanation
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_6" id="__nav_6_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Explanation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/trinity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Trinity
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/causal-engine/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Causal Engine
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/governance-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Governance Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/data-fabric/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data Fabric
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/lex-pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lex Pipeline
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/observation-contracts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Observation Contracts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/security-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../key-rotation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Key Rotation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../fedramp/gap-analysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FedRAMP Gap Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/freeze-policy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Freeze Policy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contracts
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contracts
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../TRINITY/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Trinity
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../MERGE_SEMANTICS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Merge Semantics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../E1_3_IR_NORMS_CITATIONS_LINKER/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    IR Norms Citations Linker
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../E1_4_CORE_CAS_CANON_CONTRACTS_COMPONENTS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core CAS Canon Contracts Components
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Foundry Pure Compute Split Compilers
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Foundry Pure Compute Split Compilers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#0" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        0) Цель фазы (что должно измениться “в ощущениях”)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-e11e14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1) Входные условия (что уже есть после E1.1–E1.4)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1) Входные условия (что уже есть после E1.1–E1.4)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11-import-gate-dependency-guard" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.1 Import gate / Dependency-guard
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12-trinity-linker" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.2 Trinity и Linker уже существуют
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#13-core-ports" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.3 Core ports уже есть
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-e15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2) Текущее состояние репозитория (важное для E1.5)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2) Текущее состояние репозитория (важное для E1.5)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-legacy-surface" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 Legacy компиляция (surface)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-execute" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 Выполнение (execute)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-scientist-legacy-compiler" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 Scientist сейчас вызывает legacy compiler напрямую
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-non-goals-e15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3) Non-goals (вне E1.5)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-52-io" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4) 5.2 Аудит: найти и классифицировать утечки зависимости / I/O
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4) 5.2 Аудит: найти и классифицировать утечки зависимости / I/O">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-imports" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 Итог скана зависимостей (imports)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-io-foundry-pure-compute" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 Прямой I/O внутри Foundry (нарушает “pure compute”, если считать границу по пакету)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.2 Прямой I/O внутри Foundry (нарушает “pure compute”, если считать границу по пакету)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#421" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2.1 Таблица утечек и классификация замены
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#422-cut-e15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2.2 Минимальный cut E1.5 (чтобы не раздувать фазу)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-53-api-foundry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5) 5.3 Проектирование API Foundry (минимально стабильный “порт”)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5) 5.3 Проектирование API Foundry (минимально стабильный “порт”)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#531-refs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3.1 Принцип “только refs и контракты”
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#532-polisyoscorecontractsfoundry-e15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3.2 Изменения в polisyos.core.contracts.foundry (обязательные для E1.5)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5.3.2 Изменения в polisyos.core.contracts.foundry (обязательные для E1.5)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-programgraphir_ref" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A) Обобщить ProgramGraph.ir_ref
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b-compileexecute-requestresult-envelopes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        B) Добавить compile/execute request/result envelopes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="B) Добавить compile/execute request/result envelopes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#compilerequest" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CompileRequest (нормативный минимум)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#compileresult" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CompileResult (нормативный минимум)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#executerequest" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ExecuteRequest (нормативный минимум)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#executeresult" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ExecuteResult (нормативный минимум)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#533-polisyoscorecontractscompiler" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3.3 Изменения в polisyos.core.contracts.compiler (опционально, но рекомендуемо)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-54-split" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6) 5.4 Split компиляторов: физическая декомпозиция кода
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6) 5.4 Split компиляторов: физическая декомпозиция кода">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 Цель структуры
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-foundry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 Рекомендуемая структура модулей Foundry
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3 “Шлюз” между компиляторами (обязательный инвариант)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-55-surface_compiler-legacy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7) 5.5 surface_compiler: стабилизация legacy без расширения поверхности
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7) 5.5 surface_compiler: стабилизация legacy без расширения поверхности">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1 Цель
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72-surface-compiler" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.2 Поведение surface compiler (нормативно)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#73" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.3 Запреты и совместимость
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#74-backward-compat-wrappers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.4 Backward-compat wrappers
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-56-trinity_compiler-trinity-execplan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8) 5.6 trinity_compiler: канонический путь Trinity → ExecPlan
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8) 5.6 trinity_compiler: канонический путь Trinity → ExecPlan">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#81" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.1 Цель
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#82" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.2 Входы
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#83-pipeline-trinity-compiler" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.3 Pipeline внутри trinity compiler (нормативно)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8.3 Pipeline внутри trinity compiler (нормативно)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-0-load-inputs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 0: load inputs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-1-validate_structural-schema-level" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: validate_structural (schema-level)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-resolve_symbols-linking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2: resolve_symbols (linking)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3-build_program_graph-deterministic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3: build_program_graph (deterministic)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-4-build_exec_plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4: build_exec_plan
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-5-emit-artifacts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 5: emit artifacts
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#84-trinity-e15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.4 Изменение рантайма для Trinity (обязательная часть E1.5)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-57-pure-compute" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9) 5.7 Pure compute правила (жёстко)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9) 5.7 Pure compute правила (жёстко)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#91-foundry-compute-kernel-compileexecute" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.1 Запреты внутри Foundry compute-kernel (compile/execute)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#92" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.2 Разрешено
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#93-e15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.3 Практическая стратегия (E1.5)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-58-foundry-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10) 5.8 Миграция внешних вызовов Foundry + фасад API
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="10) 5.8 Миграция внешних вызовов Foundry + фасад API">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#101-foundry-facade-compile" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.1 Foundry facade: compile
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#102-foundry-facade-execute" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.2 Foundry facade: execute
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#103-scientist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.3 Миграция Scientist: замена прямых вызовов компилятора
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#104-scientist-execute-facade" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.4 Миграция Scientist: выполнение через execute facade (минимум)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-59" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11) 5.9 Тестирование и валидация (обязательная часть фазы)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="11) 5.9 Тестирование и валидация (обязательная часть фазы)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#111-dependency-gate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.1 Dependency gate (уже есть)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#112-unit-tests-surface_compiler" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.2 Unit tests: surface_compiler
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#113-unit-tests-trinity_compiler" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.3 Unit tests: trinity_compiler
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#114-determinism-test-artifactid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.4 Determinism test: одинаковый вход → одинаковый ArtifactID
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#115-contract-tests-canonical-json-float" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.5 Contract tests: canonical JSON (без float)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#116-smoke-execute-end-to-end" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.6 Smoke execute (минимальный end-to-end)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#117-no-io-in-kernel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.7 (Рекомендуемо) “no I/O in kernel” тест
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-510-definition-of-done-e15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12) 5.10 Definition of Done (E1.5)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../E1_6_SCIENTIST_ENGINE_SKELETON_NODE_PROTOCOL/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scientist Engine Skeleton Node Protocol
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../E2_1_IR_WORLD_ABI_V1_0_IDS_PREDICATES_CONTRACTS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    IR World ABI V1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../E2_2_FABRIC_WORLD_STORE_EMIT_FACTS_WORLD_EVENT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fabric World Store Emit Facts World Event
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../E2_3_FABRIC_WORLD_DUCKDB_MATERIALIZATION_V1_0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fabric World DuckDB Materialization V1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../E2_5_FABRIC_DOCS_PIPELINE_V1_0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fabric Docs Pipeline V1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../E2_6_FABRIC_CLAIMS_PIPELINE_V1_0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fabric Claims Pipeline V1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../E2_8_LEX_CORPUS_MVP_V1_0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lex Corpus MVP V1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../E2_9_LEX_NORMPACK_ASSEMBLY_V1_0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lex NormPack Assembly V1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../E2_10_LEX_LEGAL_EVALUATION_V1_0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lex Legal Evaluation V1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../adr/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADRs
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_8" id="__nav_8_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    ADRs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0001-remove-legacy-foundry-engine/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0001: Удаляем legacy Foundry engine
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0002-scientist-flow-nodes-only/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0002: Сводим Scientist на flow_nodes-only
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0003-ir-v1-deprecate-remove/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0003: IR v1.0 → deprecate → remove
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0004-architecture-boundaries-import-gate/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0004: Architecture Boundaries Import Gate
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0005-abi-schema-gate-versioning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0005: ABI Versioning Gate via JSON Schema Snapshots
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0006-slo-definitions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0006: SLO Definitions for Scientist DAG
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0007-human-gate-protocol/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0007: Human Gate Protocol in IR
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0008-scientist-node-idempotency-contract/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0008: Scientist Node Idempotency Contract
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0009-decision-packet-replay-protocol/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0009: DecisionPacket Replay Protocol
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0010-cas-artifact-signing-ed25519/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0010: CAS Artifact Signing (Ed25519)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0011-scientist-checkpoint-resume/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0011: Scientist DAG Checkpoint/Resume
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0012-uncertainty-envelope-ir-contract/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0012: UncertaintyEnvelope IR Contract
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0013-uncertainty-propagation-pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0013: Uncertainty Propagation Pipeline
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0015-knowledge-bundle-freshness-protocol/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0015: KnowledgeBundle Freshness Protocol
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0018-causal-estimator-protocol/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0018: Causal Estimator Protocol (Phase 12)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0019-lex-norm-impact-analysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0019: Lex Norm Impact Analysis API (Phase 13)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0020-robustness-sensitivity-stress/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0020: Robustness Modes (Sensitivity + Stress Test) (Phase 13)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0021-connector-schema-contracts-and-storage-port/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR 0021: Connector Schema Contracts and StoragePort Boundary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0022-policy-portfolio-ir-extension/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0022: PolicyPortfolio IR Extension
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0023-cell-based-tenant-isolation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0023: Cell-Based Tenant Isolation Foundation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0025-scm-structural-causal-model-vs-synthetic-control/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0025: SCM Terminology Split (Structural Causal Model vs Synthetic Control)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0026-notears-excluded-from-default-discovery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0026: Exclude NOTEARS from Default Causal Discovery Stack
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0027-dowhy-primary-graph-identify-estimate/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0027: DoWhy as Primary Graph-Based Identify/Estimate Method
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0028-refutation-mandatory-for-observational-estimates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0028: Refutation Mandatory for Observational DoWhy Estimates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0029-e-value-ate-rr-conversion-strategy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0029: E-Value ATE-to-Risk-Ratio Conversion Strategy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0030-causal-graph-model-ir-artifact/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0030: CausalGraphModel as IR Artifact (DAG / CPDAG / PAG)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0031-block-bootstrap-for-time-series-stability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0031: Block Bootstrap for Time-Series Causal Discovery Stability
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0032-llm-as-context-interpreter-not-structure-source/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0032: LLM as Context Interpreter, Not Structural Source
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0033-json-serializable-mechanism-families-only/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0033: JSON-Serializable Mechanism Families Only
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0034-simplified-tr-backdoor-only/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0034: Simplified Transportability -- Backdoor-Only (Phase 12a)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0035-two-step-screening-haiku-sonnet/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0035: Two-Step Article Screening (Haiku / Sonnet)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0036-variable-canonizer-hierarchical-names/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0036: Variable Canonizer with Hierarchical Names
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0037-law-l-edges-without-evidence-support/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0037: Law L -- Edges Without Evidence Support
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0038-law-t-transportability-required/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0038: Law T -- Transportability Required for External Estimates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0039-context-profile-distance-inference-level/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0039: Context Profile Distance and Inference Level
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0040-max-transport-confidence-evidence-weight/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0040: Parameter Selection by Max Transport Confidence x Evidence Weight
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0041-confidence-aggregation-quality-score-replication-bonus/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0041: Confidence Aggregation via Quality Score and Replication Bonus
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0042-duckdb-for-skg-storage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0042: DuckDB for SKG Storage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0043-skg-versioning-retraction-handling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0043: SKG Versioning and Retraction Handling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0044-literature-first-single-reconciliation-strategy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0044: Literature-First as the Single Reconciliation Strategy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0045-causal-edge-combined-confidence-formula-superseded/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0045: Causal Edge Combined Confidence Formula (Superseded)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0046-three-graph-closure-transportability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0046: Three-Graph Closure for Transportability
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0047-graph-federation-cross-references/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0047: Graph Federation with Cross-References
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0048-transportability-resolution-loop-max-3-rounds/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0048: Transportability Resolution Loop with Max 3 Rounds
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0049-constraint-severity-hard-blocks-transport/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0049: Constraint Severity -- HARD Blocks Transportability
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0050-context-dependent-proxy-penalties/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0050: Context-Dependent Proxy Penalties
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0051-legal-to-dag-mapping-types/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0051: Legal-to-DAG Mapping Types
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0052-data-gap-first-class-object/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0052: DataGap as a First-Class Object
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0053-architecture-freeze-contracts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0053: Architecture Freeze at Assembly Points
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0054-skg-on-academic-module/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0054: SKG Built on the Academic Module
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0055-dataset-graph-on-datasets-module/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0055: Dataset Graph Built on the Datasets Module
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0056-wgi-wdi-fabric-connector-wvs-new/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0056: WGI/WDI via fabric WorldBankConnector, WVS as new fabric connector
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0057-legal-bridge-via-lex-api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0057: Legal bridge via lex/api.py, not separate legal_graph/ module
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0058-compatibility-policy-additive-changes-only/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0058: Only additive schema changes (1.0 to 1.1), dual-read migration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0059-scientist-causal-full-parallel-workflow/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0059: scientist_causal_full parallel with scientist_default, single cutover
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0060-migration-budget-one-controlled-switch/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0060: Migration Budget = 1: single controlled switch, no feature flags
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0061-import-gate-ci-contract/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0061: Import gate as CI contract (lint_foundry.py --strict on every PR)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0062-knowledge-snapshot-id-mandatory-input-ref/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0062: knowledge_snapshot_id + mandatory InputRef for lineage sync
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0063-mediator-conditional-covariate-marginal/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0063: Mediator P(z|x) conditional; covariate P(z) marginal (Pearl &amp; Bareinboim 2011)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0064-compute-combined-confidence-noisy-or/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0064: compute_combined_confidence() = 1 - Prod(1-conf_i)^w_i (Noisy-OR)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0065-cycle-breaking-time-lag-conversion/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0065: Cycle breaking via time-lag conversion (not edge deletion)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0066-pag-dag-projection-u-dummy-nodes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0066: PAG to DAG projection: bidirectional edges to U-dummy nodes for dowhy.gcm
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0067-multiplicative-confidence-penalties/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0067: Multiplicative confidence penalties Prod(1-p_i) instead of additive
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0068-wvs-wave-temporal-matching/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0068: WVS wave-based temporal matching find_closest_in_wave(max_distance=3)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0069-collider-check-s-node-elimination/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0069: Collider (selection bias) check in _try_eliminate_s_node_simplified
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0070-bidirectional-edge-u-node-backdoor-invalid/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0070: Bidirectional edge (U-node) implies backdoor invalid, needs_advanced_tr
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0071-intervention-spec-soft-stochastic/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0071: InterventionSpec for soft/stochastic interventions from Legal Graph (Phase 11)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0072-phase-12b-via-y0-causaleffect/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0072: Phase 12b full do-calculus via y0/causaleffect bridge, not from-scratch s-ID
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0073-rustworkx-instead-of-networkx/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0073: rustworkx instead of NetworkX for graph computations (Phases 0/9/12)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0074-numpyro-bayesian-scm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0074: NumPyro for Bayesian SCMs (Phase 15)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0075-econml-cate-heterogeneous-effects/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0075: EconML/CATE: heterogeneous effects via DML, Causal Forests (Phases 2/11)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0076-kuzudb-causal-graph-queries/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0076: KuzuDB for causal graph Cypher queries, aligned with fabric/world/materialize/kuzu.py
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0077-rustworkx-tight-loop-algorithms/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0077: rustworkx for in-memory tight-loop algorithms (cycle breaking, resolution loop)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0078-phase-8-split-8a-8b/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0078: Phase 8 split into 8A + 8B; TransportabilityRequiredPass moved to end of Phase 12
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0079-hybrid-scm-mechanism-source/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0079: Hybrid SCM with MechanismSource (DATA_FITTED / LITERATURE_PRIOR / HYBRID / DEFAULT)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0080-tech-consolidation-stack/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0080: Tech consolidation stack for causal inference, discovery, and graphs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0081-break-cycles-time-aware/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0081: _break_cycles time-aware: skip for PCMCI output (tags={"time-series"})
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0082-abm-bridge-adaptive-tolerance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0082: ABM bridge adaptive tolerance (2-sigma variance) + NON_LINEAR_DIVERGENCE at phase transitions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0083-resolution-loop-proxy-depth-guard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0083: Resolution Loop proxy-depth guard: proxy variables don't generate new S-nodes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0084-formal-grammar-canonical-variable-names/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0084: Formal BNF grammar for canonical variable names + seed 200 vars
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0085-pag-identification-conservative-policy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0085: PAG to Identification: CONSERVATIVE policy (identify iff identifiable in all DAGs in PAG)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0086-sutva-assumption-check-pass/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0086: SUTVA Assumption Check Pass
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0087-llm-prior-calibration-ceiling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0087: LLM Prior Calibration Ceiling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0088-three-layer-conflict-separation-hodge/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0088: Three-Layer Conflict Separation with Hodge Diagnostics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0089-pre-implementation-survey-tr-scope/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0089: Pre-Implementation Survey for Simplified TR Scope Validation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0090-formal-proxy-validity-conditions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0090: Formal Proxy Validity Conditions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0091-partial-identification-manski-bounds/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0091: Partial Identification Bounds as Fallback for Non-Transportable Results
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0092-harmonic-mean-confidence-composition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0092: Harmonic Mean for Confidence Composition in Proxy Chains
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0093-dynamic-transportability-time-stationarity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0093: Dynamic Transportability with Time-Stationarity Flag
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0094-confidence-ordinal-quality-score/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0094: Confidence as Ordinal Quality Score
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0095-canonical-scm-test-fixtures/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-0095: Canonical SCM Test Fixtures
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/ADR-004-policy-surface-removal/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR-004: Trinity-Only IR Runtime
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#0" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        0) Цель фазы (что должно измениться “в ощущениях”)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-e11e14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1) Входные условия (что уже есть после E1.1–E1.4)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1) Входные условия (что уже есть после E1.1–E1.4)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11-import-gate-dependency-guard" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.1 Import gate / Dependency-guard
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12-trinity-linker" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.2 Trinity и Linker уже существуют
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#13-core-ports" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.3 Core ports уже есть
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-e15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2) Текущее состояние репозитория (важное для E1.5)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2) Текущее состояние репозитория (важное для E1.5)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-legacy-surface" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 Legacy компиляция (surface)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-execute" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 Выполнение (execute)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-scientist-legacy-compiler" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 Scientist сейчас вызывает legacy compiler напрямую
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-non-goals-e15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3) Non-goals (вне E1.5)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-52-io" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4) 5.2 Аудит: найти и классифицировать утечки зависимости / I/O
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4) 5.2 Аудит: найти и классифицировать утечки зависимости / I/O">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-imports" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 Итог скана зависимостей (imports)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-io-foundry-pure-compute" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 Прямой I/O внутри Foundry (нарушает “pure compute”, если считать границу по пакету)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.2 Прямой I/O внутри Foundry (нарушает “pure compute”, если считать границу по пакету)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#421" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2.1 Таблица утечек и классификация замены
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#422-cut-e15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2.2 Минимальный cut E1.5 (чтобы не раздувать фазу)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-53-api-foundry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5) 5.3 Проектирование API Foundry (минимально стабильный “порт”)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5) 5.3 Проектирование API Foundry (минимально стабильный “порт”)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#531-refs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3.1 Принцип “только refs и контракты”
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#532-polisyoscorecontractsfoundry-e15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3.2 Изменения в polisyos.core.contracts.foundry (обязательные для E1.5)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5.3.2 Изменения в polisyos.core.contracts.foundry (обязательные для E1.5)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-programgraphir_ref" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A) Обобщить ProgramGraph.ir_ref
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b-compileexecute-requestresult-envelopes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        B) Добавить compile/execute request/result envelopes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="B) Добавить compile/execute request/result envelopes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#compilerequest" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CompileRequest (нормативный минимум)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#compileresult" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CompileResult (нормативный минимум)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#executerequest" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ExecuteRequest (нормативный минимум)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#executeresult" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ExecuteResult (нормативный минимум)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#533-polisyoscorecontractscompiler" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3.3 Изменения в polisyos.core.contracts.compiler (опционально, но рекомендуемо)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-54-split" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6) 5.4 Split компиляторов: физическая декомпозиция кода
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6) 5.4 Split компиляторов: физическая декомпозиция кода">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 Цель структуры
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-foundry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 Рекомендуемая структура модулей Foundry
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3 “Шлюз” между компиляторами (обязательный инвариант)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-55-surface_compiler-legacy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7) 5.5 surface_compiler: стабилизация legacy без расширения поверхности
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7) 5.5 surface_compiler: стабилизация legacy без расширения поверхности">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1 Цель
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72-surface-compiler" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.2 Поведение surface compiler (нормативно)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#73" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.3 Запреты и совместимость
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#74-backward-compat-wrappers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.4 Backward-compat wrappers
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-56-trinity_compiler-trinity-execplan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8) 5.6 trinity_compiler: канонический путь Trinity → ExecPlan
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8) 5.6 trinity_compiler: канонический путь Trinity → ExecPlan">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#81" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.1 Цель
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#82" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.2 Входы
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#83-pipeline-trinity-compiler" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.3 Pipeline внутри trinity compiler (нормативно)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8.3 Pipeline внутри trinity compiler (нормативно)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-0-load-inputs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 0: load inputs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-1-validate_structural-schema-level" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: validate_structural (schema-level)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-resolve_symbols-linking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2: resolve_symbols (linking)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3-build_program_graph-deterministic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3: build_program_graph (deterministic)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-4-build_exec_plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4: build_exec_plan
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-5-emit-artifacts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 5: emit artifacts
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#84-trinity-e15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.4 Изменение рантайма для Trinity (обязательная часть E1.5)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-57-pure-compute" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9) 5.7 Pure compute правила (жёстко)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9) 5.7 Pure compute правила (жёстко)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#91-foundry-compute-kernel-compileexecute" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.1 Запреты внутри Foundry compute-kernel (compile/execute)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#92" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.2 Разрешено
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#93-e15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.3 Практическая стратегия (E1.5)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-58-foundry-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10) 5.8 Миграция внешних вызовов Foundry + фасад API
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="10) 5.8 Миграция внешних вызовов Foundry + фасад API">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#101-foundry-facade-compile" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.1 Foundry facade: compile
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#102-foundry-facade-execute" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.2 Foundry facade: execute
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#103-scientist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.3 Миграция Scientist: замена прямых вызовов компилятора
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#104-scientist-execute-facade" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.4 Миграция Scientist: выполнение через execute facade (минимум)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-59" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11) 5.9 Тестирование и валидация (обязательная часть фазы)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="11) 5.9 Тестирование и валидация (обязательная часть фазы)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#111-dependency-gate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.1 Dependency gate (уже есть)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#112-unit-tests-surface_compiler" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.2 Unit tests: surface_compiler
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#113-unit-tests-trinity_compiler" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.3 Unit tests: trinity_compiler
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#114-determinism-test-artifactid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.4 Determinism test: одинаковый вход → одинаковый ArtifactID
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#115-contract-tests-canonical-json-float" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.5 Contract tests: canonical JSON (без float)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#116-smoke-execute-end-to-end" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.6 Smoke execute (минимальный end-to-end)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#117-no-io-in-kernel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.7 (Рекомендуемо) “no I/O in kernel” тест
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-510-definition-of-done-e15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12) 5.10 Definition of Done (E1.5)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="e15-phase-5-foundry-purge-split-surface_compiler-vs-trinity_compiler">E1.5 (Phase 5) — Foundry: purge зависимостей + split компиляторов (surface_compiler vs trinity_compiler)<a class="headerlink" href="#e15-phase-5-foundry-purge-split-surface_compiler-vs-trinity_compiler" title="Permanent link">&para;</a></h1>
+<p><strong>Repo snapshot date</strong>: 2026-02-03<br />
+<strong>Scope</strong>: <code>policy-engine/src/polisyos/foundry/*</code> + touchpoints в <code>core/contracts/*</code>, <code>core/compiler/*</code>, <code>ir/linker/*</code>, <code>scientist/*</code>, <code>tests/*</code><br />
+<strong>Primary goal</strong>: сделать Foundry <strong>pure compute</strong> ядром (CAS-in/CAS-out), удалить утечки верхних слоёв, и физически разделить компиляцию на:</p>
+<ul>
+<li><strong>Legacy</strong>: <code>PolicySurfaceIR → ExecPlan</code> (surface compiler, frozen compatibility)</li>
+<li><strong>Canonical</strong>: <code>TrinityBundle → ExecPlan</code> (trinity compiler, основной путь вперёд)</li>
+</ul>
+<p>При этом снаружи Foundry остаётся <strong>один фасад</strong> <code>compile()/execute()</code> с выбором компилятора по типу входа (или флагу), не смешивая модели.</p>
+<hr />
+<h2 id="0">0) Цель фазы (что должно измениться “в ощущениях”)<a class="headerlink" href="#0" title="Permanent link">&para;</a></h2>
+<p>После E1.5:</p>
+<p>1) <strong>Foundry = pure compute</strong>:
+   - входы: только <strong>IR/Core контракты</strong> и/или <strong>CAS refs</strong> (<code>ArtifactRef</code>, typed refs из <code>core.contracts.*</code>)
+   - выходы: только <strong>CAS артефакты</strong> (через <code>FileSystemCAS.put_*</code>) + typed refs
+   - Foundry <strong>не знает</strong> про Scientist (ни типами, ни импортами, ни governance-профилями).</p>
+<p>2) <strong>Компиляция политики разделена</strong>:
+   - <code>surface_compiler</code> обслуживает legacy <code>PolicySurfaceIR</code> (заморожен: только совместимость/bugfix)
+   - <code>trinity_compiler</code> обслуживает Trinity (<code>ProblemFrame/PolicySpec/ModelSpec</code>), строится поверх <code>ir.linker.link_trinity()</code>.</p>
+<p>3) <strong>Один публичный входной API</strong>:
+   - <code>polisyos.foundry.compile.api.compile(request) -&gt; CompileResult</code>
+   - <code>polisyos.foundry.execute.api.execute(request) -&gt; ExecuteResult</code>
+   - выбор компилятора <strong>по kind входного ref</strong> (<code>ir.policy_surface</code> vs <code>ir.trinity_bundle</code>) или явному <code>input_kind</code>.</p>
+<p>4) <strong>“До зелёного” по зависимостям</strong>:
+   - import gate (<code>tools/lint/lint_imports.py</code> + <code>import_policy.toml</code>) зелёный
+   - внутри Foundry нет импортов <code>polisyos.scientist.*</code> и реализаций <code>polisyos.fabric.*</code> (контракты <code>core.contracts.fabric</code> разрешены).</p>
+<hr />
+<h2 id="1-e11e14">1) Входные условия (что уже есть после E1.1–E1.4)<a class="headerlink" href="#1-e11e14" title="Permanent link">&para;</a></h2>
+<h3 id="11-import-gate-dependency-guard">1.1 Import gate / Dependency-guard<a class="headerlink" href="#11-import-gate-dependency-guard" title="Permanent link">&para;</a></h3>
+<p>Источник правды: <code>policy-engine/docs/adr/0004-architecture-boundaries-import-gate.md</code>, <code>policy-engine/import_policy.toml</code>, <code>policy-engine/tools/lint/lint_imports.py</code>, тест <code>policy-engine/tests/test_arch_import_gate.py</code>.</p>
+<p>Текущее правило: <code>foundry</code> может импортировать только <code>foundry|core|ir|common</code> (см. <code>import_policy.toml</code>).</p>
+<h3 id="12-trinity-linker">1.2 Trinity и Linker уже существуют<a class="headerlink" href="#12-trinity-linker" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>polisyos.ir.trinity.TrinityBundle</code> (payload контракт)</li>
+<li><code>polisyos.ir.linker.link_trinity()</code> + <code>LinkedTrinityBundle</code> + <code>LinkReport</code> (детерминированный, без I/O)</li>
+<li>legacy surface linker живёт в <code>polisyos.ir.linker.legacy_surface.link_policy()</code></li>
+</ul>
+<h3 id="13-core-ports">1.3 Core ports уже есть<a class="headerlink" href="#13-core-ports" title="Permanent link">&para;</a></h3>
+<p>Ключевые артефактные “порты” и refs, которые используются в E1.5:</p>
+<ul>
+<li><code>polisyos.core.contracts.foundry</code>:</li>
+<li><code>ProgramGraphRef</code>, <code>ExecPlanRef</code>, <code>StateSnapshotRef</code>, <code>MetricsRef</code>, <code>ConstraintReportRef</code></li>
+<li><code>SimulationResultRef</code> + envelope <code>SimulationResult</code> (введён в E1.4, но ещё не везде используется)</li>
+<li><code>polisyos.core.contracts.trinity</code>:</li>
+<li><code>TrinityBundleRef</code> (kind=<code>ir.trinity_bundle</code>)</li>
+<li><code>polisyos.core.contracts.compiler</code>:</li>
+<li><code>LinkReportRef</code> (kind=<code>compiler.link_report</code>)</li>
+<li><code>CompileReportRef</code> (kind=<code>compiler.compile_report</code>)</li>
+<li>Core registry plumbing:</li>
+<li><code>polisyos.core.registry.build_default_registry_bundle()</code> создаёт <code>core.registry_bundle</code></li>
+<li><code>polisyos.core.registry.load_registry_bundle_content()</code> загружает typed registries из bundle</li>
+</ul>
+<hr />
+<h2 id="2-e15">2) Текущее состояние репозитория (важное для E1.5)<a class="headerlink" href="#2-e15" title="Permanent link">&para;</a></h2>
+<h3 id="21-legacy-surface">2.1 Legacy компиляция (surface)<a class="headerlink" href="#21-legacy-surface" title="Permanent link">&para;</a></h3>
+<p>Файл: <code>policy-engine/src/polisyos/foundry/compiler.py</code></p>
+<ul>
+<li><code>put_policy_surface(store, policy) -&gt; PolicySurfaceIRRef</code> кладёт <code>ir.policy_surface</code> в CAS.</li>
+<li><code>compile_surface_policy(store, policy, mechanism_registry, slot_registry, merge_registry, ...) -&gt; CompileArtifacts</code></li>
+<li>строит <code>ProgramGraph</code> (<code>foundry.program_graph</code>)</li>
+<li>строит <code>ExecPlan</code> (<code>foundry.exec_plan</code>)</li>
+<li>кладёт вспомогательные артефакты: <code>foundry.slot_layout</code>, <code>foundry.treasury_plan</code></li>
+</ul>
+<p>Текущий важный факт для split:</p>
+<ul>
+<li><code>ProgramGraph.ir_ref</code> в core.contracts <strong>типизирован как <code>PolicySurfaceIRRef</code></strong>, то есть Trinity-путь сейчас физически невозможен без изменения порта.</li>
+</ul>
+<h3 id="22-execute">2.2 Выполнение (execute)<a class="headerlink" href="#22-execute" title="Permanent link">&para;</a></h3>
+<p>Файл: <code>policy-engine/src/polisyos/foundry/executor.py</code></p>
+<ul>
+<li><code>execute_program_graph(...) -&gt; ExecuteArtifacts</code>:</li>
+<li>читает <code>ProgramGraph</code>/<code>ExecPlan</code> из CAS</li>
+<li>выполняет шаги, возвращает:<ul>
+<li><code>foundry.state_delta</code> + <code>foundry.metrics</code></li>
+<li>(опционально) <code>foundry.constraint_report</code></li>
+<li>(опционально) <code>foundry.environment_manifest</code> (сейчас <strong>capture_env=True по умолчанию</strong>)</li>
+</ul>
+</li>
+</ul>
+<p>Текущий важный факт для Trinity:</p>
+<ul>
+<li>executor извлекает constraint values, загружая <code>PolicySurfaceIR</code> через <code>program_graph.ir_ref</code>.</li>
+<li>для Trinity нужно расширить это место: распознавать <code>ir.trinity_bundle</code> и извлекать constraints из <code>ProblemFrame</code>.</li>
+</ul>
+<h3 id="23-scientist-legacy-compiler">2.3 Scientist сейчас вызывает legacy compiler напрямую<a class="headerlink" href="#23-scientist-legacy-compiler" title="Permanent link">&para;</a></h3>
+<p>Файл: <code>policy-engine/src/polisyos/scientist/orchestrator/flow_nodes.py</code></p>
+<ul>
+<li>делает <code>link_policy(...)</code> (legacy linker) + кладёт <code>compiler.link_report</code></li>
+<li>затем вызывает <code>compile_surface_policy(...)</code> напрямую</li>
+</ul>
+<p>Это точка миграции: в E1.5 Scientist должен вызывать <strong>Foundry facade</strong> (см. §8).</p>
+<hr />
+<h2 id="3-non-goals-e15">3) Non-goals (вне E1.5)<a class="headerlink" href="#3-non-goals-e15" title="Permanent link">&para;</a></h2>
+<p>E1.5 <strong>не делает</strong>:</p>
+<ul>
+<li>Fabric World Graph / Doc/Claim pipelines / Lex/Scholar (это E2+).</li>
+<li>Унификацию “компонентной” расширяемости всех плагинов (это E3; skeleton уже есть в E1.4).</li>
+<li>Переписывание plugin-системы <code>polisyos.foundry.plugins</code> (она не является целевым компилятором ExecPlan).</li>
+</ul>
+<p>E1.5 делает только то, что необходимо для:</p>
+<ul>
+<li>чистого compute-ядра Foundry,</li>
+<li>двух компиляторов,</li>
+<li>одного стабильного фасада compile/execute,</li>
+<li>миграции Scientist вызовов и тестового контура.</li>
+</ul>
+<hr />
+<h2 id="4-52-io">4) 5.2 Аудит: найти и классифицировать утечки зависимости / I/O<a class="headerlink" href="#4-52-io" title="Permanent link">&para;</a></h2>
+<h3 id="41-imports">4.1 Итог скана зависимостей (imports)<a class="headerlink" href="#41-imports" title="Permanent link">&para;</a></h3>
+<p>На snapshot 2026-02-03 в <code>polisyos.foundry.*</code> <strong>нет</strong>:</p>
+<ul>
+<li><code>import polisyos.scientist.*</code></li>
+<li><code>import polisyos.fabric.*</code></li>
+</ul>
+<p>Это соответствует import gate и является <strong>инвариантом</strong> E1.5: любые новые модули <code>foundry.compile/*</code> и <code>foundry.execute/*</code> обязаны сохранять это.</p>
+<h3 id="42-io-foundry-pure-compute">4.2 Прямой I/O внутри Foundry (нарушает “pure compute”, если считать границу по пакету)<a class="headerlink" href="#42-io-foundry-pure-compute" title="Permanent link">&para;</a></h3>
+<p>Ниже перечислены места, где код внутри <code>polisyos.foundry.*</code> работает с файлами/подпроцессами/внешним миром вне CAS.</p>
+<blockquote>
+<p>Важно: часть этих мест — tooling/dev-only. E1.5 фиксирует правило: <strong>compute-kernel Foundry</strong> (compile/execute) не делает таких операций; tooling выносится или изолируется (см. §9).</p>
+</blockquote>
+<h4 id="421">4.2.1 Таблица утечек и классификация замены<a class="headerlink" href="#421" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Локация</th>
+<th>Симптом</th>
+<th>Тип утечки</th>
+<th>Классификация замены</th>
+<th>Нормативное решение E1.5</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>polisyos.foundry.calibration.preflight.fetch_targets()</code></td>
+<td>дергает <code>udf_engine.query()</code> / <code>fetcher(...)</code></td>
+<td>I/O (world/data plane)</td>
+<td><strong>Оркестрация</strong> (должна жить в Scientist/Fabric)</td>
+<td>Вынести fetch в Scientist. Foundry получает <code>raw_targets</code> как input артефакт/параметр.</td>
+</tr>
+<tr>
+<td><code>polisyos.foundry.executor.execute_program_graph(..., capture_env=True)</code></td>
+<td>по умолчанию вызывает <code>capture_environment()</code> (FS, git, deps)</td>
+<td>I/O (host env)</td>
+<td><strong>Оркестрация/observability</strong> (control plane)</td>
+<td>По умолчанию <code>capture_env=False</code> в kernel API; env capture делает Scientist/RunContext и передаёт refs.</td>
+</tr>
+<tr>
+<td><code>polisyos.foundry.methods.artifacts</code></td>
+<td>читает исходники (<code>Path.open</code>) и вызывает <code>git</code> через <code>subprocess.run</code></td>
+<td>I/O + subprocess</td>
+<td><strong>Нужно как контракт/metadata</strong></td>
+<td>Сместить вычисление source fingerprints в Core (env manifest) или в build-time. Метод-артефакт должен ссылаться на уже зафиксированный artifact/ref, а не читать FS.</td>
+</tr>
+<tr>
+<td><code>polisyos.foundry.plugins.cli</code></td>
+<td>читает/пишет файлы результатов, создаёт директории</td>
+<td>FS I/O</td>
+<td><strong>Tooling</strong></td>
+<td>Вынести CLI в <code>policy-engine/tools/</code> или <code>polisyos.runtime</code> (не в compute kernel).</td>
+</tr>
+<tr>
+<td><code>polisyos.foundry.agent_sim.*</code></td>
+<td>пишет конфиги/метрики/артефакты в run dir</td>
+<td>FS I/O</td>
+<td><strong>Tooling / demo</strong></td>
+<td>Вынести в <code>polisyos.runtime</code>/<code>tools</code> или пометить как отдельный пакет (не часть compute kernel).</td>
+</tr>
+<tr>
+<td><code>polisyos.foundry.methods.testing.golden</code></td>
+<td>хранит “golden records” на FS</td>
+<td>FS I/O</td>
+<td><strong>Тестовая инфраструктура</strong></td>
+<td>Перенести в <code>tests/</code> или <code>policy-engine/tools/</code> (не держать под <code>polisyos.foundry.*</code>).</td>
+</tr>
+</tbody>
+</table>
+<h4 id="422-cut-e15">4.2.2 Минимальный cut E1.5 (чтобы не раздувать фазу)<a class="headerlink" href="#422-cut-e15" title="Permanent link">&para;</a></h4>
+<p>Для E1.5 достаточно:</p>
+<p>1) <strong>Сделать новые фасады compile/execute строго CAS-only</strong> (см. §6–§8).
+2) Зафиксировать <strong>policy</strong>: любые I/O tooling модули <strong>не импортируются</strong> из <code>polisyos.foundry.__init__</code> и не подтягиваются транзитивно compile/execute.
+3) (Рекомендуемо) добавить unit-test “no-IO-in-kernel” на <code>polisyos/foundry/compile/*</code> и <code>polisyos/foundry/execute/*</code> (см. §11.7).</p>
+<p>Полный вынос tooling из пакета Foundry можно выполнить отдельным PR/подфазой, не блокируя split компиляторов.</p>
+<hr />
+<h2 id="5-53-api-foundry">5) 5.3 Проектирование API Foundry (минимально стабильный “порт”)<a class="headerlink" href="#5-53-api-foundry" title="Permanent link">&para;</a></h2>
+<h3 id="531-refs">5.3.1 Принцип “только refs и контракты”<a class="headerlink" href="#531-refs" title="Permanent link">&para;</a></h3>
+<p>Foundry фасад <strong>не принимает</strong>:</p>
+<ul>
+<li>“живые” объекты Scientist (state machine, governance profile, UDF engine, DB handle, и т.п.)</li>
+</ul>
+<p>Foundry фасад <strong>принимает только</strong>:</p>
+<ul>
+<li>Pydantic модели из IR/Core (<code>polisyos.ir.*</code>, <code>polisyos.core.contracts.*</code>)</li>
+<li>CAS refs (<code>ArtifactRef</code> и typed refs)</li>
+</ul>
+<h3 id="532-polisyoscorecontractsfoundry-e15">5.3.2 Изменения в <code>polisyos.core.contracts.foundry</code> (обязательные для E1.5)<a class="headerlink" href="#532-polisyoscorecontractsfoundry-e15" title="Permanent link">&para;</a></h3>
+<p>Файл: <code>policy-engine/src/polisyos/core/contracts/foundry.py</code></p>
+<h4 id="a-programgraphir_ref">A) Обобщить <code>ProgramGraph.ir_ref</code><a class="headerlink" href="#a-programgraphir_ref" title="Permanent link">&para;</a></h4>
+<p><strong>Проблема:</strong> сейчас <code>ProgramGraph.ir_ref: PolicySurfaceIRRef</code> блокирует Trinity путь.</p>
+<p><strong>Решение E1.5:</strong> заменить тип поля на базовый <code>ArtifactRef</code>:</p>
+<ul>
+<li>было: <code>ir_ref: PolicySurfaceIRRef</code></li>
+<li>стало: <code>ir_ref: ArtifactRef</code></li>
+</ul>
+<p>Инварианты:</p>
+<ul>
+<li><code>ir_ref.kind</code> MUST быть одним из:</li>
+<li><code>"ir.policy_surface"</code> (legacy)</li>
+<li><code>"ir.trinity_bundle"</code> (canonical)</li>
+<li><code>ir_ref.media_type</code> SHOULD быть <code>"application/json"</code></li>
+</ul>
+<blockquote>
+<p>Это изменение backward-compatible для существующих артефактов (payload без новых полей остаётся валидным).</p>
+</blockquote>
+<h4 id="b-compileexecute-requestresult-envelopes">B) Добавить compile/execute request/result envelopes<a class="headerlink" href="#b-compileexecute-requestresult-envelopes" title="Permanent link">&para;</a></h4>
+<p>Добавить (или расширить) модели:</p>
+<p>1) <code>CompileRequest</code>
+2) <code>CompileResult</code>
+3) <code>ExecuteRequest</code>
+4) <code>ExecuteResult</code></p>
+<h5 id="compilerequest"><code>CompileRequest</code> (нормативный минимум)<a class="headerlink" href="#compilerequest" title="Permanent link">&para;</a></h5>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">FoundryValidationFlags</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">extra</span><span class="o">=</span><span class="s2">&quot;forbid&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">strict_schema</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">strict_link</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">allow_extra_params</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="n">strict_conflict_check</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="c1"># reserved for future:</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="n">allow_legacy_units</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="k">class</span><span class="w"> </span><span class="nc">FoundryCompileConfig</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">extra</span><span class="o">=</span><span class="s2">&quot;forbid&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    <span class="n">schema_version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="s2">&quot;1.0&quot;</span><span class="p">,</span> <span class="n">pattern</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;^</span><span class="se">\\</span><span class="s2">d+</span><span class="se">\\</span><span class="s2">.</span><span class="se">\\</span><span class="s2">d+$&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>    <span class="c1"># exec-plan knobs (must be serializable)</span>
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>    <span class="n">mode</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;dev&quot;</span><span class="p">,</span> <span class="s2">&quot;perf&quot;</span><span class="p">,</span> <span class="s2">&quot;audit&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;dev&quot;</span>
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>    <span class="n">jit</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>    <span class="n">max_steps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>    <span class="n">nan_guard_enabled</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>    <span class="c1"># determinism (no env capture here)</span>
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>    <span class="n">determinism_tier</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># &quot;strict_cpu&quot;|&quot;best_effort_gpu&quot;|&quot;nondeterministic&quot;</span>
+<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>    <span class="n">random_seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>
+<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>    <span class="c1"># optional compile-time budgeting (no floats)</span>
+<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>    <span class="n">cost_budget_max_total_ms</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>    <span class="n">cost_budget_max_memory_mb</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>    <span class="n">cost_budget_max_compile_ms</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>    <span class="n">cost_budget_max_per_mechanism_ms</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>
+<a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a>    <span class="c1"># parameters for cost estimate (if budget enabled)</span>
+<a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a>    <span class="n">estimate_n_agents</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a>    <span class="n">estimate_time_steps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a>
+<a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a>
+<a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a><span class="k">class</span><span class="w"> </span><span class="nc">CompileRequest</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a>    <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">extra</span><span class="o">=</span><span class="s2">&quot;forbid&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a>    <span class="n">schema_version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="s2">&quot;1.0&quot;</span><span class="p">,</span> <span class="n">pattern</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;^</span><span class="se">\\</span><span class="s2">d+</span><span class="se">\\</span><span class="s2">.</span><span class="se">\\</span><span class="s2">d+$&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a>
+<a id="__codelineno-0-40" name="__codelineno-0-40" href="#__codelineno-0-40"></a>    <span class="n">input_kind</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;auto&quot;</span><span class="p">,</span> <span class="s2">&quot;surface&quot;</span><span class="p">,</span> <span class="s2">&quot;trinity&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;auto&quot;</span>
+<a id="__codelineno-0-41" name="__codelineno-0-41" href="#__codelineno-0-41"></a>    <span class="n">policy_ref</span><span class="p">:</span> <span class="n">ArtifactRef</span>  <span class="c1"># MUST be ir.policy_surface or ir.trinity_bundle</span>
+<a id="__codelineno-0-42" name="__codelineno-0-42" href="#__codelineno-0-42"></a>
+<a id="__codelineno-0-43" name="__codelineno-0-43" href="#__codelineno-0-43"></a>    <span class="n">registry_bundle_ref</span><span class="p">:</span> <span class="n">ArtifactRef</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># kind=&quot;core.registry_bundle&quot;</span>
+<a id="__codelineno-0-44" name="__codelineno-0-44" href="#__codelineno-0-44"></a>    <span class="n">compile_config</span><span class="p">:</span> <span class="n">FoundryCompileConfig</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">FoundryCompileConfig</span><span class="p">)</span>
+<a id="__codelineno-0-45" name="__codelineno-0-45" href="#__codelineno-0-45"></a>    <span class="n">validation_flags</span><span class="p">:</span> <span class="n">FoundryValidationFlags</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">FoundryValidationFlags</span><span class="p">)</span>
+<a id="__codelineno-0-46" name="__codelineno-0-46" href="#__codelineno-0-46"></a>
+<a id="__codelineno-0-47" name="__codelineno-0-47" href="#__codelineno-0-47"></a>    <span class="n">notes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+</code></pre></div>
+<p>Нормативные правила:</p>
+<ul>
+<li><code>CompileRequest</code> MUST быть сериализуемым в canonical JSON (<code>polisyos.core.canon.to_canonical_bytes</code>) без float.</li>
+<li><code>input_kind="auto"</code> ⇒ компилятор выбирается по <code>policy_ref.kind</code>.</li>
+<li><code>input_kind!="auto"</code> ⇒ <code>policy_ref.kind</code> MUST соответствовать input_kind (иначе ошибка валидации).</li>
+<li><code>registry_bundle_ref</code>:</li>
+<li>если задан ⇒ используется он</li>
+<li>если не задан ⇒ компилятор пытается извлечь ref из входного IR:<ul>
+<li>surface: <code>PolicySurfaceIR.semantic.registry_bundle_ref</code></li>
+<li>trinity: <code>TrinityBundle.model_spec.registry_bundle_ref</code></li>
+</ul>
+</li>
+</ul>
+<h5 id="compileresult"><code>CompileResult</code> (нормативный минимум)<a class="headerlink" href="#compileresult" title="Permanent link">&para;</a></h5>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">DerivedArtifact</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">extra</span><span class="o">=</span><span class="s2">&quot;forbid&quot;</span><span class="p">)</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    <span class="n">role</span><span class="p">:</span> <span class="nb">str</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="n">ref</span><span class="p">:</span> <span class="n">ArtifactRef</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="k">class</span><span class="w"> </span><span class="nc">CompileResult</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>    <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">extra</span><span class="o">=</span><span class="s2">&quot;forbid&quot;</span><span class="p">)</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>    <span class="n">schema_version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="s2">&quot;1.0&quot;</span><span class="p">,</span> <span class="n">pattern</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;^</span><span class="se">\\</span><span class="s2">d+</span><span class="se">\\</span><span class="s2">.</span><span class="se">\\</span><span class="s2">d+$&quot;</span><span class="p">)</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>    <span class="n">ok</span><span class="p">:</span> <span class="nb">bool</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>    <span class="n">exec_plan_ref</span><span class="p">:</span> <span class="n">ExecPlanRef</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>    <span class="n">compile_report_ref</span><span class="p">:</span> <span class="n">ArtifactRef</span>  <span class="c1"># kind=&quot;compiler.compile_report&quot;</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>    <span class="n">derived_refs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">DerivedArtifact</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>    <span class="n">notes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+</code></pre></div>
+<p>Инварианты:</p>
+<ul>
+<li><code>compile_report_ref</code> MUST быть всегда (даже если <code>ok=False</code>).</li>
+<li><code>derived_refs</code> MUST содержать (когда <code>ok=True</code>):</li>
+<li><code>role="program_graph"</code> → <code>foundry.program_graph</code></li>
+<li><code>role="exec_plan"</code> → <code>foundry.exec_plan</code> (можно дублировать exec_plan_ref, допустимо)</li>
+<li>(опционально) <code>slot_layout</code>, <code>treasury_plan</code>, <code>link_report</code>, <code>linked_trinity_bundle</code></li>
+</ul>
+<h5 id="executerequest"><code>ExecuteRequest</code> (нормативный минимум)<a class="headerlink" href="#executerequest" title="Permanent link">&para;</a></h5>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">FoundryExecConfig</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">extra</span><span class="o">=</span><span class="s2">&quot;forbid&quot;</span><span class="p">)</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    <span class="n">schema_version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="s2">&quot;1.0&quot;</span><span class="p">,</span> <span class="n">pattern</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;^</span><span class="se">\\</span><span class="s2">d+</span><span class="se">\\</span><span class="s2">.</span><span class="se">\\</span><span class="s2">d+$&quot;</span><span class="p">)</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="n">mode</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;dev&quot;</span><span class="p">,</span> <span class="s2">&quot;perf&quot;</span><span class="p">,</span> <span class="s2">&quot;audit&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;dev&quot;</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    <span class="n">max_steps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>    <span class="n">deterministic</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>    <span class="n">capture_env</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># explicit, default off</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="k">class</span><span class="w"> </span><span class="nc">ExecuteRequest</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>    <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">extra</span><span class="o">=</span><span class="s2">&quot;forbid&quot;</span><span class="p">)</span>
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>    <span class="n">schema_version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="s2">&quot;1.0&quot;</span><span class="p">,</span> <span class="n">pattern</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;^</span><span class="se">\\</span><span class="s2">d+</span><span class="se">\\</span><span class="s2">.</span><span class="se">\\</span><span class="s2">d+$&quot;</span><span class="p">)</span>
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>    <span class="n">exec_plan_ref</span><span class="p">:</span> <span class="n">ExecPlanRef</span>
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>
+<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>    <span class="c1"># input data: prefer Fabric DataSnapshotRef long-term; support StateSnapshotRef short-term</span>
+<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>    <span class="n">data_snapshot_ref</span><span class="p">:</span> <span class="n">ArtifactRef</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># kind=&quot;fabric.data_snapshot&quot; (preferred)</span>
+<a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a>    <span class="n">state_snapshot_ref</span><span class="p">:</span> <span class="n">StateSnapshotRef</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># compat path</span>
+<a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>
+<a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a>    <span class="n">registry_bundle_ref</span><span class="p">:</span> <span class="n">ArtifactRef</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># kind=&quot;core.registry_bundle&quot;</span>
+<a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a>    <span class="n">exec_config</span><span class="p">:</span> <span class="n">FoundryExecConfig</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">FoundryExecConfig</span><span class="p">)</span>
+<a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a>    <span class="n">notes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+</code></pre></div>
+<p>Нормативные правила:</p>
+<ul>
+<li><code>execute()</code> MUST быть CAS-only (никаких DB/network).</li>
+<li>должен быть определён ровно один источник состояния:</li>
+<li><code>state_snapshot_ref</code> задан ⇒ используется он</li>
+<li>иначе <code>data_snapshot_ref</code> задан ⇒ Foundry читает <code>core.contracts.fabric.DataSnapshot</code> и требует, чтобы <code>data_ref.kind == "foundry.state_snapshot"</code> (временно, до E2)</li>
+<li>иначе ошибка.</li>
+</ul>
+<h5 id="executeresult"><code>ExecuteResult</code> (нормативный минимум)<a class="headerlink" href="#executeresult" title="Permanent link">&para;</a></h5>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ExecuteResult</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">extra</span><span class="o">=</span><span class="s2">&quot;forbid&quot;</span><span class="p">)</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    <span class="n">schema_version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="s2">&quot;1.0&quot;</span><span class="p">,</span> <span class="n">pattern</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;^</span><span class="se">\\</span><span class="s2">d+</span><span class="se">\\</span><span class="s2">.</span><span class="se">\\</span><span class="s2">d+$&quot;</span><span class="p">)</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    <span class="n">ok</span><span class="p">:</span> <span class="nb">bool</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>    <span class="n">simulation_result_ref</span><span class="p">:</span> <span class="n">SimulationResultRef</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>    <span class="n">derived_refs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">DerivedArtifact</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>    <span class="n">notes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+</code></pre></div>
+<p>Инварианты:</p>
+<ul>
+<li>при <code>ok=True</code> MUST вернуться <code>simulation_result_ref</code> (kind=<code>foundry.simulation_result</code>)</li>
+<li><code>derived_refs</code> SHOULD включать:</li>
+<li><code>metrics</code>, <code>state_delta</code>, (опционально) <code>constraint_report</code>, <code>environment_manifest</code></li>
+</ul>
+<h3 id="533-polisyoscorecontractscompiler">5.3.3 Изменения в <code>polisyos.core.contracts.compiler</code> (опционально, но рекомендуемо)<a class="headerlink" href="#533-polisyoscorecontractscompiler" title="Permanent link">&para;</a></h3>
+<p>Файл: <code>policy-engine/src/polisyos/core/contracts/compiler.py</code></p>
+<p>Если хочется строгих типов:</p>
+<ul>
+<li>добавить typed <code>RegistryBundleRef</code> (kind=<code>core.registry_bundle</code>) <strong>или</strong> оставить <code>ArtifactRef</code>.</li>
+</ul>
+<p>Не является блокером для E1.5, но упрощает ошибки на границе.</p>
+<hr />
+<h2 id="6-54-split">6) 5.4 Split компиляторов: физическая декомпозиция кода<a class="headerlink" href="#6-54-split" title="Permanent link">&para;</a></h2>
+<h3 id="61">6.1 Цель структуры<a class="headerlink" href="#61" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Legacy и Canonical компиляторы физически разделены (разные файлы/модули).</li>
+<li>Общая точка входа (<code>compile.api</code>) выбирает реализацию.</li>
+<li>Старые entrypoints живут как thin wrappers и помечены deprecated.</li>
+</ul>
+<h3 id="62-foundry">6.2 Рекомендуемая структура модулей Foundry<a class="headerlink" href="#62-foundry" title="Permanent link">&para;</a></h3>
+<p>Target (E1.5):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>polisyos/foundry/
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>  compile/
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    __init__.py
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    api.py                 # facade compile(request) -&gt; CompileResult
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    surface_compiler.py    # legacy path
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>    trinity_compiler.py    # canonical path
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>    types.py               # internal types/helpers (not core.contracts)
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>    _io.py                 # internal CAS load/store helpers (optional)
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>    _graph.py              # internal graph builder shared by compilers (optional)
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>  execute/
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>    __init__.py
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>    api.py                 # facade execute(request) -&gt; ExecuteResult
+<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>
+<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>  legacy/
+<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a>    __init__.py
+<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a>    compiler.py            # deprecated wrappers around new facade
+</code></pre></div>
+<p>Переходное состояние (backward-compat):</p>
+<ul>
+<li><code>polisyos.foundry.compiler</code> остаётся существовать, но превращается в thin wrapper:</li>
+<li><code>compile_surface_policy(...)</code> → формирует <code>CompileRequest</code> и вызывает <code>foundry.compile.api.compile</code></li>
+<li><code>put_policy_surface(...)</code> остаётся (как helper), но помечается как legacy convenience</li>
+</ul>
+<h3 id="63">6.3 “Шлюз” между компиляторами (обязательный инвариант)<a class="headerlink" href="#63" title="Permanent link">&para;</a></h3>
+<p>Оба компилятора обязаны выпускать один и тот же набор CAS-артефактов:</p>
+<ul>
+<li><code>foundry.program_graph</code></li>
+<li><code>foundry.exec_plan</code></li>
+<li>(опционально) <code>foundry.slot_layout</code></li>
+<li>(опционально) <code>foundry.treasury_plan</code></li>
+<li><code>compiler.link_report</code> (если линковка выполняется внутри compile)</li>
+<li><code>compiler.compile_report</code> (всегда)</li>
+</ul>
+<p>И один и тот же базовый IR рантайма: <code>ExecPlan</code> + <code>ProgramGraph</code> из <code>polisyos.core.contracts.foundry</code>.</p>
+<p><strong>Критично:</strong> рантайм-исполнение по <code>ExecPlanRef</code> не должно требовать Scientist объектов (только CAS + registries bundle ref).</p>
+<hr />
+<h2 id="7-55-surface_compiler-legacy">7) 5.5 surface_compiler: стабилизация legacy без расширения поверхности<a class="headerlink" href="#7-55-surface_compiler-legacy" title="Permanent link">&para;</a></h2>
+<h3 id="71">7.1 Цель<a class="headerlink" href="#71" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Сохранить поддержку существующих политик/тестов на <code>PolicySurfaceIR</code>.</li>
+<li>Зафиксировать “поверхность” legacy: не добавлять новые фичи в формат.</li>
+<li>Перевести внешний вызов на <code>CompileRequest</code>/<code>CompileResult</code>.</li>
+</ul>
+<h3 id="72-surface-compiler">7.2 Поведение surface compiler (нормативно)<a class="headerlink" href="#72-surface-compiler" title="Permanent link">&para;</a></h3>
+<p><code>polisyos.foundry.compile.surface_compiler.compile_surface(request, store) -&gt; CompileResult</code></p>
+<p>Pipeline:</p>
+<p>1) <strong>Load policy</strong>:
+   - <code>policy = PolicySurfaceIR.model_validate(from_canonical_bytes(store.get_bytes(policy_ref)))</code>
+2) <strong>Resolve registry bundle</strong> (см. §5.3.2):
+   - <code>registry_bundle_ref = request.registry_bundle_ref or policy.semantic.registry_bundle_ref</code>
+   - если нет ⇒ <code>ok=False</code>, compile_report с ошибкой <code>missing_registry_bundle</code>
+3) <strong>Load registries</strong>:
+   - <code>registry_content = load_registry_bundle_content(store, registry_bundle_ref)</code>
+4) <strong>Link legacy surface</strong>:
+   - <code>link_report = link_policy(policy, registry_content.mechanism_registry, slot_registry=..., units_registry=..., allow_extra_params=request.validation_flags.allow_extra_params, ...)</code>
+   - сохранить <code>compiler.link_report</code> (через <code>core.compiler.report.put_link_report</code>)
+   - если <code>strict_link=True</code> и <code>not link_report.ok</code> ⇒ <code>ok=False</code>, compile_report, выход без компиляции
+5) <strong>Compile graph</strong> (без ссылок на Scientist):
+   - переиспользовать текущую реализацию из <code>polisyos.foundry.compiler</code>:
+     - build ProgramGraph nodes/edges
+     - conflict check (CompileTimeConflictChecker)
+     - cost estimate gating (если budget включён)
+6) <strong>Emit compile artifacts</strong>:
+   - <code>foundry.program_graph</code>
+   - <code>foundry.exec_plan</code> (поля берутся из <code>request.compile_config</code>, environment_<em> остаётся <code>None</code>)
+   - <code>foundry.slot_layout</code>, <code>foundry.treasury_plan</code> (если текущая логика сохраняется)
+7) </em><em>Emit compile_report</em>* (<code>compiler.compile_report</code>, всегда):
+   - <code>ok</code>, <code>policy_ref</code>, <code>registry_bundle_ref</code>, <code>link_report_ref</code>, <code>program_graph_ref</code>, <code>exec_plan_ref</code>, <code>slot_layout_ref</code>, <code>treasury_plan_ref</code></p>
+<h3 id="73">7.3 Запреты и совместимость<a class="headerlink" href="#73" title="Permanent link">&para;</a></h3>
+<ul>
+<li>surface_compiler НЕ должен импортировать Trinity модели.</li>
+<li>Любая новая логика доменной компиляции должна идти в <code>trinity_compiler</code>, а не в surface.</li>
+<li>Если в legacy-коде есть хардкоды registries/механизмов:</li>
+<li>либо переводим на <code>registry_bundle_ref</code></li>
+<li>либо выносим в <code>polisyos.foundry.legacy/*</code> и явно помечаем deprecated.</li>
+</ul>
+<h3 id="74-backward-compat-wrappers">7.4 Backward-compat wrappers<a class="headerlink" href="#74-backward-compat-wrappers" title="Permanent link">&para;</a></h3>
+<p>Сохранить существующие публичные функции как thin wrappers:</p>
+<ul>
+<li><code>polisyos.foundry.compiler.compile_surface_policy(...)</code>:</li>
+<li>допустимо оставить старую сигнатуру (для тестов/временной совместимости)</li>
+<li>внутри:<ul>
+<li>(опционально) собрать <code>core.registry_bundle</code> из переданных registries (если bundle_ref не передан)</li>
+<li><code>policy_ref = put_policy_surface(...)</code> если нужно</li>
+<li>сформировать <code>CompileRequest(input_kind="surface", policy_ref=..., registry_bundle_ref=...)</code></li>
+<li>вызвать <code>foundry.compile.api.compile(request)</code></li>
+<li>вернуть legacy <code>CompileArtifacts</code> либо переехать на <code>CompileResult</code> (предпочтительнее — постепенно)</li>
+</ul>
+</li>
+</ul>
+<p>Депрекейшн:</p>
+<ul>
+<li>добавить <code>warnings.warn(..., DeprecationWarning)</code> при импорте/вызове legacy entrypoints, но не ломать тесты одномоментно.</li>
+</ul>
+<hr />
+<h2 id="8-56-trinity_compiler-trinity-execplan">8) 5.6 trinity_compiler: канонический путь Trinity → ExecPlan<a class="headerlink" href="#8-56-trinity_compiler-trinity-execplan" title="Permanent link">&para;</a></h2>
+<h3 id="81">8.1 Цель<a class="headerlink" href="#81" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Сделать Trinity компиляцию first-class: <code>TrinityBundleRef</code> → <code>ProgramGraph/ExecPlan</code>.</li>
+<li>Использовать IR linker <code>link_trinity()</code> как единственный источник “сопоставления с registries”.</li>
+<li>Не вводить зависимостей на Scientist и не использовать legacy surface как промежуточный формат на границе.</li>
+</ul>
+<h3 id="82">8.2 Входы<a class="headerlink" href="#82" title="Permanent link">&para;</a></h3>
+<p><code>CompileRequest</code> с:</p>
+<ul>
+<li><code>policy_ref.kind == "ir.trinity_bundle"</code> (payload = <code>polisyos.ir.trinity.TrinityBundle</code>)</li>
+<li><code>registry_bundle_ref</code>:</li>
+<li>из request <strong>или</strong> из <code>bundle.model_spec.registry_bundle_ref</code></li>
+</ul>
+<p>Опционально (не блокер E1.5, но полезно):</p>
+<ul>
+<li>сохранять <code>LinkedTrinityBundle</code> как derived artifact (kind <code>compiler.linked_trinity_bundle</code>)</li>
+</ul>
+<h3 id="83-pipeline-trinity-compiler">8.3 Pipeline внутри trinity compiler (нормативно)<a class="headerlink" href="#83-pipeline-trinity-compiler" title="Permanent link">&para;</a></h3>
+<p><code>polisyos.foundry.compile.trinity_compiler.compile_trinity(request, store) -&gt; CompileResult</code></p>
+<h4 id="step-0-load-inputs">Step 0: load inputs<a class="headerlink" href="#step-0-load-inputs" title="Permanent link">&para;</a></h4>
+<p>1) <code>bundle = TrinityBundle.model_validate(from_canonical_bytes(store.get_bytes(policy_ref)))</code>
+2) <code>registry_bundle_ref = resolve_registry_bundle_ref(bundle, request)</code>
+3) <code>registry_content = load_registry_bundle_content(store, registry_bundle_ref)</code></p>
+<h4 id="step-1-validate_structural-schema-level">Step 1: validate_structural (schema-level)<a class="headerlink" href="#step-1-validate_structural-schema-level" title="Permanent link">&para;</a></h4>
+<p>Минимально:</p>
+<ul>
+<li>Pydantic validation (уже происходит при <code>.model_validate</code>)</li>
+<li>дополнительные проверки, которые не требуют “мира”, только contracts:</li>
+<li><code>bundle.policy_spec.interventions</code> ids unique (уже валидатор в PolicySpec)</li>
+<li><code>bundle.problem_frame.hard_constraints/soft_constraints</code> ids unique (уже валидатор)</li>
+</ul>
+<h4 id="step-2-resolve_symbols-linking">Step 2: resolve_symbols (linking)<a class="headerlink" href="#step-2-resolve_symbols-linking" title="Permanent link">&para;</a></h4>
+<p>1) Собрать IR-level <code>RegistryBundle</code> из загруженных registries:</p>
+<ul>
+<li><code>mechanisms = registry_content.mechanism_registry</code></li>
+<li><code>slots = registry_content.slot_registry</code></li>
+<li><code>merge_rules = registry_content.merge_registry</code></li>
+<li><code>constraints = registry_content.constraint_registry</code></li>
+<li><code>selector_fields = registry_content.selector_field_registry</code></li>
+<li><code>units = registry_content.units_registry</code></li>
+<li><code>metrics = registry_content.metric_registry</code> (если есть)</li>
+</ul>
+<p>2) Вызвать:</p>
+<p><code>linked_bundle, link_report = link_trinity(bundle, registries, allow_extra_params=request.validation_flags.allow_extra_params, strict=request.validation_flags.strict_link)</code></p>
+<p>3) Persist link_report:</p>
+<ul>
+<li><code>link_report_ref = put_link_report(store, link_report, inputs=[policy_ref, registry_bundle_ref])</code></li>
+</ul>
+<p>4) Если <code>strict_link=True</code> и <code>not link_report.ok</code> ⇒ <code>ok=False</code>, emit compile_report и return.</p>
+<p>Опционально:</p>
+<ul>
+<li>Persist <code>linked_bundle</code> как <code>compiler.linked_trinity_bundle</code> (schema <code>polisyos.ir.LinkedTrinityBundle</code>, version <code>linked_bundle.schema_version</code>) и добавить в <code>derived_refs</code>.</li>
+</ul>
+<h4 id="step-3-build_program_graph-deterministic">Step 3: build_program_graph (deterministic)<a class="headerlink" href="#step-3-build_program_graph-deterministic" title="Permanent link">&para;</a></h4>
+<p>Цель — тот же <code>ProgramGraph</code> контракт, что и в legacy, но:</p>
+<ul>
+<li><code>ProgramGraph.ir_ref = policy_ref</code> (kind=<code>ir.trinity_bundle</code>)</li>
+</ul>
+<p>Маппинг interventions:</p>
+<ul>
+<li>для каждого <code>PolicySpec.interventions[i]</code>:</li>
+<li>persist <code>ir.intervention_payload</code> (как сейчас в surface compiler): schedule/target/params/priority/notes</li>
+<li>создать <code>op.make_mask</code> (selector из intervention.target)</li>
+<li>создать <code>op.apply_mechanism</code>:<ul>
+<li><code>mechanism_type = intervention.kind</code></li>
+<li><code>params_ref = intervention_payload_ref</code></li>
+<li><code>inputs/outputs</code> брать из <code>linked_bundle.bindings.interventions[i].reads_slots/writes_slots</code></li>
+</ul>
+</li>
+</ul>
+<p>Edges:</p>
+<ul>
+<li><code>make_mask → apply_mechanism (depends_on)</code></li>
+<li>slot dependency edges: writer → reader, если writer.outputs ∩ reader.inputs ≠ ∅</li>
+</ul>
+<p>Op nodes:</p>
+<ul>
+<li><code>op.merge_state</code></li>
+<li><code>op.check_constraints</code>:</li>
+<li><code>constraint_ids</code>: собрать из <code>bundle.problem_frame.hard_constraints + soft_constraints</code></li>
+<li>(в E1.5 можно сохранять только ids; семантика “hard/soft” остаётся в IR, enforcement — позже)</li>
+</ul>
+<h4 id="step-4-build_exec_plan">Step 4: build_exec_plan<a class="headerlink" href="#step-4-build_exec_plan" title="Permanent link">&para;</a></h4>
+<p>Одинаково для обоих компиляторов:</p>
+<ul>
+<li><code>order = topological_sort(program_graph)</code></li>
+<li><code>exec_plan = ExecPlan(program_ref=..., order=..., mode=request.compile_config.mode, jit=request.compile_config.jit, max_steps=request.compile_config.max_steps, nan_guard_enabled=request.compile_config.nan_guard_enabled, determinism_tier=request.compile_config.determinism_tier, random_seed=request.compile_config.random_seed)</code></li>
+<li><strong>не</strong> заполнять <code>environment_ref/environment_fingerprint</code> на compile (env capture переносится в execute/control plane)</li>
+</ul>
+<h4 id="step-5-emit-artifacts">Step 5: emit artifacts<a class="headerlink" href="#step-5-emit-artifacts" title="Permanent link">&para;</a></h4>
+<p>Persist:</p>
+<ul>
+<li><code>foundry.program_graph</code> (inputs: policy_ref, registry_bundle_ref, intervention_payloads, link_report_ref)</li>
+<li><code>foundry.exec_plan</code> (input: program_graph_ref)</li>
+<li><code>foundry.slot_layout</code>, <code>foundry.treasury_plan</code> (если сохраняем parity с legacy)</li>
+<li><code>compiler.compile_report</code> (всегда)</li>
+</ul>
+<h3 id="84-trinity-e15">8.4 Изменение рантайма для Trinity (обязательная часть E1.5)<a class="headerlink" href="#84-trinity-e15" title="Permanent link">&para;</a></h3>
+<p>Файл: <code>policy-engine/src/polisyos/foundry/executor.py</code></p>
+<p>Задача: место, где executor загружает constraints из <code>PolicySurfaceIR</code>, должно стать полиморфным:</p>
+<ul>
+<li>если <code>program_graph.ir_ref.kind == "ir.policy_surface"</code> ⇒ как сейчас</li>
+<li>если <code>program_graph.ir_ref.kind == "ir.trinity_bundle"</code> ⇒</li>
+<li>загрузить TrinityBundle</li>
+<li>построить <code>constraint_values = {constraint.constraint_id: constraint.value}</code> из <code>ProblemFrame.hard_constraints/soft_constraints</code></li>
+</ul>
+<p>Инвариант:</p>
+<ul>
+<li>executor не импортирует Scientist</li>
+<li>executor не импортирует Fabric реализации</li>
+</ul>
+<hr />
+<h2 id="9-57-pure-compute">9) 5.7 Pure compute правила (жёстко)<a class="headerlink" href="#9-57-pure-compute" title="Permanent link">&para;</a></h2>
+<h3 id="91-foundry-compute-kernel-compileexecute">9.1 Запреты внутри Foundry compute-kernel (compile/execute)<a class="headerlink" href="#91-foundry-compute-kernel-compileexecute" title="Permanent link">&para;</a></h3>
+<p>Запрещено в модулях:</p>
+<ul>
+<li><code>polisyos.foundry.compile.*</code></li>
+<li><code>polisyos.foundry.execute.*</code></li>
+<li>и в transitively-imported ими модулях</li>
+</ul>
+<p><strong>Запреты:</strong></p>
+<p>1) <code>import polisyos.scientist.*</code>
+2) <code>import polisyos.fabric.*</code> (кроме <code>polisyos.core.contracts.fabric</code> — contracts разрешены)
+3) Любые прямые I/O вне CAS:
+   - <code>open()</code> на произвольных путях
+   - чтение/запись файлов с <code>Path.read_text/write_text/open</code>
+   - <code>subprocess.run</code> (git, pip, etc)
+   - сетевые вызовы
+   - прямой DuckDB/GraphStore доступ
+4) Любые записи в FactLog / world state (это Fabric plane).</p>
+<h3 id="92">9.2 Разрешено<a class="headerlink" href="#92" title="Permanent link">&para;</a></h3>
+<p>1) CAS I/O через <code>polisyos.core.artifacts.store.FileSystemCAS</code>
+2) Канонизация через <code>polisyos.core.canon.*</code>
+3) Валидация IR через <code>polisyos.ir.*</code> (linker, models)
+4) Выпуск trace/metrics как <strong>CAS артефактов</strong> (если это делается внутри execute и не требует внешнего I/O).</p>
+<h3 id="93-e15">9.3 Практическая стратегия (E1.5)<a class="headerlink" href="#93-e15" title="Permanent link">&para;</a></h3>
+<p>Чтобы не выносить всю demo/tooling подсистему одномоментно:</p>
+<ul>
+<li>compute-kernel держим в новых пакетах <code>foundry/compile</code> и <code>foundry/execute</code> и следим, чтобы они не импортировали tooling</li>
+<li>существующие I/O-heavy модули (<code>foundry.agent_sim</code>, <code>foundry.plugins</code>, <code>foundry.methods.testing</code>) не должны импортироваться из compile/execute</li>
+<li>(рекомендуемо) добавить тест-скан, что в <code>foundry/compile</code> и <code>foundry/execute</code> нет <code>open(</code> / <code>subprocess.run</code> (см. §11.7)</li>
+</ul>
+<hr />
+<h2 id="10-58-foundry-api">10) 5.8 Миграция внешних вызовов Foundry + фасад API<a class="headerlink" href="#10-58-foundry-api" title="Permanent link">&para;</a></h2>
+<h3 id="101-foundry-facade-compile">10.1 Foundry facade: compile<a class="headerlink" href="#101-foundry-facade-compile" title="Permanent link">&para;</a></h3>
+<p>Файл: <code>policy-engine/src/polisyos/foundry/compile/api.py</code></p>
+<p>Нормативная сигнатура:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">compile</span><span class="p">(</span><span class="n">store</span><span class="p">:</span> <span class="n">FileSystemCAS</span><span class="p">,</span> <span class="n">request</span><span class="p">:</span> <span class="n">CompileRequest</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CompileResult</span><span class="p">:</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    <span class="o">...</span>
+</code></pre></div>
+<p>Поведение:</p>
+<ul>
+<li>валидирует request (schema_version, input_kind/policy_ref.kind)</li>
+<li>выбирает компилятор:</li>
+<li><code>surface</code> если <code>policy_ref.kind == "ir.policy_surface"</code></li>
+<li><code>trinity</code> если <code>policy_ref.kind == "ir.trinity_bundle"</code></li>
+<li>гарантирует выпуск <code>compiler.compile_report</code> всегда</li>
+</ul>
+<p>Критично:</p>
+<ul>
+<li><code>compile()</code> НЕ принимает <code>PolicySurfaceIR</code>/<code>TrinityBundle</code> напрямую как “живые объекты” в публичном API;</li>
+<li>для тестов можно иметь internal helper <code>compile_from_payload(...)</code>, но он не считается портом.</li>
+</ul>
+<h3 id="102-foundry-facade-execute">10.2 Foundry facade: execute<a class="headerlink" href="#102-foundry-facade-execute" title="Permanent link">&para;</a></h3>
+<p>Файл: <code>policy-engine/src/polisyos/foundry/execute/api.py</code></p>
+<p>Нормативная сигнатура:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">execute</span><span class="p">(</span><span class="n">store</span><span class="p">:</span> <span class="n">FileSystemCAS</span><span class="p">,</span> <span class="n">request</span><span class="p">:</span> <span class="n">ExecuteRequest</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ExecuteResult</span><span class="p">:</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    <span class="o">...</span>
+</code></pre></div>
+<p>Поведение:</p>
+<ul>
+<li>загружает <code>ExecPlan</code> и <code>ProgramGraph</code> из CAS</li>
+<li>резолвит состояние:</li>
+<li><code>state_snapshot_ref</code> (прямо)</li>
+<li>или <code>data_snapshot_ref</code> → <code>DataSnapshot.data_ref</code> (требуется <code>foundry.state_snapshot</code>)</li>
+<li>загружает registries по <code>registry_bundle_ref</code> (или из program_graph inputs при желании, но предпочтительно явно)</li>
+<li>вызывает существующий <code>execute_program_graph(...)</code></li>
+<li>формирует <code>SimulationResult</code> envelope (<code>core.contracts.foundry.SimulationResult</code>) и сохраняет как <code>foundry.simulation_result</code></li>
+</ul>
+<p>Инвариант: <code>capture_env=False</code> по умолчанию и является <strong>явным</strong> флагом в request.</p>
+<h3 id="103-scientist">10.3 Миграция Scientist: замена прямых вызовов компилятора<a class="headerlink" href="#103-scientist" title="Permanent link">&para;</a></h3>
+<p>Файл: <code>policy-engine/src/polisyos/scientist/orchestrator/flow_nodes.py</code></p>
+<p>Текущее:</p>
+<ul>
+<li><code>link_policy(...)</code></li>
+<li><code>compile_surface_policy(...)</code></li>
+</ul>
+<p>Целевое (E1.5):</p>
+<ul>
+<li><code>compile_result = foundry.compile.api.compile(store, CompileRequest(...))</code></li>
+<li>дальнейшие шаги опираются на refs из <code>compile_result</code>:</li>
+<li><code>compile_report_ref</code></li>
+<li><code>exec_plan_ref</code> (если ok)</li>
+<li><code>derived_refs</code> (program_graph, slot_layout, treasury_plan)</li>
+</ul>
+<p>Рекомендация:</p>
+<ul>
+<li>сохранить прежние runtime logs (<code>log_artifact(...)</code>) но теперь логировать:</li>
+<li><code>compile_report_ref</code></li>
+<li><code>link_report_ref</code> (если он содержится внутри compile_report)</li>
+<li><code>exec_plan_ref</code></li>
+</ul>
+<h3 id="104-scientist-execute-facade">10.4 Миграция Scientist: выполнение через execute facade (минимум)<a class="headerlink" href="#104-scientist-execute-facade" title="Permanent link">&para;</a></h3>
+<p><code>scientist/compute/runner.py</code> сейчас вызывает <code>execute_program_graph</code> напрямую.</p>
+<p>E1.5 может сделать один из вариантов (выбрать один и закрепить):</p>
+<p><strong>Вариант A (минимум вмешательств):</strong> оставить runner как есть, но добавить “официальный” facade <code>foundry.execute.api.execute</code> и постепенно перевести вызовы.</p>
+<p><strong>Вариант B (сразу порт):</strong> runner строит <code>ExecuteRequest</code> и вызывает <code>foundry.execute.api.execute</code>, получает <code>SimulationResultRef</code>, а затем (при необходимости) отдельно загружает итоговое состояние.</p>
+<p>Для E1.5 достаточно варианта A + smoke test на execute facade.</p>
+<hr />
+<h2 id="11-59">11) 5.9 Тестирование и валидация (обязательная часть фазы)<a class="headerlink" href="#11-59" title="Permanent link">&para;</a></h2>
+<h3 id="111-dependency-gate">11.1 Dependency gate (уже есть)<a class="headerlink" href="#111-dependency-gate" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>policy-engine/tests/test_arch_import_gate.py</code> должен оставаться зелёным.</li>
+<li>В рамках E1.5 добавить регрессию: новые модули <code>foundry/compile/*</code> и <code>foundry/execute/*</code> не должны нарушать <code>import_policy.toml</code>.</li>
+</ul>
+<h3 id="112-unit-tests-surface_compiler">11.2 Unit tests: surface_compiler<a class="headerlink" href="#112-unit-tests-surface_compiler" title="Permanent link">&para;</a></h3>
+<p>Добавить/обновить тесты в <code>policy-engine/tests/foundry/</code>:</p>
+<ul>
+<li>перевести существующие тесты компиляции на новый фасад (или оставить legacy wrapper до миграции):</li>
+<li><code>test_program_graph_ops.py</code></li>
+<li><code>test_constraints_executor.py</code></li>
+<li><code>test_patch_executor.py</code></li>
+</ul>
+<p>Минимальный новый тест:</p>
+<ul>
+<li><code>compile(request)</code> с <code>input_kind="surface"</code>:</li>
+<li>поднимает <code>FileSystemCAS(tmp_path)</code></li>
+<li>строит <code>core.registry_bundle</code> (<code>build_default_registry_bundle</code>)</li>
+<li>кладёт <code>PolicySurfaceIR</code> в CAS (<code>put_policy_surface</code>)</li>
+<li>вызывает facade compile</li>
+<li>проверяет:<ul>
+<li><code>result.ok is True</code></li>
+<li><code>result.exec_plan_ref.kind == "foundry.exec_plan"</code></li>
+<li>среди <code>derived_refs</code> есть <code>program_graph</code></li>
+</ul>
+</li>
+</ul>
+<h3 id="113-unit-tests-trinity_compiler">11.3 Unit tests: trinity_compiler<a class="headerlink" href="#113-unit-tests-trinity_compiler" title="Permanent link">&para;</a></h3>
+<p>Новый тест (минимальный Trinity fixture):</p>
+<ul>
+<li>собрать <code>TrinityBundle</code>:</li>
+<li><code>ProblemFrame(domain=...)</code> без сложных целей</li>
+<li><code>PolicySpec</code> с 1 intervention (<code>income_tax</code>/<code>tax_subsidy</code>)</li>
+<li><code>ModelSpec(data_snapshot_ref=&lt;sha256 stub&gt;, registry_bundle_ref=&lt;bundle_ref.artifact_id&gt;)</code></li>
+<li>persist <code>ir.trinity_bundle</code> в CAS (kind=<code>ir.trinity_bundle</code>, schema=<code>polisyos.ir.TrinityBundle</code>)</li>
+<li>вызвать compile facade (<code>input_kind="trinity"</code> или auto)</li>
+<li>проверить:</li>
+<li><code>ok=True</code></li>
+<li><code>ProgramGraph.ir_ref.kind == "ir.trinity_bundle"</code> (т.е. не смешали модели)</li>
+<li><code>ExecPlanRef</code> существует</li>
+</ul>
+<h3 id="114-determinism-test-artifactid">11.4 Determinism test: одинаковый вход → одинаковый ArtifactID<a class="headerlink" href="#114-determinism-test-artifactid" title="Permanent link">&para;</a></h3>
+<p>Нормативный тест:</p>
+<ul>
+<li>дважды вызвать compile с одинаковыми <code>policy_ref</code>, <code>registry_bundle_ref</code>, <code>compile_config</code>, <code>validation_flags</code></li>
+<li>ожидание:</li>
+<li><code>exec_plan_ref.artifact_id</code> совпадает</li>
+<li><code>program_graph_ref.artifact_id</code> совпадает</li>
+</ul>
+<p>Чтобы тест был корректным:</p>
+<ul>
+<li>compile не должен включать env capture / timestamps в payload.</li>
+</ul>
+<h3 id="115-contract-tests-canonical-json-float">11.5 Contract tests: canonical JSON (без float)<a class="headerlink" href="#115-contract-tests-canonical-json-float" title="Permanent link">&para;</a></h3>
+<p>Добавить в <code>policy-engine/tests/contract/</code>:</p>
+<ul>
+<li><code>to_canonical_bytes(CompileRequest(...))</code> не выбрасывает <code>CanonViolation</code></li>
+<li><code>to_canonical_bytes(CompileResult(...))</code> не выбрасывает <code>CanonViolation</code></li>
+<li>аналогично для <code>ExecuteRequest/ExecuteResult</code></li>
+</ul>
+<h3 id="116-smoke-execute-end-to-end">11.6 Smoke execute (минимальный end-to-end)<a class="headerlink" href="#116-smoke-execute-end-to-end" title="Permanent link">&para;</a></h3>
+<p>Цель: доказать, что Foundry может создать <code>SimulationResultRef</code> без зависимости на Scientist/Fabric.</p>
+<p>Smoke test:</p>
+<p>1) скомпилировать минимальную политику (surface или trinity) в <code>ExecPlanRef</code>
+2) создать <code>StateSnapshotRef</code>:
+   - собрать минимальный <code>GlobalState</code> fixture (как в текущих foundry tests)
+   - <code>put_state_snapshot(store, state=..., step=0)</code>
+3) вызвать <code>foundry.execute.api.execute</code> с <code>ExecuteRequest(state_snapshot_ref=..., exec_plan_ref=..., registry_bundle_ref=...)</code>
+4) проверить:
+   - <code>ok=True</code>
+   - вернулся <code>SimulationResultRef</code> (kind=<code>foundry.simulation_result</code>)</p>
+<h3 id="117-no-io-in-kernel">11.7 (Рекомендуемо) “no I/O in kernel” тест<a class="headerlink" href="#117-no-io-in-kernel" title="Permanent link">&para;</a></h3>
+<p>Простой тест-скан (как safety net):</p>
+<ul>
+<li>пройтись по <code>.py</code> файлам в <code>polisyos/foundry/compile/</code> и <code>polisyos/foundry/execute/</code></li>
+<li>убедиться, что нет подстрок:</li>
+<li><code>"open("</code></li>
+<li><code>"subprocess.run"</code></li>
+<li><code>"requests."</code></li>
+</ul>
+<p>Это не заменяет архитектурную дисциплину, но ловит регрессии.</p>
+<hr />
+<h2 id="12-510-definition-of-done-e15">12) 5.10 Definition of Done (E1.5)<a class="headerlink" href="#12-510-definition-of-done-e15" title="Permanent link">&para;</a></h2>
+<p>Фаза считается завершённой, когда:</p>
+<p>1) В <code>polisyos.foundry</code> нет импортов <code>polisyos.scientist.*</code>.
+2) Реализованы два компилятора:
+   - <code>polisyos.foundry.compile.surface_compiler</code>
+   - <code>polisyos.foundry.compile.trinity_compiler</code>
+3) Существует один фасад:
+   - <code>polisyos.foundry.compile.api.compile(request) -&gt; CompileResult</code>
+   - <code>polisyos.foundry.execute.api.execute(request) -&gt; ExecuteResult</code>
+4) <code>ProgramGraph.ir_ref</code> поддерживает <code>ir.policy_surface</code> и <code>ir.trinity_bundle</code> (не смешивая модели).
+5) <code>compiler.compile_report</code> всегда выпускается, ошибки/предупреждения фиксируются как артефакты.
+6) Тесты:
+   - import gate зелёный
+   - unit tests для surface и trinity компиляции зелёные
+   - determinism test зелёный
+   - smoke execute зелёный</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.highlight", "search.suggest", "content.code.copy", "content.tabs.link", "toc.follow"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

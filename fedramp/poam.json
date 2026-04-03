@@ -1,0 +1,56 @@
+{
+  "poam_version": "1.1.0",
+  "system_name": "PolicyOS v3.0",
+  "prepared_by": "Security Engineering",
+  "prepared_date": "2026-02-08",
+  "milestones": [
+    {
+      "id": "POAM-001",
+      "weakness": "HSM not integrated for root signing key (SC-12)",
+      "severity": "high",
+      "responsible": "Cloud Architect",
+      "scheduled_completion": "2026-04-01",
+      "status": "planned"
+    },
+    {
+      "id": "POAM-002",
+      "weakness": "System Security Plan narrative package is incomplete (PL-2)",
+      "severity": "high",
+      "responsible": "Security Engineer",
+      "scheduled_completion": "2026-04-15",
+      "status": "planned"
+    },
+    {
+      "id": "POAM-003",
+      "weakness": "Penetration testing not completed (CA-8)",
+      "severity": "critical",
+      "responsible": "Security Engineering",
+      "scheduled_completion": "2026-04-30",
+      "status": "planned"
+    },
+    {
+      "id": "POAM-004",
+      "weakness": "Backup/restore procedures are not validated (CP-9)",
+      "severity": "high",
+      "responsible": "Cloud Architect",
+      "scheduled_completion": "2026-05-01",
+      "status": "planned"
+    },
+    {
+      "id": "POAM-005",
+      "weakness": "ISA agreements for external APIs are missing (SA-9)",
+      "severity": "medium",
+      "responsible": "Security Engineer",
+      "scheduled_completion": "2026-05-15",
+      "status": "planned"
+    },
+    {
+      "id": "POAM-006",
+      "weakness": "Incident response playbook and tabletop evidence missing (IR-4)",
+      "severity": "medium",
+      "responsible": "Security Engineer",
+      "scheduled_completion": "2026-05-01",
+      "status": "planned"
+    }
+  ]
+}

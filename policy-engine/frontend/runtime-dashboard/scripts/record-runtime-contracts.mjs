@@ -5,10 +5,7 @@ import { fileURLToPath } from "node:url";
 
 const currentDir = path.dirname(fileURLToPath(import.meta.url));
 const dashboardRoot = path.resolve(currentDir, "..");
-const fixturesDir = path.resolve(
-  dashboardRoot,
-  "src/test/contracts/fixtures",
-);
+const fixturesDir = path.resolve(dashboardRoot, "src/test/contracts/fixtures");
 
 function parseArgs(argv) {
   const args = new Map();
@@ -78,7 +75,9 @@ async function main() {
   const runId = runsList?.runs?.[0]?.run_id;
 
   if (!runId) {
-    throw new Error("Unable to record runtime contracts without a sample run id.");
+    throw new Error(
+      "Unable to record runtime contracts without a sample run id.",
+    );
   }
 
   const runDetails = await requestJson(baseUrl, {
@@ -176,6 +175,8 @@ async function main() {
 }
 
 main().catch((error) => {
-  process.stderr.write(`${error instanceof Error ? error.stack : String(error)}\n`);
+  process.stderr.write(
+    `${error instanceof Error ? error.stack : String(error)}\n`,
+  );
   process.exitCode = 1;
 });

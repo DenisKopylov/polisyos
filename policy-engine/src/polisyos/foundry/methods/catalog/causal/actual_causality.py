@@ -864,7 +864,7 @@ def _degree_of_blame(
 @foundry_method(
     namespace="causal.counterfactual",
     version="1.0.0",
-    tags={"causal", "ncm", "pns", "probability_of_causation", "counterfactual"},
+    tags={"causal", "ncm", "pns", "probability_of_causation", "counterfactual", "structural"},
 )
 class ActualCausalityEngine:
     """Probability of Necessity and Sufficiency (PN/PS/PNS) engine.
@@ -914,7 +914,7 @@ class ActualCausalityEngine:
             "Probability of Necessity (PN), Sufficiency (PS), and Necessity+Sufficiency "
             "(PNS) via NCM twin-network simulation or Tian-Pearl observational bounds."
         ),
-        tags=frozenset({"causal", "pns", "probability_of_causation", "l3", "counterfactual"}),
+        tags=frozenset({"causal", "pns", "probability_of_causation", "l3", "counterfactual", "structural"}),
         citations=(
             "Pearl, J. (2000). Causality, Ch. 9. CUP.",
             "Tian, J. & Pearl, J. (2000). Probabilities of Causation: Bounds and Identification. "
@@ -1010,7 +1010,7 @@ class ActualCausalityEngine:
 @foundry_method(
     namespace="causal.counterfactual",
     version="1.0.0",
-    tags={"causal", "ncm", "actual_causality", "halpern_pearl", "responsibility"},
+    tags={"causal", "ncm", "actual_causality", "halpern_pearl", "responsibility", "structural"},
 )
 class HPActualCauseMethod:
     """HP Actual Causality method (Halpern & Pearl 2005, updated 2016).
@@ -1066,7 +1066,7 @@ class HPActualCauseMethod:
             "HP actual causality check: determines whether X=x is an actual cause of Y=y "
             "via AC1/AC2/AC3 conditions, and computes degree of responsibility."
         ),
-        tags=frozenset({"causal", "actual_causality", "halpern_pearl", "responsibility", "l3"}),
+        tags=frozenset({"causal", "actual_causality", "halpern_pearl", "responsibility", "l3", "structural"}),
         citations=(
             "Halpern, J. & Pearl, J. (2005). Causes and Explanations: A Structural-Model Approach. BJPS.",
             "Halpern, J. (2016). Actual Causality. MIT Press.",

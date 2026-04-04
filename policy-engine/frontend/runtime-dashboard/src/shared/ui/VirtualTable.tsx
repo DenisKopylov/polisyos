@@ -16,10 +16,7 @@ type VirtualTableProps<Row> = {
   rowKey: (row: Row, index: number) => string;
   rows: Row[];
   rowClassName?: (row: Row, index: number) => string;
-  rowProps?: (
-    row: Row,
-    index: number,
-  ) => HTMLAttributes<HTMLTableRowElement>;
+  rowProps?: (row: Row, index: number) => HTMLAttributes<HTMLTableRowElement>;
   initialScrollTop?: number;
   onScrollPositionChange?: (scrollTop: number) => void;
 };
@@ -50,7 +47,8 @@ export function VirtualTable<Row>({
   const virtualRows = virtualizer.getVirtualItems();
   const paddingTop = virtualRows[0]?.start ?? 0;
   const paddingBottom =
-    virtualizer.getTotalSize() - (virtualRows[virtualRows.length - 1]?.end ?? 0);
+    virtualizer.getTotalSize() -
+    (virtualRows[virtualRows.length - 1]?.end ?? 0);
 
   useEffect(() => {
     if (activeIndex == null || activeIndex < 0 || activeIndex >= rows.length) {
@@ -69,18 +67,18 @@ export function VirtualTable<Row>({
   return (
     <div
       ref={parentRef}
-      className={cn(
-        "overflow-auto rounded-2xl border border-line",
-        className,
-      )}
+      className={cn("border-line overflow-auto rounded-2xl border", className)}
       onScroll={(event) => {
         onScrollPositionChange?.(event.currentTarget.scrollTop);
       }}
       style={{ maxHeight }}
     >
-      <table aria-label={ariaLabel} className="min-w-full border-collapse text-sm">
-        <thead className="sticky top-0 z-10 bg-panel">
-          <tr className="border-b border-line text-left text-xs uppercase tracking-wide text-muted">
+      <table
+        aria-label={ariaLabel}
+        className="min-w-full border-collapse text-sm"
+      >
+        <thead className="bg-panel sticky top-0 z-10">
+          <tr className="border-line text-muted border-b text-left text-xs tracking-wide uppercase">
             {columns.map((column) => (
               <th
                 key={column.key}

@@ -647,7 +647,9 @@ export type RunEvidenceContextPayload = z.infer<
   typeof runEvidenceContextSchema
 >;
 export type GovernanceDebugPayload = z.infer<typeof governanceDebugSchema>;
-export type PromotionCandidatesPayload = z.infer<typeof promotionCandidatesSchema>;
+export type PromotionCandidatesPayload = z.infer<
+  typeof promotionCandidatesSchema
+>;
 export type PromotionDecisionResponsePayload = z.infer<
   typeof promotionDecisionResponseSchema
 >;

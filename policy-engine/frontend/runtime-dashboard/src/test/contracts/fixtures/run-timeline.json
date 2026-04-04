@@ -2,9 +2,7 @@
   "meta": {
     "request_id": "f07de0db671344c696de0f43c8be8401",
     "generated_at": "2026-03-10T19:30:38.566211Z",
-    "source_kinds": [
-      "core_run"
-    ]
+    "source_kinds": ["core_run"]
   },
   "timeline": {
     "run_id": "R_core_api_001",

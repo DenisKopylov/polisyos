@@ -42,7 +42,7 @@ export type ArtifactViewerDescriptor = {
 
 function ArtifactViewerFallback({ messageKey }: { messageKey: string }) {
   const { t } = useI18n();
-  return <p className="text-sm text-muted">{t(messageKey)}</p>;
+  return <p className="text-muted text-sm">{t(messageKey)}</p>;
 }
 
 function SummaryGrid({ items }: { items: ArtifactViewerSummaryItem[] }) {
@@ -55,9 +55,9 @@ function SummaryGrid({ items }: { items: ArtifactViewerSummaryItem[] }) {
       {items.map((item) => (
         <div
           key={item.label}
-          className="bg-surface/80 rounded-xl border border-line p-3 text-sm"
+          className="bg-surface/80 border-line rounded-xl border p-3 text-sm"
         >
-          <p className="text-xs uppercase text-muted">{item.label}</p>
+          <p className="text-muted text-xs uppercase">{item.label}</p>
           <div className="mt-1 font-semibold">{item.value}</div>
         </div>
       ))}
@@ -70,8 +70,8 @@ function TextList({ title, items }: { title: string; items: string[] }) {
     return null;
   }
   return (
-    <div className="bg-surface/80 rounded-2xl border border-line p-3 text-sm">
-      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">
+    <div className="bg-surface/80 border-line rounded-2xl border p-3 text-sm">
+      <p className="text-muted mb-2 text-xs font-semibold tracking-wide uppercase">
         {title}
       </p>
       <ul className="space-y-1">
@@ -122,13 +122,13 @@ function ArtifactViewerShell({
 
   return (
     <div className="space-y-3">
-      <div className="bg-panel/70 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-line p-3">
+      <div className="bg-panel/70 border-line flex flex-wrap items-center justify-between gap-3 rounded-2xl border p-3">
         <div>
-          <p className="text-xs uppercase tracking-wide text-muted">
+          <p className="text-muted text-xs tracking-wide uppercase">
             {t("pages.artifacts.title")}
           </p>
           <p className="mt-1 text-lg font-semibold">{title}</p>
-          <p className="mt-1 text-xs text-muted">{kind}</p>
+          <p className="text-muted mt-1 text-xs">{kind}</p>
         </div>
         {relatedRefs.length > 0 ? (
           <div className="flex flex-wrap gap-2">
@@ -136,7 +136,7 @@ function ArtifactViewerShell({
               <Link
                 key={`${ref.label}:${ref.artifactId}`}
                 to={`/artifacts/${ref.artifactId}`}
-                className="rounded-full border border-line bg-surface px-3 py-1 text-xs font-semibold"
+                className="border-line bg-surface rounded-full border px-3 py-1 text-xs font-semibold"
               >
                 {ref.label}
               </Link>
@@ -146,7 +146,7 @@ function ArtifactViewerShell({
       </div>
       <SummaryGrid items={summaryItems} />
       {children}
-      <details className="bg-surface/80 rounded-2xl border border-line p-3">
+      <details className="bg-surface/80 border-line rounded-2xl border p-3">
         <summary className="cursor-pointer text-sm font-semibold">
           {t("pages.artifacts.viewers.rawPayload")}
         </summary>
@@ -272,7 +272,7 @@ function PreflightReportViewer({ preview }: { preview: unknown }) {
             return (
               <div
                 key={`${asString(diagnostic.code) ?? "diagnostic"}-${index}`}
-                className="bg-surface/80 rounded-2xl border border-line p-3 text-sm"
+                className="bg-surface/80 border-line rounded-2xl border p-3 text-sm"
               >
                 <div className="flex items-center justify-between gap-2">
                   <p className="font-semibold">
@@ -291,7 +291,7 @@ function PreflightReportViewer({ preview }: { preview: unknown }) {
                     t("pages.artifacts.viewers.noDiagnosticMessage")}
                 </p>
                 {hints.length > 0 ? (
-                  <p className="mt-2 text-xs text-muted">
+                  <p className="text-muted mt-2 text-xs">
                     {t("pages.artifacts.viewers.hints", {
                       hints: hints.join(" · "),
                     })}
@@ -370,7 +370,7 @@ function EvaluatorReportViewer({ preview }: { preview: unknown }) {
           {diagnostics.map((diagnostic, index) => (
             <div
               key={`${asString(diagnostic.code) ?? "diagnostic"}-${index}`}
-              className="bg-surface/80 rounded-2xl border border-line p-3 text-sm"
+              className="bg-surface/80 border-line rounded-2xl border p-3 text-sm"
             >
               <p className="font-semibold">
                 {asString(diagnostic.code) ?? `diagnostic_${index + 1}`}
@@ -441,8 +441,8 @@ function ReproducibilityManifestViewer({ preview }: { preview: unknown }) {
         items={missingRefs}
       />
       {asString(manifest?.suggested_next_step) ? (
-        <div className="bg-surface/80 rounded-2xl border border-line p-3 text-sm">
-          <p className="text-xs uppercase text-muted">
+        <div className="bg-surface/80 border-line rounded-2xl border p-3 text-sm">
+          <p className="text-muted text-xs uppercase">
             {t("pages.artifacts.viewers.suggestedNextStep")}
           </p>
           <p className="mt-1 font-semibold">
@@ -491,7 +491,7 @@ function LegalReportViewer({ preview }: { preview: unknown }) {
           {issues.map((issue, index) => (
             <div
               key={`${asString(issue.code) ?? "issue"}-${index}`}
-              className="bg-surface/80 rounded-2xl border border-line p-3 text-sm"
+              className="bg-surface/80 border-line rounded-2xl border p-3 text-sm"
             >
               <p className="font-semibold">
                 {asString(issue.code) ?? `issue_${index + 1}`}

@@ -27,7 +27,9 @@ function summarizeChunkDelta(baseList, headList) {
 const [basePath, headPath, outputPath] = process.argv.slice(2);
 
 if (!basePath || !headPath) {
-  throw new Error("Usage: node compare-bundle-stats.mjs <base> <head> [output]");
+  throw new Error(
+    "Usage: node compare-bundle-stats.mjs <base> <head> [output]",
+  );
 }
 
 const base = readStats(basePath);

@@ -1,10 +1,4 @@
-import {
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type ReactNode,
-} from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
 import { useDataCatalogSearch } from "@/api/hooks/useDataCatalogSearch";
 import { useDataIndexStats } from "@/api/hooks/useDataIndexStats";
@@ -324,11 +318,7 @@ export default function DataIntelligencePanel({
 
   function renderSimpleList<
     T extends { candidate_id?: string; promotionId?: string },
-  >(
-    items: T[],
-    renderItem: (item: T) => ReactNode,
-    estimateSize = 84,
-  ) {
+  >(items: T[], renderItem: (item: T) => ReactNode, estimateSize = 84) {
     if (items.length < VIRTUALIZATION_THRESHOLD) {
       return <div className="space-y-2">{items.map(renderItem)}</div>;
     }
@@ -420,8 +410,7 @@ export default function DataIntelligencePanel({
       {
         onError: () => {
           setPromotionStatusOverrides((current) => {
-            const next = { ...current };
-            delete next[candidate.promotionId];
+            const { [candidate.promotionId]: _removed, ...next } = current;
             return next;
           });
         },
@@ -456,27 +445,27 @@ export default function DataIntelligencePanel({
       <div className="panel">
         <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
           <div>
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-muted">
+            <h3 className="text-muted text-sm font-semibold tracking-wider uppercase">
               {t("panels.dataIntelligence.title")}
             </h3>
-            <p className="mt-2 text-sm text-muted">
+            <p className="text-muted mt-2 text-sm">
               {t("panels.dataIntelligence.subtitle")}
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <span className="border-accent/20 bg-accent/10 rounded-full border px-3 py-1 text-xs font-semibold text-accent">
+            <span className="border-accent/20 bg-accent/10 text-accent rounded-full border px-3 py-1 text-xs font-semibold">
               {mode === "context"
                 ? t("panels.dataIntelligence.contextMode")
                 : t("panels.dataIntelligence.workspaceMode")}
             </span>
-            <span className="rounded-full border border-line bg-surface px-3 py-1 text-xs font-semibold text-muted">
+            <span className="border-line bg-surface text-muted rounded-full border px-3 py-1 text-xs font-semibold">
               {focusLabel(focus, t)}
             </span>
           </div>
         </div>
 
         {mode === "context" ? (
-          <div className="bg-surface/80 mb-4 rounded-2xl border border-line p-3">
+          <div className="bg-surface/80 border-line mb-4 rounded-2xl border p-3">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="space-y-1 text-sm">
                 <p className="font-semibold">
@@ -504,14 +493,14 @@ export default function DataIntelligencePanel({
 
             <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
               <div className="compact-metric">
-                <p className="text-xs uppercase text-muted">
+                <p className="text-muted text-xs uppercase">
                   {t("panels.dataIntelligence.dataNeed")}
                 </p>
                 <p className="mt-1 font-semibold">
                   {selectedNeed?.metric ?? t("common.unavailable")}
                 </p>
                 {selectedNeed ? (
-                  <p className="mt-1 text-xs text-muted">
+                  <p className="text-muted mt-1 text-xs">
                     {selectedNeed.geography ?? "-"} ·{" "}
                     {selectedNeed.timeStart ?? "-"} -{" "}
                     {selectedNeed.timeEnd ?? "-"}
@@ -519,7 +508,7 @@ export default function DataIntelligencePanel({
                 ) : null}
               </div>
               <div className="compact-metric">
-                <p className="text-xs uppercase text-muted">
+                <p className="text-muted text-xs uppercase">
                   {t("panels.dataIntelligence.fetchPlan")}
                 </p>
                 <p className="mt-1 font-semibold">
@@ -528,7 +517,7 @@ export default function DataIntelligencePanel({
                     : t("common.unavailable")}
                 </p>
                 {selectedPlan ? (
-                  <p className="mt-1 text-xs text-muted">
+                  <p className="text-muted mt-1 text-xs">
                     {label(
                       "retrievalLane",
                       selectedPlan.sourceLane,
@@ -538,14 +527,14 @@ export default function DataIntelligencePanel({
                 ) : null}
               </div>
               <div className="compact-metric">
-                <p className="text-xs uppercase text-muted">
+                <p className="text-muted text-xs uppercase">
                   {t("panels.dataIntelligence.promotion")}
                 </p>
                 <p className="mt-1 font-semibold">
                   {selectedPromotion?.metricId ?? t("common.unavailable")}
                 </p>
                 {selectedPromotion ? (
-                  <p className="mt-1 text-xs text-muted">
+                  <p className="text-muted mt-1 text-xs">
                     {formatPercent(selectedPromotion.confidence, {
                       maximumFractionDigits: 1,
                     })}{" "}
@@ -554,14 +543,14 @@ export default function DataIntelligencePanel({
                 ) : null}
               </div>
               <div className="compact-metric">
-                <p className="text-xs uppercase text-muted">
+                <p className="text-muted text-xs uppercase">
                   {t("panels.dataIntelligence.artifactRef")}
                 </p>
                 <p className="mt-1 font-semibold">
                   {selectedArtifact?.artifact_id ?? t("common.unavailable")}
                 </p>
                 {selectedArtifact?.kind ? (
-                  <p className="mt-1 text-xs text-muted">
+                  <p className="text-muted mt-1 text-xs">
                     {label(
                       "artifactKinds",
                       selectedArtifact.kind,
@@ -575,7 +564,7 @@ export default function DataIntelligencePanel({
         ) : null}
 
         {degradedMessages.length > 0 ? (
-          <div className="border-warning/30 bg-warning/5 mb-4 rounded-2xl border p-3 text-sm text-warning">
+          <div className="border-warning/30 bg-warning/5 text-warning mb-4 rounded-2xl border p-3 text-sm">
             <p className="font-semibold">
               {t("panels.dataIntelligence.degradedTitle")}
             </p>
@@ -589,7 +578,7 @@ export default function DataIntelligencePanel({
 
         <div className="grid gap-3 md:grid-cols-3">
           <div>
-            <label className="mb-1 block text-xs text-muted">
+            <label className="text-muted mb-1 block text-xs">
               {t("panels.dataIntelligence.metric")}
             </label>
             <input
@@ -603,7 +592,7 @@ export default function DataIntelligencePanel({
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs text-muted">
+            <label className="text-muted mb-1 block text-xs">
               {t("panels.dataIntelligence.geography")}
             </label>
             <input
@@ -616,7 +605,7 @@ export default function DataIntelligencePanel({
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs text-muted">
+            <label className="text-muted mb-1 block text-xs">
               {t("panels.dataIntelligence.granularity")}
             </label>
             <select
@@ -631,7 +620,7 @@ export default function DataIntelligencePanel({
             </select>
           </div>
           <div>
-            <label className="mb-1 block text-xs text-muted">
+            <label className="text-muted mb-1 block text-xs">
               {t("panels.dataIntelligence.timeStart")}
             </label>
             <input
@@ -644,7 +633,7 @@ export default function DataIntelligencePanel({
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs text-muted">
+            <label className="text-muted mb-1 block text-xs">
               {t("panels.dataIntelligence.timeEnd")}
             </label>
             <input
@@ -657,7 +646,7 @@ export default function DataIntelligencePanel({
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs text-muted">
+            <label className="text-muted mb-1 block text-xs">
               {t("panels.dataIntelligence.qualityMin")}
             </label>
             <input
@@ -675,7 +664,7 @@ export default function DataIntelligencePanel({
 
         <div className="mt-3 grid gap-3 md:grid-cols-4">
           <div>
-            <label className="mb-1 block text-xs text-muted">
+            <label className="text-muted mb-1 block text-xs">
               {t("panels.dataIntelligence.retrievalMode")}
             </label>
             <select
@@ -710,7 +699,9 @@ export default function DataIntelligencePanel({
         <div className="mt-4 flex flex-wrap gap-2">
           <Button
             type="button"
-            disabled={!canRun || resolveMutation.isPending || !canReviewEvidence}
+            disabled={
+              !canRun || resolveMutation.isPending || !canReviewEvidence
+            }
             title={!canReviewEvidence ? t("common.accessDenied") : undefined}
             onClick={handleResolve}
             data-testid="evidence-resolve"
@@ -767,11 +758,11 @@ export default function DataIntelligencePanel({
       </div>
 
       <Card>
-        <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-muted">
+        <h3 className="text-muted mb-3 text-sm font-semibold tracking-wider uppercase">
           {t("panels.dataIntelligence.indexStats")}
         </h3>
         {indexStatsQuery.isLoading ? (
-          <p className="text-sm text-muted">
+          <p className="text-muted text-sm">
             {t("panels.dataIntelligence.indexLoading")}
           </p>
         ) : null}
@@ -781,7 +772,7 @@ export default function DataIntelligencePanel({
         {indexStatsQuery.data ? (
           <>
             <div className="grid gap-2 md:grid-cols-4">
-              <div className="bg-surface/40 rounded-lg border border-line p-2 text-xs">
+              <div className="bg-surface/40 border-line rounded-lg border p-2 text-xs">
                 <p className="text-muted">
                   {t("panels.dataIntelligence.indexDocs")}
                 </p>
@@ -789,7 +780,7 @@ export default function DataIntelligencePanel({
                   {formatNumber(indexStatsQuery.data.stats.index_docs_total)}
                 </p>
               </div>
-              <div className="bg-surface/40 rounded-lg border border-line p-2 text-xs">
+              <div className="bg-surface/40 border-line rounded-lg border p-2 text-xs">
                 <p className="text-muted">
                   {t("panels.dataIntelligence.indexSize")}
                 </p>
@@ -797,7 +788,7 @@ export default function DataIntelligencePanel({
                   {formatBytes(indexStatsQuery.data.stats.index_size_bytes)}
                 </p>
               </div>
-              <div className="bg-surface/40 rounded-lg border border-line p-2 text-xs">
+              <div className="bg-surface/40 border-line rounded-lg border p-2 text-xs">
                 <p className="text-muted">
                   {t("panels.dataIntelligence.indexedSources")}
                 </p>
@@ -805,7 +796,7 @@ export default function DataIntelligencePanel({
                   {formatNumber(indexStatsQuery.data.stats.indexed_sources)}
                 </p>
               </div>
-              <div className="bg-surface/40 rounded-lg border border-line p-2 text-xs">
+              <div className="bg-surface/40 border-line rounded-lg border p-2 text-xs">
                 <p className="text-muted">
                   {t("panels.dataIntelligence.docsAddedLastRun")}
                 </p>
@@ -815,7 +806,7 @@ export default function DataIntelligencePanel({
               </div>
             </div>
             {discoverMutation.data ? (
-              <p className="mt-3 text-xs text-muted">
+              <p className="text-muted mt-3 text-xs">
                 {t("panels.dataIntelligence.lastDiscoverSummary", {
                   docs: formatNumber(discoverMutation.data.docs_fetched_total),
                   candidates: formatNumber(
@@ -829,11 +820,11 @@ export default function DataIntelligencePanel({
       </Card>
 
       <Card>
-        <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-muted">
+        <h3 className="text-muted mb-3 text-sm font-semibold tracking-wider uppercase">
           {t("panels.dataIntelligence.resolveResults")}
         </h3>
         {catalogQuery.isLoading ? (
-          <p className="text-sm text-muted">
+          <p className="text-muted text-sm">
             {t("panels.dataIntelligence.catalogLoading")}
           </p>
         ) : null}
@@ -841,7 +832,7 @@ export default function DataIntelligencePanel({
           <ApiErrorAlert error={catalogQuery.error} />
         ) : null}
         {catalogQuery.data ? (
-          <p className="mb-2 text-xs text-muted">
+          <p className="text-muted mb-2 text-xs">
             {t("panels.dataIntelligence.catalogMatches", {
               count: formatNumber(catalogQuery.data.total_matches),
               query: catalogQuery.data.query,
@@ -852,7 +843,7 @@ export default function DataIntelligencePanel({
         {renderSimpleList(catalogQuery.data?.matches ?? [], (candidate) => (
           <div
             key={candidate.candidate_id}
-            className="bg-surface/50 rounded-lg border border-line p-2 text-xs"
+            className="bg-surface/50 border-line rounded-lg border p-2 text-xs"
           >
             <p className="font-mono">
               {candidate.metric_id} {"->"} {candidate.connector_id} /{" "}
@@ -869,7 +860,7 @@ export default function DataIntelligencePanel({
 
         {resolveMutation.data ? (
           <div className="mt-3 space-y-2">
-            <p className="text-xs text-muted">
+            <p className="text-muted text-xs">
               {t("panels.dataIntelligence.resolvedSummary", {
                 plans: formatNumber(resolvedPlans.length),
                 candidates: formatNumber(
@@ -878,7 +869,7 @@ export default function DataIntelligencePanel({
               })}
             </p>
             {(resolveMutation.data.warnings ?? []).length > 0 ? (
-              <ul className="text-xs text-warning">
+              <ul className="text-warning text-xs">
                 {(resolveMutation.data.warnings ?? []).map((warning, index) => (
                   <li key={`${warning}-${index}`}>{warning}</li>
                 ))}
@@ -887,7 +878,7 @@ export default function DataIntelligencePanel({
             {resolvedPlans.map((plan) => (
               <div
                 key={plan.plan_id}
-                className="bg-surface/50 rounded-lg border border-line p-2 text-xs"
+                className="bg-surface/50 border-line rounded-lg border p-2 text-xs"
               >
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <p className="font-mono">
@@ -898,7 +889,7 @@ export default function DataIntelligencePanel({
                     type="button"
                     onClick={() => handlePreview(plan)}
                     disabled={previewMutation.isPending}
-                    className="rounded border border-line bg-panel px-2 py-1 text-[11px] font-semibold"
+                    className="border-line bg-panel rounded border px-2 py-1 text-[11px] font-semibold"
                   >
                     {t("panels.dataIntelligence.preview")}
                   </button>
@@ -913,7 +904,7 @@ export default function DataIntelligencePanel({
                   })}
                 </p>
                 {lastPreviewPlanId === plan.plan_id && selectedPreview ? (
-                  <div className="bg-canvas/40 mt-2 rounded border border-line p-2">
+                  <div className="bg-canvas/40 border-line mt-2 rounded border p-2">
                     <p>
                       {t("panels.dataIntelligence.previewMeta", {
                         status: selectedPreview.status,
@@ -935,7 +926,7 @@ export default function DataIntelligencePanel({
 
         {discoverCandidates.length > 0 ? (
           <div className="mt-3">
-            <p className="mb-1 text-xs text-muted">
+            <p className="text-muted mb-1 text-xs">
               {t("panels.dataIntelligence.discoverCandidates", {
                 count: formatNumber(discoverCandidates.length),
               })}
@@ -943,7 +934,7 @@ export default function DataIntelligencePanel({
             {renderSimpleList(discoverCandidates, (candidate) => (
               <div
                 key={candidate.candidate_id}
-                className="bg-canvas/40 rounded border border-line p-2 text-xs"
+                className="bg-canvas/40 border-line rounded border p-2 text-xs"
               >
                 <p className="font-mono">
                   {candidate.metric_id} {"->"} {candidate.connector_id} /{" "}
@@ -964,7 +955,7 @@ export default function DataIntelligencePanel({
         <div ref={promotionReviewSurfaceRef} className="relative">
           <ReviewCursorLayer cursors={promotionCollaboration.cursors} />
           <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-muted">
+            <h3 className="text-muted text-sm font-semibold tracking-wider uppercase">
               {t("panels.dataIntelligence.promotionQueue")}
             </h3>
             <div className="flex flex-wrap gap-2">
@@ -1005,7 +996,7 @@ export default function DataIntelligencePanel({
                 status={promotionCollaboration.status}
               />
               <ReviewLockNotice lock={promotionCollaboration.lock} />
-              <p className="text-xs text-muted">
+              <p className="text-muted text-xs">
                 {t("panels.reviewCollaboration.activeTarget", {
                   target: activePromotionForReview.metricId,
                 })}
@@ -1013,7 +1004,7 @@ export default function DataIntelligencePanel({
             </div>
           ) : null}
           {promotionCandidatesQuery.isLoading && mode !== "context" ? (
-            <p className="text-sm text-muted">
+            <p className="text-muted text-sm">
               {t("panels.dataIntelligence.promotionLoading")}
             </p>
           ) : null}
@@ -1021,7 +1012,7 @@ export default function DataIntelligencePanel({
             <ApiErrorAlert error={promotionCandidatesQuery.error} />
           ) : null}
           <div className="mb-3">
-            <label className="mb-1 block text-xs text-muted">
+            <label className="text-muted mb-1 block text-xs">
               {t("panels.dataIntelligence.decisionReason")}
             </label>
             <input
@@ -1030,12 +1021,14 @@ export default function DataIntelligencePanel({
               onChange={(event) => setPromotionReason(event.target.value)}
               disabled={!canReviewEvidence}
               aria-label={t("panels.dataIntelligence.decisionReason")}
-              placeholder={t("panels.dataIntelligence.decisionReasonPlaceholder")}
+              placeholder={t(
+                "panels.dataIntelligence.decisionReasonPlaceholder",
+              )}
               className="atlas-input"
             />
           </div>
           {promotionQueueWithOverrides.length === 0 ? (
-            <p className="text-sm text-muted">
+            <p className="text-muted text-sm">
               {t("panels.dataIntelligence.noPromotionCandidates")}
             </p>
           ) : null}
@@ -1045,9 +1038,10 @@ export default function DataIntelligencePanel({
               <div
                 key={candidate.promotionId}
                 className={[
-                  "bg-surface/50 rounded-lg border border-line p-2",
-                  candidate.promotionId === activePromotionForReview?.promotionId
-                    ? "border-accent/40 ring-1 ring-accent/20"
+                  "bg-surface/50 border-line rounded-lg border p-2",
+                  candidate.promotionId ===
+                  activePromotionForReview?.promotionId
+                    ? "border-accent/40 ring-accent/20 ring-1"
                     : "",
                 ].join(" ")}
               >
@@ -1055,7 +1049,7 @@ export default function DataIntelligencePanel({
                   {candidate.metricId} {"->"} {candidate.connectorId} /{" "}
                   {candidate.datasetId}
                 </p>
-                <p className="text-xs text-muted">
+                <p className="text-muted text-xs">
                   {t("panels.dataIntelligence.promotionCandidateMeta", {
                     status: candidate.queuedState
                       ? `${candidate.status} (${candidate.queuedState.queueStatus})`
@@ -1144,12 +1138,12 @@ export default function DataIntelligencePanel({
       </Card>
 
       <Card>
-        <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-muted">
+        <h3 className="text-muted mb-3 text-sm font-semibold tracking-wider uppercase">
           {t("panels.dataIntelligence.exploreBudget")}
         </h3>
         <div className="grid gap-3 md:grid-cols-4">
           <div>
-            <label className="mb-1 block text-xs text-muted">
+            <label className="text-muted mb-1 block text-xs">
               {t("panels.dataIntelligence.maxSourcesPerQuery")}
             </label>
             <input
@@ -1165,7 +1159,7 @@ export default function DataIntelligencePanel({
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs text-muted">
+            <label className="text-muted mb-1 block text-xs">
               {t("panels.dataIntelligence.maxCallsPerSource")}
             </label>
             <input
@@ -1181,7 +1175,7 @@ export default function DataIntelligencePanel({
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs text-muted">
+            <label className="text-muted mb-1 block text-xs">
               {t("panels.dataIntelligence.maxCandidatesTotal")}
             </label>
             <input
@@ -1197,7 +1191,7 @@ export default function DataIntelligencePanel({
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs text-muted">
+            <label className="text-muted mb-1 block text-xs">
               {t("panels.dataIntelligence.timeBudgetMs")}
             </label>
             <input

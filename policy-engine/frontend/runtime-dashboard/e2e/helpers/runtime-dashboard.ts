@@ -60,14 +60,12 @@ type SurfaceReadyKey =
 type RuntimeApiOverride = {
   body?:
     | unknown
-    | ((
-        _input: {
-          metadata: RuntimeFixtureMetadata;
-          payload: unknown;
-          request: Request;
-          url: URL;
-        },
-      ) => Promise<unknown> | unknown);
+    | ((_input: {
+        metadata: RuntimeFixtureMetadata;
+        payload: unknown;
+        request: Request;
+        url: URL;
+      }) => Promise<unknown> | unknown);
   headers?: Record<string, string>;
   matcher: RegExp | string;
   method?: string;
@@ -270,7 +268,12 @@ export async function applyRuntimeApiScenario(
       return;
     }
 
-    if (scenario === "empty" && request.method() !== "GET" && !override && !contractFixture) {
+    if (
+      scenario === "empty" &&
+      request.method() !== "GET" &&
+      !override &&
+      !contractFixture
+    ) {
       await route.continue();
       return;
     }

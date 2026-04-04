@@ -4,30 +4,100 @@ import { ROUTE_LOADER_EVENT_NAME } from "@/shared/telemetry/routeLoaderEvents";
 
 const vitalsState = vi.hoisted(() => {
   const callbacks: {
-    cls?: (metric: { delta: number; id: string; rating: string; value: number }) => void;
-    fid?: (metric: { delta: number; id: string; rating: string; value: number }) => void;
-    inp?: (metric: { delta: number; id: string; rating: string; value: number }) => void;
-    lcp?: (metric: { delta: number; id: string; rating: string; value: number }) => void;
-    ttfb?: (metric: { delta: number; id: string; rating: string; value: number }) => void;
+    cls?: (metric: {
+      delta: number;
+      id: string;
+      rating: string;
+      value: number;
+    }) => void;
+    fid?: (metric: {
+      delta: number;
+      id: string;
+      rating: string;
+      value: number;
+    }) => void;
+    inp?: (metric: {
+      delta: number;
+      id: string;
+      rating: string;
+      value: number;
+    }) => void;
+    lcp?: (metric: {
+      delta: number;
+      id: string;
+      rating: string;
+      value: number;
+    }) => void;
+    ttfb?: (metric: {
+      delta: number;
+      id: string;
+      rating: string;
+      value: number;
+    }) => void;
   } = {};
 
   return {
     callbacks,
-    onCLSMock: vi.fn((callback: (metric: { delta: number; id: string; rating: string; value: number }) => void) => {
-    callbacks.cls = callback;
-  }),
-    onFIDMock: vi.fn((callback: (metric: { delta: number; id: string; rating: string; value: number }) => void) => {
-      callbacks.fid = callback;
-    }),
-    onINPMock: vi.fn((callback: (metric: { delta: number; id: string; rating: string; value: number }) => void) => {
-      callbacks.inp = callback;
-    }),
-    onLCPMock: vi.fn((callback: (metric: { delta: number; id: string; rating: string; value: number }) => void) => {
-      callbacks.lcp = callback;
-    }),
-    onTTFBMock: vi.fn((callback: (metric: { delta: number; id: string; rating: string; value: number }) => void) => {
-      callbacks.ttfb = callback;
-    }),
+    onCLSMock: vi.fn(
+      (
+        callback: (metric: {
+          delta: number;
+          id: string;
+          rating: string;
+          value: number;
+        }) => void,
+      ) => {
+        callbacks.cls = callback;
+      },
+    ),
+    onFIDMock: vi.fn(
+      (
+        callback: (metric: {
+          delta: number;
+          id: string;
+          rating: string;
+          value: number;
+        }) => void,
+      ) => {
+        callbacks.fid = callback;
+      },
+    ),
+    onINPMock: vi.fn(
+      (
+        callback: (metric: {
+          delta: number;
+          id: string;
+          rating: string;
+          value: number;
+        }) => void,
+      ) => {
+        callbacks.inp = callback;
+      },
+    ),
+    onLCPMock: vi.fn(
+      (
+        callback: (metric: {
+          delta: number;
+          id: string;
+          rating: string;
+          value: number;
+        }) => void,
+      ) => {
+        callbacks.lcp = callback;
+      },
+    ),
+    onTTFBMock: vi.fn(
+      (
+        callback: (metric: {
+          delta: number;
+          id: string;
+          rating: string;
+          value: number;
+        }) => void,
+      ) => {
+        callbacks.ttfb = callback;
+      },
+    ),
   };
 });
 
@@ -52,7 +122,10 @@ describe("TelemetryProvider", () => {
     vitalsState.onINPMock.mockClear();
     vitalsState.onLCPMock.mockClear();
     vitalsState.onTTFBMock.mockClear();
-    vi.stubEnv("VITE_TELEMETRY_BEACON_URL", "https://telemetry.example/collect");
+    vi.stubEnv(
+      "VITE_TELEMETRY_BEACON_URL",
+      "https://telemetry.example/collect",
+    );
     window.__RUNTIME_DASHBOARD_TEST__ = true;
     Object.defineProperty(globalThis.navigator, "sendBeacon", {
       configurable: true,
@@ -89,10 +162,8 @@ describe("TelemetryProvider", () => {
   });
 
   it("emits ready, loader, vitals, and navigation telemetry through sendBeacon", async () => {
-    const {
-      TelemetryProvider,
-      useTelemetryReadyMark,
-    } = await import("@/shared/telemetry/TelemetryProvider");
+    const { TelemetryProvider, useTelemetryReadyMark } =
+      await import("@/shared/telemetry/TelemetryProvider");
 
     function Probe() {
       useTelemetryReadyMark("runs.list.page", { routeId: "runs.list" });
@@ -158,9 +229,8 @@ describe("TelemetryProvider", () => {
     );
 
     expect(performance.mark).toHaveBeenCalledWith("runs.list.page:ready");
-    const calls = (
-      navigator.sendBeacon as unknown as ReturnType<typeof vi.fn>
-    ).mock.calls;
+    const calls = (navigator.sendBeacon as unknown as ReturnType<typeof vi.fn>)
+      .mock.calls;
     const names = calls.map(([, body]) => JSON.parse(String(body)).name);
     expect(names).toContain("perf.navigation.sample");
     expect(names).toContain("ui.ready");
@@ -183,9 +253,8 @@ describe("TelemetryProvider", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     const { queryClient } = await import("@/api/queryClient");
-    const { TelemetryProvider } = await import(
-      "@/shared/telemetry/TelemetryProvider"
-    );
+    const { TelemetryProvider } =
+      await import("@/shared/telemetry/TelemetryProvider");
     queryClient.clear();
 
     render(
@@ -213,11 +282,12 @@ describe("TelemetryProvider", () => {
 
     await waitFor(() => expect(fetchMock).toHaveBeenCalled());
 
-    const events = fetchMock.mock.calls.map((call) =>
-      JSON.parse(String(call[1]?.body)) as {
-        name: string;
-        payload?: Record<string, unknown>;
-      },
+    const events = fetchMock.mock.calls.map(
+      (call) =>
+        JSON.parse(String(call[1]?.body)) as {
+          name: string;
+          payload?: Record<string, unknown>;
+        },
     );
     const names = events.map((event) => event.name);
     expect(names).toContain("query.fetch.success");
@@ -226,12 +296,13 @@ describe("TelemetryProvider", () => {
       events.find((event) => event.name === "query.fetch.error")?.payload,
     ).toMatchObject({
       error: "boom",
-      queryHash: "[\"telemetry\",\"error\"]",
+      queryHash: '["telemetry","error"]',
     });
   });
 
   it("requires useTelemetry to be read inside a provider", async () => {
-    const { useTelemetry } = await import("@/shared/telemetry/TelemetryProvider");
+    const { useTelemetry } =
+      await import("@/shared/telemetry/TelemetryProvider");
 
     expect(() => renderHook(() => useTelemetry())).toThrow(
       "useTelemetry must be used within TelemetryProvider",

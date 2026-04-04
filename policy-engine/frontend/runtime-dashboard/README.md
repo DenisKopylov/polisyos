@@ -19,17 +19,17 @@ Legacy URLs `/launch`, `/sources`, `/data`, `/lex`, `/health` сохранены
 
 ## Legacy Migration Matrix
 
-| Legacy page | Feature replacement | Compatibility contract |
-| ----------- | ------------------- | ---------------------- |
-| `Dashboard.tsx` | `src/features/dashboard/routes/DashboardPage.tsx` | canonical `/` |
-| `LaunchRun.tsx` | `src/features/composer/routes/LaunchRunPage.tsx` | redirect `/launch -> /compose` |
-| `RunsList.tsx` | `src/features/runs/routes/RunsListPage.tsx` | canonical `/runs` |
-| `RunDetail.tsx` | `src/features/runs/routes/RunDetailLayout.tsx` + `tabs/*` | canonical `/runs/:runId/:tab`, legacy tab query stays supported |
-| `ArtifactInspector.tsx` | `src/features/artifacts/routes/ArtifactInspectorPage.tsx` | canonical `/artifacts/:artifactId` |
-| `LexKnowledgeGraph.tsx` | `src/features/lex/routes/LexKnowledgeGraphPage.tsx` | redirect `/lex -> /knowledge` |
-| `SystemHealth.tsx` | `src/features/platform/routes/PlatformHealthPage.tsx` | redirect `/health -> /platform` |
-| `SourcesManagement.tsx` | `src/features/evidence/routes/EvidenceFabricPage.tsx` | redirect `/sources -> /evidence` |
-| `DataManagement.tsx` | `src/features/evidence/routes/EvidenceFabricPage.tsx` | redirect `/data -> /evidence` |
+| Legacy page             | Feature replacement                                       | Compatibility contract                                          |
+| ----------------------- | --------------------------------------------------------- | --------------------------------------------------------------- |
+| `Dashboard.tsx`         | `src/features/dashboard/routes/DashboardPage.tsx`         | canonical `/`                                                   |
+| `LaunchRun.tsx`         | `src/features/composer/routes/LaunchRunPage.tsx`          | redirect `/launch -> /compose`                                  |
+| `RunsList.tsx`          | `src/features/runs/routes/RunsListPage.tsx`               | canonical `/runs`                                               |
+| `RunDetail.tsx`         | `src/features/runs/routes/RunDetailLayout.tsx` + `tabs/*` | canonical `/runs/:runId/:tab`, legacy tab query stays supported |
+| `ArtifactInspector.tsx` | `src/features/artifacts/routes/ArtifactInspectorPage.tsx` | canonical `/artifacts/:artifactId`                              |
+| `LexKnowledgeGraph.tsx` | `src/features/lex/routes/LexKnowledgeGraphPage.tsx`       | redirect `/lex -> /knowledge`                                   |
+| `SystemHealth.tsx`      | `src/features/platform/routes/PlatformHealthPage.tsx`     | redirect `/health -> /platform`                                 |
+| `SourcesManagement.tsx` | `src/features/evidence/routes/EvidenceFabricPage.tsx`     | redirect `/sources -> /evidence`                                |
+| `DataManagement.tsx`    | `src/features/evidence/routes/EvidenceFabricPage.tsx`     | redirect `/data -> /evidence`                                   |
 
 ## Архитектура модулей
 

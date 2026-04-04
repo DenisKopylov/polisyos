@@ -12,11 +12,14 @@ const { authAwareRuntimeFetchMock } = vi.hoisted(() => ({
 }));
 
 vi.mock("@/api/url", () => ({
-  buildRuntimeApiUrl: vi.fn((pathname: string) => `http://localhost${pathname}`),
+  buildRuntimeApiUrl: vi.fn(
+    (pathname: string) => `http://localhost${pathname}`,
+  ),
 }));
 
 vi.mock("@/app/auth/authSession", () => ({
-  authAwareRuntimeFetch: (...args: unknown[]) => authAwareRuntimeFetchMock(...args),
+  authAwareRuntimeFetch: (...args: unknown[]) =>
+    authAwareRuntimeFetchMock(...args),
 }));
 
 import {
@@ -33,7 +36,6 @@ function createWrapper({
   client?: QueryClient;
   suspense?: boolean;
 } = {}) {
-
   function Wrapper({ children }: PropsWithChildren) {
     const content = suspense ? (
       <Suspense fallback={<div>loading</div>}>{children}</Suspense>

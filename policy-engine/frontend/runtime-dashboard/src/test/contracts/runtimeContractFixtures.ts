@@ -62,163 +62,164 @@ const fixturesDir = path.resolve(
   "fixtures",
 );
 
-export const runtimeContractFixtureDefinitions: RuntimeContractFixtureDefinition[] = [
-  {
-    fileName: "auth-me.json",
-    key: "auth-me",
-    matcher: /^\/api\/v1\/auth\/me$/,
-    method: "GET",
-    mswPath: "*/api/v1/auth/me",
-    record: {
+export const runtimeContractFixtureDefinitions: RuntimeContractFixtureDefinition[] =
+  [
+    {
+      fileName: "auth-me.json",
+      key: "auth-me",
+      matcher: /^\/api\/v1\/auth\/me$/,
       method: "GET",
-      path: "/api/v1/auth/me",
-    },
-    schema: authMeSchema,
-  },
-  {
-    fileName: "capabilities.json",
-    key: "capabilities",
-    matcher: /^\/api\/v1\/control\/capabilities$/,
-    method: "GET",
-    mswPath: "*/api/v1/control/capabilities",
-    record: {
-      method: "GET",
-      path: "/api/v1/control/capabilities",
-    },
-    schema: capabilityManifestSchema,
-  },
-  {
-    fileName: "health.json",
-    key: "health",
-    matcher: /^\/api\/v1\/health$/,
-    method: "GET",
-    mswPath: "*/api/v1/health",
-    record: {
-      method: "GET",
-      path: "/api/v1/health",
-    },
-    schema: healthSchema,
-  },
-  {
-    fileName: "runs-list.json",
-    key: "runs-list",
-    matcher: /^\/api\/v1\/runs$/,
-    method: "GET",
-    mswPath: "*/api/v1/runs",
-    record: {
-      method: "GET",
-      path: "/api/v1/runs?limit=24",
-    },
-    schema: runsListSchema,
-  },
-  {
-    fileName: "run-details.json",
-    key: "run-details",
-    matcher: /^\/api\/v1\/runs\/[^/]+$/,
-    method: "GET",
-    mswPath: "*/api/v1/runs/:runId",
-    record: ({ runId }) => ({
-      method: "GET",
-      path: `/api/v1/runs/${runId}`,
-    }),
-    schema: runDetailsSchema,
-  },
-  {
-    fileName: "run-timeline.json",
-    key: "run-timeline",
-    matcher: /^\/api\/v1\/runs\/[^/]+\/timeline$/,
-    method: "GET",
-    mswPath: "*/api/v1/runs/:runId/timeline",
-    record: ({ runId }) => ({
-      method: "GET",
-      path: `/api/v1/runs/${runId}/timeline`,
-    }),
-    schema: runTimelineSchema,
-  },
-  {
-    fileName: "governance-debug.json",
-    key: "governance-debug",
-    matcher: /^\/api\/v1\/debug\/runs\/[^/]+\/governance$/,
-    method: "GET",
-    mswPath: "*/api/v1/debug/runs/:runId/governance",
-    record: ({ runId }) => ({
-      method: "GET",
-      path: `/api/v1/debug/runs/${runId}/governance`,
-    }),
-    schema: governanceDebugSchema,
-  },
-  {
-    fileName: "run-evidence-context.json",
-    key: "run-evidence-context",
-    matcher: /^\/api\/v1\/runs\/[^/]+\/evidence-context$/,
-    method: "GET",
-    mswPath: "*/api/v1/runs/:runId/evidence-context",
-    record: ({ runId }) => ({
-      method: "GET",
-      path: `/api/v1/runs/${runId}/evidence-context`,
-    }),
-    schema: runEvidenceContextSchema,
-  },
-  {
-    fileName: "promotion-candidates.json",
-    key: "promotion-candidates",
-    matcher: /^\/api\/v1\/control\/data\/promotion\/candidates$/,
-    method: "GET",
-    mswPath: "*/api/v1/control/data/promotion/candidates",
-    record: {
-      method: "GET",
-      path: "/api/v1/control/data/promotion/candidates",
-    },
-    schema: promotionCandidatesSchema,
-  },
-  {
-    fileName: "lex-search.json",
-    key: "lex-search",
-    matcher: /^\/api\/v1\/control\/lex\/search$/,
-    method: "POST",
-    mswPath: "*/api/v1/control/lex/search",
-    record: ({ outputDir }) => ({
-      body: {
-        output_dir: outputDir,
-        query: "governance",
-        top_k: 20,
+      mswPath: "*/api/v1/auth/me",
+      record: {
+        method: "GET",
+        path: "/api/v1/auth/me",
       },
-      method: "POST",
-      path: "/api/v1/control/lex/search",
-    }),
-    schema: lexSearchResponseSchema,
-  },
-  {
-    fileName: "promotion-approve.json",
-    key: "promotion-approve",
-    matcher: /^\/api\/v1\/control\/data\/promotion\/[^/]+\/approve$/,
-    method: "POST",
-    mswPath: "*/api/v1/control/data/promotion/:promotionId/approve",
-    record: ({ promotionId }) => ({
-      body: {
-        reason: "runtime-dashboard contract snapshot approve",
+      schema: authMeSchema,
+    },
+    {
+      fileName: "capabilities.json",
+      key: "capabilities",
+      matcher: /^\/api\/v1\/control\/capabilities$/,
+      method: "GET",
+      mswPath: "*/api/v1/control/capabilities",
+      record: {
+        method: "GET",
+        path: "/api/v1/control/capabilities",
       },
-      method: "POST",
-      path: `/api/v1/control/data/promotion/${promotionId}/approve`,
-    }),
-    schema: promotionDecisionResponseSchema,
-  },
-  {
-    fileName: "promotion-reject.json",
-    key: "promotion-reject",
-    matcher: /^\/api\/v1\/control\/data\/promotion\/[^/]+\/reject$/,
-    method: "POST",
-    mswPath: "*/api/v1/control/data/promotion/:promotionId/reject",
-    record: ({ promotionId }) => ({
-      body: {
-        reason: "runtime-dashboard contract snapshot reject",
+      schema: capabilityManifestSchema,
+    },
+    {
+      fileName: "health.json",
+      key: "health",
+      matcher: /^\/api\/v1\/health$/,
+      method: "GET",
+      mswPath: "*/api/v1/health",
+      record: {
+        method: "GET",
+        path: "/api/v1/health",
       },
+      schema: healthSchema,
+    },
+    {
+      fileName: "runs-list.json",
+      key: "runs-list",
+      matcher: /^\/api\/v1\/runs$/,
+      method: "GET",
+      mswPath: "*/api/v1/runs",
+      record: {
+        method: "GET",
+        path: "/api/v1/runs?limit=24",
+      },
+      schema: runsListSchema,
+    },
+    {
+      fileName: "run-details.json",
+      key: "run-details",
+      matcher: /^\/api\/v1\/runs\/[^/]+$/,
+      method: "GET",
+      mswPath: "*/api/v1/runs/:runId",
+      record: ({ runId }) => ({
+        method: "GET",
+        path: `/api/v1/runs/${runId}`,
+      }),
+      schema: runDetailsSchema,
+    },
+    {
+      fileName: "run-timeline.json",
+      key: "run-timeline",
+      matcher: /^\/api\/v1\/runs\/[^/]+\/timeline$/,
+      method: "GET",
+      mswPath: "*/api/v1/runs/:runId/timeline",
+      record: ({ runId }) => ({
+        method: "GET",
+        path: `/api/v1/runs/${runId}/timeline`,
+      }),
+      schema: runTimelineSchema,
+    },
+    {
+      fileName: "governance-debug.json",
+      key: "governance-debug",
+      matcher: /^\/api\/v1\/debug\/runs\/[^/]+\/governance$/,
+      method: "GET",
+      mswPath: "*/api/v1/debug/runs/:runId/governance",
+      record: ({ runId }) => ({
+        method: "GET",
+        path: `/api/v1/debug/runs/${runId}/governance`,
+      }),
+      schema: governanceDebugSchema,
+    },
+    {
+      fileName: "run-evidence-context.json",
+      key: "run-evidence-context",
+      matcher: /^\/api\/v1\/runs\/[^/]+\/evidence-context$/,
+      method: "GET",
+      mswPath: "*/api/v1/runs/:runId/evidence-context",
+      record: ({ runId }) => ({
+        method: "GET",
+        path: `/api/v1/runs/${runId}/evidence-context`,
+      }),
+      schema: runEvidenceContextSchema,
+    },
+    {
+      fileName: "promotion-candidates.json",
+      key: "promotion-candidates",
+      matcher: /^\/api\/v1\/control\/data\/promotion\/candidates$/,
+      method: "GET",
+      mswPath: "*/api/v1/control/data/promotion/candidates",
+      record: {
+        method: "GET",
+        path: "/api/v1/control/data/promotion/candidates",
+      },
+      schema: promotionCandidatesSchema,
+    },
+    {
+      fileName: "lex-search.json",
+      key: "lex-search",
+      matcher: /^\/api\/v1\/control\/lex\/search$/,
       method: "POST",
-      path: `/api/v1/control/data/promotion/${promotionId}/reject`,
-    }),
-    schema: promotionDecisionResponseSchema,
-  },
-];
+      mswPath: "*/api/v1/control/lex/search",
+      record: ({ outputDir }) => ({
+        body: {
+          output_dir: outputDir,
+          query: "governance",
+          top_k: 20,
+        },
+        method: "POST",
+        path: "/api/v1/control/lex/search",
+      }),
+      schema: lexSearchResponseSchema,
+    },
+    {
+      fileName: "promotion-approve.json",
+      key: "promotion-approve",
+      matcher: /^\/api\/v1\/control\/data\/promotion\/[^/]+\/approve$/,
+      method: "POST",
+      mswPath: "*/api/v1/control/data/promotion/:promotionId/approve",
+      record: ({ promotionId }) => ({
+        body: {
+          reason: "runtime-dashboard contract snapshot approve",
+        },
+        method: "POST",
+        path: `/api/v1/control/data/promotion/${promotionId}/approve`,
+      }),
+      schema: promotionDecisionResponseSchema,
+    },
+    {
+      fileName: "promotion-reject.json",
+      key: "promotion-reject",
+      matcher: /^\/api\/v1\/control\/data\/promotion\/[^/]+\/reject$/,
+      method: "POST",
+      mswPath: "*/api/v1/control/data/promotion/:promotionId/reject",
+      record: ({ promotionId }) => ({
+        body: {
+          reason: "runtime-dashboard contract snapshot reject",
+        },
+        method: "POST",
+        path: `/api/v1/control/data/promotion/${promotionId}/reject`,
+      }),
+      schema: promotionDecisionResponseSchema,
+    },
+  ];
 
 export function getRuntimeContractFixturesDir() {
   return fixturesDir;

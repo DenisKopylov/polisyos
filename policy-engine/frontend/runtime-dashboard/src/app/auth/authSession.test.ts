@@ -26,9 +26,8 @@ describe("auth session", () => {
     );
     vi.stubGlobal("fetch", fetchMock);
 
-    const { readAuthSessionState, refreshAuthSession } = await import(
-      "@/app/auth/authSession"
-    );
+    const { readAuthSessionState, refreshAuthSession } =
+      await import("@/app/auth/authSession");
 
     const [first, second] = await Promise.all([
       refreshAuthSession({ reason: "manual" }),
@@ -46,9 +45,7 @@ describe("auth session", () => {
 
   it("replays one failed request after a successful refresh", async () => {
     const fetchMock = vi
-      .fn<
-        (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>
-      >()
+      .fn<(input: RequestInfo | URL, init?: RequestInit) => Promise<Response>>()
       .mockResolvedValueOnce(new Response(null, { status: 401 }))
       .mockResolvedValueOnce(
         jsonResponse({ access_token: "token-456" }, { status: 200 }),

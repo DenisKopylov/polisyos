@@ -1,6 +1,11 @@
 import type { ReactElement } from "react";
 import { render } from "@testing-library/react";
-import { MemoryRouter, Route, Routes, type RouteObject } from "react-router-dom";
+import {
+  MemoryRouter,
+  Route,
+  Routes,
+  type RouteObject,
+} from "react-router-dom";
 
 import { createAppRenderHarness } from "@/test/render";
 

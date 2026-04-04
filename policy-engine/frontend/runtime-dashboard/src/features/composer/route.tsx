@@ -10,7 +10,9 @@ import {
   type ComposerSearchParams,
 } from "@/features/composer/domain/searchParams";
 
-const ComposerPage = lazy(() => import("@/features/composer/routes/LaunchRunPage"));
+const ComposerPage = lazy(
+  () => import("@/features/composer/routes/LaunchRunPage"),
+);
 
 export const composerRouteHandle = {
   buildHref: buildComposerHref,

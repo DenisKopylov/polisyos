@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import importlib
 import logging
+import sys
 from typing import Sequence
 
 from polisyos.foundry.methods.catalog.causal.interference import (
@@ -147,6 +148,19 @@ def _optional_method_types(
     optional_deps: tuple[str, ...],
 ) -> tuple[type, ...]:
     """Import optional method classes without breaking unrelated registry use."""
+    package_name, _, _ = module_name.rpartition(".")
+    package = sys.modules.get(package_name)
+    if package is not None:
+        preloaded: list[type] = []
+        for type_name in type_names:
+            candidate = getattr(package, type_name, None)
+            if not isinstance(candidate, type):
+                preloaded = []
+                break
+            preloaded.append(candidate)
+        if preloaded:
+            return tuple(preloaded)
+
     try:
         module = importlib.import_module(module_name)
     except ModuleNotFoundError as exc:

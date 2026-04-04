@@ -19,7 +19,9 @@ export function parseLoginSearchParams(
   const parsed = parseSearchParamsWithSchema(loginSearchSchema, input);
   return {
     next:
-      parsed.next && parsed.next.startsWith("/") && !parsed.next.startsWith("//")
+      parsed.next &&
+      parsed.next.startsWith("/") &&
+      !parsed.next.startsWith("//")
         ? parsed.next
         : "/",
   };

@@ -41,16 +41,20 @@ export function DecisionCard({
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="space-y-1">
           <h3 className="text-lg font-semibold">{title}</h3>
-          {subtitle ? <div className="text-sm text-muted">{subtitle}</div> : null}
+          {subtitle ? (
+            <div className="text-muted text-sm">{subtitle}</div>
+          ) : null}
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <Badge kind={verdictKind}>{verdict}</Badge>
-          {confidence ? <Badge kind={confidenceKind}>{confidence}</Badge> : null}
+          {confidence ? (
+            <Badge kind={confidenceKind}>{confidence}</Badge>
+          ) : null}
         </div>
       </div>
 
       {summary ? (
-        <div className="rounded-2xl border border-line bg-surface/70 p-3 text-sm text-muted">
+        <div className="border-line bg-surface/70 text-muted rounded-2xl border p-3 text-sm">
           {summary}
         </div>
       ) : null}
@@ -73,9 +77,9 @@ export function DecisionCard({
           {meta.map((item) => (
             <div
               key={item.label}
-              className="rounded-2xl border border-line bg-canvas/30 p-3 text-sm"
+              className="border-line bg-canvas/30 rounded-2xl border p-3 text-sm"
             >
-              <p className="text-xs uppercase tracking-wide text-muted">
+              <p className="text-muted text-xs tracking-wide uppercase">
                 {item.label}
               </p>
               <div className="mt-2 font-semibold">{item.value}</div>

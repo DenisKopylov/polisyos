@@ -38,7 +38,8 @@ const {
 }));
 
 vi.mock("@/api/hooks/useDataCatalogSearch", () => ({
-  useDataCatalogSearch: (...args: unknown[]) => useDataCatalogSearchMock(...args),
+  useDataCatalogSearch: (...args: unknown[]) =>
+    useDataCatalogSearchMock(...args),
 }));
 
 vi.mock("@/api/hooks/useDataIndexStats", () => ({
@@ -69,9 +70,9 @@ vi.mock("@/features/evidence/hooks/useQueuedPromotionDecision", () => ({
 }));
 
 vi.mock("@/app/authz/AuthzProvider", async () => {
-  const actual = await vi.importActual<typeof import("@/app/authz/AuthzProvider")>(
-    "@/app/authz/AuthzProvider",
-  );
+  const actual = await vi.importActual<
+    typeof import("@/app/authz/AuthzProvider")
+  >("@/app/authz/AuthzProvider");
   return {
     ...actual,
     usePermission: (...args: unknown[]) => usePermissionMock(...args),
@@ -243,116 +244,112 @@ describe("DataIntelligencePanel", () => {
     });
   });
 
-  it(
-    "renders workspace intelligence controls and dispatches resolve, discover, preview, and promotion actions",
-    async () => {
-      const user = userEvent.setup();
-      renderWithProviders(<DataIntelligencePanel />, {
-        interactiveProviders: true,
-      });
+  it("renders workspace intelligence controls and dispatches resolve, discover, preview, and promotion actions", async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<DataIntelligencePanel />, {
+      interactiveProviders: true,
+    });
 
-      await user.type(
-        screen.getByLabelText("panels.dataIntelligence.metric"),
-        "inflation",
-      );
-      await user.type(
-        screen.getByLabelText("panels.dataIntelligence.geography"),
-        "USA",
-      );
-      await user.clear(
-        screen.getByLabelText("panels.dataIntelligence.timeStart"),
-      );
-      await user.type(
-        screen.getByLabelText("panels.dataIntelligence.timeStart"),
-        "2015",
-      );
-      await user.selectOptions(
-        screen.getByLabelText("panels.dataIntelligence.granularity"),
-        "monthly",
-      );
-      await user.selectOptions(
-        screen.getByLabelText("panels.dataIntelligence.retrievalMode"),
-        "fastlane",
-      );
+    await user.type(
+      screen.getByLabelText("panels.dataIntelligence.metric"),
+      "inflation",
+    );
+    await user.type(
+      screen.getByLabelText("panels.dataIntelligence.geography"),
+      "USA",
+    );
+    await user.clear(
+      screen.getByLabelText("panels.dataIntelligence.timeStart"),
+    );
+    await user.type(
+      screen.getByLabelText("panels.dataIntelligence.timeStart"),
+      "2015",
+    );
+    await user.selectOptions(
+      screen.getByLabelText("panels.dataIntelligence.granularity"),
+      "monthly",
+    );
+    await user.selectOptions(
+      screen.getByLabelText("panels.dataIntelligence.retrievalMode"),
+      "fastlane",
+    );
 
-      await user.click(screen.getByTestId("evidence-resolve"));
-      await user.click(screen.getByTestId("evidence-discover"));
-      await user.click(
-        screen.getByRole("button", { name: "panels.dataIntelligence.preview" }),
-      );
+    await user.click(screen.getByTestId("evidence-resolve"));
+    await user.click(screen.getByTestId("evidence-discover"));
+    await user.click(
+      screen.getByRole("button", { name: "panels.dataIntelligence.preview" }),
+    );
 
-      await user.type(
-        screen.getByLabelText("panels.dataIntelligence.decisionReason"),
-        "Promote the strongest evidence",
-      );
-      await user.click(screen.getByTestId("promotion-approve-promotion-1"));
-      const approveDialog = screen.getByRole("alertdialog");
-      await user.click(
-        within(approveDialog).getByRole("button", {
-          name: "panels.dataIntelligence.approve",
+    await user.type(
+      screen.getByLabelText("panels.dataIntelligence.decisionReason"),
+      "Promote the strongest evidence",
+    );
+    await user.click(screen.getByTestId("promotion-approve-promotion-1"));
+    const approveDialog = screen.getByRole("alertdialog");
+    await user.click(
+      within(approveDialog).getByRole("button", {
+        name: "panels.dataIntelligence.approve",
+      }),
+    );
+    await user.click(screen.getByTestId("promotion-reject-promotion-1"));
+    const rejectDialog = screen.getByRole("alertdialog");
+    await user.click(
+      within(rejectDialog).getByRole("button", {
+        name: "panels.dataIntelligence.reject",
+      }),
+    );
+
+    expect(resolveMutateMock).toHaveBeenCalledWith({
+      allow_explore_fallback: true,
+      data_needs: [
+        expect.objectContaining({
+          geography: "USA",
+          granularity: "monthly",
+          metric: "inflation",
+          purpose: "data_intelligence_ui",
+          time_start: "2015",
         }),
-      );
-      await user.click(screen.getByTestId("promotion-reject-promotion-1"));
-      const rejectDialog = screen.getByRole("alertdialog");
-      await user.click(
-        within(rejectDialog).getByRole("button", {
-          name: "panels.dataIntelligence.reject",
+      ],
+      mode: "fastlane",
+    });
+    expect(discoverMutateMock).toHaveBeenCalledWith({
+      cost_budget_usd: 0,
+      data_needs: [
+        expect.objectContaining({
+          metric: "inflation",
         }),
-      );
-
-      expect(resolveMutateMock).toHaveBeenCalledWith({
-        allow_explore_fallback: true,
-        data_needs: [
-          expect.objectContaining({
-            geography: "USA",
-            granularity: "monthly",
-            metric: "inflation",
-            purpose: "data_intelligence_ui",
-            time_start: "2015",
-          }),
-        ],
-        mode: "fastlane",
-      });
-      expect(discoverMutateMock).toHaveBeenCalledWith({
-        cost_budget_usd: 0,
-        data_needs: [
-          expect.objectContaining({
-            metric: "inflation",
-          }),
-        ],
-        max_candidates_total: 50,
-        max_discovery_calls_per_source: 25,
-        max_sources_per_query: 5,
-        time_budget_ms: 5000,
-      });
-      expect(previewMutateMock).toHaveBeenCalledWith({
-        allow_fallback: true,
-        fetch_plan: expect.objectContaining({
-          connector_id: "world-bank",
-          dataset_id: "inflation",
-          metric_id: "inflation",
-          plan_id: "plan-1",
-        }),
-      });
-      expect(approveMock).toHaveBeenCalledWith(
-        {
-          promotionId: "promotion-1",
-          reason: "Promote the strongest evidence",
-        },
-        expect.any(Object),
-      );
-      expect(rejectMock).toHaveBeenCalledWith(
-        {
-          promotionId: "promotion-1",
-          reason: "Promote the strongest evidence",
-        },
-        expect.any(Object),
-      );
-      expect(screen.getByText("Review source freshness")).toBeInTheDocument();
-      expect(screen.getAllByText(/world-bank/).length).toBeGreaterThan(0);
-    },
-    15_000,
-  );
+      ],
+      max_candidates_total: 50,
+      max_discovery_calls_per_source: 25,
+      max_sources_per_query: 5,
+      time_budget_ms: 5000,
+    });
+    expect(previewMutateMock).toHaveBeenCalledWith({
+      allow_fallback: true,
+      fetch_plan: expect.objectContaining({
+        connector_id: "world-bank",
+        dataset_id: "inflation",
+        metric_id: "inflation",
+        plan_id: "plan-1",
+      }),
+    });
+    expect(approveMock).toHaveBeenCalledWith(
+      {
+        promotionId: "promotion-1",
+        reason: "Promote the strongest evidence",
+      },
+      expect.any(Object),
+    );
+    expect(rejectMock).toHaveBeenCalledWith(
+      {
+        promotionId: "promotion-1",
+        reason: "Promote the strongest evidence",
+      },
+      expect.any(Object),
+    );
+    expect(screen.getByText("Review source freshness")).toBeInTheDocument();
+    expect(screen.getAllByText(/world-bank/).length).toBeGreaterThan(0);
+  }, 15_000);
 
   it("hydrates context mode from selected run surfaces and auto-previews the selected plan", async () => {
     const onResetContext = vi.fn();
@@ -439,7 +436,9 @@ describe("DataIntelligencePanel", () => {
             status: "pending",
           } as never
         }
-        selectedArtifact={{ artifact_id: "artifact-ctx", kind: "report" } as never}
+        selectedArtifact={
+          { artifact_id: "artifact-ctx", kind: "report" } as never
+        }
         degradedMessages={["Missing artifact lineage"]}
         onResetContext={onResetContext}
       />,
@@ -460,9 +459,7 @@ describe("DataIntelligencePanel", () => {
 
     expect(screen.getByText(/run-77/)).toBeInTheDocument();
     expect(screen.getByText(/Missing artifact lineage/)).toBeInTheDocument();
-    expect(
-      screen.getByDisplayValue("inflation"),
-    ).toBeInTheDocument();
+    expect(screen.getByDisplayValue("inflation")).toBeInTheDocument();
 
     await user.click(
       screen.getByRole("button", {
@@ -550,13 +547,15 @@ describe("DataIntelligencePanel", () => {
     );
 
     expect(
-      screen.getByText("panels.reviewCollaboration.activeTarget:{\"target\":\"inflation\"}"),
+      screen.getByText(
+        'panels.reviewCollaboration.activeTarget:{"target":"inflation"}',
+      ),
     ).toBeInTheDocument();
     expect(screen.getByTestId("promotion-approve-promotion-1")).toBeDisabled();
     expect(screen.getByTestId("promotion-reject-promotion-1")).toBeDisabled();
     expect(
       screen.getByText(
-        "panels.reviewCollaboration.lockedBy:{\"name\":\"Reviewer Bob\"}",
+        'panels.reviewCollaboration.lockedBy:{"name":"Reviewer Bob"}',
       ),
     ).toBeInTheDocument();
   });

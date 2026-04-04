@@ -33,16 +33,16 @@ export function EvidenceChain({
           {items.map((item) => (
             <article
               key={item.artifactId}
-              className="rounded-2xl border border-line bg-surface/70 p-3"
+              className="border-line bg-surface/70 rounded-2xl border p-3"
             >
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <p className="font-semibold">{item.label}</p>
-                  <p className="mt-1 font-mono text-xs text-muted">
+                  <p className="text-muted mt-1 font-mono text-xs">
                     {item.artifactId}
                   </p>
                   {item.meta ? (
-                    <div className="mt-2 text-sm text-muted">{item.meta}</div>
+                    <div className="text-muted mt-2 text-sm">{item.meta}</div>
                   ) : null}
                 </div>
                 <div className="flex flex-wrap items-center gap-2">

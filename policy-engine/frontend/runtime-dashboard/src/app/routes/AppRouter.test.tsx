@@ -5,17 +5,16 @@ const { createBrowserRouterMock, routerProviderMock } = vi.hoisted(() => ({
     id: "app-router",
     routes,
   })),
-  routerProviderMock: vi.fn(
-    ({ router }: { router: { id: string } }) => (
-      <div data-testid="router-provider">{router.id}</div>
-    ),
-  ),
+  routerProviderMock: vi.fn(({ router }: { router: { id: string } }) => (
+    <div data-testid="router-provider">{router.id}</div>
+  )),
 }));
 
 const APP_ROUTES_MOCK = [{ path: "/" }];
 
 vi.mock("react-router-dom", () => ({
-  RouterProvider: (props: { router: { id: string } }) => routerProviderMock(props),
+  RouterProvider: (props: { router: { id: string } }) =>
+    routerProviderMock(props),
   createBrowserRouter: (routes: unknown) => createBrowserRouterMock(routes),
 }));
 

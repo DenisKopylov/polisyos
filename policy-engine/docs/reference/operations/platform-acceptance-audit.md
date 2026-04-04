@@ -52,6 +52,14 @@ notes = "Blocked by one benchmark regression in the backend fast gate."
 evidence = ["docs/archive/reports/platform-acceptance-manual.md"]
 ```
 
+If the local machine is not a good fit for heavyweight suites, you may rehearse
+the same path on a remote Linux runner. The repo-tracked helper lives at
+`./scripts/remote-acceptance` and keeps the acceptance semantics explicit:
+iterate in an rsynced worktree, then record the final evidence from a committed
+clean checkout. The provisioned remote toolchain exports
+`POLISYOS_PYTEST_WORKERS=auto`, so the backend fast gate saturates the remote
+CPU for non-benchmark tests while benchmark-marked slices still run serially.
+
 ## Contributor Journey
 
 Phase 7 closes the loop between setup, role onboarding, and platform policy:

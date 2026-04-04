@@ -21,7 +21,7 @@ const preview: Preview = {
                 <AlertDialogProvider>
                   <FeatureFlagProvider>
                     <ThemeProvider>
-                      <div className="min-h-screen bg-[radial-gradient(circle_at_top,var(--page-glow-teal),transparent_38%),linear-gradient(180deg,var(--page-gradient-start)_0%,var(--page-gradient-end)_100%)] p-6 text-text">
+                      <div className="text-text min-h-screen bg-[radial-gradient(circle_at_top,var(--page-glow-teal),transparent_38%),linear-gradient(180deg,var(--page-gradient-start)_0%,var(--page-gradient-end)_100%)] p-6">
                         <div className="mx-auto max-w-6xl">
                           <Story />
                         </div>

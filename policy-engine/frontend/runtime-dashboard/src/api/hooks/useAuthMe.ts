@@ -1,4 +1,8 @@
-import { queryOptions, useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import {
+  queryOptions,
+  useQuery,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
 
 import { authAwareRuntimeFetch } from "@/app/auth/authSession";
 import { buildRuntimeApiUrl } from "@/api/url";
@@ -50,7 +54,11 @@ async function fetchAuthMe(): Promise<AuthMePayload> {
     : null;
 
   if (!response.ok || !payload) {
-    throw createRuntimeApiError(response, payload, "Failed to load auth principal");
+    throw createRuntimeApiError(
+      response,
+      payload,
+      "Failed to load auth principal",
+    );
   }
 
   return authMeSchema.parse(payload);

@@ -5,9 +5,7 @@ import type { WorkspaceKey, WorkspacePrefetchKey } from "@/app/workspaces";
 import type { SearchParamInput } from "@/lib/searchParams";
 
 export type RouteSearchParser<TSearch> = (input: SearchParamInput) => TSearch;
-export type RouteHrefBuilder<TSearch> = (
-  input?: TSearch,
-) => string;
+export type RouteHrefBuilder<TSearch> = (input?: TSearch) => string;
 
 export type AppRouteHandle<TSearch = unknown, THrefInput = Partial<TSearch>> = {
   buildHref: RouteHrefBuilder<THrefInput>;

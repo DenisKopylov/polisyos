@@ -23,7 +23,10 @@ export const artifactRouteHandle = {
   parseSearch: parseArtifactSearchParams,
   routeId: "artifacts.inspector",
   workspaceKey: "runsDecisions",
-} satisfies AppRouteModule<{ tab: ArtifactTab }, ArtifactRouteHrefInput>["handle"];
+} satisfies AppRouteModule<
+  { tab: ArtifactTab },
+  ArtifactRouteHrefInput
+>["handle"];
 
 export const artifactRouteModule = {
   Component: ArtifactInspectorPage,

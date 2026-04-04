@@ -96,8 +96,7 @@ const uk = {
       },
       workspaceDisabled:
         "Цей workspace вимкнений feature flags для поточного deployment.",
-      workspaceAccessDenied:
-        "Ваша роль не дозволяє відкривати цей workspace.",
+      workspaceAccessDenied: "Ваша роль не дозволяє відкривати цей workspace.",
     },
     runtimeBanner: {
       networkTitle: "Runtime API недосяжний",
@@ -238,7 +237,8 @@ const uk = {
       unsavedChanges: "Є незбережені зміни",
       savedState: "Дефолти синхронізовані",
       restoredDraftTitle: "Відновлено локальну чернетку",
-      restoredDraftBody: "Знайдено локальну чернетку, збережену о {{updatedAt}}.",
+      restoredDraftBody:
+        "Знайдено локальну чернетку, збережену о {{updatedAt}}.",
       discardDraft: "Видалити чернетку",
       replanIntent:
         "Перепланувати run {{runId}} з явними source refs та review checkpoints.",

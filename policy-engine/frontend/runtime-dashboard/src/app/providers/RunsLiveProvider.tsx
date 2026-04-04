@@ -246,7 +246,9 @@ export function RunsLiveProvider({ children }: PropsWithChildren) {
             subscription?.close();
             subscription = null;
             startPolling();
-            announceLiveStatus("Live updates degraded. Polling fallback enabled.");
+            announceLiveStatus(
+              "Live updates degraded. Polling fallback enabled.",
+            );
             scheduleReconnect();
           },
         },

@@ -6,7 +6,10 @@ import {
 } from "@/lib/searchParams";
 
 const platformSearchSchema = z.object({
-  section: z.enum(["capabilities", "constraints", "health"]).optional().catch(undefined),
+  section: z
+    .enum(["capabilities", "constraints", "health"])
+    .optional()
+    .catch(undefined),
 });
 
 export type PlatformSearchParams = z.infer<typeof platformSearchSchema>;

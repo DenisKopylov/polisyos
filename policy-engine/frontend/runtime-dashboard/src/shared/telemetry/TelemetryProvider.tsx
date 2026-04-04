@@ -7,26 +7,17 @@ import {
   useRef,
 } from "react";
 import type { QueryCacheNotifyEvent } from "@tanstack/react-query";
-import {
-  onCLS,
-  onINP,
-  onLCP,
-  onTTFB,
-  type Metric,
-} from "web-vitals";
+import { onCLS, onINP, onLCP, onTTFB, type Metric } from "web-vitals";
 
 import { queryClient } from "@/api/queryClient";
 import {
   ROUTE_LOADER_EVENT_NAME,
   type RouteLoaderEventDetail,
 } from "@/shared/telemetry/routeLoaderEvents";
-import {
-  initializeSentry,
-} from "@/shared/telemetry/sentry";
+import { initializeSentry } from "@/shared/telemetry/sentry";
 import {
   emitTelemetry,
   trackTelemetry,
-  type TelemetryEvent,
   type TelemetryPayload,
 } from "@/shared/telemetry/pipeline";
 import { markUiMilestone } from "@/shared/telemetry/performance";
@@ -59,23 +50,19 @@ export function TelemetryProvider({ children }: PropsWithChildren) {
   const inflightQueriesRef = useRef(new Map<string, number>());
 
   const trackWebVital = useMemo(
-    () =>
-      (
-        name: string,
-        metric: Metric,
-      ) => {
-        emitTelemetry({
-          name,
-          payload: {
-            delta: metric.delta,
-            metricId: metric.id,
-            navigationType: metric.navigationType,
-            rating: metric.rating,
-            value: metric.value,
-          },
-          timestamp: Date.now(),
-        });
-      },
+    () => (name: string, metric: Metric) => {
+      emitTelemetry({
+        name,
+        payload: {
+          delta: metric.delta,
+          metricId: metric.id,
+          navigationType: metric.navigationType,
+          rating: metric.rating,
+          value: metric.value,
+        },
+        timestamp: Date.now(),
+      });
+    },
     [],
   );
 
@@ -125,7 +112,9 @@ export function TelemetryProvider({ children }: PropsWithChildren) {
       const startedAt = inflightQueriesRef.current.get(queryHash);
       inflightQueriesRef.current.delete(queryHash);
       const durationMs =
-        startedAt == null ? undefined : Math.round(performance.now() - startedAt);
+        startedAt == null
+          ? undefined
+          : Math.round(performance.now() - startedAt);
 
       if (actionType === "success") {
         value.track("query.fetch.success", {
@@ -157,14 +146,11 @@ export function TelemetryProvider({ children }: PropsWithChildren) {
         return;
       }
 
-      value.track(
-        detail.status === "ready" ? "loader.ready" : "loader.error",
-        {
-          durationMs: detail.durationMs,
-          error: detail.error,
-          routeId: detail.routeId,
-        },
-      );
+      value.track(detail.status === "ready" ? "loader.ready" : "loader.error", {
+        durationMs: detail.durationMs,
+        error: detail.error,
+        routeId: detail.routeId,
+      });
     };
 
     window.addEventListener(ROUTE_LOADER_EVENT_NAME, handleRouteLoaderEvent);
@@ -180,8 +166,7 @@ export function TelemetryProvider({ children }: PropsWithChildren) {
       return;
     }
 
-    const navigationEntry = performance
-      .getEntriesByType("navigation")[0] as
+    const navigationEntry = performance.getEntriesByType("navigation")[0] as
       | PerformanceNavigationTiming
       | undefined;
 
@@ -228,7 +213,9 @@ export function useTelemetryReadyMark(
 
     track("ui.ready", {
       durationMs:
-        typeof performance === "undefined" ? undefined : Math.round(performance.now()),
+        typeof performance === "undefined"
+          ? undefined
+          : Math.round(performance.now()),
       mark: markName,
       ...payloadRef.current,
     });

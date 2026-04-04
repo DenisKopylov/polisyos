@@ -17,7 +17,10 @@ async function prepareNlLaunch(page: Page) {
   await page
     .getByTestId("composer-nl-brief")
     .fill("Trigger runtime recovery flow for dashboard coverage.");
-  await page.getByTestId(/llm-profile-/).first().click();
+  await page
+    .getByTestId(/llm-profile-/)
+    .first()
+    .click();
   await page
     .getByTestId("composer-nl-data-snapshot")
     .fill(metadata.data_snapshot_artifact_id);
@@ -87,7 +90,9 @@ test.describe("runtime-dashboard error recovery", () => {
 
     await page.goto("/evidence");
     await waitForDashboardSurface(page, "evidence");
-    await expect(page.getByText(/No promotion candidates/i).first()).toBeVisible();
+    await expect(
+      page.getByText(/No promotion candidates/i).first(),
+    ).toBeVisible();
 
     await page.goto("/knowledge");
     await waitForDashboardSurface(page, "knowledge");

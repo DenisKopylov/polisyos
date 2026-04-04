@@ -30,9 +30,7 @@ export function buildRuntimeWebSocketUrl(
   const httpUrl = buildRuntimeApiUrl(pathname, search);
   const resolved = new URL(
     httpUrl,
-    typeof window !== "undefined"
-      ? window.location.href
-      : "http://localhost",
+    typeof window !== "undefined" ? window.location.href : "http://localhost",
   );
   resolved.protocol = resolved.protocol === "https:" ? "wss:" : "ws:";
   return resolved.toString();

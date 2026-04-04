@@ -9,9 +9,7 @@
   "tenant_id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
   "principal_type": "user",
   "cell_id": "cell-a",
-  "roles": [
-    "analyst"
-  ],
+  "roles": ["analyst"],
   "permissions": [
     "dashboard.view",
     "evidence.promotions.approve",

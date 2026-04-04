@@ -38,19 +38,19 @@ function TokenSwatch({
   token: DesignTokenDefinition;
 }) {
   return (
-    <article className="rounded-[var(--radius-card)] border border-line bg-panel p-4 shadow-panel">
+    <article className="border-line bg-panel shadow-panel rounded-[var(--radius-card)] border p-4">
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-sm font-semibold">{name}</p>
-          <p className="mt-1 text-xs text-muted">{token.cssVar}</p>
+          <p className="text-muted mt-1 text-xs">{token.cssVar}</p>
         </div>
         <span
           aria-hidden="true"
-          className="h-10 w-10 rounded-2xl border border-line"
+          className="border-line h-10 w-10 rounded-2xl border"
           style={{ backgroundColor: `var(${token.cssVar})` }}
         />
       </div>
-      <p className="mt-3 text-sm text-muted">{token.description}</p>
+      <p className="text-muted mt-3 text-sm">{token.description}</p>
     </article>
   );
 }
@@ -71,10 +71,10 @@ function TokenSection({
         {Object.entries(groups).map(([groupName, tokens]) => (
           <div key={groupName} className="space-y-3">
             <div className="flex items-center justify-between gap-3">
-              <h3 className="text-sm font-semibold uppercase tracking-[0.18em] text-muted">
+              <h3 className="text-muted text-sm font-semibold tracking-[0.18em] uppercase">
                 {groupName}
               </h3>
-              <p className="text-xs text-muted">
+              <p className="text-muted text-xs">
                 {Object.keys(tokens).length} tokens
               </p>
             </div>

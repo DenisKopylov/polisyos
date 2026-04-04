@@ -86,7 +86,10 @@ async function copyText(text: string) {
   textarea.style.opacity = "0";
   document.body.appendChild(textarea);
   textarea.select();
-  document.execCommand("copy");
+  const legacyExecCommand = Reflect.get(document as object, "execCommand");
+  if (typeof legacyExecCommand === "function") {
+    legacyExecCommand.call(document, "copy");
+  }
   document.body.removeChild(textarea);
 }
 
@@ -98,7 +101,9 @@ export function buildRowExportRecord<Row>(
     columns.map((column) => [
       resolveColumnHeader(column),
       serializeExportValue(
-        column.exportValue ? column.exportValue(row) : column.clipboardValue?.(row),
+        column.exportValue
+          ? column.exportValue(row)
+          : column.clipboardValue?.(row),
       ),
     ]),
   );

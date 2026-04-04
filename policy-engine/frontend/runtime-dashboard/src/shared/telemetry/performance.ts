@@ -14,8 +14,7 @@ function readNavigationStart() {
     return 0;
   }
 
-  const navigationEntry = performance
-    .getEntriesByType("navigation")[0] as
+  const navigationEntry = performance.getEntriesByType("navigation")[0] as
     | PerformanceNavigationTiming
     | undefined;
 

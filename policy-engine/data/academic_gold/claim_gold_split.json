@@ -1,0 +1,11 @@
+{
+  "suite_id": "claim_gold",
+  "suite_version": "1.0",
+  "id_field": "paper_id",
+  "selection_ids": [
+    "seed_claim_001"
+  ],
+  "holdout_ids": [
+    "seed_claim_002"
+  ]
+}

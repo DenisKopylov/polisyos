@@ -36,6 +36,26 @@ def _survival_payload(state: Any) -> dict[str, Any]:
     raise TypeError("state must be SurvivalData or mapping")
 
 
+def _fit_cox_model(frame: Any) -> tuple[Any, float]:
+    """Fit CoxPH with a small regularization ladder for collinear compiled fixtures."""
+    from lifelines import CoxPHFitter
+    from lifelines.exceptions import ConvergenceError
+
+    penalties = (0.0, 0.1, 1.0)
+    last_error: ConvergenceError | None = None
+
+    for penalizer in penalties:
+        fitter = CoxPHFitter(penalizer=penalizer)
+        try:
+            fitter.fit(frame, duration_col="duration", event_col="event")
+            return fitter, penalizer
+        except ConvergenceError as exc:
+            last_error = exc
+
+    assert last_error is not None
+    raise last_error
+
+
 @foundry_method(
     namespace="ml.survival",
     version="1.0.0",
@@ -102,7 +122,6 @@ class SurvivalAnalysisEstimator:
     @staticmethod
     def pure_step(state: SurvivalData, params: Mapping[str, Any]) -> dict[str, Any]:
         import pandas as pd
-        from lifelines import CoxPHFitter
 
         del params
         data = state if isinstance(state, SurvivalData) else SurvivalData.model_validate(state)
@@ -110,8 +129,7 @@ class SurvivalAnalysisEstimator:
         frame = pd.DataFrame(np.asarray(data.features, dtype=float), columns=feature_names)
         frame["duration"] = np.asarray(data.durations, dtype=float)
         frame["event"] = np.asarray(data.events, dtype=int)
-        fitter = CoxPHFitter()
-        fitter.fit(frame, duration_col="duration", event_col="event")
+        fitter, penalizer = _fit_cox_model(frame)
         risk_scores = np.asarray(fitter.predict_partial_hazard(frame)).reshape(-1)
         coefficients = {
             str(name): float(value) for name, value in fitter.params_.to_dict().items()
@@ -122,7 +140,12 @@ class SurvivalAnalysisEstimator:
                 risk_scores=risk_scores,
                 concordance_index=float(getattr(fitter, "concordance_index_", np.nan)),
                 coefficients=coefficients,
-                metadata={"library": "lifelines", "estimator": "CoxPHFitter"},
+                metadata={
+                    "library": "lifelines",
+                    "estimator": "CoxPHFitter",
+                    "penalizer": penalizer,
+                    "used_convergence_fallback": penalizer > 0.0,
+                },
             )
         }
 

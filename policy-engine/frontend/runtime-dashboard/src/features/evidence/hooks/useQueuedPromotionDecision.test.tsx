@@ -268,7 +268,9 @@ describe("useQueuedPromotionDecision", () => {
     const { wrapper } = createQueryHookHarness();
     const view = renderHook(() => useQueuedPromotionDecision(), { wrapper });
 
-    expect(view.result.current.queuedStateByPromotionId.get("promotion-5")).toEqual({
+    expect(
+      view.result.current.queuedStateByPromotionId.get("promotion-5"),
+    ).toEqual({
       decision: "approved",
       queueStatus: "retrying",
       updatedAt: 200,

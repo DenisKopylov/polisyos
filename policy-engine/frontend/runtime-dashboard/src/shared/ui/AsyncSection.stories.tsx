@@ -28,7 +28,7 @@ export const Success: Story = {
     <AsyncSection query={{ isLoading: false, isError: false }}>
       <Card>
         <h3 className="text-xl font-semibold">Live data rendered</h3>
-        <p className="mt-2 text-sm text-muted">
+        <p className="text-muted mt-2 text-sm">
           This section swaps loading, error, and empty shells in one place.
         </p>
       </Card>

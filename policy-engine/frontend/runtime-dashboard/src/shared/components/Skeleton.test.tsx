@@ -21,8 +21,10 @@ describe("shared Skeleton surfaces", () => {
     );
 
     expect(screen.getByTestId("page-skeleton")).toBeInTheDocument();
-    expect(document.querySelector(".custom-block")).toBeInTheDocument();
-    expect(document.querySelectorAll("[aria-hidden='true']")).toHaveLength(18);
+    expect(screen.getAllByTestId("skeleton-block")[0]).toHaveClass(
+      "custom-block",
+    );
+    expect(screen.getAllByTestId("skeleton-block")).toHaveLength(18);
   });
 
   it("applies default row and metric counts", () => {
@@ -33,6 +35,6 @@ describe("shared Skeleton surfaces", () => {
       </div>,
     );
 
-    expect(document.querySelectorAll("[aria-hidden='true']")).toHaveLength(18);
+    expect(screen.getAllByTestId("skeleton-block")).toHaveLength(18);
   });
 });

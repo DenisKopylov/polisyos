@@ -47,7 +47,7 @@ export function DataFreshnessBadge({
   return (
     <Badge
       kind={ageMs > staleAfterMs ? "warn" : "ok"}
-      className="normal-case tracking-normal"
+      className="tracking-normal normal-case"
       title={date.toLocaleString()}
     >
       Updated {formatRelativeAge(date)}

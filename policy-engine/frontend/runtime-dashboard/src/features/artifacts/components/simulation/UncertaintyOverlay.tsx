@@ -16,18 +16,18 @@ export default function UncertaintyOverlay({
   onMethodChange,
 }: UncertaintyOverlayProps) {
   return (
-    <div className="bg-canvas/40 flex flex-wrap items-center gap-3 rounded-xl border border-line p-3">
+    <div className="bg-canvas/40 border-line flex flex-wrap items-center gap-3 rounded-xl border p-3">
       <label className="inline-flex items-center gap-2 text-sm font-medium">
         <input
           type="checkbox"
           checked={enabled}
           onChange={(event) => onToggle(event.target.checked)}
-          className="h-4 w-4 rounded border-line"
+          className="border-line h-4 w-4 rounded"
         />
         Show uncertainty bounds
       </label>
 
-      <label className="inline-flex items-center gap-2 text-sm text-muted">
+      <label className="text-muted inline-flex items-center gap-2 text-sm">
         Method
         <Select
           value={selectedMethod}

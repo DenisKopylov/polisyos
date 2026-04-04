@@ -5,10 +5,7 @@ import { Input } from "./Input";
 describe("Input accessibility", () => {
   it("has no detectable accessibility violations", async () => {
     await expectNoA11yViolations(
-      <label className="block">
-        <span>Run query</span>
-        <Input aria-label="Run query" placeholder="Search runs" />
-      </label>,
+      <Input aria-label="Run query" placeholder="Search runs" />,
     );
   });
 });

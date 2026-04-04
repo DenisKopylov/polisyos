@@ -1,13 +1,7 @@
-import type {
-  MutationFunction,
-  MutationKey,
-} from "@tanstack/react-query";
+import type { MutationFunction, MutationKey } from "@tanstack/react-query";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import {
-  classifyRuntimeApiError,
-  RuntimeApiRequestError,
-} from "@/api/http";
+import { classifyRuntimeApiError, RuntimeApiRequestError } from "@/api/http";
 import { useMaybeNetworkStatus } from "@/shared/network";
 import { useTelemetry } from "@/app/providers/TelemetryProvider";
 import type { ToastInput } from "@/app/providers/ToastProvider";
@@ -45,7 +39,7 @@ type ControlPlaneMutationOptions<TData, TVariables, TContext> = {
   blockWhenOffline?: boolean;
   onSettled?: (
     data: TData | undefined,
-    error: unknown | null,
+    error: unknown,
     variables: TVariables,
     context: TContext | undefined,
   ) => void;
@@ -64,11 +58,7 @@ function resolveToast<TPayload>(
   return typeof input === "function" ? input(payload) : input;
 }
 
-export function useControlPlaneMutation<
-  TData,
-  TVariables,
-  TContext = unknown,
->({
+export function useControlPlaneMutation<TData, TVariables, TContext = unknown>({
   errorToast,
   blockWhenOffline = false,
   invalidate = [],

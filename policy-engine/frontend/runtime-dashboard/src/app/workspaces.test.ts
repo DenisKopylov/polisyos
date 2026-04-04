@@ -76,7 +76,9 @@ describe("workspace registry", () => {
 
     expect(isWorkspaceEnabled(WORKSPACES.commandCenter, flags)).toBe(true);
     expect(isWorkspaceEnabled(WORKSPACES.lexKnowledge, flags)).toBe(false);
-    expect(getWorkspaceNavigation(flags).map((workspace) => workspace.key)).toEqual([
+    expect(
+      getWorkspaceNavigation(flags).map((workspace) => workspace.key),
+    ).toEqual([
       "commandCenter",
       "runsDecisions",
       "evidenceFabric",
@@ -95,7 +97,9 @@ describe("workspace registry", () => {
       subtitleKey: "pages.runs.subtitle",
       titleKey: "pages.runs.explorerTitle",
     });
-    expect(WORKSPACES.runsDecisions.resolveHeader("/runs/run-1/overview")).toEqual({
+    expect(
+      WORKSPACES.runsDecisions.resolveHeader("/runs/run-1/overview"),
+    ).toEqual({
       eyebrowKey: "shell.routes.runAnalysisEyebrow",
       subtitleKey: "pages.runs.subtitle",
       titleKey: "shell.routes.runAnalysisTitle",

@@ -61,13 +61,13 @@ export default function LineageGraph({
 
   if (nodes.length === 0) {
     return (
-      <p className="text-sm text-muted">{t("common.lineageGraph.empty")}</p>
+      <p className="text-muted text-sm">{t("common.lineageGraph.empty")}</p>
     );
   }
 
   if (nodes.length > maxNodesForGraph) {
     return (
-      <div className="bg-panel/70 rounded-xl border border-line p-4 text-sm text-muted">
+      <div className="bg-panel/70 border-line text-muted rounded-xl border p-4 text-sm">
         <p>
           {t("common.lineageGraph.threshold", {
             nodes: nodes.length,
@@ -106,9 +106,9 @@ export default function LineageGraph({
   }
 
   return (
-    <div className="bg-surface/80 overflow-auto rounded-xl border border-line p-2">
+    <div className="bg-surface/80 border-line overflow-auto rounded-xl border p-2">
       <div className="relative" style={{ width, height }}>
-        <svg className="absolute left-0 top-0" width={width} height={height}>
+        <svg className="absolute top-0 left-0" width={width} height={height}>
           {edges.map((edge) => {
             const source = positions.get(edge.parent_artifact_id);
             const target = positions.get(edge.child_artifact_id);
@@ -170,11 +170,11 @@ export default function LineageGraph({
                   {node.status}
                 </span>
               </div>
-              <p className="mt-1 truncate text-[11px] text-muted">
+              <p className="text-muted mt-1 truncate text-[11px]">
                 {node.kind ?? t("common.lineageGraph.unknownKind")}
               </p>
               <div className="mt-1 flex items-center justify-between">
-                <span className="text-[11px] text-muted">d={node.depth}</span>
+                <span className="text-muted text-[11px]">d={node.depth}</span>
                 <Link
                   className="text-[11px] font-semibold underline"
                   to={`/artifacts/${node.artifact_id}`}

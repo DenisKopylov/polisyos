@@ -5,6 +5,7 @@ export function SkeletonBlock({ className }: { className?: string }) {
     <div
       className={cn("bg-line/80 animate-pulse rounded-2xl", className)}
       aria-hidden="true"
+      data-testid="skeleton-block"
     />
   );
 }
@@ -33,7 +34,7 @@ export function PanelSkeleton({
 }) {
   return (
     <div
-      className={cn("rounded-3xl border border-line bg-panel p-5", className)}
+      className={cn("border-line bg-panel rounded-3xl border p-5", className)}
     >
       <SkeletonBlock className="h-5 w-40" />
       <SkeletonBlock className="mt-3 h-4 w-72" />
@@ -52,7 +53,7 @@ export function MetricsSkeleton({ count = 4 }: { count?: number }) {
       {Array.from({ length: count }, (_, index) => (
         <div
           key={index}
-          className="rounded-2xl border border-line bg-panel p-4"
+          className="border-line bg-panel rounded-2xl border p-4"
         >
           <SkeletonBlock className="h-4 w-24" />
           <SkeletonBlock className="mt-3 h-8 w-20" />

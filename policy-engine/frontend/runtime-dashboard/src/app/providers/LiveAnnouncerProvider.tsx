@@ -3,6 +3,7 @@ import {
   type PropsWithChildren,
   useCallback,
   useContext,
+  useEffect,
   useRef,
   useState,
 } from "react";
@@ -20,7 +21,19 @@ const LiveAnnouncerContext = createContext<LiveAnnouncerContextValue | null>(
 export function LiveAnnouncerProvider({ children }: PropsWithChildren) {
   const [politeMessage, setPoliteMessage] = useState("");
   const [assertiveMessage, setAssertiveMessage] = useState("");
-  const timeoutRef = useRef<number | null>(null);
+  const timeoutRef = useRef<ReturnType<typeof globalThis.setTimeout> | null>(
+    null,
+  );
+
+  useEffect(
+    () => () => {
+      if (timeoutRef.current) {
+        globalThis.clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+    },
+    [],
+  );
 
   const announce = useCallback(
     (message: string, politeness: LivePoliteness = "polite") => {
@@ -32,9 +45,9 @@ export function LiveAnnouncerProvider({ children }: PropsWithChildren) {
         politeness === "assertive" ? setAssertiveMessage : setPoliteMessage;
       setMessage("");
       if (timeoutRef.current) {
-        window.clearTimeout(timeoutRef.current);
+        globalThis.clearTimeout(timeoutRef.current);
       }
-      timeoutRef.current = window.setTimeout(() => {
+      timeoutRef.current = globalThis.setTimeout(() => {
         setMessage(normalized);
       }, 10);
     },

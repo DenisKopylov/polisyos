@@ -160,9 +160,18 @@ export default tseslint.config(
       },
     },
     rules: {
+      "@typescript-eslint/consistent-type-imports": "off",
       "@typescript-eslint/no-non-null-assertion": "off",
+      "@typescript-eslint/require-await": "off",
       "@typescript-eslint/unbound-method": "off",
       "no-console": "off",
+      "testing-library/render-result-naming-convention": "off",
+      "vitest/expect-expect": [
+        "error",
+        {
+          assertFunctionNames: ["expect", "expectNoA11yViolations"],
+        },
+      ],
     },
   },
   {
@@ -173,6 +182,18 @@ export default tseslint.config(
         ...globals.node,
       },
     },
+    rules: {
+      "no-console": "off",
+      "no-unused-vars": [
+        "error",
+        {
+          argsIgnorePattern: "^_",
+        },
+      ],
+    },
+  },
+  {
+    files: ["src/shared/telemetry/logger.ts"],
     rules: {
       "no-console": "off",
     },

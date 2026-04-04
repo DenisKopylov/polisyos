@@ -58,7 +58,9 @@ export function ToastProvider({ children }: PropsWithChildren) {
       };
       setToasts((current) => [...current, nextToast]);
       announce(
-        toast.description ? `${toast.title}. ${toast.description}` : toast.title,
+        toast.description
+          ? `${toast.title}. ${toast.description}`
+          : toast.title,
         toast.tone === "error" ? "assertive" : "polite",
       );
       return nextToast.id;
@@ -93,13 +95,13 @@ export function ToastProvider({ children }: PropsWithChildren) {
       {children}
       <div
         aria-label="Notifications"
-        className="pointer-events-none fixed right-4 top-4 z-50 flex w-full max-w-sm flex-col gap-3"
+        className="pointer-events-none fixed top-4 right-4 z-50 flex w-full max-w-sm flex-col gap-3"
       >
         {toasts.map((toast) => (
           <section
             key={toast.id}
             role={toast.tone === "error" ? "alert" : "status"}
-            className={`pointer-events-auto rounded-[var(--radius-card)] border px-4 py-3 shadow-panel ${toneClassName[toast.tone ?? "info"]}`}
+            className={`shadow-panel pointer-events-auto rounded-[var(--radius-card)] border px-4 py-3 ${toneClassName[toast.tone ?? "info"]}`}
           >
             <div className="flex items-start justify-between gap-3">
               <div>

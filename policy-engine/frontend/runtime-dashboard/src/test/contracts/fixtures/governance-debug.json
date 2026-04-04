@@ -2,9 +2,7 @@
   "meta": {
     "request_id": "81d76261c1c04973ae88fd92470c6d0b",
     "generated_at": "2026-03-10T19:30:38.671607Z",
-    "source_kinds": [
-      "core_run"
-    ]
+    "source_kinds": ["core_run"]
   },
   "debug": {
     "run_id": "R_core_api_001",
@@ -22,9 +20,7 @@
       "warning_count": 0,
       "info_count": 0
     },
-    "notes": [
-      "manual review required"
-    ],
+    "notes": ["manual review required"],
     "report_ref": {
       "artifact_id": "sha256:78c701cd64b3ac56f5cefd36a3d0c3bf4343b2fcb0ba1a4278526b84e2a16a82",
       "kind": "scientist.governance_report",
@@ -46,12 +42,8 @@
     },
     "legal_executed": true,
     "transport_summary": {
-      "assumptions": [
-        "parallel trends not established"
-      ],
-      "portability_blockers": [
-        "missing external validation set"
-      ],
+      "assumptions": ["parallel trends not established"],
+      "portability_blockers": ["missing external validation set"],
       "status": "blocked",
       "trace": {
         "source": "fixture"
@@ -61,9 +53,7 @@
       "total_blockers": 1,
       "total_issues": 1
     },
-    "contract_warnings": [
-      "norm_pack_ref_missing"
-    ],
+    "contract_warnings": ["norm_pack_ref_missing"],
     "fallback_from_decision_packet": false
   }
 }

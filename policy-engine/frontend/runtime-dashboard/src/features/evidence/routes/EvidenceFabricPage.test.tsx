@@ -42,7 +42,8 @@ vi.mock("@/api/hooks/useDataPromotionCandidates", () => ({
 }));
 
 vi.mock("@/api/hooks/useRunEvidenceContext", () => ({
-  useRunEvidenceContext: (...args: unknown[]) => useRunEvidenceContextMock(...args),
+  useRunEvidenceContext: (...args: unknown[]) =>
+    useRunEvidenceContextMock(...args),
 }));
 
 vi.mock("@/api/hooks/useSourceProfiles", () => ({
@@ -142,7 +143,14 @@ describe("EvidenceFabricPage", () => {
     useCapabilitiesMock.mockReset();
     useCapabilitiesMock.mockReturnValue({
       data: {
-        features: [{ category: "evidence", enabled: true, key: "profiles", label: "Profiles" }],
+        features: [
+          {
+            category: "evidence",
+            enabled: true,
+            key: "profiles",
+            label: "Profiles",
+          },
+        ],
       },
     });
     useConnectorsMock.mockReset();
@@ -225,9 +233,7 @@ describe("EvidenceFabricPage", () => {
 
     expect(screen.getByTestId("evidence-page")).toBeInTheDocument();
     expect(screen.getByText("pages.evidence.heroTitle")).toBeInTheDocument();
-    expect(
-      screen.getByText("workspace:overview:"),
-    ).toBeInTheDocument();
+    expect(screen.getByText("workspace:overview:")).toBeInTheDocument();
     expect(screen.getAllByText("World Bank CPI")).not.toHaveLength(0);
     expect(screen.getAllByText("CPI")).not.toHaveLength(0);
     expect(markUiMilestoneMock).toHaveBeenCalledWith(
@@ -267,7 +273,9 @@ describe("EvidenceFabricPage", () => {
       ),
     ).toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: "pages.evidence.clearContext" }));
+    await user.click(
+      screen.getByRole("button", { name: "pages.evidence.clearContext" }),
+    );
 
     await waitFor(() =>
       expect(screen.getByTestId("location")).toHaveTextContent("/evidence"),

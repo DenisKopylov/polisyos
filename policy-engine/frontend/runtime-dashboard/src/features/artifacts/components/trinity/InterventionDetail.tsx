@@ -31,15 +31,15 @@ export default function InterventionDetail({
   return (
     <details
       open={defaultOpen}
-      className="bg-canvas/40 rounded-xl border border-line p-3 open:bg-panel"
+      className="bg-canvas/40 border-line open:bg-panel rounded-xl border p-3"
     >
       <summary className="cursor-pointer list-none">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div>
             <p className="text-sm font-semibold">{intervention.id}</p>
-            <p className="text-xs text-muted">{intervention.kind}</p>
+            <p className="text-muted text-xs">{intervention.kind}</p>
           </div>
-          <div className="flex flex-wrap items-center gap-2 text-xs text-muted">
+          <div className="text-muted flex flex-wrap items-center gap-2 text-xs">
             <span>{intervention.targetLabel}</span>
             <span>|</span>
             <span>{intervention.scheduleLabel}</span>
@@ -50,23 +50,23 @@ export default function InterventionDetail({
         </div>
       </summary>
 
-      <div className="mt-3 space-y-2 border-t border-line pt-3">
+      <div className="border-line mt-3 space-y-2 border-t pt-3">
         {intervention.priority !== null ? (
-          <p className="text-xs text-muted">
+          <p className="text-muted text-xs">
             Priority: {intervention.priority}
           </p>
         ) : null}
 
         {params.length === 0 ? (
-          <p className="text-sm text-muted">No parameters.</p>
+          <p className="text-muted text-sm">No parameters.</p>
         ) : (
           <div className="grid gap-2 md:grid-cols-2">
             {params.map(([key, value]) => (
               <div
                 key={key}
-                className="rounded-lg border border-line bg-panel p-2"
+                className="border-line bg-panel rounded-lg border p-2"
               >
-                <p className="font-mono text-xs text-muted">{key}</p>
+                <p className="text-muted font-mono text-xs">{key}</p>
                 <p className="text-sm font-medium">{formatValue(value)}</p>
               </div>
             ))}

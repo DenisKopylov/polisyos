@@ -13,18 +13,20 @@ import { useTelemetry } from "@/app/providers/TelemetryProvider";
 import { RunsLiveProvider } from "@/app/providers/RunsLiveProvider";
 import { RuntimeApiProvider } from "@/app/providers/RuntimeApiProvider";
 import { RouteErrorElement } from "@/app/routes/RouteErrorElement";
-import { artifactRoute } from "@/features/artifacts";
+import { artifactRoute } from "@/features/artifacts/routes.public";
 import { loginRoute } from "@/features/auth";
 import { composerRoute } from "@/features/composer";
 import { dashboardRoute } from "@/features/dashboard";
-import { evidenceRoute } from "@/features/evidence";
+import { evidenceRoute } from "@/features/evidence/routes.public";
 import { lexRoute } from "@/features/lex";
 import { platformRoute } from "@/features/platform";
-import { LOGIN_PATH } from "@/lib/constants";
 import { resolveWorkspaceKey } from "@/app/workspaces";
-import { runsRoutes } from "@/features/runs";
-import { setActiveRouteTelemetryContext } from "@/shared/telemetry/routeContext";
-import { setActiveRouteViewTiming } from "@/shared/telemetry/routeContext";
+import { runsRoutes } from "@/features/runs/routes.public";
+import { LOGIN_PATH } from "@/lib/constants";
+import {
+  setActiveRouteTelemetryContext,
+  setActiveRouteViewTiming,
+} from "@/shared/telemetry/routeContext";
 
 function AppFrame() {
   const location = useLocation();

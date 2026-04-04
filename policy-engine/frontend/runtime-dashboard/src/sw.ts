@@ -1,7 +1,11 @@
 /// <reference lib="webworker" />
 
 import { clientsClaim } from "workbox-core";
-import { cleanupOutdatedCaches, createHandlerBoundToURL, precacheAndRoute } from "workbox-precaching";
+import {
+  cleanupOutdatedCaches,
+  createHandlerBoundToURL,
+  precacheAndRoute,
+} from "workbox-precaching";
 import { NavigationRoute, registerRoute } from "workbox-routing";
 
 declare let self: ServiceWorkerGlobalScope;
@@ -20,18 +24,15 @@ registerRoute(
   }),
 );
 
+async function notifyOfflineQueueFlush() {
+  const windowClients = await self.clients.matchAll({ type: "window" });
+  for (const client of windowClients) {
+    client.postMessage({ type: "offline-queue:flush" });
+  }
+}
+
 self.addEventListener("activate", (event) => {
-  event.waitUntil(
-    self.clients
-      .matchAll({ type: "window" })
-      .then((clients) =>
-        Promise.all(
-          clients.map((client) =>
-            client.postMessage({ type: "offline-queue:flush" }),
-          ),
-        ),
-      ),
-  );
+  event.waitUntil(notifyOfflineQueueFlush());
 });
 
 self.addEventListener("sync", (event: Event) => {
@@ -40,15 +41,5 @@ self.addEventListener("sync", (event: Event) => {
     return;
   }
 
-  syncEvent.waitUntil(
-    self.clients
-      .matchAll({ type: "window" })
-      .then((clients) =>
-        Promise.all(
-          clients.map((client) =>
-            client.postMessage({ type: "offline-queue:flush" }),
-          ),
-        ),
-      ),
-  );
+  syncEvent.waitUntil(notifyOfflineQueueFlush());
 });

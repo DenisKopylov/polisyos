@@ -7,9 +7,9 @@ import {
 
 describe("capabilities helpers", () => {
   it("reads features from the fallback manifest", () => {
-    expect(isCapabilityEnabled(FALLBACK_CAPABILITY_MANIFEST, "workflow_runs")).toBe(
-      true,
-    );
+    expect(
+      isCapabilityEnabled(FALLBACK_CAPABILITY_MANIFEST, "workflow_runs"),
+    ).toBe(true);
     expect(
       isCapabilityEnabled(FALLBACK_CAPABILITY_MANIFEST, "security_admin_layer"),
     ).toBe(false);

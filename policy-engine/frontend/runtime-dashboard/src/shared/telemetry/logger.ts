@@ -1,6 +1,9 @@
 import { useMemo } from "react";
 
-import { emitTelemetry, readTelemetryRelease } from "@/shared/telemetry/pipeline";
+import {
+  emitTelemetry,
+  readTelemetryRelease,
+} from "@/shared/telemetry/pipeline";
 import { readActiveRouteTelemetryContext } from "@/shared/telemetry/routeContext";
 import {
   addSentryBreadcrumb,
@@ -132,12 +135,7 @@ function emitStructuredLog(
       tags: record.tags,
       workspace: record.workspace,
     },
-    level:
-      level === "warn"
-        ? "warning"
-        : level === "error"
-          ? "error"
-          : level,
+    level: level === "warn" ? "warning" : level === "error" ? "error" : level,
     message: record.message,
   });
 

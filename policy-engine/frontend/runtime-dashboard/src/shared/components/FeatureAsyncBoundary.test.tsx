@@ -1,9 +1,6 @@
 import type { ReactNode } from "react";
 import { useState } from "react";
-import {
-  QueryClientProvider,
-  useSuspenseQuery,
-} from "@tanstack/react-query";
+import { QueryClientProvider, useSuspenseQuery } from "@tanstack/react-query";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { createMemoryRouter, RouterProvider } from "react-router-dom";

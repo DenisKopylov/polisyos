@@ -14,9 +14,9 @@ describe("useRunsLivePreferenceStore", () => {
   it("persists the live updates preference to localStorage", () => {
     useRunsLivePreferenceStore.getState().setDisableLive(true);
 
-    expect(window.localStorage.getItem(RUNS_LIVE_PREFERENCE_STORAGE_KEY)).toContain(
-      "\"disableLive\":true",
-    );
+    expect(
+      window.localStorage.getItem(RUNS_LIVE_PREFERENCE_STORAGE_KEY),
+    ).toContain('"disableLive":true');
     expect(readRunsLiveDisabledPreference()).toBe(true);
   });
 

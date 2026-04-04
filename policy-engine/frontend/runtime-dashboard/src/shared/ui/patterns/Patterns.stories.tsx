@@ -55,13 +55,13 @@ function PatternsDemo() {
     <DetailLayout
       header={
         <Card className="space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">
+          <p className="text-muted text-xs font-semibold tracking-[0.18em] uppercase">
             Workspace pattern
           </p>
           <h2 className="text-2xl font-semibold">
             Queue triage with shareable filter state
           </h2>
-          <p className="text-sm text-muted">
+          <p className="text-muted text-sm">
             Use patterns to keep filter chrome, searchable queues, and detail
             panes structurally consistent across runs, evidence, and governance.
           </p>
@@ -78,13 +78,21 @@ function PatternsDemo() {
               </Button>
             }
           >
-            <div className="space-y-2 text-sm text-muted">
+            <div className="text-muted space-y-2 text-sm">
               <label className="flex items-center gap-2">
-                <input defaultChecked type="checkbox" className="accent-accent" />
+                <input
+                  defaultChecked
+                  type="checkbox"
+                  className="accent-accent"
+                />
                 Include governance waiting states
               </label>
               <label className="flex items-center gap-2">
-                <input defaultChecked type="checkbox" className="accent-accent" />
+                <input
+                  defaultChecked
+                  type="checkbox"
+                  className="accent-accent"
+                />
                 Show stale cached data
               </label>
               <label className="flex items-center gap-2">
@@ -95,9 +103,13 @@ function PatternsDemo() {
           </FilterPanel>
           <Card className="space-y-2">
             <p className="text-sm font-semibold">Usage rules</p>
-            <ul className="list-disc space-y-1 pl-5 text-sm text-muted">
-              <li>Keep filter semantics in search params, not local-only state.</li>
-              <li>Use compounds for metric, decision, evidence, and timeline UI.</li>
+            <ul className="text-muted list-disc space-y-1 pl-5 text-sm">
+              <li>
+                Keep filter semantics in search params, not local-only state.
+              </li>
+              <li>
+                Use compounds for metric, decision, evidence, and timeline UI.
+              </li>
               <li>Keep detail panes resilient when one panel degrades.</li>
             </ul>
           </Card>
@@ -118,13 +130,13 @@ function PatternsDemo() {
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <p className="font-semibold">{item.metric}</p>
-                  <p className="mt-1 text-sm text-muted">{item.owner}</p>
+                  <p className="text-muted mt-1 text-sm">{item.owner}</p>
                 </div>
                 <Badge kind={item.state === "ready" ? "ok" : "warn"}>
                   {item.state}
                 </Badge>
               </div>
-              <p className="text-sm text-muted">
+              <p className="text-muted text-sm">
                 This item uses the shared search/list/detail shell instead of
                 feature-local queue markup.
               </p>

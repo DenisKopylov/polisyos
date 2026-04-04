@@ -30,7 +30,7 @@ export default function PlatformHealth() {
   return (
     <div className="space-y-5" data-testid="platform-page">
       <Card>
-        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted">
+        <p className="text-muted text-xs font-semibold tracking-[0.24em] uppercase">
           {t("pages.platform.title")}
         </p>
         <div className="mt-2 flex flex-wrap items-start justify-between gap-4">
@@ -38,7 +38,7 @@ export default function PlatformHealth() {
             <h2 className="text-3xl font-semibold">
               {t("pages.platform.heroTitle")}
             </h2>
-            <p className="mt-2 max-w-3xl text-sm text-muted">
+            <p className="text-muted mt-2 max-w-3xl text-sm">
               {t("pages.platform.subtitle")}
             </p>
           </div>
@@ -50,7 +50,9 @@ export default function PlatformHealth() {
             ) : null}
             <DataFreshnessBadge
               generatedAt={
-                healthQuery.data?.meta?.generated_at ?? healthQuery.data?.ts ?? null
+                healthQuery.data?.meta?.generated_at ??
+                healthQuery.data?.ts ??
+                null
               }
             />
             <Badge kind="ok">
@@ -69,49 +71,49 @@ export default function PlatformHealth() {
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <Card>
-          <p className="text-xs uppercase text-muted">
+          <p className="text-muted text-xs uppercase">
             {t("pages.platform.runtimeStatus")}
           </p>
           <p className="text-2xl font-semibold">
             {String(healthQuery.data?.status ?? t("common.unknown"))}
           </p>
-          <p className="text-xs text-muted">
+          <p className="text-muted text-xs">
             {healthQuery.data?.service ??
               t("pages.platform.runtimeServiceFallback")}
           </p>
         </Card>
         <Card>
-          <p className="text-xs uppercase text-muted">
+          <p className="text-muted text-xs uppercase">
             {t("pages.platform.capabilityManifest")}
           </p>
           <p className="text-2xl font-semibold">
             {formatNumber(features.length)}
           </p>
-          <p className="text-xs text-muted">
+          <p className="text-muted text-xs">
             {capabilitiesQuery.data?.runtime_api_version ?? "1.0.0"}
           </p>
         </Card>
         <Card>
-          <p className="text-xs uppercase text-muted">
+          <p className="text-muted text-xs uppercase">
             {t("pages.platform.connectors")}
           </p>
           <p className="text-2xl font-semibold">
             {formatNumber(connectors.filter((item) => item.loaded).length)}
           </p>
-          <p className="text-xs text-muted">
+          <p className="text-muted text-xs">
             {t("pages.platform.registeredConnectors", {
               count: formatNumber(connectors.length),
             })}
           </p>
         </Card>
         <Card>
-          <p className="text-xs uppercase text-muted">
+          <p className="text-muted text-xs uppercase">
             {t("pages.platform.recentRuns")}
           </p>
           <p className="text-2xl font-semibold">
             {formatNumber(runsQuery.data?.runs.length ?? 0)}
           </p>
-          <p className="text-xs text-muted">
+          <p className="text-muted text-xs">
             {t("pages.platform.latestControlPlaneSample")}
           </p>
         </Card>
@@ -133,11 +135,13 @@ export default function PlatformHealth() {
                 {t("pages.platform.useInComposer")}
               </PrefetchButton>
             ) : (
-              <span className="text-xs text-muted">{t("common.accessDenied")}</span>
+              <span className="text-muted text-xs">
+                {t("common.accessDenied")}
+              </span>
             )}
           </div>
           {capabilitiesQuery.isLoading ? (
-            <p className="text-sm text-muted">
+            <p className="text-muted text-sm">
               {t("pages.platform.loadingCapabilityManifest")}
             </p>
           ) : null}
@@ -152,12 +156,12 @@ export default function PlatformHealth() {
               {features.map((feature) => (
                 <div
                   key={feature.key}
-                  className="bg-surface/80 rounded-2xl border border-line p-3"
+                  className="bg-surface/80 border-line rounded-2xl border p-3"
                 >
                   <div className="flex flex-wrap items-start justify-between gap-2">
                     <div>
                       <p className="font-semibold">{feature.label}</p>
-                      <p className="mt-1 text-sm text-muted">
+                      <p className="text-muted mt-1 text-sm">
                         {feature.description}
                       </p>
                     </div>
@@ -167,7 +171,7 @@ export default function PlatformHealth() {
                           ? t("pages.platform.featureEnabled")
                           : feature.stage}
                       </Badge>
-                      <span className="rounded-full border border-line bg-panel px-2 py-1 text-xs text-muted">
+                      <span className="border-line bg-panel text-muted rounded-full border px-2 py-1 text-xs">
                         {label(
                           "capabilityCategories",
                           feature.category,
@@ -194,9 +198,9 @@ export default function PlatformHealth() {
                     ([key, value]) => (
                       <div
                         key={key}
-                        className="bg-surface/80 rounded-xl border border-line px-3 py-2"
+                        className="bg-surface/80 border-line rounded-xl border px-3 py-2"
                       >
-                        <p className="text-xs uppercase text-muted">{key}</p>
+                        <p className="text-muted text-xs uppercase">{key}</p>
                         <p className="font-semibold">
                           {typeof value === "object"
                             ? JSON.stringify(value)
@@ -222,8 +226,8 @@ export default function PlatformHealth() {
             ) : null}
             {healthQuery.data ? (
               <div className="mt-3 space-y-2 text-sm">
-                <div className="bg-surface/80 rounded-xl border border-line px-3 py-2">
-                  <p className="text-xs uppercase text-muted">
+                <div className="bg-surface/80 border-line rounded-xl border px-3 py-2">
+                  <p className="text-muted text-xs uppercase">
                     {t("pages.platform.service")}
                   </p>
                   <p className="font-semibold">
@@ -231,8 +235,8 @@ export default function PlatformHealth() {
                       t("pages.platform.runtimeFallback")}
                   </p>
                 </div>
-                <div className="bg-surface/80 rounded-xl border border-line px-3 py-2">
-                  <p className="text-xs uppercase text-muted">
+                <div className="bg-surface/80 border-line rounded-xl border px-3 py-2">
+                  <p className="text-muted text-xs uppercase">
                     {t("pages.platform.timestamp")}
                   </p>
                   <p className="font-semibold">
@@ -250,7 +254,7 @@ export default function PlatformHealth() {
             {connectors.slice(0, 5).map((connector) => (
               <div
                 key={connector.connector_id}
-                className="bg-surface/80 mt-2 rounded-xl border border-line px-3 py-2 text-sm"
+                className="bg-surface/80 border-line mt-2 rounded-xl border px-3 py-2 text-sm"
               >
                 <div className="flex items-center justify-between gap-2">
                   <p className="font-semibold">{connector.connector_id}</p>
@@ -260,7 +264,7 @@ export default function PlatformHealth() {
                       : t("pages.platform.connectorUnavailable")}
                   </Badge>
                 </div>
-                <p className="mt-1 text-xs text-muted">
+                <p className="text-muted mt-1 text-xs">
                   {connector.last_health_check
                     ? formatDate(connector.last_health_check)
                     : t("pages.platform.noHealthCheckYet")}

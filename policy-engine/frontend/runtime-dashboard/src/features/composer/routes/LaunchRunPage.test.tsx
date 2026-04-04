@@ -199,8 +199,12 @@ describe("LaunchRunPage", () => {
     const user = userEvent.setup();
     renderLaunchRunPage("/compose?fromRun=run-42");
 
-    expect(await screen.findByDisplayValue("Saved operator intent")).toBeInTheDocument();
-    expect(screen.getByText("pages.composer.restoredDraftTitle")).toBeInTheDocument();
+    expect(
+      await screen.findByDisplayValue("Saved operator intent"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("pages.composer.restoredDraftTitle"),
+    ).toBeInTheDocument();
 
     await user.click(
       screen.getByRole("button", { name: "pages.composer.discardDraft" }),
@@ -209,108 +213,100 @@ describe("LaunchRunPage", () => {
     expect(deleteComposerDraftMock).toHaveBeenCalledWith("workflow:run-42");
   });
 
-  it(
-    "persists NL drafts, builds a launch request, and navigates to the created run",
-    async () => {
-      const mutateMock = vi.fn(
-        (
-          payload: Record<string, unknown>,
-          options?: {
-            onSuccess?: (data: { run_id: string; status: string }) => void;
-          },
-        ) => {
-          options?.onSuccess?.({
-            run_id: "run-created",
-            status: "accepted",
-          });
+  it("persists NL drafts, builds a launch request, and navigates to the created run", async () => {
+    const mutateMock = vi.fn(
+      (
+        payload: Record<string, unknown>,
+        options?: {
+          onSuccess?: (data: { run_id: string; status: string }) => void;
         },
-      );
-      useLaunchNlRunMock.mockReturnValue({
-        error: null,
-        isPending: false,
-        mutate: mutateMock,
-      });
+      ) => {
+        options?.onSuccess?.({
+          run_id: "run-created",
+          status: "accepted",
+        });
+      },
+    );
+    useLaunchNlRunMock.mockReturnValue({
+      error: null,
+      isPending: false,
+      mutate: mutateMock,
+    });
 
-      const user = userEvent.setup();
-      renderLaunchRunPage();
+    const user = userEvent.setup();
+    renderLaunchRunPage();
 
-      await user.type(
-        screen.getByTestId("composer-nl-brief"),
-        "Assess inflation risks and list blockers first.",
-      );
-      await user.type(
-        screen.getByTestId("composer-nl-data-snapshot"),
-        "sha256:data-snapshot",
-      );
-      await user.click(screen.getByTestId("llm-profile-openai/gpt-5.4"));
-      await user.type(
-        screen.getByPlaceholderText("openai/gpt-5.4"),
-        "custom/model",
-      );
-      await user.click(
-        screen.getByRole("button", { name: "pages.composer.addModel" }),
-      );
+    await user.type(
+      screen.getByTestId("composer-nl-brief"),
+      "Assess inflation risks and list blockers first.",
+    );
+    await user.type(
+      screen.getByTestId("composer-nl-data-snapshot"),
+      "sha256:data-snapshot",
+    );
+    await user.click(screen.getByTestId("llm-profile-openai/gpt-5.4"));
+    await user.type(
+      screen.getByPlaceholderText("openai/gpt-5.4"),
+      "custom/model",
+    );
+    await user.click(
+      screen.getByRole("button", { name: "pages.composer.addModel" }),
+    );
 
-      await waitFor(() => expect(saveComposerDraftMock).toHaveBeenCalled(), {
-        timeout: 2_000,
-      });
+    await waitFor(() => expect(saveComposerDraftMock).toHaveBeenCalled(), {
+      timeout: 2_000,
+    });
 
-      const launchButton = screen.getByTestId("composer-launch-nl");
-      await waitFor(() => expect(launchButton).toBeEnabled());
-      await user.click(launchButton);
+    const launchButton = screen.getByTestId("composer-launch-nl");
+    await waitFor(() => expect(launchButton).toBeEnabled());
+    await user.click(launchButton);
 
-      expect(mutateMock).toHaveBeenCalledWith(
-        expect.objectContaining({
-          checkpoint_policy: "strict",
-          data_source: {
-            data_snapshot_ref: "sha256:data-snapshot",
-          },
-          llm_model: "openai/gpt-5.4",
-          llm_models: ["openai/gpt-5.4", "custom/model"],
-          max_parallel_models: 2,
-          request: "Assess inflation risks and list blockers first.",
-        }),
-        expect.any(Object),
-      );
+    expect(mutateMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        checkpoint_policy: "strict",
+        data_source: {
+          data_snapshot_ref: "sha256:data-snapshot",
+        },
+        llm_model: "openai/gpt-5.4",
+        llm_models: ["openai/gpt-5.4", "custom/model"],
+        max_parallel_models: 2,
+        request: "Assess inflation risks and list blockers first.",
+      }),
+      expect.any(Object),
+    );
 
-      expect(await screen.findByText("Run detail page")).toBeInTheDocument();
-      expect(deleteComposerDraftMock).toHaveBeenCalledWith("nl:new");
-    },
-    15_000,
-  );
+    expect(await screen.findByText("Run detail page")).toBeInTheDocument();
+    expect(deleteComposerDraftMock).toHaveBeenCalledWith("nl:new");
+  }, 15_000);
 
-  it(
-    "submits workflow launches and surfaces runtime API errors",
-    async () => {
-      const workflowMutateMock = vi.fn();
-      useLaunchRunMock.mockReturnValue({
-        error: new Error("Launch failed"),
-        isPending: false,
-        mutate: workflowMutateMock,
-      });
+  it("submits workflow launches and surfaces runtime API errors", async () => {
+    const workflowMutateMock = vi.fn();
+    useLaunchRunMock.mockReturnValue({
+      error: new Error("Launch failed"),
+      isPending: false,
+      mutate: workflowMutateMock,
+    });
 
-      const user = userEvent.setup();
-      renderLaunchRunPage("/compose?mode=workflow");
+    const user = userEvent.setup();
+    renderLaunchRunPage("/compose?mode=workflow");
 
-      await user.click(screen.getByTestId("composer-mode-workflow"));
-      await user.type(
-        screen.getByPlaceholderText("sha256:..."),
-        "sha256:workflow",
-      );
+    await user.click(screen.getByTestId("composer-mode-workflow"));
+    await user.type(
+      screen.getByPlaceholderText("sha256:..."),
+      "sha256:workflow",
+    );
 
-      const launchButton = screen.getByTestId("composer-launch-workflow");
-      await waitFor(() => expect(launchButton).toBeEnabled());
-      await user.click(launchButton);
+    const launchButton = screen.getByTestId("composer-launch-workflow");
+    await waitFor(() => expect(launchButton).toBeEnabled());
+    await user.click(launchButton);
 
-      expect(workflowMutateMock).toHaveBeenCalledWith(
-        expect.objectContaining({
-          checkpoint_policy: "strict",
-          mode: "workflow",
-        }),
-        expect.any(Object),
-      );
-      expect(screen.getByText(/Launch failed/)).toBeInTheDocument();
-    },
-    10_000,
-  );
+    expect(workflowMutateMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        checkpoint_policy: "strict",
+        mode: "workflow",
+      }),
+      expect.any(Object),
+    );
+    expect(screen.getByText(/Launch failed/)).toBeInTheDocument();
+  }, 10_000);
 });

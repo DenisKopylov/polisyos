@@ -84,7 +84,9 @@ export default function Header() {
             : t("shell.header.liveFallback")}
         </Badge>
         <Badge kind="neutral">
-          {liveUpdatedAt ? `Updated ${liveUpdatedAt}` : t("shell.header.checking")}
+          {liveUpdatedAt
+            ? `Updated ${liveUpdatedAt}`
+            : t("shell.header.checking")}
         </Badge>
         <Badge kind="neutral">
           {t("shell.header.capabilities")}: {activeFeatures}
@@ -117,7 +119,11 @@ export default function Header() {
           </Button>
         ))}
         {runsWorkspace ? (
-          <PrefetchButton to={runsWorkspace.path} prefetch="intent" variant="ghost">
+          <PrefetchButton
+            to={runsWorkspace.path}
+            prefetch="intent"
+            variant="ghost"
+          >
             {t("shell.header.openRuns")}
           </PrefetchButton>
         ) : null}

@@ -11,7 +11,10 @@ import { usePreviewFetchPlan } from "@/api/hooks/usePreviewFetchPlan";
 import { useResolveDataNeeds } from "@/api/hooks/useResolveDataNeeds";
 import { queryKeys } from "@/api/queryKeys";
 import { createQueryHookHarness } from "@/test/queryHook";
-import { mockRuntimePostFailure, mockRuntimePostSuccess } from "@/test/runtimeApi";
+import {
+  mockRuntimePostFailure,
+  mockRuntimePostSuccess,
+} from "@/test/runtimeApi";
 
 const runListKey = queryKeys.runs({ limit: 24 });
 
@@ -91,17 +94,19 @@ describe("mutation hooks", () => {
       },
     });
     expect(
-      (
-        queryClient.getQueryData<{ runs: Array<{ run_id: string; status: string }> }>(
-          runListKey,
-        )?.runs ?? []
-      )[0],
+      (queryClient.getQueryData<{
+        runs: Array<{ run_id: string; status: string }>;
+      }>(runListKey)?.runs ?? [])[0],
     ).toMatchObject({
       run_id: "run-launched",
       status: "running",
     });
-    expect(queryClient.getQueryData(queryKeys.run("launch-pending-111"))).toBeUndefined();
-    expect(queryClient.getQueryData(queryKeys.run("run-launched"))).toMatchObject({
+    expect(
+      queryClient.getQueryData(queryKeys.run("launch-pending-111")),
+    ).toBeUndefined();
+    expect(
+      queryClient.getQueryData(queryKeys.run("run-launched")),
+    ).toMatchObject({
       run: { run_id: "run-launched", status: "running" },
     });
     expect(invalidateSpy).toHaveBeenCalledWith({

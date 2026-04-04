@@ -1,0 +1,25 @@
+entities:
+  - entity_id: "inst_minfin_ua"
+    name_en: "Ministry of Finance of Ukraine"
+    name_uk: "Міністерство фінансів України"
+    entity_type: "institution"
+    entity_subtype: "government_body"
+    aliases_en: ["MinFin", "MOF Ukraine", "Ministry of Finance"]
+    aliases_uk: ["Мінфін", "МФУ", "Мін. фінансів"]
+    wikidata_id: "Q1975889"
+  - entity_id: "inst_rada_ua"
+    name_en: "Verkhovna Rada of Ukraine"
+    name_uk: "Верховна Рада України"
+    entity_type: "institution"
+    entity_subtype: "legislative_body"
+    aliases_en: ["Parliament", "Supreme Council", "Rada"]
+    aliases_uk: ["ВРУ", "Рада", "парламент"]
+    wikidata_id: "Q217799"
+  - entity_id: "inst_kmu_ua"
+    name_en: "Cabinet of Ministers of Ukraine"
+    name_uk: "Кабінет Міністрів України"
+    entity_type: "institution"
+    entity_subtype: "government_body"
+    aliases_en: ["Cabinet", "Government of Ukraine", "CMU"]
+    aliases_uk: ["КМУ", "Кабмін", "уряд"]
+    wikidata_id: "Q1247671"

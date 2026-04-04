@@ -6,7 +6,10 @@ import {
   fetchCapabilities,
   useCapabilities,
 } from "@/api/hooks/useCapabilities";
-import { connectorsQueryOptions, useConnectors } from "@/api/hooks/useConnectors";
+import {
+  connectorsQueryOptions,
+  useConnectors,
+} from "@/api/hooks/useConnectors";
 import {
   dataIndexStatsQueryOptions,
   useDataIndexStats,
@@ -16,7 +19,10 @@ import {
   useDataPromotionCandidates,
 } from "@/api/hooks/useDataPromotionCandidates";
 import { healthQueryOptions, useHealth } from "@/api/hooks/useHealth";
-import { llmProfilesQueryOptions, useLlmProfiles } from "@/api/hooks/useLlmProfiles";
+import {
+  llmProfilesQueryOptions,
+  useLlmProfiles,
+} from "@/api/hooks/useLlmProfiles";
 import {
   sourceProfilesQueryOptions,
   useSourceProfiles,
@@ -25,7 +31,10 @@ import { queryKeys } from "@/api/queryKeys";
 import { HEALTH_REFETCH_MS, RUNS_SAMPLE_STALE_MS } from "@/lib/constants";
 import { FALLBACK_CAPABILITY_MANIFEST } from "@/lib/capabilities";
 import { createQueryHookWrapper } from "@/test/queryHook";
-import { mockRuntimeGetFailure, mockRuntimeGetSuccess } from "@/test/runtimeApi";
+import {
+  mockRuntimeGetFailure,
+  mockRuntimeGetSuccess,
+} from "@/test/runtimeApi";
 
 const capabilitiesPayload = {
   ...FALLBACK_CAPABILITY_MANIFEST,

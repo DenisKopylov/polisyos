@@ -1,7 +1,10 @@
 describe("structured logger", () => {
   beforeEach(() => {
     vi.resetModules();
-    vi.stubEnv("VITE_TELEMETRY_BEACON_URL", "https://telemetry.example/collect");
+    vi.stubEnv(
+      "VITE_TELEMETRY_BEACON_URL",
+      "https://telemetry.example/collect",
+    );
     Object.defineProperty(globalThis.navigator, "sendBeacon", {
       configurable: true,
       value: vi.fn(() => true),
@@ -15,9 +18,8 @@ describe("structured logger", () => {
   });
 
   it("emits a stable structured envelope through telemetry", async () => {
-    const { setActiveRouteTelemetryContext } = await import(
-      "@/shared/telemetry/routeContext"
-    );
+    const { setActiveRouteTelemetryContext } =
+      await import("@/shared/telemetry/routeContext");
     setActiveRouteTelemetryContext({
       fullPath: "/runs/R-1/overview",
       path: "/runs/R-1/overview",

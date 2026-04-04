@@ -2,6 +2,21 @@
 # local datasets
 /data/
 policy-engine/data/
+!policy-engine/data/
+policy-engine/data/*
+!policy-engine/data/academic_gold/
+policy-engine/data/academic_gold/*
+!policy-engine/data/academic_gold/README.md
+!policy-engine/data/academic_gold/claim_gold.jsonl
+!policy-engine/data/academic_gold/claim_gold_split.json
+!policy-engine/data/dataset_catalog/
+policy-engine/data/dataset_catalog/*
+!policy-engine/data/dataset_catalog/metrics_map.yaml
+!policy-engine/data/dataset_catalog/proxy_metric_alignments.yaml
+!policy-engine/data/dataset_catalog/seed_variable_alignments.yaml
+!policy-engine/data/lex_knowledge/
+policy-engine/data/lex_knowledge/*
+!policy-engine/data/lex_knowledge/entity_seeds.yaml
 
 # local OS/editor/runtime artifacts
 .DS_Store

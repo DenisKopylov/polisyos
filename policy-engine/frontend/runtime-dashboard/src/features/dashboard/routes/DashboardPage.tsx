@@ -14,12 +14,8 @@ import {
 
 import { PrefetchLink } from "@/app/routes/PrefetchLink";
 import { useSuspenseCapabilities } from "@/api/hooks/useCapabilities";
-import {
-  useSuspenseDataIndexStats,
-} from "@/api/hooks/useDataIndexStats";
-import {
-  useSuspenseDataPromotionCandidates,
-} from "@/api/hooks/useDataPromotionCandidates";
+import { useSuspenseDataIndexStats } from "@/api/hooks/useDataIndexStats";
+import { useSuspenseDataPromotionCandidates } from "@/api/hooks/useDataPromotionCandidates";
 import { useLexGraphStats } from "@/api/hooks/useLexGraphStats";
 import { useSuspenseHealth } from "@/api/hooks/useHealth";
 import {
@@ -71,17 +67,17 @@ function DashboardMetric({
   badge?: ReactNode;
 }) {
   return (
-    <article className="rounded-2xl border border-line bg-panel p-4">
+    <article className="border-line bg-panel rounded-2xl border p-4">
       <div className="flex items-start justify-between gap-3">
-        <span className="text-xs uppercase tracking-wide text-muted">
+        <span className="text-muted text-xs tracking-wide uppercase">
           {label}
         </span>
         {badge}
       </div>
-      <strong className="mt-3 block text-3xl font-semibold text-text">
+      <strong className="text-text mt-3 block text-3xl font-semibold">
         {value}
       </strong>
-      <p className="mt-2 text-sm text-muted">{hint}</p>
+      <p className="text-muted mt-2 text-sm">{hint}</p>
     </article>
   );
 }
@@ -124,7 +120,9 @@ function DashboardHeroContent() {
               status: healthQuery.data?.status ?? t("common.unknown"),
             })}
           </Badge>
-          <DataFreshnessBadge generatedAt={runsQuery.data?.meta?.generated_at} />
+          <DataFreshnessBadge
+            generatedAt={runsQuery.data?.meta?.generated_at}
+          />
           <Badge kind={lexStatsQuery.data?.db_exists ? "ok" : "warn"}>
             {lexStatsQuery.data?.db_exists
               ? t("pages.dashboard.graphReady")
@@ -133,11 +131,11 @@ function DashboardHeroContent() {
         </div>
       </div>
 
-      <div className="bg-surface/70 rounded-2xl border border-line p-4">
-        <p className="text-sm text-muted">{t("pages.dashboard.heroBody")}</p>
+      <div className="bg-surface/70 border-line rounded-2xl border p-4">
+        <p className="text-muted text-sm">{t("pages.dashboard.heroBody")}</p>
         <div className="mt-4 grid gap-3 md:grid-cols-3">
           <div>
-            <span className="text-xs uppercase tracking-wide text-muted">
+            <span className="text-muted text-xs tracking-wide uppercase">
               {t("pages.dashboard.activeRuns")}
             </span>
             <strong className="mt-2 block text-2xl font-semibold">
@@ -145,7 +143,7 @@ function DashboardHeroContent() {
             </strong>
           </div>
           <div>
-            <span className="text-xs uppercase tracking-wide text-muted">
+            <span className="text-muted text-xs tracking-wide uppercase">
               {t("pages.dashboard.latestDecisions")}
             </span>
             <strong className="mt-2 block text-2xl font-semibold">
@@ -153,7 +151,7 @@ function DashboardHeroContent() {
             </strong>
           </div>
           <div>
-            <span className="text-xs uppercase tracking-wide text-muted">
+            <span className="text-muted text-xs tracking-wide uppercase">
               {t("pages.dashboard.avgDuration")}
             </span>
             <strong className="mt-2 block text-2xl font-semibold">
@@ -192,12 +190,12 @@ function DashboardActionQueueContent() {
           key={run.run_id}
           prefetch="intent"
           to={`/runs/${run.run_id}/overview`}
-          className="bg-surface/75 hover:border-accent/35 block rounded-2xl border border-line p-4 transition"
+          className="bg-surface/75 hover:border-accent/35 border-line block rounded-2xl border p-4 transition"
         >
           <div className="flex items-start justify-between gap-3">
             <div>
               <p className="font-semibold">{run.run_id}</p>
-              <p className="mt-1 text-sm text-muted">
+              <p className="text-muted mt-1 text-sm">
                 {t("pages.dashboard.runCardMeta", {
                   duration: formatDuration(run.duration_ms),
                   artifacts: formatNumber(run.root_artifact_count ?? 0),
@@ -250,7 +248,9 @@ function DashboardMetricsContent() {
       />
       <DashboardMetric
         label={t("pages.dashboard.indexFreshness")}
-        value={formatNumber(indexStatsQuery.data?.stats.docs_added_last_run ?? 0)}
+        value={formatNumber(
+          indexStatsQuery.data?.stats.docs_added_last_run ?? 0,
+        )}
         hint={t("pages.dashboard.indexFreshnessHint")}
       />
     </section>
@@ -383,11 +383,11 @@ function DashboardCoverageContent() {
       {sourceCoverage.map((item) => (
         <div
           key={item.source}
-          className="bg-surface/75 rounded-2xl border border-line p-4"
+          className="bg-surface/75 border-line rounded-2xl border p-4"
         >
           <div className="flex items-center justify-between gap-3">
             <strong className="capitalize">{item.source}</strong>
-            <span className="text-sm font-semibold text-muted">
+            <span className="text-muted text-sm font-semibold">
               {formatNumber(item.count)}
             </span>
           </div>
@@ -418,20 +418,18 @@ function DashboardPromotionsContent() {
           key={candidate.promotion_id}
           prefetch="viewport"
           to={`/evidence?focus=promotion&promotionId=${candidate.promotion_id}`}
-          className="bg-surface/75 hover:border-accent/35 block rounded-2xl border border-line p-4 transition"
+          className="bg-surface/75 hover:border-accent/35 border-line block rounded-2xl border p-4 transition"
         >
           <div className="flex items-start justify-between gap-3">
             <div>
               <p className="font-semibold">{candidate.metric_id}</p>
-              <p className="mt-1 text-sm text-muted">
+              <p className="text-muted mt-1 text-sm">
                 {candidate.connector_id} / {candidate.dataset_id}
               </p>
             </div>
-            <Badge kind="warn">
-              {candidate.status ?? t("common.pending")}
-            </Badge>
+            <Badge kind="warn">{candidate.status ?? t("common.pending")}</Badge>
           </div>
-          <p className="mt-3 text-xs text-muted">
+          <p className="text-muted mt-3 text-xs">
             {t("pages.dashboard.promotionMeta", {
               lane: candidate.source_lane,
               confidence: formatPercent(candidate.confidence ?? 0, {
@@ -458,7 +456,9 @@ export default function DashboardPage() {
             feature="dashboard.hero"
             title={t("pages.dashboard.runsLoadError")}
             body={t("common.pageErrorBody")}
-            loading={<PanelSkeleton rows={5} className="border-0 bg-transparent p-0" />}
+            loading={
+              <PanelSkeleton rows={5} className="border-0 bg-transparent p-0" />
+            }
           >
             <DashboardHeroContent />
           </FeatureAsyncBoundary>
@@ -475,7 +475,9 @@ export default function DashboardPage() {
             feature="dashboard.actionQueue"
             title={t("pages.dashboard.queueLoadError")}
             body={t("common.pageErrorBody")}
-            loading={<PanelSkeleton rows={3} className="border-0 bg-transparent p-0" />}
+            loading={
+              <PanelSkeleton rows={3} className="border-0 bg-transparent p-0" />
+            }
           >
             <DashboardActionQueueContent />
           </FeatureAsyncBoundary>
@@ -503,7 +505,9 @@ export default function DashboardPage() {
             feature="dashboard.statusChart"
             title={t("pages.dashboard.runsLoadError")}
             body={t("common.pageErrorBody")}
-            loading={<PanelSkeleton rows={5} className="border-0 bg-transparent p-0" />}
+            loading={
+              <PanelSkeleton rows={5} className="border-0 bg-transparent p-0" />
+            }
           >
             <DashboardStatusChartContent />
           </FeatureAsyncBoundary>
@@ -520,7 +524,9 @@ export default function DashboardPage() {
             feature="dashboard.durationTrend"
             title={t("pages.dashboard.runsLoadError")}
             body={t("common.pageErrorBody")}
-            loading={<PanelSkeleton rows={5} className="border-0 bg-transparent p-0" />}
+            loading={
+              <PanelSkeleton rows={5} className="border-0 bg-transparent p-0" />
+            }
           >
             <DashboardDurationTrendContent />
           </FeatureAsyncBoundary>
@@ -539,7 +545,9 @@ export default function DashboardPage() {
             feature="dashboard.sourceCoverage"
             title={t("pages.dashboard.coverageLoadError")}
             body={t("common.pageErrorBody")}
-            loading={<PanelSkeleton rows={4} className="border-0 bg-transparent p-0" />}
+            loading={
+              <PanelSkeleton rows={4} className="border-0 bg-transparent p-0" />
+            }
           >
             <DashboardCoverageContent />
           </FeatureAsyncBoundary>
@@ -556,7 +564,9 @@ export default function DashboardPage() {
             feature="dashboard.promotions"
             title={t("pages.dashboard.promotionsLoadError")}
             body={t("common.pageErrorBody")}
-            loading={<PanelSkeleton rows={4} className="border-0 bg-transparent p-0" />}
+            loading={
+              <PanelSkeleton rows={4} className="border-0 bg-transparent p-0" />
+            }
           >
             <DashboardPromotionsContent />
           </FeatureAsyncBoundary>

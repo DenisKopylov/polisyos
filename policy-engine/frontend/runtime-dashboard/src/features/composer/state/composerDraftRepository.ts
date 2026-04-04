@@ -28,7 +28,9 @@ export function buildComposerDraftKey(
 }
 
 export async function loadComposerDraft(key: string) {
-  return loadComposerDraftRecord<ComposerDraftRecord>(key);
+  return (await loadComposerDraftRecord(key)) as
+    | ComposerDraftRecord
+    | undefined;
 }
 
 export async function saveComposerDraft(draft: ComposerDraftRecord) {

@@ -39,7 +39,7 @@ export default function JsonPreview({ data, emptyLabel }: JsonPreviewProps) {
   }
 
   if (!payload) {
-    return <p className="text-sm text-muted">{resolvedEmptyLabel}</p>;
+    return <p className="text-muted text-sm">{resolvedEmptyLabel}</p>;
   }
 
   return (
@@ -49,7 +49,7 @@ export default function JsonPreview({ data, emptyLabel }: JsonPreviewProps) {
           {copied ? t("common.copied") : t("common.copy")}
         </Button>
       </div>
-      <pre className="bg-surface/80 overflow-auto rounded-xl border border-line p-3 text-xs leading-5 text-text">
+      <pre className="bg-surface/80 border-line text-text overflow-auto rounded-xl border p-3 text-xs leading-5">
         {payload}
       </pre>
     </div>

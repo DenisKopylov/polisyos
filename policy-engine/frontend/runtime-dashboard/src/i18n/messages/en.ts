@@ -94,8 +94,7 @@ const en = {
       },
       workspaceDisabled:
         "This workspace is disabled by feature flags for the current deployment.",
-      workspaceAccessDenied:
-        "Your role does not allow opening this workspace.",
+      workspaceAccessDenied: "Your role does not allow opening this workspace.",
     },
     runtimeBanner: {
       networkTitle: "Runtime API is unreachable",

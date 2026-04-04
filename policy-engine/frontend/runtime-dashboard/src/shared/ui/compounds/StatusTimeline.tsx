@@ -22,7 +22,7 @@ type StatusTimelineProps = {
 
 function TimelineEntry({ item }: { item: StatusTimelineItem }) {
   return (
-    <article className="rounded-2xl border border-line bg-surface/80 p-4">
+    <article className="border-line bg-surface/80 rounded-2xl border p-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="space-y-1">
           <div className="flex items-center gap-3">
@@ -44,7 +44,9 @@ function TimelineEntry({ item }: { item: StatusTimelineItem }) {
             />
             <p className="font-semibold">{item.title}</p>
           </div>
-          {item.body ? <div className="text-sm text-muted">{item.body}</div> : null}
+          {item.body ? (
+            <div className="text-muted text-sm">{item.body}</div>
+          ) : null}
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {item.meta}
@@ -52,7 +54,9 @@ function TimelineEntry({ item }: { item: StatusTimelineItem }) {
         </div>
       </div>
       {item.timestamp ? (
-        <div className="mt-3 font-mono text-xs text-muted">{item.timestamp}</div>
+        <div className="text-muted mt-3 font-mono text-xs">
+          {item.timestamp}
+        </div>
       ) : null}
     </article>
   );

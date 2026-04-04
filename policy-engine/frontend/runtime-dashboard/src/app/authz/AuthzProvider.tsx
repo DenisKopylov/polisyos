@@ -31,10 +31,7 @@ export function AuthzProvider({ children }: PropsWithChildren) {
     () => new Set(user.permissions ?? []),
     [user.permissions],
   );
-  const roles = useMemo(
-    () => new Set(user.roles ?? []),
-    [user.roles],
-  );
+  const roles = useMemo(() => new Set(user.roles ?? []), [user.roles]);
 
   const value = useMemo<AuthzContextValue>(
     () => ({

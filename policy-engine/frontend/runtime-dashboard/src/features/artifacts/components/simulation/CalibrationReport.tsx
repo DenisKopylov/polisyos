@@ -42,9 +42,9 @@ export default function CalibrationReport({
 
   if (!calibration) {
     return (
-      <section className="bg-canvas/40 rounded-xl border border-dashed border-line p-4">
+      <section className="bg-canvas/40 border-line rounded-xl border border-dashed p-4">
         <h3 className="mb-1 text-lg font-semibold">Calibration Report</h3>
-        <p className="text-sm text-muted">
+        <p className="text-muted text-sm">
           Calibration report not detected for this artifact.
         </p>
       </section>
@@ -57,10 +57,10 @@ export default function CalibrationReport({
   }));
 
   return (
-    <section className="space-y-3 rounded-xl border border-line bg-panel p-4">
+    <section className="border-line bg-panel space-y-3 rounded-xl border p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h3 className="text-lg font-semibold">Calibration Report</h3>
-        <p className="text-sm text-muted">
+        <p className="text-muted text-sm">
           Total loss:{" "}
           {calibration.totalLoss !== null
             ? calibration.totalLoss.toFixed(4)
@@ -69,20 +69,20 @@ export default function CalibrationReport({
       </div>
 
       <div className="grid gap-2 md:grid-cols-4">
-        <div className="bg-canvas/30 rounded-lg border border-line p-2 text-sm">
-          <p className="text-xs uppercase text-muted">Loss steps</p>
+        <div className="bg-canvas/30 border-line rounded-lg border p-2 text-sm">
+          <p className="text-muted text-xs uppercase">Loss steps</p>
           <p className="font-semibold">{calibration.lossHistory.length}</p>
         </div>
-        <div className="bg-canvas/30 rounded-lg border border-line p-2 text-sm">
-          <p className="text-xs uppercase text-muted">Fit targets</p>
+        <div className="bg-canvas/30 border-line rounded-lg border p-2 text-sm">
+          <p className="text-muted text-xs uppercase">Fit targets</p>
           <p className="font-semibold">{calibration.fitRows.length}</p>
         </div>
-        <div className="bg-canvas/30 rounded-lg border border-line p-2 text-sm">
-          <p className="text-xs uppercase text-muted">Calibrated params</p>
+        <div className="bg-canvas/30 border-line rounded-lg border p-2 text-sm">
+          <p className="text-muted text-xs uppercase">Calibrated params</p>
           <p className="font-semibold">{calibration.params.length}</p>
         </div>
-        <div className="bg-canvas/30 rounded-lg border border-line p-2 text-sm">
-          <p className="text-xs uppercase text-muted">Uncertainty</p>
+        <div className="bg-canvas/30 border-line rounded-lg border p-2 text-sm">
+          <p className="text-muted text-xs uppercase">Uncertainty</p>
           <p className="font-semibold">
             {calibration.uncertaintyMethod ?? "-"}
           </p>
@@ -90,7 +90,7 @@ export default function CalibrationReport({
       </div>
 
       {lossData.length > 1 ? (
-        <div className="bg-canvas/20 h-64 rounded-xl border border-line p-2">
+        <div className="bg-canvas/20 border-line h-64 rounded-xl border p-2">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart
               data={lossData}
@@ -113,14 +113,14 @@ export default function CalibrationReport({
           </ResponsiveContainer>
         </div>
       ) : (
-        <p className="text-sm text-muted">Loss history is unavailable.</p>
+        <p className="text-muted text-sm">Loss history is unavailable.</p>
       )}
 
       {calibration.fitRows.length > 0 ? (
-        <div className="overflow-x-auto rounded-xl border border-line">
+        <div className="border-line overflow-x-auto rounded-xl border">
           <table className="min-w-full border-collapse text-sm">
             <thead>
-              <tr className="border-b border-line text-left text-xs uppercase tracking-wide text-muted">
+              <tr className="border-line text-muted border-b text-left text-xs tracking-wide uppercase">
                 <th className="px-3 py-2">Target</th>
                 <th className="px-3 py-2">R²</th>
                 <th className="px-3 py-2">RMSE</th>
@@ -159,20 +159,20 @@ export default function CalibrationReport({
       ) : null}
 
       {calibration.params.length > 0 ? (
-        <div className="bg-canvas/20 rounded-xl border border-line p-3">
-          <p className="mb-2 text-xs font-semibold uppercase text-muted">
+        <div className="bg-canvas/20 border-line rounded-xl border p-3">
+          <p className="text-muted mb-2 text-xs font-semibold uppercase">
             Parameter Estimates
           </p>
           <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-3">
             {calibration.params.map((param) => (
               <div
                 key={param.name}
-                className="rounded-lg border border-line bg-panel p-2 text-sm"
+                className="border-line bg-panel rounded-lg border p-2 text-sm"
               >
-                <p className="font-mono text-xs text-muted">{param.name}</p>
+                <p className="text-muted font-mono text-xs">{param.name}</p>
                 <p className="font-semibold">{param.value.toFixed(6)}</p>
                 {param.ciLower !== null && param.ciUpper !== null ? (
-                  <p className="text-xs text-muted">
+                  <p className="text-muted text-xs">
                     [{param.ciLower.toFixed(6)}, {param.ciUpper.toFixed(6)}]
                   </p>
                 ) : null}
@@ -183,9 +183,9 @@ export default function CalibrationReport({
       ) : null}
 
       {calibration.series.length > 0 ? (
-        <div className="bg-canvas/20 space-y-2 rounded-xl border border-line p-3">
+        <div className="bg-canvas/20 border-line space-y-2 rounded-xl border p-3">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <p className="text-xs font-semibold uppercase text-muted">
+            <p className="text-muted text-xs font-semibold uppercase">
               Observed vs Fitted
             </p>
             <Select
@@ -201,7 +201,7 @@ export default function CalibrationReport({
             </Select>
           </div>
           {selectedSeries ? (
-            <div className="h-64 rounded-lg border border-line bg-panel p-2">
+            <div className="border-line bg-panel h-64 rounded-lg border p-2">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart
                   data={selectedSeries.points}

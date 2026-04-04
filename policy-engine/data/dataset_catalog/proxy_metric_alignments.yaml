@@ -1,0 +1,21 @@
+mappings:
+  health_spending:
+    - canonical_var: health_outcomes
+      confidence: 0.72
+      proxy_penalty: 0.15
+      country_overrides:
+        UA: 0.12
+      year_overrides:
+        - start_year: 2022
+          end_year: 2030
+          proxy_penalty: 0.18
+  life_expectancy:
+    - canonical_var: health_outcomes
+      confidence: 0.92
+      proxy_penalty: 0.05
+  education_spending:
+    - canonical_var: education_outcomes
+      confidence: 0.72
+      proxy_penalty: 0.15
+      country_overrides:
+        MD: 0.18

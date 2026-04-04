@@ -57,7 +57,10 @@ export function useQueuedPromotionDecision() {
   }, [items]);
 
   const enqueueOfflineDecision = useCallback(
-    async (kind: "promotion.approve" | "promotion.reject", input: PromotionDecisionInput) => {
+    async (
+      kind: "promotion.approve" | "promotion.reject",
+      input: PromotionDecisionInput,
+    ) => {
       applyOptimisticPromotionDecision(
         queryClient,
         input.promotionId,

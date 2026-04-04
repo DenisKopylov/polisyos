@@ -4,9 +4,22 @@
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 
 from _common import FRONTEND_ROOT, PRODUCT_ROOT, CommandSpec, run_command, uv_command
+
+PYTEST_WORKERS_ENV = "POLISYOS_PYTEST_WORKERS"
+PYTEST_DIST_ENV = "POLISYOS_PYTEST_DIST"
+DEFAULT_PYTEST_DIST = "worksteal"
+PYTEST_NUMERICAL_ENV = {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "VECLIB_MAXIMUM_THREADS": "1",
+    "BLIS_NUM_THREADS": "1",
+}
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -14,6 +27,14 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--skip-doctor", action="store_true", help="Skip workstation preflight.")
     parser.add_argument("--backend-only", action="store_true", help="Skip frontend checks.")
     parser.add_argument("--frontend-only", action="store_true", help="Skip backend checks.")
+    parser.add_argument(
+        "--pytest-workers",
+        help=(
+            "Parallelize non-benchmark backend pytest with pytest-xdist. "
+            "Accepts a positive integer or 'auto'. Defaults to "
+            f"${PYTEST_WORKERS_ENV} when set."
+        ),
+    )
     parser.add_argument(
         "--surface",
         action="append",
@@ -34,7 +55,95 @@ def _doctor_command(surfaces: list[str]) -> tuple[str, ...]:
     return tuple(command)
 
 
-def _backend_commands() -> list[CommandSpec]:
+def _resolve_pytest_workers(requested: str | None) -> str | None:
+    raw = requested
+    if raw is None:
+        raw = os.environ.get(PYTEST_WORKERS_ENV)
+    if raw is None:
+        return None
+
+    value = raw.strip().lower()
+    if not value:
+        return None
+    if value == "auto":
+        return value
+    try:
+        workers = int(value)
+    except ValueError as exc:
+        raise SystemExit(
+            f"--pytest-workers / ${PYTEST_WORKERS_ENV} must be a positive integer or 'auto'."
+        ) from exc
+    if workers < 1:
+        raise SystemExit(
+            f"--pytest-workers / ${PYTEST_WORKERS_ENV} must be a positive integer or 'auto'."
+        )
+    return str(workers)
+
+
+def _resolve_pytest_dist() -> str:
+    value = os.environ.get(PYTEST_DIST_ENV, DEFAULT_PYTEST_DIST).strip()
+    return value or DEFAULT_PYTEST_DIST
+
+
+def _build_backend_pytest_commands(
+    *,
+    pytest_workers: str | None,
+    pytest_dist: str,
+    xdist_available: bool | None = None,
+) -> list[CommandSpec]:
+    uv = uv_command()
+    if xdist_available is None:
+        # `uv run pytest` executes inside the project environment, which can have a
+        # different package set than the interpreter running this wrapper script.
+        # Treat xdist as available by contract when parallel workers are requested.
+        xdist_available = True
+
+    base_pytest_args = ("pytest", "-m", "not integration", "--ignore=tests/runtime/http")
+    if pytest_workers is None or pytest_workers == "1" or not xdist_available:
+        return [
+            CommandSpec(
+                label="pytest fast backend gate",
+                argv=(*uv, "run", *base_pytest_args),
+                cwd=PRODUCT_ROOT,
+                env=PYTEST_NUMERICAL_ENV,
+            )
+        ]
+
+    return [
+        CommandSpec(
+            label="pytest fast backend gate (parallel non-benchmark)",
+            argv=(
+                *uv,
+                "run",
+                "pytest",
+                "-n",
+                pytest_workers,
+                "--dist",
+                pytest_dist,
+                "-m",
+                "not integration and not benchmark",
+                "--ignore=tests/runtime/http",
+            ),
+            cwd=PRODUCT_ROOT,
+            env=PYTEST_NUMERICAL_ENV,
+        ),
+        CommandSpec(
+            label="pytest fast backend benchmarks",
+            argv=(
+                *uv,
+                "run",
+                "pytest",
+                "-m",
+                "benchmark and not integration",
+                "--ignore=tests/runtime/http",
+            ),
+            cwd=PRODUCT_ROOT,
+            env=PYTEST_NUMERICAL_ENV,
+        ),
+    ]
+
+
+def _backend_commands(*, pytest_workers: str | None, pytest_dist: str) -> list[CommandSpec]:
     uv = uv_command()
     return [
         CommandSpec(
@@ -98,10 +207,9 @@ def _backend_commands() -> list[CommandSpec]:
             ),
             cwd=PRODUCT_ROOT,
         ),
-        CommandSpec(
-            label="pytest fast backend gate",
-            argv=(*uv, "run", "pytest", "-m", "not integration", "--ignore=tests/runtime/http"),
-            cwd=PRODUCT_ROOT,
+        *_build_backend_pytest_commands(
+            pytest_workers=pytest_workers,
+            pytest_dist=pytest_dist,
         ),
     ]
 
@@ -133,6 +241,8 @@ def main(argv: list[str] | None = None) -> int:
     args = _build_parser().parse_args(argv)
     if args.backend_only and args.frontend_only:
         raise SystemExit("--backend-only and --frontend-only are mutually exclusive.")
+    pytest_workers = _resolve_pytest_workers(args.pytest_workers)
+    pytest_dist = _resolve_pytest_dist()
 
     commands: list[CommandSpec] = []
     if not args.skip_doctor:
@@ -145,7 +255,12 @@ def main(argv: list[str] | None = None) -> int:
         )
 
     if not args.frontend_only:
-        commands.extend(_backend_commands())
+        commands.extend(
+            _backend_commands(
+                pytest_workers=pytest_workers,
+                pytest_dist=pytest_dist,
+            )
+        )
     if not args.backend_only:
         commands.extend(_frontend_commands())
 

@@ -65,10 +65,9 @@ describe("route loaders", () => {
     const { createRunDetailLoader } = await import("@/app/routes/loaders");
 
     const result = await createRunDetailLoader("runs.report")(
-      buildLoaderArgs(
-        new Request("http://localhost/runs/run-42/report"),
-        { runId: "run-42" },
-      ),
+      buildLoaderArgs(new Request("http://localhost/runs/run-42/report"), {
+        runId: "run-42",
+      }),
     );
 
     expect(result).toEqual({
@@ -84,7 +83,7 @@ describe("route loaders", () => {
     const result = await loadEvidenceWorkspace(
       buildLoaderArgs(
         new Request(
-        "http://localhost/evidence?runId=run-42&focus=promotion&promotionId=promotion-1",
+          "http://localhost/evidence?runId=run-42&focus=promotion&promotionId=promotion-1",
         ),
       ),
     );
@@ -150,15 +149,15 @@ describe("route loaders", () => {
       runId: "run-42",
       tabKey: "overview",
     });
-    expect(
-      ensureQueryData.mock.calls.map((call) => call[0]?.queryKey),
-    ).toEqual([
-      ["runtime", "run", "run-42"],
-      ["runtime", "run", "run-42", "agents"],
-      ["runtime", "run", "run-42", "debug", "governance"],
-      ["runtime", "run", "run-42", "evidence-context"],
-      ["runtime", "run", "run-42", "timeline"],
-    ]);
+    expect(ensureQueryData.mock.calls.map((call) => call[0]?.queryKey)).toEqual(
+      [
+        ["runtime", "run", "run-42"],
+        ["runtime", "run", "run-42", "agents"],
+        ["runtime", "run", "run-42", "debug", "governance"],
+        ["runtime", "run", "run-42", "evidence-context"],
+        ["runtime", "run", "run-42", "timeline"],
+      ],
+    );
   });
 
   it("bubbles non-404 bootstrap failures from run tab loaders", async () => {

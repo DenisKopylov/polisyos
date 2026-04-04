@@ -2,10 +2,17 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-const dashboardRoot = path.dirname(fileURLToPath(new URL("../package.json", import.meta.url)));
-const summaryPath = path.resolve(dashboardRoot, "coverage/coverage-summary.json");
+const dashboardRoot = path.dirname(
+  fileURLToPath(new URL("../package.json", import.meta.url)),
+);
+const summaryPath = path.resolve(
+  dashboardRoot,
+  "coverage/coverage-summary.json",
+);
 const baselinePath = path.resolve(dashboardRoot, "coverage-baseline.json");
-const tolerance = Number.parseFloat(process.env.COVERAGE_RATCHET_TOLERANCE ?? "0");
+const tolerance = Number.parseFloat(
+  process.env.COVERAGE_RATCHET_TOLERANCE ?? "0",
+);
 const metrics = ["lines", "statements", "functions", "branches"];
 const absoluteMinimums = {
   branches: 70,

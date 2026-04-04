@@ -71,6 +71,7 @@ class CommandSpec:
     label: str
     argv: tuple[str, ...]
     cwd: Path
+    env: Mapping[str, str] | None = None
 
 
 def version_text(command: Sequence[str], *, cwd: Path = PRODUCT_ROOT) -> str:
@@ -90,7 +91,10 @@ def run_command(spec: CommandSpec) -> None:
     """Run a command with inherited stdio."""
 
     print(f"[run] {spec.label}")
-    subprocess.run(list(spec.argv), cwd=spec.cwd, check=True)
+    env = None
+    if spec.env:
+        env = {**os.environ, **spec.env}
+    subprocess.run(list(spec.argv), cwd=spec.cwd, check=True, env=env)
 
 
 def is_env_set(name: str, environ: Mapping[str, str] | None = None) -> bool:

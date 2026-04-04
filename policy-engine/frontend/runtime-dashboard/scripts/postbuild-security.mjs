@@ -62,7 +62,10 @@ function addIntegrityToHtml(html) {
         ? attributes.replace(/integrity="[^"]*"/, `integrity="${integrity}"`)
         : `${attributes} integrity="${integrity}"`;
       const withCrossOrigin = withIntegrity.includes("crossorigin=")
-        ? withIntegrity.replace(/crossorigin="[^"]*"/, 'crossorigin="anonymous"')
+        ? withIntegrity.replace(
+            /crossorigin="[^"]*"/,
+            'crossorigin="anonymous"',
+          )
         : `${withIntegrity} crossorigin="anonymous"`;
 
       return `<${tagName}${withCrossOrigin}>`;
@@ -120,7 +123,11 @@ fs.writeFileSync(indexHtmlPath, securedHtml, "utf8");
 
 fs.mkdirSync(securityDir, { recursive: true });
 const cspPolicy = buildCspPolicy();
-fs.writeFileSync(path.join(securityDir, "csp-report-only.txt"), cspPolicy, "utf8");
+fs.writeFileSync(
+  path.join(securityDir, "csp-report-only.txt"),
+  cspPolicy,
+  "utf8",
+);
 fs.writeFileSync(
   path.join(securityDir, "headers.json"),
   JSON.stringify(

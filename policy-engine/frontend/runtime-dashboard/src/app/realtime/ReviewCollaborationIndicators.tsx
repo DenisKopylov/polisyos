@@ -73,11 +73,11 @@ export function ReviewPresenceSummary({
           ? t("panels.reviewCollaboration.connecting")
           : t("panels.reviewCollaboration.live")}
       </Badge>
-      <span className="text-xs font-semibold text-muted">{summaryLabel}</span>
+      <span className="text-muted text-xs font-semibold">{summaryLabel}</span>
       {participants.map((participant) => (
         <span
           key={`${participant.participantId}-${participant.sessionCount}`}
-          className="inline-flex items-center gap-2 rounded-full border border-line bg-surface/80 px-3 py-1 text-xs font-semibold"
+          className="border-line bg-surface/80 inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold"
         >
           <span
             aria-hidden="true"
@@ -106,8 +106,8 @@ export function ReviewLockNotice({ lock }: ReviewLockNoticeProps) {
     <div
       className={
         lock.isSelf
-          ? "rounded-2xl border border-accent/20 bg-accent/8 px-3 py-2 text-sm text-accent"
-          : "rounded-2xl border border-warning/30 bg-warning/5 px-3 py-2 text-sm text-warning"
+          ? "border-accent/20 bg-accent/8 text-accent rounded-2xl border px-3 py-2 text-sm"
+          : "border-warning/30 bg-warning/5 text-warning rounded-2xl border px-3 py-2 text-sm"
       }
     >
       <div className="flex flex-wrap items-center gap-2">

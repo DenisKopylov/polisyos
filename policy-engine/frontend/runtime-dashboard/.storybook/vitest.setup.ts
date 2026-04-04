@@ -25,6 +25,9 @@ if (typeof globalThis.window !== "undefined") {
   globalThis.window.__RUNTIME_DASHBOARD_TEST__ = true;
 }
 
-const annotations = setProjectAnnotations([a11yAddonAnnotations, previewAnnotations]);
+const annotations = setProjectAnnotations([
+  a11yAddonAnnotations,
+  previewAnnotations,
+]);
 
 beforeAll(annotations.beforeAll);

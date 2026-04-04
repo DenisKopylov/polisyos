@@ -3,12 +3,8 @@ import { Suspense } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook } from "@testing-library/react";
 
-import {
-  useSuspenseDataIndexStats,
-} from "@/api/hooks/useDataIndexStats";
-import {
-  useSuspenseDataPromotionCandidates,
-} from "@/api/hooks/useDataPromotionCandidates";
+import { useSuspenseDataIndexStats } from "@/api/hooks/useDataIndexStats";
+import { useSuspenseDataPromotionCandidates } from "@/api/hooks/useDataPromotionCandidates";
 import { useSuspenseGovernanceDebug } from "@/api/hooks/useGovernanceDebug";
 import { useSuspenseHealth } from "@/api/hooks/useHealth";
 import { useSuspenseLexGraphStats } from "@/api/hooks/useLexGraphStats";
@@ -64,10 +60,7 @@ function useRunWorkflowSuspenseFixture(runId: string) {
   return useSuspenseRunWorkflow(runId);
 }
 
-function createSuspenseWrapper(
-  queryKey: readonly unknown[],
-  data: unknown,
-) {
+function createSuspenseWrapper(queryKey: readonly unknown[], data: unknown) {
   const client = new QueryClient({
     defaultOptions: {
       queries: {

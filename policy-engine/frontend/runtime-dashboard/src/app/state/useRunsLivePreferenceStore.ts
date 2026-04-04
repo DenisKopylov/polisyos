@@ -10,8 +10,7 @@ type RunsLivePreferenceState = {
   setDisableLive: (disableLive: boolean) => void;
 };
 
-export const RUNS_LIVE_PREFERENCE_STORAGE_KEY =
-  "polisyos.runtime.disableLive";
+export const RUNS_LIVE_PREFERENCE_STORAGE_KEY = "polisyos.runtime.disableLive";
 
 const runsLivePreferenceStorage: StateStorage = {
   getItem: (name) => {

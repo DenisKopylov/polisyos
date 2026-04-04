@@ -17,7 +17,9 @@ vi.mock("@/i18n/LocaleProvider", async () => {
 
 import LoginPage from "@/features/auth/routes/LoginPage";
 
-function renderLoginPage(initialEntry = "/login?next=%2Fruns%2Frun-1%2Foverview") {
+function renderLoginPage(
+  initialEntry = "/login?next=%2Fruns%2Frun-1%2Foverview",
+) {
   return render(
     <MemoryRouter initialEntries={[initialEntry]}>
       <Routes>
@@ -35,27 +37,28 @@ describe("LoginPage", () => {
 
     Object.defineProperty(window, "location", {
       configurable: true,
-      value: {
-        ...originalLocation,
-        assign: assignMock,
-      },
+      value: { assign: assignMock } satisfies Partial<Location>,
     });
 
-    renderLoginPage();
+    try {
+      renderLoginPage();
 
-    expect(screen.getByTestId("login-page")).toBeInTheDocument();
-    expect(
-      screen.getByText(
-        'pages.login.nextRoute:{"next":"/runs/run-1/overview"}',
-      ),
-    ).toBeInTheDocument();
+      expect(screen.getByTestId("login-page")).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          'pages.login.nextRoute:{"next":"/runs/run-1/overview"}',
+        ),
+      ).toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: "pages.login.retry" }));
-    expect(assignMock).toHaveBeenCalledWith("/runs/run-1/overview");
-
-    Object.defineProperty(window, "location", {
-      configurable: true,
-      value: originalLocation,
-    });
+      await user.click(
+        screen.getByRole("button", { name: "pages.login.retry" }),
+      );
+      expect(assignMock).toHaveBeenCalledWith("/runs/run-1/overview");
+    } finally {
+      Object.defineProperty(window, "location", {
+        configurable: true,
+        value: originalLocation,
+      });
+    }
   });
 });

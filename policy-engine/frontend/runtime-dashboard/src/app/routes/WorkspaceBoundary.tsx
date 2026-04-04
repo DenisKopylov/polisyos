@@ -58,7 +58,9 @@ export function WorkspaceBoundary({
   const workspaceEnabled = workspace.featureFlag
     ? flags[workspace.featureFlag]
     : true;
-  const workspaceAllowed = authz ? authz.isWorkspaceAllowed(workspaceKey) : true;
+  const workspaceAllowed = authz
+    ? authz.isWorkspaceAllowed(workspaceKey)
+    : true;
   const missingCapabilities = workspace.requiredCapabilities.filter(
     (capability) => !isCapabilityEnabled(capabilitiesQuery.data, capability),
   );

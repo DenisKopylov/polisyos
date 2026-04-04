@@ -67,14 +67,19 @@ async function collectInitialAssets(manifest) {
 async function main() {
   const manifest = await readManifest();
   const initialAssets = await collectInitialAssets(manifest);
-  const initialJsAssets = initialAssets.filter((asset) => asset.endsWith(".js"));
+  const initialJsAssets = initialAssets.filter((asset) =>
+    asset.endsWith(".js"),
+  );
   const initialRawSizes = await Promise.all(
     initialJsAssets.map((asset) => fileSize(asset)),
   );
   const initialGzipSizes = await Promise.all(
     initialJsAssets.map((asset) => gzipSize(asset)),
   );
-  const initialJsRawBytes = initialRawSizes.reduce((sum, size) => sum + size, 0);
+  const initialJsRawBytes = initialRawSizes.reduce(
+    (sum, size) => sum + size,
+    0,
+  );
   const initialJsGzipBytes = initialGzipSizes.reduce(
     (sum, size) => sum + size,
     0,
@@ -126,7 +131,10 @@ async function main() {
       `Initial JS gzip budget exceeded: ${formatKilobytes(initialJsGzipBytes)} > ${formatKilobytes(budgets.initialJsGzipMaxBytes)}`,
     );
   }
-  if (largestAppChunk && largestAppChunk.raw > budgets.largestAppChunkRawMaxBytes) {
+  if (
+    largestAppChunk &&
+    largestAppChunk.raw > budgets.largestAppChunkRawMaxBytes
+  ) {
     violations.push(
       `Largest app chunk raw budget exceeded (${largestAppChunk.file}): ${formatKilobytes(largestAppChunk.raw)} > ${formatKilobytes(budgets.largestAppChunkRawMaxBytes)}`,
     );

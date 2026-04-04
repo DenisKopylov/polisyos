@@ -9,7 +9,6 @@ __pycache__/
 .uv-cache/
 .env
 .env.server_*
-uv.lock
 .DS_Store
 .benchmarks/
 # Data folders
@@ -35,7 +34,7 @@ data/curated/*
 logs/
 
 # Test runs (keep local, do not commit)
-runs/
+/runs/
 
 .polisyos/
 

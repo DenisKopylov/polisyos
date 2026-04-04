@@ -40,7 +40,8 @@ export function useLaunchRun() {
     blockWhenOffline: true,
     errorToast: {
       title: "Run launch failed",
-      description: "Atlas restored the optimistic run and kept existing data intact.",
+      description:
+        "Atlas restored the optimistic run and kept existing data intact.",
       tone: "error",
     },
     mutationId: "runs.launch",
@@ -87,7 +88,8 @@ export function useLaunchRun() {
       }
     },
     successToast: (data) => ({
-      title: data.status === "accepted" ? "Run launch accepted" : "Run rejected",
+      title:
+        data.status === "accepted" ? "Run launch accepted" : "Run rejected",
       description: data.message,
       tone: data.status === "accepted" ? "success" : "warning",
     }),

@@ -1,7 +1,4 @@
-import {
-  diffTrinityBundles,
-  parseTrinityBundle,
-} from "@/lib/domain/trinity";
+import { diffTrinityBundles, parseTrinityBundle } from "@/lib/domain/trinity";
 
 function createTrinityBundle() {
   return {
@@ -192,8 +189,9 @@ describe("trinity domain", () => {
 
     (previous.policy_spec as { interventions: unknown[] }).interventions = [
       {
-        ...(previous.policy_spec as { interventions: Record<string, unknown>[] })
-          .interventions[0],
+        ...(
+          previous.policy_spec as { interventions: Record<string, unknown>[] }
+        ).interventions[0],
         params: { amount: 80, phase_in: [1] },
       },
       {

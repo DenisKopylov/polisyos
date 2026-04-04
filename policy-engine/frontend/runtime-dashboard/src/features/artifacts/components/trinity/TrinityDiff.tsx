@@ -31,7 +31,7 @@ export default function TrinityDiff({
 
   if (!previousPayload) {
     return (
-      <div className="bg-canvas/40 rounded-xl border border-dashed border-line p-3 text-sm text-muted">
+      <div className="bg-canvas/40 border-line text-muted rounded-xl border border-dashed p-3 text-sm">
         Trinity diff unavailable: {previousTitle} not found in payload.
       </div>
     );
@@ -39,7 +39,7 @@ export default function TrinityDiff({
 
   if (!diff) {
     return (
-      <div className="bg-canvas/40 rounded-xl border border-dashed border-line p-3 text-sm text-muted">
+      <div className="bg-canvas/40 border-line text-muted rounded-xl border border-dashed p-3 text-sm">
         Trinity diff unavailable: unable to parse one of bundles.
       </div>
     );
@@ -47,7 +47,7 @@ export default function TrinityDiff({
 
   if (!hasChanges(diff)) {
     return (
-      <div className="bg-success/10 rounded-xl border border-line p-3 text-sm text-success">
+      <div className="bg-success/10 border-line text-success rounded-xl border p-3 text-sm">
         No intervention-level changes detected versus {previousTitle}.
       </div>
     );
@@ -55,8 +55,8 @@ export default function TrinityDiff({
 
   return (
     <div className="grid gap-3 md:grid-cols-3">
-      <div className="rounded-xl border border-line p-3">
-        <p className="mb-2 text-xs font-semibold uppercase text-muted">Added</p>
+      <div className="border-line rounded-xl border p-3">
+        <p className="text-muted mb-2 text-xs font-semibold uppercase">Added</p>
         {diff.addedInterventions.length > 0 ? (
           <ul className="space-y-1 text-sm">
             {diff.addedInterventions.map((id) => (
@@ -66,12 +66,12 @@ export default function TrinityDiff({
             ))}
           </ul>
         ) : (
-          <p className="text-sm text-muted">None</p>
+          <p className="text-muted text-sm">None</p>
         )}
       </div>
 
-      <div className="rounded-xl border border-line p-3">
-        <p className="mb-2 text-xs font-semibold uppercase text-muted">
+      <div className="border-line rounded-xl border p-3">
+        <p className="text-muted mb-2 text-xs font-semibold uppercase">
           Removed
         </p>
         {diff.removedInterventions.length > 0 ? (
@@ -83,12 +83,12 @@ export default function TrinityDiff({
             ))}
           </ul>
         ) : (
-          <p className="text-sm text-muted">None</p>
+          <p className="text-muted text-sm">None</p>
         )}
       </div>
 
-      <div className="rounded-xl border border-line p-3">
-        <p className="mb-2 text-xs font-semibold uppercase text-muted">
+      <div className="border-line rounded-xl border p-3">
+        <p className="text-muted mb-2 text-xs font-semibold uppercase">
           Changed Params
         </p>
         {diff.changedInterventions.length > 0 ? (
@@ -96,14 +96,14 @@ export default function TrinityDiff({
             {diff.changedInterventions.map((item) => (
               <li key={item.id}>
                 <p className="font-mono">{item.id}</p>
-                <p className="text-xs text-muted">
+                <p className="text-muted text-xs">
                   {item.changedParams.join(", ")}
                 </p>
               </li>
             ))}
           </ul>
         ) : (
-          <p className="text-sm text-muted">None</p>
+          <p className="text-muted text-sm">None</p>
         )}
       </div>
     </div>

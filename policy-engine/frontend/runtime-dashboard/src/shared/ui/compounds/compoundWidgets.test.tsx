@@ -1,9 +1,9 @@
 import type { ReactNode } from "react";
 
 vi.mock("@/shared/ui/VirtualList", async () => {
-  const actual = await vi.importActual<typeof import("@/shared/ui/VirtualList")>(
-    "@/shared/ui/VirtualList",
-  );
+  const actual = await vi.importActual<
+    typeof import("@/shared/ui/VirtualList")
+  >("@/shared/ui/VirtualList");
 
   return {
     ...actual,
@@ -134,7 +134,9 @@ describe("compound widgets", () => {
     );
 
     expect(screen.getByText("Started")).toBeInTheDocument();
-    expect(screen.getByText("Execution entered the queue.")).toBeInTheDocument();
+    expect(
+      screen.getByText("Execution entered the queue."),
+    ).toBeInTheDocument();
     expect(screen.getByText("queued")).toBeInTheDocument();
     expect(screen.getByText("2026-03-10T10:00:00Z")).toBeInTheDocument();
 

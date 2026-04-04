@@ -169,7 +169,10 @@ export function parseRunsLiveEvent(input: {
       };
     }
     if (runId) {
-      if (eventKind === "governance.waiting" || eventKind === "human_gate.waiting") {
+      if (
+        eventKind === "governance.waiting" ||
+        eventKind === "human_gate.waiting"
+      ) {
         return {
           cursor,
           entity,

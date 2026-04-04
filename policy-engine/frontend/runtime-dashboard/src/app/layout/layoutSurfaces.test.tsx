@@ -59,8 +59,11 @@ vi.mock("@/app/providers/RuntimeApiProvider", () => ({
 vi.mock("@/i18n/LocaleProvider", () => ({
   SUPPORTED_LOCALES: ["en", "uk"],
   useI18n: () => ({
-    label: (_namespace: string, value: string | null | undefined, fallback: string) =>
-      fallback ?? value ?? "",
+    label: (
+      _namespace: string,
+      value: string | null | undefined,
+      fallback: string,
+    ) => fallback ?? value ?? "",
     locale: "en",
     setLocale: setLocaleMock,
     t: (key: string, payload?: Record<string, unknown>) =>
@@ -160,12 +163,16 @@ describe("layout surfaces", () => {
     expect(screen.getByText("shell.header.apiOk")).toBeInTheDocument();
     expect(screen.getByText("shell.header.live")).toBeInTheDocument();
     expect(
-      screen.getByText("shell.header.runsInReview:{\"count\":1}"),
+      screen.getByText('shell.header.runsInReview:{"count":1}'),
     ).toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: "shell.header.theme" }));
     await user.click(
-      screen.getByRole("button", { name: "shell.header.locale common.locale.uk" }),
+      screen.getByRole("button", { name: "shell.header.theme" }),
+    );
+    await user.click(
+      screen.getByRole("button", {
+        name: "shell.header.locale common.locale.uk",
+      }),
     );
 
     expect(toggleThemeMock).toHaveBeenCalledTimes(1);
@@ -223,9 +230,13 @@ describe("layout surfaces", () => {
 
     renderWithRouter(<GlobalRuntimeBanner />);
     expect(screen.getByTestId("runtime-banner")).toBeInTheDocument();
-    expect(screen.getByText("shell.runtimeBanner.networkTitle")).toBeInTheDocument();
+    expect(
+      screen.getByText("shell.runtimeBanner.networkTitle"),
+    ).toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: "shell.runtimeBanner.dismiss" }));
+    await user.click(
+      screen.getByRole("button", { name: "shell.runtimeBanner.dismiss" }),
+    );
     expect(dismissIncidentMock).toHaveBeenCalledTimes(1);
 
     useRuntimeApiIncidentMock.mockReturnValueOnce({

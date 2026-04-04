@@ -11,7 +11,7 @@ import {
 } from "recharts";
 
 import type { BadgeKind } from "@/shared/ui";
-import { Badge, DecisionCard, Select, chartTheme } from "@/shared/ui";
+import { DecisionCard, Select, chartTheme } from "@/shared/ui";
 import type { DecisionCardViewModel } from "@/lib/domain/decision";
 import { parseDecisionCardPayload } from "@/lib/domain/decision";
 import { formatDate, formatDuration } from "@/lib/utils";
@@ -75,9 +75,9 @@ export default function DecisionCardView({
 
   if (!card) {
     return (
-      <div className="bg-canvas/30 rounded-xl border border-dashed border-line p-4">
+      <div className="bg-canvas/30 border-line rounded-xl border border-dashed p-4">
         <h3 className="mb-1 text-lg font-semibold">Decision Card</h3>
-        <p className="text-sm text-muted">
+        <p className="text-muted text-sm">
           Unable to parse decision payload. Artifact kind: {artifactKind}
         </p>
       </div>
@@ -91,7 +91,7 @@ export default function DecisionCardView({
         subtitle={
           <>
             <span>Decision card ({card.sourceKind})</span>
-            <span className="mx-2 text-muted">·</span>
+            <span className="text-muted mx-2">·</span>
             <span>Generated: {formatDate(card.generatedAt)}</span>
           </>
         }
@@ -127,22 +127,22 @@ export default function DecisionCardView({
         ]}
       />
 
-      <section className="rounded-xl border border-line bg-panel p-4">
+      <section className="border-line bg-panel rounded-xl border p-4">
         <h4 className="mb-2 text-base font-semibold">Key metrics</h4>
         {card.keyMetrics.length > 0 ? (
           <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-4">
             {card.keyMetrics.map((metric) => (
               <article
                 key={metric.name}
-                className="bg-canvas/30 rounded-lg border border-line p-2 text-sm"
+                className="bg-canvas/30 border-line rounded-lg border p-2 text-sm"
               >
-                <p className="text-xs uppercase text-muted">{metric.name}</p>
+                <p className="text-muted text-xs uppercase">{metric.name}</p>
                 <p className="font-semibold">
                   {metric.formatted}
                   {metric.unit ? ` ${metric.unit}` : ""}
                 </p>
                 {metric.ciLower !== null && metric.ciUpper !== null ? (
-                  <p className="text-xs text-muted">
+                  <p className="text-muted text-xs">
                     [{metric.ciLower.toFixed(2)}, {metric.ciUpper.toFixed(2)}]
                     {metric.ciLevel !== null
                       ? ` @ ${(metric.ciLevel * 100).toFixed(0)}%`
@@ -153,14 +153,14 @@ export default function DecisionCardView({
             ))}
           </div>
         ) : (
-          <p className="text-sm text-muted">
+          <p className="text-muted text-sm">
             No key metrics in decision payload.
           </p>
         )}
       </section>
 
       {card.distributional ? (
-        <section className="rounded-xl border border-line bg-panel p-4">
+        <section className="border-line bg-panel rounded-xl border p-4">
           <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
             <h4 className="text-base font-semibold">Distributional impact</h4>
             {card.distributional.breakdowns.length > 1 ? (
@@ -182,31 +182,31 @@ export default function DecisionCardView({
           </div>
 
           <div className="grid gap-2 md:grid-cols-4">
-            <div className="bg-canvas/30 rounded-lg border border-line p-2 text-sm">
-              <p className="text-xs uppercase text-muted">Gini</p>
+            <div className="bg-canvas/30 border-line rounded-lg border p-2 text-sm">
+              <p className="text-muted text-xs uppercase">Gini</p>
               <p className="font-semibold">
                 {card.distributional.giniBefore?.toFixed(4) ?? "-"} to{" "}
                 {card.distributional.giniAfter?.toFixed(4) ?? "-"}
               </p>
-              <p className="text-xs text-muted">
+              <p className="text-muted text-xs">
                 delta {card.distributional.giniDelta?.toFixed(4) ?? "-"}
               </p>
             </div>
-            <div className="bg-canvas/30 rounded-lg border border-line p-2 text-sm">
-              <p className="text-xs uppercase text-muted">Winners / Losers</p>
+            <div className="bg-canvas/30 border-line rounded-lg border p-2 text-sm">
+              <p className="text-muted text-xs uppercase">Winners / Losers</p>
               <p className="font-semibold">
                 {card.distributional.winnersCount} /{" "}
                 {card.distributional.losersCount}
               </p>
             </div>
-            <div className="bg-canvas/30 rounded-lg border border-line p-2 text-sm">
-              <p className="text-xs uppercase text-muted">Winner share</p>
+            <div className="bg-canvas/30 border-line rounded-lg border p-2 text-sm">
+              <p className="text-muted text-xs uppercase">Winner share</p>
               <p className="font-semibold">
                 {(card.distributional.winnersShare * 100).toFixed(0)}%
               </p>
             </div>
-            <div className="bg-canvas/30 rounded-lg border border-line p-2 text-sm">
-              <p className="text-xs uppercase text-muted">Vulnerable losers</p>
+            <div className="bg-canvas/30 border-line rounded-lg border p-2 text-sm">
+              <p className="text-muted text-xs uppercase">Vulnerable losers</p>
               <p className="font-semibold">
                 {card.distributional.vulnerableLosersCount}
               </p>
@@ -214,7 +214,7 @@ export default function DecisionCardView({
           </div>
 
           {activeBreakdown ? (
-            <div className="bg-canvas/20 mt-3 h-64 rounded-lg border border-line p-2">
+            <div className="bg-canvas/20 border-line mt-3 h-64 rounded-lg border p-2">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
                   data={activeBreakdown.rows}

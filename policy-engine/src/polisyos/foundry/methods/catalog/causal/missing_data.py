@@ -608,7 +608,7 @@ def test_mgraph_implications(
 @foundry_method(
     namespace="causal.missing_data",
     version="1.0.0",
-    tags={"causal", "missing-data", "recoverability", "m-graph"},
+    tags={"causal", "missing-data", "recoverability", "m-graph", "structural"},
 )
 class RecoverabilityTest:
     """Test whether a query P(S) is recoverable from incomplete data.
@@ -656,7 +656,7 @@ class RecoverabilityTest:
         ),
         tags=frozenset({
             "causal", "missing-data", "recoverability", "m-graph",
-            "mcar", "mar", "mnar",
+            "mcar", "mar", "mnar", "structural",
         }),
         citations=(
             "Mohan, K. & Pearl, J. (2021). Graphical Models for Processing "
@@ -742,7 +742,7 @@ class RecoverabilityTest:
 @foundry_method(
     namespace="causal.missing_data",
     version="1.0.0",
-    tags={"causal", "missing-data", "ordered-recovery", "m-graph"},
+    tags={"causal", "missing-data", "ordered-recovery", "m-graph", "structural"},
 )
 class OrderedRecovery:
     """Recover full-data joint P(V) from incomplete data via topological ordering.
@@ -794,7 +794,7 @@ class OrderedRecovery:
         ),
         tags=frozenset({
             "causal", "missing-data", "ordered-recovery", "m-graph",
-            "estimand", "fixing-operator",
+            "estimand", "fixing-operator", "structural",
         }),
         citations=(
             "Mohan, K., Pearl, J. & Tian, J. (2013). Missing Data as a Causal "

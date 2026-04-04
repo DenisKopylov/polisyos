@@ -43,6 +43,7 @@ from .dml import DoubleMachineLearning
 from .dowhy_identify_estimate import DoWhyIdentifyEstimate, DoWhyIdentifyEstimateV1
 from .dowhy_refute import DoWhyRefute
 from .g_computation import estimate_g_computation_trajectory
+from .g_estimation import StructuralNestedMeanModel
 from .gcm_fit import HybridSCMFit
 from .gcm_query import GCMQuery
 from .twin_network_query import TwinNetworkQuery
@@ -241,6 +242,7 @@ __all__ = [
     "CausalBCF",
     "ForestDRLearnerEstimator",
     "DoubleMachineLearning",
+    "StructuralNestedMeanModel",
     "MetaLearnerEstimator",
     "OptimalPolicyLearner",
     "StrategicSolveResult",

@@ -52,14 +52,11 @@ const vulnerabilities = Object.values(rawAudit.vulnerabilities ?? {});
 const filtered = vulnerabilities.filter(
   (vulnerability) => !isAllowlisted(vulnerability, allowlist),
 );
-const bySeverity = filtered.reduce(
-  (accumulator, vulnerability) => {
-    const severity = vulnerability.severity ?? "unknown";
-    accumulator[severity] = (accumulator[severity] ?? 0) + 1;
-    return accumulator;
-  },
-  {},
-);
+const bySeverity = filtered.reduce((accumulator, vulnerability) => {
+  const severity = vulnerability.severity ?? "unknown";
+  accumulator[severity] = (accumulator[severity] ?? 0) + 1;
+  return accumulator;
+}, {});
 
 const report = {
   allowlist,

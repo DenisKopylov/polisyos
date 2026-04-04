@@ -32,15 +32,14 @@ export function DataTable<Row>({
     <div
       aria-label={label}
       role="region"
-      tabIndex={0}
       className={cn(
-        "overflow-x-auto rounded-2xl border border-line",
+        "border-line overflow-x-auto rounded-2xl border",
         className,
       )}
     >
       <table className="min-w-full border-collapse text-sm">
         <thead>
-          <tr className="border-b border-line text-left text-xs uppercase tracking-wide text-muted">
+          <tr className="border-line text-muted border-b text-left text-xs tracking-wide uppercase">
             {columns.map((column) => (
               <th
                 key={column.key}

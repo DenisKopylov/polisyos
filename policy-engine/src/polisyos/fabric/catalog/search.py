@@ -179,26 +179,32 @@ class MetricSearcher:
 
         # Phase 2: Fuzzy matching
         if not results:
-            seen_ids: set[str] = set()
+            best_matches: dict[str, tuple[float, str]] = {}
 
             for alias, metric_ids in self._alias_index.items():
                 similarity = self._compute_similarity(query_lower, alias)
 
-                if similarity > 0.3:
-                    for metric_id in metric_ids:
-                        if metric_id in seen_ids:
-                            continue
-                        seen_ids.add(metric_id)
+                if similarity <= 0.3:
+                    continue
 
-                        contract = self._contracts[metric_id]
-                        results.append(
-                            SearchResult(
-                                binding=MetricBinding.from_contract(contract),
-                                contract=contract,
-                                confidence=similarity,
-                                matched_alias=alias,
-                            )
-                        )
+                for metric_id in metric_ids:
+                    current = best_matches.get(metric_id)
+                    if current is None or similarity > current[0]:
+                        best_matches[metric_id] = (similarity, alias)
+                        continue
+                    if similarity == current[0] and alias < current[1]:
+                        best_matches[metric_id] = (similarity, alias)
+
+            for metric_id, (similarity, alias) in best_matches.items():
+                contract = self._contracts[metric_id]
+                results.append(
+                    SearchResult(
+                        binding=MetricBinding.from_contract(contract),
+                        contract=contract,
+                        confidence=similarity,
+                        matched_alias=alias,
+                    )
+                )
 
         results.sort(key=lambda r: (-r.confidence, r.binding.metric_id))
         results = results[: self._max_results]

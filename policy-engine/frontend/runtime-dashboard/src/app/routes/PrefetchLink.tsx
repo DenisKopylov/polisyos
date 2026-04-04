@@ -1,11 +1,5 @@
 import type { FocusEvent, MouseEvent, TouchEvent } from "react";
-import {
-  forwardRef,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-} from "react";
+import { forwardRef, useCallback, useEffect, useMemo, useRef } from "react";
 import { createPath, Link, type LinkProps, type To } from "react-router-dom";
 
 import {
@@ -144,8 +138,12 @@ export const PrefetchLink = forwardRef<HTMLAnchorElement, PrefetchLinkProps>(
     },
     forwardedRef,
   ) {
-    const { linkRef, onFocus: handleFocus, onMouseEnter: handleMouseEnter, onTouchStart: handleTouchStart } =
-      useRoutePrefetch(to, prefetch);
+    const {
+      linkRef,
+      onFocus: handleFocus,
+      onMouseEnter: handleMouseEnter,
+      onTouchStart: handleTouchStart,
+    } = useRoutePrefetch(to, prefetch);
 
     return (
       <Link

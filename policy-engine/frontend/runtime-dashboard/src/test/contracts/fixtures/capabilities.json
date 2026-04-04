@@ -7,10 +7,7 @@
   "runtime_api_version": "1.0.0",
   "shell_flavor": "atlas",
   "default_locale": "en",
-  "supported_locales": [
-    "en",
-    "uk"
-  ],
+  "supported_locales": ["en", "uk"],
   "workspaces": [
     "command_center",
     "scenario_composer",
@@ -139,9 +136,6 @@
     "artifact_preview_max_bytes": 2000000,
     "task_runner": "in_process_thread_pool",
     "default_locale": "en",
-    "supported_locales": [
-      "en",
-      "uk"
-    ]
+    "supported_locales": ["en", "uk"]
   }
 }

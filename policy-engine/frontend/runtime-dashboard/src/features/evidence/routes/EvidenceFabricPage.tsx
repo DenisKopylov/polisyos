@@ -253,7 +253,10 @@ export default function EvidenceFabric() {
               type="button"
               onClick={() =>
                 void copyShareLink(
-                  new URL(window.location.pathname + window.location.search, window.location.origin),
+                  new URL(
+                    window.location.pathname + window.location.search,
+                    window.location.origin,
+                  ),
                 )
               }
               variant="ghost"
@@ -261,7 +264,11 @@ export default function EvidenceFabric() {
               {t("common.shareView")}
             </Button>
             {runId ? (
-              <PrefetchButton to={`/runs/${runId}/evidence`} prefetch="intent" variant="ghost">
+              <PrefetchButton
+                to={`/runs/${runId}/evidence`}
+                prefetch="intent"
+                variant="ghost"
+              >
                 {t("pages.evidence.backToRun")}
               </PrefetchButton>
             ) : null}
@@ -269,13 +276,13 @@ export default function EvidenceFabric() {
         </div>
 
         {runId ? (
-          <div className="bg-surface/75 rounded-2xl border border-line p-3">
+          <div className="bg-surface/75 border-line rounded-2xl border p-3">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
                 <p className="text-sm font-semibold">
                   {t("pages.evidence.runContextActive", { runId })}
                 </p>
-                <p className="mt-1 text-sm text-muted">
+                <p className="text-muted mt-1 text-sm">
                   {t("pages.evidence.runContextSummary", {
                     needs: formatNumber(runContext?.dataNeeds.length ?? 0),
                     plans: formatNumber(runContext?.fetchPlans.length ?? 0),
@@ -293,7 +300,7 @@ export default function EvidenceFabric() {
               </div>
             </div>
             {runContext?.warnings.length ? (
-              <p className="mt-3 text-sm text-warning">
+              <p className="text-warning mt-3 text-sm">
                 {runContext.warnings.join(" · ")}
               </p>
             ) : null}
@@ -312,7 +319,7 @@ export default function EvidenceFabric() {
                 })}
               </h4>
             </div>
-            <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted">
+            <span className="text-muted font-mono text-[11px] tracking-[0.18em] uppercase">
               {t("pages.evidence.docsAdded", {
                 count: formatNumber(
                   indexStatsQuery.data?.stats.docs_added_last_run ?? 0,
@@ -324,10 +331,10 @@ export default function EvidenceFabric() {
             {featuredProfiles.map((profile) => (
               <div
                 key={profile.profile_id}
-                className="bg-surface/75 rounded-2xl border border-line p-4"
+                className="bg-surface/75 border-line rounded-2xl border p-4"
               >
                 <strong>{profile.display_name}</strong>
-                <p className="mt-2 text-sm text-muted">
+                <p className="text-muted mt-2 text-sm">
                   {profile.source_organization} · {profile.connector_family} ·{" "}
                   {profile.estimated_datasets != null
                     ? t("pages.evidence.datasetsCount", {
@@ -338,9 +345,9 @@ export default function EvidenceFabric() {
               </div>
             ))}
             {featuredProfiles.length === 0 ? (
-              <div className="bg-surface/75 rounded-2xl border border-line p-4">
+              <div className="bg-surface/75 border-line rounded-2xl border p-4">
                 <strong>{t("pages.evidence.sourceProfiles")}</strong>
-                <p className="mt-2 text-sm text-muted">
+                <p className="text-muted mt-2 text-sm">
                   {t("pages.evidence.profilesLoading")}
                 </p>
               </div>
@@ -354,46 +361,46 @@ export default function EvidenceFabric() {
               <p className="eyebrow">{t("pages.evidence.evidenceGraph")}</p>
               <h4>{t("pages.evidence.contextRefs")}</h4>
             </div>
-            <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted">
+            <span className="text-muted font-mono text-[11px] tracking-[0.18em] uppercase">
               {t("pages.evidence.indexDocs")}
             </span>
           </div>
           <div className="grid gap-3 md:grid-cols-2">
-            <div className="bg-surface/75 rounded-2xl border border-line p-4">
-              <p className="text-xs uppercase tracking-wide text-muted">
+            <div className="bg-surface/75 border-line rounded-2xl border p-4">
+              <p className="text-muted text-xs tracking-wide uppercase">
                 {t("pages.evidence.focus.overview")}
               </p>
               <p className="mt-2 text-2xl font-semibold">
                 {formatNumber(contextArtifactRefs.length)}
               </p>
-              <p className="mt-2 text-sm text-muted">
+              <p className="text-muted mt-2 text-sm">
                 {t("pages.evidence.relatedArtifacts")}
               </p>
             </div>
-            <div className="bg-surface/75 rounded-2xl border border-line p-4">
-              <p className="text-xs uppercase tracking-wide text-muted">
+            <div className="bg-surface/75 border-line rounded-2xl border p-4">
+              <p className="text-muted text-xs tracking-wide uppercase">
                 {t("pages.evidence.dataNeeds")}
               </p>
               <p className="mt-2 text-2xl font-semibold">
                 {formatNumber(runContext?.dataNeeds.length ?? 0)}
               </p>
-              <p className="mt-2 text-sm text-muted">
+              <p className="text-muted mt-2 text-sm">
                 {t("pages.evidence.fetchPlans")}
               </p>
             </div>
-            <div className="bg-surface/75 rounded-2xl border border-line p-4">
-              <p className="text-xs uppercase tracking-wide text-muted">
+            <div className="bg-surface/75 border-line rounded-2xl border p-4">
+              <p className="text-muted text-xs tracking-wide uppercase">
                 {t("pages.evidence.fetchPlans")}
               </p>
               <p className="mt-2 text-2xl font-semibold">
                 {formatNumber(runContext?.fetchPlans.length ?? 0)}
               </p>
-              <p className="mt-2 text-sm text-muted">
+              <p className="text-muted mt-2 text-sm">
                 {t("pages.evidence.contextRefs")}
               </p>
             </div>
-            <div className="bg-surface/75 rounded-2xl border border-line p-4">
-              <p className="text-xs uppercase tracking-wide text-muted">
+            <div className="bg-surface/75 border-line rounded-2xl border p-4">
+              <p className="text-muted text-xs tracking-wide uppercase">
                 {t("pages.evidence.promotion")}
               </p>
               <p className="mt-2 text-2xl font-semibold">
@@ -403,7 +410,7 @@ export default function EvidenceFabric() {
                     : (promotionCandidatesQuery.data?.candidates?.length ?? 0),
                 )}
               </p>
-              <p className="mt-2 text-sm text-muted">
+              <p className="text-muted mt-2 text-sm">
                 {t("pages.evidence.runScopedPromotion")}
               </p>
             </div>
@@ -421,18 +428,18 @@ export default function EvidenceFabric() {
             {featuredPromotions.map((candidate) => (
               <div
                 key={candidate.promotionId}
-                className="bg-surface/75 rounded-2xl border border-line p-4"
+                className="bg-surface/75 border-line rounded-2xl border p-4"
               >
                 <strong>{candidate.metricId}</strong>
-                <span className="bg-accent/10 mt-3 inline-flex w-fit rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-accent">
+                <span className="bg-accent/10 text-accent mt-3 inline-flex w-fit rounded-full px-3 py-1 text-[11px] font-semibold tracking-wide uppercase">
                   {candidate.status}
                 </span>
               </div>
             ))}
             {featuredPromotions.length === 0 ? (
-              <div className="bg-surface/75 rounded-2xl border border-line p-4">
+              <div className="bg-surface/75 border-line rounded-2xl border p-4">
                 <strong>{t("pages.evidence.noPromotionCandidates")}</strong>
-                <span className="mt-3 inline-flex w-fit rounded-full bg-surface px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-muted">
+                <span className="bg-surface text-muted mt-3 inline-flex w-fit rounded-full px-3 py-1 text-[11px] font-semibold tracking-wide uppercase">
                   -
                 </span>
               </div>
@@ -443,39 +450,39 @@ export default function EvidenceFabric() {
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <Card>
-          <p className="text-xs uppercase text-muted">
+          <p className="text-muted text-xs uppercase">
             {t("pages.evidence.sourceProfiles")}
           </p>
           <p className="text-2xl font-semibold">
             {formatNumber(availableProfiles.length)}
           </p>
-          <p className="text-xs text-muted">
+          <p className="text-muted text-xs">
             {t("pages.evidence.totalProfiles", {
               count: formatNumber(profiles.length),
             })}
           </p>
         </Card>
         <Card>
-          <p className="text-xs uppercase text-muted">
+          <p className="text-muted text-xs uppercase">
             {t("pages.evidence.connectors")}
           </p>
           <p className="text-2xl font-semibold">
             {formatNumber(loadedConnectors.length)}
           </p>
-          <p className="text-xs text-muted">
+          <p className="text-muted text-xs">
             {t("pages.evidence.totalConnectors", {
               count: formatNumber(connectors.length),
             })}
           </p>
         </Card>
         <Card>
-          <p className="text-xs uppercase text-muted">
+          <p className="text-muted text-xs uppercase">
             {t("pages.evidence.indexDocs")}
           </p>
           <p className="text-2xl font-semibold">
             {formatNumber(indexStatsQuery.data?.stats.index_docs_total ?? 0)}
           </p>
-          <p className="text-xs text-muted">
+          <p className="text-muted text-xs">
             {t("pages.evidence.docsAdded", {
               count: formatNumber(
                 indexStatsQuery.data?.stats.docs_added_last_run ?? 0,
@@ -484,7 +491,7 @@ export default function EvidenceFabric() {
           </p>
         </Card>
         <Card>
-          <p className="text-xs uppercase text-muted">
+          <p className="text-muted text-xs uppercase">
             {t("pages.evidence.promotion")}
           </p>
           <p className="text-2xl font-semibold">
@@ -494,7 +501,7 @@ export default function EvidenceFabric() {
                 : (promotionCandidatesQuery.data?.candidates?.length ?? 0),
             )}
           </p>
-          <p className="text-xs text-muted">
+          <p className="text-muted text-xs">
             {runId
               ? t("pages.evidence.runScopedPromotion")
               : t("pages.evidence.globalPromotion")}
@@ -516,8 +523,8 @@ export default function EvidenceFabric() {
                 onClick={() => updateContext({ focus })}
                 className={
                   effectiveFocus === focus
-                    ? "border-accent/30 bg-accent/10 rounded-full border px-3 py-1.5 text-xs font-semibold text-accent"
-                    : "rounded-full border border-line bg-surface px-3 py-1.5 text-xs font-semibold text-muted"
+                    ? "border-accent/30 bg-accent/10 text-accent rounded-full border px-3 py-1.5 text-xs font-semibold"
+                    : "border-line bg-surface text-muted rounded-full border px-3 py-1.5 text-xs font-semibold"
                 }
               >
                 {t(`pages.evidence.focus.${focus}`)}
@@ -554,7 +561,7 @@ export default function EvidenceFabric() {
                 : t("pages.evidence.sourceProfiles")}
             </h3>
             {!runId ? (
-              <Link to="/compose" className="text-xs text-accent underline">
+              <Link to="/compose" className="text-accent text-xs underline">
                 {t("pages.evidence.bindIntoRun")}
               </Link>
             ) : null}
@@ -563,7 +570,7 @@ export default function EvidenceFabric() {
           {runId ? (
             <div className="space-y-4">
               {runContextQuery.isLoading ? (
-                <p className="text-sm text-muted">
+                <p className="text-muted text-sm">
                   {t("pages.evidence.contextLoading")}
                 </p>
               ) : null}
@@ -576,7 +583,7 @@ export default function EvidenceFabric() {
               {runContext ? (
                 <>
                   <div>
-                    <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">
+                    <p className="text-muted mb-2 text-xs font-semibold tracking-wide uppercase">
                       {t("pages.evidence.dataNeeds")}
                     </p>
                     <div className="space-y-2">
@@ -591,17 +598,17 @@ export default function EvidenceFabric() {
                               needId: need.needId,
                             })
                           }
-                          className="bg-surface/80 w-full rounded-2xl border border-line p-3 text-left"
+                          className="bg-surface/80 border-line w-full rounded-2xl border p-3 text-left"
                         >
                           <p className="font-semibold">{need.metric}</p>
-                          <p className="mt-1 text-xs text-muted">
+                          <p className="text-muted mt-1 text-xs">
                             {need.geography ?? "-"} · {need.timeStart ?? "-"} -{" "}
                             {need.timeEnd ?? "-"}
                           </p>
                         </button>
                       ))}
                       {runContext.dataNeeds.length === 0 ? (
-                        <p className="text-sm text-muted">
+                        <p className="text-muted text-sm">
                           {t("pages.evidence.noNeeds")}
                         </p>
                       ) : null}
@@ -609,7 +616,7 @@ export default function EvidenceFabric() {
                   </div>
 
                   <div>
-                    <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">
+                    <p className="text-muted mb-2 text-xs font-semibold tracking-wide uppercase">
                       {t("pages.evidence.fetchPlans")}
                     </p>
                     <div className="space-y-2">
@@ -624,12 +631,12 @@ export default function EvidenceFabric() {
                               planId: plan.planId,
                             })
                           }
-                          className="bg-surface/80 w-full rounded-2xl border border-line p-3 text-left"
+                          className="bg-surface/80 border-line w-full rounded-2xl border p-3 text-left"
                         >
                           <p className="font-semibold">
                             {plan.connectorId} / {plan.datasetId}
                           </p>
-                          <p className="mt-1 text-xs text-muted">
+                          <p className="text-muted mt-1 text-xs">
                             {label(
                               "retrievalLane",
                               plan.sourceLane,
@@ -640,7 +647,7 @@ export default function EvidenceFabric() {
                         </button>
                       ))}
                       {runContext.fetchPlans.length === 0 ? (
-                        <p className="text-sm text-muted">
+                        <p className="text-muted text-sm">
                           {t("pages.evidence.noPlans")}
                         </p>
                       ) : null}
@@ -648,7 +655,7 @@ export default function EvidenceFabric() {
                   </div>
 
                   <div>
-                    <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">
+                    <p className="text-muted mb-2 text-xs font-semibold tracking-wide uppercase">
                       {t("pages.evidence.promotionCandidates")}
                     </p>
                     <div className="space-y-2">
@@ -663,16 +670,16 @@ export default function EvidenceFabric() {
                               promotionId: candidate.promotionId,
                             })
                           }
-                          className="bg-surface/80 w-full rounded-2xl border border-line p-3 text-left"
+                          className="bg-surface/80 border-line w-full rounded-2xl border p-3 text-left"
                         >
                           <p className="font-semibold">{candidate.metricId}</p>
-                          <p className="mt-1 text-xs text-muted">
+                          <p className="text-muted mt-1 text-xs">
                             {candidate.connectorId} / {candidate.datasetId}
                           </p>
                         </button>
                       ))}
                       {runContext.promotionCandidates.length === 0 ? (
-                        <p className="text-sm text-muted">
+                        <p className="text-muted text-sm">
                           {t("pages.evidence.noPromotions")}
                         </p>
                       ) : null}
@@ -680,7 +687,7 @@ export default function EvidenceFabric() {
                   </div>
 
                   <div>
-                    <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">
+                    <p className="text-muted mb-2 text-xs font-semibold tracking-wide uppercase">
                       {t("pages.evidence.relatedArtifacts")}
                     </p>
                     <div className="space-y-2">
@@ -695,7 +702,7 @@ export default function EvidenceFabric() {
                               artifactId: ref.artifact_id,
                             })
                           }
-                          className="bg-surface/80 w-full rounded-2xl border border-line p-3 text-left"
+                          className="bg-surface/80 border-line w-full rounded-2xl border p-3 text-left"
                         >
                           <p className="font-semibold">
                             {label(
@@ -704,13 +711,13 @@ export default function EvidenceFabric() {
                               ref.kind ?? ref.artifact_id,
                             )}
                           </p>
-                          <p className="mt-1 font-mono text-[11px] text-muted">
+                          <p className="text-muted mt-1 font-mono text-[11px]">
                             {ref.artifact_id}
                           </p>
                         </button>
                       ))}
                       {contextArtifactRefs.length === 0 ? (
-                        <p className="text-sm text-muted">
+                        <p className="text-muted text-sm">
                           {t("pages.evidence.noArtifacts")}
                         </p>
                       ) : null}
@@ -722,7 +729,7 @@ export default function EvidenceFabric() {
           ) : (
             <>
               {profilesQuery.isLoading ? (
-                <p className="text-sm text-muted">
+                <p className="text-muted text-sm">
                   {t("pages.evidence.profilesLoading")}
                 </p>
               ) : null}
@@ -737,14 +744,14 @@ export default function EvidenceFabric() {
                   {profiles.slice(0, 6).map((profile) => (
                     <div
                       key={profile.profile_id}
-                      className="bg-surface/80 rounded-2xl border border-line p-3"
+                      className="bg-surface/80 border-line rounded-2xl border p-3"
                     >
                       <div className="flex flex-wrap items-start justify-between gap-2">
                         <div>
                           <p className="font-semibold">
                             {profile.display_name}
                           </p>
-                          <p className="text-xs text-muted">
+                          <p className="text-muted text-xs">
                             {profile.source_organization}
                           </p>
                         </div>
@@ -756,15 +763,15 @@ export default function EvidenceFabric() {
                             : "coming_soon"}
                         </Badge>
                       </div>
-                      <p className="mt-2 text-sm text-muted">
+                      <p className="text-muted mt-2 text-sm">
                         {profile.description}
                       </p>
-                      <div className="mt-2 flex flex-wrap gap-2 text-xs text-muted">
-                        <span className="rounded-full border border-line px-2 py-1">
+                      <div className="text-muted mt-2 flex flex-wrap gap-2 text-xs">
+                        <span className="border-line rounded-full border px-2 py-1">
                           {profile.connector_family}
                         </span>
                         {profile.estimated_datasets != null ? (
-                          <span className="rounded-full border border-line px-2 py-1">
+                          <span className="border-line rounded-full border px-2 py-1">
                             {t("pages.evidence.datasetsCount", {
                               count: formatNumber(profile.estimated_datasets),
                             })}
@@ -785,7 +792,7 @@ export default function EvidenceFabric() {
               {t("pages.evidence.connectorsCachePosture")}
             </h3>
             {connectorsQuery.isLoading ? (
-              <p className="mt-3 text-sm text-muted">
+              <p className="text-muted mt-3 text-sm">
                 {t("pages.evidence.connectorsLoading")}
               </p>
             ) : null}
@@ -800,7 +807,7 @@ export default function EvidenceFabric() {
                 {connectors.slice(0, 6).map((connector) => (
                   <div
                     key={connector.connector_id}
-                    className="bg-surface/80 rounded-xl border border-line p-3 text-sm"
+                    className="bg-surface/80 border-line rounded-xl border p-3 text-sm"
                   >
                     <div className="flex items-center justify-between gap-2">
                       <p className="font-semibold">{connector.connector_id}</p>
@@ -808,10 +815,10 @@ export default function EvidenceFabric() {
                         {connector.loaded ? "healthy" : "unavailable"}
                       </Badge>
                     </div>
-                    <p className="mt-1 text-xs text-muted">
+                    <p className="text-muted mt-1 text-xs">
                       {connector.namespace} v{connector.version}
                     </p>
-                    <p className="mt-1 text-xs text-muted">
+                    <p className="text-muted mt-1 text-xs">
                       {t("pages.evidence.datasetsCount", {
                         count: formatNumber(
                           connector.known_datasets?.length ?? 0,
@@ -819,7 +826,7 @@ export default function EvidenceFabric() {
                       })}
                     </p>
                     {connector.last_health_check ? (
-                      <p className="mt-1 text-xs text-muted">
+                      <p className="text-muted mt-1 text-xs">
                         {t("pages.evidence.checkedAt", {
                           date: formatDate(connector.last_health_check),
                         })}
@@ -879,20 +886,20 @@ export default function EvidenceFabric() {
                     .map((candidate) => (
                       <div
                         key={candidate.promotion_id}
-                        className="bg-surface/80 rounded-xl border border-line p-3 text-sm"
+                        className="bg-surface/80 border-line rounded-xl border p-3 text-sm"
                       >
                         <div className="flex items-center justify-between gap-2">
                           <p className="font-semibold">{candidate.metric_id}</p>
                           <Badge kind="warn">{candidate.source_lane}</Badge>
                         </div>
-                        <p className="mt-1 text-xs text-muted">
+                        <p className="text-muted mt-1 text-xs">
                           {candidate.connector_id} / {candidate.dataset_id}
                         </p>
                       </div>
                     ))}
                   {(promotionCandidatesQuery.data?.candidates ?? []).length ===
                   0 ? (
-                    <p className="text-sm text-muted">
+                    <p className="text-muted text-sm">
                       {t("pages.evidence.noPromotionCandidates")}
                     </p>
                   ) : null}

@@ -3,8 +3,14 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { useDataCatalogSearch } from "@/api/hooks/useDataCatalogSearch";
 import { queryKeys } from "@/api/queryKeys";
-import { createQueryHookHarness, createQueryHookWrapper } from "@/test/queryHook";
-import { mockRuntimeGetFailure, mockRuntimeGetSuccess } from "@/test/runtimeApi";
+import {
+  createQueryHookHarness,
+  createQueryHookWrapper,
+} from "@/test/queryHook";
+import {
+  mockRuntimeGetFailure,
+  mockRuntimeGetSuccess,
+} from "@/test/runtimeApi";
 
 describe("data catalog search hook", () => {
   afterEach(() => {
@@ -40,12 +46,16 @@ describe("data catalog search hook", () => {
     });
 
     expect(result.current.data).toEqual(payload);
-    expect(queryClient.getQueryData(queryKeys.dataCatalogSearch("inflation", "CA", 10))).toEqual(
-      payload,
-    );
-    expect(queryClient.getQueryState(
-      queryKeys.dataCatalogSearch("inflation", "CA", 10),
-    )?.status).toBe("success");
+    expect(
+      queryClient.getQueryData(
+        queryKeys.dataCatalogSearch("inflation", "CA", 10),
+      ),
+    ).toEqual(payload);
+    expect(
+      queryClient.getQueryState(
+        queryKeys.dataCatalogSearch("inflation", "CA", 10),
+      )?.status,
+    ).toBe("success");
     expect(getSpy).toHaveBeenCalledWith("/api/v1/control/data/catalog/search", {
       params: {
         query: {

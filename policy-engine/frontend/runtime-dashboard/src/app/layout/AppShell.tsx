@@ -12,7 +12,7 @@ export default function AppShell({ children }: PropsWithChildren) {
     <div className="atlas-shell-frame" data-testid="app-shell">
       <a
         href="#main-content"
-        className="sr-only left-4 top-4 z-50 rounded-full border border-line bg-panel px-4 py-2 text-sm font-semibold text-text focus:not-sr-only focus:absolute"
+        className="border-line bg-panel text-text sr-only top-4 left-4 z-50 rounded-full border px-4 py-2 text-sm font-semibold focus:not-sr-only focus:absolute"
       >
         {t("common.skipToContent")}
       </a>

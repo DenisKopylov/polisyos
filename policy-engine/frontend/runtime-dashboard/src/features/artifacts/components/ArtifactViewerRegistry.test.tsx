@@ -26,13 +26,9 @@ vi.mock("@/i18n/LocaleProvider", async () => {
 });
 
 vi.mock("@/shared/ui", () => ({
-  Badge: ({
-    children,
-    kind,
-  }: {
-    children: ReactNode;
-    kind: string;
-  }) => <span data-kind={kind}>{children}</span>,
+  Badge: ({ children, kind }: { children: ReactNode; kind: string }) => (
+    <span data-kind={kind}>{children}</span>
+  ),
   JsonPreview: ({ data }: { data: unknown }) => (
     <pre data-testid="json-preview">{JSON.stringify(data)}</pre>
   ),
@@ -44,11 +40,14 @@ vi.mock("@/features/artifacts/components/DecisionCardView", () => ({
   ),
 }));
 
-vi.mock("@/features/artifacts/components/simulation/SimulationResultsViewer", () => ({
-  default: ({ artifactKind }: { artifactKind: string }) => (
-    <div data-testid="simulation-results-viewer">{artifactKind}</div>
-  ),
-}));
+vi.mock(
+  "@/features/artifacts/components/simulation/SimulationResultsViewer",
+  () => ({
+    default: ({ artifactKind }: { artifactKind: string }) => (
+      <div data-testid="simulation-results-viewer">{artifactKind}</div>
+    ),
+  }),
+);
 
 vi.mock("@/features/artifacts/components/trinity/TrinityCard", () => ({
   default: () => <div data-testid="trinity-card-view">trinity</div>,
@@ -141,9 +140,7 @@ describe("ArtifactViewerRegistry", () => {
     expect(screen.getByText("missing_data")).toBeInTheDocument();
     expect(screen.getByText("Missing source")).toBeInTheDocument();
     expect(
-      screen.getByText(
-        'pages.artifacts.viewers.hints:{"hints":"Pin dataset"}',
-      ),
+      screen.getByText('pages.artifacts.viewers.hints:{"hints":"Pin dataset"}'),
     ).toBeInTheDocument();
     expect(screen.getByText("- Review license")).toBeInTheDocument();
   });

@@ -51,9 +51,10 @@ vi.mock("@/features/composer/route", () => ({
 }));
 
 vi.mock("@/features/dashboard/route", async () => {
-  const actual = await vi.importActual<typeof import("react-router-dom")>(
-    "react-router-dom",
-  );
+  const actual =
+    await vi.importActual<typeof import("react-router-dom")>(
+      "react-router-dom",
+    );
 
   return {
     dashboardRoute: {
@@ -69,7 +70,7 @@ vi.mock("@/features/dashboard/route", async () => {
   };
 });
 
-vi.mock("@/features/artifacts/route", () => ({
+vi.mock("@/features/artifacts/routes.public", () => ({
   artifactRoute: {
     element: <div data-testid="artifact-page">Artifacts</div>,
     handle: { routeId: "artifacts.detail" },
@@ -77,7 +78,7 @@ vi.mock("@/features/artifacts/route", () => ({
   },
 }));
 
-vi.mock("@/features/evidence/route", () => ({
+vi.mock("@/features/evidence/routes.public", () => ({
   evidenceRoute: {
     element: <div data-testid="evidence-page">Evidence</div>,
     handle: { routeId: "evidence.fabric" },
@@ -101,7 +102,7 @@ vi.mock("@/features/platform/route", () => ({
   },
 }));
 
-vi.mock("@/features/runs/route", () => ({
+vi.mock("@/features/runs/routes.public", () => ({
   runsRoutes: [],
 }));
 

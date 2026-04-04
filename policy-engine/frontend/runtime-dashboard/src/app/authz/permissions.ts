@@ -17,7 +17,9 @@ export const PERMISSION_KEYS = [
 
 export type PermissionKey = (typeof PERMISSION_KEYS)[number];
 
-export const WORKSPACE_PERMISSIONS: Partial<Record<WorkspaceKey, PermissionKey>> = {
+export const WORKSPACE_PERMISSIONS: Partial<
+  Record<WorkspaceKey, PermissionKey>
+> = {
   commandCenter: "dashboard.view",
   evidenceFabric: "evidence.view",
   lexKnowledge: "knowledge.view",

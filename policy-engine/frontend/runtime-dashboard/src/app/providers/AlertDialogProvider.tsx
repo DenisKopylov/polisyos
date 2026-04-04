@@ -92,18 +92,23 @@ function AlertDialogSurface({
         aria-modal="true"
         aria-labelledby={titleId}
         aria-describedby={pending.description ? descriptionId : undefined}
-        className="w-full max-w-lg rounded-[var(--radius-panel)] border border-line bg-panel p-6 shadow-panel"
+        className="border-line bg-panel shadow-panel w-full max-w-lg rounded-[var(--radius-panel)] border p-6"
       >
         <h2 id={titleId} className="text-xl font-semibold">
           {pending.title}
         </h2>
         {pending.description ? (
-          <p id={descriptionId} className="mt-2 text-sm text-muted">
+          <p id={descriptionId} className="text-muted mt-2 text-sm">
             {pending.description}
           </p>
         ) : null}
         <div className="mt-6 flex flex-wrap justify-end gap-3">
-          <Button ref={cancelRef} type="button" variant="ghost" onClick={onCancel}>
+          <Button
+            ref={cancelRef}
+            type="button"
+            variant="ghost"
+            onClick={onCancel}
+          >
             {pending.cancelLabel ?? "Cancel"}
           </Button>
           <Button

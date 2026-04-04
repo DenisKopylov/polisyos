@@ -1,10 +1,4 @@
-import {
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type RefObject,
-} from "react";
+import { useEffect, useMemo, useRef, useState, type RefObject } from "react";
 
 import { useAuthz } from "@/app/authz/AuthzProvider";
 import type {
@@ -42,9 +36,9 @@ const INITIAL_STATE: ReviewCollaborationSurfaceState = {
   status: "idle",
 };
 
-function parseSnapshot<T>(rawValue: string): T | null {
+function parseSnapshot(rawValue: string): unknown {
   try {
-    return JSON.parse(rawValue) as T;
+    return JSON.parse(rawValue);
   } catch {
     return null;
   }
@@ -118,7 +112,9 @@ export function useReviewCollaborationSurface({
             }));
           },
           onMessage: (event) => {
-            const snapshot = parseSnapshot<ReviewPresenceSnapshot>(event.data);
+            const snapshot = parseSnapshot(
+              event.data,
+            ) as ReviewPresenceSnapshot | null;
             if (!snapshot || snapshot.type !== "presence.snapshot") {
               return;
             }
@@ -151,7 +147,9 @@ export function useReviewCollaborationSurface({
             }));
           },
           onMessage: (event) => {
-            const snapshot = parseSnapshot<ReviewCursorSnapshot>(event.data);
+            const snapshot = parseSnapshot(
+              event.data,
+            ) as ReviewCursorSnapshot | null;
             if (!snapshot || snapshot.type !== "cursor.snapshot") {
               return;
             }
@@ -189,7 +187,9 @@ export function useReviewCollaborationSurface({
             }));
           },
           onMessage: (event) => {
-            const snapshot = parseSnapshot<ReviewLockSnapshot>(event.data);
+            const snapshot = parseSnapshot(
+              event.data,
+            ) as ReviewLockSnapshot | null;
             if (!snapshot || snapshot.type !== "lock.snapshot") {
               return;
             }

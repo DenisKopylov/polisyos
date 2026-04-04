@@ -23,6 +23,8 @@ describe("lex search params", () => {
         q: "water",
         resume: true,
       }),
-    ).toBe("/knowledge?outputDir=data%2Flex&pipelineId=pipe-1&q=water&resume=true");
+    ).toBe(
+      "/knowledge?outputDir=data%2Flex&pipelineId=pipe-1&q=water&resume=true",
+    );
   });
 });

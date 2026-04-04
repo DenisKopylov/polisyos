@@ -7,7 +7,10 @@ import {
 } from "@/api/hooks/usePromotionDecision";
 import { queryKeys } from "@/api/queryKeys";
 import { createQueryHookHarness } from "@/test/queryHook";
-import { mockRuntimePostFailure, mockRuntimePostSuccess } from "@/test/runtimeApi";
+import {
+  mockRuntimePostFailure,
+  mockRuntimePostSuccess,
+} from "@/test/runtimeApi";
 
 function createMeta() {
   return {
@@ -83,7 +86,9 @@ describe("promotion decision hooks", () => {
         },
       },
     );
-    expect(queryClient.getQueryData(queryKeys.dataPromotionCandidates())).toMatchObject({
+    expect(
+      queryClient.getQueryData(queryKeys.dataPromotionCandidates()),
+    ).toMatchObject({
       candidates: [{ promotion_id: "promotion-1", status: "approved" }],
     });
     expect(queryClient.getQueryData(queryKeys.dataIndexStats())).toMatchObject({
@@ -101,7 +106,10 @@ describe("promotion decision hooks", () => {
     const { queryClient, wrapper } = createQueryHookHarness();
     const initialCandidates = createPromotionCandidates();
     const initialStats = createIndexStats();
-    queryClient.setQueryData(queryKeys.dataPromotionCandidates(), initialCandidates);
+    queryClient.setQueryData(
+      queryKeys.dataPromotionCandidates(),
+      initialCandidates,
+    );
     queryClient.setQueryData(queryKeys.dataIndexStats(), initialStats);
     mockRuntimePostFailure(500, {
       code: "promotion_failed",
@@ -120,9 +128,9 @@ describe("promotion decision hooks", () => {
       });
     });
 
-    expect(queryClient.getQueryData(queryKeys.dataPromotionCandidates())).toEqual(
-      initialCandidates,
-    );
+    expect(
+      queryClient.getQueryData(queryKeys.dataPromotionCandidates()),
+    ).toEqual(initialCandidates);
     expect(queryClient.getQueryData(queryKeys.dataIndexStats())).toEqual(
       initialStats,
     );
@@ -131,7 +139,10 @@ describe("promotion decision hooks", () => {
   it("optimistically rejects a promotion and restores candidates on error", async () => {
     const { queryClient, wrapper } = createQueryHookHarness();
     const initialCandidates = createPromotionCandidates();
-    queryClient.setQueryData(queryKeys.dataPromotionCandidates(), initialCandidates);
+    queryClient.setQueryData(
+      queryKeys.dataPromotionCandidates(),
+      initialCandidates,
+    );
     const invalidateSpy = vi.spyOn(queryClient, "invalidateQueries");
     const postSpy = mockRuntimePostSuccess({
       meta: createMeta(),
@@ -161,7 +172,9 @@ describe("promotion decision hooks", () => {
         },
       },
     );
-    expect(queryClient.getQueryData(queryKeys.dataPromotionCandidates())).toMatchObject({
+    expect(
+      queryClient.getQueryData(queryKeys.dataPromotionCandidates()),
+    ).toMatchObject({
       candidates: [{ promotion_id: "promotion-1", status: "rejected" }],
     });
     expect(invalidateSpy).toHaveBeenCalledWith({
@@ -175,7 +188,10 @@ describe("promotion decision hooks", () => {
       detail: "Reject failed",
       status: 500,
     });
-    queryClient.setQueryData(queryKeys.dataPromotionCandidates(), initialCandidates);
+    queryClient.setQueryData(
+      queryKeys.dataPromotionCandidates(),
+      initialCandidates,
+    );
     {
       const view = renderHook(() => useRejectPromotionCandidate(), {
         wrapper,
@@ -192,8 +208,8 @@ describe("promotion decision hooks", () => {
       });
     }
 
-    expect(queryClient.getQueryData(queryKeys.dataPromotionCandidates())).toEqual(
-      initialCandidates,
-    );
+    expect(
+      queryClient.getQueryData(queryKeys.dataPromotionCandidates()),
+    ).toEqual(initialCandidates);
   });
 });

@@ -11,7 +11,8 @@ import {
 function readBlobText(blob: Blob): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.onerror = () => reject(reader.error);
+    reader.onerror = () =>
+      reject(reader.error ?? new Error("Failed to read blob text"));
     reader.onload = () => resolve(String(reader.result));
     reader.readAsText(blob);
   });
@@ -65,16 +66,14 @@ describe("dataExport", () => {
 
     expect(buildRowExportRecord(row, [...columns])).toEqual({
       Created: "2026-03-10T10:00:00.000Z",
-      Meta: "{\"status\":\"ok\"}",
+      Meta: '{"status":"ok"}',
       Notes: "alpha, beta",
       Title: "Primary row",
     });
-    expect(
-      buildTableExportRecords([row], [...columns]),
-    ).toEqual([
+    expect(buildTableExportRecords([row], [...columns])).toEqual([
       {
         Created: "2026-03-10T10:00:00.000Z",
-        Meta: "{\"status\":\"ok\"}",
+        Meta: '{"status":"ok"}',
         Notes: "alpha, beta",
         Title: "Primary row",
       },
@@ -92,36 +91,36 @@ describe("dataExport", () => {
     const createObjectUrlMock = vi
       .spyOn(URL, "createObjectURL")
       .mockReturnValue("blob:download");
-    const revokeObjectUrlMock = vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => undefined);
-    const originalCreateElement = document.createElement.bind(document);
-    const anchor = document.createElement("a");
+    const revokeObjectUrlMock = vi
+      .spyOn(URL, "revokeObjectURL")
+      .mockImplementation(() => undefined);
     const clickMock = vi.fn();
-    anchor.click = clickMock;
-    vi.spyOn(document, "createElement").mockImplementation(((tagName: string) => {
-      if (tagName === "a") {
-        return anchor;
-      }
-      return originalCreateElement(tagName);
-    }) as typeof document.createElement);
+    let lastDownload = "";
+    vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(function (
+      this: HTMLAnchorElement,
+    ) {
+      lastDownload = this.download;
+      clickMock();
+    });
 
     exportCsv("runs.csv", [row], [...columns]);
     expect(createObjectUrlMock).toHaveBeenCalledTimes(1);
-    expect(anchor.download).toBe("runs.csv");
+    expect(lastDownload).toBe("runs.csv");
     expect(clickMock).toHaveBeenCalledTimes(1);
     const csvBlob = createObjectUrlMock.mock.calls[0]?.[0];
     expect(csvBlob).toBeInstanceOf(Blob);
     await expect(readBlobText(csvBlob as Blob)).resolves.toContain(
-      "\"Needs \"\"review\"\"\nnow\"",
+      '"Needs ""review""\nnow"',
     );
     expect(revokeObjectUrlMock).toHaveBeenCalledWith("blob:download");
 
     exportJson("runs.json", { rows: [row.id] });
     expect(createObjectUrlMock).toHaveBeenCalledTimes(2);
-    expect(anchor.download).toBe("runs.json");
+    expect(lastDownload).toBe("runs.json");
     const jsonBlob = createObjectUrlMock.mock.calls[1]?.[0];
     expect(jsonBlob).toBeInstanceOf(Blob);
     await expect(readBlobText(jsonBlob as Blob)).resolves.toContain(
-      "\"rows\": [",
+      '"rows": [',
     );
   });
 
@@ -148,7 +147,7 @@ describe("dataExport", () => {
     await copyShareLink(new URL("https://example.test/shared"));
 
     expect(writeText).toHaveBeenNthCalledWith(1, "alpha, beta");
-    expect(writeText.mock.calls[1]?.[0]).toContain("\"Title\": \"Copied row\"");
+    expect(writeText.mock.calls[1]?.[0]).toContain('"Title": "Copied row"');
     expect(writeText).toHaveBeenNthCalledWith(
       3,
       "http://localhost:3000/runs?tab=overview",

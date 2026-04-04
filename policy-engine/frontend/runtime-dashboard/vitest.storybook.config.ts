@@ -6,7 +6,10 @@ import { playwright } from "@vitest/browser-playwright";
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({
-  plugins: [react(), storybookTest({ configDir: path.resolve(__dirname, ".storybook") })],
+  plugins: [
+    react(),
+    storybookTest({ configDir: path.resolve(__dirname, ".storybook") }),
+  ],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

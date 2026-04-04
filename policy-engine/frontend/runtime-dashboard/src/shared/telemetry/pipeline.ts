@@ -20,8 +20,7 @@ function getCurrentPath() {
 
 function isTelemetryTestHarness() {
   return (
-    typeof window !== "undefined" &&
-    window.__RUNTIME_DASHBOARD_TEST__ === true
+    typeof window !== "undefined" && window.__RUNTIME_DASHBOARD_TEST__ === true
   );
 }
 
@@ -51,7 +50,11 @@ export function buildTelemetryEvent(event: TelemetryEvent): TelemetryEvent {
 export function emitTelemetry(event: TelemetryEvent) {
   const nextEvent = buildTelemetryEvent(event);
 
-  if (import.meta.env.DEV && !import.meta.env.VITEST && !isTelemetryTestHarness()) {
+  if (
+    import.meta.env.DEV &&
+    !import.meta.env.VITEST &&
+    !isTelemetryTestHarness()
+  ) {
     console.warn("[telemetry]", nextEvent);
   }
 

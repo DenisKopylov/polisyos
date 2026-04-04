@@ -14,8 +14,14 @@ import { useRunEvidenceContext } from "@/api/hooks/useRunEvidenceContext";
 import { useRunLineage } from "@/api/hooks/useRunLineage";
 import { useRunTimeline } from "@/api/hooks/useRunTimeline";
 import { queryKeys } from "@/api/queryKeys";
-import { createQueryHookHarness, createQueryHookWrapper } from "@/test/queryHook";
-import { mockRuntimeGetFailure, mockRuntimeGetSuccess } from "@/test/runtimeApi";
+import {
+  createQueryHookHarness,
+  createQueryHookWrapper,
+} from "@/test/queryHook";
+import {
+  mockRuntimeGetFailure,
+  mockRuntimeGetSuccess,
+} from "@/test/runtimeApi";
 
 const meta = {
   generated_at: "2026-03-09T10:00:00Z",
@@ -117,19 +123,21 @@ describe("additional query hook behaviors", () => {
     const query = queryClient.getQueryCache().find({
       queryKey: queryKeys.lexPipelineStatus("pipe-1"),
     });
-    const refetchInterval = (query?.options as {
-      refetchInterval?: (
-        query: { state: { data?: { state?: string } } },
-      ) => number | false;
-    }).refetchInterval as
+    const refetchInterval = (
+      query?.options as {
+        refetchInterval?: (query: {
+          state: { data?: { state?: string } };
+        }) => number | false;
+      }
+    ).refetchInterval as
       | ((query: { state: { data?: { state?: string } } }) => number | false)
       | undefined;
 
     expect(refetchInterval?.({ state: { data: { state: "running" } } })).toBe(
       3000,
     );
-    expect(
-      refetchInterval?.({ state: { data: { state: "completed" } } }),
-    ).toBe(false);
+    expect(refetchInterval?.({ state: { data: { state: "completed" } } })).toBe(
+      false,
+    );
   });
 });

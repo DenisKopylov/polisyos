@@ -34,9 +34,9 @@ vi.mock("@/api/hooks/useRuns", () => ({
 }));
 
 vi.mock("@/app/authz/AuthzProvider", async () => {
-  const actual = await vi.importActual<typeof import("@/app/authz/AuthzProvider")>(
-    "@/app/authz/AuthzProvider",
-  );
+  const actual = await vi.importActual<
+    typeof import("@/app/authz/AuthzProvider")
+  >("@/app/authz/AuthzProvider");
   return {
     ...actual,
     usePermission: (...args: unknown[]) => usePermissionMock(...args),
@@ -158,7 +158,9 @@ describe("PlatformHealthPage", () => {
     expect(screen.getAllByText("Workflow runs")).not.toHaveLength(0);
     expect(screen.getAllByText("Promotion lane")).not.toHaveLength(0);
     expect(screen.getByText("world-bank")).toBeInTheDocument();
-    expect(screen.getByText("pages.platform.connectorUnavailable")).toBeInTheDocument();
+    expect(
+      screen.getByText("pages.platform.connectorUnavailable"),
+    ).toBeInTheDocument();
     expect(useTelemetryReadyMarkMock).toHaveBeenCalledWith(
       "platform.health.page",
       { routeId: "platform.health" },
@@ -186,6 +188,8 @@ describe("PlatformHealthPage", () => {
     expect(
       screen.getByText("pages.platform.loadRuntimeHealthError"),
     ).toBeInTheDocument();
-    expect(screen.getByText("pages.platform.connectorReadiness")).toBeInTheDocument();
+    expect(
+      screen.getByText("pages.platform.connectorReadiness"),
+    ).toBeInTheDocument();
   });
 });

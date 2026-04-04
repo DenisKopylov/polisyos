@@ -6,8 +6,7 @@ const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const dashboardRoot = path.resolve(scriptDir, "..");
 const distDir = path.resolve(dashboardRoot, "dist");
 const manifestPath = path.join(distDir, ".vite", "manifest.json");
-const outputPath =
-  process.argv[2] || path.join(distDir, "bundle-stats.json");
+const outputPath = process.argv[2] || path.join(distDir, "bundle-stats.json");
 
 if (!fs.existsSync(manifestPath)) {
   throw new Error(`Missing Vite manifest at ${manifestPath}`);
@@ -73,7 +72,9 @@ const initialCssBytes = initialFiles
   .reduce((total, file) => total + fileBytes(file), 0);
 
 const vendorChunks = assets
-  .filter((asset) => asset.file.endsWith(".js") && asset.file.includes("vendor"))
+  .filter(
+    (asset) => asset.file.endsWith(".js") && asset.file.includes("vendor"),
+  )
   .sort((left, right) => right.bytes - left.bytes)
   .slice(0, 10);
 

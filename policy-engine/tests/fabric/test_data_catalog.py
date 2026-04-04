@@ -369,6 +369,25 @@ class TestMetricSearcher:
         assert response.needs_disambiguation
         assert len(response.results) >= 2
 
+    def test_ambiguous_query_uses_best_alias_per_metric(
+        self, sample_contracts: list[DataContract]
+    ) -> None:
+        """Weak aliases encountered first should not suppress stronger matches later."""
+        searcher = MetricSearcher(sample_contracts, threshold=0.7)
+        searcher._alias_index = {
+            "gdp": ["us.macro.gdp_nominal"],
+            "us.macro.gdp_real": ["us.macro.gdp_real"],
+            "nominal gdp": ["us.macro.gdp_nominal"],
+            "real gdp": ["us.macro.gdp_real"],
+        }
+
+        response = searcher.search("gdp real nominal")
+
+        assert response.needs_disambiguation
+        confidences = {result.binding.metric_id: result.confidence for result in response.results}
+        assert confidences["us.macro.gdp_nominal"] > 0.8
+        assert confidences["us.macro.gdp_real"] > 0.6
+
     def test_no_results_needs_disambiguation(self, sample_contracts: list[DataContract]) -> None:
         """Test that no results flags disambiguation."""
         searcher = MetricSearcher(sample_contracts)

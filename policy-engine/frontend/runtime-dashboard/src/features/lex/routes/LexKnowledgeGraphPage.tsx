@@ -182,12 +182,17 @@ export default function LexKnowledgeGraph() {
     setActivePipelineId(lexSearch.pipelineId ?? null);
     setSearchQuery(lexSearch.q ?? "");
     setResume(lexSearch.resume ?? false);
-  }, [lexSearch.outputDir, lexSearch.pipelineId, lexSearch.q, lexSearch.resume]);
+  }, [
+    lexSearch.outputDir,
+    lexSearch.pipelineId,
+    lexSearch.q,
+    lexSearch.resume,
+  ]);
 
   return (
     <div className="space-y-6" data-testid="lex-page">
       <Card>
-        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted">
+        <p className="text-muted text-xs font-semibold tracking-[0.24em] uppercase">
           {t("pages.lex.title")}
         </p>
         <div className="mt-2 flex flex-wrap items-start justify-between gap-4">
@@ -195,17 +200,22 @@ export default function LexKnowledgeGraph() {
             <h2 className="text-3xl font-semibold">
               {t("pages.lex.heroTitle")}
             </h2>
-            <p className="mt-2 max-w-3xl text-sm text-muted">
+            <p className="text-muted mt-2 max-w-3xl text-sm">
               {t("pages.lex.subtitle")}
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <span className="border-accent/20 bg-accent/10 rounded-full border px-3 py-1 text-xs font-semibold text-accent">
+            <span className="border-accent/20 bg-accent/10 text-accent rounded-full border px-3 py-1 text-xs font-semibold">
               {(capabilitiesQuery.data?.features ?? []).find(
                 (feature) => feature.key === "lex_pipeline",
               )?.label ?? t("pages.lex.featureLabel")}
             </span>
-            <PrefetchButton to="/runs" prefetch="intent" size="sm" variant="ghost">
+            <PrefetchButton
+              to="/runs"
+              prefetch="intent"
+              size="sm"
+              variant="ghost"
+            >
               {t("shell.nav.runsDecisions")}
             </PrefetchButton>
             <PrefetchButton
@@ -222,14 +232,14 @@ export default function LexKnowledgeGraph() {
 
       {/* ---- Pipeline Control ---- */}
       <Card>
-        <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-muted">
+        <h3 className="text-muted mb-3 text-sm font-semibold tracking-wider uppercase">
           {t("pages.lex.pipelineControl")}
         </h3>
 
         <div className="space-y-4">
           <div className="grid gap-3 sm:grid-cols-2">
             <div>
-              <label className="mb-1 block text-xs text-muted">
+              <label className="text-muted mb-1 block text-xs">
                 {t("pages.lex.cardsXmlPath")}
               </label>
               <input
@@ -238,11 +248,11 @@ export default function LexKnowledgeGraph() {
                 value={cardsPath}
                 onChange={(e) => setCardsPath(e.target.value)}
                 aria-label={t("pages.lex.cardsXmlPath")}
-                className="w-full rounded-lg border border-line bg-surface px-3 py-1.5 font-mono text-xs"
+                className="border-line bg-surface w-full rounded-lg border px-3 py-1.5 font-mono text-xs"
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs text-muted">
+              <label className="text-muted mb-1 block text-xs">
                 {t("pages.lex.textsXmlPath")}
               </label>
               <input
@@ -251,14 +261,14 @@ export default function LexKnowledgeGraph() {
                 value={textsPath}
                 onChange={(e) => setTextsPath(e.target.value)}
                 aria-label={t("pages.lex.textsXmlPath")}
-                className="w-full rounded-lg border border-line bg-surface px-3 py-1.5 font-mono text-xs"
+                className="border-line bg-surface w-full rounded-lg border px-3 py-1.5 font-mono text-xs"
               />
             </div>
           </div>
 
           <div className="grid gap-3 sm:grid-cols-3">
             <div>
-              <label className="mb-1 block text-xs text-muted">
+              <label className="text-muted mb-1 block text-xs">
                 {t("pages.lex.outputDirectory")}
               </label>
               <input
@@ -271,11 +281,11 @@ export default function LexKnowledgeGraph() {
                   updateShareState({ outputDir: value });
                 }}
                 aria-label={t("pages.lex.outputDirectory")}
-                className="w-full rounded-lg border border-line bg-surface px-3 py-1.5 font-mono text-xs"
+                className="border-line bg-surface w-full rounded-lg border px-3 py-1.5 font-mono text-xs"
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs text-muted">
+              <label className="text-muted mb-1 block text-xs">
                 {t("pages.lex.llmModel")}
               </label>
               <input
@@ -284,11 +294,11 @@ export default function LexKnowledgeGraph() {
                 value={llmModel}
                 onChange={(e) => setLlmModel(e.target.value)}
                 aria-label={t("pages.lex.llmModel")}
-                className="w-full rounded-lg border border-line bg-surface px-3 py-1.5 font-mono text-xs"
+                className="border-line bg-surface w-full rounded-lg border px-3 py-1.5 font-mono text-xs"
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs text-muted">
+              <label className="text-muted mb-1 block text-xs">
                 {t("pages.lex.statusFilter")}
               </label>
               <input
@@ -298,21 +308,21 @@ export default function LexKnowledgeGraph() {
                 onChange={(e) => setStatusFilter(e.target.value)}
                 placeholder={t("pages.lex.statusFilterPlaceholder")}
                 aria-label={t("pages.lex.statusFilter")}
-                className="w-full rounded-lg border border-line bg-surface px-3 py-1.5 text-xs"
+                className="border-line bg-surface w-full rounded-lg border px-3 py-1.5 text-xs"
               />
             </div>
           </div>
 
           {/* Stage toggles */}
           <div>
-            <label className="mb-2 block text-xs text-muted">
+            <label className="text-muted mb-2 block text-xs">
               {t("pages.lex.stages")}
             </label>
             <div className="flex flex-wrap gap-2">
               {(Object.keys(stages) as (keyof typeof stages)[]).map((stage) => (
                 <label
                   key={stage}
-                  className="hover:bg-text/5 flex cursor-pointer items-center gap-1.5 rounded-lg border border-line px-3 py-1.5 text-xs"
+                  className="hover:bg-text/5 border-line flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs"
                 >
                   <input
                     type="checkbox"
@@ -323,7 +333,7 @@ export default function LexKnowledgeGraph() {
                   {stage}
                 </label>
               ))}
-              <label className="hover:bg-text/5 flex cursor-pointer items-center gap-1.5 rounded-lg border border-line px-3 py-1.5 text-xs">
+              <label className="hover:bg-text/5 border-line flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs">
                 <input
                   type="checkbox"
                   checked={resume}
@@ -343,7 +353,7 @@ export default function LexKnowledgeGraph() {
             type="button"
             disabled={triggerMutation.isPending || isRunning}
             onClick={handleTrigger}
-            className="hover:bg-accent/90 rounded-xl bg-accent px-6 py-2.5 text-sm font-semibold text-white transition disabled:opacity-50"
+            className="hover:bg-accent/90 bg-accent rounded-xl px-6 py-2.5 text-sm font-semibold text-white transition disabled:opacity-50"
           >
             {triggerMutation.isPending
               ? t("pages.lex.launching")
@@ -374,12 +384,12 @@ export default function LexKnowledgeGraph() {
       {/* ---- Pipeline Status (shown when active) ---- */}
       {activePipelineId && (
         <Card>
-          <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-muted">
+          <h3 className="text-muted mb-3 text-sm font-semibold tracking-wider uppercase">
             {t("pages.lex.pipelineStatus")}
           </h3>
           <div className="space-y-2">
             <div className="flex items-center gap-3">
-              <span className="font-mono text-xs text-muted">
+              <span className="text-muted font-mono text-xs">
                 {activePipelineId}
               </span>
               <span
@@ -406,7 +416,7 @@ export default function LexKnowledgeGraph() {
             {statusQuery.data?.progress_summary &&
               Object.keys(statusQuery.data.progress_summary).length > 0 && (
                 <div className="mt-2">
-                  <p className="mb-1 text-xs text-muted">
+                  <p className="text-muted mb-1 text-xs">
                     {t("pages.lex.progress")}
                   </p>
                   <div className="flex flex-wrap gap-3">
@@ -430,14 +440,14 @@ export default function LexKnowledgeGraph() {
       {/* ---- Graph Statistics ---- */}
       <Card>
         <div className="mb-3 flex items-center justify-between">
-          <h3 className="text-sm font-semibold uppercase tracking-wider text-muted">
+          <h3 className="text-muted text-sm font-semibold tracking-wider uppercase">
             {t("pages.lex.graphStatistics")}
           </h3>
           <button
             type="button"
             onClick={() => statsQuery.refetch()}
             disabled={statsQuery.isFetching}
-            className="hover:bg-text/5 rounded-lg border border-line px-3 py-1 text-xs text-muted transition disabled:opacity-50"
+            className="hover:bg-text/5 border-line text-muted rounded-lg border px-3 py-1 text-xs transition disabled:opacity-50"
           >
             {statsQuery.isFetching ? t("common.loading") : t("common.refresh")}
           </button>
@@ -446,7 +456,7 @@ export default function LexKnowledgeGraph() {
         {statsQuery.error && <ApiErrorAlert error={statsQuery.error} />}
 
         {statsQuery.data && !statsQuery.data.db_exists && (
-          <p className="text-sm text-muted">
+          <p className="text-muted text-sm">
             {t("pages.lex.noKnowledgeGraph", { outputDir })}
           </p>
         )}
@@ -454,23 +464,23 @@ export default function LexKnowledgeGraph() {
         {statsQuery.data && statsQuery.data.db_exists && (
           <div className="space-y-4">
             <div className="grid gap-4 sm:grid-cols-3">
-              <div className="rounded-xl border border-line bg-surface p-3 text-center">
+              <div className="border-line bg-surface rounded-xl border p-3 text-center">
                 <p className="text-2xl font-bold">
                   {statsQuery.data.total_entities.toLocaleString()}
                 </p>
-                <p className="text-xs text-muted">{t("pages.lex.entities")}</p>
+                <p className="text-muted text-xs">{t("pages.lex.entities")}</p>
               </div>
-              <div className="rounded-xl border border-line bg-surface p-3 text-center">
+              <div className="border-line bg-surface rounded-xl border p-3 text-center">
                 <p className="text-2xl font-bold">
                   {statsQuery.data.total_facts.toLocaleString()}
                 </p>
-                <p className="text-xs text-muted">{t("pages.lex.facts")}</p>
+                <p className="text-muted text-xs">{t("pages.lex.facts")}</p>
               </div>
-              <div className="rounded-xl border border-line bg-surface p-3 text-center">
+              <div className="border-line bg-surface rounded-xl border p-3 text-center">
                 <p className="text-2xl font-bold">
                   {statsQuery.data.total_provisions.toLocaleString()}
                 </p>
-                <p className="text-xs text-muted">
+                <p className="text-muted text-xs">
                   {t("pages.lex.provisions")}
                 </p>
               </div>
@@ -478,13 +488,13 @@ export default function LexKnowledgeGraph() {
 
             {topPredicates.length > 0 && (
               <div>
-                <p className="mb-2 text-xs font-semibold text-muted">
+                <p className="text-muted mb-2 text-xs font-semibold">
                   {t("pages.lex.topPredicates")}
                 </p>
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs">
                     <thead>
-                      <tr className="border-b border-line text-muted">
+                      <tr className="border-line text-muted border-b">
                         <th className="px-2 py-1">
                           {t("pages.lex.columns.predicate")}
                         </th>
@@ -515,7 +525,7 @@ export default function LexKnowledgeGraph() {
 
             {topEntityTypes.length > 0 && (
               <div>
-                <p className="mb-2 text-xs font-semibold text-muted">
+                <p className="text-muted mb-2 text-xs font-semibold">
                   {t("pages.lex.entityTypes")}
                 </p>
                 <div className="flex flex-wrap gap-2">
@@ -537,7 +547,7 @@ export default function LexKnowledgeGraph() {
 
       {/* ---- Knowledge Search ---- */}
       <Card>
-        <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-muted">
+        <h3 className="text-muted mb-3 text-sm font-semibold tracking-wider uppercase">
           {t("pages.lex.knowledgeSearch")}
         </h3>
 
@@ -554,13 +564,13 @@ export default function LexKnowledgeGraph() {
               onKeyDown={(e) => e.key === "Enter" && handleSearch()}
               placeholder={t("pages.lex.searchPlaceholder")}
               aria-label={t("pages.lex.knowledgeSearch")}
-              className="flex-1 rounded-lg border border-line bg-surface px-3 py-2 text-sm"
+              className="border-line bg-surface flex-1 rounded-lg border px-3 py-2 text-sm"
             />
             <button
               type="button"
               disabled={searchMutation.isPending || !searchQuery.trim()}
               onClick={handleSearch}
-              className="hover:bg-accent/90 rounded-xl bg-accent px-5 py-2 text-sm font-semibold text-white transition disabled:opacity-50"
+              className="hover:bg-accent/90 bg-accent rounded-xl px-5 py-2 text-sm font-semibold text-white transition disabled:opacity-50"
             >
               {searchMutation.isPending
                 ? t("pages.lex.searching")
@@ -573,7 +583,7 @@ export default function LexKnowledgeGraph() {
           )}
 
           {searchMutation.data && searchResults.length === 0 && (
-            <p className="text-sm text-muted">
+            <p className="text-muted text-sm">
               {t("pages.lex.noResults", { query: searchMutation.data.query })}
             </p>
           )}
@@ -581,7 +591,7 @@ export default function LexKnowledgeGraph() {
           {searchMutation.data && searchResults.length > 0 && (
             <div>
               <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                <p className="text-xs text-muted">
+                <p className="text-muted text-xs">
                   {t("pages.lex.resultsSummary", {
                     count: searchMutation.data.total,
                     query: searchMutation.data.query,
@@ -605,7 +615,11 @@ export default function LexKnowledgeGraph() {
                   <Button
                     type="button"
                     onClick={() =>
-                      exportCsv("lex-search-results.csv", searchResults, searchColumns)
+                      exportCsv(
+                        "lex-search-results.csv",
+                        searchResults,
+                        searchColumns,
+                      )
                     }
                     variant="ghost"
                   >
@@ -629,7 +643,7 @@ export default function LexKnowledgeGraph() {
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
                   <thead>
-                    <tr className="border-b border-line text-muted">
+                    <tr className="border-line text-muted border-b">
                       <th className="px-2 py-1">
                         {t("pages.lex.columns.subject")}
                       </th>
@@ -659,7 +673,7 @@ export default function LexKnowledgeGraph() {
                         <td className="px-2 py-1 font-mono text-[10px]">
                           {r.subject_name}
                         </td>
-                        <td className="px-2 py-1 font-mono text-[10px] text-accent">
+                        <td className="text-accent px-2 py-1 font-mono text-[10px]">
                           {r.predicate}
                         </td>
                         <td className="px-2 py-1 font-mono text-[10px]">
@@ -685,7 +699,7 @@ export default function LexKnowledgeGraph() {
                             {r.norm_type}
                           </span>
                         </td>
-                        <td className="max-w-[200px] truncate px-2 py-1 text-muted">
+                        <td className="text-muted max-w-[200px] truncate px-2 py-1">
                           {r.doc_name}
                           {r.provision_citation && (
                             <span className="ml-1 text-[10px]">

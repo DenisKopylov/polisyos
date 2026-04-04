@@ -15,6 +15,6 @@ describe("Skeleton surfaces", () => {
     );
 
     expect(screen.getByTestId("page-skeleton")).toBeInTheDocument();
-    expect(document.querySelectorAll("[aria-hidden='true']")).toHaveLength(15);
+    expect(screen.getAllByTestId("skeleton-block")).toHaveLength(15);
   });
 });

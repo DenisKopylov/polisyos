@@ -1,8 +1,6 @@
 import { http, HttpResponse } from "msw";
 
-import {
-  loadAllRuntimeContractFixtures,
-} from "@/test/contracts/runtimeContractFixtures";
+import { loadAllRuntimeContractFixtures } from "@/test/contracts/runtimeContractFixtures";
 
 const fixtureHandlers = loadAllRuntimeContractFixtures().map((fixture) => {
   const resolver = () => HttpResponse.json(fixture.payload);

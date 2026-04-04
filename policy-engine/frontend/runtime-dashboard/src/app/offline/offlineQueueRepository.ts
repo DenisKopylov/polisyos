@@ -1,4 +1,8 @@
-import { COMPOSER_DRAFTS_STORE, OFFLINE_MUTATION_QUEUE_STORE, openOfflineDb } from "@/app/offline/db";
+import {
+  COMPOSER_DRAFTS_STORE,
+  OFFLINE_MUTATION_QUEUE_STORE,
+  openOfflineDb,
+} from "@/app/offline/db";
 
 export type OfflineQueueItemKind = "promotion.approve" | "promotion.reject";
 export type OfflineQueueItemStatus = "failed" | "queued" | "retrying";
@@ -25,7 +29,9 @@ function buildEntityKey(payload: OfflinePromotionDecisionPayload) {
 
 export async function listOfflineQueueItems() {
   const database = await openOfflineDb();
-  const items = await database.getAll(OFFLINE_MUTATION_QUEUE_STORE);
+  const items = (await database.getAll(
+    OFFLINE_MUTATION_QUEUE_STORE,
+  )) as OfflineQueueItem[];
   return items.sort((left, right) => left.createdAt - right.createdAt);
 }
 
@@ -70,14 +76,12 @@ export async function clearOfflineQueue() {
   await database.clear(OFFLINE_MUTATION_QUEUE_STORE);
 }
 
-export async function loadComposerDraftRecord<T>(key: string) {
+export async function loadComposerDraftRecord(key: string) {
   const database = await openOfflineDb();
-  return (await database.get(COMPOSER_DRAFTS_STORE, key)) as T | undefined;
+  return await database.get(COMPOSER_DRAFTS_STORE, key);
 }
 
-export async function saveComposerDraftRecord<T extends { key: string }>(
-  draft: T,
-) {
+export async function saveComposerDraftRecord(draft: { key: string }) {
   const database = await openOfflineDb();
   await database.put(COMPOSER_DRAFTS_STORE, draft);
 }

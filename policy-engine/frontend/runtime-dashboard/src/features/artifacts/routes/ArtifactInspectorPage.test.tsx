@@ -38,7 +38,8 @@ vi.mock("@/api/hooks/useArtifactSchema", () => ({
 vi.mock("@/features/artifacts/components/ArtifactViewerRegistry", () => ({
   getArtifactViewerDescriptor: (...args: unknown[]) =>
     getArtifactViewerDescriptorMock(...args),
-  renderArtifactViewer: (...args: unknown[]) => renderArtifactViewerMock(...args),
+  renderArtifactViewer: (...args: unknown[]) =>
+    renderArtifactViewerMock(...args),
 }));
 
 vi.mock("@/i18n/LocaleProvider", async () => {
@@ -61,7 +62,9 @@ vi.mock("@/i18n/LocaleProvider", async () => {
 
 import ArtifactInspectorPage from "@/features/artifacts/routes/ArtifactInspectorPage";
 
-function renderArtifactPage(initialEntry = "/artifacts/artifact-1?tab=content") {
+function renderArtifactPage(
+  initialEntry = "/artifacts/artifact-1?tab=content",
+) {
   return renderRouteWithProviders({
     element: <ArtifactInspectorPage />,
     path: "/artifacts/:artifactId",
@@ -184,13 +187,19 @@ describe("ArtifactInspectorPage", () => {
     expect(screen.getByText("summary")).toBeInTheDocument();
     expect(screen.getByText("verdict")).toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: "pages.artifacts.lineage" }));
+    await user.click(
+      screen.getByRole("button", { name: "pages.artifacts.lineage" }),
+    );
 
     expect(
-      screen.getByText('pages.artifacts.missingArtifacts:{"artifacts":"missing-1"}'),
+      screen.getByText(
+        'pages.artifacts.missingArtifacts:{"artifacts":"missing-1"}',
+      ),
     ).toBeInTheDocument();
     expect(
-      screen.getByText('pages.artifacts.corruptedArtifacts:{"artifacts":"corrupted-1"}'),
+      screen.getByText(
+        'pages.artifacts.corruptedArtifacts:{"artifacts":"corrupted-1"}',
+      ),
     ).toBeInTheDocument();
   });
 });

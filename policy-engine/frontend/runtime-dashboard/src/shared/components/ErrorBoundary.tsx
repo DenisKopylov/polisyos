@@ -74,7 +74,7 @@ function areResetKeysEqual(
 
 function ErrorFallback({ title, body }: { title: string; body: string }) {
   return (
-    <div className="border-danger/20 bg-danger/5 rounded-3xl border p-5 text-sm text-danger">
+    <div className="border-danger/20 bg-danger/5 text-danger rounded-3xl border p-5 text-sm">
       <h3 className="text-base font-semibold">{title}</h3>
       <p className="mt-2 max-w-2xl">{body}</p>
     </div>
@@ -134,7 +134,7 @@ export function PanelErrorBoundary({
   return (
     <ErrorBoundary
       fallback={
-        <div className="border-danger/20 bg-danger/5 rounded-2xl border p-4 text-sm text-danger">
+        <div className="border-danger/20 bg-danger/5 text-danger rounded-2xl border p-4 text-sm">
           <p className="font-semibold">{title}</p>
           <p className="mt-1">{body}</p>
         </div>
@@ -173,10 +173,11 @@ function resolveFeatureBoundaryMeta(matches: ReturnType<typeof useMatches>) {
       : null;
 
   return {
-    routeId:
-      typeof handle?.routeId === "string" ? handle.routeId : "unknown",
+    routeId: typeof handle?.routeId === "string" ? handle.routeId : "unknown",
     workspace:
-      typeof handle?.workspaceKey === "string" ? handle.workspaceKey : "unknown",
+      typeof handle?.workspaceKey === "string"
+        ? handle.workspaceKey
+        : "unknown",
   };
 }
 
@@ -208,7 +209,7 @@ export function FeatureErrorBoundary({
   return (
     <ErrorBoundary
       fallback={({ resetErrorBoundary }) => (
-        <div className="border-danger/20 bg-danger/5 rounded-2xl border p-4 text-sm text-danger">
+        <div className="border-danger/20 bg-danger/5 text-danger rounded-2xl border p-4 text-sm">
           <p className="font-semibold">{title}</p>
           <p className="mt-1">{body}</p>
           <div className="mt-3">

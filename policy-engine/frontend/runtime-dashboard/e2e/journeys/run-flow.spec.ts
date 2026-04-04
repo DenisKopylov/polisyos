@@ -44,7 +44,10 @@ test.describe("runtime-dashboard run flow", () => {
         "Assess the macro outlook, show blockers first, and replan if evidence quality is low.",
       );
 
-    await page.getByTestId(/llm-profile-/).first().click();
+    await page
+      .getByTestId(/llm-profile-/)
+      .first()
+      .click();
     await page
       .getByTestId("composer-nl-data-snapshot")
       .fill(metadata.data_snapshot_artifact_id);
@@ -91,7 +94,9 @@ test.describe("runtime-dashboard run flow", () => {
 
     await page.goto(`/runs/${launchedRunId}/report`);
     await waitForDashboardSurface(page, "run-report");
-    await expect(page.getByRole("link", { name: /Export JSON/i })).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: /Export JSON/i }),
+    ).toBeVisible();
   });
 
   test("supports blocked-run replan and explorer-driven comparison", async ({

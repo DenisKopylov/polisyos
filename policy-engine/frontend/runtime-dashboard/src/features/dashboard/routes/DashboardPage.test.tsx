@@ -225,15 +225,23 @@ describe("DashboardPage", () => {
 
     renderDashboard();
 
-    expect(screen.getByText("pages.dashboard.queueEmptyTitle")).toBeInTheDocument();
+    expect(
+      screen.getByText("pages.dashboard.queueEmptyTitle"),
+    ).toBeInTheDocument();
     expect(
       screen.getByText("pages.dashboard.statusChartEmptyTitle"),
     ).toBeInTheDocument();
-    expect(screen.getByText("pages.dashboard.trendEmptyTitle")).toBeInTheDocument();
-    expect(screen.getByText("pages.dashboard.coverageEmptyTitle")).toBeInTheDocument();
+    expect(
+      screen.getByText("pages.dashboard.trendEmptyTitle"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("pages.dashboard.coverageEmptyTitle"),
+    ).toBeInTheDocument();
     expect(
       screen.getByText("pages.dashboard.promotionsEmptyTitle"),
     ).toBeInTheDocument();
-    expect(screen.getByText("pages.dashboard.graphPending")).toBeInTheDocument();
+    expect(
+      screen.getByText("pages.dashboard.graphPending"),
+    ).toBeInTheDocument();
   });
 });

@@ -33,9 +33,9 @@ export default function LoginPage() {
           <h1 className="mt-2 text-3xl font-semibold">
             {t("pages.login.title")}
           </h1>
-          <p className="mt-3 text-sm text-muted">{t("pages.login.body")}</p>
+          <p className="text-muted mt-3 text-sm">{t("pages.login.body")}</p>
         </div>
-        <div className="bg-surface/70 rounded-2xl border border-line p-4 text-sm text-muted">
+        <div className="bg-surface/70 border-line text-muted rounded-2xl border p-4 text-sm">
           {t("pages.login.nextRoute", { next: nextPath })}
         </div>
         <div className="flex flex-wrap gap-2">

@@ -23,7 +23,10 @@ export function readActiveRouteTelemetryContext() {
 }
 
 export function setActiveRouteTelemetryContext(
-  nextContext: Omit<RouteTelemetryContext, "viewStartedAt" | "viewTimingSource"> &
+  nextContext: Omit<
+    RouteTelemetryContext,
+    "viewStartedAt" | "viewTimingSource"
+  > &
     Partial<Pick<RouteTelemetryContext, "viewStartedAt" | "viewTimingSource">>,
 ) {
   activeRouteTelemetryContext = {

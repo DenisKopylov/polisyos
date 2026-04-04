@@ -97,7 +97,7 @@ export default function ArtifactInspector() {
         <p className="mb-3 font-mono text-xs">{artifactId}</p>
 
         {manifestQuery.isLoading ? (
-          <p className="text-sm text-muted">
+          <p className="text-muted text-sm">
             {t("pages.artifacts.loadingManifest")}
           </p>
         ) : null}
@@ -149,8 +149,8 @@ export default function ArtifactInspector() {
               onClick={() => selectTab(tab)}
               className={
                 activeTab === tab
-                  ? "border-text/20 rounded-lg border bg-text px-3 py-2 text-sm font-semibold text-white"
-                  : "rounded-lg border border-line bg-panel px-3 py-2 text-sm font-semibold"
+                  ? "border-text/20 bg-text rounded-lg border px-3 py-2 text-sm font-semibold text-white"
+                  : "border-line bg-panel rounded-lg border px-3 py-2 text-sm font-semibold"
               }
             >
               {t(`pages.artifacts.${tab}`)}
@@ -161,7 +161,7 @@ export default function ArtifactInspector() {
         {activeTab === "content" ? (
           <div className="space-y-3">
             {contentQuery.isLoading ? (
-              <p className="text-sm text-muted">
+              <p className="text-muted text-sm">
                 {t("pages.artifacts.loadingContent")}
               </p>
             ) : null}
@@ -175,36 +175,36 @@ export default function ArtifactInspector() {
             {!contentQuery.isLoading && !contentQuery.isError && content ? (
               <>
                 <div className="grid gap-2 md:grid-cols-5">
-                  <div className="rounded-xl border border-line p-2 text-sm">
-                    <p className="text-xs uppercase text-muted">
+                  <div className="border-line rounded-xl border p-2 text-sm">
+                    <p className="text-muted text-xs uppercase">
                       {t("pages.artifacts.contentFields.mode")}
                     </p>
                     <p className="font-semibold">{content.mode}</p>
                   </div>
-                  <div className="rounded-xl border border-line p-2 text-sm">
-                    <p className="text-xs uppercase text-muted">
+                  <div className="border-line rounded-xl border p-2 text-sm">
+                    <p className="text-muted text-xs uppercase">
                       {t("pages.artifacts.contentFields.mediaType")}
                     </p>
                     <p className="font-semibold">{content.media_type}</p>
                   </div>
-                  <div className="rounded-xl border border-line p-2 text-sm">
-                    <p className="text-xs uppercase text-muted">
+                  <div className="border-line rounded-xl border p-2 text-sm">
+                    <p className="text-muted text-xs uppercase">
                       {t("pages.artifacts.contentFields.artifactSize")}
                     </p>
                     <p className="font-semibold">
                       {formatBytes(content.size_bytes)}
                     </p>
                   </div>
-                  <div className="rounded-xl border border-line p-2 text-sm">
-                    <p className="text-xs uppercase text-muted">
+                  <div className="border-line rounded-xl border p-2 text-sm">
+                    <p className="text-muted text-xs uppercase">
                       {t("pages.artifacts.contentFields.previewLimit")}
                     </p>
                     <p className="font-semibold">
                       {formatBytes(content.max_bytes)}
                     </p>
                   </div>
-                  <div className="rounded-xl border border-line p-2 text-sm">
-                    <p className="text-xs uppercase text-muted">
+                  <div className="border-line rounded-xl border p-2 text-sm">
+                    <p className="text-muted text-xs uppercase">
                       {t("pages.artifacts.contentFields.truncated")}
                     </p>
                     <p className="font-semibold">
@@ -214,7 +214,7 @@ export default function ArtifactInspector() {
                 </div>
 
                 {content.truncated ? (
-                  <div className="border-warning/30 bg-warning/5 flex flex-wrap items-center gap-2 rounded-xl border p-3 text-sm text-warning">
+                  <div className="border-warning/30 bg-warning/5 text-warning flex flex-wrap items-center gap-2 rounded-xl border p-3 text-sm">
                     <span>{t("pages.artifacts.previewTruncated")}</span>
                     {canLoadMore ? (
                       <button
@@ -225,7 +225,7 @@ export default function ArtifactInspector() {
                             setPreviewLimit(nextLimit);
                           }
                         }}
-                        className="border-warning/30 rounded-lg border bg-panel px-2 py-1 text-xs font-semibold text-text"
+                        className="border-warning/30 bg-panel text-text rounded-lg border px-2 py-1 text-xs font-semibold"
                       >
                         {t("common.loadLargerPreview")}
                       </button>
@@ -236,8 +236,8 @@ export default function ArtifactInspector() {
                 ) : null}
 
                 {viewerDescriptor?.relatedRefs.length ? (
-                  <div className="bg-surface/70 rounded-xl border border-line p-3">
-                    <p className="mb-2 text-xs font-semibold uppercase text-muted">
+                  <div className="bg-surface/70 border-line rounded-xl border p-3">
+                    <p className="text-muted mb-2 text-xs font-semibold uppercase">
                       {t("pages.artifacts.relatedRefs")}
                     </p>
                     <div className="flex flex-wrap gap-2">
@@ -245,7 +245,7 @@ export default function ArtifactInspector() {
                         <Link
                           key={`${ref.label}:${ref.artifactId}`}
                           to={`/artifacts/${ref.artifactId}`}
-                          className="rounded-full border border-line bg-panel px-2 py-1 text-xs font-semibold"
+                          className="border-line bg-panel rounded-full border px-2 py-1 text-xs font-semibold"
                         >
                           {ref.label}
                         </Link>
@@ -266,7 +266,7 @@ export default function ArtifactInspector() {
         {activeTab === "schema" ? (
           <div className="space-y-3">
             {schemaQuery.isLoading ? (
-              <p className="text-sm text-muted">
+              <p className="text-muted text-sm">
                 {t("pages.artifacts.loadingSchema")}
               </p>
             ) : null}
@@ -297,8 +297,8 @@ export default function ArtifactInspector() {
                 </dl>
 
                 {(schemaQuery.data.schema.top_level_keys ?? []).length ? (
-                  <div className="rounded-xl border border-line p-3">
-                    <p className="mb-2 text-xs font-semibold uppercase text-muted">
+                  <div className="border-line rounded-xl border p-3">
+                    <p className="text-muted mb-2 text-xs font-semibold uppercase">
                       {t("pages.artifacts.topLevelKeys")}
                     </p>
                     <div className="flex flex-wrap gap-2">
@@ -306,7 +306,7 @@ export default function ArtifactInspector() {
                         (key) => (
                           <span
                             key={key}
-                            className="rounded-lg border border-line bg-panel px-2 py-1 font-mono text-xs"
+                            className="border-line bg-panel rounded-lg border px-2 py-1 font-mono text-xs"
                           >
                             {key}
                           </span>
@@ -328,7 +328,7 @@ export default function ArtifactInspector() {
         {activeTab === "lineage" ? (
           <div className="space-y-3">
             {lineageQuery.isLoading ? (
-              <p className="text-sm text-muted">
+              <p className="text-muted text-sm">
                 {t("pages.artifacts.loadingLineage")}
               </p>
             ) : null}
@@ -344,24 +344,24 @@ export default function ArtifactInspector() {
             lineageQuery.data ? (
               <>
                 <div className="grid gap-2 md:grid-cols-4">
-                  <div className="rounded-xl border border-line p-2 text-sm">
-                    <p className="text-xs uppercase text-muted">
+                  <div className="border-line rounded-xl border p-2 text-sm">
+                    <p className="text-muted text-xs uppercase">
                       {t("pages.artifacts.lineageFields.nodes")}
                     </p>
                     <p className="font-semibold">
                       {lineageQuery.data.lineage.total_nodes}
                     </p>
                   </div>
-                  <div className="rounded-xl border border-line p-2 text-sm">
-                    <p className="text-xs uppercase text-muted">
+                  <div className="border-line rounded-xl border p-2 text-sm">
+                    <p className="text-muted text-xs uppercase">
                       {t("pages.artifacts.lineageFields.edges")}
                     </p>
                     <p className="font-semibold">
                       {lineageQuery.data.lineage.total_edges}
                     </p>
                   </div>
-                  <div className="rounded-xl border border-line p-2 text-sm">
-                    <p className="text-xs uppercase text-muted">
+                  <div className="border-line rounded-xl border p-2 text-sm">
+                    <p className="text-muted text-xs uppercase">
                       {t("pages.artifacts.lineageFields.complete")}
                     </p>
                     <p className="font-semibold">
@@ -370,8 +370,8 @@ export default function ArtifactInspector() {
                         : t("common.no")}
                     </p>
                   </div>
-                  <div className="rounded-xl border border-line p-2 text-sm">
-                    <p className="text-xs uppercase text-muted">
+                  <div className="border-line rounded-xl border p-2 text-sm">
+                    <p className="text-muted text-xs uppercase">
                       {t("pages.artifacts.lineageFields.size")}
                     </p>
                     <p className="font-semibold">
@@ -387,7 +387,7 @@ export default function ArtifactInspector() {
                 />
 
                 {lineageQuery.data.lineage.missing_artifact_ids.length > 0 ? (
-                  <p className="text-sm text-warning">
+                  <p className="text-warning text-sm">
                     {t("pages.artifacts.missingArtifacts", {
                       artifacts:
                         lineageQuery.data.lineage.missing_artifact_ids.join(
@@ -398,7 +398,7 @@ export default function ArtifactInspector() {
                 ) : null}
 
                 {lineageQuery.data.lineage.corrupted_artifact_ids.length > 0 ? (
-                  <p className="text-sm text-danger">
+                  <p className="text-danger text-sm">
                     {t("pages.artifacts.corruptedArtifacts", {
                       artifacts:
                         lineageQuery.data.lineage.corrupted_artifact_ids.join(

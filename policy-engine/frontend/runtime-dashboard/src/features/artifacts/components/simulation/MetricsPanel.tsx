@@ -67,7 +67,7 @@ export default function MetricsPanel({
       <section>
         <h3 className="mb-2 text-lg font-semibold">Key Metrics</h3>
         {metrics.length === 0 ? (
-          <p className="text-sm text-muted">
+          <p className="text-muted text-sm">
             No numeric metrics in this artifact.
           </p>
         ) : (
@@ -77,15 +77,15 @@ export default function MetricsPanel({
               return (
                 <article
                   key={metric.key}
-                  className="rounded-xl border border-line bg-panel p-3"
+                  className="border-line bg-panel rounded-xl border p-3"
                 >
-                  <p className="text-xs uppercase text-muted">{metric.label}</p>
+                  <p className="text-muted text-xs uppercase">{metric.label}</p>
                   <p className="text-lg font-semibold">
                     {metric.formatted}
                     {metric.unit ? ` ${metric.unit}` : ""}
                   </p>
                   {metric.ciLower !== null && metric.ciUpper !== null ? (
-                    <p className="text-xs text-muted">
+                    <p className="text-muted text-xs">
                       CI: [{metric.ciLower.toFixed(3)},{" "}
                       {metric.ciUpper.toFixed(3)}]
                       {metric.ciLevel !== null
@@ -93,7 +93,7 @@ export default function MetricsPanel({
                         : ""}
                     </p>
                   ) : null}
-                  <div className="mt-2 h-1.5 rounded-full bg-line">
+                  <div className="bg-line mt-2 h-1.5 rounded-full">
                     <div
                       className={`h-1.5 rounded-full ${barClass(metric.severity)}`}
                       style={{ width }}
@@ -125,7 +125,7 @@ export default function MetricsPanel({
         </div>
 
         {selectedSeries ? (
-          <div className="h-80 rounded-xl border border-line bg-panel p-2">
+          <div className="border-line bg-panel h-80 rounded-xl border p-2">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart
                 data={selectedSeries.points}
@@ -229,7 +229,7 @@ export default function MetricsPanel({
             </ResponsiveContainer>
           </div>
         ) : (
-          <p className="text-sm text-muted">
+          <p className="text-muted text-sm">
             No time series data found for this artifact.
           </p>
         )}

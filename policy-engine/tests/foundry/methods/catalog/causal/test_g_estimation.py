@@ -1,8 +1,10 @@
 """Tests for G-estimation (Structural Nested Mean Model)."""
 from __future__ import annotations
 
+import importlib
 import numpy as np
 import pytest
+import sys
 
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.causal import ensure_causal_methods_registered
@@ -179,3 +181,15 @@ class TestStructuralNestedMeanModel:
         )
         assert method_cls is not None
         assert method_cls is StructuralNestedMeanModel
+
+    def test_registered_under_correct_fqn_after_module_reload(self):
+        stale_cls = StructuralNestedMeanModel
+        sys.modules.pop("polisyos.foundry.methods.catalog.causal.g_estimation", None)
+        importlib.import_module("polisyos.foundry.methods.catalog.causal.g_estimation")
+
+        ensure_causal_methods_registered()
+
+        method_cls = MethodRegistry.get_instance().get(
+            "causal.dynamic.snmm.snmm_g_estimation@1.0.0"
+        )
+        assert method_cls is stale_cls

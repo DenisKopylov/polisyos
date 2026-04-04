@@ -1,18 +1,12 @@
 import { renderHook, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import {
-  runAgentsQueryOptions,
-  useRunAgents,
-} from "@/api/hooks/useRunAgents";
+import { runAgentsQueryOptions, useRunAgents } from "@/api/hooks/useRunAgents";
 import {
   runDetailsQueryOptions,
   useRunDetails,
 } from "@/api/hooks/useRunDetails";
-import {
-  runErrorsQueryOptions,
-  useRunErrors,
-} from "@/api/hooks/useRunErrors";
+import { runErrorsQueryOptions, useRunErrors } from "@/api/hooks/useRunErrors";
 import {
   runEvidenceContextQueryOptions,
   useRunEvidenceContext,
@@ -171,7 +165,8 @@ describe("run query hooks", () => {
     expect(runsQueryOptions(filters).queryKey).toEqual(queryKeys.runs(filters));
     expect(runsQueryOptions(filters).staleTime).toBe(RUNS_SAMPLE_STALE_MS);
     expect(
-      runsQueryOptions({ cursor: "cursor-2", limit: RUNS_SAMPLE_LIMIT }).staleTime,
+      runsQueryOptions({ cursor: "cursor-2", limit: RUNS_SAMPLE_LIMIT })
+        .staleTime,
     ).toBe(30_000);
   });
 

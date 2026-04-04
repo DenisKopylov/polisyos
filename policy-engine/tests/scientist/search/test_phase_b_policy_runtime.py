@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import importlib
+import sys
 from decimal import Decimal
 
 from polisyos.core.artifacts.manifest import ArtifactRef
@@ -1280,6 +1282,57 @@ def test_search_controller_policy_mode_updates_registry(tmp_path) -> None:
             "feedback": {"verdict": "APPROVE"},
             "_policy_candidate_schema": candidate,
             "policy_evaluation_bundle": PolicyEvaluationBundle(
+                candidate=candidate,
+                simulation_metrics={"policy_value": 11.0, "employment_rate": 0.9, "welfare": 12.0},
+                distributional_report=_distributional_report(),
+                causal_effect_report=_causal_effect_report(),
+                cross_graph_profile=_cross_graph_profile(),
+                uncertainty_envelope=_uncertainty(0.2),
+            ),
+        }
+
+    controller = SearchController(
+        config=SearchConfig(
+            stopping=MaxIterations(1),
+            objective=CompositeObjective([]),
+            policy_objective_stack=stack,
+            pareto_registry=registry,
+        ),
+        candidate_generator=StaticGenerator(),
+        stage_a_evaluator=stage_a,
+        stage_b_evaluator=stage_b,
+    )
+
+    result = controller.run(initial_context={})
+
+    assert len(result.history) == 1
+    assert result.history[0].policy_evaluation is not None
+    assert result.pareto_front
+
+
+def test_search_controller_accepts_policy_bundle_after_module_reload(tmp_path) -> None:
+    candidate = _candidate()
+    stack = ObjectiveStack()
+    registry = ParetoRegistry(root=tmp_path / "pareto_registry")
+
+    stale_bundle_cls = PolicyEvaluationBundle
+    sys.modules.pop("polisyos.scientist.policy_design.objectives", None)
+    reloaded = importlib.import_module("polisyos.scientist.policy_design.objectives")
+    assert reloaded.PolicyEvaluationBundle is not stale_bundle_cls
+
+    class StaticGenerator:
+        def generate(self, history, current_best, context):
+            return {"candidate_id": "candidate_b"}
+
+    def stage_a(candidate_payload, context):
+        return 0.0, True
+
+    def stage_b(candidate_payload, context):
+        return {
+            "simulation_results": {},
+            "feedback": {"verdict": "APPROVE"},
+            "_policy_candidate_schema": candidate,
+            "policy_evaluation_bundle": stale_bundle_cls(
                 candidate=candidate,
                 simulation_metrics={"policy_value": 11.0, "employment_rate": 0.9, "welfare": 12.0},
                 distributional_report=_distributional_report(),

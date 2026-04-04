@@ -2,9 +2,7 @@
   "meta": {
     "request_id": "0a0eff3aace54e82b53b18bdebd1a299",
     "generated_at": "2026-03-10T19:30:38.746755Z",
-    "source_kinds": [
-      "core_run"
-    ]
+    "source_kinds": ["core_run"]
   },
   "context": {
     "run_id": "R_core_api_001",
@@ -111,9 +109,7 @@
         "granularity": "annual",
         "quality_min": 0.75,
         "purpose": "policy_drafting",
-        "matched_plan_ids": [
-          "plan_fixture_fetch_001"
-        ],
+        "matched_plan_ids": ["plan_fixture_fetch_001"],
         "notes": []
       }
     ],
@@ -127,17 +123,13 @@
         "source_lane": "explorelane",
         "quality_min": 0.75,
         "filters": {
-          "country": [
-            "USA"
-          ]
+          "country": ["USA"]
         },
         "date_start": "2019",
         "date_end": "2024",
         "granularity": "annual",
         "fallback_count": 0,
-        "matched_need_ids": [
-          "need_7fdcad0308fc42ea"
-        ],
+        "matched_need_ids": ["need_7fdcad0308fc42ea"],
         "notes": []
       }
     ],
@@ -152,10 +144,7 @@
         "confidence": 0.87,
         "status": "pending",
         "created_at": null,
-        "signals": [
-          "new_source",
-          "coverage_gap_closed"
-        ],
+        "signals": ["new_source", "coverage_gap_closed"],
         "matched_plan_id": "plan_fixture_fetch_001",
         "metadata": {
           "profile": "worldbank_wdi"

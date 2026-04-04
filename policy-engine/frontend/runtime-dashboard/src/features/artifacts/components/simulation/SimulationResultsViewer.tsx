@@ -39,11 +39,11 @@ export default function SimulationResultsViewer({
 
   if (!model) {
     return (
-      <div className="bg-canvas/40 rounded-xl border border-dashed border-line p-4">
+      <div className="bg-canvas/40 border-line rounded-xl border border-dashed p-4">
         <h3 className="mb-1 text-lg font-semibold">
           Simulation Results Viewer
         </h3>
-        <p className="text-sm text-muted">
+        <p className="text-muted text-sm">
           Payload is not JSON object or cannot be parsed.
         </p>
       </div>
@@ -57,10 +57,10 @@ export default function SimulationResultsViewer({
 
   return (
     <div className="space-y-4">
-      <section className="rounded-xl border border-line bg-panel p-4">
+      <section className="border-line bg-panel rounded-xl border p-4">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h3 className="text-lg font-semibold">Simulation Results</h3>
-          <p className="text-sm text-muted">Source: {model.sourceKind}</p>
+          <p className="text-muted text-sm">Source: {model.sourceKind}</p>
         </div>
 
         {hasOverlay ? (
@@ -77,33 +77,33 @@ export default function SimulationResultsViewer({
 
         {model.envelope ? (
           <div className="mt-3 grid gap-2 md:grid-cols-4">
-            <div className="bg-canvas/30 rounded-lg border border-line p-2 text-sm">
-              <p className="text-xs uppercase text-muted">Point Estimate</p>
+            <div className="bg-canvas/30 border-line rounded-lg border p-2 text-sm">
+              <p className="text-muted text-xs uppercase">Point Estimate</p>
               <p className="font-semibold">
                 {model.envelope.pointEstimate?.toFixed(6) ?? "-"}
               </p>
             </div>
-            <div className="bg-canvas/30 rounded-lg border border-line p-2 text-sm">
-              <p className="text-xs uppercase text-muted">CI Lower</p>
+            <div className="bg-canvas/30 border-line rounded-lg border p-2 text-sm">
+              <p className="text-muted text-xs uppercase">CI Lower</p>
               <p className="font-semibold">
                 {model.envelope.ciLower?.toFixed(6) ?? "-"}
               </p>
             </div>
-            <div className="bg-canvas/30 rounded-lg border border-line p-2 text-sm">
-              <p className="text-xs uppercase text-muted">CI Upper</p>
+            <div className="bg-canvas/30 border-line rounded-lg border p-2 text-sm">
+              <p className="text-muted text-xs uppercase">CI Upper</p>
               <p className="font-semibold">
                 {model.envelope.ciUpper?.toFixed(6) ?? "-"}
               </p>
             </div>
-            <div className="bg-canvas/30 rounded-lg border border-line p-2 text-sm">
-              <p className="text-xs uppercase text-muted">Source</p>
+            <div className="bg-canvas/30 border-line rounded-lg border p-2 text-sm">
+              <p className="text-muted text-xs uppercase">Source</p>
               <p className="font-semibold">{model.envelope.source ?? "-"}</p>
             </div>
           </div>
         ) : null}
 
         {model.notes.length > 0 ? (
-          <ul className="mt-3 space-y-1 text-sm text-muted">
+          <ul className="text-muted mt-3 space-y-1 text-sm">
             {model.notes.map((note) => (
               <li key={note}>- {note}</li>
             ))}

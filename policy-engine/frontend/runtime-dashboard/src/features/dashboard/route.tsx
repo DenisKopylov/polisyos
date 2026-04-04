@@ -5,7 +5,9 @@ import type { AppRouteModule } from "@/app/routes/contracts";
 import { createWorkspaceLoader } from "@/app/routes/loaders";
 import { WorkspaceBoundary } from "@/app/routes/WorkspaceBoundary";
 
-const DashboardPage = lazy(() => import("@/features/dashboard/routes/DashboardPage"));
+const DashboardPage = lazy(
+  () => import("@/features/dashboard/routes/DashboardPage"),
+);
 
 type DashboardSearchParams = Record<string, never>;
 

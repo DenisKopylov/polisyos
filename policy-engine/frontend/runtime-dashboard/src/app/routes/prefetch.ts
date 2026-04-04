@@ -47,7 +47,9 @@ function sleep(ms: number) {
   return new Promise((resolve) => window.setTimeout(resolve, ms));
 }
 
-function createRunTabQueries(runId: string): Record<RunTabKey, RunTabQueryOptions[]> {
+function createRunTabQueries(
+  runId: string,
+): Record<RunTabKey, RunTabQueryOptions[]> {
   return {
     agents: [runAgentsQueryOptions(runId)],
     artifacts: [],

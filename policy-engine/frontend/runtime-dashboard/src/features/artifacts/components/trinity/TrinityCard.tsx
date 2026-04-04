@@ -47,7 +47,7 @@ export default function TrinityCard({ payload }: TrinityCardProps) {
     return (
       <Card>
         <h3 className="mb-2 text-lg font-semibold">Trinity Viewer</h3>
-        <p className="text-sm text-muted">
+        <p className="text-muted text-sm">
           Payload does not match `ir.trinity_bundle` structure.
         </p>
       </Card>
@@ -56,35 +56,35 @@ export default function TrinityCard({ payload }: TrinityCardProps) {
 
   return (
     <Card className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line pb-3">
+      <div className="border-line flex flex-wrap items-center justify-between gap-2 border-b pb-3">
         <div>
           <h3 className="text-lg font-semibold">Trinity Bundle</h3>
-          <p className="text-sm text-muted">
+          <p className="text-muted text-sm">
             Schema v{bundle.schemaVersion ?? "-"}
           </p>
         </div>
-        <div className="bg-canvas/40 rounded-lg border border-line px-3 py-2 text-xs text-muted">
+        <div className="bg-canvas/40 border-line text-muted rounded-lg border px-3 py-2 text-xs">
           WHY: {bundle.problem.id} | WHAT: {bundle.policy.id} | HOW:{" "}
           {bundle.model.id}
         </div>
       </div>
 
       <div className="grid gap-3 md:grid-cols-3">
-        <section className="bg-canvas/30 space-y-3 rounded-xl border border-line p-3">
+        <section className="bg-canvas/30 border-line space-y-3 rounded-xl border p-3">
           <div>
-            <p className="text-xs font-semibold uppercase text-muted">
+            <p className="text-muted text-xs font-semibold uppercase">
               ProblemFrame (Why)
             </p>
             <p className="text-sm font-semibold">{bundle.problem.domain}</p>
             {bundle.problem.narrative ? (
-              <p className="mt-1 text-sm text-muted">
+              <p className="text-muted mt-1 text-sm">
                 {bundle.problem.narrative}
               </p>
             ) : null}
           </div>
 
           <div>
-            <p className="mb-1 text-xs font-semibold uppercase text-muted">
+            <p className="text-muted mb-1 text-xs font-semibold uppercase">
               Objectives
             </p>
             {bundle.problem.objectives.length > 0 ? (
@@ -92,10 +92,10 @@ export default function TrinityCard({ payload }: TrinityCardProps) {
                 {bundle.problem.objectives.map((objective) => (
                   <li
                     key={objective.id}
-                    className="rounded-lg border border-line bg-panel p-2"
+                    className="border-line bg-panel rounded-lg border p-2"
                   >
                     <p className="font-mono text-xs">{objective.id}</p>
-                    <p className="text-xs text-muted">
+                    <p className="text-muted text-xs">
                       {objective.metricId} · {objective.direction} · target=
                       {objective.target}
                     </p>
@@ -103,29 +103,29 @@ export default function TrinityCard({ payload }: TrinityCardProps) {
                 ))}
               </ul>
             ) : (
-              <p className="text-sm text-muted">No objectives.</p>
+              <p className="text-muted text-sm">No objectives.</p>
             )}
           </div>
 
           <div className="grid grid-cols-2 gap-2 text-sm">
-            <div className="rounded-lg border border-line bg-panel p-2">
-              <p className="text-xs uppercase text-muted">Constraints</p>
+            <div className="border-line bg-panel rounded-lg border p-2">
+              <p className="text-muted text-xs uppercase">Constraints</p>
               <p className="font-semibold">
                 {bundle.problem.constraints.length}
               </p>
             </div>
-            <div className="rounded-lg border border-line bg-panel p-2">
-              <p className="text-xs uppercase text-muted">Stakeholders</p>
+            <div className="border-line bg-panel rounded-lg border p-2">
+              <p className="text-muted text-xs uppercase">Stakeholders</p>
               <p className="font-semibold">
                 {bundle.problem.stakeholders.length}
               </p>
             </div>
-            <div className="rounded-lg border border-line bg-panel p-2">
-              <p className="text-xs uppercase text-muted">KPIs</p>
+            <div className="border-line bg-panel rounded-lg border p-2">
+              <p className="text-muted text-xs uppercase">KPIs</p>
               <p className="font-semibold">{bundle.problem.kpiCount}</p>
             </div>
-            <div className="rounded-lg border border-line bg-panel p-2">
-              <p className="text-xs uppercase text-muted">Success Criteria</p>
+            <div className="border-line bg-panel rounded-lg border p-2">
+              <p className="text-muted text-xs uppercase">Success Criteria</p>
               <p className="font-semibold">
                 {bundle.problem.successCriteriaCount}
               </p>
@@ -133,13 +133,13 @@ export default function TrinityCard({ payload }: TrinityCardProps) {
           </div>
         </section>
 
-        <section className="bg-canvas/30 space-y-3 rounded-xl border border-line p-3">
+        <section className="bg-canvas/30 border-line space-y-3 rounded-xl border p-3">
           <div>
-            <p className="text-xs font-semibold uppercase text-muted">
+            <p className="text-muted text-xs font-semibold uppercase">
               PolicySpec (What)
             </p>
             <p className="text-sm font-semibold">{bundle.policy.id}</p>
-            <p className="text-xs text-muted">
+            <p className="text-muted text-xs">
               {bundle.policy.mechanismBindingCount} bindings ·{" "}
               {bundle.policy.parameterCount} parameters
             </p>
@@ -156,23 +156,23 @@ export default function TrinityCard({ payload }: TrinityCardProps) {
               ))}
             </div>
           ) : (
-            <p className="text-sm text-muted">No interventions.</p>
+            <p className="text-muted text-sm">No interventions.</p>
           )}
 
           {bundle.policy.notes.length > 0 ? (
-            <div className="rounded-lg border border-line bg-panel p-2 text-xs text-muted">
+            <div className="border-line bg-panel text-muted rounded-lg border p-2 text-xs">
               Notes: {bundle.policy.notes.join("; ")}
             </div>
           ) : null}
         </section>
 
-        <section className="bg-canvas/30 space-y-3 rounded-xl border border-line p-3">
+        <section className="bg-canvas/30 border-line space-y-3 rounded-xl border p-3">
           <div>
-            <p className="text-xs font-semibold uppercase text-muted">
+            <p className="text-muted text-xs font-semibold uppercase">
               ModelSpec (How)
             </p>
             <p className="text-sm font-semibold">{bundle.model.id}</p>
-            <p className="text-xs text-muted">
+            <p className="text-muted text-xs">
               {bundle.model.fidelityLevel ?? "fidelity unknown"}
               {bundle.model.timeSemanticsLabel
                 ? ` · ${bundle.model.timeSemanticsLabel}`
@@ -181,22 +181,22 @@ export default function TrinityCard({ payload }: TrinityCardProps) {
           </div>
 
           <div className="grid grid-cols-2 gap-2 text-sm">
-            <div className="rounded-lg border border-line bg-panel p-2">
-              <p className="text-xs uppercase text-muted">Agent Types</p>
+            <div className="border-line bg-panel rounded-lg border p-2">
+              <p className="text-muted text-xs uppercase">Agent Types</p>
               <p className="font-semibold">{bundle.model.agentTypeCount}</p>
             </div>
-            <div className="rounded-lg border border-line bg-panel p-2">
-              <p className="text-xs uppercase text-muted">Env Params</p>
+            <div className="border-line bg-panel rounded-lg border p-2">
+              <p className="text-muted text-xs uppercase">Env Params</p>
               <p className="font-semibold">
                 {bundle.model.environmentParamCount}
               </p>
             </div>
-            <div className="rounded-lg border border-line bg-panel p-2">
-              <p className="text-xs uppercase text-muted">Assumptions</p>
+            <div className="border-line bg-panel rounded-lg border p-2">
+              <p className="text-muted text-xs uppercase">Assumptions</p>
               <p className="font-semibold">{bundle.model.assumptions.length}</p>
             </div>
-            <div className="rounded-lg border border-line bg-panel p-2">
-              <p className="text-xs uppercase text-muted">Calibrated</p>
+            <div className="border-line bg-panel rounded-lg border p-2">
+              <p className="text-muted text-xs uppercase">Calibrated</p>
               <p className="font-semibold">
                 {bundle.model.calibrated === null
                   ? "-"
@@ -207,7 +207,7 @@ export default function TrinityCard({ payload }: TrinityCardProps) {
             </div>
           </div>
 
-          <div className="space-y-1 text-xs text-muted">
+          <div className="text-muted space-y-1 text-xs">
             <p className="truncate">
               data_snapshot_ref: {bundle.model.dataSnapshotRef ?? "-"}
             </p>
@@ -224,10 +224,10 @@ export default function TrinityCard({ payload }: TrinityCardProps) {
               {bundle.model.assumptions.slice(0, 5).map((assumption) => (
                 <div
                   key={assumption.id}
-                  className="rounded-lg border border-line bg-panel p-2"
+                  className="border-line bg-panel rounded-lg border p-2"
                 >
                   <p className="font-mono text-xs">{assumption.id}</p>
-                  <p className="text-xs text-muted">{assumption.type}</p>
+                  <p className="text-muted text-xs">{assumption.type}</p>
                   <p className="text-sm">{assumption.description}</p>
                 </div>
               ))}
@@ -236,8 +236,8 @@ export default function TrinityCard({ payload }: TrinityCardProps) {
         </section>
       </div>
 
-      <div className="space-y-2 border-t border-line pt-3">
-        <p className="text-xs font-semibold uppercase text-muted">
+      <div className="border-line space-y-2 border-t pt-3">
+        <p className="text-muted text-xs font-semibold uppercase">
           Trinity Diff
         </p>
         <TrinityDiff

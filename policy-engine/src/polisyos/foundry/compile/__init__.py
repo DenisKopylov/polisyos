@@ -7,6 +7,7 @@ inspect the package without paying the import cost of the compiler stack.
 from __future__ import annotations
 
 import importlib
+import sys
 from typing import Any
 
 __all__ = ["compile"]
@@ -25,3 +26,16 @@ def __getattr__(name: str) -> Any:
     value = getattr(module, attr_name)
     globals()[name] = value
     return value
+
+
+def _sync_parent_facade() -> None:
+    """Keep `polisyos.foundry.compile` submodule imports from shadowing the facade."""
+    parent = sys.modules.get("polisyos.foundry")
+    if parent is None:
+        return
+    facade_compile = __getattr__("compile")
+    parent.__dict__["compile"] = facade_compile
+    parent.__dict__["compile_program"] = facade_compile
+
+
+_sync_parent_facade()

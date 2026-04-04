@@ -41,7 +41,9 @@ type OfflineQueueContextValue = {
   items: OfflineQueueItem[];
 };
 
-const OfflineQueueContext = createContext<OfflineQueueContextValue | null>(null);
+const OfflineQueueContext = createContext<OfflineQueueContextValue | null>(
+  null,
+);
 
 function isPermanentQueueFailure(error: unknown) {
   if (!isRuntimeApiRequestError(error)) {
@@ -106,7 +108,9 @@ export function OfflineQueueProvider({ children }: PropsWithChildren) {
     void queryClient.invalidateQueries({
       queryKey: queryKeys.dataPromotionCandidates(),
     });
-    void queryClient.invalidateQueries({ queryKey: queryKeys.dataIndexStats() });
+    void queryClient.invalidateQueries({
+      queryKey: queryKeys.dataIndexStats(),
+    });
   }, [queryClient]);
 
   const requestBackgroundSync = useCallback(async () => {
@@ -120,9 +124,9 @@ export function OfflineQueueProvider({ children }: PropsWithChildren) {
 
     try {
       const registration = await navigator.serviceWorker.ready;
-      await (registration as SyncCapableServiceWorkerRegistration).sync?.register(
-        OFFLINE_QUEUE_SYNC_TAG,
-      );
+      await (
+        registration as SyncCapableServiceWorkerRegistration
+      ).sync?.register(OFFLINE_QUEUE_SYNC_TAG);
     } catch {
       // Best-effort only.
     }
@@ -279,10 +283,7 @@ export function OfflineQueueProvider({ children }: PropsWithChildren) {
     navigator.serviceWorker?.addEventListener?.("message", handleWorkerMessage);
 
     return () => {
-      document.removeEventListener(
-        "visibilitychange",
-        handleVisibilityChange,
-      );
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
       navigator.serviceWorker?.removeEventListener?.(
         "message",
         handleWorkerMessage,

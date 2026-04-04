@@ -20,7 +20,7 @@ export function FilterPanel({
         <div>
           <h3 className="text-base font-semibold">{title}</h3>
           {description ? (
-            <div className="mt-1 text-sm text-muted">{description}</div>
+            <div className="text-muted mt-1 text-sm">{description}</div>
           ) : null}
         </div>
         {actions}

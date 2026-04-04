@@ -51,10 +51,16 @@ test.describe("runtime-dashboard evidence flow", () => {
     await rejectButton.click();
     await expect(page.getByText(/status=rejected/i)).toBeVisible();
 
-    await page.getByTestId(/^evidence-artifact-/).first().click();
+    await page
+      .getByTestId(/^evidence-artifact-/)
+      .first()
+      .click();
     await expect(page).toHaveURL(/focus=artifact/);
 
-    await page.getByRole("link", { name: /Open artifact/i }).first().click();
+    await page
+      .getByRole("link", { name: /Open artifact/i })
+      .first()
+      .click();
     await waitForDashboardSurface(page, "artifact");
 
     await page.getByRole("button", { name: /Lineage/i }).click();

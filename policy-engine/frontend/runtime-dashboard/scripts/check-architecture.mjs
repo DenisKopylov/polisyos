@@ -97,11 +97,13 @@ function classifyModule(filePath) {
   return { kind: "other", relative };
 }
 
-function isFeatureBarrel(filePath) {
+function isFeaturePublicEntry(filePath) {
   const relative = relativePath(filePath);
   return (
     /^src\/features\/[^/]+\/index\.ts$/.test(relative) ||
-    /^src\/features\/[^/]+\/index\.tsx$/.test(relative)
+    /^src\/features\/[^/]+\/index\.tsx$/.test(relative) ||
+    /^src\/features\/[^/]+\/routes\.public\.ts$/.test(relative) ||
+    /^src\/features\/[^/]+\/routes\.public\.tsx$/.test(relative)
   );
 }
 
@@ -174,7 +176,7 @@ function validateImport(fromFile, toFile) {
     from.kind === "feature" &&
     to.kind === "feature" &&
     from.featureName !== to.featureName &&
-    !isFeatureBarrel(toFile)
+    !isFeaturePublicEntry(toFile)
   ) {
     return `feature "${from.featureName}" can import feature "${to.featureName}" only via its public index.ts barrel.`;
   }
@@ -182,7 +184,7 @@ function validateImport(fromFile, toFile) {
   if (
     from.kind === "app" &&
     to.kind === "feature" &&
-    !isFeatureBarrel(toFile)
+    !isFeaturePublicEntry(toFile)
   ) {
     return "app layer can import features only through their public index.ts barrel.";
   }

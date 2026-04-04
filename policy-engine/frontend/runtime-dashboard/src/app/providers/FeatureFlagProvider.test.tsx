@@ -36,12 +36,10 @@ function FeatureFlagProbe() {
   );
 }
 
-function renderFeatureFlags(
-  props?: {
-    overrides?: Record<string, boolean>;
-    remoteUrl?: string;
-  },
-) {
+function renderFeatureFlags(props?: {
+  overrides?: Record<string, boolean>;
+  remoteUrl?: string;
+}) {
   return render(
     <FeatureFlagProvider {...props}>
       <FeatureFlagProbe />
@@ -104,9 +102,9 @@ describe("FeatureFlagProvider", () => {
       "remote",
     );
     expect(screen.getByTestId("feature-flag-lex")).toHaveTextContent("false");
-    expect(window.localStorage.getItem(FEATURE_FLAG_MANIFEST_CACHE_KEY)).toContain(
-      "\"version\":2",
-    );
+    expect(
+      window.localStorage.getItem(FEATURE_FLAG_MANIFEST_CACHE_KEY),
+    ).toContain('"version":2');
     expect(trackMock).toHaveBeenCalledWith("feature-flags.remote.loaded", {
       flagCount: 1,
       source: "remote",

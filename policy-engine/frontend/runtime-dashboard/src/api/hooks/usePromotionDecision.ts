@@ -47,7 +47,9 @@ export async function approvePromotionRequest({
       "Failed to approve promotion candidate",
     );
   }
-  return promotionDecisionResponseSchema.parse(data) as PromotionDecisionResponse;
+  return promotionDecisionResponseSchema.parse(
+    data,
+  ) as PromotionDecisionResponse;
 }
 
 export async function rejectPromotionRequest({
@@ -69,7 +71,9 @@ export async function rejectPromotionRequest({
       "Failed to reject promotion candidate",
     );
   }
-  return promotionDecisionResponseSchema.parse(data) as PromotionDecisionResponse;
+  return promotionDecisionResponseSchema.parse(
+    data,
+  ) as PromotionDecisionResponse;
 }
 
 async function snapshotPromotionDecisionCache(

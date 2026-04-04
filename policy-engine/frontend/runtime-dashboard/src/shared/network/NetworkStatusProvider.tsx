@@ -26,17 +26,23 @@ export function readNetworkStatusSnapshot(): NetworkStatusSnapshot {
   const connection =
     typeof navigator === "undefined"
       ? null
-      : ((navigator as Navigator & {
-          connection?: { effectiveType?: string; saveData?: boolean };
-          mozConnection?: { effectiveType?: string; saveData?: boolean };
-          webkitConnection?: { effectiveType?: string; saveData?: boolean };
-        }).connection ??
-        (navigator as Navigator & {
-          mozConnection?: { effectiveType?: string; saveData?: boolean };
-        }).mozConnection ??
-        (navigator as Navigator & {
-          webkitConnection?: { effectiveType?: string; saveData?: boolean };
-        }).webkitConnection ??
+      : ((
+          navigator as Navigator & {
+            connection?: { effectiveType?: string; saveData?: boolean };
+            mozConnection?: { effectiveType?: string; saveData?: boolean };
+            webkitConnection?: { effectiveType?: string; saveData?: boolean };
+          }
+        ).connection ??
+        (
+          navigator as Navigator & {
+            mozConnection?: { effectiveType?: string; saveData?: boolean };
+          }
+        ).mozConnection ??
+        (
+          navigator as Navigator & {
+            webkitConnection?: { effectiveType?: string; saveData?: boolean };
+          }
+        ).webkitConnection ??
         null);
 
   return {
@@ -64,8 +70,8 @@ export function shouldSkipViewportPrefetch(snapshot: NetworkStatusSnapshot) {
 }
 
 export function NetworkStatusProvider({ children }: PropsWithChildren) {
-  const [snapshot, setSnapshot] = useState<NetworkStatusSnapshot>(
-    () => readNetworkStatusSnapshot(),
+  const [snapshot, setSnapshot] = useState<NetworkStatusSnapshot>(() =>
+    readNetworkStatusSnapshot(),
   );
 
   useEffect(() => {
@@ -74,12 +80,15 @@ export function NetworkStatusProvider({ children }: PropsWithChildren) {
     };
 
     const connection =
-      (navigator as Navigator & {
-        connection?: EventTarget;
-        mozConnection?: EventTarget;
-        webkitConnection?: EventTarget;
-      }).connection ??
-      (navigator as Navigator & { mozConnection?: EventTarget }).mozConnection ??
+      (
+        navigator as Navigator & {
+          connection?: EventTarget;
+          mozConnection?: EventTarget;
+          webkitConnection?: EventTarget;
+        }
+      ).connection ??
+      (navigator as Navigator & { mozConnection?: EventTarget })
+        .mozConnection ??
       (navigator as Navigator & { webkitConnection?: EventTarget })
         .webkitConnection ??
       null;

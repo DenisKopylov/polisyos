@@ -513,6 +513,11 @@ class SearchController:
         raw_vector = stage_b_result.get("policy_evaluation")
         if isinstance(raw_vector, PolicyEvaluationVector):
             return raw_vector
+        if hasattr(raw_vector, "model_dump"):
+            try:
+                raw_vector = raw_vector.model_dump(mode="python")
+            except Exception:
+                logger.debug("Failed to normalize policy_evaluation model payload.", exc_info=True)
         if isinstance(raw_vector, dict):
             try:
                 return PolicyEvaluationVector.model_validate(raw_vector)
@@ -533,6 +538,8 @@ class SearchController:
             if isinstance(raw_bundle, PolicyEvaluationBundle):
                 bundle = raw_bundle
             else:
+                if hasattr(raw_bundle, "model_dump"):
+                    raw_bundle = raw_bundle.model_dump(mode="python")
                 bundle = PolicyEvaluationBundle.model_validate(raw_bundle)
         except Exception:
             logger.debug("Failed to parse policy_evaluation_bundle payload.", exc_info=True)
@@ -545,14 +552,19 @@ class SearchController:
             )
             if isinstance(candidate_schema, PolicyCandidateSchema):
                 bundle = bundle.model_copy(update={"candidate": candidate_schema})
-            elif isinstance(candidate_schema, dict):
+            else:
                 try:
-                    bundle = bundle.model_copy(
-                        update={"candidate": PolicyCandidateSchema.model_validate(candidate_schema)}
-                    )
+                    if hasattr(candidate_schema, "model_dump"):
+                        candidate_payload = candidate_schema.model_dump(mode="python")
+                    else:
+                        candidate_payload = candidate_schema
+                    if isinstance(candidate_payload, dict):
+                        bundle = bundle.model_copy(
+                            update={"candidate": PolicyCandidateSchema.model_validate(candidate_payload)}
+                        )
                 except Exception:
                     logger.debug("Failed to parse policy candidate payload.", exc_info=True)
-            elif isinstance(candidate, dict) and "trinity_bundle" in candidate:
+            if bundle.candidate is None and isinstance(candidate, dict) and "trinity_bundle" in candidate:
                 try:
                     bundle = bundle.model_copy(
                         update={"candidate": PolicyCandidateSchema.model_validate(candidate)}

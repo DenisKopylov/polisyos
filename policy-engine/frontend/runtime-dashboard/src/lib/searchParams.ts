@@ -1,12 +1,7 @@
 import type { ZodType } from "zod";
 
 export type SearchParamInput = string | URLSearchParams | URL;
-export type SearchParamValue =
-  | string
-  | number
-  | boolean
-  | null
-  | undefined;
+export type SearchParamValue = string | number | boolean | null | undefined;
 
 export function getSearchParams(input: SearchParamInput) {
   if (typeof input === "string") {

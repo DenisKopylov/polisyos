@@ -90,15 +90,17 @@ describe("LexKnowledgeGraphPage", () => {
       refetch: vi.fn(),
     });
     useLexPipelineStatusMock.mockReset();
-    useLexPipelineStatusMock.mockImplementation((pipelineId: string | null) => ({
-      data: pipelineId
-        ? {
-            error_message: null,
-            progress_summary: { parse: 12 },
-            state: "running",
-          }
-        : undefined,
-    }));
+    useLexPipelineStatusMock.mockImplementation(
+      (pipelineId: string | null) => ({
+        data: pipelineId
+          ? {
+              error_message: null,
+              progress_summary: { parse: 12 },
+              state: "running",
+            }
+          : undefined,
+      }),
+    );
     useLexSearchMock.mockReset();
     useLexSearchMock.mockReturnValue({
       data: {
@@ -208,7 +210,9 @@ describe("LexKnowledgeGraphPage", () => {
     renderLexPage();
 
     expect(
-      screen.getByText('pages.lex.noKnowledgeGraph:{"outputDir":"data/lex_knowledge"}'),
+      screen.getByText(
+        'pages.lex.noKnowledgeGraph:{"outputDir":"data/lex_knowledge"}',
+      ),
     ).toBeInTheDocument();
     expect(screen.getByText(/stats failed/)).toBeInTheDocument();
     expect(screen.getByText(/search failed/)).toBeInTheDocument();

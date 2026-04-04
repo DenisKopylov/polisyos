@@ -13,8 +13,8 @@ export function ApiErrorAlert({ error, title }: ApiErrorAlertProps) {
   if (error instanceof RuntimeApiRequestError) {
     return (
       <div className="atlas-error">
-        <p className="font-semibold text-danger">{resolvedTitle}</p>
-        <p className="mt-1 text-danger">{error.detail}</p>
+        <p className="text-danger font-semibold">{resolvedTitle}</p>
+        <p className="text-danger mt-1">{error.detail}</p>
         <p className="text-danger/80 mt-2 font-mono text-xs">
           status={error.status} code={error.code}
           {error.requestId ? ` request_id=${error.requestId}` : ""}

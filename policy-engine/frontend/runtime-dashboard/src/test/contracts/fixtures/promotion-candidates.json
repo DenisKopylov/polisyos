@@ -13,10 +13,7 @@
       "profile_id": "worldbank_wdi",
       "source_lane": "explorelane",
       "confidence": 0.87,
-      "signals": [
-        "new_source",
-        "coverage_gap_closed"
-      ],
+      "signals": ["new_source", "coverage_gap_closed"],
       "status": "pending",
       "created_at": "2026-02-11T12:00:00Z",
       "metadata": {

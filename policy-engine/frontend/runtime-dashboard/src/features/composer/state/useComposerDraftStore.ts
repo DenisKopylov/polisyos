@@ -13,8 +13,7 @@ type ComposerDraftState = {
 export const useComposerDraftStore = create<ComposerDraftState>((set) => ({
   clearDraft: (key) => {
     set((state) => {
-      const nextDrafts = { ...state.drafts };
-      delete nextDrafts[key];
+      const { [key]: _removed, ...nextDrafts } = state.drafts;
       return { drafts: nextDrafts };
     });
   },

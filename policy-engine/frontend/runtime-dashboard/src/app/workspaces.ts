@@ -192,9 +192,10 @@ export function getWorkspaceNavigationWithOptions(
     isAllowed?: (workspace: WorkspaceConfig) => boolean;
   },
 ) {
-  return WORKSPACE_ORDER.map((key) => WORKSPACES[key]).filter((workspace) =>
-    isWorkspaceEnabled(workspace, flags) &&
-    (options?.isAllowed ? options.isAllowed(workspace) : true),
+  return WORKSPACE_ORDER.map((key) => WORKSPACES[key]).filter(
+    (workspace) =>
+      isWorkspaceEnabled(workspace, flags) &&
+      (options?.isAllowed ? options.isAllowed(workspace) : true),
   );
 }
 

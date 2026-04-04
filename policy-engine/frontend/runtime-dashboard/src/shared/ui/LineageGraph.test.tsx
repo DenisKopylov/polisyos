@@ -25,7 +25,9 @@ describe("LineageGraph", () => {
     );
 
     expect(
-      screen.getByText("Graph has 3 nodes, which is above render threshold (2)."),
+      screen.getByText(
+        "Graph has 3 nodes, which is above render threshold (2).",
+      ),
     ).toBeInTheDocument();
     expect(
       screen.getByText(

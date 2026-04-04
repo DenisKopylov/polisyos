@@ -18,7 +18,9 @@ test.describe("runtime-dashboard visual baselines", () => {
 
   test("command center shell", async ({ page }) => {
     await page.goto("/");
-    await expect(page.getByRole("heading", { name: "Command Center" })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Command Center" }),
+    ).toBeVisible();
     await expect(page.locator(".workspace-frame").first()).toHaveScreenshot(
       "command-center-shell.png",
       {
@@ -50,13 +52,10 @@ test.describe("runtime-dashboard visual baselines", () => {
     await expect(page.getByTestId("run-detail-page")).toBeVisible();
     await expect(
       page.getByTestId("run-detail-page").locator("aside").first(),
-    ).toHaveScreenshot(
-      "run-detail-summary.png",
-      {
-        animations: "disabled",
-        caret: "hide",
-      },
-    );
+    ).toHaveScreenshot("run-detail-summary.png", {
+      animations: "disabled",
+      caret: "hide",
+    });
   });
 
   test("evidence promotion focus", async ({ page }) => {

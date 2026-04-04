@@ -18,7 +18,7 @@ export const Default: Story = {
     <Card className="space-y-3">
       <p className="eyebrow">Runtime posture</p>
       <h3>Operator queue stays audit-first</h3>
-      <p className="text-sm text-muted">
+      <p className="text-muted text-sm">
         Atlas surfaces only current runtime signals and leaves provenance
         intact.
       </p>

@@ -7,7 +7,7 @@ from polisyos.foundry.methods.catalog.causal.causal_engine import (
     DataReadinessBlockedError,
 )
 from polisyos.foundry.methods.catalog.causal.protocols import DynamicTreatmentData, PanelObservationalData
-from polisyos.foundry.methods.catalog.causal.estimand_compiler import ExecutorGraph
+from polisyos.foundry.methods.catalog.causal.estimand_compiler import ExecutorGraph, ExecutorNode
 from polisyos.foundry.methods.catalog.causal.id_engine import (
     IdentificationResult, IdentificationStatus,
 )
@@ -342,6 +342,42 @@ class TestCausalEngineRun:
         readiness = load_data_readiness_report(store, bundle.data_readiness_report_ref)
         assert readiness.decision == "block"
         assert readiness.can_run_estimation is False
+
+    def test_run_readiness_preflight_allows_estimators_without_diagnostic_nodes(self):
+        engine = CausalEngine(registry=object())
+        executor_graph = ExecutorGraph(
+            nodes=(
+                ExecutorNode(
+                    node_id="twin_network",
+                    method_fqn="causal.structural.twin_network_query",
+                    method_version="1.0.0",
+                    params={},
+                    depends_on=(),
+                    reads_slots=(),
+                    writes_slots=(),
+                    is_nuisance=False,
+                    dataset_ref=None,
+                    skip_if_failed=(),
+                ),
+            ),
+            edges=(),
+            nuisance_schedule=(),
+            run_id="ctf",
+        )
+
+        readiness, outputs = engine._run_readiness_preflight(
+            executor_graph=executor_graph,
+            data_dict={
+                "X": np.array([0.0, 1.0, 0.0, 1.0]),
+                "Y": np.array([1.0, 2.0, 1.5, 2.5]),
+            },
+            sample_size=120,
+            fallback_data_available=True,
+        )
+
+        assert outputs == {}
+        assert readiness.decision == "warn"
+        assert readiness.can_run_estimation is True
 
 
 class TestCausalEngineTemporal:

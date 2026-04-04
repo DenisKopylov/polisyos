@@ -1424,12 +1424,10 @@ class CausalEngine:
 
         diagnostic_graph = self._diagnostic_only_executor_graph(executor_graph)
         if not diagnostic_graph.nodes:
+            # Counterfactual/twin-network executors intentionally skip G2 diagnostic
+            # injection, so the absence of diagnostic nodes is not itself a blocker.
             return (
-                _unknown_data_readiness_report(
-                    sample_size=sample_size,
-                    fallback_data_available=fallback_data_available,
-                    reason="diagnostic_nodes_missing",
-                ),
+                base_report,
                 {},
             )
         try:

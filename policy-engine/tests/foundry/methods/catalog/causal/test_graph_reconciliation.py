@@ -510,6 +510,8 @@ def test_compose_scm_fragments_rejects_unobserved_or_latent_pending_interfaces()
 
     assert result["composition_certificate"].status == "broken"
     assert result["composition_certificate"].structure_status == "invalid"
+    assert result["composition_certificate"].review_status == "pending_review"
+    assert result["needs_expert_review"] is True
     assert any("unobserved" in reason.lower() for reason in result["blocking_reasons"])
     assert {card.failure_type for card in result["failure_cards"]} >= {"unobserved_interface"}
 
@@ -637,6 +639,8 @@ def test_compose_scm_fragments_blocks_explicit_incompatible_pair_labels() -> Non
 
     assert result["composition_certificate"].status == "broken"
     assert result["composition_certificate"].structure_status == "invalid"
+    assert result["composition_certificate"].review_status == "clear"
+    assert result["needs_expert_review"] is False
     assert any("labor:rate <-> health:rate" in reason for reason in result["blocking_reasons"])
     assert {card.failure_type for card in result["failure_cards"]} >= {"alignment_incompatible"}
 

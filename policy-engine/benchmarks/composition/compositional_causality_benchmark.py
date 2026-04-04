@@ -134,6 +134,7 @@ def _run_spec(spec: CompositionBenchmarkSpec) -> dict[str, Any]:
 
     certificate = result["composition_certificate"]
     composed_graph = result.get("composed_graph")
+    caller_visible_composed_graph = composed_graph if certificate.status != "broken" else None
     query_statuses: dict[str, str] = {}
     query_reasons: dict[str, str] = {}
     query_traces: dict[str, Any] = {}
@@ -190,8 +191,12 @@ def _run_spec(spec: CompositionBenchmarkSpec) -> dict[str, Any]:
         "alignment_signature": normalize_alignment_report(report),
         "interface_mapping_signature": normalize_interface_mapping(mapping),
         "composition_certificate_signature": normalize_composition_certificate(certificate),
-        "composed_graph_signature": _graph_signature(composed_graph) if composed_graph is not None else None,
-        "persisted_artifacts": {"composed_graph": composed_graph is not None},
+        "composed_graph_signature": (
+            _graph_signature(caller_visible_composed_graph)
+            if caller_visible_composed_graph is not None
+            else None
+        ),
+        "persisted_artifacts": {"composed_graph": caller_visible_composed_graph is not None},
     }
 
     if spec.use_scientist_bridge:

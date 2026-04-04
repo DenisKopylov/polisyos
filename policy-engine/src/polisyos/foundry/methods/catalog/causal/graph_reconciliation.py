@@ -1069,12 +1069,11 @@ class ComposeSCMFragments:
         for certificate in payload.alignment_report.per_variable_certificates:
             if certificate.reviewer is AlignmentReviewerState.PENDING_REVIEW:
                 needs_expert_review = True
-            if (certificate.metadata or {}).get("coverage_reason") == "unmatched_exposed_interface":
-                needs_expert_review = True
 
         for _frag in payload.fragments:
             for _var_name in sorted(_frag.latent_summary):
                 if _var_name in _frag.interface_variables:
+                    needs_expert_review = True
                     blocking_reasons.append(f"unobserved interface variable: {_var_name}")
 
         structure_status = "valid"

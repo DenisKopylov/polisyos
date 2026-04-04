@@ -63,3 +63,35 @@ def test_compositional_causality_suite_is_registered() -> None:
 
     assert spec.suite_id == "capability_compositional_causality"
     assert spec.script_relpath == "composition/compositional_causality_benchmark.py"
+
+
+def test_scientist_bridge_case_normalizes_broken_graph_visibility() -> None:
+    spec = next(
+        item
+        for item in _MODULE._specs()
+        if item.name == "composition::disconnected_extra_fragment"
+    )
+
+    payload = _MODULE._run_spec(spec)
+
+    assert payload["mode"] == "scientist_bridge_compare"
+    assert payload["composition_status"] == "broken"
+    assert payload["scientist_equivalent"] is True
+    assert payload["composed_graph_signature"] is None
+    assert payload["persisted_artifacts"]["composed_graph"] is False
+
+
+def test_scientist_bridge_case_keeps_deferred_graph_visibility() -> None:
+    spec = next(
+        item
+        for item in _MODULE._specs()
+        if item.name == "composition::proxy_deferred_review"
+    )
+
+    payload = _MODULE._run_spec(spec)
+
+    assert payload["mode"] == "scientist_bridge_compare"
+    assert payload["composition_status"] == "deferred"
+    assert payload["scientist_equivalent"] is True
+    assert payload["composed_graph_signature"] is not None
+    assert payload["persisted_artifacts"]["composed_graph"] is True

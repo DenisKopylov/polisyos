@@ -24,6 +24,12 @@ from polisyos.ir.kernel import (
 )
 
 
+_PROPERTY_TEST_HEALTH_CHECKS = [
+    HealthCheck.function_scoped_fixture,
+    HealthCheck.too_slow,
+]
+
+
 @pytest.fixture
 def sum_slot_registry() -> SlotRegistry:
     return SlotRegistry(
@@ -94,7 +100,7 @@ class TestCommutativity:
         delta_b=st.floats(-1000, 1000, allow_nan=False, allow_infinity=False),
         base=st.floats(-1000, 1000, allow_nan=False, allow_infinity=False),
     )
-    @settings(max_examples=200, suppress_health_check=[HealthCheck.function_scoped_fixture])
+    @settings(max_examples=200, suppress_health_check=_PROPERTY_TEST_HEALTH_CHECKS)
     def test_sum_commutativity(self, sum_slot_registry, delta_a, delta_b, base):
         engine = MergeEngine(sum_slot_registry, DEFAULT_MERGE_RULE_REGISTRY)
         record_a = MergeRecord(node_id="a", slot_id="test.sum_slot", delta=delta_a)
@@ -115,7 +121,7 @@ class TestCommutativity:
         priority_a=st.integers(0, 100),
         priority_b=st.integers(0, 100),
     )
-    @settings(max_examples=200, suppress_health_check=[HealthCheck.function_scoped_fixture])
+    @settings(max_examples=200, suppress_health_check=_PROPERTY_TEST_HEALTH_CHECKS)
     def test_priority_commutativity(
         self, priority_slot_registry, value_a, value_b, priority_a, priority_b
     ):
@@ -144,7 +150,7 @@ class TestAssociativity:
         delta_c=st.floats(-1000, 1000, allow_nan=False, allow_infinity=False),
         base=st.floats(-1000, 1000, allow_nan=False, allow_infinity=False),
     )
-    @settings(max_examples=200, suppress_health_check=[HealthCheck.function_scoped_fixture])
+    @settings(max_examples=200, suppress_health_check=_PROPERTY_TEST_HEALTH_CHECKS)
     def test_sum_associativity(self, sum_slot_registry, delta_a, delta_b, delta_c, base):
         engine = MergeEngine(sum_slot_registry, DEFAULT_MERGE_RULE_REGISTRY)
 
@@ -185,7 +191,7 @@ class TestAssociativity:
         ),
         priorities=st.lists(st.integers(0, 1000), min_size=3, max_size=3, unique=True),
     )
-    @settings(max_examples=150, suppress_health_check=[HealthCheck.function_scoped_fixture])
+    @settings(max_examples=150, suppress_health_check=_PROPERTY_TEST_HEALTH_CHECKS)
     def test_priority_associativity(self, priority_slot_registry, values, priorities):
         engine = MergeEngine(priority_slot_registry, DEFAULT_MERGE_RULE_REGISTRY)
         record_a = MergeRecord(
@@ -218,7 +224,7 @@ class TestIdempotency:
         value=st.floats(-1000, 1000, allow_nan=False, allow_infinity=False),
         priority=st.integers(0, 100),
     )
-    @settings(max_examples=100, suppress_health_check=[HealthCheck.function_scoped_fixture])
+    @settings(max_examples=100, suppress_health_check=_PROPERTY_TEST_HEALTH_CHECKS)
     def test_priority_idempotency(self, priority_slot_registry, value, priority):
         engine = MergeEngine(priority_slot_registry, DEFAULT_MERGE_RULE_REGISTRY)
         record = MergeRecord(

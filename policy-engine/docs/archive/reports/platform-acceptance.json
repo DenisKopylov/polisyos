@@ -1,0 +1,288 @@
+{
+  "blockers": [],
+  "checks": [
+    {
+      "check_id": "toolchain-consistency",
+      "detail": "Python 3.14.x, Node 22.x, and uv 0.9.21 stay aligned across local docs and composite actions.",
+      "evidence": [
+        "/Users/deniskopylov/polisyos/policy-engine/.python-version",
+        "/Users/deniskopylov/polisyos/policy-engine/.nvmrc",
+        "/Users/deniskopylov/polisyos/policy-engine/docs/reference/environment-matrix.md",
+        "/Users/deniskopylov/polisyos/.github/actions/setup-policy-engine-python/action.yml",
+        "/Users/deniskopylov/polisyos/.github/actions/setup-runtime-dashboard/action.yml"
+      ],
+      "kind": "automated",
+      "status": "pass",
+      "title": "Toolchain consistency"
+    },
+    {
+      "check_id": "repo-root-coherence",
+      "detail": "Root and product READMEs still agree on the workspace gateway vs canonical product-root split.",
+      "evidence": [
+        "/Users/deniskopylov/polisyos/README.md",
+        "/Users/deniskopylov/polisyos/policy-engine/README.md",
+        "/Users/deniskopylov/polisyos/policy-engine/docs/adr/0096-canonical-product-root-and-workspace-boundary.md"
+      ],
+      "kind": "automated",
+      "status": "pass",
+      "title": "Repo root coherence"
+    },
+    {
+      "check_id": "ownership-coverage",
+      "detail": "Ownership is covered in both repo control plane and product docs.",
+      "evidence": [
+        "/Users/deniskopylov/polisyos/.github/CODEOWNERS",
+        "/Users/deniskopylov/polisyos/policy-engine/docs/reference/ownership.md",
+        "/Users/deniskopylov/polisyos/policy-engine/docs/reference/quality-gates.md"
+      ],
+      "kind": "automated",
+      "status": "pass",
+      "title": "Ownership coverage"
+    },
+    {
+      "check_id": "merge-governance",
+      "detail": "Ruleset, merge-governance doc, PR template, labels taxonomy, and ratchet enforcement are all repo-tracked.",
+      "evidence": [
+        "/Users/deniskopylov/polisyos/.github/repository-rulesets/main.yml",
+        "/Users/deniskopylov/polisyos/policy-engine/docs/reference/merge-governance.md",
+        "/Users/deniskopylov/polisyos/.github/PULL_REQUEST_TEMPLATE.md",
+        "/Users/deniskopylov/polisyos/.github/labels.yml",
+        "/Users/deniskopylov/polisyos/policy-engine/tools/ci/check_phase7_ratchet.py",
+        "/Users/deniskopylov/polisyos/.github/workflows/abi.yml"
+      ],
+      "kind": "automated",
+      "status": "pass",
+      "title": "Repository ruleset and merge governance"
+    },
+    {
+      "check_id": "required-checks",
+      "detail": "Required PR gates stay consistent between ruleset, docs, and workflow files.",
+      "evidence": [
+        "/Users/deniskopylov/polisyos/.github/repository-rulesets/main.yml",
+        "/Users/deniskopylov/polisyos/policy-engine/docs/how-to/operate-ci-cd-platform.md",
+        "/Users/deniskopylov/polisyos/.github/workflows/abi.yml",
+        "/Users/deniskopylov/polisyos/.github/workflows/ci.yml"
+      ],
+      "kind": "automated",
+      "status": "pass",
+      "title": "Required checks"
+    },
+    {
+      "check_id": "release-path",
+      "detail": "Release workflow, release policy, immutable fragment snapshots, and release helpers are wired together.",
+      "evidence": [
+        "/Users/deniskopylov/polisyos/.github/workflows/release.yml",
+        "/Users/deniskopylov/polisyos/policy-engine/docs/how-to/release-policy.md",
+        "/Users/deniskopylov/polisyos/policy-engine/release-fragments/README.md",
+        "/Users/deniskopylov/polisyos/policy-engine/release-fragments/template.toml",
+        "/Users/deniskopylov/polisyos/policy-engine/tools/release/stage_release_snapshot.py",
+        "/Users/deniskopylov/polisyos/policy-engine/tools/release/build_release_notes.py",
+        "/Users/deniskopylov/polisyos/policy-engine/tools/release/run_release_canary.py"
+      ],
+      "kind": "automated",
+      "status": "pass",
+      "title": "Release path"
+    },
+    {
+      "check_id": "runbook-presence",
+      "detail": "Core incident, restore, docs, release, and benchmark runbooks are present.",
+      "evidence": [
+        "/Users/deniskopylov/polisyos/policy-engine/docs/runbooks/index.md",
+        "/Users/deniskopylov/polisyos/policy-engine/docs/runbooks/dependency-upgrade-regression.md",
+        "/Users/deniskopylov/polisyos/policy-engine/docs/runbooks/runtime-api-outage.md",
+        "/Users/deniskopylov/polisyos/policy-engine/docs/runbooks/broken-contract-generation.md",
+        "/Users/deniskopylov/polisyos/policy-engine/docs/runbooks/artifact-signing-sbom-failure.md",
+        "/Users/deniskopylov/polisyos/policy-engine/docs/runbooks/canary-rollback-or-promotion-failure.md",
+        "/Users/deniskopylov/polisyos/policy-engine/docs/runbooks/replay-or-restore.md",
+        "/Users/deniskopylov/polisyos/policy-engine/docs/runbooks/retained-artifact-recovery.md",
+        "/Users/deniskopylov/polisyos/policy-engine/docs/runbooks/docs-publication-failure.md",
+        "/Users/deniskopylov/polisyos/policy-engine/docs/runbooks/benchmark-regression-triage.md"
+      ],
+      "kind": "automated",
+      "status": "pass",
+      "title": "Runbook presence"
+    },
+    {
+      "check_id": "bootstrap-doctor-quality",
+      "detail": "Bootstrap, doctor, verify, ci-parity, acceptance-audit, and the contributor journey docs are in place.",
+      "evidence": [
+        "/Users/deniskopylov/polisyos/policy-engine/scripts/bootstrap",
+        "/Users/deniskopylov/polisyos/policy-engine/scripts/doctor",
+        "/Users/deniskopylov/polisyos/policy-engine/scripts/verify",
+        "/Users/deniskopylov/polisyos/policy-engine/scripts/ci-parity",
+        "/Users/deniskopylov/polisyos/policy-engine/scripts/acceptance-audit",
+        "/Users/deniskopylov/polisyos/policy-engine/tools/workspace/README.md",
+        "/Users/deniskopylov/polisyos/policy-engine/docs/how-to/install.md",
+        "/Users/deniskopylov/polisyos/policy-engine/docs/reference/contributor-start-here.md",
+        "/Users/deniskopylov/polisyos/policy-engine/docs/how-to/onboarding/index.md"
+      ],
+      "kind": "automated",
+      "status": "pass",
+      "title": "Bootstrap and doctor quality"
+    },
+    {
+      "check_id": "dependency-freshness",
+      "detail": "Dependency freshness is covered by Renovate, nightly workflow audits, and repo-tracked docs.",
+      "evidence": [
+        "/Users/deniskopylov/polisyos/renovate.json",
+        "/Users/deniskopylov/polisyos/.github/workflows/frontend-nightly.yml",
+        "/Users/deniskopylov/polisyos/policy-engine/tools/ci/check_action_freshness.py",
+        "/Users/deniskopylov/polisyos/policy-engine/docs/how-to/operate-ci-cd-platform.md"
+      ],
+      "kind": "automated",
+      "status": "pass",
+      "title": "Dependency freshness process"
+    },
+    {
+      "check_id": "workflow-identity",
+      "detail": "Workflow policy checks pass and the trust model is documented.",
+      "evidence": [
+        "/Users/deniskopylov/polisyos/policy-engine/docs/how-to/operate-ci-cd-platform.md",
+        "/Users/deniskopylov/polisyos/.github/workflows",
+        "/Users/deniskopylov/polisyos/.github/actions"
+      ],
+      "kind": "automated",
+      "status": "pass",
+      "title": "Workflow identity hardening and runner trust model"
+    },
+    {
+      "check_id": "config-secrets-governance",
+      "detail": "Config and secrets governance is documented with safe example env files.",
+      "evidence": [
+        "/Users/deniskopylov/polisyos/policy-engine/docs/reference/configuration-profiles.md",
+        "/Users/deniskopylov/polisyos/policy-engine/.env.example",
+        "/Users/deniskopylov/polisyos/policy-engine/frontend/runtime-dashboard/.env.example"
+      ],
+      "kind": "automated",
+      "status": "pass",
+      "title": "Config and secrets governance"
+    },
+    {
+      "check_id": "generated-artifacts",
+      "detail": "Generated artifact lifecycle is tracked in repo policy and automation.",
+      "evidence": [
+        "/Users/deniskopylov/polisyos/policy-engine/docs/reference/generated-artifacts.md",
+        "/Users/deniskopylov/polisyos/policy-engine/architecture/generated_artifacts.toml",
+        "/Users/deniskopylov/polisyos/policy-engine/tools/architecture/guardrails.py"
+      ],
+      "kind": "automated",
+      "status": "pass",
+      "title": "Generated artifact lifecycle"
+    },
+    {
+      "check_id": "external-security-signals",
+      "detail": "External supply-chain posture is covered by Scorecard, release provenance/signing, and SECURITY.md.",
+      "evidence": [
+        "/Users/deniskopylov/polisyos/.github/workflows/frontend-nightly.yml",
+        "/Users/deniskopylov/polisyos/.github/workflows/release.yml",
+        "/Users/deniskopylov/polisyos/SECURITY.md"
+      ],
+      "kind": "automated",
+      "status": "pass",
+      "title": "External security signals"
+    },
+    {
+      "check_id": "delivery-performance-signals",
+      "detail": "Platform scorecard keeps throughput and instability metrics visible.",
+      "evidence": [
+        "/Users/deniskopylov/polisyos/policy-engine/docs/reference/operations/handoff-and-platform-review.md"
+      ],
+      "kind": "automated",
+      "status": "pass",
+      "title": "Delivery-performance signals"
+    },
+    {
+      "check_id": "retention-restore-posture",
+      "detail": "Retention policy and recovery runbooks cover restore posture.",
+      "evidence": [
+        "/Users/deniskopylov/polisyos/policy-engine/docs/reference/operations/retention-and-recovery.md",
+        "/Users/deniskopylov/polisyos/policy-engine/docs/runbooks/replay-or-restore.md",
+        "/Users/deniskopylov/polisyos/policy-engine/docs/runbooks/retained-artifact-recovery.md"
+      ],
+      "kind": "automated",
+      "status": "pass",
+      "title": "Retention and restore posture"
+    },
+    {
+      "check_id": "observability-ownership",
+      "detail": "Observability signals stay routed through named owners and runbooks.",
+      "evidence": [
+        "/Users/deniskopylov/polisyos/policy-engine/docs/reference/operations/observability-topology.md"
+      ],
+      "kind": "automated",
+      "status": "pass",
+      "title": "Observability ownership"
+    },
+    {
+      "check_id": "manual.clean_machine_bootstrap",
+      "detail": "Re-clone the repo on a clean machine and run ./scripts/bootstrap -> ./scripts/doctor -> ./scripts/verify. Notes: Clean checkout rehearsal passed on Hetzner from detached HEAD ccde518 in /root/polisyos-clean-next: ./scripts/bootstrap --profile runtime --skip-hooks completed, Playwright Chromium launched, lockfile/schema/runtime-contract checks passed, and doctor reported a ready contributor machine.",
+      "evidence": [
+        "docs/archive/reports/platform-acceptance.manual.toml",
+        "docs/archive/reports/platform-acceptance-manual.md"
+      ],
+      "kind": "manual",
+      "status": "pass",
+      "title": "Clean-machine bootstrap rehearsal"
+    },
+    {
+      "check_id": "manual.backend_walkthrough",
+      "detail": "Follow docs/how-to/onboarding/backend-engineer.md on a representative contributor path. Notes: Backend walkthrough passed from clean checkout ccde518 on Hetzner: ./scripts/verify --skip-doctor --pytest-workers 16 completed the non-benchmark pytest slice with 7586 passed / 142 skipped and the benchmark slice with 6 passed / 7 skipped. The compositional-causality harness, twin-network counterfactual pipeline, and merge-determinism property tests now pass under 16-way xdist.",
+      "evidence": [
+        "docs/archive/reports/platform-acceptance.manual.toml",
+        "docs/archive/reports/platform-acceptance-manual.md"
+      ],
+      "kind": "manual",
+      "status": "pass",
+      "title": "Backend contributor walkthrough"
+    },
+    {
+      "check_id": "manual.frontend_walkthrough",
+      "detail": "Follow docs/how-to/onboarding/frontend-engineer.md on a representative contributor path. Notes: Frontend walkthrough passed from clean checkout ccde518 as part of ./scripts/verify --skip-doctor --pytest-workers 16: npm typecheck, npm lint, npm format check, npm architecture check, npm contract fixtures, and vitest component tests all passed (99 files, 258 tests).",
+      "evidence": [
+        "docs/archive/reports/platform-acceptance.manual.toml",
+        "docs/archive/reports/platform-acceptance-manual.md"
+      ],
+      "kind": "manual",
+      "status": "pass",
+      "title": "Frontend contributor walkthrough"
+    },
+    {
+      "check_id": "manual.platform_walkthrough",
+      "detail": "Follow docs/how-to/onboarding/platform-ops-engineer.md and exercise bootstrap/doctor/verify surfaces. Notes: Platform walkthrough passed from clean checkout ccde518: full ./scripts/verify --skip-doctor --pytest-workers 16 was green, and ops/docker-compose.observability.yml was exercised with docker compose up/down under COMPOSE_PROJECT_NAME=polisyos-clean-obs. Prometheus /-/ready returned \"Prometheus Server is Ready.\" and Grafana /api/health returned database=ok, version=10.4.3 before the stack was torn down.",
+      "evidence": [
+        "docs/archive/reports/platform-acceptance.manual.toml",
+        "docs/archive/reports/platform-acceptance-manual.md"
+      ],
+      "kind": "manual",
+      "status": "pass",
+      "title": "Platform contributor walkthrough"
+    },
+    {
+      "check_id": "manual.release_dry_run",
+      "detail": "Exercise the local release-note/version/canary path or the GitHub release workflow dry run. Notes: Release version validation, curated release-note build with metadata JSON, and live runtime canary all passed from clean checkout ccde518. The canary and release-notes artifacts were written to /tmp/polisyos-release-*.{md,json} on the Hetzner runner.",
+      "evidence": [
+        "docs/archive/reports/platform-acceptance.manual.toml",
+        "docs/archive/reports/platform-acceptance-manual.md",
+        "docs/archive/reports/platform-release-dry-run-notes.md",
+        "docs/archive/reports/platform-release-dry-run-notes.json",
+        "docs/archive/reports/platform-release-canary.md",
+        "docs/archive/reports/platform-release-canary.json"
+      ],
+      "kind": "manual",
+      "status": "pass",
+      "title": "Release rehearsal or dry run"
+    },
+    {
+      "check_id": "manual.incident_tabletop",
+      "detail": "Walk one critical operational path from alert to runbook to postmortem follow-up. Notes: Reviewed the runtime alert-to-runbook path through observability-topology.md and runtime-api-outage.md, including timeline capture, rollback, escalation, and postmortem sections.",
+      "evidence": [
+        "docs/archive/reports/platform-acceptance.manual.toml",
+        "docs/archive/reports/platform-acceptance-manual.md"
+      ],
+      "kind": "manual",
+      "status": "pass",
+      "title": "Incident / runbook tabletop"
+    }
+  ],
+  "pending": []
+}

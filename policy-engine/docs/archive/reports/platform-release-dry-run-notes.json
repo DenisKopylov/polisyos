@@ -1,0 +1,15 @@
+{
+  "curated_section_counts": {
+    "api": 1,
+    "compatibility": 1,
+    "limitations": 1,
+    "migration": 1,
+    "surface_classification": 1
+  },
+  "date": "2026-04-04",
+  "fragment_count": 1,
+  "fragments": [
+    "/root/polisyos-clean-next/policy-engine/release-fragments/releases/0.1.0/2026-04-03-phase-3-platform.toml"
+  ],
+  "version": "0.1.0"
+}

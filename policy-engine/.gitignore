@@ -75,8 +75,16 @@ docs/*
 !docs/archive/
 !docs/archive/plans/
 !docs/archive/plans/**
-docs/archive/reports/
 docs/archive/reports/**
+!docs/archive/reports/
+!docs/archive/reports/platform-acceptance-manual.md
+!docs/archive/reports/platform-acceptance.json
+!docs/archive/reports/platform-acceptance.manual.toml
+!docs/archive/reports/platform-acceptance.md
+!docs/archive/reports/platform-release-canary.json
+!docs/archive/reports/platform-release-canary.md
+!docs/archive/reports/platform-release-dry-run-notes.json
+!docs/archive/reports/platform-release-dry-run-notes.md
 !docs/connectors/
 !docs/connectors/**
 !docs/contracts/

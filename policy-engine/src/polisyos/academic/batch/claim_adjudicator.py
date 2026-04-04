@@ -4,9 +4,12 @@ from __future__ import annotations
 
 import asyncio
 import json
+import logging
 from collections import defaultdict
 from datetime import UTC, datetime
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 from polisyos.academic.batch.claim_ids import stable_claim_id
 from polisyos.academic.batch.config import AcademicBatchConfig
@@ -415,6 +418,10 @@ Method spans:
 {json.dumps(method_spans, ensure_ascii=False)}
 """.strip()
     response = await pool.chat_json(model=model, prompt=prompt, temperature=0.0)
+    if response.http_status != 200 or not response.parsed:
+        logger.warning("LLM FAIL (status=%s, error=%s) %s — fallback",
+                       response.http_status, response.error_class, result.openalex_id)
+        return _fallback_adjudication(result, claim)
     payload = _normalize_adjudication_payload(
         result=result,
         claim=claim,
@@ -422,11 +429,16 @@ Method spans:
         pass_index=pass_index,
         total_passes=1,
     )
-    return ClaimAdjudicationResult.model_validate(payload)
+    adj = ClaimAdjudicationResult.model_validate(payload)
+    logger.info("LLM OK %s validity=%.2f publish=%s latency=%.0fms",
+                result.openalex_id, adj.claim_validity_score, adj.publishable_edge, response.latency_ms)
+    return adj
 
 
 async def run_claim_adjudicate(config: AcademicBatchConfig) -> dict[str, int | float]:
-    """Run claim adjudicate."""
+    """Run claim adjudicate with checkpoint support."""
+    import time as _time
+    from pathlib import Path
     from polisyos.academic.batch.resolve_extract import GonkaMultiKeyPool
 
     started_at = datetime.now(UTC).isoformat()
@@ -447,51 +459,136 @@ async def run_claim_adjudicate(config: AcademicBatchConfig) -> dict[str, int | f
     llm_calls = 0
     deterministic_fallbacks = 0
 
+    total_claims = sum(len(r.causal_claims) for r in rows)
+
+    # --- Checkpoint: load previously completed claim_ids ---
+    checkpoint_path = Path(str(config.claim_adjudication_passes_path) + ".checkpoint.jsonl")
+    done_claim_ids: set[str] = set()
+    if checkpoint_path.exists():
+        with open(checkpoint_path, "r", encoding="utf-8") as fh:
+            for line in fh:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    obj = json.loads(line)
+                    cid = str(obj.get("claim_id") or "")
+                    if cid:
+                        done_claim_ids.add(cid)
+                        pass_rows.append(obj)
+                        if obj.get("adjudication_notes") == "fallback_adjudication_without_llm":
+                            deterministic_fallbacks += 1
+                        else:
+                            llm_calls += 1
+                except json.JSONDecodeError:
+                    continue
+        logger.info("claim_adjudicate: resumed from checkpoint — %d claims already done (%d llm, %d fallback)",
+                    len(done_claim_ids), llm_calls, deterministic_fallbacks)
+
+    logger.info("claim_adjudicate: %d articles, %d claims, keys=%d",
+                len(rows), total_claims, len(config.gonka_api_keys))
+
     if not config.gonka_api_keys:
         for result in rows:
             for claim in result.causal_claims:
+                cid = _claim_id_for(result, claim)
+                if cid in done_claim_ids:
+                    continue
                 fallback = _fallback_adjudication(result, claim)
-                pass_rows.append({**fallback.model_dump(mode="json"), "pass_index": 0})
+                row = {**fallback.model_dump(mode="json"), "pass_index": 0}
+                pass_rows.append(row)
                 deterministic_fallbacks += 1
+        logger.info("claim_adjudicate: all %d claims adjudicated via deterministic fallback", deterministic_fallbacks)
     else:
         async with GonkaMultiKeyPool(config) as pool:
+            logger.info("claim_adjudicate: pool started with %d clients, aggregate RPS=%.1f",
+                        pool.client_count, pool.theoretical_aggregate_rps)
             sem = asyncio.Semaphore(config.article_max_concurrent_llm)
+            completed_count = len(done_claim_ids)
+            batch_size = 200
+            checkpoint_every = 100  # flush to disk every N completions
+            checkpoint_pending = 0
+            t0 = _time.monotonic()
+
+            # Open checkpoint file for appending new results
+            checkpoint_fh = open(checkpoint_path, "a", encoding="utf-8")
 
             async def _run_one(pass_index: int, result: ArticleExtractionResult, claim: CausalClaim) -> tuple[int, ClaimAdjudicationResult]:
                 if not claim.supporting_spans:
                     return pass_index, _fallback_adjudication(result, claim)
                 async with sem:
-                    adjudication = await _adjudicate_with_pool(
-                        pool=pool,
-                        model=config.article_extraction_model,
-                        result=result,
-                        claim=claim,
-                        pass_index=pass_index,
-                        search_config=search_config,
-                    )
+                    try:
+                        adjudication = await _adjudicate_with_pool(
+                            pool=pool,
+                            model=config.article_extraction_model,
+                            result=result,
+                            claim=claim,
+                            pass_index=pass_index,
+                            search_config=search_config,
+                        )
+                    except Exception:
+                        logger.warning("LLM exception for %s — fallback", result.openalex_id, exc_info=True)
+                        adjudication = _fallback_adjudication(result, claim)
                 return pass_index, adjudication
 
-            tasks: list[asyncio.Task[tuple[int, ClaimAdjudicationResult]]] = []
+            # Build work items — 1 pass, skip already-done claims
+            work_items: list[tuple[int, ArticleExtractionResult, CausalClaim]] = []
             for result in rows:
                 for claim in result.causal_claims:
-                    for pass_index in range(max(1, int(search_config.passes))):
-                        tasks.append(asyncio.create_task(_run_one(pass_index, result, claim)))
+                    cid = _claim_id_for(result, claim)
+                    if cid in done_claim_ids:
+                        continue
+                    work_items.append((0, result, claim))
 
-            for task in asyncio.as_completed(tasks):
-                pass_index, adjudication = await task
-                row = adjudication.model_dump(mode="json")
-                row["pass_index"] = pass_index
-                pass_rows.append(row)
-                if adjudication.adjudication_notes == "fallback_adjudication_without_llm":
-                    deterministic_fallbacks += 1
-                else:
-                    llm_calls += 1
+            total_items = len(work_items) + len(done_claim_ids)
+            logger.info("claim_adjudicate: %d remaining work items (of %d total), batches of %d",
+                        len(work_items), total_items, batch_size)
 
+            try:
+                for batch_start in range(0, len(work_items), batch_size):
+                    batch = work_items[batch_start:batch_start + batch_size]
+                    tasks = [asyncio.create_task(_run_one(pi, res, cl)) for pi, res, cl in batch]
+                    for task in asyncio.as_completed(tasks):
+                        pass_index, adjudication = await task
+                        row = adjudication.model_dump(mode="json")
+                        row["pass_index"] = pass_index
+                        pass_rows.append(row)
+
+                        # Write to checkpoint immediately
+                        checkpoint_fh.write(json.dumps(row, ensure_ascii=False) + "\n")
+                        checkpoint_pending += 1
+                        if checkpoint_pending >= checkpoint_every:
+                            checkpoint_fh.flush()
+                            checkpoint_pending = 0
+
+                        if adjudication.adjudication_notes == "fallback_adjudication_without_llm":
+                            deterministic_fallbacks += 1
+                        else:
+                            llm_calls += 1
+                        completed_count += 1
+
+                        if completed_count % 100 == 0:
+                            elapsed = _time.monotonic() - t0
+                            rate = (completed_count - len(done_claim_ids)) / max(elapsed, 1.0)
+                            remaining = (total_items - completed_count) / max(rate, 0.01)
+                            logger.info("progress: %d/%d (llm=%d fallback=%d) %.1f/s ETA %.0fm",
+                                        completed_count, total_items, llm_calls, deterministic_fallbacks,
+                                        rate, remaining / 60.0)
+            finally:
+                checkpoint_fh.flush()
+                checkpoint_fh.close()
+
+    # Write final sorted results
     with open(config.claim_adjudication_passes_path, "w", encoding="utf-8") as fh:
         for row in sorted(pass_rows, key=lambda item: (str(item.get("claim_id") or ""), int(item.get("pass_index") or 0))):
             fh.write(json.dumps(row, ensure_ascii=False) + "\n")
 
-    metrics = {
+    # Clean up checkpoint after successful completion
+    if checkpoint_path.exists():
+        checkpoint_path.unlink()
+        logger.info("claim_adjudicate: checkpoint file removed after successful completion")
+
+    metrics: dict[str, int | float] = {
         "claims": len({str(row.get("claim_id") or "") for row in pass_rows}),
         "passes": len(pass_rows),
         "llm_calls": llm_calls,
@@ -505,6 +602,7 @@ async def run_claim_adjudicate(config: AcademicBatchConfig) -> dict[str, int | f
         artifacts=[config.claim_adjudication_passes_path],
         started_at=started_at,
     )
+    logger.info("claim_adjudicate DONE: %d claims, %d llm, %d fallback", metrics["claims"], llm_calls, deterministic_fallbacks)
     return metrics
 
 
